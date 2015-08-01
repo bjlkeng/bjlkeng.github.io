@@ -26,7 +26,9 @@ SITE_URL = "http://satisficing.briankeng.com/"
 # If not set, defaults to SITE_URL
 # BASE_URL = "http://satisficing.briankeng.com/"
 BLOG_EMAIL = "brian@briankeng.com"
-BLOG_DESCRIPTION = "Programming, Data, Math and other interesting topics."  # (translatable)
+BLOG_DESCRIPTION = "Understanding programming, data, and math with satisfactory outcomes."  
+
+# (translatable)
 
 # Nikola is multilingual!
 #
@@ -130,7 +132,7 @@ NAVIGATION_LINKS = {
 }
 
 # Name of the theme to use.
-THEME = "bootstrap3"
+THEME = "bktheme"
 
 # Below this point, everything is optional
 
