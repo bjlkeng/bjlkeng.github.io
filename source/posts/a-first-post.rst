@@ -10,7 +10,7 @@
 Hi all, this the first post in my technical blog.  For a long time I've resisted making
 a blog about anything technical because well, to be frank, I didn't feel like I
 was qualified.  What makes me more qualified now?  Nothing really, I'm just a bit less
-afraid of being wrong (`Duty Calls <https://xkcd.com/386/>`_).
+afraid of `being wrong <https://xkcd.com/386/>`_.
 
 So maybe a good place to start is what I used to setup this blog.  For my personal
 blog (`www.briankeng.com <http://www.briankeng.com/>`_), where I discuss random
