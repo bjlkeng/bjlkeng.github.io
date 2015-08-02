@@ -1,0 +1,9 @@
+build
+output/
+cache/
+*.pyc
+*.db
+*.swp
+*.swo
+_site/
+.doit.db.db
