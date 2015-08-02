@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Bounded Rationality</title><link>http://satisficing.briankeng.com/</link><description>Understanding programming, data, and math to a satisfactory degree.</description><atom:link href="http://satisficing.briankeng.com/rss.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Sun, 02 Aug 2015 22:11:46 GMT</lastBuildDate><generator>https://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>A First Post</title><link>http://satisficing.briankeng.com/posts/a-first-post/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Hi all, this the first post in my technical blog.  For a long time I've resisted making
+a blog about anything technical because, to be frank, I didn't feel like I
+was qualified.  What makes me more qualified now?  Nothing really, I'm just a bit less
+afraid of &lt;a class="reference external" href="https://xkcd.com/386/"&gt;being wrong&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;So maybe a good place to start is what I used to setup this blog and what the
+domain/title mean.
+For my personal blog (&lt;a class="reference external" href="http://www.briankeng.com/"&gt;www.briankeng.com&lt;/a&gt;), where
+I discuss random worldly wisdom that I come across, I use &lt;a class="reference external" href="https://wordpress.org/"&gt;WordPress&lt;/a&gt;.
+For this one, I used something a bit more technical (because why not?):&lt;/p&gt;
+&lt;dl class="docutils"&gt;
+&lt;dt&gt;&lt;a class="reference external" href="https://pages.github.com/"&gt;Github Pages&lt;/a&gt;&lt;/dt&gt;
+&lt;dd&gt;Great place to host a static website (free) but also has some of that "hacker
+cred".  It's quite easy to use (if you've used git before) and also quite
+well &lt;a class="reference external" href="https://help.github.com/articles/setting-up-a-custom-domain-with-github-pages/"&gt;documented&lt;/a&gt;
+on how to get your domain setup.&lt;/dd&gt;
+&lt;dt&gt;&lt;br&gt; &lt;a class="reference external" href="https://getnikola.com/"&gt;Nikola&lt;/a&gt; (static site generator)&lt;/dt&gt;
+&lt;dd&gt;The recommended static site generator with Github Pages is Jekyll but one
+thing I wanted for this site is to make use of &lt;a class="reference external" href="http://ipython.org/notebook.html"&gt;IPython Notebooks&lt;/a&gt;.  After a bit of searching, I found
+Nikola to be a good match because it supports IPython Notebooks out of the box
+(as opposed to Jekyll which required some fiddling), and seemd to have a reasonably
+simple setup.  The really interesting line from the &lt;a class="reference external" href="https://getnikola.com/handbook.html#getting-more-themes"&gt;documentation&lt;/a&gt;
+is this quote: &lt;tt class="docutils literal"&gt;"DON'T READ THIS MANUAL. IF YOU NEED TO READ IT I FAILED, JUST USE THE THING."&lt;/tt&gt;
+Exactly the sentiment I was going for.&lt;/dd&gt;
+&lt;dt&gt;&lt;br&gt; &lt;a class="reference external" href="https://themes.getnikola.com/#bootstrap3"&gt;Bootstrap3&lt;/a&gt; theme and &lt;a class="reference external" href="bhttp://bootswatch.com/readable/"&gt;Readable&lt;/a&gt; Bootstrap theme.&lt;/dt&gt;
+&lt;dd&gt;&lt;p class="first"&gt;Bootstrap3 is the default theme for Nikola, conveniently using &lt;a class="reference external" href="http://getbootstrap.com/"&gt;Bootstrap&lt;/a&gt;,
+the most popular HTML/CSS/JS framework for the web.  Since I'm not a very
+good designer using high quality themes/framework is definitely ideal.&lt;/p&gt;
+&lt;p&gt;The default Nikola theme, however, was not too my liking.  A bit too spartan for me.  Fortunately, Nikola has a really cool
+feature where you can take an existing Bootstrap theme from &lt;a class="reference external" href="http://bootswatch.com"&gt;http://bootswatch.com&lt;/a&gt;
+and skin the default Nikola Bootstrap theme.  I chose the &lt;a class="reference external" href="bhttp://bootswatch.com/readable/"&gt;Readable&lt;/a&gt; theme because I'm
+a huge fan of making things easy-to-read (you should see how large the font
+size is on my devices, frequently referred to as "old people font size").&lt;/p&gt;
+&lt;p class="last"&gt;Even with the new Bootstrap theme, the site layout didn't quite look right.
+So I fiddled around with the layout and placement of items, pretty much
+copying the layout of another blog I really enjoy &lt;a class="reference external" href="http://prog21.dadgum.com/"&gt;programming in the twenty-first century&lt;/a&gt; by James Hague.
+It was interesting playing around with HTML templates and CSS but pretty much
+confirmed that it's not really what I like doing.  Getting to a satisfactory
+layout was as much effort as I really wanted to put in.&lt;/p&gt;
+&lt;/dd&gt;
+&lt;/dl&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;p&gt;As for the name of the blog, ever since I read the autobiography of &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Herbert_A._Simon"&gt;Herbert Simon&lt;/a&gt;,
+I've been fascinated by his idea of &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Bounded_rationality"&gt;bounded rationality&lt;/a&gt; which is the idea that:&lt;/p&gt;
+&lt;blockquote&gt;
+"when individuals make decisions, their rationality is limited
+by the information they have, the cognitive limitations of their minds, and
+the time available to make the decision."&lt;/blockquote&gt;
+&lt;p&gt;Along with this idea, Simon also gives the idea of &lt;em&gt;satisficing&lt;/em&gt;, a term
+combining the meaning &lt;em&gt;satisfy&lt;/em&gt; and &lt;em&gt;suffice&lt;/em&gt;, a stark contrast to optimal
+decision making.  Not only was he quite ahead of the times applying this idea
+of bounded rationality to economics/social science analysis, it also really
+speaks to his strong inclination to look at reality in the most rational way.
+This is as opposed to how many academics behave by trying to fit reality
+into their elegant mathematical models (A pithy quote from Galbraith
+&lt;tt class="docutils literal"&gt;"economists are most economical about ideas. They make the ones they learned
+in graduate school last a lifetime"&lt;/tt&gt;).&lt;/p&gt;
+&lt;p&gt;Simon is definitely a personal hero of mine, a true polymath.  This is quite
+apparent from Simon winning both a Nobel Prize &lt;em&gt;and&lt;/em&gt; a Turing award (the Turing
+award was for his contributions to artificial intelligence and IPL, a precursor
+to Lisp).  Beyond his massive contributions to the social and computer
+sciences, his multi-disciplinary approach to problems along with a strong
+tendency towards rational thinking really speak to me.  So naturally, I
+don't mind lifting the terms &lt;em&gt;satisficing&lt;/em&gt; and &lt;em&gt;bounded rationality&lt;/em&gt; to use
+as names for the domain/blog title.&lt;/p&gt;
+&lt;p&gt;In this weblog, I hope to apply the spirit of these two ideas, trying to
+understand and explain technical subjects without getting bogged down in the
+minutiae that so frequently surrounds technical subjects.  Instead, try to
+focus on the ideas that actually help us move forward in solving practical
+problems to a satisfactory degree (satisficing).&lt;/p&gt;
+&lt;p&gt;With respect to the subject area of the blog, it will probably vary quite a
+bit.  There will probably be a lot of focus on programming and data science
+since that's what I spend most of my time at work doing.  However, don't be
+surprised if I write about other various technical subjects that interest me
+such as math or investing.  Real world problems rarely fit into such neat
+classifications, so why limit what I write about?  Hope you enjoy it.&lt;/p&gt;&lt;/div&gt;</description><category>first post</category><category>Github</category><category>Nikola</category><category>satisficing</category><guid>http://satisficing.briankeng.com/posts/a-first-post/</guid><pubDate>Sun, 02 Aug 2015 09:03:25 GMT</pubDate></item></channel></rss>

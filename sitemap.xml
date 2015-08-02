@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+    xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+    xmlns:xhtml="http://www.w3.org/1999/xhtml"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+                        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+ <url>
+  <loc>http://satisficing.briankeng.com/</loc>
+  <lastmod>2015-08-02T22:11:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/2015/</loc>
+  <lastmod>2015-08-02T22:11:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/archive.html</loc>
+  <lastmod>2015-08-02T22:11:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/categories/</loc>
+  <lastmod>2015-08-02T22:11:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/categories/first-post/</loc>
+  <lastmod>2015-08-02T22:11:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/categories/github/</loc>
+  <lastmod>2015-08-02T22:11:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/categories/nikola/</loc>
+  <lastmod>2015-08-02T22:11:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/categories/satisficing/</loc>
+  <lastmod>2015-08-02T22:11:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/posts/a-first-post/</loc>
+  <lastmod>2015-08-02T22:11:00Z</lastmod>
+ </url>
+</urlset>
