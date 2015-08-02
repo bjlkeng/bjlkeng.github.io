@@ -410,6 +410,7 @@ REDIRECTIONS = []
 DEPLOY_COMMANDS = {
     'default': [
         "nikola build -a",
+        "cp README.md CNAME output/",
         "git checkout master",
         "rsync -rPv --delete-after --exclude old_blog --exclude .git --exclude .gitignore --exclude cache/ --exclude .doit.db.db output/ ..",
         "git add -A ..",
