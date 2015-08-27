@@ -1,7 +1,7 @@
 .. title: A First Post
 .. slug: a-first-post
 .. date: 2015-08-02 5:03:25 UTC-04:00
-.. tags: first post, Github, Nikola, satisficing
+.. tags: first post, Github, Nikola, satisficing, James Hague
 .. category: 
 .. link: 
 .. description: A First Post
@@ -35,7 +35,7 @@ For this one, I used something a bit more technical (because why not?):
   Nikola to be a good match because it supports IPython Notebooks out of the box
   (as opposed to Jekyll which required some fiddling), and seemd to have a reasonably
   simple setup.  The really interesting line from the `documentation <https://getnikola.com/handbook.html#getting-more-themes>`_
-  is this quote: ``"DON'T READ THIS MANUAL. IF YOU NEED TO READ IT I FAILED, JUST USE THE THING."``
+  is this quote: ``DON'T READ THIS MANUAL. IF YOU NEED TO READ IT I FAILED, JUST USE THE THING.``
   Exactly the sentiment I was going for.
 
 |br| `Bootstrap3 <https://themes.getnikola.com/#bootstrap3>`_ theme and `Readable <bhttp://bootswatch.com/readable/>`_ Bootstrap theme.
@@ -71,9 +71,9 @@ decision making.  Not only was he quite ahead of the times applying this idea
 of bounded rationality to economics/social science analysis, it also really
 speaks to his strong inclination to look at reality in the most rational way.
 This is as opposed to how many academics behave by trying to fit reality
-into their elegant mathematical models (A pithy quote from Galbraith
-``"economists are most economical about ideas. They make the ones they learned
-in graduate school last a lifetime"``).  
+into their elegant mathematical models (A pithy quote from Galbraith:
+``economists are most economical about ideas. They make the ones they learned
+in graduate school last a lifetime``).  
 
 Simon is definitely a personal hero of mine, a true polymath.  This is quite
 apparent from Simon winning both a Nobel Prize *and* a Turing award (the Turing
