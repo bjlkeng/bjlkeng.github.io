@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="A first step into functional programming.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Functional Programming: A first step | Bounded Rationality</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
+<link rel="canonical" href="http://satisficing.briankeng.com/posts/functional-programming-a-first-step/">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="description" itemprop="description" content="A first step into functional programming.">
+<meta name="author" content="Brian Keng">
+<link rel="prev" href="../a-first-post/" title="A First Post" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="Functional Programming: A first step">
+<meta property="og:url" content="http://satisficing.briankeng.com/posts/functional-programming-a-first-step/">
+<meta property="og:description" content="A first step into functional programming.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2015-08-02T22:03:05-04:00">
+<meta property="article:tag" content="functional programming">
+<meta property="article:tag" content="James Hague">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://satisficing.briankeng.com/">
+
+                <span class="h1" id="blog-title">Bounded Rationality</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
+            <ul class="nav navbar-nav">
+<p class="lead">Understanding programming, data, and math to a satisfactory degree.</p>
+<!--
+                
+                <li><a href="/archive.html">Archive</a>
+                <li><a href="/categories/">Tags</a>
+                <li><a href="/rss.xml">RSS feed</a>
+
+                 
+-->
+            </ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+    <a href="index.rst" id="sourcelink">Source</a>
+    </li>
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            <div class="col-lg-9">
+                
+                
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Functional Programming: A first step</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">Brian Keng</span></p>
+            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2015-08-02T22:03:05-04:00" itemprop="datePublished" title="2015-08-02 22:03">2015-08-02 22:03</time></a></p>
+            
+        <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
+
+                <meta name="description" itemprop="description" content="A first step into functional programming.">
+</div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>I have something to admit: I've never done any serious programming
+in a functional programming language.  Yes, yes, I've done some small school
+assignments in <a class="reference external" href="https://en.wikipedia.org/wiki/Scheme_%28programming_language%29">Scheme</a> (a dialect of Lisp),
+even helping out my friend from another university with his Scheme assignment
+but nothing <em>real</em>.  Does this make me a worse programmer?  Probably not, I
+imagine most developers haven't done anything <em>real</em> with functional
+programming.  Although that's probably not what you'd expect from reading
+<a class="reference external" href="https://news.ycombinator.com/">Hacker News</a>, where you don't know
+programming if you haven't tried Clojure or Haskell.  My position is much more
+pragmatic: I'm interested in tools and techniques that help me solve problems
+faster, cleaner and with less headache.  Functional programming is <em>supposed</em>
+to help with at least some of that.</p>
+<p>James Hague has an interesting opinion on this subject in his not-so-subtle
+post titled <a class="reference external" href="http://prog21.dadgum.com/54.html">Functional Programming Doesn't Work (and what to do about it)</a>.  In his <a class="reference external" href="http://prog21.dadgum.com/55.html">follow-up</a>, he hit the nail on the head with this:</p>
+<blockquote>
+My real position is this: 100% pure functional programing doesn't work. Even
+98% pure functional programming doesn't work. But if the slider between
+functional purity and 1980s BASIC-style imperative messiness is kicked down a
+few notches--say to 85%--then it really does work. You get all the advantages
+of functional programming, but without the extreme mental effort and
+unmaintainability that increases as you get closer and closer to perfectly
+pure.</blockquote>
+<pre class="code python"><a name="rest_code_ba39ef717b194287ab86a082e8abaf49-1"></a><span class="k">def</span> <span class="nf">my_function</span><span class="p">():</span>
+<a name="rest_code_ba39ef717b194287ab86a082e8abaf49-2"></a>    <span class="s">"just a test"</span>
+<a name="rest_code_ba39ef717b194287ab86a082e8abaf49-3"></a>    <span class="k">print</span> <span class="mi">8</span><span class="o">/</span><span class="mi">2</span>
+</pre>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/functional-programming/" rel="tag">functional programming</a></li>
+            <li><a class="tag p-category" href="../../categories/james-hague/" rel="tag">James Hague</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../a-first-post/" rel="prev" title="A First Post">Previous post</a>
+            </li>
+        </ul></nav></aside></article>
+</div>
+            <div class="col-md-3 well">
+            <p>
+            I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
+            a former academic, current data scientist, engineer, and
+            programmer.  This is
+            <a href="posts/a-first-post/">the place</a>
+            where I write
+            about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br><p>
+            <a href="../archive.html">Archive</a>
+            </p>
+            <p>
+            <a href="../categories/index.html">Tags</a>
+            </p>
+            <p>
+            <a href="../rss.xml">RSS feed</a>
+            </p>
+        </div>
+    </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2015         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+        </footer>
+</div>
+</div>
+
+
+            <script src="../../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates -->
+</body>
+</html>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Bounded Rationality (functional programming)</title><link>http://satisficing.briankeng.com/</link><description></description><atom:link href="http://satisficing.briankeng.com/categories/functional-programming.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Mon, 03 Aug 2015 02:18:48 GMT</lastBuildDate><generator>https://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Functional Programming: A first step</title><link>http://satisficing.briankeng.com/posts/functional-programming-a-first-step/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;I have something to admit: I've never done any serious programming
+in a functional programming language.  Yes, yes, I've done some small school
+assignments in &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Scheme_%28programming_language%29"&gt;Scheme&lt;/a&gt; (a dialect of Lisp),
+even helping out my friend from another university with his Scheme assignment
+but nothing &lt;em&gt;real&lt;/em&gt;.  Does this make me a worse programmer?  Probably not, I
+imagine most developers haven't done anything &lt;em&gt;real&lt;/em&gt; with functional
+programming.  Although that's probably not what you'd expect from reading
+&lt;a class="reference external" href="https://news.ycombinator.com/"&gt;Hacker News&lt;/a&gt;, where you don't know
+programming if you haven't tried Clojure or Haskell.  My position is much more
+pragmatic: I'm interested in tools and techniques that help me solve problems
+faster, cleaner and with less headache.  Functional programming is &lt;em&gt;supposed&lt;/em&gt;
+to help with at least some of that.&lt;/p&gt;
+&lt;p&gt;James Hague has an interesting opinion on this subject in his not-so-subtle
+post titled &lt;a class="reference external" href="http://prog21.dadgum.com/54.html"&gt;Functional Programming Doesn't Work (and what to do about it)&lt;/a&gt;.  In his &lt;a class="reference external" href="http://prog21.dadgum.com/55.html"&gt;follow-up&lt;/a&gt;, he hit the nail on the head with this:&lt;/p&gt;
+&lt;blockquote&gt;
+My real position is this: 100% pure functional programing doesn't work. Even
+98% pure functional programming doesn't work. But if the slider between
+functional purity and 1980s BASIC-style imperative messiness is kicked down a
+few notches--say to 85%--then it really does work. You get all the advantages
+of functional programming, but without the extreme mental effort and
+unmaintainability that increases as you get closer and closer to perfectly
+pure.&lt;/blockquote&gt;
+&lt;pre class="code python"&gt;&lt;a name="rest_code_ba39ef717b194287ab86a082e8abaf49-1"&gt;&lt;/a&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;my_function&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+&lt;a name="rest_code_ba39ef717b194287ab86a082e8abaf49-2"&gt;&lt;/a&gt;    &lt;span class="s"&gt;"just a test"&lt;/span&gt;
+&lt;a name="rest_code_ba39ef717b194287ab86a082e8abaf49-3"&gt;&lt;/a&gt;    &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</description><category>functional programming</category><category>James Hague</category><guid>http://satisficing.briankeng.com/posts/functional-programming-a-first-step/</guid><pubDate>Mon, 03 Aug 2015 02:03:05 GMT</pubDate></item></channel></rss>
