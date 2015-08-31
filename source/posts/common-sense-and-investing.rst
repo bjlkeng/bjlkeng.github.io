@@ -1,6 +1,6 @@
 .. title: Common Sense and Investing
 .. slug: common-sense-and-investing
-.. date: 2015-08-26 23:59:22 UTC-04:00
+.. date: 2015-08-30 10:44:22 UTC-04:00
 .. tags: investing, common sense
 .. category: 
 .. link: 
