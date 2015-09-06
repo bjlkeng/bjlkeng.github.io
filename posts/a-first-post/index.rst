@@ -56,6 +56,8 @@ For this one, I used something a bit more technical (because why not?):
   confirmed that it's not really what I like doing.  Getting to a satisfactory
   layout was as much effort as I really wanted to put in.
 
+.. TEASER_END
+
 |br|
 
 As for the name of the blog, ever since I read the autobiography of `Herbert Simon <https://en.wikipedia.org/wiki/Herbert_A._Simon>`_,

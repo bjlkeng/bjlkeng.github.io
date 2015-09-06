@@ -7,62 +7,86 @@
                         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
  <url>
   <loc>http://satisficing.briankeng.com/</loc>
-  <lastmod>2015-08-31T02:45:00Z</lastmod>
+  <lastmod>2015-09-06T19:06:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/2015/</loc>
-  <lastmod>2015-08-31T02:45:00Z</lastmod>
+  <lastmod>2015-09-06T19:06:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/archive.html</loc>
-  <lastmod>2015-08-31T02:45:00Z</lastmod>
+  <lastmod>2015-09-06T19:06:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/</loc>
-  <lastmod>2015-08-31T02:45:00Z</lastmod>
+  <lastmod>2015-09-06T19:06:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/common-sense/</loc>
-  <lastmod>2015-08-31T02:45:00Z</lastmod>
+  <lastmod>2015-09-06T19:06:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/first-post/</loc>
-  <lastmod>2015-08-31T02:45:00Z</lastmod>
+  <lastmod>2015-09-06T19:06:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/functional-programming/</loc>
-  <lastmod>2015-08-03T02:06:00Z</lastmod>
+  <lastmod>2015-09-06T19:06:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/categories/functions/</loc>
+  <lastmod>2015-09-06T19:06:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/categories/fundamentals/</loc>
+  <lastmod>2015-09-06T19:06:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/github/</loc>
-  <lastmod>2015-08-31T02:45:00Z</lastmod>
+  <lastmod>2015-09-06T19:06:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/categories/greg-ward/</loc>
+  <lastmod>2015-09-06T19:06:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/investing/</loc>
-  <lastmod>2015-08-31T02:45:00Z</lastmod>
+  <lastmod>2015-09-06T19:06:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/james-hague/</loc>
-  <lastmod>2015-08-31T02:45:00Z</lastmod>
+  <lastmod>2015-09-06T19:06:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/nikola/</loc>
-  <lastmod>2015-08-31T02:45:00Z</lastmod>
+  <lastmod>2015-09-06T19:06:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/categories/procedures/</loc>
+  <lastmod>2015-09-06T19:06:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/categories/pycon/</loc>
+  <lastmod>2015-09-06T16:45:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/satisficing/</loc>
-  <lastmod>2015-08-31T02:45:00Z</lastmod>
+  <lastmod>2015-09-06T19:06:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/a-first-post/</loc>
-  <lastmod>2015-08-31T02:45:00Z</lastmod>
+  <lastmod>2015-09-06T19:06:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/common-sense-and-investing/</loc>
-  <lastmod>2015-08-31T02:45:00Z</lastmod>
+  <lastmod>2015-09-06T19:06:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/functional-programming-a-first-step/</loc>
-  <lastmod>2015-08-03T02:03:00Z</lastmod>
+  <lastmod>2015-09-02T03:17:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/posts/functions-and-procedures/</loc>
+  <lastmod>2015-09-06T19:06:00Z</lastmod>
  </url>
 </urlset>

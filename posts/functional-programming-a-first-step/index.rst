@@ -1,6 +1,6 @@
-.. title: Functional Programming: A first step
+.. title: 
 .. slug: functional-programming-a-first-step
-.. date: 2015-08-02 22:03:05 UTC-04:00
+.. date: 2015-09-01 22:03:05 UTC-04:00
 .. tags: functional programming, James Hague
 .. category: 
 .. link: 
