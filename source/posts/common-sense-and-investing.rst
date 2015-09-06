@@ -35,6 +35,7 @@ that I think will help people understand a rational way to invest *i.e.* value
 investing.  In particular, the discussion will be geared towards investing in
 publicly traded stocks but the general idea applies to most asset classes.
 
+.. TEASER_END
 
 |h2| Stocks: An Emotional Roller Coaster |h2e|
 
