@@ -32,7 +32,7 @@ Even though it was just a scant few years ago, my research in grad school seems
 like it was from another lifetime.  Nowadays I deal with data and most of my
 code revolves around manipulating and extracting interesting stuff from it.
 However in my previous life I spent quite a bit of time dealing with
-satifiability problems.  So before I start writing about data and related
+satisfiability problems.  So before I start writing about data and related
 topics, I thought I'd kick it old school and write about some topics from my
 formative years.
 
@@ -53,7 +53,7 @@ understand it [1]_.
 
 One of the fundamental ideas in computing is a `decision problem
 <https://en.wikipedia.org/wiki/Decision_problem>`_: something that has a yes/no
-answer (image from wikipedia).
+answer (image from Wikipedia).
 
 .. image:: /images/decision_problem.png
    :height: 250px
@@ -151,13 +151,13 @@ for "non-polynomial" or "not polynomial"**, as one would intuitively think.
 "N" in **NP** to stand for "non-" or "not"?  Yes, I agree, not a very good name
 much to the chagrin of new students of computational complexity.
 
-**NP** actually stands for "*nondeterministic polynomial time*".  The details
+**NP** actually stands for "*non-deterministic polynomial time*".  The details
 aren't too important but the big takeaway is this: **NP-Complete** problems *probably*
 have no polynomial time solution in the worse case [6]_.  But as we saw, **P**
 problems are a subset of **NP** problems so at least some **NP** problems can
 be solved in polynomial time.  Basically, 
 **NPC** :math:`\approx` worst case exponential time problems (probably);
-**P** :math:`=` polnomial time problems.
+**P** :math:`=` polynomial time problems.
 
 
 |h2| Satisfiability |h2e|
@@ -274,7 +274,6 @@ more interesting question:
 
     Are there any (8-bit values) of :math:`A, B, C`, such that the sum
     (:math:`C`) is less than one of its addends (:math:`A, B`)?
-   
     
 Do you think this instance should be SAT (i.e. at least one assignment of
 values for :math:`A, B, C` such that :math:`\phi=1`) or UNSAT (no such values
@@ -346,11 +345,11 @@ code to make it more amenable to a SAT solver.  Here's one way to do it:
    y_2b = y_1 + 1;
    y_2a = -y_1;
    if (y >= 0) {
-     y3 = y_2b;
+     y_3 = y_2b;
    } else {
-     y3 = y_2a;
+     y_3 = y_2a;
    }
-   assert(y3 > 0)
+   assert(y_3 > 0)
 
 There are a couple of things going on here.  First, we use a bunch
 of intermediate variables for all of the computations that we're doing.
@@ -363,14 +362,69 @@ logic.
 Second, we use a hardware structure called a `multiplexor <https://en.wikipedia.org/wiki/Multiplexer>`_
 that effectively implements an `if-else` statement.  It can be built from logic gates,
 so we'll have no trouble putting it into our Boolean formula.
-Here's an image from Wikipedia that might help:
+Here's an image from Wikipedia that visualizes it: 
 
 .. image:: /images/mux.png
    :height: 250px
    :alt: multiplexor
    :align: center
 
-Here, we set :math:`A=y\_2a, B=y\_2b, Z=y\_3, and S_0=(y>=0)`.
+Here, we set :math:`A=y\_2a, B=y\_2b, Z=y\_3, and S_0=(y>=0)`.  When
+:math:`S_0=0`, it constrains (remember we're in the context of a Boolean
+formula) :math:`Z` to :math:`A`, when :math:`S_0=1`, it constrains :math:`Z` to
+:math:`B`.
+
+Putting this all together, we could build a large Boolean formula that effectively
+asks the question:
+
+    Is it possible for :math:`y\_3` to be less than 0 for the above code snippet?
+
+Pretty cool huh?  Of course, industrial strength formal verification tools will
+use much more complicated techniques and can handle many more types of code
+structures (like loops).  One of the big limitations (and probably a big research area)
+is scaling these problems.  You can imagine that trying to ask questions
+about the Linux kernel might become untenable due to the size of the problem.
+
+If you're interested you should check out the `SAT conference <http://www.satisfiability.org/>`_
+where they have many more interesting types of topics around satisfiability
+and its applications.
+
+
+|h3| Satisfiability Module Theories |h3e|
+
+One last idea that I want to talk about before we end this section is that
+of other types of satisfiability problems.  In the above discussion,
+we talked exclusively about Boolean Satisfiability -- formulas that exclusively
+use Boolean variables.  However, there are many more types of satisfiability
+problems.  One quite natural extension is instead of just using Boolean
+variables, replace them with other types of "things" like real numbers,
+integers, list, arrays etc.  These "things" are more formally called 
+`theories <https://en.wikipedia.org/wiki/Theory_%28mathematical_logic%29>`_,
+and allow us to ask higher level "questions" rather than trying to 
+convert everything down to the bit level.  These satisfiability
+decision problems are usually referred to as 
+`satisfiability modulo theories (SMT)
+<https://en.wikipedia.org/wiki/Satisfiability_modulo_theories>`_ problems.
+
+One interesting thing to note is that while you might expect that
+this higher level of abstraction would allow us to solve problems
+more efficiently, the solvers for these other types of SAT problems are much
+more complicated.  This complexity causes some issues in trying to find good
+heuristics to efficiently solve these types of problems.  In many cases, the
+best solution is still to just reduce your problem down to bits and use Boolean
+SAT, which can do much more fine grained optimizations.  In fact, many SMT
+solvers do use a Boolean SAT solver as the underlying solving engine (with some
+nice things on top).
+
+|h2| Conclusion |h2e|
+
+I spent quite a few years learning about SAT and its applications.
+It's quite an elegant topic because it is a direct application
+of what appears to be a rather theoretical but core problem of computer
+science.  Hopefully this article helps introduce some of the ideas that took me
+years to digest in an easy to understand way.  Sometimes theory is just theory,
+but in this case, theory really does lead to practice.
+
 
 |br|
 |br|
@@ -381,7 +435,7 @@ Here, we set :math:`A=y\_2a, B=y\_2b, Z=y\_3, and S_0=(y>=0)`.
 
 .. [3] A line is a type of polynomial.  e.g. :math:`x = x^k` where :math:`k=1`.
 
-.. [4] There are, of course, many (equivalent) ways to define NP problems.  The one I use, which I find most intiutive is from `Introduction to Algorithms <https://en.wikipedia.org/wiki/Introduction_to_Algorithms>`, known more colloquially as "CLRS" (the first letters of the authors).
+.. [4] There are, of course, many (equivalent) ways to define NP problems.  The one I use, which I find most intuitive is from `Introduction to Algorithms <https://en.wikipedia.org/wiki/Introduction_to_Algorithms>`, known more colloquially as "CLRS" (the first letters of the authors).
 
 .. [5] The solution: search through the array for :math:`x`, we'll get a yes/no answer here.  If it matches what we're told, we say "yes", otherwise, we say "no".
 
