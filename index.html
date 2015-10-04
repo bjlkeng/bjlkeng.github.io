@@ -8,7 +8,8 @@
 <link href="assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
 <link rel="canonical" href="http://satisficing.briankeng.com/">
-<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/functions-and-procedures/" type="text/html">
+<link rel="next" href="index-3.html" type="text/html">
+<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/accessible-satisfiability/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -56,475 +57,514 @@
                 
 
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/functions-and-procedures/" class="u-url">Functions and Procedures</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/accessible-satisfiability/" class="u-url">Accessible Satisfiability</a></h1>
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">Brian Keng</span></p>
-            <p class="dateline"><a href="posts/functions-and-procedures/" rel="bookmark"><time class="published dt-published" datetime="2015-09-06T03:04:05-04:00" title="2015-09-06 03:04">2015-09-06 03:04</time></a></p>
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/accessible-satisfiability/" rel="bookmark"><time class="published dt-published" datetime="2015-10-03T20:28:04-04:00" title="2015-10-03 20:28">2015-10-03 20:28</time></a></p>
         </div>
     </header><div class="e-content entry-content">
     <div>
-<p>I have something to admit: I've never done any serious programming in a
-functional language.  Yes, yes, I've done some small school assignments in
-<a class="reference external" href="https://en.wikipedia.org/wiki/Scheme_%28programming_language%29">Scheme</a> (a
-dialect of Lisp), even helping out my friend from another university with his
-Scheme assignment but nothing <em>real</em> <a class="footnote-reference" href="posts/functions-and-procedures/#id3" id="id1">[1]</a>.  Does this
-make me a worse programmer?  Probably not, I imagine most developers haven't
-done anything <em>real</em> with functional programming.  Although that's probably not
-what you'd expect from reading <a class="reference external" href="https://news.ycombinator.com/">Hacker News</a>,
-where you don't know programming if you haven't tried Clojure or Haskell <a class="footnote-reference" href="posts/functions-and-procedures/#id4" id="id2">[2]</a>.</p>
-<p>My position is much more pragmatic: I'm interested in tools and techniques that
-help me solve problems faster, cleaner and with less headache.  Ideas and
-concepts from functional programming languages are <em>supposed</em> to help with at
-least some of that -- and they do; they're just not a panacea for all your
-programming woes.  Like most things a solid grasp of the fundamentals goes a
-long way.  So the topic of this post is about something pretty fundamental: a
-subroutine.  In particular, two important kinds of subroutines:
-procedures and pure functions.</p>
+<p>Even though it was just a scant few years ago, my research in grad school seems
+like it was from another lifetime.  Nowadays I deal with data and most of my
+code revolves around manipulating and extracting interesting insights from it.
+However in my previous life I spent quite a bit of time dealing with
+satisfiability problems.  So before I start writing about data and related
+topics, I thought I'd kick it old school and write about some topics from my
+formative years.</p>
 <!-- TEASER_END -->
-<p></p>
-<h4> Programming is Organization </h4>
-<p>Let me digress for a moment because I want to discuss an incredibly important idea
-that James Hague discusses in his post <a class="reference external" href="http://prog21.dadgum.com/177.html">Organizational Skills Beat Algorithmic
-Wizardry</a>.  He nails down one of the most
-important points about software development: organization.  (emphasis mine)</p>
-<blockquote>
-When it comes to writing code, the number one most important skill is how to
-keep a tangle of features from collapsing under the weight of its own
-complexity... there's always lots of state to keep track of, rearranging of values,
-handling special cases, and carefully working out how all the pieces of a
-system interact. To a great extent <strong>the act of coding is one of organization</strong>.
-Refactoring. Simplifying. Figuring out how to remove extraneous manipulations
-here and there.</blockquote>
-<p>As much as it is fun debating the merits of one language/framework/technology
-versus another, it's much more practical to talk about ways we can organize
-programs in a more efficient manner (in whatever language/framework/technology
-we're currently using).  Now back to the main show...</p>
-<p></p>
-<h4> A Function By Any Other Name </h4>
-<p>It's funny that one of the first things we learn when programming is the concept
-of a subroutine: <em>a set of instructions designed to perform a frequently used
-operation within a program</em>, which is supposed to help organize your program.
-Great, but I don't recall learning much about the different kinds of
-subroutines or even really best practices for using them.  For some reason
-that's just something you have to figure out yourself.  Let's try to be a bit
-more explicit.</p>
-<p>In my mind, a useful (but perhaps not universally accepted) classification of
-subroutines breaks them down into two general categories: procedures and pure
-functions.</p>
-<blockquote>
-<ul class="simple">
-<li>A <cite>procedure</cite> is a sequence of commands to be executed.  These are
-usually used for <cite>doing stuff</cite>.  Typically, these will involve side-effects
-(such as changing the state of variables, outputting to the screen, or
-saving things to a file etc.).  Procedures don't have return values.</li>
-<li>A (pure) <cite>function</cite> computes a value (and returns it).  These are for
-<cite>computing stuff</cite>.  Just like a function in math, for the same set of
-inputs, it will always return the exact same output.  Functions don't have
-side-effects.</li>
-</ul>
-</blockquote>
-<p>Notice that these are not the only two ways to think about subroutines.  There
-is a type of subroutine that returns something <em>and</em> has side-effects (among
-others).  But I argue that these two are the most constructive ways to think
-about subroutines.</p>
-<p>The most popular languages out there today don't really make a distinction
-between these two types of subroutines, but that doesn't mean you shouldn't!
-The reason to look at subroutines this way is because of a general rule of
-thumb that I came across by Greg Ward in his talk at Pycon 2015,
-<a class="reference external" href="https://www.youtube.com/watch?v=r9cnHO15YgU">How to Write Reusable Code</a>
-(<a class="reference external" href="posts/functions-and-procedures/)https://github.com/PyCon/2015-slides/tree/master/Greg%20Ward%20-%20How%20to%20Write%20Reusable%20Code">slides</a>):</p>
-<blockquote>
-Every [subroutine] should either return a value or have a side effect: never both.</blockquote>
-<p>This is great rule of thumb that's hard to appreciate until you've made the mistake of
-violating it and have it come back to bite you in the arse.  Greg goes on to give
-a couple of great examples (from actual code reviews he has done).  Here's
-one of his examples where this rule of thumb is violated:</p>
-<pre class="code python"><a name="rest_code_c0e8ad5e6f5d48559971eb45004cd37e-1"></a><span class="k">def</span> <span class="nf">get_foo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">foo</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-<a name="rest_code_c0e8ad5e6f5d48559971eb45004cd37e-2"></a>    <span class="sd">'''Query the server for foo values.</span>
-<a name="rest_code_c0e8ad5e6f5d48559971eb45004cd37e-3"></a><span class="sd">    Return a dict mapping hostname to foo value.</span>
-<a name="rest_code_c0e8ad5e6f5d48559971eb45004cd37e-4"></a>
-<a name="rest_code_c0e8ad5e6f5d48559971eb45004cd37e-5"></a><span class="sd">    foo must be a dict or None; if supplied, the</span>
-<a name="rest_code_c0e8ad5e6f5d48559971eb45004cd37e-6"></a><span class="sd">    foo values will additionally be stored there</span>
-<a name="rest_code_c0e8ad5e6f5d48559971eb45004cd37e-7"></a><span class="sd">    by hostname, and foo will be returned instead</span>
-<a name="rest_code_c0e8ad5e6f5d48559971eb45004cd37e-8"></a><span class="sd">    of a new dict.</span>
-<a name="rest_code_c0e8ad5e6f5d48559971eb45004cd37e-9"></a><span class="sd">    '''</span>
-</pre>
-<p>Gee, I'm already confused even after reading the documentation (don't even get
-me started on the mismatch with the function name).  Remember, we want to
-build systems that don't "<cite>collapse under the weight of its own complexity</cite>" by
-"<cite>Simplifying. Figuring out how to remove extraneous manipulations here and
-there.</cite>"  Sure, giving it a second read, we can probably figure out what it does
-but the fact that we need to think twice about it sure isn't helping the
-complexity.  Imagine if every subroutine you wrote had this issue -- I don't envy
-that code reviewer.</p>
-<p>Greg goes on to give a better way to implement <tt class="docutils literal">get_foo()</tt> as a pure function:</p>
-<pre class="code python"><a name="rest_code_9813ca03f6bd4a8d8a10507f7fb36f1b-1"></a><span class="k">def</span> <span class="nf">get_foo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<a name="rest_code_9813ca03f6bd4a8d8a10507f7fb36f1b-2"></a>    <span class="sd">'''Query the server for foo values.</span>
-<a name="rest_code_9813ca03f6bd4a8d8a10507f7fb36f1b-3"></a><span class="sd">    Return a dict mapping hostname to foo value.</span>
-<a name="rest_code_9813ca03f6bd4a8d8a10507f7fb36f1b-4"></a><span class="sd">    '''</span>
-</pre>
-<p>Much simpler and easy to understand: query the server, get back a <tt class="docutils literal">dict</tt>.
-No extraneous mental overhead with the <tt class="docutils literal">foo</tt> parameter.  It
-may only be a small improvement but when building a large system, these small
-things add up quickly (especially since complexity is likely multiplicative).</p>
-<p>There's also this example involving C:</p>
-<pre class="code c"><a name="rest_code_c77c3b253823401d83a8e46896c6c467-1"></a><span class="cm">/**</span>
-<a name="rest_code_c77c3b253823401d83a8e46896c6c467-2"></a><span class="cm"> * Replace all 'e' characters in str with 'E'. Return the number of</span>
-<a name="rest_code_c77c3b253823401d83a8e46896c6c467-3"></a><span class="cm"> * characters replaced.</span>
-<a name="rest_code_c77c3b253823401d83a8e46896c6c467-4"></a><span class="cm"> */</span>
-<a name="rest_code_c77c3b253823401d83a8e46896c6c467-5"></a><span class="kt">int</span> <span class="nf">strmunge_v1</span><span class="p">(</span><span class="n">string</span> <span class="n">str</span><span class="p">)</span> <span class="p">{</span>
-<a name="rest_code_c77c3b253823401d83a8e46896c6c467-6"></a>    <span class="p">...</span>
-<a name="rest_code_c77c3b253823401d83a8e46896c6c467-7"></a><span class="p">}</span>
-</pre>
-<p>He points out that this type of subroutine is pervasive in C and notes that the
-only valid reason for violating this rule is for performance (which is probably
-why you're programming in C in the first place!).  For the rest of us who aren't
-writing performance critical code (come guys, that's most of you), a much
-cleaner solution is not to have the side-effect and convert it to a pure
-function:</p>
-<pre class="code c"><a name="rest_code_d4e55fc913294672b71a46b7cd647a69-1"></a><span class="cm">/**</span>
-<a name="rest_code_d4e55fc913294672b71a46b7cd647a69-2"></a><span class="cm"> * Return newstr, a copy of str with all 'e' characters replaced</span>
-<a name="rest_code_d4e55fc913294672b71a46b7cd647a69-3"></a><span class="cm"> * by 'E', and nreplaced, the number of characters replaced.</span>
-<a name="rest_code_d4e55fc913294672b71a46b7cd647a69-4"></a><span class="cm"> * (Assume language with multiple return values)</span>
-<a name="rest_code_d4e55fc913294672b71a46b7cd647a69-5"></a><span class="cm"> */</span>
-<a name="rest_code_d4e55fc913294672b71a46b7cd647a69-6"></a><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">)</span> <span class="n">strmunge_v2</span><span class="p">(</span><span class="n">string</span> <span class="n">str</span><span class="p">)</span> <span class="p">{</span>
-<a name="rest_code_d4e55fc913294672b71a46b7cd647a69-7"></a>    <span class="p">...</span>
-<a name="rest_code_d4e55fc913294672b71a46b7cd647a69-8"></a><span class="p">}</span>
-</pre>
-<p>The pure function has many benefits over the side-effect-ridden one (functional
-programmers rejoice!) with the main one that it's easier to reason about: you
-can look at the function in isolation of the entire program.  Write it
-separately, review it separately, unit test it separately.  And once you're
-convinced it works properly, you don't need to look at it again!  You can now
-"abstract" that function out when reading the parent functions.  Awesome!
-I'm a huge fan of making things <a class="reference external" href="http://www.briankeng.com/about/">simpler</a>.</p>
-<p></p>
-<h4> Fundamentals </h4>
-<p>The reason that I decided to write this post is that lately, I've been using a
-"procedure of (pure) functions" type pattern in my code.  My main logic
-typically is some kind of procedure that farms out much of the work to pure
-functions rather than mixing them (kicking my old performance-driven C++
-mindset).  I find that it's been a very useful way to structure my programs and
-generally just more pleasant to read.</p>
-<p>After noticing this subtle shift in my code (and after watching Greg's talk), I
-rediscovered my appreciation for the fundamentals.  I get the feeling that when
-people want to learn something they conflate the most advanced ideas with the
-most important.  There's definitely something to be said of taking a step back
-and learning the fundamentals well.  Programming is no different in this
-respect.  If you want to become strong at programming, start with the
-fundamentals.</p>
-<p><br><br></p>
-<table class="docutils footnote" frame="void" id="id3" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="posts/functions-and-procedures/#id1">[1]</a></td>
-<td>"Real" programming work is kind of a vague word.  The way I'm using it here is any kind of sizable project, solving a non-trivial problem.  Most of the time these types of projects aren't measured in days or weeks  but rather months and years.</td>
-</tr></tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id4" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="posts/functions-and-procedures/#id2">[2]</a></td>
-<td>Of course, I'm not saying Clojure and Haskell are bad languages or incapable of solving "real" problems with -- I'm almost positive they are fine languages to use.  I'm more of the opinion that, practically, it's harder to use them to solve many of the problems out there.  It's not just the issue from learning the FP conceptual point of view but also the fact that it's not that easy to find libraries, examples or even jobs that use these languages (although obviously some do exist).  Without a good "support structure" (including monetary compensation), it's hard to justify using a functional language.</td>
-</tr></tbody>
-</table>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/common-sense-and-investing/" class="u-url">Common Sense and Investing</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">Brian Keng</span></p>
-            <p class="dateline"><a href="posts/common-sense-and-investing/" rel="bookmark"><time class="published dt-published" datetime="2015-08-30T10:44:22-04:00" title="2015-08-30 10:44">2015-08-30 10:44</time></a></p>
-        </div>
-    </header><div class="e-content entry-content">
-    <div>
-<p><strong>Preface</strong>: <em>Second post and I'm already off topic according to my subtitle.  I
-do have another post that is more topic appropriate but it's been pretty hectic
-so I haven't had time to finish it.  Although, investing is definitely a kind of
-technical topic involving data and numbers, so one could argue it is still on
-topic.  And argue I shall!  Enjoy!</em></p>
-<p>A lot of smart people I meet frequently mention that they have no clue about
-investing or other related financial matters.  They're quite right that modern
-finance can get complicated really fast such as <a class="reference external" href="https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model">option pricing models</a> (that require
-differential equations and other such complicated maths) but as in most things
-though, a little common sense goes a long way.  So I want to share an analogy
-that I think will help people understand a rational way to invest <em>i.e.</em> value
-investing.  In particular, the discussion will be geared towards investing in
-publicly traded stocks but the general idea applies to most asset classes.</p>
-<!-- TEASER_END -->
-<p></p>
-<h4> Stocks: An Emotional Roller Coaster </h4>
-<p>There's a huge disconnect between <em>how</em> a stock certificate is perceived and <em>what</em>
-it actually represents.  How it is usually perceived is as a number.  A number
-that randomly goes up and down while taking you (usually without asking) on an
-emotional roller coaster ride.  The higher the peaks and lower the troughs, the
-more exhilarating the ride.  Just like gambling, when emotions are involved,
-it rarely turns out well (or profitable).</p>
-<p>What a stock certificate actually represents is much more boring.  It
-represents a part ownership in the underlying company.  That is, you are
-entitled to dividends and other assets of the company in proportion to your
-ownership stake.  In the limit, you own the company.</p>
-<p>So I think most people can rationally follow along with this idea: stocks =
-part ownership of a company.  Buying a better company, all things being equal,
-is better.  Most of the time, things aren't equal though, and the biggest
-thing you have control over is the the <em>price</em> you purchase the stock (you
-rarely have any ability to change its underlying economics).</p>
-<p><em>"Great, so I get that Brian, but how can I make money off of it?"</em></p>
-<p>This is where it gets tricky.  Remember the emotional roller coaster?
-Well for many people investing is kind of like trying to do
-math <em>while</em> riding this roller coaster: it's hard to do right!  But what I
-would like to show is how you probably already have a good intuition on how
-investing <em>should</em> work.  Let's take a hypothetical example from everyday life
-<a class="footnote-reference" href="posts/common-sense-and-investing/#id4" id="id1">[1]</a> and see how some common sense really matches up with a rational way to
-invest.</p>
-<p></p>
-<h4> From Buying Groceries to Investing </h4>
-<p>Most people generally know the price of common items they buy.  For items such as
-toilet paper, laundry detergent or a carton of milk, most people have a general
-idea of what the price should be.  For me, I have a good idea of what a
-12-packs of Coke Zero costs.  The price varies, regular is $4.99 - $5.99,
-sometimes when it's on sale it can go down to $3.99, and once in a blue moon it
-will go down to $2.99 per case.</p>
-<p>Now imagine that you could return this case of Coke whenever you want,
-but not just for the price you paid, for the <em>current</em> sale price of the case.
-So if you bought it on sale for $3.99 last week, you could refund it and get
-back $5.99 this week when the sale is over (or vice versa).  In this
-hypothetical example, you've actually made $5.99 - $3.99 = $2.00.  A return of
-about 50% ($2.00 / $3.99)!</p>
-<p>Although contrived, this example shows a key idea.  You have some sense of what
-the case of Coke is worth.  That is, $5.99 is over paying for a case of Coke,
-while $3.99 is a pretty good deal.  This is directly analogous to investing in
-stocks.  If you can have a pretty good idea when a stock is on "sale", then you
-can buy it, wait a little bit until the sale is over, then sell it for a profit.</p>
-<p>Now here's the part where people get lost.  "Sale" means different things to
-different people.  The common way to determine if something is on sale (for
-everyday items) is to look at the history of its price and see when it's low
-relative to regular price.  People do invest using a much more complicated
-version of this called <cite>Technical Analysis</cite> where they only look at
-charts (for price and other related things like volume) to determine whether or not to
-buy/sell.  It doesn't make much rational sense to me so I won't talk much about
-it.</p>
-<p>The other big school of thought, which is much more rational, is called
-<cite>Fundamental Analysis</cite> where you look at the actual characteristics of the
-business (like how much money they make) and estimate what it's worth.  The key
-idea here is that when determining if something is on "sale", we should have
-some rational line of economic reasoning to back it up.  Let's go back to our
-example of a case of Coke.</p>
-<p></p>
-<h4> The Cost of a Case of Coke </h4>
-<p>Imagine you really wanted to understand (using "Fundamentals") what a case of
-Coke was really worth.  So you call up your buddy who works at Coke, talk to
-him and his friends, and you estimate that it costs Coca-Cola about $0.15 for
-each can of Coke (including cost of water, syrup, aluminum, packaging,
-distribution).  Further, you also call up your buddy at the grocery store and
-he tells you that he buys a case of Coke from Coca-Cola for between $2.00 and
-$3.00 per case ($0.16 - $0.25 per can) depending on what kind of deal he can
-work out with Coca-Cola.</p>
-<p>Now, we have a good idea of what the minimum price of a case
-of Coke given different assumptions:</p>
-<ul>
-<li>
-<p class="first"><strong>Case 1</strong>: Assume Coca-Cola makes no money, grocer makes no money (just cost of
-manufacturing/distribution):</p>
-<blockquote>
-<p>Cost = $0.15/can * 12 cans/case = <strong>$1.80/case</strong></p>
-</blockquote>
-</li>
-<li>
-<p class="first"><strong>Case 2</strong>: Assume Coca-Cola sells to grocer at historic average price ($2.50; $0.058/can profit), and grocer has no profit:</p>
-<blockquote>
-<p>Cost = <strong>$2.50/case</strong></p>
-</blockquote>
-</li>
-<li>
-<p class="first"><strong>Case 3</strong>: Assume Coca-Cola sells to grocer at historic average price ($2.50/case; profit: $0.058/can), grocer wants to make $0.60/case profit ($0.05/can):</p>
-<blockquote>
-<p>Cost = $2.50 + $0.60 = <strong>$3.10/case</strong></p>
-</blockquote>
-</li>
-</ul>
-<p>So with a minimum price of a case of Coke between $1.80 - $3.10, what is a good
-price for a case of Coke?  Our $2.99 price isn't looking too bad right.  It
-would be even better if we could get a lower price but $2.99 seems like a price
-that we could reasonably sell it for more down the road (the grocer and
-Coca-Cola probably will want more profit at some point down the road).</p>
-<p>So in the end, our deep research into what a case of Coke costs is pretty
-similar to ad-hoc technical analysis because we both see that $2.99 isn't bad.
-In this case it worked out to be roughly the same but not always.  Next, let's
-take a look at an up and coming beverage Zico Coconut Water.</p>
-<p></p>
-<h4> The Cost of Buying the Trendy: Zico Coconut Water </h4>
-<p>Imagine Coca-Cola had just released their hot new product: Zico Coconut Water.
-You're eager to get some, not to drink, but to buy on sale and sell at a higher
-price.  So you watch the price for a 1L bottle go up and down at different
-grocers for a few months.  You figure that the typical price range is $2.50 -
-$5.00.  It looks like if you can buy at $2.50, you've got a great deal!  In
-fact, you observe that it is so rarely at a $2.50 price point because people
-can't drink enough of it (Taylor Swift drinks it!).  Most of the time it's
-selling for much more.  You might even hear rumours that it could go high as
-$6.00/bottle.  So question: buy or not buy at $2.99?</p>
-<p>Not buy.  Here's why (in our hypothetical example).  Coconut water was actually
-just a fad.  It had the typical run-up only to fall back down in popularity
-when the next big drink hit.  So to ensure that it can still move product, the
-grocer and Coca-Cola reined in their profits and started selling at regular
-price of $2.50 and sometimes on sale to $1.99.  The $2.99 price no longer seems
-like a great deal does it?  You potentially lost $0.49 ($2.99 - $2.50)!</p>
-<p>If we had done some research though, you might have avoided this devastating loss.
-You might have found out that Coconut water is roughly 3x more expensive to
-make that Coca-Cola.  So that's roughly $0.45/can equivalent, which translates
-to roughly $1.35/1L bottle.  All of a sudden $2.99 doesn't look like a great
-price, <em>maybe</em> $1.99 is more reasonable.</p>
-<p></p>
-<h4> Common Sense sprinkled with Economic Rationalism </h4>
-<p>As I mentioned at the top, rational investing is not too far off from our
-intuition when buying everyday items such as groceries: you want to buy when
-things that are on sale <a class="footnote-reference" href="posts/common-sense-and-investing/#id5" id="id2">[2]</a>.  The biggest mistake people make though is that
-their idea of a "sale" doesn't match economic reality.  Buying should be done
-when a thorough economic analysis has shown that it is on "sale".</p>
-<p>Admittedly, this is a really hard thing to do.  Most of the time, the closest
-you can get is a rough idea of an asset's price <a class="footnote-reference" href="posts/common-sense-and-investing/#id6" id="id3">[3]</a>, so you have to factor that
-into your calculations when deciding if something is on sale.  The important
-thing to remember is that our intuition isn't too far off from a smart (read:
-rational) way to invest: just buy when on sale.  The trick (for most people) is
-that if you can't determine whether it's on sale, you probably shouldn't be
-investing in the first place.</p>
 <p><br></p>
+<h4> Decision, P, NP and NP-Complete Problems </h4>
+<p><strong>Note:</strong> <em>Feel free to skip this section if you're already familiar with these
+topics.</em></p>
+<p>Before we get into some of the more heavy stuff, let's review some of the
+"basic" concepts that will help us put the satisfiability problem in context.
+I'm going to skip a lot of the formal math that typically comes from the branch
+of compute science called the <a class="reference external" href="https://en.wikipedia.org/wiki/Theory_of_computation">theory of computation</a>.  Instead, I'm going to
+try to explain it in a simpler way -- or at least in the way that I understand it <a class="footnote-reference" href="posts/accessible-satisfiability/#id13" id="id1">[1]</a>.</p>
+<p>One of the fundamental problems in computing is a <a class="reference external" href="https://en.wikipedia.org/wiki/Decision_problem">decision problem</a>: something that has a yes/no
+answer.  We can think of solving a decision problem as taking a realization
+of that problem, also known as an <em>instance</em>, as input and writing
+an algorithm that spit out the yes/no output (image from Wikipedia):</p>
+<img alt="decision problem" class="align-center" src="images/decision_problem.png" style="height: 250px;"><p>Pretty simple, huh?  Now there are other types of problems like <a class="reference external" href="https://en.wikipedia.org/wiki/Function_problem">function
+problems</a> and <a class="reference external" href="https://en.wikipedia.org/wiki/Optimization_problem">optimization
+problems</a> but you
+probably have some intuition that decision problems are something
+fundamental that we should be studying <a class="footnote-reference" href="posts/accessible-satisfiability/#id14" id="id2">[2]</a>.</p>
 <p></p>
-<h4> Notes </h4>
-<table class="docutils footnote" frame="void" id="id4" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="posts/common-sense-and-investing/#id1">[1]</a></td>
-<td>Warren Buffett has a similar real-life example in this fortune <a class="reference external" href="http://fortune.com/2014/02/24/buffetts-annual-letter-what-you-can-learn-from-my-real-estate-investments/">article</a> involving a farm but at least for a city boy like me, it's harder to relate to.</td>
-</tr></tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id5" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="posts/common-sense-and-investing/#id2">[2]</a></td>
-<td>Everyone knows the old adage "buy low, sell high" but not many people are good at following it.</td>
-</tr></tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id6" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="posts/common-sense-and-investing/#id3">[3]</a></td>
-<td>Usually the term "intrinsic value" is used, which roughly means an asset's underlying worth (not to be confused with its current price).  Rarely can this be estimated with much precision.</td>
-</tr></tbody>
-</table>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/a-first-post/" class="u-url">A First Post</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">Brian Keng</span></p>
-            <p class="dateline"><a href="posts/a-first-post/" rel="bookmark"><time class="published dt-published" datetime="2015-08-02T05:03:25-04:00" title="2015-08-02 05:03">2015-08-02 05:03</time></a></p>
-        </div>
-    </header><div class="e-content entry-content">
-    <div>
-<p>Hi all, this the first post in my technical blog.  For a long time I've resisted making
-a blog about anything technical because, to be frank, I didn't feel like I
-was qualified.  What makes me more qualified now?  Nothing really, I'm just a bit less
-afraid of <a class="reference external" href="https://xkcd.com/386/">being wrong</a>.</p>
-<p>So maybe a good place to start is what I used to setup this blog and what the
-domain/title mean.
-For my personal blog (<a class="reference external" href="http://www.briankeng.com/">www.briankeng.com</a>), where
-I discuss random worldly wisdom that I come across, I use <a class="reference external" href="https://wordpress.org/">WordPress</a>.
-For this one, I used something a bit more technical (because why not?):</p>
-<dl class="docutils">
-<dt><a class="reference external" href="https://pages.github.com/">Github Pages</a></dt>
-<dd>Great place to host a static website (free) but also has some of that "hacker
-cred".  It's quite easy to use (if you've used git before) and also quite
-well <a class="reference external" href="https://help.github.com/articles/setting-up-a-custom-domain-with-github-pages/">documented</a>
-on how to get your domain setup.</dd>
-<dt>
-<br><a class="reference external" href="https://getnikola.com/">Nikola</a> (static site generator)</dt>
-<dd>The recommended static site generator with Github Pages is Jekyll but one
-thing I wanted for this site is to make use of <a class="reference external" href="http://ipython.org/notebook.html">IPython Notebooks</a>.  After a bit of searching, I found
-Nikola to be a good match because it supports IPython Notebooks out of the box
-(as opposed to Jekyll which required some fiddling), and seemd to have a reasonably
-simple setup.  The really interesting line from the <a class="reference external" href="https://getnikola.com/handbook.html#getting-more-themes">documentation</a>
-is this quote: <tt class="docutils literal">DON'T READ THIS MANUAL. IF YOU NEED TO READ IT I FAILED, JUST USE THE THING.</tt>
-Exactly the sentiment I was going for.</dd>
-<dt>
-<br><a class="reference external" href="https://themes.getnikola.com/#bootstrap3">Bootstrap3</a> theme and <a class="reference external" href="bhttp://bootswatch.com/readable/">Readable</a> Bootstrap theme.</dt>
-<dd>
-<p class="first">Bootstrap3 is the default theme for Nikola, conveniently using <a class="reference external" href="http://getbootstrap.com/">Bootstrap</a>,
-the most popular HTML/CSS/JS framework for the web.  Since I'm not a very
-good designer using high quality themes/framework is definitely ideal.</p>
-<p>The default Nikola theme, however, was not too my liking.  A bit too spartan for me.  Fortunately, Nikola has a really cool
-feature where you can take an existing Bootstrap theme from <a class="reference external" href="http://bootswatch.com">http://bootswatch.com</a>
-and skin the default Nikola Bootstrap theme.  I chose the <a class="reference external" href="bhttp://bootswatch.com/readable/">Readable</a> theme because I'm
-a huge fan of making things easy-to-read (you should see how large the font
-size is on my devices, frequently referred to as "old people font size").</p>
-<p class="last">Even with the new Bootstrap theme, the site layout didn't quite look right.
-So I fiddled around with the layout and placement of items, pretty much
-copying the layout of another blog I really enjoy <a class="reference external" href="http://prog21.dadgum.com/">programming in the twenty-first century</a> by James Hague.
-It was interesting playing around with HTML templates and CSS but pretty much
-confirmed that it's not really what I like doing.  Getting to a satisfactory
-layout was as much effort as I really wanted to put in.</p>
-</dd>
-</dl>
-<!-- TEASER_END --><p><br></p>
-<p>As for the name of the blog, ever since I read the autobiography of <a class="reference external" href="https://en.wikipedia.org/wiki/Herbert_A._Simon">Herbert Simon</a>,
-I've been fascinated by his idea of <a class="reference external" href="https://en.wikipedia.org/wiki/Bounded_rationality">bounded rationality</a> which is the idea that:</p>
+<h5> How fast can you go? </h5>
+<p>Now that we have a rough idea of what decision problems are, we can talk about the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Computational_complexity_theory">computational complexity</a>
+of these problems.  It's actually much more intuitive than it sounds.  Basically,
+we want to answer questions about how many resources (e.g. CPU run-time,
+memory, network bandwidth, circuit size etc.) will be needed to solve a
+particular decision problem.  Seems like a reasonable thing to investigate.
+For now, let's just focus on one of these aspects: run-time.  Our goal here is
+to classify different types of problems in terms of how easy (or hard) they are
+to solve in terms of run-time.</p>
+<p>If you've done any study of algorithms, you probably have a rough idea of the
+idea of polynomial time problems.  Roughly speaking, if you can write a program
+to solve a decision problem (correctly) and its run-time scales polynomially
+with the size of the input, then you've got a polynomial time decision problem.
+Another name for this class of decision problems is "<strong>P</strong>".
+For example, let's define a decision problem <cite>FINDX</cite>:</p>
 <blockquote>
-"when individuals make decisions, their rationality is limited
-by the information they have, the cognitive limitations of their minds, and
-the time available to make the decision."</blockquote>
-<p>Along with this idea, Simon also gives the idea of <em>satisficing</em>, a term
-combining the meaning <em>satisfy</em> and <em>suffice</em>, a stark contrast to optimal
-decision making.  Not only was he quite ahead of the times applying this idea
-of bounded rationality to economics/social science analysis, it also really
-speaks to his strong inclination to look at reality in the most rational way.
-This is as opposed to how many academics behave by trying to fit reality
-into their elegant mathematical models (A pithy quote from Galbraith:
-<tt class="docutils literal">economists are most economical about ideas. They make the ones they learned
-in graduate school last a lifetime</tt>).</p>
-<p>Simon is definitely a personal hero of mine, a true polymath.  This is quite
-apparent from Simon winning both a Nobel Prize <em>and</em> a Turing award (the Turing
-award was for his contributions to artificial intelligence and IPL, a precursor
-to Lisp).  Beyond his massive contributions to the social and computer
-sciences, his multi-disciplinary approach to problems along with a strong
-tendency towards rational thinking really speak to me.  So naturally, I
-don't mind lifting the terms <em>satisficing</em> and <em>bounded rationality</em> to use
-as names for the domain/blog title.</p>
-<p>In this weblog, I hope to apply the spirit of these two ideas, trying to
-understand and explain technical subjects without getting bogged down in the
-minutiae that so frequently surrounds technical subjects.  Instead, try to
-focus on the ideas that actually help us move forward in solving practical
-problems to a satisfactory degree (satisficing).</p>
-<p>With respect to the subject area of the blog, it will probably vary quite a
-bit.  There will probably be a lot of focus on programming and data science
-since that's what I spend most of my time at work doing.  However, don't be
-surprised if I write about other various technical subjects that interest me
-such as math or investing.  Real world problems rarely fit into such neat
-classifications, so why limit what I write about?  Hope you enjoy it.</p>
+<cite>FINDX</cite>: Does an array of <span class="math">\(n\)</span> integers <span class="math">\(A = [a_1, a_2, \ldots, a_n]\)</span> contain integer <span class="math">\(x\)</span>?</blockquote>
+<p><cite>FINDX</cite> is in the class of decision problems <strong>P</strong> because it's simple to write
+an algorithm that gives a yes/no answer in linear time in the size of the array
+<span class="math">\(A\)</span> <a class="footnote-reference" href="posts/accessible-satisfiability/#id15" id="id3">[3]</a>.  A more succinct way of saying this is that <cite>FINDX</cite> is in <strong>P</strong>.</p>
+<p></p>
+<h5> NP What? </h5>
+<p>So up to this point, I think most programmers will have a reasonable
+understanding of these concepts.  Where it gets hairy is when we start talking
+about <strong>NP</strong> problems.  The underlying idea is not complicated but it is,
+well, strange.</p>
+<p>When we write code, most of us are thinking about how to solve a problem.  It's
+quite natural to do so and, in fact, we've defined a set of problems based on
+how fast we can solve them, the class of problems called <strong>P</strong>.  However,
+<strong>NP</strong> problems are defined differently.  It's not about how fast we can solve a
+problem, but how fast we can <em>verify</em> a potential answer to the problem <a class="footnote-reference" href="posts/accessible-satisfiability/#id16" id="id4">[4]</a>.
+In particular, <strong>NP</strong> is about how fast we can verify a potential
+answer (and proof of that answer) is correct.  Say what?</p>
+<p>Let's look back at our example to make a bit more sense of this definition.  If
+we take the above example above of finding <span class="math">\(x\)</span> in an array <span class="math">\(A\)</span>,
+we're not trying to figure out a solution to this problem, we're trying to
+figure out something different:</p>
+<blockquote>
+Given <span class="math">\(A = [a_1, a_2, \ldots, a_n]\)</span>, we are told that <span class="math">\(x\)</span> is in
+<span class="math">\(A\)</span> and some proof (like the index into <span class="math">\(A\)</span> where <cite>x</cite> is), can
+we write an algorithm (in polynomial time) to figure out if what we are
+told is correct?</blockquote>
+<p>It turns out, yes, we can write that algorithm: we just need to look up the
+index where <span class="math">\(x\)</span> is said to be.  So we would say, that <cite>FINDX</cite> is in
+(the class of decision problems called) <strong>NP</strong>.</p>
+<p>Stop and think about this for a second.  To figure out if <cite>FINDX</cite> was an <strong>NP</strong>
+problem, we didn't look at how easy it was to solve, but rather how easy it was
+to verify a potential solution was correct!?  Why would we ever want to define
+problems in such strange, roundabout way?</p>
+<p>It turns out that many important, naturally arising problems can be classified
+as <strong>NP</strong>.  Here are some more examples (try to see if you figure out why these
+would be classified as <strong>NP</strong> problems <a class="footnote-reference" href="posts/accessible-satisfiability/#id17" id="id5">[5]</a> ):</p>
+<ul class="simple">
+<li>"Is an array of integers sorted?" (might want something like this for binary search)</li>
+<li>"Is there a path from vertex <span class="math">\(s\)</span> to vertex <span class="math">\(t\)</span> in graph <span class="math">\(G\)</span>?" (something that you might want to do in a program like Google Maps).</li>
+<li>"Given a Boolean formula, is there an assignment to the variables to make the formula true?"</li>
+</ul>
+<p>The last one is of particular note because that is what we're going to be
+talking about in the next section.  Also note, that we saw that <cite>FINDX</cite> was
+in both <strong>P</strong> and <strong>NP</strong>.  The more general result is that all all decision
+problems in <strong>P</strong> are in <strong>NP</strong> (but most likely not the other way around) <a class="footnote-reference" href="posts/accessible-satisfiability/#id18" id="id6">[6]</a>.</p>
+<p>There's one last concept that I should mention and that's the idea of
+<strong>NP</strong>-complete problems (<strong>NPC</strong> for short).  Without going into too much
+detail, a good way to think about it is as the "hardest problems" in <strong>NP</strong>.
+In the examples above, the problems that are in <strong>P</strong> (e.g. <cite>FINDX</cite>) are
+typically considered "easy".  Whereas the last problem is considered "hard".
+Suffice it to say, <strong>NPC</strong> problems are important because they arise naturally
+in many contexts and are "hard" to solve.</p>
+<p></p>
+<h5> NP is <em>not</em> "not polynomial" </h5>
+<p>Before we end this section, a <em>very</em> important caution: NP does <strong>not</strong> stand
+for "non-polynomial" or "not polynomial", as one would intuitively think.
+<strong>P</strong> stands for (roughly) polynomial time, so doesn't it make sense for the
+"N" in <strong>NP</strong> to stand for "non-" or "not"?  Nope, apparently not.
+I agree though that it's not a great name now-a-days much to the chagrin of
+students new to computational complexity (it does make more sense using another
+definition of <strong>NP</strong> though) .</p>
+<p><strong>NP</strong> actually stands for "<em>non-deterministic polynomial time</em>".  The details
+aren't too important but the big takeaway is this: <strong>NP-Complete</strong> problems <em>probably</em>
+have no polynomial time solution in the worse case.  But as we saw, <strong>P</strong>
+problems are a subset of <strong>NP</strong> problems so at least some <strong>NP</strong> problems can
+be solved in polynomial time.  Basically,
+<strong>NPC</strong> <span class="math">\(\approx\)</span> problems with no polynomial time solution (probably);
+<strong>P</strong> <span class="math">\(=\)</span> polynomial time problems.</p>
+<p><br></p>
+<h4> Satisfiability </h4>
+<p>In the previous section, we discussed some theoretical ideas around <strong>NPC</strong>
+problems and how they can be really difficult (e.g. probably exponential time
+in the worse case).  However, in many cases the <strong>NPC</strong> problems we come across
+rarely get into this worse case behavior, allowing us to practically solve some
+rather interesting problems.  Let's take a look at a particular <strong>NPC</strong> problem
+and some of its applications to see why this might be the case.</p>
+<p></p>
+<h5> Boolean Satisfiability </h5>
+<p>One of the most important <strong>NPC</strong> problems (and in fact the very first one
+to be proven <strong>NPC</strong>) is the <em>Boolean Satisfiability Problem</em> or <em>SAT</em> for short.
+The definition from <a class="reference external" href="https://en.wikipedia.org/wiki/Boolean_satisfiability_problem">Wikipedia</a>:</p>
+<blockquote>
+A propositional logic formula (<span class="math">\(\phi\)</span>), also called Boolean expression, is built from
+variables, operators AND (conjunction, also denoted by ∧), OR (disjunction, ∨),
+NOT (negation, ¬), and parentheses. A formula is said to be satisfiable if it
+can be made TRUE by assigning appropriate logical values (i.e. TRUE, FALSE) to
+its variables. The Boolean satisfiability problem (SAT) is, given a formula, to
+check whether it is satisfiable.</blockquote>
+<p>So basically, given a Boolean formula with Boolean variables, can we find an
+assignment to the variables to make it true.  A trivial example of a SAT
+instance might look like Eqn. 1 (recall <span class="math">\(\wedge\)</span> means "AND"; <span class="math">\(\vee\)</span> means "OR):</p>
+<div class="math">
+\begin{equation*}
+\phi := x_0 \wedge x_1 \tag{1}
+\end{equation*}
+</div>
+<p>It's trivial to see how we could make <span class="math">\(\phi\)</span> true (just set <span class="math">\(x_0=1, x_1=1\)</span>).</p>
+<p>Before moving on to some applications of SAT, let's just convince ourselves
+that SAT is in <strong>NP</strong>.  So given a Boolean formula (e.g. <span class="math">\(\phi\)</span>), and a
+potential solution (e.g. <span class="math">\(x_0=1, x_1=1\)</span>), can we verify that the
+potential solution is correct in polynomial time?  Yes, take a look at the
+footnote for a brief explanation <a class="footnote-reference" href="posts/accessible-satisfiability/#id19" id="id7">[7]</a>.</p>
+<p>Practically though, we rarely care if we can <em>verify</em> a potential solution
+in polynomial time; we usually just care about finding <em>a solution</em>
+i.e. the values of <span class="math">\(x_0\)</span> and <span class="math">\(x_1\)</span> that make <span class="math">\(\phi=1\)</span>.
+A naive algorithm is just try all possible values of the input variables.
+So for Eqn. 1, we could just try <span class="math">\((x_0=0, x_1=0)\)</span>, <span class="math">\((x_0=0, x_1=1)\)</span>,
+<span class="math">\(,(x_0=1, x_1=0)\)</span>, <span class="math">\((x_0=1, x_1=1),\)</span>
+and see if any yield <span class="math">\(\phi=1\)</span>.
+It's not too hard to see that there are <span class="math">\(2^n\)</span> possible values for
+<span class="math">\(n\)</span> Boolean variables <a class="footnote-reference" href="posts/accessible-satisfiability/#id20" id="id8">[8]</a>.  Leading us to an exponential algorithm in
+the worse case.</p>
+<p>In fact, we don't really know of a better algorithm that can find a solution to
+SAT in less than exponential time (in the worse case).  Most modern SAT
+algorithms use some smarter ways to explore the exponential space of variable
+values but invariably, they must try an exponential number assignments in the
+worse case.</p>
+<p>The interesting thing about this worse case scenario is that in many domains it
+doesn't really apply <a class="footnote-reference" href="posts/accessible-satisfiability/#id21" id="id9">[9]</a>.  SAT is widely used in many applications (some of which
+we'll describe below) despite this theoretical worse case scenario.  Through
+a combination of clever engineering <a class="footnote-reference" href="posts/accessible-satisfiability/#id22" id="id10">[10]</a> and application of theory, SAT
+solvers have become increasingly efficient at solving many practical problems
+across a variety of domains.  We should never forget the old adage:</p>
+<blockquote>
+In theory, theory and practice are the same. In practice, they are not.</blockquote>
+<p></p>
+<h5> From Bits to Bytes </h5>
+<p>So now that we know a bit more about SAT, how the heck is this going to help us
+solve problems we actually care about?  To answer that, let's remember how
+digital computers are built: at the lowest level, we have atoms; at the next
+level we have transistors; but at the level we actually care about we have
+logic gates i.e. AND, OR, NOT gates, the same operators we used in our Boolean
+formula!</p>
+<p>From these basic logic gates, we can start building more complicated formulas
+that represent higher level questions.  For instance, imagine we have
+three 8-bit numbers <span class="math">\(A_2, B_2, C_2\)</span> (the subscript 2 reminds us that
+we're dealing with binary numbers), and we want to do some addition, we could
+encode this in a SAT formula that might abstractly look like Eqn. 2:</p>
+<div class="math">
+\begin{equation*}
+\phi := ADDER_8(A_2, B_2, C_2) \tag{2}
+\end{equation*}
+</div>
+<p>Here <span class="math">\(ADDER_8\)</span> is a 8-bit hardware <a class="reference external" href="https://en.wikipedia.org/wiki/Adder_%28electronics%29">adder</a>,
+that takes two 8-bit numbers <span class="math">\(A_2, B_2\)</span> and produces an 8-bit number <cite>C_2</cite>.
+So if we encode Eqn. 2 as a SAT instance and send it to a SAT solver, it will
+return "SAT" and give us back values for <span class="math">\(A_2, B_2, C_2\)</span> such that <span class="math">\(A + B = C\)</span> <a class="footnote-reference" href="posts/accessible-satisfiability/#id23" id="id11">[11]</a>!
+Still not quite that useful since they'll be (from our point of view) random
+values for the input numbers.</p>
+<p>What we actually want is to start asking us more interesting questions,
+see if you can guess what this encodes (dropping the subscript 2 here
+for readability, but let's not forget we're dealing with Boolean variables here):</p>
+<div class="math">
+\begin{equation*}
+\phi := ADDER_8(A, B, C) \wedge (A = 6) \wedge (B = 9) \tag{3}
+\end{equation*}
+</div>
+<p>If we send this to the SAT solver, we'll get a "SAT" result with <span class="math">\(C=15\)</span> (in binary).
+We've effectively implemented 6 + 9 using Eqn. 3.</p>
+<p>Okay, so still not that interesting.  How about this one?</p>
+<div class="math">
+\begin{align*}
+\phi := &amp; ADDER_8(A, B, C) \wedge \\
+        &amp; (COMPARATOR_8(C, A) \vee COMPARATOR_8(C, B)) \tag{4}
+\end{align*}
+</div>
+<p>Here <span class="math">\(COMPARATOR_8(X,Y)\)</span> is an 8-bit hardware <a class="reference external" href="https://en.wikipedia.org/wiki/Digital_comparator">comparator</a>
+implementing <span class="math">\(X &lt; Y\)</span>.  Now we're getting somewhere.  We're asking a much
+more interesting question:</p>
+<blockquote>
+Are there any (8-bit values) of <span class="math">\(A, B, C\)</span>, such that the sum
+(<span class="math">\(C\)</span>) is less than one of its addends (<span class="math">\(A, B\)</span>)?</blockquote>
+<p>Do you think this instance should be SAT (i.e. at least one assignment of
+values for <span class="math">\(A, B, C\)</span> such that <span class="math">\(\phi=1\)</span>) or UNSAT (no such values
+exist)? See <a class="footnote-reference" href="posts/accessible-satisfiability/#id24" id="id12">[12]</a> for the answer.</p>
+<p></p>
+<h5> From Bytes to Code </h5>
+<p>We saw above how we can use SAT to start asking some basic questions
+around fixed-width arithmetic.  We can extend this to much more complicated
+ideas.  For one, all programming languages operate on bits and bytes, so we
+should be able to ask questions about code too right?  Let's take a look
+at how we can encode some basic structures first.</p>
+<p>As a first example, we could build a SAT an instance that looked very similar
+to the one from the last subsection by translating some C code (except the
+variables might be signed 32-bit numbers instead of unsigned 8-bit numbers):</p>
+<table class="codetable"><tr>
+<td class="linenos"><div class="linenodiv"><pre><a href="posts/accessible-satisfiability/#rest_code_d41ec674e841418785eb46e25453576a-1">1</a>
+<a href="posts/accessible-satisfiability/#rest_code_d41ec674e841418785eb46e25453576a-2">2</a>
+<a href="posts/accessible-satisfiability/#rest_code_d41ec674e841418785eb46e25453576a-3">3</a></pre></div></td>
+<td class="code"><pre class="code c"><a name="rest_code_d41ec674e841418785eb46e25453576a-1"></a><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
+<a name="rest_code_d41ec674e841418785eb46e25453576a-2"></a><span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<a name="rest_code_d41ec674e841418785eb46e25453576a-3"></a><span class="n">assert</span><span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">z</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">);</span>
+</pre></td>
+</tr></table>
+<p>Notice that the <cite>assert</cite> is a property we want to guarantee <em>for all</em> possible
+values of <cite>x, y, z</cite>, but our SAT instance can only tell us if there <em>exists</em> one
+possible way for that to happen.  So instead, we'll flip the question around
+and actually ask the SAT solver something like this:</p>
+<table class="codetable"><tr>
+<td class="linenos"><div class="linenodiv"><pre><a href="posts/accessible-satisfiability/#rest_code_89221c4011e547aa88653ed87da37745-1">1</a>
+<a href="posts/accessible-satisfiability/#rest_code_89221c4011e547aa88653ed87da37745-2">2</a>
+<a href="posts/accessible-satisfiability/#rest_code_89221c4011e547aa88653ed87da37745-3">3</a></pre></div></td>
+<td class="code"><pre class="code c"><a name="rest_code_89221c4011e547aa88653ed87da37745-1"></a><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
+<a name="rest_code_89221c4011e547aa88653ed87da37745-2"></a><span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">;</span>
+<a name="rest_code_89221c4011e547aa88653ed87da37745-3"></a><span class="n">assert_exists</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">z</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">));</span>
+</pre></td>
+</tr></table>
+<p>Which is just negating what we had in our original <cite>assert</cite> statement making
+it a suitable question to ask a SAT solver.  And voila, we've just asked
+the same question as above except on equivalent C code.
+This process of verifying properties about some piece of code (or more
+generally any system) is called
+<a class="reference external" href="https://en.wikipedia.org/wiki/Formal_verification">formal verification</a>.
+It can help us "prove" correctness about various types of systems like
+cryptographic protocols, digital circuits, or code as we just saw.</p>
+<p></p>
+<h5> What (about) <cite>if</cite>'s? </h5>
+<p>Obviously code can get much more complicated than the small snippet above.
+I won't go into too much more detail but I do want to cover another concept
+that will help us deal with <cite>if</cite> statements.  Let's look at the following
+snippet:</p>
+<table class="codetable"><tr>
+<td class="linenos"><div class="linenodiv"><pre><a href="posts/accessible-satisfiability/#rest_code_0a581cda13034865a919d5c9cd6d973c-1">1</a>
+<a href="posts/accessible-satisfiability/#rest_code_0a581cda13034865a919d5c9cd6d973c-2">2</a>
+<a href="posts/accessible-satisfiability/#rest_code_0a581cda13034865a919d5c9cd6d973c-3">3</a>
+<a href="posts/accessible-satisfiability/#rest_code_0a581cda13034865a919d5c9cd6d973c-4">4</a>
+<a href="posts/accessible-satisfiability/#rest_code_0a581cda13034865a919d5c9cd6d973c-5">5</a>
+<a href="posts/accessible-satisfiability/#rest_code_0a581cda13034865a919d5c9cd6d973c-6">6</a>
+<a href="posts/accessible-satisfiability/#rest_code_0a581cda13034865a919d5c9cd6d973c-7">7</a></pre></div></td>
+<td class="code"><pre class="code c"><a name="rest_code_0a581cda13034865a919d5c9cd6d973c-1"></a><span class="kt">int</span> <span class="n">y</span><span class="p">;</span>
+<a name="rest_code_0a581cda13034865a919d5c9cd6d973c-2"></a><span class="k">if</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+<a name="rest_code_0a581cda13034865a919d5c9cd6d973c-3"></a>  <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+<a name="rest_code_0a581cda13034865a919d5c9cd6d973c-4"></a><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+<a name="rest_code_0a581cda13034865a919d5c9cd6d973c-5"></a>  <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">y</span><span class="p">;</span>
+<a name="rest_code_0a581cda13034865a919d5c9cd6d973c-6"></a><span class="p">}</span>
+<a name="rest_code_0a581cda13034865a919d5c9cd6d973c-7"></a><span class="n">assert</span><span class="p">(</span><span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">);</span>
+</pre></td>
+</tr></table>
+<p>Here we have two new structures that cause some issues: (a) the re-assignment
+of y, and (b) the <cite>if-else</cite> statement.  However, both can handled without too
+much trouble.  The easiest way to see this is do some transformations on the
+code to make it more amenable to SAT.  Here's one way to do it:</p>
+<table class="codetable"><tr>
+<td class="linenos"><div class="linenodiv"><pre><a href="posts/accessible-satisfiability/#rest_code_a229c3014d9f4c68912d384e63315d75-1">1</a>
+<a href="posts/accessible-satisfiability/#rest_code_a229c3014d9f4c68912d384e63315d75-2">2</a>
+<a href="posts/accessible-satisfiability/#rest_code_a229c3014d9f4c68912d384e63315d75-3">3</a>
+<a href="posts/accessible-satisfiability/#rest_code_a229c3014d9f4c68912d384e63315d75-4">4</a>
+<a href="posts/accessible-satisfiability/#rest_code_a229c3014d9f4c68912d384e63315d75-5">5</a>
+<a href="posts/accessible-satisfiability/#rest_code_a229c3014d9f4c68912d384e63315d75-6">6</a>
+<a href="posts/accessible-satisfiability/#rest_code_a229c3014d9f4c68912d384e63315d75-7">7</a>
+<a href="posts/accessible-satisfiability/#rest_code_a229c3014d9f4c68912d384e63315d75-8">8</a>
+<a href="posts/accessible-satisfiability/#rest_code_a229c3014d9f4c68912d384e63315d75-9">9</a></pre></div></td>
+<td class="code"><pre class="code c"><a name="rest_code_a229c3014d9f4c68912d384e63315d75-1"></a><span class="kt">int</span> <span class="n">y_1</span><span class="p">,</span> <span class="n">y_2a</span><span class="p">,</span> <span class="n">y_2b</span><span class="p">,</span> <span class="n">y_3</span><span class="p">;</span>
+<a name="rest_code_a229c3014d9f4c68912d384e63315d75-2"></a><span class="n">y_2b</span> <span class="o">=</span> <span class="n">y_1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+<a name="rest_code_a229c3014d9f4c68912d384e63315d75-3"></a><span class="n">y_2a</span> <span class="o">=</span> <span class="o">-</span><span class="n">y_1</span><span class="p">;</span>
+<a name="rest_code_a229c3014d9f4c68912d384e63315d75-4"></a><span class="k">if</span> <span class="p">(</span><span class="n">y_1</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+<a name="rest_code_a229c3014d9f4c68912d384e63315d75-5"></a>  <span class="n">y_3</span> <span class="o">=</span> <span class="n">y_2b</span><span class="p">;</span>
+<a name="rest_code_a229c3014d9f4c68912d384e63315d75-6"></a><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+<a name="rest_code_a229c3014d9f4c68912d384e63315d75-7"></a>  <span class="n">y_3</span> <span class="o">=</span> <span class="n">y_2a</span><span class="p">;</span>
+<a name="rest_code_a229c3014d9f4c68912d384e63315d75-8"></a><span class="p">}</span>
+<a name="rest_code_a229c3014d9f4c68912d384e63315d75-9"></a><span class="n">assert</span><span class="p">(</span><span class="n">y_3</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+</pre></td>
+</tr></table>
+<p>There are a couple of things going on here.  First, we use a bunch
+of intermediate variables for all of the computations that we're doing.
+Remember, we have to translate this code down to bits (Boolean variables)
+that must all exist within one Boolean formula.  There is no concept of
+sequential operations, so we have additional variables to represent every
+intermediate computation we do.  This is not unlike how we think about building
+digital logic.</p>
+<p>Second, we use a hardware structure called a <a class="reference external" href="https://en.wikipedia.org/wiki/Multiplexer">multiplexor</a>
+that effectively implements an <cite>if-else</cite> statement.  It can be built from logic gates,
+so we'll have no trouble putting it into our Boolean formula.
+Here's an image from Wikipedia that visualizes it:</p>
+<img alt="multiplexor" class="align-center" src="images/mux.png" style="height: 250px;"><p>Here, we set <span class="math">\(A=y\_2a, B=y\_2b, Z=y\_3,\)</span> and <span class="math">\(S_0=(y&gt;=0)\)</span>.  When
+<span class="math">\(S_0=0\)</span>, it constrains (remember we're in the context of a Boolean
+formula) <span class="math">\(Z\)</span> to <span class="math">\(A\)</span>, when <span class="math">\(S_0=1\)</span>, it constrains <span class="math">\(Z\)</span> to
+<span class="math">\(B\)</span>.</p>
+<p>Putting this all together, we could build a large Boolean formula that effectively
+asks the question:</p>
+<blockquote>
+Is it possible for <span class="math">\(y\_3\)</span> to be less than or equal to 0 for the above code snippet?</blockquote>
+<p>Pretty cool huh?  Of course, industrial strength formal verification tools will
+use much more complicated techniques and can handle many more types of code
+structures (like loops).  One of the big limitations (and probably a big research area)
+is scaling these problems.  You can imagine that trying to ask questions
+about the Linux kernel might become untenable due to the size of the problem.</p>
+<p>If you're interested you should check out the <a class="reference external" href="http://www.satisfiability.org/">SAT conference</a>
+where they have many more interesting types of topics around satisfiability
+and its applications.</p>
+<p></p>
+<h5> Satisfiability Module Theories </h5>
+<p>One last idea that I want to talk about before we end this section is that
+of other types of satisfiability problems.  In the above discussion,
+we talked exclusively about Boolean Satisfiability -- formulas that
+only use Boolean variables.  However, there are many more types of satisfiability
+problems.  One quite natural extension is instead of just using Boolean
+variables, replace them with other types of "things" like real numbers,
+integers, list, arrays etc.  These "things" are more formally called
+<a class="reference external" href="https://en.wikipedia.org/wiki/Theory_%28mathematical_logic%29">theories</a>,
+and allow us to ask higher level "questions" rather than trying to
+convert everything down to the bit level.  These satisfiability
+decision problems are usually referred to as
+<a class="reference external" href="https://en.wikipedia.org/wiki/Satisfiability_modulo_theories">satisfiability modulo theories (SMT)</a> problems.</p>
+<p>One interesting thing to note is that while you might expect that
+this higher level of abstraction would allow us to solve problems
+more efficiently, the solvers for these other types of SAT problems are much
+more complicated.  This complexity causes some issues in trying to find good
+heuristics to efficiently solve these types of problems.  In many cases, the
+best solution is still to just reduce your problem down to bits and use Boolean
+SAT, which can do much more fine grained optimizations.  In fact, many SMT
+solvers do use a Boolean SAT solver as the underlying solving engine (with some
+nice things on top).</p>
+<p><br></p>
+<h4> Conclusion </h4>
+<p>I spent quite a few years learning about SAT and its applications.
+It's quite an elegant topic because it is a direct application
+of what appears to be a rather theoretical and core problem of computer
+science.  Hopefully this article helps introduce some of the ideas that took me
+years to digest in an easy to understand way.  Sometimes theory is just theory,
+but in this case, theory really does lead to practice.</p>
+<p><br><br></p>
+<table class="docutils footnote" frame="void" id="id13" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="posts/accessible-satisfiability/#id1">[1]</a></td>
+<td>Of course a simpler explanation in English without the math, necessarily makes it less precise.  So the usual caveats apply.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id14" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="posts/accessible-satisfiability/#id2">[2]</a></td>
+<td>For some intuition of why we study at decision problems, think about how "difficult" the different types of problems are.  A yes/no answer seems a heck of a lot easier than coming up with a function, or optimizing something with constraints.  So one way of thinking about it is: if we somehow figure out that a yes/no decision problem is hard, then we can reasonably conclude that the function/optimization "version" of the problem is also hard.  Of course it's a bit more complicated but that's how I like to think about it.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id15" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="posts/accessible-satisfiability/#id3">[3]</a></td>
+<td>A line is a type of polynomial, e.g. <span class="math">\(x = x^k\)</span> where <span class="math">\(k=1\)</span>.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id16" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="posts/accessible-satisfiability/#id4">[4]</a></td>
+<td>There are, of course, many (equivalent) ways to define NP problems.  The one I use, which I find most intuitive is from <cite>Introduction to Algorithms &lt;https://en.wikipedia.org/wiki/Introduction_to_Algorithms&gt;</cite>, known more colloquially as "CLRS" (the first letters of the authors' name).</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id17" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="posts/accessible-satisfiability/#id5">[5]</a></td>
+<td>The explanations in order: (i) If we're told an array is sorted, we just have to run through the array to see if they're sorted. (ii) If we're told there is a path from <cite>s</cite> to <cite>t</cite> and the proof is the path, it's simple to see if that path is actually in the graph. (iii) If we're told the formula is true and the proof is the assignment to the variables, we just need to evaluate the formula to see if its true.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id18" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="posts/accessible-satisfiability/#id6">[6]</a></td>
+<td>This is the <a class="reference external" href="https://en.wikipedia.org/wiki/P_versus_NP_problem">P vs. NP</a> problem.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id19" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="posts/accessible-satisfiability/#id7">[7]</a></td>
+<td>If we are given the assignment to the variables, we just have to plug it into the formula and evaluate it. This is surely a linear time operation in the size of the formula.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id20" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="posts/accessible-satisfiability/#id8">[8]</a></td>
+<td>Each Boolean variable can be turned off or on independently, so the number of possibilities is <span class="math">\(2 * 2 * 2 \ldots = 2^n\)</span>, where <span class="math">\(n\)</span> is the number of Boolean variables.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id21" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="posts/accessible-satisfiability/#id9">[9]</a></td>
+<td>That is, many instances of the SAT problem do not have this theoretical worse case scenario.  That means that with some clever tricks, we have a chance of solving large SAT instances without having to wait for the end of the universe to come about.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id22" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="posts/accessible-satisfiability/#id10">[10]</a></td>
+<td>If you want to check out a good implementation you should read about the <a class="reference external" href="http://minisat.se/">MiniSat solver</a>.  The core solver is about 1000 lines of C (with comments) and for a while was the go-to SAT solver for anything to do with SAT.  It was (is?) incredibly fast beating most of the solvers at the time, primarily though clever code/memory optimizations.  I did a bunch of hacking on this code during graduate school and it's surprisingly easy to work with (mostly because of it's small size).  Of course, now-a-days there are faster SAT solvers (many of which are built on top of MiniSat) but it's still quite a robust solution if you need something simple to start with.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id23" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="posts/accessible-satisfiability/#id11">[11]</a></td>
+<td>Since we're dealing with fixed width operations, there is always a possibility that we overflow -- that is, the resulting number of <span class="math">\(A + B\)</span> is too large to fit within the 8-bits we have for <span class="math">\(C\)</span>.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id24" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="posts/accessible-satisfiability/#id12">[12]</a></td>
+<td>If we were just talking about non-negative integers <span class="math">\(A,B,C\)</span>, then the answer should be UNSAT because <span class="math">\(A + B\)</span> should always yield something greater or equal to <span class="math">\(C\)</span>.  However, we're talking about 8-bit numbers here.  If we try to add up two 8-bit numbers whose result can't fit into 8-bits, then we'll get an overflow condition where C will actually be less than A or B.  Our first interesting result!</td>
+</tr></tbody>
+</table>
 </div>
     </div>
     </article>
 </div>
 
-
-
-
-
-
-
-            </div>
+        <nav class="postindexpager"><ul class="pager">
+<li class="next">
+                <a href="index-3.html" rel="next">Older posts</a>
+            </li>
+        </ul></nav><script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+            MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
+            </script>
+</div>
             <div class="col-md-3 well">
             <p>
             I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
@@ -547,8 +587,8 @@ classifications, so why limit what I write about?  Hope you enjoy it.</p>
             <p>
             <a href="../rss.xml">RSS feed</a>
             </p>
+            </div>
         </div>
-    </div>
         <!--End of body content-->
 
         <footer id="footer">

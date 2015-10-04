@@ -6,59 +6,83 @@
     xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
                         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
  <sitemap>
+  <loc>http://satisficing.briankeng.com/categories/boolean.xml</loc>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
+ </sitemap>
+ <sitemap>
   <loc>http://satisficing.briankeng.com/categories/common-sense.xml</loc>
-  <lastmod>2015-09-06T19:10:00Z</lastmod>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://satisficing.briankeng.com/categories/first-post.xml</loc>
-  <lastmod>2015-09-06T19:10:00Z</lastmod>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
+ </sitemap>
+ <sitemap>
+  <loc>http://satisficing.briankeng.com/categories/formal.xml</loc>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://satisficing.briankeng.com/categories/functional-programming.xml</loc>
-  <lastmod>2015-09-06T19:10:00Z</lastmod>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://satisficing.briankeng.com/categories/functions.xml</loc>
-  <lastmod>2015-09-06T19:10:00Z</lastmod>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://satisficing.briankeng.com/categories/fundamentals.xml</loc>
-  <lastmod>2015-09-06T19:10:00Z</lastmod>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://satisficing.briankeng.com/categories/github.xml</loc>
-  <lastmod>2015-09-06T19:10:00Z</lastmod>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://satisficing.briankeng.com/categories/greg-ward.xml</loc>
-  <lastmod>2015-09-06T19:10:00Z</lastmod>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://satisficing.briankeng.com/categories/investing.xml</loc>
-  <lastmod>2015-09-06T19:10:00Z</lastmod>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://satisficing.briankeng.com/categories/james-hague.xml</loc>
-  <lastmod>2015-09-06T19:10:00Z</lastmod>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
+ </sitemap>
+ <sitemap>
+  <loc>http://satisficing.briankeng.com/categories/mathjax.xml</loc>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://satisficing.briankeng.com/categories/nikola.xml</loc>
-  <lastmod>2015-09-06T19:10:00Z</lastmod>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
+ </sitemap>
+ <sitemap>
+  <loc>http://satisficing.briankeng.com/categories/np-complete.xml</loc>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://satisficing.briankeng.com/categories/procedures.xml</loc>
-  <lastmod>2015-09-06T19:10:00Z</lastmod>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
+ </sitemap>
+ <sitemap>
+  <loc>http://satisficing.briankeng.com/categories/sat.xml</loc>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://satisficing.briankeng.com/categories/satisficing.xml</loc>
-  <lastmod>2015-09-06T19:10:00Z</lastmod>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
+ </sitemap>
+ <sitemap>
+  <loc>http://satisficing.briankeng.com/categories/verification.xml</loc>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://satisficing.briankeng.com/rss.xml</loc>
-  <lastmod>2015-09-06T19:10:00Z</lastmod>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
  </sitemap>
  <sitemap>
   <loc>http://satisficing.briankeng.com/sitemap.xml</loc>
-  <lastmod>2015-09-06T19:10:00Z</lastmod>
+  <lastmod>2015-10-04T03:25:00Z</lastmod>
  </sitemap>
 </sitemapindex>

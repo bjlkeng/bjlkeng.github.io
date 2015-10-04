@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="An overview of NP-Complete problems and Boolean Satisfiability with some practical applications.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accessible Satisfiability | Bounded Rationality</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
+<link rel="canonical" href="http://satisficing.briankeng.com/posts/accessible-satisfiability/">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="description" itemprop="description" content="An overview of NP-Complete problems and Boolean Satisfiability with some practical applications.">
+<meta name="author" content="Brian Keng">
+<link rel="prev" href="../functions-and-procedures/" title="Functions and Procedures" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="Accessible Satisfiability">
+<meta property="og:url" content="http://satisficing.briankeng.com/posts/accessible-satisfiability/">
+<meta property="og:description" content="An overview of NP-Complete problems and Boolean Satisfiability with some practical applications.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2015-10-03T20:28:04-04:00">
+<meta property="article:tag" content="Boolean">
+<meta property="article:tag" content="formal">
+<meta property="article:tag" content="mathjax">
+<meta property="article:tag" content="NP-Complete">
+<meta property="article:tag" content="SAT">
+<meta property="article:tag" content="verification">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://satisficing.briankeng.com/">
+
+                <span class="h1" id="blog-title">Bounded Rationality</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
+            <ul class="nav navbar-nav">
+<p class="lead">Understanding programming, data, and math to a satisfactory degree.</p>
+<!--
+                
+                <li><a href="/archive.html">Archive</a>
+                <li><a href="/categories/">Tags</a>
+                <li><a href="/rss.xml">RSS feed</a>
+
+                 
+-->
+            </ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+    <a href="index.rst" id="sourcelink">Source</a>
+    </li>
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            <div class="col-lg-9">
+                
+                
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Accessible Satisfiability</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">Brian Keng</span></p>
+            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2015-10-03T20:28:04-04:00" itemprop="datePublished" title="2015-10-03 20:28">2015-10-03 20:28</time></a></p>
+            
+        <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
+
+                <meta name="description" itemprop="description" content="An overview of NP-Complete problems and Boolean Satisfiability with some practical applications.">
+</div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>Even though it was just a scant few years ago, my research in grad school seems
+like it was from another lifetime.  Nowadays I deal with data and most of my
+code revolves around manipulating and extracting interesting insights from it.
+However in my previous life I spent quite a bit of time dealing with
+satisfiability problems.  So before I start writing about data and related
+topics, I thought I'd kick it old school and write about some topics from my
+formative years.</p>
+<!-- TEASER_END -->
+<p><br></p>
+<h4> Decision, P, NP and NP-Complete Problems </h4>
+<p><strong>Note:</strong> <em>Feel free to skip this section if you're already familiar with these
+topics.</em></p>
+<p>Before we get into some of the more heavy stuff, let's review some of the
+"basic" concepts that will help us put the satisfiability problem in context.
+I'm going to skip a lot of the formal math that typically comes from the branch
+of compute science called the <a class="reference external" href="https://en.wikipedia.org/wiki/Theory_of_computation">theory of computation</a>.  Instead, I'm going to
+try to explain it in a simpler way -- or at least in the way that I understand it <a class="footnote-reference" href=".#id13" id="id1">[1]</a>.</p>
+<p>One of the fundamental problems in computing is a <a class="reference external" href="https://en.wikipedia.org/wiki/Decision_problem">decision problem</a>: something that has a yes/no
+answer.  We can think of solving a decision problem as taking a realization
+of that problem, also known as an <em>instance</em>, as input and writing
+an algorithm that spit out the yes/no output (image from Wikipedia):</p>
+<img alt="decision problem" class="align-center" src="../../images/decision_problem.png" style="height: 250px;"><p>Pretty simple, huh?  Now there are other types of problems like <a class="reference external" href="https://en.wikipedia.org/wiki/Function_problem">function
+problems</a> and <a class="reference external" href="https://en.wikipedia.org/wiki/Optimization_problem">optimization
+problems</a> but you
+probably have some intuition that decision problems are something
+fundamental that we should be studying <a class="footnote-reference" href=".#id14" id="id2">[2]</a>.</p>
+<p></p>
+<h5> How fast can you go? </h5>
+<p>Now that we have a rough idea of what decision problems are, we can talk about the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Computational_complexity_theory">computational complexity</a>
+of these problems.  It's actually much more intuitive than it sounds.  Basically,
+we want to answer questions about how many resources (e.g. CPU run-time,
+memory, network bandwidth, circuit size etc.) will be needed to solve a
+particular decision problem.  Seems like a reasonable thing to investigate.
+For now, let's just focus on one of these aspects: run-time.  Our goal here is
+to classify different types of problems in terms of how easy (or hard) they are
+to solve in terms of run-time.</p>
+<p>If you've done any study of algorithms, you probably have a rough idea of the
+idea of polynomial time problems.  Roughly speaking, if you can write a program
+to solve a decision problem (correctly) and its run-time scales polynomially
+with the size of the input, then you've got a polynomial time decision problem.
+Another name for this class of decision problems is "<strong>P</strong>".
+For example, let's define a decision problem <cite>FINDX</cite>:</p>
+<blockquote>
+<cite>FINDX</cite>: Does an array of <span class="math">\(n\)</span> integers <span class="math">\(A = [a_1, a_2, \ldots, a_n]\)</span> contain integer <span class="math">\(x\)</span>?</blockquote>
+<p><cite>FINDX</cite> is in the class of decision problems <strong>P</strong> because it's simple to write
+an algorithm that gives a yes/no answer in linear time in the size of the array
+<span class="math">\(A\)</span> <a class="footnote-reference" href=".#id15" id="id3">[3]</a>.  A more succinct way of saying this is that <cite>FINDX</cite> is in <strong>P</strong>.</p>
+<p></p>
+<h5> NP What? </h5>
+<p>So up to this point, I think most programmers will have a reasonable
+understanding of these concepts.  Where it gets hairy is when we start talking
+about <strong>NP</strong> problems.  The underlying idea is not complicated but it is,
+well, strange.</p>
+<p>When we write code, most of us are thinking about how to solve a problem.  It's
+quite natural to do so and, in fact, we've defined a set of problems based on
+how fast we can solve them, the class of problems called <strong>P</strong>.  However,
+<strong>NP</strong> problems are defined differently.  It's not about how fast we can solve a
+problem, but how fast we can <em>verify</em> a potential answer to the problem <a class="footnote-reference" href=".#id16" id="id4">[4]</a>.
+In particular, <strong>NP</strong> is about how fast we can verify a potential
+answer (and proof of that answer) is correct.  Say what?</p>
+<p>Let's look back at our example to make a bit more sense of this definition.  If
+we take the above example above of finding <span class="math">\(x\)</span> in an array <span class="math">\(A\)</span>,
+we're not trying to figure out a solution to this problem, we're trying to
+figure out something different:</p>
+<blockquote>
+Given <span class="math">\(A = [a_1, a_2, \ldots, a_n]\)</span>, we are told that <span class="math">\(x\)</span> is in
+<span class="math">\(A\)</span> and some proof (like the index into <span class="math">\(A\)</span> where <cite>x</cite> is), can
+we write an algorithm (in polynomial time) to figure out if what we are
+told is correct?</blockquote>
+<p>It turns out, yes, we can write that algorithm: we just need to look up the
+index where <span class="math">\(x\)</span> is said to be.  So we would say, that <cite>FINDX</cite> is in
+(the class of decision problems called) <strong>NP</strong>.</p>
+<p>Stop and think about this for a second.  To figure out if <cite>FINDX</cite> was an <strong>NP</strong>
+problem, we didn't look at how easy it was to solve, but rather how easy it was
+to verify a potential solution was correct!?  Why would we ever want to define
+problems in such strange, roundabout way?</p>
+<p>It turns out that many important, naturally arising problems can be classified
+as <strong>NP</strong>.  Here are some more examples (try to see if you figure out why these
+would be classified as <strong>NP</strong> problems <a class="footnote-reference" href=".#id17" id="id5">[5]</a> ):</p>
+<ul class="simple">
+<li>"Is an array of integers sorted?" (might want something like this for binary search)</li>
+<li>"Is there a path from vertex <span class="math">\(s\)</span> to vertex <span class="math">\(t\)</span> in graph <span class="math">\(G\)</span>?" (something that you might want to do in a program like Google Maps).</li>
+<li>"Given a Boolean formula, is there an assignment to the variables to make the formula true?"</li>
+</ul>
+<p>The last one is of particular note because that is what we're going to be
+talking about in the next section.  Also note, that we saw that <cite>FINDX</cite> was
+in both <strong>P</strong> and <strong>NP</strong>.  The more general result is that all all decision
+problems in <strong>P</strong> are in <strong>NP</strong> (but most likely not the other way around) <a class="footnote-reference" href=".#id18" id="id6">[6]</a>.</p>
+<p>There's one last concept that I should mention and that's the idea of
+<strong>NP</strong>-complete problems (<strong>NPC</strong> for short).  Without going into too much
+detail, a good way to think about it is as the "hardest problems" in <strong>NP</strong>.
+In the examples above, the problems that are in <strong>P</strong> (e.g. <cite>FINDX</cite>) are
+typically considered "easy".  Whereas the last problem is considered "hard".
+Suffice it to say, <strong>NPC</strong> problems are important because they arise naturally
+in many contexts and are "hard" to solve.</p>
+<p></p>
+<h5> NP is <em>not</em> "not polynomial" </h5>
+<p>Before we end this section, a <em>very</em> important caution: NP does <strong>not</strong> stand
+for "non-polynomial" or "not polynomial", as one would intuitively think.
+<strong>P</strong> stands for (roughly) polynomial time, so doesn't it make sense for the
+"N" in <strong>NP</strong> to stand for "non-" or "not"?  Nope, apparently not.
+I agree though that it's not a great name now-a-days much to the chagrin of
+students new to computational complexity (it does make more sense using another
+definition of <strong>NP</strong> though) .</p>
+<p><strong>NP</strong> actually stands for "<em>non-deterministic polynomial time</em>".  The details
+aren't too important but the big takeaway is this: <strong>NP-Complete</strong> problems <em>probably</em>
+have no polynomial time solution in the worse case.  But as we saw, <strong>P</strong>
+problems are a subset of <strong>NP</strong> problems so at least some <strong>NP</strong> problems can
+be solved in polynomial time.  Basically,
+<strong>NPC</strong> <span class="math">\(\approx\)</span> problems with no polynomial time solution (probably);
+<strong>P</strong> <span class="math">\(=\)</span> polynomial time problems.</p>
+<p><br></p>
+<h4> Satisfiability </h4>
+<p>In the previous section, we discussed some theoretical ideas around <strong>NPC</strong>
+problems and how they can be really difficult (e.g. probably exponential time
+in the worse case).  However, in many cases the <strong>NPC</strong> problems we come across
+rarely get into this worse case behavior, allowing us to practically solve some
+rather interesting problems.  Let's take a look at a particular <strong>NPC</strong> problem
+and some of its applications to see why this might be the case.</p>
+<p></p>
+<h5> Boolean Satisfiability </h5>
+<p>One of the most important <strong>NPC</strong> problems (and in fact the very first one
+to be proven <strong>NPC</strong>) is the <em>Boolean Satisfiability Problem</em> or <em>SAT</em> for short.
+The definition from <a class="reference external" href="https://en.wikipedia.org/wiki/Boolean_satisfiability_problem">Wikipedia</a>:</p>
+<blockquote>
+A propositional logic formula (<span class="math">\(\phi\)</span>), also called Boolean expression, is built from
+variables, operators AND (conjunction, also denoted by ∧), OR (disjunction, ∨),
+NOT (negation, ¬), and parentheses. A formula is said to be satisfiable if it
+can be made TRUE by assigning appropriate logical values (i.e. TRUE, FALSE) to
+its variables. The Boolean satisfiability problem (SAT) is, given a formula, to
+check whether it is satisfiable.</blockquote>
+<p>So basically, given a Boolean formula with Boolean variables, can we find an
+assignment to the variables to make it true.  A trivial example of a SAT
+instance might look like Eqn. 1 (recall <span class="math">\(\wedge\)</span> means "AND"; <span class="math">\(\vee\)</span> means "OR):</p>
+<div class="math">
+\begin{equation*}
+\phi := x_0 \wedge x_1 \tag{1}
+\end{equation*}
+</div>
+<p>It's trivial to see how we could make <span class="math">\(\phi\)</span> true (just set <span class="math">\(x_0=1, x_1=1\)</span>).</p>
+<p>Before moving on to some applications of SAT, let's just convince ourselves
+that SAT is in <strong>NP</strong>.  So given a Boolean formula (e.g. <span class="math">\(\phi\)</span>), and a
+potential solution (e.g. <span class="math">\(x_0=1, x_1=1\)</span>), can we verify that the
+potential solution is correct in polynomial time?  Yes, take a look at the
+footnote for a brief explanation <a class="footnote-reference" href=".#id19" id="id7">[7]</a>.</p>
+<p>Practically though, we rarely care if we can <em>verify</em> a potential solution
+in polynomial time; we usually just care about finding <em>a solution</em>
+i.e. the values of <span class="math">\(x_0\)</span> and <span class="math">\(x_1\)</span> that make <span class="math">\(\phi=1\)</span>.
+A naive algorithm is just try all possible values of the input variables.
+So for Eqn. 1, we could just try <span class="math">\((x_0=0, x_1=0)\)</span>, <span class="math">\((x_0=0, x_1=1)\)</span>,
+<span class="math">\(,(x_0=1, x_1=0)\)</span>, <span class="math">\((x_0=1, x_1=1),\)</span>
+and see if any yield <span class="math">\(\phi=1\)</span>.
+It's not too hard to see that there are <span class="math">\(2^n\)</span> possible values for
+<span class="math">\(n\)</span> Boolean variables <a class="footnote-reference" href=".#id20" id="id8">[8]</a>.  Leading us to an exponential algorithm in
+the worse case.</p>
+<p>In fact, we don't really know of a better algorithm that can find a solution to
+SAT in less than exponential time (in the worse case).  Most modern SAT
+algorithms use some smarter ways to explore the exponential space of variable
+values but invariably, they must try an exponential number assignments in the
+worse case.</p>
+<p>The interesting thing about this worse case scenario is that in many domains it
+doesn't really apply <a class="footnote-reference" href=".#id21" id="id9">[9]</a>.  SAT is widely used in many applications (some of which
+we'll describe below) despite this theoretical worse case scenario.  Through
+a combination of clever engineering <a class="footnote-reference" href=".#id22" id="id10">[10]</a> and application of theory, SAT
+solvers have become increasingly efficient at solving many practical problems
+across a variety of domains.  We should never forget the old adage:</p>
+<blockquote>
+In theory, theory and practice are the same. In practice, they are not.</blockquote>
+<p></p>
+<h5> From Bits to Bytes </h5>
+<p>So now that we know a bit more about SAT, how the heck is this going to help us
+solve problems we actually care about?  To answer that, let's remember how
+digital computers are built: at the lowest level, we have atoms; at the next
+level we have transistors; but at the level we actually care about we have
+logic gates i.e. AND, OR, NOT gates, the same operators we used in our Boolean
+formula!</p>
+<p>From these basic logic gates, we can start building more complicated formulas
+that represent higher level questions.  For instance, imagine we have
+three 8-bit numbers <span class="math">\(A_2, B_2, C_2\)</span> (the subscript 2 reminds us that
+we're dealing with binary numbers), and we want to do some addition, we could
+encode this in a SAT formula that might abstractly look like Eqn. 2:</p>
+<div class="math">
+\begin{equation*}
+\phi := ADDER_8(A_2, B_2, C_2) \tag{2}
+\end{equation*}
+</div>
+<p>Here <span class="math">\(ADDER_8\)</span> is a 8-bit hardware <a class="reference external" href="https://en.wikipedia.org/wiki/Adder_%28electronics%29">adder</a>,
+that takes two 8-bit numbers <span class="math">\(A_2, B_2\)</span> and produces an 8-bit number <cite>C_2</cite>.
+So if we encode Eqn. 2 as a SAT instance and send it to a SAT solver, it will
+return "SAT" and give us back values for <span class="math">\(A_2, B_2, C_2\)</span> such that <span class="math">\(A + B = C\)</span> <a class="footnote-reference" href=".#id23" id="id11">[11]</a>!
+Still not quite that useful since they'll be (from our point of view) random
+values for the input numbers.</p>
+<p>What we actually want is to start asking us more interesting questions,
+see if you can guess what this encodes (dropping the subscript 2 here
+for readability, but let's not forget we're dealing with Boolean variables here):</p>
+<div class="math">
+\begin{equation*}
+\phi := ADDER_8(A, B, C) \wedge (A = 6) \wedge (B = 9) \tag{3}
+\end{equation*}
+</div>
+<p>If we send this to the SAT solver, we'll get a "SAT" result with <span class="math">\(C=15\)</span> (in binary).
+We've effectively implemented 6 + 9 using Eqn. 3.</p>
+<p>Okay, so still not that interesting.  How about this one?</p>
+<div class="math">
+\begin{align*}
+\phi := &amp; ADDER_8(A, B, C) \wedge \\
+        &amp; (COMPARATOR_8(C, A) \vee COMPARATOR_8(C, B)) \tag{4}
+\end{align*}
+</div>
+<p>Here <span class="math">\(COMPARATOR_8(X,Y)\)</span> is an 8-bit hardware <a class="reference external" href="https://en.wikipedia.org/wiki/Digital_comparator">comparator</a>
+implementing <span class="math">\(X &lt; Y\)</span>.  Now we're getting somewhere.  We're asking a much
+more interesting question:</p>
+<blockquote>
+Are there any (8-bit values) of <span class="math">\(A, B, C\)</span>, such that the sum
+(<span class="math">\(C\)</span>) is less than one of its addends (<span class="math">\(A, B\)</span>)?</blockquote>
+<p>Do you think this instance should be SAT (i.e. at least one assignment of
+values for <span class="math">\(A, B, C\)</span> such that <span class="math">\(\phi=1\)</span>) or UNSAT (no such values
+exist)? See <a class="footnote-reference" href=".#id24" id="id12">[12]</a> for the answer.</p>
+<p></p>
+<h5> From Bytes to Code </h5>
+<p>We saw above how we can use SAT to start asking some basic questions
+around fixed-width arithmetic.  We can extend this to much more complicated
+ideas.  For one, all programming languages operate on bits and bytes, so we
+should be able to ask questions about code too right?  Let's take a look
+at how we can encode some basic structures first.</p>
+<p>As a first example, we could build a SAT an instance that looked very similar
+to the one from the last subsection by translating some C code (except the
+variables might be signed 32-bit numbers instead of unsigned 8-bit numbers):</p>
+<table class="codetable"><tr>
+<td class="linenos"><div class="linenodiv"><pre><a href=".#rest_code_d41ec674e841418785eb46e25453576a-1">1</a>
+<a href=".#rest_code_d41ec674e841418785eb46e25453576a-2">2</a>
+<a href=".#rest_code_d41ec674e841418785eb46e25453576a-3">3</a></pre></div></td>
+<td class="code"><pre class="code c"><a name="rest_code_d41ec674e841418785eb46e25453576a-1"></a><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
+<a name="rest_code_d41ec674e841418785eb46e25453576a-2"></a><span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<a name="rest_code_d41ec674e841418785eb46e25453576a-3"></a><span class="n">assert</span><span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">z</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">);</span>
+</pre></td>
+</tr></table>
+<p>Notice that the <cite>assert</cite> is a property we want to guarantee <em>for all</em> possible
+values of <cite>x, y, z</cite>, but our SAT instance can only tell us if there <em>exists</em> one
+possible way for that to happen.  So instead, we'll flip the question around
+and actually ask the SAT solver something like this:</p>
+<table class="codetable"><tr>
+<td class="linenos"><div class="linenodiv"><pre><a href=".#rest_code_89221c4011e547aa88653ed87da37745-1">1</a>
+<a href=".#rest_code_89221c4011e547aa88653ed87da37745-2">2</a>
+<a href=".#rest_code_89221c4011e547aa88653ed87da37745-3">3</a></pre></div></td>
+<td class="code"><pre class="code c"><a name="rest_code_89221c4011e547aa88653ed87da37745-1"></a><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
+<a name="rest_code_89221c4011e547aa88653ed87da37745-2"></a><span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">;</span>
+<a name="rest_code_89221c4011e547aa88653ed87da37745-3"></a><span class="n">assert_exists</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">z</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">));</span>
+</pre></td>
+</tr></table>
+<p>Which is just negating what we had in our original <cite>assert</cite> statement making
+it a suitable question to ask a SAT solver.  And voila, we've just asked
+the same question as above except on equivalent C code.
+This process of verifying properties about some piece of code (or more
+generally any system) is called
+<a class="reference external" href="https://en.wikipedia.org/wiki/Formal_verification">formal verification</a>.
+It can help us "prove" correctness about various types of systems like
+cryptographic protocols, digital circuits, or code as we just saw.</p>
+<p></p>
+<h5> What (about) <cite>if</cite>'s? </h5>
+<p>Obviously code can get much more complicated than the small snippet above.
+I won't go into too much more detail but I do want to cover another concept
+that will help us deal with <cite>if</cite> statements.  Let's look at the following
+snippet:</p>
+<table class="codetable"><tr>
+<td class="linenos"><div class="linenodiv"><pre><a href=".#rest_code_0a581cda13034865a919d5c9cd6d973c-1">1</a>
+<a href=".#rest_code_0a581cda13034865a919d5c9cd6d973c-2">2</a>
+<a href=".#rest_code_0a581cda13034865a919d5c9cd6d973c-3">3</a>
+<a href=".#rest_code_0a581cda13034865a919d5c9cd6d973c-4">4</a>
+<a href=".#rest_code_0a581cda13034865a919d5c9cd6d973c-5">5</a>
+<a href=".#rest_code_0a581cda13034865a919d5c9cd6d973c-6">6</a>
+<a href=".#rest_code_0a581cda13034865a919d5c9cd6d973c-7">7</a></pre></div></td>
+<td class="code"><pre class="code c"><a name="rest_code_0a581cda13034865a919d5c9cd6d973c-1"></a><span class="kt">int</span> <span class="n">y</span><span class="p">;</span>
+<a name="rest_code_0a581cda13034865a919d5c9cd6d973c-2"></a><span class="k">if</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+<a name="rest_code_0a581cda13034865a919d5c9cd6d973c-3"></a>  <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+<a name="rest_code_0a581cda13034865a919d5c9cd6d973c-4"></a><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+<a name="rest_code_0a581cda13034865a919d5c9cd6d973c-5"></a>  <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">y</span><span class="p">;</span>
+<a name="rest_code_0a581cda13034865a919d5c9cd6d973c-6"></a><span class="p">}</span>
+<a name="rest_code_0a581cda13034865a919d5c9cd6d973c-7"></a><span class="n">assert</span><span class="p">(</span><span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">);</span>
+</pre></td>
+</tr></table>
+<p>Here we have two new structures that cause some issues: (a) the re-assignment
+of y, and (b) the <cite>if-else</cite> statement.  However, both can handled without too
+much trouble.  The easiest way to see this is do some transformations on the
+code to make it more amenable to SAT.  Here's one way to do it:</p>
+<table class="codetable"><tr>
+<td class="linenos"><div class="linenodiv"><pre><a href=".#rest_code_a229c3014d9f4c68912d384e63315d75-1">1</a>
+<a href=".#rest_code_a229c3014d9f4c68912d384e63315d75-2">2</a>
+<a href=".#rest_code_a229c3014d9f4c68912d384e63315d75-3">3</a>
+<a href=".#rest_code_a229c3014d9f4c68912d384e63315d75-4">4</a>
+<a href=".#rest_code_a229c3014d9f4c68912d384e63315d75-5">5</a>
+<a href=".#rest_code_a229c3014d9f4c68912d384e63315d75-6">6</a>
+<a href=".#rest_code_a229c3014d9f4c68912d384e63315d75-7">7</a>
+<a href=".#rest_code_a229c3014d9f4c68912d384e63315d75-8">8</a>
+<a href=".#rest_code_a229c3014d9f4c68912d384e63315d75-9">9</a></pre></div></td>
+<td class="code"><pre class="code c"><a name="rest_code_a229c3014d9f4c68912d384e63315d75-1"></a><span class="kt">int</span> <span class="n">y_1</span><span class="p">,</span> <span class="n">y_2a</span><span class="p">,</span> <span class="n">y_2b</span><span class="p">,</span> <span class="n">y_3</span><span class="p">;</span>
+<a name="rest_code_a229c3014d9f4c68912d384e63315d75-2"></a><span class="n">y_2b</span> <span class="o">=</span> <span class="n">y_1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+<a name="rest_code_a229c3014d9f4c68912d384e63315d75-3"></a><span class="n">y_2a</span> <span class="o">=</span> <span class="o">-</span><span class="n">y_1</span><span class="p">;</span>
+<a name="rest_code_a229c3014d9f4c68912d384e63315d75-4"></a><span class="k">if</span> <span class="p">(</span><span class="n">y_1</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+<a name="rest_code_a229c3014d9f4c68912d384e63315d75-5"></a>  <span class="n">y_3</span> <span class="o">=</span> <span class="n">y_2b</span><span class="p">;</span>
+<a name="rest_code_a229c3014d9f4c68912d384e63315d75-6"></a><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+<a name="rest_code_a229c3014d9f4c68912d384e63315d75-7"></a>  <span class="n">y_3</span> <span class="o">=</span> <span class="n">y_2a</span><span class="p">;</span>
+<a name="rest_code_a229c3014d9f4c68912d384e63315d75-8"></a><span class="p">}</span>
+<a name="rest_code_a229c3014d9f4c68912d384e63315d75-9"></a><span class="n">assert</span><span class="p">(</span><span class="n">y_3</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+</pre></td>
+</tr></table>
+<p>There are a couple of things going on here.  First, we use a bunch
+of intermediate variables for all of the computations that we're doing.
+Remember, we have to translate this code down to bits (Boolean variables)
+that must all exist within one Boolean formula.  There is no concept of
+sequential operations, so we have additional variables to represent every
+intermediate computation we do.  This is not unlike how we think about building
+digital logic.</p>
+<p>Second, we use a hardware structure called a <a class="reference external" href="https://en.wikipedia.org/wiki/Multiplexer">multiplexor</a>
+that effectively implements an <cite>if-else</cite> statement.  It can be built from logic gates,
+so we'll have no trouble putting it into our Boolean formula.
+Here's an image from Wikipedia that visualizes it:</p>
+<img alt="multiplexor" class="align-center" src="../../images/mux.png" style="height: 250px;"><p>Here, we set <span class="math">\(A=y\_2a, B=y\_2b, Z=y\_3,\)</span> and <span class="math">\(S_0=(y&gt;=0)\)</span>.  When
+<span class="math">\(S_0=0\)</span>, it constrains (remember we're in the context of a Boolean
+formula) <span class="math">\(Z\)</span> to <span class="math">\(A\)</span>, when <span class="math">\(S_0=1\)</span>, it constrains <span class="math">\(Z\)</span> to
+<span class="math">\(B\)</span>.</p>
+<p>Putting this all together, we could build a large Boolean formula that effectively
+asks the question:</p>
+<blockquote>
+Is it possible for <span class="math">\(y\_3\)</span> to be less than or equal to 0 for the above code snippet?</blockquote>
+<p>Pretty cool huh?  Of course, industrial strength formal verification tools will
+use much more complicated techniques and can handle many more types of code
+structures (like loops).  One of the big limitations (and probably a big research area)
+is scaling these problems.  You can imagine that trying to ask questions
+about the Linux kernel might become untenable due to the size of the problem.</p>
+<p>If you're interested you should check out the <a class="reference external" href="http://www.satisfiability.org/">SAT conference</a>
+where they have many more interesting types of topics around satisfiability
+and its applications.</p>
+<p></p>
+<h5> Satisfiability Module Theories </h5>
+<p>One last idea that I want to talk about before we end this section is that
+of other types of satisfiability problems.  In the above discussion,
+we talked exclusively about Boolean Satisfiability -- formulas that
+only use Boolean variables.  However, there are many more types of satisfiability
+problems.  One quite natural extension is instead of just using Boolean
+variables, replace them with other types of "things" like real numbers,
+integers, list, arrays etc.  These "things" are more formally called
+<a class="reference external" href="https://en.wikipedia.org/wiki/Theory_%28mathematical_logic%29">theories</a>,
+and allow us to ask higher level "questions" rather than trying to
+convert everything down to the bit level.  These satisfiability
+decision problems are usually referred to as
+<a class="reference external" href="https://en.wikipedia.org/wiki/Satisfiability_modulo_theories">satisfiability modulo theories (SMT)</a> problems.</p>
+<p>One interesting thing to note is that while you might expect that
+this higher level of abstraction would allow us to solve problems
+more efficiently, the solvers for these other types of SAT problems are much
+more complicated.  This complexity causes some issues in trying to find good
+heuristics to efficiently solve these types of problems.  In many cases, the
+best solution is still to just reduce your problem down to bits and use Boolean
+SAT, which can do much more fine grained optimizations.  In fact, many SMT
+solvers do use a Boolean SAT solver as the underlying solving engine (with some
+nice things on top).</p>
+<p><br></p>
+<h4> Conclusion </h4>
+<p>I spent quite a few years learning about SAT and its applications.
+It's quite an elegant topic because it is a direct application
+of what appears to be a rather theoretical and core problem of computer
+science.  Hopefully this article helps introduce some of the ideas that took me
+years to digest in an easy to understand way.  Sometimes theory is just theory,
+but in this case, theory really does lead to practice.</p>
+<p><br><br></p>
+<table class="docutils footnote" frame="void" id="id13" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id1">[1]</a></td>
+<td>Of course a simpler explanation in English without the math, necessarily makes it less precise.  So the usual caveats apply.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id14" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id2">[2]</a></td>
+<td>For some intuition of why we study at decision problems, think about how "difficult" the different types of problems are.  A yes/no answer seems a heck of a lot easier than coming up with a function, or optimizing something with constraints.  So one way of thinking about it is: if we somehow figure out that a yes/no decision problem is hard, then we can reasonably conclude that the function/optimization "version" of the problem is also hard.  Of course it's a bit more complicated but that's how I like to think about it.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id15" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id3">[3]</a></td>
+<td>A line is a type of polynomial, e.g. <span class="math">\(x = x^k\)</span> where <span class="math">\(k=1\)</span>.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id16" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id4">[4]</a></td>
+<td>There are, of course, many (equivalent) ways to define NP problems.  The one I use, which I find most intuitive is from <cite>Introduction to Algorithms &lt;https://en.wikipedia.org/wiki/Introduction_to_Algorithms&gt;</cite>, known more colloquially as "CLRS" (the first letters of the authors' name).</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id17" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id5">[5]</a></td>
+<td>The explanations in order: (i) If we're told an array is sorted, we just have to run through the array to see if they're sorted. (ii) If we're told there is a path from <cite>s</cite> to <cite>t</cite> and the proof is the path, it's simple to see if that path is actually in the graph. (iii) If we're told the formula is true and the proof is the assignment to the variables, we just need to evaluate the formula to see if its true.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id18" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id6">[6]</a></td>
+<td>This is the <a class="reference external" href="https://en.wikipedia.org/wiki/P_versus_NP_problem">P vs. NP</a> problem.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id19" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id7">[7]</a></td>
+<td>If we are given the assignment to the variables, we just have to plug it into the formula and evaluate it. This is surely a linear time operation in the size of the formula.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id20" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id8">[8]</a></td>
+<td>Each Boolean variable can be turned off or on independently, so the number of possibilities is <span class="math">\(2 * 2 * 2 \ldots = 2^n\)</span>, where <span class="math">\(n\)</span> is the number of Boolean variables.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id21" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id9">[9]</a></td>
+<td>That is, many instances of the SAT problem do not have this theoretical worse case scenario.  That means that with some clever tricks, we have a chance of solving large SAT instances without having to wait for the end of the universe to come about.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id22" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id10">[10]</a></td>
+<td>If you want to check out a good implementation you should read about the <a class="reference external" href="http://minisat.se/">MiniSat solver</a>.  The core solver is about 1000 lines of C (with comments) and for a while was the go-to SAT solver for anything to do with SAT.  It was (is?) incredibly fast beating most of the solvers at the time, primarily though clever code/memory optimizations.  I did a bunch of hacking on this code during graduate school and it's surprisingly easy to work with (mostly because of it's small size).  Of course, now-a-days there are faster SAT solvers (many of which are built on top of MiniSat) but it's still quite a robust solution if you need something simple to start with.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id23" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id11">[11]</a></td>
+<td>Since we're dealing with fixed width operations, there is always a possibility that we overflow -- that is, the resulting number of <span class="math">\(A + B\)</span> is too large to fit within the 8-bits we have for <span class="math">\(C\)</span>.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id24" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id12">[12]</a></td>
+<td>If we were just talking about non-negative integers <span class="math">\(A,B,C\)</span>, then the answer should be UNSAT because <span class="math">\(A + B\)</span> should always yield something greater or equal to <span class="math">\(C\)</span>.  However, we're talking about 8-bit numbers here.  If we try to add up two 8-bit numbers whose result can't fit into 8-bits, then we'll get an overflow condition where C will actually be less than A or B.  Our first interesting result!</td>
+</tr></tbody>
+</table>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/boolean/" rel="tag">Boolean</a></li>
+            <li><a class="tag p-category" href="../../categories/formal/" rel="tag">formal</a></li>
+            <li><a class="tag p-category" href="../../categories/np-complete/" rel="tag">NP-Complete</a></li>
+            <li><a class="tag p-category" href="../../categories/sat/" rel="tag">SAT</a></li>
+            <li><a class="tag p-category" href="../../categories/verification/" rel="tag">verification</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../functions-and-procedures/" rel="prev" title="Functions and Procedures">Previous post</a>
+            </li>
+        </ul></nav></aside><script type="text/x-mathjax-config">
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});</script><script src="../../assets/js/mathjax.js"></script></article>
+</div>
+            <div class="col-md-3 well">
+            <p>
+            I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
+            a former academic, current data scientist, engineer, and
+            programmer.  This is
+            <a href="posts/a-first-post/">the place</a>
+            where I write
+            about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br><p>
+            <a href="../archive.html">Archive</a>
+            </p>
+            <p>
+            <a href="../categories/index.html">Tags</a>
+            </p>
+            <p>
+            <a href="../rss.xml">RSS feed</a>
+            </p>
+            </div>
+        </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2015         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+        </footer>
+</div>
+</div>
+
+
+            <script src="../../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates -->
+</body>
+</html>
