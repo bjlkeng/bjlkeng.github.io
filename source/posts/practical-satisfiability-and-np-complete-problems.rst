@@ -1,6 +1,6 @@
 .. title: Accessible Satisfiability
 .. slug: accessible-satisfiability
-.. date: 2015-09-21 21:28:04 UTC-04:00
+.. date: 2015-10-03 20:28:04 UTC-04:00
 .. tags: NP-Complete, SAT, Boolean, formal, verification, mathjax
 .. category: 
 .. link: 
@@ -30,7 +30,7 @@
 
 Even though it was just a scant few years ago, my research in grad school seems
 like it was from another lifetime.  Nowadays I deal with data and most of my
-code revolves around manipulating and extracting interesting stuff from it.
+code revolves around manipulating and extracting interesting insights from it.
 However in my previous life I spent quite a bit of time dealing with
 satisfiability problems.  So before I start writing about data and related
 topics, I thought I'd kick it old school and write about some topics from my
@@ -48,12 +48,14 @@ Before we get into some of the more heavy stuff, let's review some of the
 I'm going to skip a lot of the formal math that typically comes from the branch
 of compute science called the `theory of computation
 <https://en.wikipedia.org/wiki/Theory_of_computation>`_.  Instead, I'm going to
-try to explain it in a simpler way -- or at least the way that I try to
-understand it [1]_.
+try to explain it in a simpler way -- or at least in the way that I understand it [1]_.
 
-One of the fundamental ideas in computing is a `decision problem
+One of the fundamental problems in computing is a `decision problem
 <https://en.wikipedia.org/wiki/Decision_problem>`_: something that has a yes/no
-answer (image from Wikipedia).
+answer.  We can think of solving a decision problem as taking a realization
+of that problem, also known as an *instance*, as input and writing 
+an algorithm that spit out the yes/no output (image from Wikipedia):
+
 
 .. image:: /images/decision_problem.png
    :height: 250px
@@ -83,48 +85,51 @@ idea of polynomial time problems.  Roughly speaking, if you can write a program
 to solve a decision problem (correctly) and its run-time scales polynomially
 with the size of the input, then you've got a polynomial time decision problem.
 Another name for this class of decision problems is "**P**".
-For example, the decision problem (let's call it `FINDX`):
+For example, let's define a decision problem `FINDX`:
 
     `FINDX`: Does an array of :math:`n` integers :math:`A = [a_1, a_2, \ldots, a_n]` contain integer :math:`x`?
 
-is in **P** because it's simple to write an algorithm that gives yes/no in
-linear time in the size of the array :math:`n` [3]_.
+`FINDX` is in the class of decision problems **P** because it's simple to write
+an algorithm that gives a yes/no answer in linear time in the size of the array
+:math:`A` [3]_.  A more succinct way of saying this is that `FINDX` is in **P**.
 
 |h3| NP What? |h3e|
 
 So up to this point, I think most programmers will have a reasonable
 understanding of these concepts.  Where it gets hairy is when we start talking
-about **NP** problems.  The underlying idea is not complicated, it's just,
+about **NP** problems.  The underlying idea is not complicated but it is,
 well, strange.
 
 When we write code, most of us are thinking about how to solve a problem.  It's
 quite natural to do so and, in fact, we've defined a set of problems based on
 how fast we can solve them, the class of problems called **P**.  However,
-NP problems are defined differently.  It's not about how fast we can solve a
-problem, but how fast we can verify a potential answer to the problem [4]_.
-In particular, **NP** is about how fast we can verify that this potential
-answer is correct.  Say what?
+**NP** problems are defined differently.  It's not about how fast we can solve a
+problem, but how fast we can *verify* a potential answer to the problem [4]_.
+In particular, **NP** is about how fast we can verify a potential
+answer (and proof of that answer) is correct.  Say what?
 
-Let's look back at our example.  If we take the above example above of finding
-:math:`x` in an array :math:`A`, we're not trying to figure out
-solution to this problem, we're trying to figure out something different: 
+Let's look back at our example to make a bit more sense of this definition.  If
+we take the above example above of finding :math:`x` in an array :math:`A`,
+we're not trying to figure out a solution to this problem, we're trying to
+figure out something different: 
 
-    Given :math:`A = [a_1, a_2, \ldots, a_n]`, we are either told that
-    :math:`x` is in :math:`A` or it is not (i.e. the potential answer is yes or
-    no), can we write an algorithm (in polynomial time) to figure out if what
-    we are told is correct?
+    Given :math:`A = [a_1, a_2, \ldots, a_n]`, we are told that :math:`x` is in
+    :math:`A` and some proof (like the index into :math:`A` where `x` is), can
+    we write an algorithm (in polynomial time) to figure out if what we are
+    told is correct?
 
-It turns out, yes, we can write that algorithm, it's going to look very similar
-to the one we used above [5]_.  So we would say, that `FINDX` is in (the class
-of decision problems called) **NP**.
+It turns out, yes, we can write that algorithm: we just need to look up the
+index where :math:`x` is said to be.  So we would say, that `FINDX` is in
+(the class of decision problems called) **NP**.
 
 Stop and think about this for a second.  To figure out if `FINDX` was an **NP**
 problem, we didn't look at how easy it was to solve, but rather how easy it was
 to verify a potential solution was correct!?  Why would we ever want to define
-problems in such strange, roundabout way?  It turns out that many important,
-naturally arising problems can be classified as **NP**.  
-Here are some more examples (try to see if you figure out why it would be
-classified as an **NP** problem):
+problems in such strange, roundabout way?
+
+It turns out that many important, naturally arising problems can be classified
+as **NP**.  Here are some more examples (try to see if you figure out why these
+would be classified as **NP** problems [5]_ ):
 
 * "Is an array of integers sorted?" (might want something like this for binary search)
 * "Is there a path from vertex :math:`s` to vertex :math:`t` in graph :math:`G`?" (something that you might want to do in a program like Google Maps).
@@ -135,28 +140,30 @@ talking about in the next section.  Also note, that we saw that `FINDX` was
 in both **P** and **NP**.  The more general result is that all all decision
 problems in **P** are in **NP** (but most likely not the other way around) [6]_.
 
-There's one last concept that I should mention and it's the idea of **NP**
-complete problems (**NPC** for short).  Without going into too much detail, a good way to think
-about it is as the "hardest problems" in **NP**.  In the examples above, the
-problems that in **P** (e.g. `FINDX`) are typically considered "easy".  Whereas
-the last problem is considered "hard".  Suffice it to say, **NPC** problems
-are important because they are arise naturally in many contexts and are "hard"
-to solve.
+There's one last concept that I should mention and that's the idea of
+**NP**-complete problems (**NPC** for short).  Without going into too much
+detail, a good way to think about it is as the "hardest problems" in **NP**.
+In the examples above, the problems that are in **P** (e.g. `FINDX`) are
+typically considered "easy".  Whereas the last problem is considered "hard".
+Suffice it to say, **NPC** problems are important because they arise naturally
+in many contexts and are "hard" to solve.
 
 |h3| NP is *not* "not polynomial" |h3e|
 
-Before we end this section, a *very* important caution: **NP does not stand
-for "non-polynomial" or "not polynomial"**, as one would intuitively think.
+Before we end this section, a *very* important caution: NP does **not** stand
+for "non-polynomial" or "not polynomial", as one would intuitively think.
 **P** stands for (roughly) polynomial time, so doesn't it make sense for the
-"N" in **NP** to stand for "non-" or "not"?  Yes, I agree, not a very good name
-much to the chagrin of new students of computational complexity.
+"N" in **NP** to stand for "non-" or "not"?  Nope, apparently not.
+I agree though that it's not a great name now-a-days much to the chagrin of
+students new to computational complexity (it does make more sense using another
+definition of **NP** though) .
 
 **NP** actually stands for "*non-deterministic polynomial time*".  The details
 aren't too important but the big takeaway is this: **NP-Complete** problems *probably*
-have no polynomial time solution in the worse case [6]_.  But as we saw, **P**
+have no polynomial time solution in the worse case.  But as we saw, **P**
 problems are a subset of **NP** problems so at least some **NP** problems can
 be solved in polynomial time.  Basically, 
-**NPC** :math:`\approx` worst case exponential time problems (probably);
+**NPC** :math:`\approx` problems with no polynomial time solution (probably);
 **P** :math:`=` polynomial time problems.
 
 
@@ -165,9 +172,9 @@ be solved in polynomial time.  Basically,
 In the previous section, we discussed some theoretical ideas around **NPC**
 problems and how they can be really difficult (e.g. probably exponential time
 in the worse case).  However, in many cases the **NPC** problems we come across
-rarely get into this worse case behavior and thus we can either practically
-solve them.  Let's take a look at a particular **NPC** problem and some of its
-applications to see why this might be the case.
+rarely get into this worse case behavior, allowing us to practically solve some
+rather interesting problems.  Let's take a look at a particular **NPC** problem
+and some of its applications to see why this might be the case.
 
 |h3| Boolean Satisfiability |h3e|
 
@@ -184,7 +191,7 @@ The definition from `Wikipedia <https://en.wikipedia.org/wiki/Boolean_satisfiabi
 
 So basically, given a Boolean formula with Boolean variables, can we find an
 assignment to the variables to make it true.  A trivial example of a SAT
-instance might look like Eqn. 1:
+instance might look like Eqn. 1 (recall :math:`\wedge` means "AND"; :math:`\vee` means "OR):
 
 .. math::
 
@@ -216,7 +223,7 @@ values but invariably, they must try an exponential number assignments in the
 worse case.  
 
 The interesting thing about this worse case scenario is that in many domains it
-doesn't really apply [9]_!  SAT is widely used in many applications (some of which
+doesn't really apply [9]_.  SAT is widely used in many applications (some of which
 we'll describe below) despite this theoretical worse case scenario.  Through
 a combination of clever engineering [10]_ and application of theory, SAT
 solvers have become increasingly efficient at solving many practical problems
@@ -252,13 +259,13 @@ values for the input numbers.
 
 What we actually want is to start asking us more interesting questions,
 see if you can guess what this encodes (dropping the subscript 2 here
-for readability, but let's not forget we're dealing with Binary variables here):
+for readability, but let's not forget we're dealing with Boolean variables here):
 
 .. math::
 
    \phi := ADDER_8(A, B, C) \wedge (A = 6) \wedge (B = 9) \tag{3}
 
-If we send this to the SAT solver, we'll get :math:`C=15` (in binary).
+If we send this to the SAT solver, we'll get a "SAT" result with :math:`C=15` (in binary).
 We've effectively implemented 6 + 9 using Eqn. 3.
 
 Okay, so still not that interesting.  How about this one?
@@ -281,7 +288,7 @@ exist)? See [12]_ for the answer.
 
 |h3| From Bytes to Code |h3e|
 
-In the last subsection, we saw how we can use SAT to start asking questions
+We saw above how we can use SAT to start asking some basic questions
 around fixed-width arithmetic.  We can extend this to much more complicated
 ideas.  For one, all programming languages operate on bits and bytes, so we 
 should be able to ask questions about code too right?  Let's take a look
@@ -296,7 +303,7 @@ variables might be signed 32-bit numbers instead of unsigned 8-bit numbers):
 
    int x, y, z;
    z = x + y
-   assert(z >= x && z >= y)
+   assert(z >= x && z >= y);
 
 Notice that the `assert` is a property we want to guarantee *for all* possible
 values of `x, y, z`, but our SAT instance can only tell us if there *exists* one
@@ -311,9 +318,14 @@ and actually ask the SAT solver something like this:
    assert_exists(!(z >= x && z >= y));
 
 Which is just negating what we had in our original `assert` statement making
-it a suitable question to ask a SAT solver.  And voila, we've just figured out
-the basic idea of how `formal verification <https://en.wikipedia.org/wiki/Formal_verification>`_
-works on software code.
+it a suitable question to ask a SAT solver.  And voila, we've just asked
+the same question as above except on equivalent C code.
+This process of verifying properties about some piece of code (or more
+generally any system) is called 
+`formal verification <https://en.wikipedia.org/wiki/Formal_verification>`_.
+It can help us "prove" correctness about various types of systems like
+cryptographic protocols, digital circuits, or code as we just saw.
+
 
 |h3| What (about) `if`'s? |h3e|
 
@@ -336,15 +348,15 @@ snippet:
 Here we have two new structures that cause some issues: (a) the re-assignment
 of y, and (b) the `if-else` statement.  However, both can handled without too
 much trouble.  The easiest way to see this is do some transformations on the
-code to make it more amenable to a SAT solver.  Here's one way to do it:
+code to make it more amenable to SAT.  Here's one way to do it:
 
 .. code:: c
    :number-lines:
 
-   int y_1, y_2;
+   int y_1, y_2a, y_2b, y_3;
    y_2b = y_1 + 1;
    y_2a = -y_1;
-   if (y >= 0) {
+   if (y_1 >= 0) {
      y_3 = y_2b;
    } else {
      y_3 = y_2a;
@@ -353,11 +365,11 @@ code to make it more amenable to a SAT solver.  Here's one way to do it:
 
 There are a couple of things going on here.  First, we use a bunch
 of intermediate variables for all of the computations that we're doing.
-Remember, we have to translate this code down to bits (binary variables)
+Remember, we have to translate this code down to bits (Boolean variables)
 that must all exist within one Boolean formula.  There is no concept of
-sequential time, so we must just have variables to represent every intermediate
-computation we do.  This is not unlike how we think about building digital
-logic.
+sequential operations, so we have additional variables to represent every
+intermediate computation we do.  This is not unlike how we think about building
+digital logic.
 
 Second, we use a hardware structure called a `multiplexor <https://en.wikipedia.org/wiki/Multiplexer>`_
 that effectively implements an `if-else` statement.  It can be built from logic gates,
@@ -369,7 +381,7 @@ Here's an image from Wikipedia that visualizes it:
    :alt: multiplexor
    :align: center
 
-Here, we set :math:`A=y\_2a, B=y\_2b, Z=y\_3, and S_0=(y>=0)`.  When
+Here, we set :math:`A=y\_2a, B=y\_2b, Z=y\_3,` and :math:`S_0=(y>=0)`.  When
 :math:`S_0=0`, it constrains (remember we're in the context of a Boolean
 formula) :math:`Z` to :math:`A`, when :math:`S_0=1`, it constrains :math:`Z` to
 :math:`B`.
@@ -377,7 +389,7 @@ formula) :math:`Z` to :math:`A`, when :math:`S_0=1`, it constrains :math:`Z` to
 Putting this all together, we could build a large Boolean formula that effectively
 asks the question:
 
-    Is it possible for :math:`y\_3` to be less than 0 for the above code snippet?
+    Is it possible for :math:`y\_3` to be less than or equal to 0 for the above code snippet?
 
 Pretty cool huh?  Of course, industrial strength formal verification tools will
 use much more complicated techniques and can handle many more types of code
@@ -394,8 +406,8 @@ and its applications.
 
 One last idea that I want to talk about before we end this section is that
 of other types of satisfiability problems.  In the above discussion,
-we talked exclusively about Boolean Satisfiability -- formulas that exclusively
-use Boolean variables.  However, there are many more types of satisfiability
+we talked exclusively about Boolean Satisfiability -- formulas that
+only use Boolean variables.  However, there are many more types of satisfiability
 problems.  One quite natural extension is instead of just using Boolean
 variables, replace them with other types of "things" like real numbers,
 integers, list, arrays etc.  These "things" are more formally called 
@@ -420,7 +432,7 @@ nice things on top).
 
 I spent quite a few years learning about SAT and its applications.
 It's quite an elegant topic because it is a direct application
-of what appears to be a rather theoretical but core problem of computer
+of what appears to be a rather theoretical and core problem of computer
 science.  Hopefully this article helps introduce some of the ideas that took me
 years to digest in an easy to understand way.  Sometimes theory is just theory,
 but in this case, theory really does lead to practice.
@@ -433,11 +445,11 @@ but in this case, theory really does lead to practice.
 
 .. [2] For some intuition of why we study at decision problems, think about how "difficult" the different types of problems are.  A yes/no answer seems a heck of a lot easier than coming up with a function, or optimizing something with constraints.  So one way of thinking about it is: if we somehow figure out that a yes/no decision problem is hard, then we can reasonably conclude that the function/optimization "version" of the problem is also hard.  Of course it's a bit more complicated but that's how I like to think about it.
 
-.. [3] A line is a type of polynomial.  e.g. :math:`x = x^k` where :math:`k=1`.
+.. [3] A line is a type of polynomial, e.g. :math:`x = x^k` where :math:`k=1`.
 
-.. [4] There are, of course, many (equivalent) ways to define NP problems.  The one I use, which I find most intuitive is from `Introduction to Algorithms <https://en.wikipedia.org/wiki/Introduction_to_Algorithms>`, known more colloquially as "CLRS" (the first letters of the authors).
+.. [4] There are, of course, many (equivalent) ways to define NP problems.  The one I use, which I find most intuitive is from `Introduction to Algorithms <https://en.wikipedia.org/wiki/Introduction_to_Algorithms>`, known more colloquially as "CLRS" (the first letters of the authors' name).
 
-.. [5] The solution: search through the array for :math:`x`, we'll get a yes/no answer here.  If it matches what we're told, we say "yes", otherwise, we say "no".
+.. [5] The explanations in order: (i) If we're told an array is sorted, we just have to run through the array to see if they're sorted. (ii) If we're told there is a path from `s` to `t` and the proof is the path, it's simple to see if that path is actually in the graph. (iii) If we're told the formula is true and the proof is the assignment to the variables, we just need to evaluate the formula to see if its true.
 
 .. [6] This is the `P vs. NP <https://en.wikipedia.org/wiki/P_versus_NP_problem>`_ problem.
 
