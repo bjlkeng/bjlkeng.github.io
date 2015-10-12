@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Bounded Rationality (probability)</title><link>http://satisficing.briankeng.com/</link><description></description><atom:link href="http://satisficing.briankeng.com/categories/probability.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Fri, 09 Oct 2015 01:57:58 GMT</lastBuildDate><generator>https://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Probability as Extended Logic</title><link>http://satisficing.briankeng.com/posts/probability-the-logic-of-science/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Modern probability theory is typically derived from the
+&lt;a class="reference external" href="https://en.wikipedia.org/wiki/Probability_axioms"&gt;Kolmogorov axioms&lt;/a&gt;,
+using measure theory with the notions of events and sample space.
+In one way, it's intuitive to understand how this works as Laplace
+&lt;a class="reference external" href="https://en.wikipedia.org/wiki/Classical_definition_of_probability"&gt;wrote&lt;/a&gt;:&lt;/p&gt;
+&lt;blockquote&gt;
+The probability of an event is the ratio of the number of cases favorable
+to it, to the number of all cases possible, when [the cases are] equally
+possible. ... Probability is thus simply a fraction whose numerator is the
+number of favorable cases and whose denominator is the number of all the
+cases possible.&lt;/blockquote&gt;
+&lt;p&gt;However, the intuition of this view of probabilty breaks down when we want to
+do more complex reasoning.  After learning probabily from the lens of coins,
+dice and urns full of red and white balls, I still didn't feel that I had
+have a strong intuition about how to apply it to other situtions -- especially
+ones where it was difficult or too abstract to apply the idea of &lt;em&gt;"a fraction
+whose numerator is the number of favorable cases and whose denominator is the
+number of all the cases possible"&lt;/em&gt;.  And then I read &lt;a class="reference external" href="http://www.cambridge.org/gb/academic/subjects/physics/theoretical-physics-and-mathematical-physics/probability-theory-logic-science"&gt;Probabily Theory: The Logic of Science&lt;/a&gt; by E. T. Jayne.&lt;/p&gt;
+&lt;p&gt;Jayne takes a drasticlly different view of probability, not with events and sample spaces,
+but rather an extension of Boolean logic.  Taking this view made a great deal of sense
+to me since I spent a lot of time &lt;a class="reference external" href="http://satisficing.briankeng.com/posts/accessible-satisfiability"&gt;studying and reasoning&lt;/a&gt; in Boolean logic.  The following post
+is my attempt to explain Jayne's view of probability theory, where he derives
+it from "common sense" extensions to Boolean logic.  (&lt;em&gt;Spoiler alert: he ends
+up with pretty much the same mathematical system as Kolmogorov's probability theory.&lt;/em&gt;)
+I'll stay away from any heavy derivations and stick with the intuition, which
+is exactly why I think this view of probability theory is more useful.&lt;/p&gt;
+&lt;p&gt;&lt;/p&gt;&lt;h4&gt; Boolean Logic &lt;/h4&gt;
+&lt;p&gt;&lt;em&gt;Note: Feel free to skip this section if you're already comfortable with Boolean logic.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Before we begin with probability, let's do a quick review of Boolean logic.
+In the context of modeling real-world situations, we usually define
+propositions to describe things we may want to reason about,
+denoted by &lt;span class="math"&gt;\(\{A, B, C \ldots\}\)&lt;/span&gt;.  Propositions have an unambiguous
+meaning, and must either true or false.  For example the following two
+sentences could be propositions:&lt;/p&gt;
+&lt;div class="math"&gt;
+\begin{align*}
+A &amp;amp;:= \text{It is raining.} \\
+B &amp;amp;:= \text{It is cloudy.}
+\end{align*}
+&lt;/div&gt;
+&lt;p&gt;We could also define a logical relation between the two propositions
+using an implication operator (colloquially if-then statement):&lt;/p&gt;
+&lt;div class="math"&gt;
+\begin{equation*}
+\text{if }A\text{ is true, then }B\text{ is true} := \text{if it is raining, then it is cloudy}
+\end{equation*}
+&lt;/div&gt;
+&lt;p&gt;&lt;/p&gt;&lt;h5&gt; Rules of Inference &lt;/h5&gt;
+&lt;p&gt;To reason about them, we usually use two forms of inference, &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Modus_ponens"&gt;modus ponens&lt;/a&gt; (R1):&lt;/p&gt;
+&lt;div class="math"&gt;
+\begin{equation*}
+\text{if }A\text{ is true, then }B\text{ is true}
+\end{equation*}
+&lt;/div&gt;
+&lt;div class="math"&gt;
+\begin{equation*}
+\frac{A\text{ is true}}{\text{therefore, }B\text{ is true}}  \tag{R1}
+\end{equation*}
+&lt;/div&gt;
+&lt;p&gt;and also &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Modus_tollens"&gt;modus tollens&lt;/a&gt; (R2):&lt;/p&gt;
+&lt;div class="math"&gt;
+\begin{equation*}
+\text{if }A\text{ is true, then }B\text{ is true}
+\end{equation*}
+&lt;/div&gt;
+&lt;div class="math"&gt;
+\begin{equation*}
+\frac{B\text{ is false}}{\text{therefore, }A\text{ is false}} \tag{R2}
+\end{equation*}
+&lt;/div&gt;
+&lt;p&gt;Both make intuitive sense when you try to apply it to examples like the one above:&lt;/p&gt;
+&lt;div class="math"&gt;
+\begin{equation*}
+\text{if it is raining, then it is cloudy}
+\end{equation*}
+&lt;/div&gt;
+&lt;div class="math"&gt;
+\begin{equation*}
+\frac{\text{it is raining}}{\text{therefore, it is cloudy}}
+\end{equation*}
+&lt;/div&gt;
+&lt;p&gt;and:&lt;/p&gt;
+&lt;div class="math"&gt;
+\begin{equation*}
+\text{if it is raining, then it is cloudy}
+\end{equation*}
+&lt;/div&gt;
+&lt;div class="math"&gt;
+\begin{equation*}
+\frac{\text{it is not cloudy}}{\text{therefore, it is not raining}}
+\end{equation*}
+&lt;/div&gt;
+&lt;p&gt;&lt;/p&gt;&lt;h5&gt; Basic Boolean Operators &lt;/h5&gt;
+&lt;p&gt;There are several Boolean operators that are pretty natural things to do
+when discussing propositions.  The most basic on is the &lt;strong&gt;negation&lt;/strong&gt; (or "not")
+operator, usually drawn with a bar above the proposition (or expression):&lt;/p&gt;
+&lt;div class="math"&gt;
+\begin{equation*}
+\bar{A}
+\end{equation*}
+&lt;/div&gt;
+&lt;p&gt;The next one is &lt;strong&gt;conjunction&lt;/strong&gt; (or the "and"
+operator) meaning "both A and B are true", denoted by:&lt;/p&gt;
+&lt;div class="math"&gt;
+\begin{equation*}
+AB
+\end{equation*}
+&lt;/div&gt;
+&lt;p&gt;The final one is &lt;strong&gt;disjunction&lt;/strong&gt; (or the "or"
+operator) meaning "at least one the propositions A, B are true", denoted with a "+" sign:&lt;/p&gt;
+&lt;div class="math"&gt;
+\begin{equation*}
+A + B
+\end{equation*}
+&lt;/div&gt;
+&lt;p&gt;With the above examples:&lt;/p&gt;
+&lt;div class="math"&gt;
+\begin{align*}
+\bar{A} &amp;amp;:= \text{it is }\textbf{not}\text{ raining} \\
+AB &amp;amp;:= \text{it is raining }\textbf{and}\text{ it is cloudy} \\
+A + B &amp;amp;:= \text{it is raining }\textbf{or}\text{ it is cloudy (or both)}
+\end{align*}
+&lt;/div&gt;
+&lt;p&gt;&lt;a href="http://satisficing.briankeng.com/posts/probability-the-logic-of-science/"&gt;Read more…&lt;/a&gt; (1 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Jayne</category><category>logic</category><category>mathjax</category><category>probability</category><guid>http://satisficing.briankeng.com/posts/probability-the-logic-of-science/</guid><pubDate>Sun, 04 Oct 2015 03:30:05 GMT</pubDate></item></channel></rss>

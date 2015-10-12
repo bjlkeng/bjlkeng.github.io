@@ -402,7 +402,7 @@ where they have many more interesting types of topics around satisfiability
 and its applications.
 
 
-|h3| Satisfiability Module Theories |h3e|
+|h3| Satisfiability Modulo Theories |h3e|
 
 One last idea that I want to talk about before we end this section is that
 of other types of satisfiability problems.  In the above discussion,

@@ -7,126 +7,138 @@
                         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
  <url>
   <loc>http://satisficing.briankeng.com/</loc>
-  <lastmod>2015-09-22T10:55:00Z</lastmod>
+  <lastmod>2015-10-12T18:44:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/2015/</loc>
-  <lastmod>2015-09-07T00:03:00Z</lastmod>
+  <lastmod>2015-10-12T18:39:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/archive.html</loc>
-  <lastmod>2015-10-04T03:25:00Z</lastmod>
+  <lastmod>2015-10-12T18:44:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/</loc>
-  <lastmod>2015-09-22T01:35:00Z</lastmod>
+  <lastmod>2015-10-12T18:41:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/boolean/</loc>
-  <lastmod>2015-09-22T01:30:00Z</lastmod>
+  <lastmod>2015-10-12T18:39:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/common-sense/</loc>
-  <lastmod>2015-09-07T00:03:00Z</lastmod>
+  <lastmod>2015-10-12T18:39:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/first-post/</loc>
-  <lastmod>2015-09-07T00:03:00Z</lastmod>
+  <lastmod>2015-10-12T18:39:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/formal/</loc>
-  <lastmod>2015-09-22T01:30:00Z</lastmod>
+  <lastmod>2015-10-12T18:39:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/functional-programming/</loc>
-  <lastmod>2015-09-07T00:03:00Z</lastmod>
+  <lastmod>2015-10-12T18:39:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/functions/</loc>
-  <lastmod>2015-09-07T00:03:00Z</lastmod>
+  <lastmod>2015-10-12T18:39:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/fundamentals/</loc>
-  <lastmod>2015-09-07T00:03:00Z</lastmod>
+  <lastmod>2015-10-12T18:39:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/github/</loc>
-  <lastmod>2015-09-07T00:03:00Z</lastmod>
+  <lastmod>2015-10-12T18:39:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/greg-ward/</loc>
-  <lastmod>2015-09-07T00:03:00Z</lastmod>
+  <lastmod>2015-10-12T18:39:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/investing/</loc>
-  <lastmod>2015-09-07T00:03:00Z</lastmod>
+  <lastmod>2015-10-12T18:39:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/james-hague/</loc>
-  <lastmod>2015-09-07T00:03:00Z</lastmod>
+  <lastmod>2015-10-12T18:39:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/categories/jayne/</loc>
+  <lastmod>2015-10-04T03:31:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/categories/logic/</loc>
+  <lastmod>2015-10-04T03:31:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/mathjax/</loc>
-  <lastmod>2015-09-22T01:35:00Z</lastmod>
+  <lastmod>2015-10-12T18:39:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/nikola/</loc>
-  <lastmod>2015-09-07T00:03:00Z</lastmod>
+  <lastmod>2015-10-12T18:39:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/np-complete/</loc>
-  <lastmod>2015-09-22T01:30:00Z</lastmod>
+  <lastmod>2015-10-12T18:39:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/categories/probability/</loc>
+  <lastmod>2015-10-04T03:31:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/procedures/</loc>
-  <lastmod>2015-09-07T00:03:00Z</lastmod>
+  <lastmod>2015-10-12T18:39:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/sat/</loc>
-  <lastmod>2015-09-22T01:30:00Z</lastmod>
+  <lastmod>2015-10-12T18:39:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/satisficing/</loc>
-  <lastmod>2015-09-07T00:03:00Z</lastmod>
+  <lastmod>2015-10-12T18:39:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/verification/</loc>
-  <lastmod>2015-09-22T01:30:00Z</lastmod>
+  <lastmod>2015-10-12T18:39:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/index-1.html</loc>
-  <lastmod>2015-10-04T03:25:00Z</lastmod>
+  <lastmod>2015-10-12T18:45:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/index-2.html</loc>
-  <lastmod>2015-10-04T03:25:00Z</lastmod>
+  <lastmod>2015-10-12T18:44:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/index-3.html</loc>
-  <lastmod>2015-10-04T03:25:00Z</lastmod>
+  <lastmod>2015-10-12T18:44:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/index-4.html</loc>
+  <lastmod>2015-10-04T03:30:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/a-first-post/</loc>
-  <lastmod>2015-09-07T00:03:00Z</lastmod>
+  <lastmod>2015-10-12T18:41:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/accessible-satisfiability/</loc>
-  <lastmod>2015-09-22T11:07:00Z</lastmod>
+  <lastmod>2015-10-12T18:41:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/common-sense-and-investing/</loc>
-  <lastmod>2015-09-07T00:03:00Z</lastmod>
+  <lastmod>2015-10-12T18:41:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/functions-and-procedures/</loc>
-  <lastmod>2015-09-07T00:03:00Z</lastmod>
+  <lastmod>2015-10-12T18:41:00Z</lastmod>
  </url>
  <url>
-  <loc>http://satisficing.briankeng.com/posts/practical-satisfiability-and-np-complete-problems/</loc>
-  <lastmod>2015-09-22T01:30:00Z</lastmod>
- </url>
- <url>
-  <loc>http://satisficing.briankeng.com/posts/practical-satisfiability/</loc>
-  <lastmod>2015-09-22T01:57:00Z</lastmod>
+  <loc>http://satisficing.briankeng.com/posts/probability-the-logic-of-science/</loc>
+  <lastmod>2015-10-04T03:30:00Z</lastmod>
  </url>
 </urlset>

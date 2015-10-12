@@ -1,2 +1,4 @@
 Sitemap: http://satisficing.briankeng.com/sitemapindex.xml
 
+User-Agent: *
+Host: satisficing.briankeng.com
