@@ -9,11 +9,11 @@
 
 .. |br| raw:: html
 
-   <br />
+   <br/>
 
 .. |H2| raw:: html
 
-   <h3>
+   <br/><h3>
 
 .. |H2e| raw:: html
 
@@ -57,6 +57,8 @@ it from "common sense" extensions to Boolean logic.  (*Spoiler alert: he ends
 up with pretty much the same mathematical system as Kolmogorov's probability theory.*)
 I'll stay away from any heavy derivations and stick with the intuition, which
 is exactly why I think this view of probability theory is more useful.
+
+.. TEASER_END
 
 |h2| Boolean Logic |h2e|
 
@@ -182,22 +184,19 @@ We've just seen that one of the big limitations to Boolean logic is the strict
 true or false values that we need to assign to propositions.  If we try to
 relax this constraint a bit, we end up with something that can model quite a
 few more situations.  For a proposition such as "it is raining".  No longer
-will we assign it a strict true or false, we insead want to assign it a degree
-of *plausibility*.  One way to accomplish this is to classify a proposition like
-"it is raining" with a number indicating how plausibile you think that it is
-currently raining.  Along with this new method of evaluating propositions,
-we'd also like to develop a system to reason about them, ideally still
-maintaining the same type of deductive reasoning we have with Boolean logic,
-but extended to reasonably handle our degrees of plausibility about these new
-propositions. 
+will we assign it a strict true or false truth value, we insead want to assign
+it a degree of *plausibility* (of truth).  One way to accomplish this is to
+classify a proposition like "it is raining" with a number indicating how
+plausibile you think that it is currently raining.  Along with this new method
+of evaluating propositions, we'd also like to develop a system to reason about
+them while ideally still maintaining the same type of deductive reasoning we
+have with Boolean logic, but extending it to handle our new concept of degrees
+of plausibility about these propositions. 
 
 
 |h3| Weaker Rules of Inference |h3e|
 
-
-
-To reason about them, we usually use two forms of inference, `modus ponens
-<https://en.wikipedia.org/wiki/Modus_ponens>`_ (Rule R1):
+We already saw two forms of inference from Boolean logic, Rule R1 and R2:
 
 .. math::
 
@@ -205,44 +204,200 @@ To reason about them, we usually use two forms of inference, `modus ponens
 
     \frac{A\text{ is true}}{\text{therefore, }B\text{ is true}}  \tag{R1}
 
-and also `modus tollens <https://en.wikipedia.org/wiki/Modus_tollens>`_ (Rule R2):
+    \frac{B\text{ is false}}{\text{therefore, }A\text{ is false}} \tag{R2}
+
+These rules extend quite naturally to our degress of plausibility.
+For R1, if we think that A is plausible (to some degree), then 
+it intuitively makes sense that B becomes more plausible.
+Similarly for R2, if we think B is implausible (to some degree), then 
+A should also become more implausible.  So we might state these modified rules,
+S1 and S2, as such:
 
 .. math::
 
     \text{if }A\text{ is true, then }B\text{ is true}
 
-    \frac{B\text{ is false}}{\text{therefore, }A\text{ is false}} \tag{R2}
+    \frac{A\text{ is more plausible}}{\text{therefore, }B\text{ is more plausible}}  \tag{S1}
+
+    \frac{B\text{ is less plausible}}{\text{therefore, }A\text{ is less plausible}} \tag{S2}
+
+Using this line of reasoning, we can come up with some more rules of inference
+that, while in Boolean logic would be non-sensical, they do make sense in our
+new system reasoning with plausibilities.  Consider these new rules R3 and R4:
+
+.. math::
+
+    \text{if }A\text{ is true, then }B\text{ is true}
+
+    \frac{B\text{ is true (or more plausible)}}{\text{therefore, }A\text{ is more plausible}}  \tag{S3}
+
+    \frac{A\text{ is false (or less plausible)}}{\text{therefore, }B\text{ is less plausible}} \tag{S4}
+
+If we try to apply it to our example above, it passes our simplest smoke test
+of a rational line of reasoning:
+
+.. math::
+
+    \text{if it is raining, then it is cloudy}
+
+    \frac{\text{it is cloudy}}{\text{therefore, it is more plausible that it is raining}}
+
+    \frac{\text{it is not raining}}{\text{therefore, it is less plausible that it is cloudy}}
+
+Here, if it's cloudy, we're not positive that it's raining but somehow it has increased
+our belief that it will rain ("Is it going to rain?  It might, it looks cloudy.").
+Alternatively, if it's not raining there is definitely some degree of plausibility
+that it is not cloudy.  With Boolean logic and it's strict true/false
+dichotomy, we cannot really make any conclusions but with plausible reasoning we 
+can at least make *some* statements.
+
+Of course, there is not much precision (read: mathematics) in what we've said,
+we're just trying to gain some intuition on how we would ideally reason about
+propositions with varying degress of plausibility.  In whatever system we end
+up designing, we'd like to keep the spirit of S1-S4 in tact because it follows
+what we would expect a smart rational person to conclude.
+
+|h3| Introducing the Robot |h3e|
+
+In all of the above discussion about plausible reasoning, we've been trying to
+build "a mathematical model of human common sense" as Jayne puts it.  However,
+we need to be careful because human judgement has many properties (that while
+useful) may not be ideal for us to include in our system of reasoning such as
+emotion and misunderstandings.  Here is where Jayne introduces a really neat
+concept, the robot, in order to make it clear what we're trying to achieve:
+
+    In order to direct attention to constructive things and away from
+    controversial irrelevancies, we shall invent an imaginary being.  Its brain
+    is to be designed *by us*, so that it reasons according to certain definite
+    rules.  These rules will be deduced from simple desiderata which, it
+    appears to us, would be desirable in human brains; i.e. we think that a
+    rational person, on discovering that they were violating one of these
+    desiderata, would wish to revise their thinking. 
+    ...
+    To each proposition about which it reasons, our robot must assign some
+    degree of plausibility, based on the evidence we have given it; and
+    whenever it recieves new evidence it must revise these assignments to take
+    that new evidence into account.
+
+Sounds like a pretty cool robot!  So then our goal is not to build this
+hypothetical robot that follows certain rules (which we'll define) and
+be consistent with what how an ideal rational person would reason.
+Here is a list of his three requirements (desiderata):
+
+ 1. Degrees of plausibility are represented by real numbers.
+ 2. Qualitative correspondence with common sense.
+ 3. Consistency:
+ 
+    a. If a conclusion can be reasoned out in more than one way, then every possible way must lead to the same result.
+    b. The robot always takes into account all of the evidence it has relevant to the question.  It does not artbitrarily, ignore some of the information, basing its conclusions only on what remains.  In other words, the robot is nonideological.
+    c. The robot always represents equivalent states of knowledge by equivalent plausibility assignments.  That is, if in two problems the robot's state of knowledge is the same (except perhaps for the labeling of the propositions), then it must assign the same plausibilities in both.  
+
+The first requirement is mostly for practicality.  If we're building a machine,
+we'd like some standard way to tell it about plausibility (and vice versa),
+real numbers seem appropriate.
+The second requirement tells us that the robot should at least qualitatively
+reason like humans do.  For example, the robot should be able to reason
+somewhat like our rules S1-S4 above, which is precisely the whole point of our
+exercise. 
+The last requirement is obvious since if we're trying to build a robot
+to reason, it has to be consistent (or what use is it?).
+
+What is surprising is that from these three desiderata, Jayne goes on
+to derive probability theory (extending it from Boolean logic)!  If you're
+interested, I encourage you to check out his book `Probabilty Theory: The Logic
+of Science <http://bayes.wustl.edu/etj/prob/book.pdf>`_ (first three chapters
+online), where in Chapter 2 he goes over all the gory details.  It's quite an
+interesting read and pretty accessible if you know a bit of calculus and are
+comfortable with some algebraic manipulation.  I'll spare you the details here
+on how the derivation plays out (as I'm probably not the right person to
+explain it) but instead I want to focus on next is the result of how
+probability theory can be viewed as an extension of Boolean logic.
+
+|h2| Probability as Extended Logic |h2e|
+
+The rules of probability have direct analogues with our Boolean operators above
+(as it can be viewed as an extension).
+Now our propositions don't have 0 or 1 truth values, they can take on any value
+in the range 0 (false) to 1 (true) representing their plausibility.  The symbol
+:math:`P(A|B)` is used to denote the degree of plausibility we assign
+proposition A, given our background or prior knowledge B (remember the robot
+will take all relevant known information into account).
+
+The really interesting insight is that all the concepts from Boolean logic are
+just limiting cases of our extension (i.e. probability theory) where our robot
+becomes more and more cetain of itself.  Let's take a look.
+
+|h3| Extended Boolean Operators |h3e|
+
+Consider negation ("not" operator).  The analogue in probability theory is the
+basic sum rule:
+
+.. math::
+
+    P(A|B) + P(\bar{A}|B) = 1
+
+If we are entirely confident in proposition A (:math:`P(A|B)=1` or A is true),
+then from the above rule, we can conclude :math:`P(\bar{A}|B) = 1 - P(A|B) = 0`,
+or :math:`\bar{A}` is false.
+
+This works equally well with our two basic Boolean operators.  Consider the "and"
+operator, it's analogue is the product rule:
+
+.. math::
+
+    P(AB|C) = P(A|BC)P(B|C) = P(B|AC)P(A|C)
+
+Let's try a few cases out.  If A is true and B is true, we should see that AB
+is true.  Translating that to probabilities, we get :math:`P(A|C)=1` and
+:math:`P(B|C)=1`.  Now this doesn't fit as nicely into our product rule
+but we just need to go back to the concept of our robot taking all known
+information into account.  If we know that :math:`P(B|C)=1`, this means
+that given background information :math:`C`, we know enough to conclude
+that :math:`B` is plausible with absolute certainty.  If we then add
+additional background information that A is also plausible with absolute
+certainty (given the same background information), then we can conclude that
+:math:`P(B|AC)=1` because A is no longer relevant and our robot only uses
+:math:`C` as the relevant background information when computing the
+plausibility of :math:`B` [1]_.  Plugging it into the formula we get the
+desired result of :math:`P(AB|C)=1`.  And since "and" operator is commutative,
+we could have easily used the second expression and reached the same
+conclusion.
+Alternatively, if we try :math:`P(A|C)=0` and :math:`P(B|C)=1`, we can see
+through a similar line of reasoning that the result should be :math:`P(AB|C)=0`.
+
+The final Boolean operator "or" also has a direct analogue in the extended sum
+rule:
+
+.. math::
+
+    P(A + B|C) = P(A|C) + P(B|C) - P(AB|C)
+
+Taking a similar line of reasoning, if we have :math:`P(A|C)=0` and
+:math:`P(B|C)=1`, we have :math:`P(AB|C)=0` from the above line of reasoning.
+With these three quantities, we can easily compute :math:`P(A + B|C)=1`, as we
+would expect (If A is false and B is true, then "A or B" is true).
+
+|h3| Extended Reasoning |h3e|
+
+As we saw before, we would ideally like our original rules (R1 and R2) as well
+as our extended rules (S1-S4) to be included in our new system.
+As expected, these common sense interpretations are preserved in probability
+theory with a modified form of the product rule.
+
+.. math::
+
+    P(B|AC) = \frac{P(AB|C)}{P(A|C)}  \tag{1} \\
+    P(A|\bar{B}C) = \frac{P(A\bar{B}|C)}{P(\bar{B}|C)} \tag{2}
+   
 
 
-
-
-
-
-
-
-
-
-
-|h2| Introducing the Robot |h2e|
-
-
-Modeling 
-
-
-Historically, 
-
-t
-
-
-
-.. TEASER_END
 
 |h2| Further Reading |h2e|
 
-* `Probability, Paradox, and the Reasonable Person Principle <http://nbviewer.ipython.org/url/norvig.com/ipython/Probability.ipynb>`_ by Peter Norvig
-* `Probability Theory As Extended Logic <http://bayes.wustl.edu/>`_ at Washington University In St Louis.
 * `Probabilty Theory: The Logic of Science <http://bayes.wustl.edu/etj/prob/book.pdf>`_ (first three chapters) by E. T. Jayne.
+* `Probability Theory As Extended Logic <http://bayes.wustl.edu/>`_ at Washington University In St Louis.
+* `Probability, Paradox, and the Reasonable Person Principle <http://nbviewer.ipython.org/url/norvig.com/ipython/Probability.ipynb>`_ by Peter Norvig
 
 |br|
 
-.. [1]
+.. [1] You might wonder what happens when :math:`A` and :math:`C` are mutually exclusive propositions (i.e. impossible to happen at the same time).  In this case, :math:`P(B|AC)` is not defined but also our original question is ill formed because we couldn't have the case :math:`P(A|C)=1` (we would instead have :math:`P(A|C)=1`).
