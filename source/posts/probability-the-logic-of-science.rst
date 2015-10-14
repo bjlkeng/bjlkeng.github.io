@@ -210,17 +210,7 @@ These rules extend quite naturally to our degress of plausibility.
 For R1, if we think that A is plausible (to some degree), then 
 it intuitively makes sense that B becomes more plausible.
 Similarly for R2, if we think B is implausible (to some degree), then 
-A should also become more implausible.  So we might state these modified rules,
-S1 and S2, as such:
-
-.. math::
-
-    \text{if }A\text{ is true, then }B\text{ is true}
-
-    \frac{A\text{ is more plausible}}{\text{therefore, }B\text{ is more plausible}}  \tag{S1}
-
-    \frac{B\text{ is less plausible}}{\text{therefore, }A\text{ is less plausible}} \tag{S2}
-
+A should also become more implausible.  
 Using this line of reasoning, we can come up with some more rules of inference
 that, while in Boolean logic would be non-sensical, they do make sense in our
 new system reasoning with plausibilities.  Consider these new rules R3 and R4:
@@ -229,9 +219,9 @@ new system reasoning with plausibilities.  Consider these new rules R3 and R4:
 
     \text{if }A\text{ is true, then }B\text{ is true}
 
-    \frac{B\text{ is true (or more plausible)}}{\text{therefore, }A\text{ is more plausible}}  \tag{S3}
+    \frac{B\text{ is true}}{\text{therefore, }A\text{ is more plausible}}  \tag{R3}
 
-    \frac{A\text{ is false (or less plausible)}}{\text{therefore, }B\text{ is less plausible}} \tag{S4}
+    \frac{A\text{ is false}}{\text{therefore, }B\text{ is less plausible}} \tag{R4}
 
 If we try to apply it to our example above, it passes our simplest smoke test
 of a rational line of reasoning:
@@ -254,7 +244,7 @@ can at least make *some* statements.
 Of course, there is not much precision (read: mathematics) in what we've said,
 we're just trying to gain some intuition on how we would ideally reason about
 propositions with varying degress of plausibility.  In whatever system we end
-up designing, we'd like to keep the spirit of S1-S4 in tact because it follows
+up designing, we'd like to keep the spirit of R1-R4 in tact because it follows
 what we would expect a smart rational person to conclude.
 
 |h3| Introducing the Robot |h3e|
@@ -297,7 +287,7 @@ we'd like some standard way to tell it about plausibility (and vice versa),
 real numbers seem appropriate.
 The second requirement tells us that the robot should at least qualitatively
 reason like humans do.  For example, the robot should be able to reason
-somewhat like our rules S1-S4 above, which is precisely the whole point of our
+somewhat like our rules R1-R4 above, which is precisely the whole point of our
 exercise. 
 The last requirement is obvious since if we're trying to build a robot
 to reason, it has to be consistent (or what use is it?).
@@ -380,16 +370,120 @@ would expect (If A is false and B is true, then "A or B" is true).
 |h3| Extended Reasoning |h3e|
 
 As we saw before, we would ideally like our original rules (R1 and R2) as well
-as our extended rules (S1-S4) to be included in our new system.
+as our extended rules (R1-R4) to be included in our new system.
 As expected, these common sense interpretations are preserved in probability
 theory with a modified form of the product rule.
 
+Recall the rules R1 and R2:
+
 .. math::
 
-    P(B|AC) = \frac{P(AB|C)}{P(A|C)}  \tag{1} \\
-    P(A|\bar{B}C) = \frac{P(A\bar{B}|C)}{P(\bar{B}|C)} \tag{2}
-   
+    \text{if }A\text{ is true, then }B\text{ is true}
 
+    \frac{A\text{ is true}}{\text{therefore, }B\text{ is true}}  \tag{R1}
+
+    \frac{B\text{ is false}}{\text{therefore, }A\text{ is false}} \tag{R2}
+
+The premise can be encoded in our background information :math:`C`:
+
+.. math::
+
+    C \equiv A \implies B
+
+Given this background information, we can use these forms of the product rule to encode
+R1, R2 as rules PR1 and PR2, respectively:
+
+.. math::
+
+    P(B|AC) = \frac{P(AB|C)}{P(A|C)}                    \tag{PR1} \\
+    P(A|\bar{B}C) = \frac{P(A\bar{B}|C)}{P(\bar{B}|C)}  \tag{PR2}
+
+This is not all that obvious because we lose some of the nice one-to-one correspondence
+like the operators above.  However, treating A, B, C as propositions, aids us in decoding
+these equations.  Given our major premise :math:`C \equiv A \implies B`, let's
+look at the truth table for the relevant propositions.  
+
+.. table::
+
+    =====  =====  =============================  ==============  ========
+      A      B    :math:`C \equiv A \implies B`  :math:`AB | C`  :math:`A\bar{B}|C`
+    =====  =====  =============================  ==============  ========
+    False  False  True                           False           False
+    False  True   True                           False           False
+    True   False  False                          *Impossible*    *Impossible*
+    True   True   True                           True            False
+    =====  =====  =============================  ==============  ========
+
+Notice that this truth table is a bit special in that I am mixing our extended logic
+with Boolean logic (e.g. :math:`|` symbol).  Although it's not really proper to
+do so, this is more an exercise in intuition than anything else so I'll stick
+with the sloppiness for sake of explanation.
+Next, we see that I have filled in a special notation for the third row
+using the term "*impossible*".  This is to indicate, given the premise :math:`C`,
+this situation cannot possibly occur (or else our premise would be false).
+
+Now given this truth table, we can see that :math:`AB | C` simplifies to
+the expression :math:`A` by ignoring the impossible row from our premise.
+Similarly, :math:`A\bar{B}|C` simplifies to "False".  Plugging these back
+into PR1 and PR2:
+
+.. math::
+
+    P(B|AC) = \frac{P(AB|C)}{P(A|C)} = \frac{P(A|C)}{P(A|C)} = 1.0  \\
+    P(A|\bar{B}C) = \frac{P(A\bar{B}|C)}{P(\bar{B}|C)} = \frac{0}{P(\bar{B}|C)} = 0.0
+
+we get the desired result.  In particular, :math:`P(B|AC)` resolves to the same
+thing that :math:`A \implies B, A` resolves to: :math:`B` is true.  Similarly,
+:math:`P(A|\bar{B}C)` resolves to the same thing that :math:`A \implies B,
+\bar{B}` resolves to: :math:`A` is false.  Pretty neat, huh?
+
+
+The rules R3 and R4 also extend quite naturally from our product rule.  Recall
+rules R3 and R4:
+
+.. math::
+
+    \text{if }A\text{ is true, then }B\text{ is true}
+
+    \frac{B\text{ is true}}{\text{therefore, }A\text{ is more plausible}}  \tag{R3}
+
+    \frac{A\text{ is false}}{\text{therefore, }B\text{ is less plausible}} \tag{R4}
+
+R3 can be encoded as the product rule:
+
+.. math::
+
+    P(A|BC) = P(A|C)\frac{P(B|AC)}{P(B|C)}
+
+But from the discussion above, we know :math:`P(B|AC)=1` and 
+:math:`P(B|C) \leq 1` (from the definition of a probability), so it must be the
+case that:
+
+.. math::
+
+    P(A|BC) \geq P(A|C)  \tag{E1}
+
+In other words, given new information :math:`B`, we now think :math:`A` is more
+plausible. We can build upon this to reason about R4 using this form of the
+product rule:
+
+.. math::
+
+    P(B|\bar{A}C) = P(B|C)\frac{P(\bar{A}|BC)}{P(\bar{A}|C)}
+
+From E1, we know that :math:`P(\bar{A}|BC) \leq P(\bar{A}|C)` (remember
+the "not" rule), so we can conclude that:
+
+.. math::
+
+    P(B|\bar{A}C) \leq P(B|C)
+
+which says that given :math:`\bar{A}`, proposition :math:`B` becomes less
+plausible.
+
+|h2| Conclusion |h2e|
+
+Some conclusion...
 
 
 |h2| Further Reading |h2e|
