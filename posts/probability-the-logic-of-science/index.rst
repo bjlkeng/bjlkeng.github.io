@@ -1,6 +1,6 @@
 .. title: Probability as Extended Logic
 .. slug: probability-the-logic-of-science
-.. date: 2015-10-03 23:30:05 UTC-04:00
+.. date: 2015-10-14 20:30:05 UTC-04:00
 .. tags: probability, Jayne, logic, mathjax
 .. category: 
 .. link: 
