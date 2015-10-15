@@ -26,6 +26,10 @@ div.output_prompt {
   margin: 0 5px 0 0px;
 }
 
+div.output_area {
+  background-color: #E9E9E9;
+}
+
 div.output_area pre {
   font-size: 13px;
 }
