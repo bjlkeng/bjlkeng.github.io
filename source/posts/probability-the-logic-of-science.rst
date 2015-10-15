@@ -41,7 +41,7 @@ In one way, it's intuitive to understand how this works as Laplace
     cases possible.
 
 However, the intuition of this view of probability breaks down when we want to
-do more complex reasoning.  After learning probably from the lens of coins,
+do more complex reasoning.  After learning probability from the lens of coins,
 dice and urns full of red and white balls, I still didn't feel that I had
 have a strong grasp about how to apply it to other situations -- especially
 ones where it was difficult or too abstract to apply the idea of *"a fraction
@@ -89,7 +89,8 @@ using an implication operator (colloquially if-then statement):
 
 To reason about propositions, we usually use two forms of inference, `modus ponens
 <https://en.wikipedia.org/wiki/Modus_ponens>`_ (Rule R1), which uses a premise (the
-"if-then" statement), and an antecedent (the "if" part), to derive the consequent (the "then" part):
+"if-then" statement), and an antecedent (the "if" part), to derive the
+consequent (the "then" part):
 
 .. math::
 
@@ -98,7 +99,7 @@ To reason about propositions, we usually use two forms of inference, `modus pone
     \frac{A\text{ is true}}{\text{therefore, }B\text{ is true}}  \tag{R1}
 
 and similarly with `modus tollens <https://en.wikipedia.org/wiki/Modus_tollens>`_ (Rule R2),
-which is the contrapositive and logically equivalent statement:
+which is the contrapositive and a logically equivalent statement:
 
 .. math::
 
@@ -185,11 +186,11 @@ of system.
 |h2| Plausible Reasoning |h2e|
 
 By relaxing the constraint of Boolean logic's strict true or false values, we
-end up with a reasoning system that is much more widely applicable.  For a
+end up with a reasoning system that is more widely applicable.  For a
 proposition such as "it is raining", no longer will we assign it just true or
 false values, we instead want to assign it a value that represents to what
 degree we believe it to be true.  We will call this degree of belief the 
-*plausibility* of a proposition, which will be represented by a real number.  
+*plausibility* of a proposition.  
 Along with these extended truth values, we'd also like to develop rules so we
 can reason about them while, ideally, still maintaining the same type of
 deductive reasoning we have with Boolean logic.  Let's see how it works out.
@@ -294,14 +295,13 @@ to reason, it has to be consistent (or what use is it?).
 
 What is surprising is that from these three desiderata, Jayne goes on
 to derive probability theory (extending it from Boolean logic)!  If you're
-interested, I encourage you to check out his book `Probability Theory: The Logic
-of Science <http://bayes.wustl.edu/etj/prob/book.pdf>`_ (first three chapters
-online), where in Chapter 2 he goes over all the gory details.  It's quite an
-interesting read and pretty accessible if you know a bit of calculus and are
-comfortable with some algebraic manipulation.  I'll spare you the details here
-on how the derivation plays out (as I'm probably not the right person to
-explain it) but instead I want to focus on how probability theory can be viewed
-as an extension of Boolean logic.
+interested, I encourage you to check out his book Probability Theory: The Logic
+of Science  (see link below), where in Chapter 2 he goes over all the gory
+details.  It's quite an interesting read and pretty accessible if you know a
+bit of calculus and are comfortable with some algebraic manipulation.  I'll
+spare you the details here on how the derivation plays out (as I'm probably not
+the right person to explain it) but instead I want to focus on how probability
+theory can be viewed as an extension of Boolean logic.
 
 |h2| Probability as Extended Logic |h2e|
 
@@ -360,7 +360,7 @@ Alternatively, if we try :math:`P(A|C)=1` and :math:`P(B|C)=0`, we can see
 through a similar line of reasoning that the result should be
 :math:`P(AB|C)=0`.
 
-The final basic Boolean operator "or" also has a direct analogue in the extended sum
+The last basic Boolean operator "or" also has a direct analogue in the extended sum
 rule:
 
 .. math::
@@ -430,7 +430,7 @@ using the term "*impossible*".  This is to indicate, given the premise :math:`C`
 this situation cannot possibly occur (or else our premise would be false).
 
 Now given this truth table, we can see that :math:`AB | C` simplifies to
-the expression :math:`A` by ignoring the impossible row from our premise (the
+the expression :math:`A|C` by ignoring the impossible row from our premise (the
 first, second and fourth rows match).
 Similarly, :math:`A\bar{B}|C` simplifies to "False" (by ignoring the third
 row).  Plugging these back into PR1 and PR2:
@@ -443,7 +443,7 @@ row).  Plugging these back into PR1 and PR2:
 we get the desired result.  In particular, :math:`P(B|AC)` tells us the same
 thing that :math:`A \implies B` combined with :math:`A\text{ is True}` tells us:
 :math:`B` is true.  Similarly, :math:`P(A|\bar{B}C)` resolves to the same thing
-that :math:`A \implies B` combined with :math:`, \bar{B}` resolves to:
+that :math:`A \implies B` combined with :math:`\bar{B}` resolves to:
 :math:`A` is false.  Pretty neat, huh?
 
 
@@ -496,19 +496,19 @@ Probability as an extension of logic is quite a different approach compared to
 the traditional treatment of the subject.  I've tried to shed some light on
 this view of probability and hopefully have provided some intuition on how it
 all works.
-For me, probability as an extension of logic is much more natural while also
-very philosophically satisfying.  It also directly leads to a Bayesian
-interpretation of data (because you're just updating our robot's knowledge),
-which also makes a lot of sense to me.  
-It's a shame that probability isn't taught (or even mentioned) in the context
-of extended logic because I think it would help people internalize the concepts
-and, dare I say, even start to like the subject!
+For me, probability as an extension of logic is much more natural way of
+looking at the subject while also much more philosophically satisfying.  It also
+directly leads to a Bayesian interpretation of data (because you're just
+updating our robot's prior knowledge), which also makes a lot of sense to me.  It's a
+shame that probability isn't taught (or even mentioned) in the context of
+extended logic because I think it would help people internalize the concepts a
+lot better and, dare I say, even start to like the subject!
 
 
 
 |h2| Further Reading |h2e|
 
-* `Probability Theory: The Logic of Science <http://bayes.wustl.edu/etj/prob/book.pdf>`_ (first three chapters) by E. T. Jayne.
+* `Probability Theory: The Logic of Science (Chapters 1-3) <http://bayes.wustl.edu/etj/prob/book.pdf>`_ by E. T. Jayne.
 * `Probability Theory As Extended Logic <http://bayes.wustl.edu/>`_ at Washington University In St Louis.
 * `Probability, Paradox, and the Reasonable Person Principle <http://nbviewer.ipython.org/url/norvig.com/ipython/Probability.ipynb>`_ by Peter Norvig
 
