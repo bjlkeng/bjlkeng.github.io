@@ -9,3 +9,4 @@ cache/
 _site/
 .doit.db.db
 nikola
+.ipynb_checkpoints/
