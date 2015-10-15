@@ -12,11 +12,7 @@ div.prompt {
 }
 
 div.cell {
-    padding: 2px;
-}
-
-pre {
-    font-size: 90%;
+    padding: 5px;
 }
 
 div#notebook-container {
@@ -31,7 +27,6 @@ div.output_prompt {
 }
 
 div.output_area {
-    font-size: 90%;
     border: 1px solid lightgray;
 }
 
