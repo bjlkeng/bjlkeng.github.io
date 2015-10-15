@@ -30,7 +30,7 @@
 
 Modern probability theory is typically derived from the
 `Kolmogorov axioms <https://en.wikipedia.org/wiki/Probability_axioms>`_,
-using measure theory with the notions of events and sample space.
+using measure theory with concepts like events and sample space.
 In one way, it's intuitive to understand how this works as Laplace 
 `wrote <https://en.wikipedia.org/wiki/Classical_definition_of_probability>`_:
 
@@ -43,20 +43,21 @@ In one way, it's intuitive to understand how this works as Laplace
 However, the intuition of this view of probabilty breaks down when we want to
 do more complex reasoning.  After learning probabily from the lens of coins,
 dice and urns full of red and white balls, I still didn't feel that I had
-have a strong intuition about how to apply it to other situtions -- especially
+have a strong grasp about how to apply it to other situtions -- especially
 ones where it was difficult or too abstract to apply the idea of *"a fraction
 whose numerator is the number of favorable cases and whose denominator is the
 number of all the cases possible"*.  And then I read `Probabily Theory: The Logic of Science <http://www.cambridge.org/gb/academic/subjects/physics/theoretical-physics-and-mathematical-physics/probability-theory-logic-science>`_ by E. T. Jayne.
 
-Jayne takes a drasticlly different view of probability, not with events and sample spaces,
-but rather an extension of Boolean logic.  Taking this view made a great deal of sense
-to me since I spent a lot of time `studying and reasoning
+Jayne takes a drasticlly different approach to probability, not with events and
+sample spaces, but rather as an extension of Boolean logic.  Taking this view made
+a great deal of sense to me since I spent a lot of time `studying and reasoning
 <link://slug/accessible-satisfiability>`_ in Boolean logic.  The following post
 is my attempt to explain Jayne's view of probability theory, where he derives
 it from "common sense" extensions to Boolean logic.  (*Spoiler alert: he ends
-up with pretty much the same mathematical system as Kolmogorov's probability theory.*)
-I'll stay away from any heavy derivations and stick with the intuition, which
-is exactly why I think this view of probability theory is more useful.
+up with pretty much the same mathematical system as Kolmogorov's probability
+theory.*) I'll stay away from any heavy derivations and stick with the
+intuition, which is exactly where I think this view of probability theory is most
+useful.
 
 .. TEASER_END
 
@@ -86,8 +87,9 @@ using an implication operator (colloquially if-then statement):
 
 |h3| Rules of Inference |h3e|
 
-To reason about them, we usually use two forms of inference, `modus ponens
-<https://en.wikipedia.org/wiki/Modus_ponens>`_ (Rule R1):
+To reason about propositions, we usually use two forms of inference, `modus ponens
+<https://en.wikipedia.org/wiki/Modus_ponens>`_ (Rule R1), which uses a premise (the
+"if-then" statement), and an antecedent (the "if" part), to derive the consequent (the "then" part):
 
 .. math::
 
@@ -95,7 +97,8 @@ To reason about them, we usually use two forms of inference, `modus ponens
 
     \frac{A\text{ is true}}{\text{therefore, }B\text{ is true}}  \tag{R1}
 
-and also `modus tollens <https://en.wikipedia.org/wiki/Modus_tollens>`_ (Rule R2):
+and similarly with `modus tollens <https://en.wikipedia.org/wiki/Modus_tollens>`_ (Rule R2),
+which is the contrapositive and logically equivalent statement:
 
 .. math::
 
@@ -103,7 +106,7 @@ and also `modus tollens <https://en.wikipedia.org/wiki/Modus_tollens>`_ (Rule R2
 
     \frac{B\text{ is false}}{\text{therefore, }A\text{ is false}} \tag{R2}
 
-Both make intuitive sense when you try to apply it to examples like the one above:
+Both make intuitive sense when you try to apply it to examples above:
 
 .. math::
 
@@ -121,8 +124,8 @@ and:
 
 |h3| Basic Boolean Operators |h3e|
 
-There are several Boolean operators that are pretty natural things to do
-when discussing propositions.  The most basic on is the **negation** (or "not")
+There are several basic Boolean operators which arise very naturally when
+discussing propositions.  The most basic one is the **negation** (or "not")
 operator, usually drawn with a bar above the proposition (or expression):
 
 .. math::
@@ -144,8 +147,8 @@ operator) meaning "at least one the propositions A, B are true", denoted with a 
     A + B
 
 With the above examples, our intuition isn't too far off from the natural
-English interpretation (except for "or", which is inclusive instead of
-exclusive usually used in English):
+English interpretation (except for "or", which is the inclusive one instead of
+the exclusive one usually used in English):
 
 .. math::
 
@@ -162,37 +165,34 @@ way to rationally reason about real-world problems.  With repeated
 applications of Rules R1 or R2, we can logically "prove" a fact from a set of
 premises.  In fact, this type of reasoning system has been used for centuries 
 with `Aristotelian logic <https://en.wikipedia.org/wiki/Term_logic>`_.
-However, it's not too hard to see that it has some limitations on the kinds of
+However, it's not hard to see that it has some limitations on the kinds of
 things that can be modeled with it.
 
 For example, given our above proposition "it is raining", using Boolean logic,
-we would have to assign this an "unambiguous meaning... either true or false".
+we would have to assign this either a true or false value.
 If we think a bit, we can probably come up with a situation where it's not so
 clear whether the statement should be clearly true or false.  
 Perhaps I'm in my bedroom and my curtains are closed but I can see that it
 looks kind of grey outside.  Am I 100% certain that it is raining, or is there
-more of a 50/50 chance that it is raining.  Clearly, Boolean logic isn't quite
-ready to handle these situations but if we somehow relaxed the criteria so
-that each proposition didn't have to be 100% true or 100% false, we could
-come up with a reasoning system that could be used to model a wider variety of
-real-world situations.  In the next section, we'll introduce some ideas to get
-us closer to this type of system.
+more like a 50/50 chance that it is raining?  Clearly, Boolean logic isn't quite
+ready to handle these situations.  However, if we relaxed the criteria that
+each proposition had to be 100% true or false and instead had a range values
+corresponding to how "true" we think it is, we could come up with a reasoning
+system that could be used to model a wider variety of real-world situations.
+In the next section, we'll introduce some ideas to get us closer to this type
+of system.
 
 |h2| Plausible Reasoning |h2e|
 
-We've just seen that one of the big limitations to Boolean logic is the strict
-true or false values that we need to assign to propositions.  If we try to
-relax this constraint a bit, we end up with something that can model quite a
-few more situations.  For a proposition such as "it is raining".  No longer
-will we assign it a strict true or false truth value, we insead want to assign
-it a degree of *plausibility* (of truth).  One way to accomplish this is to
-classify a proposition like "it is raining" with a number indicating how
-plausibile you think that it is currently raining.  Along with this new method
-of evaluating propositions, we'd also like to develop a system to reason about
-them while ideally still maintaining the same type of deductive reasoning we
-have with Boolean logic, but extending it to handle our new concept of degrees
-of plausibility about these propositions. 
-
+By relaxing the constraint of Boolean logic's strict true or false values, we
+end up with a reasoning system that is much more widely applicable.  For a
+proposition such as "it is raining", no longer will we assign it just true or
+false values, we instead want to assign it a value that represents to what
+degree we believe it to be true.  We will call this degree of belief the 
+*plausibility* of a proposition, which will be represented by a real number.  
+Along with these extended truth values, we'd also like to develop rules so we
+can reason about them while, ideally, still maintaining the same type of
+deductive reasoning we have with Boolean logic.  Let's see how it works out.
 
 |h3| Weaker Rules of Inference |h3e|
 
@@ -212,8 +212,8 @@ it intuitively makes sense that B becomes more plausible.
 Similarly for R2, if we think B is implausible (to some degree), then 
 A should also become more implausible.  
 Using this line of reasoning, we can come up with some more rules of inference
-that, while in Boolean logic would be non-sensical, they do make sense in our
-new system reasoning with plausibilities.  Consider these new rules R3 and R4:
+that, while in Boolean logic would be non-sensical, do make sense in our
+new system of reasoning with plausibilities.  Consider these new rules R3 and R4:
 
 .. math::
 
@@ -238,8 +238,8 @@ Here, if it's cloudy, we're not positive that it's raining but somehow it has in
 our belief that it will rain ("Is it going to rain?  It might, it looks cloudy.").
 Alternatively, if it's not raining there is definitely some degree of plausibility
 that it is not cloudy.  With Boolean logic and it's strict true/false
-dichotomy, we cannot really make any conclusions but with plausible reasoning we 
-can at least make *some* statements.
+dichotomy, we cannot really make any conclusions from the premise but with
+plausible reasoning we can change our degree of belief about the propositions.
 
 Of course, there is not much precision (read: mathematics) in what we've said,
 we're just trying to gain some intuition on how we would ideally reason about
@@ -269,10 +269,10 @@ concept, the robot, in order to make it clear what we're trying to achieve:
     whenever it recieves new evidence it must revise these assignments to take
     that new evidence into account.
 
-Sounds like a pretty cool robot!  So then our goal is not to build this
-hypothetical robot that follows certain rules (which we'll define) and
-be consistent with what how an ideal rational person would reason.
-Here is a list of his three requirements (desiderata):
+Sounds like a pretty cool robot!  So our goal now is to build a reasoning
+system for this hypothetical robot that that will be consistent with how an
+ideal rational person would reason.  Here are the three requirements
+(desiderata) that Jayne states for our robot:
 
  1. Degrees of plausibility are represented by real numbers.
  2. Qualitative correspondence with common sense.
@@ -300,13 +300,13 @@ online), where in Chapter 2 he goes over all the gory details.  It's quite an
 interesting read and pretty accessible if you know a bit of calculus and are
 comfortable with some algebraic manipulation.  I'll spare you the details here
 on how the derivation plays out (as I'm probably not the right person to
-explain it) but instead I want to focus on next is the result of how
-probability theory can be viewed as an extension of Boolean logic.
+explain it) but instead I want to focus on how probability theory can be viewed
+as an extension of Boolean logic.
 
 |h2| Probability as Extended Logic |h2e|
 
 The rules of probability have direct analogues with our Boolean operators above
-(as it can be viewed as an extension).
+(as it can be viewed as an extension of them).
 Now our propositions don't have 0 or 1 truth values, they can take on any value
 in the range 0 (false) to 1 (true) representing their plausibility.  The symbol
 :math:`P(A|B)` is used to denote the degree of plausibility we assign
@@ -326,12 +326,12 @@ basic sum rule:
 
     P(A|B) + P(\bar{A}|B) = 1
 
-If we are entirely confident in proposition A (:math:`P(A|B)=1` or A is true),
+If we are entirely confident in proposition A (i.e. :math:`P(A|B)=1` or A is true),
 then from the above rule, we can conclude :math:`P(\bar{A}|B) = 1 - P(A|B) = 0`,
 or :math:`\bar{A}` is false.
 
 This works equally well with our two basic Boolean operators.  Consider the "and"
-operator, it's analogue is the product rule:
+operator, it's analogue is the basic form of the product rule:
 
 .. math::
 
@@ -341,21 +341,26 @@ Let's try a few cases out.  If A is true and B is true, we should see that AB
 is true.  Translating that to probabilities, we get :math:`P(A|C)=1` and
 :math:`P(B|C)=1`.  Now this doesn't fit as nicely into our product rule
 but we just need to go back to the concept of our robot taking all known
-information into account.  If we know that :math:`P(B|C)=1`, this means
-that given background information :math:`C`, we know enough to conclude
-that :math:`B` is plausible with absolute certainty.  If we then add
-additional background information that A is also plausible with absolute
-certainty (given the same background information), then we can conclude that
-:math:`P(B|AC)=1` because A is no longer relevant and our robot only uses
-:math:`C` as the relevant background information when computing the
-plausibility of :math:`B` [1]_.  Plugging it into the formula we get the
-desired result of :math:`P(AB|C)=1`.  And since "and" operator is commutative,
-we could have easily used the second expression and reached the same
-conclusion.
-Alternatively, if we try :math:`P(A|C)=0` and :math:`P(B|C)=1`, we can see
-through a similar line of reasoning that the result should be :math:`P(AB|C)=0`.
+information into account.  
 
-The final Boolean operator "or" also has a direct analogue in the extended sum
+Consider the second form of the product rule: :math:`P(AB|C) = P(B|AC)P(A|C)`.
+We know that :math:`P(B|C)=1`, this means that given background information
+:math:`C`, we know enough to conclude that :math:`B` is plausible with absolute
+certainty.  
+When we add the additional information that A is plausible with absolute
+certainty (i.e. :math:`B|AC`), it doesn't have any affect on :math:`B` (because
+C is already telling us that :math:`B` is true) [1]_.
+From this, we can conclude that :math:`P(B|AC)=1` because the fact :math:`A` 
+is irrelevant to our robot when computing :math:`P(B|AC)`.
+
+Plugging that along with :math:`P(A|C)=1` into the formula we get the desired
+result of :math:`P(AB|C)=1`.  And since the "and" operator is commutative, we could
+have easily used the first form and reached the same conclusion.
+Alternatively, if we try :math:`P(A|C)=1` and :math:`P(B|C)=0`, we can see
+through a similar line of reasoning that the result should be
+:math:`P(AB|C)=0`.
+
+The final basic Boolean operator "or" also has a direct analogue in the extended sum
 rule:
 
 .. math::
@@ -365,7 +370,8 @@ rule:
 Taking a similar line of reasoning, if we have :math:`P(A|C)=0` and
 :math:`P(B|C)=1`, we have :math:`P(AB|C)=0` from the above line of reasoning.
 With these three quantities, we can easily compute :math:`P(A + B|C)=1`, as we
-would expect (If A is false and B is true, then "A or B" is true).
+would expect (If A is false and B is true, then "A or B" is true).  The other
+combinations of truth values for :math:`A` and :math:`B` yield a similar result.
 
 |h3| Extended Reasoning |h3e|
 
@@ -398,10 +404,11 @@ R1, R2 as rules PR1 and PR2, respectively:
     P(B|AC) = \frac{P(AB|C)}{P(A|C)}                    \tag{PR1} \\
     P(A|\bar{B}C) = \frac{P(A\bar{B}|C)}{P(\bar{B}|C)}  \tag{PR2}
 
-This is not all that obvious because we lose some of the nice one-to-one correspondence
-like the operators above.  However, treating A, B, C as propositions, aids us in decoding
-these equations.  Given our major premise :math:`C \equiv A \implies B`, let's
-look at the truth table for the relevant propositions.  
+This is not all that obvious because we lose some of the nice one-to-one
+correspondence like the operators above.  However, treating A, B, C as
+propositions aids us in understanding these equations.  Given our major premise
+:math:`C \equiv A \implies B`, let's look at the truth table for the relevant
+propositions.  
 
 .. table::
 
@@ -423,19 +430,21 @@ using the term "*impossible*".  This is to indicate, given the premise :math:`C`
 this situation cannot possibly occur (or else our premise would be false).
 
 Now given this truth table, we can see that :math:`AB | C` simplifies to
-the expression :math:`A` by ignoring the impossible row from our premise.
-Similarly, :math:`A\bar{B}|C` simplifies to "False".  Plugging these back
-into PR1 and PR2:
+the expression :math:`A` by ignoring the impossible row from our premise (the
+first, second and fourth rows match).
+Similarly, :math:`A\bar{B}|C` simplifies to "False" (by ignoring the third
+row).  Plugging these back into PR1 and PR2:
 
 .. math::
 
-    P(B|AC) = \frac{P(AB|C)}{P(A|C)} = \frac{P(A|C)}{P(A|C)} = 1.0  \\
-    P(A|\bar{B}C) = \frac{P(A\bar{B}|C)}{P(\bar{B}|C)} = \frac{0}{P(\bar{B}|C)} = 0.0
+    P(B|AC) = \frac{P(AB|C)}{P(A|C)} = \frac{P(A|C)}{P(A|C)} = 1  \\
+    P(A|\bar{B}C) = \frac{P(A\bar{B}|C)}{P(\bar{B}|C)} = \frac{0}{P(\bar{B}|C)} = 0
 
-we get the desired result.  In particular, :math:`P(B|AC)` resolves to the same
-thing that :math:`A \implies B, A` resolves to: :math:`B` is true.  Similarly,
-:math:`P(A|\bar{B}C)` resolves to the same thing that :math:`A \implies B,
-\bar{B}` resolves to: :math:`A` is false.  Pretty neat, huh?
+we get the desired result.  In particular, :math:`P(B|AC)` tells us the same
+thing that :math:`A \implies B` combined with :math:`A\text{ is True}` tells us:
+:math:`B` is true.  Similarly, :math:`P(A|\bar{B}C)` resolves to the same thing
+that :math:`A \implies B` combined with :math:`, \bar{B}` resolves to:
+:math:`A` is false.  Pretty neat, huh?
 
 
 The rules R3 and R4 also extend quite naturally from our product rule.  Recall
@@ -449,7 +458,7 @@ rules R3 and R4:
 
     \frac{A\text{ is false}}{\text{therefore, }B\text{ is less plausible}} \tag{R4}
 
-R3 can be encoded as the product rule:
+R3 can be encoded as this form of the product rule:
 
 .. math::
 
@@ -464,8 +473,8 @@ case that:
     P(A|BC) \geq P(A|C)  \tag{E1}
 
 In other words, given new information :math:`B`, we now think :math:`A` is more
-plausible. We can build upon this to reason about R4 using this form of the
-product rule:
+plausible. We can build upon this reasoning to understand R4 using this form of
+the product rule:
 
 .. math::
 
@@ -483,7 +492,18 @@ plausible.
 
 |h2| Conclusion |h2e|
 
-Some conclusion...
+Probability as an extension of logic is quite a different approach compared to
+the traditional treatment of the subject.  I've tried to shed some light on
+this view of probability and hopefully have provided some intuition on how it
+all works.
+For me, probability as an extension of logic is much more natural while also
+very philosophically satisfying.  It also directly leads to a Bayesian
+interpretation of data (because you're just updating our robot's knowledge),
+which also makes a lot of sense to me.  
+It's a shame that probability isn't taught (or even mentioned) in the context
+of extended logic because I think it would help people internalize the concepts
+and, dare I say, even start to like the subject!
+
 
 
 |h2| Further Reading |h2e|
