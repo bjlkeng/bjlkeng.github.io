@@ -40,15 +40,15 @@ In one way, it's intuitive to understand how this works as Laplace
     number of favorable cases and whose denominator is the number of all the
     cases possible.
 
-However, the intuition of this view of probabilty breaks down when we want to
-do more complex reasoning.  After learning probabily from the lens of coins,
+However, the intuition of this view of probability breaks down when we want to
+do more complex reasoning.  After learning probably from the lens of coins,
 dice and urns full of red and white balls, I still didn't feel that I had
-have a strong grasp about how to apply it to other situtions -- especially
+have a strong grasp about how to apply it to other situations -- especially
 ones where it was difficult or too abstract to apply the idea of *"a fraction
 whose numerator is the number of favorable cases and whose denominator is the
-number of all the cases possible"*.  And then I read `Probabily Theory: The Logic of Science <http://www.cambridge.org/gb/academic/subjects/physics/theoretical-physics-and-mathematical-physics/probability-theory-logic-science>`_ by E. T. Jayne.
+number of all the cases possible"*.  And then I read `Probability Theory: The Logic of Science <http://www.cambridge.org/gb/academic/subjects/physics/theoretical-physics-and-mathematical-physics/probability-theory-logic-science>`_ by E. T. Jayne.
 
-Jayne takes a drasticlly different approach to probability, not with events and
+Jayne takes a drastically different approach to probability, not with events and
 sample spaces, but rather as an extension of Boolean logic.  Taking this view made
 a great deal of sense to me since I spent a lot of time `studying and reasoning
 <link://slug/accessible-satisfiability>`_ in Boolean logic.  The following post
@@ -206,7 +206,7 @@ We already saw two forms of inference from Boolean logic, Rule R1 and R2:
 
     \frac{B\text{ is false}}{\text{therefore, }A\text{ is false}} \tag{R2}
 
-These rules extend quite naturally to our degress of plausibility.
+These rules extend quite naturally to our degrees of plausibility.
 For R1, if we think that A is plausible (to some degree), then 
 it intuitively makes sense that B becomes more plausible.
 Similarly for R2, if we think B is implausible (to some degree), then 
@@ -243,7 +243,7 @@ plausible reasoning we can change our degree of belief about the propositions.
 
 Of course, there is not much precision (read: mathematics) in what we've said,
 we're just trying to gain some intuition on how we would ideally reason about
-propositions with varying degress of plausibility.  In whatever system we end
+propositions with varying degrees of plausibility.  In whatever system we end
 up designing, we'd like to keep the spirit of R1-R4 in tact because it follows
 what we would expect a smart rational person to conclude.
 
@@ -251,7 +251,7 @@ what we would expect a smart rational person to conclude.
 
 In all of the above discussion about plausible reasoning, we've been trying to
 build "a mathematical model of human common sense" as Jayne puts it.  However,
-we need to be careful because human judgement has many properties (that while
+we need to be careful because human judgment has many properties (that while
 useful) may not be ideal for us to include in our system of reasoning such as
 emotion and misunderstandings.  Here is where Jayne introduces a really neat
 concept, the robot, in order to make it clear what we're trying to achieve:
@@ -266,7 +266,7 @@ concept, the robot, in order to make it clear what we're trying to achieve:
     ...
     To each proposition about which it reasons, our robot must assign some
     degree of plausibility, based on the evidence we have given it; and
-    whenever it recieves new evidence it must revise these assignments to take
+    whenever it receives new evidence it must revise these assignments to take
     that new evidence into account.
 
 Sounds like a pretty cool robot!  So our goal now is to build a reasoning
@@ -279,7 +279,7 @@ ideal rational person would reason.  Here are the three requirements
  3. Consistency:
  
     a. If a conclusion can be reasoned out in more than one way, then every possible way must lead to the same result.
-    b. The robot always takes into account all of the evidence it has relevant to the question.  It does not artbitrarily, ignore some of the information, basing its conclusions only on what remains.  In other words, the robot is nonideological.
+    b. The robot always takes into account all of the evidence it has relevant to the question.  It does not arbitrarily, ignore some of the information, basing its conclusions only on what remains.  In other words, the robot is nonideological.
     c. The robot always represents equivalent states of knowledge by equivalent plausibility assignments.  That is, if in two problems the robot's state of knowledge is the same (except perhaps for the labeling of the propositions), then it must assign the same plausibilities in both.  
 
 The first requirement is mostly for practicality.  If we're building a machine,
@@ -294,7 +294,7 @@ to reason, it has to be consistent (or what use is it?).
 
 What is surprising is that from these three desiderata, Jayne goes on
 to derive probability theory (extending it from Boolean logic)!  If you're
-interested, I encourage you to check out his book `Probabilty Theory: The Logic
+interested, I encourage you to check out his book `Probability Theory: The Logic
 of Science <http://bayes.wustl.edu/etj/prob/book.pdf>`_ (first three chapters
 online), where in Chapter 2 he goes over all the gory details.  It's quite an
 interesting read and pretty accessible if you know a bit of calculus and are
@@ -315,7 +315,7 @@ will take all relevant known information into account).
 
 The really interesting insight is that all the concepts from Boolean logic are
 just limiting cases of our extension (i.e. probability theory) where our robot
-becomes more and more cetain of itself.  Let's take a look.
+becomes more and more certain of itself.  Let's take a look.
 
 |h3| Extended Boolean Operators |h3e|
 
@@ -508,7 +508,7 @@ and, dare I say, even start to like the subject!
 
 |h2| Further Reading |h2e|
 
-* `Probabilty Theory: The Logic of Science <http://bayes.wustl.edu/etj/prob/book.pdf>`_ (first three chapters) by E. T. Jayne.
+* `Probability Theory: The Logic of Science <http://bayes.wustl.edu/etj/prob/book.pdf>`_ (first three chapters) by E. T. Jayne.
 * `Probability Theory As Extended Logic <http://bayes.wustl.edu/>`_ at Washington University In St Louis.
 * `Probability, Paradox, and the Reasonable Person Principle <http://nbviewer.ipython.org/url/norvig.com/ipython/Probability.ipynb>`_ by Peter Norvig
 
