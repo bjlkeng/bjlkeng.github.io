@@ -7359,13 +7359,25 @@ table.codetable { width: 100%;} td.linenos {text-align: right; width: 4em;}
 
 @media (min-width: 992px) {
   .container {
-    width: 870px;
+    width: 940px;
   }
 }
 @media (min-width: 1200px) {
   .container {
-    width: 870px;
+    width: 940px;
   }
+}
+
+h1 {
+    font-size: 35px;
+}
+
+body {
+    font-size: 14px;
+}
+
+.well {
+    padding: 7px;
 }
 
 .lead {
@@ -7439,7 +7451,7 @@ div.figure > a > img {
 
 
 blockquote p, blockquote {
-  font-size: 95%;
+  font-size: 100%;
   font-weight: 300;
   line-height: 175%;
 }
