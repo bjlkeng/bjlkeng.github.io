@@ -323,12 +323,12 @@ at how we can encode some basic structures first.</p>
 to the one from the last subsection by translating some C code (except the
 variables might be signed 32-bit numbers instead of unsigned 8-bit numbers):</p>
 <table class="codetable"><tr>
-<td class="linenos"><div class="linenodiv"><pre><a href=".#rest_code_22787f8473cd4fd1bc4ae6c4aa9c0527-1">1</a>
-<a href=".#rest_code_22787f8473cd4fd1bc4ae6c4aa9c0527-2">2</a>
-<a href=".#rest_code_22787f8473cd4fd1bc4ae6c4aa9c0527-3">3</a></pre></div></td>
-<td class="code"><pre class="code c"><a name="rest_code_22787f8473cd4fd1bc4ae6c4aa9c0527-1"></a><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
-<a name="rest_code_22787f8473cd4fd1bc4ae6c4aa9c0527-2"></a><span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
-<a name="rest_code_22787f8473cd4fd1bc4ae6c4aa9c0527-3"></a><span class="n">assert</span><span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">z</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">);</span>
+<td class="linenos"><div class="linenodiv"><pre><a href=".#rest_code_ef0e43576d3e45b59b6d4788f66b8e40-1">1</a>
+<a href=".#rest_code_ef0e43576d3e45b59b6d4788f66b8e40-2">2</a>
+<a href=".#rest_code_ef0e43576d3e45b59b6d4788f66b8e40-3">3</a></pre></div></td>
+<td class="code"><pre class="code c"><a name="rest_code_ef0e43576d3e45b59b6d4788f66b8e40-1"></a><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
+<a name="rest_code_ef0e43576d3e45b59b6d4788f66b8e40-2"></a><span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<a name="rest_code_ef0e43576d3e45b59b6d4788f66b8e40-3"></a><span class="n">assert</span><span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">z</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">);</span>
 </pre></td>
 </tr></table>
 <p>Notice that the <cite>assert</cite> is a property we want to guarantee <em>for all</em> possible
@@ -336,12 +336,12 @@ values of <cite>x, y, z</cite>, but our SAT instance can only tell us if there <
 possible way for that to happen.  So instead, we'll flip the question around
 and actually ask the SAT solver something like this:</p>
 <table class="codetable"><tr>
-<td class="linenos"><div class="linenodiv"><pre><a href=".#rest_code_ea5c6ab74e0447a8bc7cffbea2c38ec1-1">1</a>
-<a href=".#rest_code_ea5c6ab74e0447a8bc7cffbea2c38ec1-2">2</a>
-<a href=".#rest_code_ea5c6ab74e0447a8bc7cffbea2c38ec1-3">3</a></pre></div></td>
-<td class="code"><pre class="code c"><a name="rest_code_ea5c6ab74e0447a8bc7cffbea2c38ec1-1"></a><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
-<a name="rest_code_ea5c6ab74e0447a8bc7cffbea2c38ec1-2"></a><span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">;</span>
-<a name="rest_code_ea5c6ab74e0447a8bc7cffbea2c38ec1-3"></a><span class="n">assert_exists</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">z</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">));</span>
+<td class="linenos"><div class="linenodiv"><pre><a href=".#rest_code_3fee4dd8c854473684bb719605fc82ef-1">1</a>
+<a href=".#rest_code_3fee4dd8c854473684bb719605fc82ef-2">2</a>
+<a href=".#rest_code_3fee4dd8c854473684bb719605fc82ef-3">3</a></pre></div></td>
+<td class="code"><pre class="code c"><a name="rest_code_3fee4dd8c854473684bb719605fc82ef-1"></a><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
+<a name="rest_code_3fee4dd8c854473684bb719605fc82ef-2"></a><span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">;</span>
+<a name="rest_code_3fee4dd8c854473684bb719605fc82ef-3"></a><span class="n">assert_exists</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">z</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">));</span>
 </pre></td>
 </tr></table>
 <p>Which is just negating what we had in our original <cite>assert</cite> statement making
@@ -359,20 +359,20 @@ I won't go into too much more detail but I do want to cover another concept
 that will help us deal with <cite>if</cite> statements.  Let's look at the following
 snippet:</p>
 <table class="codetable"><tr>
-<td class="linenos"><div class="linenodiv"><pre><a href=".#rest_code_33481260d80f44458ecbfbec65bfa14b-1">1</a>
-<a href=".#rest_code_33481260d80f44458ecbfbec65bfa14b-2">2</a>
-<a href=".#rest_code_33481260d80f44458ecbfbec65bfa14b-3">3</a>
-<a href=".#rest_code_33481260d80f44458ecbfbec65bfa14b-4">4</a>
-<a href=".#rest_code_33481260d80f44458ecbfbec65bfa14b-5">5</a>
-<a href=".#rest_code_33481260d80f44458ecbfbec65bfa14b-6">6</a>
-<a href=".#rest_code_33481260d80f44458ecbfbec65bfa14b-7">7</a></pre></div></td>
-<td class="code"><pre class="code c"><a name="rest_code_33481260d80f44458ecbfbec65bfa14b-1"></a><span class="kt">int</span> <span class="n">y</span><span class="p">;</span>
-<a name="rest_code_33481260d80f44458ecbfbec65bfa14b-2"></a><span class="k">if</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-<a name="rest_code_33481260d80f44458ecbfbec65bfa14b-3"></a>  <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-<a name="rest_code_33481260d80f44458ecbfbec65bfa14b-4"></a><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-<a name="rest_code_33481260d80f44458ecbfbec65bfa14b-5"></a>  <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">y</span><span class="p">;</span>
-<a name="rest_code_33481260d80f44458ecbfbec65bfa14b-6"></a><span class="p">}</span>
-<a name="rest_code_33481260d80f44458ecbfbec65bfa14b-7"></a><span class="n">assert</span><span class="p">(</span><span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">);</span>
+<td class="linenos"><div class="linenodiv"><pre><a href=".#rest_code_cfa406c4306a44a6963e020c8d0dc3e0-1">1</a>
+<a href=".#rest_code_cfa406c4306a44a6963e020c8d0dc3e0-2">2</a>
+<a href=".#rest_code_cfa406c4306a44a6963e020c8d0dc3e0-3">3</a>
+<a href=".#rest_code_cfa406c4306a44a6963e020c8d0dc3e0-4">4</a>
+<a href=".#rest_code_cfa406c4306a44a6963e020c8d0dc3e0-5">5</a>
+<a href=".#rest_code_cfa406c4306a44a6963e020c8d0dc3e0-6">6</a>
+<a href=".#rest_code_cfa406c4306a44a6963e020c8d0dc3e0-7">7</a></pre></div></td>
+<td class="code"><pre class="code c"><a name="rest_code_cfa406c4306a44a6963e020c8d0dc3e0-1"></a><span class="kt">int</span> <span class="n">y</span><span class="p">;</span>
+<a name="rest_code_cfa406c4306a44a6963e020c8d0dc3e0-2"></a><span class="k">if</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+<a name="rest_code_cfa406c4306a44a6963e020c8d0dc3e0-3"></a>  <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+<a name="rest_code_cfa406c4306a44a6963e020c8d0dc3e0-4"></a><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+<a name="rest_code_cfa406c4306a44a6963e020c8d0dc3e0-5"></a>  <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">y</span><span class="p">;</span>
+<a name="rest_code_cfa406c4306a44a6963e020c8d0dc3e0-6"></a><span class="p">}</span>
+<a name="rest_code_cfa406c4306a44a6963e020c8d0dc3e0-7"></a><span class="n">assert</span><span class="p">(</span><span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">);</span>
 </pre></td>
 </tr></table>
 <p>Here we have two new structures that cause some issues: (a) the re-assignment
@@ -380,24 +380,24 @@ of y, and (b) the <cite>if-else</cite> statement.  However, both can handled wit
 much trouble.  The easiest way to see this is do some transformations on the
 code to make it more amenable to SAT.  Here's one way to do it:</p>
 <table class="codetable"><tr>
-<td class="linenos"><div class="linenodiv"><pre><a href=".#rest_code_1a1fa608ef2c4813be2758a79a1565f4-1">1</a>
-<a href=".#rest_code_1a1fa608ef2c4813be2758a79a1565f4-2">2</a>
-<a href=".#rest_code_1a1fa608ef2c4813be2758a79a1565f4-3">3</a>
-<a href=".#rest_code_1a1fa608ef2c4813be2758a79a1565f4-4">4</a>
-<a href=".#rest_code_1a1fa608ef2c4813be2758a79a1565f4-5">5</a>
-<a href=".#rest_code_1a1fa608ef2c4813be2758a79a1565f4-6">6</a>
-<a href=".#rest_code_1a1fa608ef2c4813be2758a79a1565f4-7">7</a>
-<a href=".#rest_code_1a1fa608ef2c4813be2758a79a1565f4-8">8</a>
-<a href=".#rest_code_1a1fa608ef2c4813be2758a79a1565f4-9">9</a></pre></div></td>
-<td class="code"><pre class="code c"><a name="rest_code_1a1fa608ef2c4813be2758a79a1565f4-1"></a><span class="kt">int</span> <span class="n">y_1</span><span class="p">,</span> <span class="n">y_2a</span><span class="p">,</span> <span class="n">y_2b</span><span class="p">,</span> <span class="n">y_3</span><span class="p">;</span>
-<a name="rest_code_1a1fa608ef2c4813be2758a79a1565f4-2"></a><span class="n">y_2b</span> <span class="o">=</span> <span class="n">y_1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-<a name="rest_code_1a1fa608ef2c4813be2758a79a1565f4-3"></a><span class="n">y_2a</span> <span class="o">=</span> <span class="o">-</span><span class="n">y_1</span><span class="p">;</span>
-<a name="rest_code_1a1fa608ef2c4813be2758a79a1565f4-4"></a><span class="k">if</span> <span class="p">(</span><span class="n">y_1</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-<a name="rest_code_1a1fa608ef2c4813be2758a79a1565f4-5"></a>  <span class="n">y_3</span> <span class="o">=</span> <span class="n">y_2b</span><span class="p">;</span>
-<a name="rest_code_1a1fa608ef2c4813be2758a79a1565f4-6"></a><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-<a name="rest_code_1a1fa608ef2c4813be2758a79a1565f4-7"></a>  <span class="n">y_3</span> <span class="o">=</span> <span class="n">y_2a</span><span class="p">;</span>
-<a name="rest_code_1a1fa608ef2c4813be2758a79a1565f4-8"></a><span class="p">}</span>
-<a name="rest_code_1a1fa608ef2c4813be2758a79a1565f4-9"></a><span class="n">assert</span><span class="p">(</span><span class="n">y_3</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+<td class="linenos"><div class="linenodiv"><pre><a href=".#rest_code_b4359421607a49008771f80ff3b23c1c-1">1</a>
+<a href=".#rest_code_b4359421607a49008771f80ff3b23c1c-2">2</a>
+<a href=".#rest_code_b4359421607a49008771f80ff3b23c1c-3">3</a>
+<a href=".#rest_code_b4359421607a49008771f80ff3b23c1c-4">4</a>
+<a href=".#rest_code_b4359421607a49008771f80ff3b23c1c-5">5</a>
+<a href=".#rest_code_b4359421607a49008771f80ff3b23c1c-6">6</a>
+<a href=".#rest_code_b4359421607a49008771f80ff3b23c1c-7">7</a>
+<a href=".#rest_code_b4359421607a49008771f80ff3b23c1c-8">8</a>
+<a href=".#rest_code_b4359421607a49008771f80ff3b23c1c-9">9</a></pre></div></td>
+<td class="code"><pre class="code c"><a name="rest_code_b4359421607a49008771f80ff3b23c1c-1"></a><span class="kt">int</span> <span class="n">y_1</span><span class="p">,</span> <span class="n">y_2a</span><span class="p">,</span> <span class="n">y_2b</span><span class="p">,</span> <span class="n">y_3</span><span class="p">;</span>
+<a name="rest_code_b4359421607a49008771f80ff3b23c1c-2"></a><span class="n">y_2b</span> <span class="o">=</span> <span class="n">y_1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+<a name="rest_code_b4359421607a49008771f80ff3b23c1c-3"></a><span class="n">y_2a</span> <span class="o">=</span> <span class="o">-</span><span class="n">y_1</span><span class="p">;</span>
+<a name="rest_code_b4359421607a49008771f80ff3b23c1c-4"></a><span class="k">if</span> <span class="p">(</span><span class="n">y_1</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+<a name="rest_code_b4359421607a49008771f80ff3b23c1c-5"></a>  <span class="n">y_3</span> <span class="o">=</span> <span class="n">y_2b</span><span class="p">;</span>
+<a name="rest_code_b4359421607a49008771f80ff3b23c1c-6"></a><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+<a name="rest_code_b4359421607a49008771f80ff3b23c1c-7"></a>  <span class="n">y_3</span> <span class="o">=</span> <span class="n">y_2a</span><span class="p">;</span>
+<a name="rest_code_b4359421607a49008771f80ff3b23c1c-8"></a><span class="p">}</span>
+<a name="rest_code_b4359421607a49008771f80ff3b23c1c-9"></a><span class="n">assert</span><span class="p">(</span><span class="n">y_3</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
 </pre></td>
 </tr></table>
 <p>There are a couple of things going on here.  First, we use a bunch
