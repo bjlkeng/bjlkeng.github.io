@@ -410,6 +410,7 @@ REDIRECTIONS = []
 # in a `nikola deploy` command as you like.
 DEPLOY_COMMANDS = {
     'default': [
+        "nikola clean",
         "nikola build -a",
         "cp README.md CNAME output/",
         "git checkout master",
