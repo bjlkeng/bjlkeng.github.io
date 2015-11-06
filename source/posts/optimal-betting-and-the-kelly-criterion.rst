@@ -109,6 +109,81 @@ though the probability of landing on that point is :math:`0`, it still does
 occur.  For these situations, it's not *sure* that we won't hit that specific
 point but it's *almost sure*.  A subtle difference but quite important one.
 
+|h2| Optimal Betting |h2e|
+
+|h3| Optimal Betting with Coin Tossing |h3e|
+
+Imagine playing a game with an infinite wealthy opponent who will always take
+an even bet made on repeated independent tosses of a biased coin.
+Further, let the probability of winning be :math:`p > \frac{1}{2}` and 
+losing be :math:`q = 1 - p` [2]_, so we have a positive overall expected value
+for the game [3]_.  You start with :math:`X_0` of initial
+capital.  Question: *How much should we bet each time?*
+
+Let's formalize the problem using some mathematics.  Denote our remaining capital
+after the *k*'th toss as :math:`X_k` and on the *k*'th toss we can bet :math:`0
+\leq B_k \leq X_{k-1}`.  Let's use an indicator variable :math:`T_k = 1` if the
+*k*'th trial is a win, and :math:`0` otherwise.  Then for the *n*'th toss, we have :
+
+.. math::
+
+    X_n &= X_{n-1} + T_nB_n  \tag{1}\\
+        &= X_{n-2} + T_{n-1}B_{n-1} + T_nB_n \\
+        &= \ldots \\
+        &= X_0 + \Sigma_{k=1}^{k} T_kB_k
+
+One possible suggestion is to maximize the expected value of :math:`X_n`.
+Let's take a look at that:
+
+.. math::
+
+    E(X_n) &= E(X_0 + \Sigma_{k=1}^{k} T_kB_k)  \tag{2}\\ 
+           &= X_0 + \Sigma_{k=1}^{k} E(B_kT_k) \\
+           &= X_0 + \Sigma_{k=1}^{k} (p - q) E(B_k)
+
+Since :math:`p - q > 0` this will have a positive expected payoff.  To maximize
+:math:`E(X_n)`, we should maximize :math:`E(B_k)` (this is the only variable we
+can play with), which translates to betting our *entire bankroll* at each toss.
+For example, on the first toss bet :math:`B_0 = X_0`, on the second toss (if we won
+the first one) bet :math:`B_1 = 2X_0` and so on.  It doesn't take a
+mathematician to know that is not a good strategy. Why?  The probability of
+ruin is almost sure (ruin occurs when :math:`X_k = 0` on the *k*'th toss).
+
+If we're betting our entire bankroll, then we only need one loss to lose all
+our money.  The probability of ruin is then :math:`1 - p^n` for n tosses (every
+outcome *except* winning on every toss).  Taking the limit as n approaches infinity:
+
+.. math::
+    
+    lim_{n \rightarrow \infty} [1 - p^n] = 1 \tag{3}
+
+So we can see that this aggressive strategy is almost surely [4]_ going to result in ruin.
+
+Another strategy might be to try and minimize ruin.  You can probably already intuit
+that this strategy involves making the *minimum* bet.  From Equation 2, this is
+not desirable because it will also minimize our expected return.  This suggests that we
+want a strategy that is in between the minimum bet and betting everything (duh!).
+The result is the Kelly Criterion.
+
+|h3| The Kelly Criterion |h3e|
+
+Since our maximum bet is limited by our current bankroll, it seems plausible that
+the optimal strategy will always bet relative to our current bankroll. To
+simplify the math, we assume that the money is infinitely divisible.  However,
+it should be noted that this limitation doesn't really matter too much when our
+capital is relatively large compared to the minimum divisible unit (think
+millions vs. cents).
+
+If on every toss, we bet a fraction of our bankroll, :math:`B_k = fX_{k-1}`,
+where :math:`0 \leq f \leq 1`,
+
+
+|h2| References and Further Reading |h2e|
+
+* `The Kelly Criterion in Blackjack Sports Betting, and the Stock Market <http://www.edwardothorp.com/sitebuildercontent/sitebuilderfiles/KellyCriterion2007.pdf>`_ by Edward O. Thorp.
+* *Optimal Gambling Systems for Favorable Games*, E. O. Thorp, Review of the International Statistical Institute Vol. 37, No. 3 (1969), pp. 273-293 .
+* William Poundstone, *Fortune's Formula: The Untold Story of the Scientific Betting System That Beat the Casinos and Wall Street*. 2005. ISBN 978-0809045990.  See also a brief `biography <http://home.williampoundstone.net/Kelly.htm>`_ of Kelly on William Poundstone's web page.
+
 
 
 |br|
@@ -116,3 +191,8 @@ point but it's *almost sure*.  A subtle difference but quite important one.
 
 .. [1] William Poundstone, *Fortune's Formula: The Untold Story of the Scientific Betting System That Beat the Casinos and Wall Street*. 2005. ISBN 978-0809045990.  See also a brief `biography <http://home.williampoundstone.net/Kelly.htm>`_ of Kelly on William Poundstone's web page.
 
+.. [2] It doesn't really matter if the bias is heads or tails.  The point is that *you* get to pick the winning side!
+
+.. [3] The expected value of winning for bet :math:`B` is :math:`Bp-Bq = B(p-q) > 0` since :math:`p > q`.
+
+.. [4] Almost surely here because it's theoretically possible that you can keep winning forever but it's such a small possibility that it basically can't happen.  This is analgous to the red dot in the unit square.
