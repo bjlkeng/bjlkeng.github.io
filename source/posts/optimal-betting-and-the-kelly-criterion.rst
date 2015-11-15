@@ -1,7 +1,7 @@
 .. title: Optimal Betting Strategies and The Kelly Criterion
 .. slug: optimal-betting-and-the-kelly-criterion
-.. date: 2015-11-03 19:13:31 UTC-05:00
-.. tags: betting, Kelly Criterion, probability, mathjax
+.. date: 2015-11-15 16:13:31 UTC-05:00
+.. tags: betting, Kelly Criterion, probability, Thorp, Shannon, mathjax
 .. category: 
 .. link: 
 .. description: 
@@ -254,7 +254,7 @@ graphing :math:`G(f)` [7]_:
    :alt: G(f)
    :align: center
 
-We can see that our optimal maximizes the growth rate.  However, there is a point
+We can see that our :math:`f^*` maximizes the growth rate.  However, there is a point
 :math:`f_c` where our growth rate becomes negative.  This implies that if we
 over-bet :math:`f > f_c`, we will almost surely reach ruin (because we have a
 negative growth rate).  The following (summarized) theorem from Thorp's paper
@@ -333,7 +333,7 @@ Thorp has had wild success applying it in various situations such as
 sports betting, Blackjack and the stock market.  Of course by itself the
 criterion isn't much use, it is only once you've found a game that has a
 positive expected value that you can put it to use.  I would go into how to do
-that but I think I've written enough for one day and as I said, I'll leave that
+that but I think I've written enough for one day and as I said, it's best left
 as an exercise to the reader.
 
 
