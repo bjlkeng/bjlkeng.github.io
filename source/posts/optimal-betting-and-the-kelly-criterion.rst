@@ -34,8 +34,8 @@ My last post was about some `common mistakes
 talk about the other side: optimal betting strategies using some very
 interesting results from some very famous mathematicians in the 50s and 60s. 
 I'll spend some time digging through some of the math, introducing some new
-concepts (at least to me), seting the problem up and doing a quick sketch of
-the proof.  We'll be looking at it from the lens of our simplest probability
+concepts (at least to me), setting the problem up and digging into some of the
+math.  We'll be looking at it from the lens of our simplest probability
 problem: the coin flip.  As usual, I will not be covering the part that shows
 you how to make a fotune -- that's an exercise best left to the reader.
 
@@ -109,15 +109,15 @@ though the probability of landing on that point is :math:`0`, it still does
 occur.  For these situations, it's not *sure* that we won't hit that specific
 point but it's *almost sure*.  A subtle difference but quite important one.
 
-|h2| Optimal Betting |h2e|
+|h2| Optimal Betting [2]_ |h2e|
 
 |h3| Optimal Betting with Coin Tossing |h3e|
 
 Imagine playing a game with an infinite wealthy opponent who will always take
 an even bet made on repeated independent tosses of a biased coin.
 Further, let the probability of winning be :math:`p > \frac{1}{2}` and 
-losing be :math:`q = 1 - p` [2]_, so we have a positive overall expected value
-for the game [3]_.  You start with :math:`X_0` of initial
+losing be :math:`q = 1 - p` [3]_, so we have a positive overall expected value
+for the game [4]_.  You start with :math:`X_0` of initial
 capital.  Question: *How much should we bet each time?*
 
 Let's formalize the problem using some mathematics.  Denote our remaining capital
@@ -157,7 +157,7 @@ outcome *except* winning on every toss).  Taking the limit as n approaches infin
     
     lim_{n \rightarrow \infty} [1 - p^n] = 1 \tag{3}
 
-So we can see that this aggressive strategy is almost surely [4]_ going to result in ruin.
+So we can see that this aggressive strategy is almost surely [5]_ going to result in ruin.
 
 Another strategy might be to try and minimize ruin.  You can probably already intuit
 that this strategy involves making the *minimum* bet.  From Equation 2, this is
@@ -174,8 +174,156 @@ it should be noted that this limitation doesn't really matter too much when our
 capital is relatively large compared to the minimum divisible unit (think
 millions vs. cents).
 
-If on every toss, we bet a fraction of our bankroll, :math:`B_k = fX_{k-1}`,
-where :math:`0 \leq f \leq 1`,
+If on every toss, we bet a fraction of our bankroll (known as "fixed fraction"
+betting), :math:`B_k = fX_{k-1}`, where :math:`0 \leq f \leq 1`, we can
+derive an equation for our bankroll after :math:`S` successes and :math:`F` failures
+in :math:`S+F=n` trials:
+
+.. math::
+    
+    X_n = X_0(1+f)^S(1-f)^F \tag{4}
+
+Notice that we can't technically ever get to :math:`0` but practically there is a minimmum
+bet and if we go below it, we are basically ruined.  We can just re-interpret
+ruin in this manner, that is, if we almost surely go below some small
+positive integer :math:`\epsilon` i.e., :math:`lim_{n\rightarrow \infty}P(X_n
+\leq \epsilon) = 1`.
+
+Now let's setup what we're trying to maximize.
+We saw that trying to maximize the expected return leads us to almost surely
+ruin.  Instead, Kelly chose to maximize the expected exponential growth rate.
+Let's see what that means by first looking at the current bankroll to our
+starting bankroll:
+
+.. math::
+
+    \frac{X_n}{X_0} &= e^{\log(\frac{X_n}{X_0})} \\
+                    &= e^{n \log(\frac{X_n}{X_0})^{1/n}} \\
+                    &= e^{n G(f)} \tag{5}
+
+So :math:`G(f)` represents the exponent (base :math:`e`) on how fast our
+bankroll is growing.  Substituting Equation 4 into :math:`G(f)`, we can
+
+.. math::
+
+               G(f) &= \log(\frac{X_n}{X_0})^{1/n} \\
+                    &= \log((1+f)^S(1-f)^F)^{1/n} \\
+                    &= \frac{1}{n}\log((1+f)^S(1-f)^F) \\
+                    &= \frac{S}{n}\log(1+f) + \frac{F}{n}\log(1-f) \tag{6}
+
+Now since :math:`G(f)` is a random variable, we want to maximize the expected
+value of it (which we denote as :math:`g(f)`:
+
+.. math::
+
+               g(f) &= E[G(f)] \\
+                    &= E[\frac{S}{n}\log(1+f) + \frac{F}{n}\log(1-f)] \\
+                    &= E[\frac{S}{n}]\log(1+f) + E[\frac{F}{n}]\log(1-f) \\
+                    &= p\log(1+f) + q\log(1-f) \tag{7}
+
+The last line simplifies because the expected proportion of successes and
+failures is just their probabilities [6]_.  Now all we have to do is a simple
+exercise in calculus to find the optimal value of :math:`f^*` that maximizes :math:`g(f)`:
+
+.. math::
+
+               g'(f) = \frac{p}{1+f} + \frac{q}{1-f} &= 0 \\
+                       \frac{p-pf+q+qf}{(1+f)(1-f)}  &= 0 \\
+                       \frac{1-(p-q)f}{(1+f)(1-f)}  &= 0  && \text{since } p+q=1\\
+                       1 - (p-q)f &= 1 - f^2 \\
+                       f^2 - (p-q)f &= 0 \\
+                       f = f^* &= p - q && \text{since f>0}  \tag{8}
+
+So we now have our optimal betting criterion (for even bets), fractional bets
+with :math:`f^*=p-q`.  Another interesting behavior of varying our fractional
+bet can be gleaned by graphing :math:`G(f)` [7]_:
+
+.. image:: /images/g_of_f.png
+   :height: 450px
+   :alt: G(f)
+   :align: center
+
+We can see that our optimal maximizes the growth rate.  However, there is a point
+:math:`f_c` where our growth rate becomes negative.  This implies that if we
+overbet :math:`f > f_c`, we will almost surely reach ruin (because we have a
+negative growth rate).  The following (summarized) theorem from Thorp's paper
+states this more precisely:
+
+**Theorem 1**
+
+i. If :math:`g(f) > 0`, then :math:`lim_{n\rightarrow \infty}X_n = \infty` almost surely.
+ii. If :math:`g(f) < 0`, then :math:`lim_{n\rightarrow \infty}X_n = 0` almost surely.
+iii. Given a strategy :math:`\Theta^*` and any other "essentially different strategy" :math:`\Theta`, we have :math:`lim_{n\rightarrow \infty}\frac{X_n(\Theta^*)}{X_n(\Theta)} = \infty` almost surely.
+
+
+From this theorem, we can see that if we pick a fraction :math:`f` that is
+positive, then we'll almost surely tend towards an increasing bankroll.
+Conversely, if we pick :math:`f<0`, then we will almost surely result in ruin.
+This matches up with our intuition that over-betting is counter-productive.
+
+
+|h3| Example |h3e|
+
+Suppose we have a our even-bet coin toss game and the probability of heads is
+:math:`p=0.53` and probability of tails is :math:`q=0.47`.  Our initial
+bankroll is $100,000 (big enough that the minimum bet isn't really
+significant).  Applying our optimal betting criteria, on our first play
+we should bet :math:`f=p-q=0.53-0.47=0.06` or 6% of our bankroll, translating to
+$100,000 * 6% = $6,000.  Assuming we win the first play, we should bet $106,000
+* 6% = $112,360 and so on.  
+  
+If we bet less than 6%, we will still be increasing our bankroll but not at 
+the optimal rate.  We can also bet more than 6% up to the theoretical point :math:`f_c`
+such that :math:`g(f_c)=0` with the same result. 
+We can numerically determine this turning point, which in this case is
+:math:`f_c \approx 0.11973`.  So betting more than roughly 11.9% will almost
+surely cause us ruin.
+
+We can also compute the expected exponential growth rate using our optimal
+:math:`f^*=  0.06`:
+
+.. math::
+
+    g(f^*) = g(0.06) &= E[p\log(1+f) + q\log(1-f)]  \\
+                     &= 0.53\log(1+0.06) + 0.47\log(1-0.06)]  \\
+                     &\approx 0.001801 \tag{9}
+
+So after :math:`n` plays, a player can expect his bankroll to be
+:math:`e^{0.001801n}` times larger.  A doubling time can be computed
+by setting :math:`e^{0.001801n}=2`, resulting in :math:`n\approx 385` plays.
+
+|h3| Betting with Uneven Payoffs and Other Variations |h3e|
+
+We've so far only looked at games with even payoffs.  We can generalize this result.
+If for each unit wagered, you can win :math:`b` units, we can derive a modified version
+of Equation 7:
+
+.. math::
+
+    g(f) = E[log(\frac{X_n}{X_0}) = p\log(1 +bf) + q\log(1-f) \tag{10}
+
+Solving for the optimium yields :math:`f^*=\frac{bp-q}{b}`.
+
+Another variation is when you can make multiple bets, or multiple players share
+a single bankroll.  Going through a similar exercise, we can derive values for
+:math:`f_1^*, f_2^*, \ldots` assuming the games played are independent. 
+When two players are playing the same game (e.g. same table for Blackjack), 
+the bets are correlated and adjustments must be made.  Additionally,
+we can analyze more complex situations such as continuous (or nearly continous)
+outcomes like the stock market which require a more thorough analysis using
+more complex math.  See Thorp's paper for more details.
+
+|h2| Conclusion |h2e|
+
+Kelly's optimal betting criterion is an incredibly interesting mathematical result
+but perhaps what is more interesting is that this theoretical result translated
+directly into practice by some of the very mathematicians that worked on it.
+Thorp has had wild success applying it in various situations such as sports betting,
+Blackjack and the stock market.  Of course by itself the criterion isn't much
+use, it is only once you've found a game that has a positive expected
+value that you can put it to use.  I would go into how to do that but I think
+I've written enough for one day and I'll leave that topic for another post.
+
 
 
 |h2| References and Further Reading |h2e|
@@ -191,8 +339,14 @@ where :math:`0 \leq f \leq 1`,
 
 .. [1] William Poundstone, *Fortune's Formula: The Untold Story of the Scientific Betting System That Beat the Casinos and Wall Street*. 2005. ISBN 978-0809045990.  See also a brief `biography <http://home.williampoundstone.net/Kelly.htm>`_ of Kelly on William Poundstone's web page.
 
-.. [2] It doesn't really matter if the bias is heads or tails.  The point is that *you* get to pick the winning side!
+.. [2] This whole section just basically summarizes (with a bit more step-by-step for the math) the paper "*The Kelly Criterion in Blackjack Sports Betting, and the Stock Market*".  So if you're really interested, it's probably best to check it out directly.
 
-.. [3] The expected value of winning for bet :math:`B` is :math:`Bp-Bq = B(p-q) > 0` since :math:`p > q`.
+.. [3] It doesn't really matter if the bias is heads or tails.  The point is that *you* get to pick the winning side!
 
-.. [4] Almost surely here because it's theoretically possible that you can keep winning forever but it's such a small possibility that it basically can't happen.  This is analgous to the red dot in the unit square.
+.. [4] The expected value of winning for bet :math:`B` is :math:`Bp-Bq = B(p-q) > 0` since :math:`p > q`.
+
+.. [5] Almost surely here because it's theoretically possible that you can keep winning forever but it's such a small possibility that it basically can't happen.  This is analgous to the red dot in the unit square.
+
+.. [6] The expected value of a binomial distribution (e.g. coin tossing) is just :math:`np`.  So :math:`np/n = p`.
+
+.. [7] Image from "*The Kelly Criterion in Blackjack Sports Betting, and the Stock Market*".
