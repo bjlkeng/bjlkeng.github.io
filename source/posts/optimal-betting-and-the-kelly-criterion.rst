@@ -37,7 +37,7 @@ I'll spend some time digging through some of the math, introducing some new
 concepts (at least to me), setting the problem up and digging into some of the
 math.  We'll be looking at it from the lens of our simplest probability
 problem: the coin flip.  As usual, I will not be covering the part that shows
-you how to make a fotune -- that's an exercise best left to the reader.
+you how to make a fortune -- that's an exercise best left to the reader.
 
 .. TEASER_END
 
@@ -45,7 +45,7 @@ you how to make a fotune -- that's an exercise best left to the reader.
 
 |h3| History |h3e|
 
-There is an incredibly facinating history surrounding the development of the
+There is an incredibly fascinating history surrounding the development of the
 mathematics around gambling and optimal betting strategies.  The optimal
 betting strategy, more commonly known as the `Kelly Criterion
 <https://en.wikipedia.org/wiki/Kelly_criterion>`_, was developed in the 50s by
@@ -58,7 +58,7 @@ titled *A New Interpretation of Information Rate* (whose original title was
 *Information Theory and Gambling*).  
 
 The paper remained unnoticed until the 1960s when an MIT student named Ed Thorp
-told Shannon about his card-counting scheme to beat blacjack.  Kelly's paper
+told Shannon about his card-counting scheme to beat blackjack.  Kelly's paper
 was referred to him, and Thorp started using it to amass a small fortune using
 Kelly's optimal betting strategy along with his card-counting system.  Thorp
 and his colleagues later went on to use the Kelly Criterion in other
@@ -102,7 +102,7 @@ corner on this unit square.  What is the probability that the dart lands on the
 red dot?  Since the red dot has an area of :math:`0`, :math:`P(\text{dart lands
 on red dot}) = 0`.  So we could say that the dart *almost surely* does not land
 on the red dot.  That is, theoretically it could, but the probability of doing
-so is :math:`0`.  The same argument can be made for *every* point in the sqaure.  
+so is :math:`0`.  The same argument can be made for *every* point in the square.  
 
 The dart actually does land on a single point of the square though, so even
 though the probability of landing on that point is :math:`0`, it still does
@@ -183,7 +183,7 @@ in :math:`S+F=n` trials:
     
     X_n = X_0(1+f)^S(1-f)^F \tag{4}
 
-Notice that we can't technically ever get to :math:`0` but practically there is a minimmum
+Notice that we can't technically ever get to :math:`0` but practically there is a minimum
 bet and if we go below it, we are basically ruined.  We can just re-interpret
 ruin in this manner, that is, if we almost surely go below some small
 positive integer :math:`\epsilon` i.e., :math:`lim_{n\rightarrow \infty}P(X_n
@@ -245,7 +245,7 @@ bet can be gleaned by graphing :math:`G(f)` [7]_:
 
 We can see that our optimal maximizes the growth rate.  However, there is a point
 :math:`f_c` where our growth rate becomes negative.  This implies that if we
-overbet :math:`f > f_c`, we will almost surely reach ruin (because we have a
+over-bet :math:`f > f_c`, we will almost surely reach ruin (because we have a
 negative growth rate).  The following (summarized) theorem from Thorp's paper
 states this more precisely:
 
@@ -302,14 +302,14 @@ of Equation 7:
 
     g(f) = E[log(\frac{X_n}{X_0}) = p\log(1 +bf) + q\log(1-f) \tag{10}
 
-Solving for the optimium yields :math:`f^*=\frac{bp-q}{b}`.
+Solving for the optimum yields :math:`f^*=\frac{bp-q}{b}`.
 
 Another variation is when you can make multiple bets, or multiple players share
 a single bankroll.  Going through a similar exercise, we can derive values for
 :math:`f_1^*, f_2^*, \ldots` assuming the games played are independent. 
 When two players are playing the same game (e.g. same table for Blackjack), 
 the bets are correlated and adjustments must be made.  Additionally,
-we can analyze more complex situations such as continuous (or nearly continous)
+we can analyze more complex situations such as continuous (or nearly continuous)
 outcomes like the stock market which require a more thorough analysis using
 more complex math.  See Thorp's paper for more details.
 
@@ -345,7 +345,7 @@ I've written enough for one day and I'll leave that topic for another post.
 
 .. [4] The expected value of winning for bet :math:`B` is :math:`Bp-Bq = B(p-q) > 0` since :math:`p > q`.
 
-.. [5] Almost surely here because it's theoretically possible that you can keep winning forever but it's such a small possibility that it basically can't happen.  This is analgous to the red dot in the unit square.
+.. [5] Almost surely here because it's theoretically possible that you can keep winning forever but it's such a small possibility that it basically can't happen.  This is analogous to the red dot in the unit square.
 
 .. [6] The expected value of a binomial distribution (e.g. coin tossing) is just :math:`np`.  So :math:`np/n = p`.
 
