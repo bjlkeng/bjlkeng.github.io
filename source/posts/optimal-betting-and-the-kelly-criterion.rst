@@ -121,7 +121,7 @@ for the game [4]_.  You start with :math:`X_0` of initial
 capital.  Question: *How much should we bet each time?*
 
 **Example 1**: 
-    This can be made a bit more conrete by putting some numbers to it.
+    This can be made a bit more concrete by putting some numbers to it.
     Let's say our coin lands on heads with a chance of :math:`p=0.53`, 
     which means tails must be :math:`q=1-p=0.47`.  Our initial bankroll is
     :math:`X_0=$100,000`.  How much of this :math:`$100,000` should we bet on the first
