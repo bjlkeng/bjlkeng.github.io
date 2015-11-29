@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="Understanding programming, data, and math to a satisfactory degree.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bounded Rationality (old posts, page 7) | Bounded Rationality</title>
+<link href="assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
+<link rel="canonical" href="http://satisficing.briankeng.com/index-7.html">
+<link rel="prev" href="." type="text/html">
+<link rel="next" href="index-6.html" type="text/html">
+<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://satisficing.briankeng.com/">
+
+                <span class="h1" id="blog-title">Bounded Rationality</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
+            <ul class="nav navbar-nav">
+<p class="lead">Understanding programming, data, and math to a satisfactory degree.</p>
+<!--
+                
+                <li><a href="/archive.html">Archive</a>
+                <li><a href="/categories/">Tags</a>
+                <li><a href="/rss.xml">RSS feed</a>
+
+                 
+-->
+            </ul>
+<ul class="nav navbar-nav navbar-right"></ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            <div class="col-lg-9">
+                
+                
+
+<div class="postindex">
+    <article class="h-entry post-A look at optimal betting and the Kelly criterion digging into some of the math."><header><h1 class="p-name entry-title"><a href="posts/optimal-betting-and-the-kelly-criterion/" class="u-url">Optimal Betting Strategies and The Kelly Criterion</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/optimal-betting-and-the-kelly-criterion/" rel="bookmark"><time class="published dt-published" datetime="2015-11-15T16:13:31-05:00" title="2015-11-15 16:13">2015-11-15 16:13</time></a></p>
+        </div>
+    </header><div class="e-content entry-content">
+    <div>
+<p>My last post was about some <a class="reference external" href="posts/gamblers-fallacy-and-the-law-of-small-numbers">common mistakes</a> when betting
+or gambling, even with a basic understanding of probability.  This post is going to
+talk about the other side: optimal betting strategies using some very
+interesting results from some very famous mathematicians in the 50s and 60s.
+I'll spend a bit of time introducing some new concepts (at least to me), setting up the
+problem and digging into some of the math.  We'll be looking at it from the
+lens of our simplest probability problem: the coin flip.  A note: I will not be
+covering the part that shows you how to make a fortune -- that's an exercise
+best left to the reader.</p>
+<!-- TEASER_END -->
+<p><br></p>
+<h4> Background </h4>
+<p></p>
+<h5> History </h5>
+<p>There is an incredibly fascinating history surrounding the
+mathematics of gambling and optimal betting strategies.  The optimal
+betting strategy, more commonly known as the <a class="reference external" href="https://en.wikipedia.org/wiki/Kelly_criterion">Kelly Criterion</a>, was developed in the 50s by
+<a class="reference external" href="http://home.williampoundstone.net/Kelly.htm">J. L. Kelly</a> , a scientist
+working at Bell Labs on data compression schemes at the time.  In 1956, he made
+an ingenious connection between his colleague's (<a class="reference external" href="https://en.wikipedia.org/wiki/Claude_Shannon">Shannon</a>) work on information theory,
+gambling, and a television game show publishing his new findings in a paper
+titled <em>A New Interpretation of Information Rate</em> (whose original title was
+<em>Information Theory and Gambling</em>).</p>
+<p>The paper remained unnoticed until the 1960s when an MIT student named Ed Thorp
+told Shannon about his card-counting scheme to beat blackjack.  Kelly's paper
+was referred to him, and Thorp started using it to amass a small fortune using
+Kelly's optimal betting strategy along with his card-counting system.  Thorp
+and his colleagues later went on to use the Kelly Criterion in other
+varied gambling applications such as horse racing, sports betting, and even the
+stock market.  Thorp's hedge fund outperformed many of his peers and it was
+this success that made Wall Street take notice of the Kelly Criterion.  There is a
+great book called Fortune's Formula <a class="footnote-reference" href="posts/optimal-betting-and-the-kelly-criterion/#id8" id="id1">[1]</a> that details the stories and
+adventures surrounding these brilliant minds.</p>
+<p></p>
+<h5> Surely, Almost Surely </h5>
+<p>In probability theory, there are two terms that distinguish very similar
+conditions: <a class="reference external" href="https://en.wikipedia.org/wiki/Almost_surely#.22Almost_sure.22_versus_.22sure.22">"sure" and "almost sure"</a>.
+If an event is <strong>sure</strong>, then it always happens.  That is, it is not possible for
+any other outcome to occur.  If an event is <strong>almost sure</strong> then it occurs with
+probability 1.  That is, theoretically there <em>might</em> be an outcome not belonging to
+this event that can occur, but the probability is so small that it's smaller
+than any fixed positive probability, and therefore must be 0.  This is kind of
+abstract, so let's take a look at an example (from <a class="reference external" href="https://en.wikipedia.org/wiki/Almost_surely">Wikipedia</a>).</p>
+<p>Imagine we have a unit square where we're randomly throwing point-sized darts that
+will land inside the square with a uniform distribution.  For the entire square
+(light blue), it's easy to see that it makes up the entire sample space, so we would
+say that the dart will <em>surely</em> land within the unit square because there is no
+other possible outcome.</p>
+<img alt="unit square" class="align-center" src="images/unit_square.png" style="height: 350px;"><p>Further, the probability of landing in any given region is the ratio of its
+area to the ratio of the total unit square, simplifying to just the area of a
+given region.  For example, taking the top left corner (dark blue), which
+is 0.5 units x 0.5 units, we could conclude that <span class="math">\(P(\text{dart lands in
+dark blue region}) = (0.5)(0.5) = 0.25\)</span>.</p>
+<p>Now here's the interesting part, notice that there is a small red dot in the
+upper left corner.  Imagine this is just a single point at the upper left
+corner on this unit square.  What is the probability that the dart lands on the
+red dot?  Since the red dot has an area of <span class="math">\(0\)</span>, <span class="math">\(P(\text{dart lands
+on red dot}) = 0\)</span>.  So we could say that the dart <em>almost surely</em> does not land
+on the red dot.  That is, theoretically it could, but the probability of doing
+so is <span class="math">\(0\)</span>.  The same argument can be made for <em>every</em> point in the square.</p>
+<p>The dart actually does land on a single point of the square though, so even
+though the probability of landing on that point is <span class="math">\(0\)</span>, it still does
+occur.  For these situations, it's not <em>sure</em> that we won't hit that specific
+point but it's <em>almost sure</em>.  A subtle difference but quite important one.</p>
+<p><br></p>
+<h4> Optimal Betting <a class="footnote-reference" href="posts/optimal-betting-and-the-kelly-criterion/#id10" id="id2">[2]</a> </h4>
+<p></p>
+<h5> Optimal Betting with Coin Tossing </h5>
+<p>Imagine playing a game with an infinite wealthy opponent who will always take
+an even bet made on repeated independent tosses of a biased coin.
+Further, let the probability of winning be <span class="math">\(p &gt; \frac{1}{2}\)</span> and
+losing be <span class="math">\(q = 1 - p\)</span> <a class="footnote-reference" href="posts/optimal-betting-and-the-kelly-criterion/#id11" id="id3">[3]</a>, so we have a positive overall expected value
+for the game <a class="footnote-reference" href="posts/optimal-betting-and-the-kelly-criterion/#id12" id="id4">[4]</a>.  You start with <span class="math">\(X_0\)</span> of initial
+capital.  Question: <em>How much should we bet each time?</em></p>
+<dl class="docutils">
+<dt>
+<strong>Example 1</strong>:</dt>
+<dd>This can be made a bit more concrete by putting some numbers to it.
+Let's say our coin lands on heads with a chance of <span class="math">\(p=0.53\)</span>,
+which means tails must be <span class="math">\(q=1-p=0.47\)</span>.  Our initial bankroll is
+<span class="math">\(X_0=$100,000\)</span>.  How much of this <span class="math">\($100,000\)</span> should we bet on the first
+play?</dd>
+</dl>
+<p>Let's formalize the problem using some mathematics.  Denote our remaining capital
+after the <em>k</em>'th toss as <span class="math">\(X_k\)</span> and on the <em>k</em>'th toss we can bet <span class="math">\(0
+\leq B_k \leq X_{k-1}\)</span>.  Let's use a variable <span class="math">\(T_k = 1\)</span> if the
+<em>k</em>'th trial is a win, and <span class="math">\(T_k=-1\)</span> for a loss.  Then for the <em>n</em>'th toss, we have:</p>
+<div class="math">
+\begin{align*}
+X_n &amp;= X_{n-1} + T_nB_n  \\
+    &amp;= X_{n-2} + T_{n-1}B_{n-1} + T_nB_n \\
+    &amp;= \ldots \\
+    &amp;= X_0 + \Sigma_{k=1}^{n} T_kB_k \tag{1}
+\end{align*}
+</div>
+<p>One possible strategy we could use is to maximize the expected value of
+<span class="math">\(X_n\)</span>.  Let's take a look at that:</p>
+<div class="math">
+\begin{align*}
+E(X_n) &amp;= E(X_0 + \Sigma_{k=1}^{k} T_kB_k)  \\
+       &amp;= X_0 + \Sigma_{k=1}^{k} E(B_kT_k) \\
+       &amp;= X_0 + \Sigma_{k=1}^{k} (p - q) E(B_k) \tag{2}
+\end{align*}
+</div>
+<p>Since <span class="math">\(p - q &gt; 0\)</span> this will have a positive expected payoff.  To maximize
+<span class="math">\(E(X_n)\)</span>, we should maximize <span class="math">\(E(B_k)\)</span> (this is the only variable we
+can play with), which translates to betting our <em>entire bankroll</em> at each toss.
+For example, on the first toss bet <span class="math">\(B_0 = X_0\)</span>, on the second toss (if we won
+the first one) bet <span class="math">\(B_1 = 2X_0\)</span> and so on.  It doesn't take a
+mathematician to know that is not a good strategy. Why?  The probability of
+ruin is almost sure (ruin occurs when <span class="math">\(X_k = 0\)</span> on the <em>k</em>'th toss).</p>
+<p>If we're betting our entire bankroll, then we only need one loss to lose all
+our money.  The probability of ruin is then <span class="math">\(1 - p^n\)</span> for <span class="math">\(n\)</span> tosses (every
+outcome <em>except</em> winning on every toss).  Taking the limit as <span class="math">\(n\)</span> approaches infinity:</p>
+<div class="math">
+\begin{equation*}
+lim_{n \rightarrow \infty} (1 - p^n) = 1 \tag{3}
+\end{equation*}
+</div>
+<p>So we can see that this aggressive strategy is almost surely <a class="footnote-reference" href="posts/optimal-betting-and-the-kelly-criterion/#id13" id="id5">[5]</a> going to result in ruin.</p>
+<p>Another strategy might be to try and minimize ruin.  You can probably already intuit
+that this strategy involves making the <em>minimum</em> bet.  From Equation 2, this is
+not desirable because it will also minimize our expected return.  This suggests that we
+want a strategy that is in between the minimum bet and betting everything (duh!).
+The result is the Kelly Criterion.</p>
+<p></p>
+<h5> The Kelly Criterion </h5>
+<p>Since our maximum bet is limited by our current bankroll, it seems plausible that
+the optimal strategy will always bet relative to our current bankroll. To
+simplify the math, we assume that the money is infinitely divisible.  However,
+it should be noted that this limitation doesn't really matter too much when our
+capital is relatively large compared to the minimum divisible unit (think
+millions vs. cents).</p>
+<p>If on every toss, we bet a fraction of our bankroll (known as "fixed fraction"
+betting), <span class="math">\(B_k = fX_{k-1}\)</span>, where <span class="math">\(0 \leq f \leq 1\)</span>, we can
+derive an equation for our bankroll after <span class="math">\(S\)</span> successes and <span class="math">\(F\)</span> failures
+in <span class="math">\(S+F=n\)</span> trials:</p>
+<div class="math">
+\begin{equation*}
+X_n = X_0(1+f)^S(1-f)^F \tag{4}
+\end{equation*}
+</div>
+<p>Notice that we can't technically ever get to <span class="math">\(0\)</span> but practically there is a minimum
+bet and if we go below it, we are basically ruined.  We can just re-interpret
+ruin in this manner.  That is, ruin for a certain strategy is when we will
+almost surely go below some small positive integer <span class="math">\(\epsilon\)</span> as the
+number of trials <span class="math">\(n\)</span> grows i.e., <span class="math">\(lim_{n\rightarrow \infty}P(X_n
+\leq \epsilon) = 1\)</span>.</p>
+<p>Now let's setup what we're trying to maximize.
+We saw that trying to maximize the expected return leads us to almost surely
+ruin.  Instead, Kelly chose to maximize the expected exponential growth rate.
+Let's see what that means by first looking at the ratio of current bankroll to
+our starting bankroll:</p>
+<div class="math">
+\begin{align*}
+\frac{X_n}{X_0} &amp;= e^{\log(\frac{X_n}{X_0})} \\
+                &amp;= e^{n \log(\frac{X_n}{X_0})^{1/n}} \\
+                &amp;= e^{n G(f)} \tag{5}
+\end{align*}
+</div>
+<p>So <span class="math">\(G(f)\)</span> represents the exponent (base <span class="math">\(e\)</span>) on how fast our
+bankroll is growing.  Substituting Equation 4 into <span class="math">\(G(f)\)</span>:</p>
+<div class="math">
+\begin{align*}
+G(f) &amp;= \log(\frac{X_n}{X_0})^{1/n} \\
+     &amp;= \log((1+f)^S(1-f)^F)^{1/n} \\
+     &amp;= \frac{1}{n}\log((1+f)^S(1-f)^F) \\
+     &amp;= \frac{S}{n}\log(1+f) + \frac{F}{n}\log(1-f) \tag{6}
+\end{align*}
+</div>
+<p>Now since <span class="math">\(G(f)\)</span> is a random variable, we want to maximize the expected
+value of it (which we denote as <span class="math">\(g(f)\)</span>):</p>
+<div class="math">
+\begin{align*}
+g(f) &amp;= E[G(f)] \\
+     &amp;= E[\frac{S}{n}\log(1+f) + \frac{F}{n}\log(1-f)] \\
+     &amp;= E[\frac{S}{n}]\log(1+f) + E[\frac{F}{n}]\log(1-f) \\
+     &amp;= p\log(1+f) + q\log(1-f) \tag{7}
+\end{align*}
+</div>
+<p>The last line simplifies because the expected proportion of successes and
+failures is just their probabilities <a class="footnote-reference" href="posts/optimal-betting-and-the-kelly-criterion/#id14" id="id6">[6]</a>.  Now all we have to do is a simple
+exercise in calculus to find the optimal value <span class="math">\(f^*\)</span> that maximizes <span class="math">\(g(f)\)</span>:</p>
+<div class="math">
+\begin{align*}
+g'(f) = \frac{p}{1+f} + \frac{q}{1-f} &amp;= 0 \\
+        \frac{p-pf+q+qf}{(1+f)(1-f)}  &amp;= 0 \\
+        \frac{1-(p-q)f}{(1+f)(1-f)}  &amp;= 0  &amp;&amp; \text{since } p+q=1\\
+        1 - (p-q)f &amp;= 1 - f^2 \\
+        f^2 - (p-q)f &amp;= 0 \\
+        f = f^* &amp;= p - q &amp;&amp; \text{since } f&gt;0  \tag{8}
+\end{align*}
+</div>
+<p>So we now have our optimal betting criterion (for even bets), fractional bets
+with <span class="math">\(f^*=p-q\)</span>.</p>
+<p>Another interesting behavior of varying our fractional bets can be gleaned by
+graphing <span class="math">\(G(f)\)</span> <a class="footnote-reference" href="posts/optimal-betting-and-the-kelly-criterion/#id15" id="id7">[7]</a>:</p>
+<img alt="G(f)" class="align-center" src="images/g_of_f.png" style="height: 450px;"><p>We can see that our <span class="math">\(f^*\)</span> maximizes the growth rate.  However, there is a point
+<span class="math">\(f_c\)</span> where our growth rate becomes negative.  This implies that if we
+over-bet <span class="math">\(f &gt; f_c\)</span>, we will almost surely reach ruin (because we have a
+negative growth rate).  The following (summarized) theorem from Thorp's paper
+states this more precisely:</p>
+<dl class="docutils">
+<dt><strong>Theorem 1</strong></dt>
+<dd><ol class="first last lowerroman simple">
+<li>If <span class="math">\(g(f) &gt; 0\)</span>, then <span class="math">\(lim_{n\rightarrow \infty}X_n = \infty\)</span> almost surely.</li>
+<li>If <span class="math">\(g(f) &lt; 0\)</span>, then <span class="math">\(lim_{n\rightarrow \infty}X_n = 0\)</span> almost surely.</li>
+<li>Given a strategy <span class="math">\(\Theta^*\)</span> and any other "essentially different strategy" <span class="math">\(\Theta\)</span>, we have <span class="math">\(lim_{n\rightarrow \infty}\frac{X_n(\Theta^*)}{X_n(\Theta)} = \infty\)</span> almost surely.</li>
+</ol></dd>
+</dl>
+<p>From this theorem, we can see that if we pick a fraction such that <span class="math">\(g(f)
+&gt; 0\)</span>, then we'll almost surely tend towards an increasing bankroll.
+Conversely, if we pick a fraction <span class="math">\(g(f)&lt;0\)</span>, then we will almost surely
+result in ruin.  This matches up with our intuition that over-betting is
+counter-productive.</p>
+<dl class="docutils">
+<dt><strong>Example 2:</strong></dt>
+<dd>
+<p class="first">(Continued from Example 1)
+Suppose we have our even-bet coin toss game and the probability of heads is
+<span class="math">\(p=0.53\)</span> and probability of tails is <span class="math">\(q=0.47\)</span>.  Our initial
+bankroll is <span class="math">\($100,000\)</span> (big enough that the minimum bet isn't really
+significant).  Applying our optimal betting criteria, on our first play
+we should bet <span class="math">\(f=p-q=0.53-0.47=0.06\)</span> or <span class="math">\(6\%\)</span> of our bankroll, translating to
+<span class="math">\($100,000 * 6\% = $6,000\)</span>.  Assuming we win the first play, we should bet
+<span class="math">\($106,000 * 6\% = $6,360\)</span> and so on.</p>
+<p>If we bet less than <span class="math">\(6\%\)</span>, we will still be increasing our bankroll but not at
+the optimal rate.  We can also bet more than <span class="math">\(6\%\)</span> up to the theoretical point <span class="math">\(f_c\)</span>
+such that <span class="math">\(g(f_c)=0\)</span> with the same result.
+We can numerically determine this turning point, which in this case is
+<span class="math">\(f_c \approx 0.11973\)</span>.  So betting more than roughly 11.9% will almost
+surely cause us ruin.</p>
+<p>We can also compute the expected exponential growth rate using our optimal
+<span class="math">\(f^*=  0.06\)</span>:</p>
+<div class="math">
+\begin{align*}
+g(f^*) = g(0.06) &amp;= E[p\log(1+f) + q\log(1-f)]  \\
+                 &amp;= 0.53\log(1+0.06) + 0.47\log(1-0.06)]  \\
+                 &amp;\approx 0.001801 \tag{9}
+\end{align*}
+</div>
+<p class="last">So after <span class="math">\(n\)</span> plays, a player can expect his bankroll to be
+<span class="math">\(e^{0.001801n}\)</span> times larger.  A doubling time can be computed
+by setting <span class="math">\(e^{0.001801n}=2\)</span>, resulting in <span class="math">\(n\approx 385\)</span> plays.</p>
+</dd>
+</dl>
+<p></p>
+<h5> Betting with Uneven Payoffs and Other Variations </h5>
+<p>We've so far only looked at games with even payoffs.  We can generalize this result.
+If for each unit wagered, you can win <span class="math">\(b\)</span> units, we can derive a modified version
+of Equation 7:</p>
+<div class="math">
+\begin{equation*}
+g(f) = E[log(\frac{X_n}{X_0}) = p\log(1 +bf) + q\log(1-f) \tag{10}
+\end{equation*}
+</div>
+<p>Solving for the optimum yields <span class="math">\(f^*=\frac{bp-q}{b}\)</span>.</p>
+<p>Another variation is when you can make multiple simultaneous bets such as when
+multiple players share a single bankroll.  Going through a similar exercise, we
+can derive values for <span class="math">\(f_1^*, f_2^*, \ldots\)</span> assuming the games played
+are independent.  When two players are playing the same game (e.g. same table
+for Blackjack), the bets are correlated and adjustments must be made.
+Additionally, we can analyze more complex situations such as continuous (or
+nearly continuous) outcomes like the stock market which require a more thorough
+analysis using more complex math.  See Thorp's paper for more details.</p>
+<p><br></p>
+<h4> Conclusion </h4>
+<p>Kelly's optimal betting criterion is an incredibly interesting mathematical
+result.  However, perhaps what is more interesting is that this theoretical result
+was put into practice by some of the very mathematicians that worked on it!
+Thorp has had wild success applying it in various situations such as
+sports betting, Blackjack and the stock market.  Of course by itself the
+criterion isn't much use, it is only once you've found a game that has a
+positive expected value that you can put it to use.  I would go into how to do
+that but I think I've written enough for one day and as I said, it's best left
+as an exercise to the reader.</p>
+<p><br></p>
+<h4> References and Further Reading </h4>
+<ul class="simple">
+<li>
+<a class="reference external" href="http://www.edwardothorp.com/sitebuildercontent/sitebuilderfiles/KellyCriterion2007.pdf">The Kelly Criterion in Blackjack Sports Betting, and the Stock Market</a> by Edward O. Thorp.</li>
+<li>
+<em>Optimal Gambling Systems for Favorable Games</em>, E. O. Thorp, Review of the International Statistical Institute Vol. 37, No. 3 (1969), pp. 273-293 .</li>
+<li>William Poundstone, <em>Fortune's Formula: The Untold Story of the Scientific Betting System That Beat the Casinos and Wall Street</em>. 2005. ISBN 978-0809045990.  See also a brief <a class="reference external" href="http://home.williampoundstone.net/Kelly.htm">biography</a> of Kelly on William Poundstone's web page.</li>
+</ul>
+<p><br><br></p>
+<table class="docutils footnote" frame="void" id="id8" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="posts/optimal-betting-and-the-kelly-criterion/#id1">[1]</a></td>
+<td>William Poundstone, <em>Fortune's Formula: The Untold Story of the Scientific Betting System That Beat the Casinos and Wall Street</em>. 2005. ISBN 978-0809045990.  See also a brief <a class="reference external" href="http://home.williampoundstone.net/Kelly.htm">biography</a> of Kelly on William Poundstone's web page.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id10" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="posts/optimal-betting-and-the-kelly-criterion/#id2">[2]</a></td>
+<td>This whole section just basically summarizes (with a bit more step-by-step for the math) the paper "<em>The Kelly Criterion in Blackjack Sports Betting, and the Stock Market</em>".  So if you're really interested, it's probably best to check it out directly.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id11" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="posts/optimal-betting-and-the-kelly-criterion/#id3">[3]</a></td>
+<td>It doesn't really matter if the bias is heads or tails.  The point is that <em>you</em> get to pick the winning side!</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id12" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="posts/optimal-betting-and-the-kelly-criterion/#id4">[4]</a></td>
+<td>The expected value of winning for bet <span class="math">\(B\)</span> is <span class="math">\(Bp-Bq = B(p-q) &gt; 0\)</span> since <span class="math">\(p &gt; q\)</span>.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id13" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="posts/optimal-betting-and-the-kelly-criterion/#id5">[5]</a></td>
+<td>Almost surely here because it's theoretically possible that you can keep winning forever but it's such a small possibility that it basically can't happen.  This is analogous to the red dot in the unit square.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id14" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="posts/optimal-betting-and-the-kelly-criterion/#id6">[6]</a></td>
+<td>The expected value of a binomial distribution (e.g. coin tossing) is just <span class="math">\(np\)</span>.  So <span class="math">\(np/n = p\)</span>.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id15" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="posts/optimal-betting-and-the-kelly-criterion/#id7">[7]</a></td>
+<td>Image from "<em>The Kelly Criterion in Blackjack Sports Betting, and the Stock Market</em>".</td>
+</tr></tbody>
+</table>
+</div>
+    </div>
+    </article>
+</div>
+
+        <nav class="postindexpager"><ul class="pager">
+<li class="previous">
+                <a href="." rel="prev">Newer posts</a>
+            </li>
+            <li class="next">
+                <a href="index-6.html" rel="next">Older posts</a>
+            </li>
+        </ul></nav><script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+            MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
+            </script>
+</div>
+            <div class="col-md-3 well">
+            <p>
+            I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
+            a former academic, current data scientist, engineer, and
+            programmer.  This is
+            <a href=".">the place</a>
+            where I write
+            about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br><p>
+            <a href="archive.html">Archive</a>
+            </p>
+            <p>
+            <a href="categories/index.html">Tags</a>
+            </p>
+            <p>
+            <a href="rss.xml">RSS feed</a>
+            </p>
+            </div>
+        </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2015         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+        </footer>
+</div>
+</div>
+
+
+            <script src="assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-15314898-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>
