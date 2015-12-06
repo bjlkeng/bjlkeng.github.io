@@ -1,7 +1,7 @@
 .. title: Markov Chain Monte Carlo and the Metropolis-Hastings Algorithm
 .. slug: markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm
-.. date: 2015-11-21 09:05:56 UTC-05:00
+.. date: 2015-12-05 15:05:56 UTC-05:00
 .. tags: Markov Chain, Monte Carlo, MCMC, Metropolis-Hastings, sampling, probability
 .. link: 
-.. description: An simple explanation of MCMC and the Metrpolis-Hastings Algorithm with an example.
+.. description: A brief tutorial on MCMC, rejecting sampling and the Metrpolis-Hastings Algorithm.
 .. type: text
