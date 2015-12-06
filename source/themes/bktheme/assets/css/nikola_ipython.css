@@ -30,8 +30,12 @@ div.output {
     border: 1px solid lightgray;
 }
 
+div.input_area pre {
+    font-size: 14px;
+}
+
 div.output_area pre {
-    font-size: 13px;
+    font-size: 14px;
 }
 
 div.text_cell_render {
