@@ -57,8 +57,8 @@ typical question we might ask is:
     how do we estimate :math:`F` (or some properties of :math:`F`)?
 
 Of course there are variations to this question depending on the precise
-problem such as regression but by and large view it comes down to finding
-things about :math:`F` (or some derived properties).
+problem such as regression but by and large it comes down to finding
+things about :math:`F` (or its derived properties).
 
 |h3| Models, models, models |h3e|
 
@@ -110,7 +110,27 @@ parametric model might be invalid.
 
 |h3| Types of Statistical Inference |h3e|
 
+For the most part, statistical inference problems can be broken into three
+different types of problems [6]_: point estimation (or learning), confidence
+intervals (or sets), and hypothesis testing.  I'll briefly describe all three
+but focus on the latter in more detail in the next section.
 
+Point estimates aims to find the single "best guess" for a particular quantity
+of interest.  Formally, for :math:`n` independent and identically distributed
+(IID) observations, :math:`X_1, X_2, ..., X_n` from some distribution
+:math:`F`, a point estimator :math:`\hat{\theta_n}`
+
+
+For example, if our desired quantity is the expected value of the
+"true" distribution :math:`F`, we might use the sample mean of our data as our
+"best guess".  Similarly, for a regression problem with a linear model, we are
+finding a "point" estimate for the regression function :math:`r`, which is
+frequently the coefficients for the covariates (or features) that minimize the
+mean squared error.  From what I've seen, many "machine learning" techniques
+fall in this category where you typically will aim to find a maximum likelihood
+estimate or related measure that is you "best guess" trained based on the data.
+
+The next 
 
 
 |h2| References and Further Reading |h2e|
@@ -129,3 +149,5 @@ parametric model might be invalid.
 .. [4] Might be obvious but let's state it explicitly: *distribution* refers to the cumulative distribution function (CDF), and *density* refers to the probability density function (PDF).
 
 .. [5] In fact, most of the time :math:`\mathfrak{F}` will not contain :math:`F` since as we mentioned above, the "true" distribution is probably much more complex than any model we could come up with.
+
+.. [6] This categorization is given in *All of Statistics*, Section 6.3: Fundemental Concepts in Inference.  I've found it quite a good way to think about statistics from a high level.
