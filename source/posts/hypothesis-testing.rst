@@ -1,11 +1,10 @@
-.. title: An Introduction to Statistical Inference and Hypothesis Testing
+.. title: A Primer on Statistical Inference and Hypothesis Testing
 .. slug: hypothesis-testing
 .. date: 2015-12-29 10:22:26 UTC-05:00
-.. tags: hypothesis testing, models, mathjax
+.. tags: hypothesis testing, frequentist statistics, statistical inference, models, mathjax
 .. category: 
 .. link: 
-.. description: A post explaining hypothesis testing in a (hopefully) easy to
-understand way.
+.. description: A post explaining classical (frequentist) statistical inference and hypothesis in a (hopefully) straight-forward way.
 .. type: text
 
 .. |br| raw:: html
@@ -30,16 +29,17 @@ understand way.
 
 Introduction
 
-.. TEASER_END
-
-|h2| Statistical Models and Inference |h2e|
-
 Before we begin talking about statistical hypotheses, it's important to clear
 up some common (classical) statistics terms and ideas that are sometimes
 casually thrown around.  I, for one, did not have a rigorous understanding of
 these concepts and definitely not a very good intuitive sense.  Let's try to
 explain it with enough math to get a good intuition about the subject by
 starting with some of the "big" ideas then onto some more precise definitions.
+
+
+.. TEASER_END
+
+|h2| Statistical Models and Inference |h2e|
 
 |h3| A Couple of Big Ideas |h3e|
 
@@ -134,12 +134,13 @@ regresssion/prediction function.  Formally:
 
 For example, if our desired quantity is the expected value of the "true"
 distribution :math:`F`, we might use the sample mean of our data as our "best
-guess".  Similarly, for a regression problem with a linear model, we are
+guess" (or estimate).  Similarly, for a regression problem with a linear model, we are
 finding a "point" estimate for the regression function :math:`r`, which is
 frequently the coefficients for the covariates (or features) that minimize the
 mean squared error.  From what I've seen, many "machine learning" techniques
 fall in this category where you typically will aim to find a maximum likelihood
-estimate or related measure that is you "best guess" trained based on the data.
+estimate or related measure that is you "best guess" (or estimate) trained
+based on the data.
 
 
 The next category of inference problems are confidence intervals (or sets).
@@ -150,9 +151,9 @@ particular frequency.  Let's take a look at the formal definition then try to
 interpret it:  
 
     A :math:`1-\alpha` **confidence interval** for parameter
-    :math:`\theta` is an interval :math:`C_n(a,b)` where :math`a=a(X_1, \ldots,
-    X_N)` and :math`b=b(X_1, \ldots, X_N)` are functions such that 
-    
+    :math:`\theta` is an interval :math:`C_n(a,b)` where :math:`a=a(X_1, \ldots, X_N)` 
+    and :math:`b=b(X_1, \ldots, X_N)` are functions such that 
+
     .. math::
     
         P(\theta \in C_n) >= 1 - \alpha. \tag{3}
@@ -193,6 +194,42 @@ for the problem at hand.
 
 |h2| Hypothesis Testing |h2e|
 
+|h3| A Digression |h3e|
+
+I'm a huge fan of hypothesis testing as a general concept (not necessarily
+statistical) because it's such a powerful framework for learning.  One of the
+biggest advantages is it sets you up to "disprove your best-loved ideas" as
+Charlie Munger puts it, not to mention the hundreds of years
+its been used as part of the `scientific method <https://en.wikipedia.org/wiki/Scientific_method>`_.
+There is a huge advantage to having a mental framework that allows you to
+disprove your hardest won ideas, a proverbial `"empty your cup" <http://c2.com/cgi/wiki?EmptyYourCup>`_ type situation where
+you can begin to learn after you have let go of your some of your past
+(hopefully, incorrect) beliefs.  I mean that's what science is all about right?
+
+Before we conclude this interlude, I want to mention two important points that
+stood out as to me when practicing hypothesis testing.  The first idea is that of testability or
+falsifiability.  This is rather important because if you have a hypothesis that
+cannot be falsified or not have a reasonable expectation of observing a
+counter-example then it's not a very useful hypothesis.  That is, you won't
+really be able to learn much from it because you can never know if it's false [8]_.
+
+The second idea is that of parsimony, or `Occam's Razor <https://en.wikipedia.org/wiki/Occam%27s_razor>`_.
+In short, we should prefer the simplest explanation or model, which translates
+to hypothesis that have the fewest assumptions.  It makes sense not only from a
+machine learning point of view (over-fitting) but also from an intuitive point
+of view (more assumptions results in a weaker explanation).  An related idea that 
+Charlie Munger espouses is that when explaning things, we should favor the
+explanation from the most fundamental discipline.  For example, I'm sure many
+economists have some fancy names for the reasons behind the financial crisis
+but we can probably use simpler terminology and concepts related to breaking
+points and critical mass from engineering and physics.  On an individual level,
+it makes more sense to pull ideas and concepts from the most fundamental of
+disciplines (math, physics, engineering) because they are the most reliable.
+Anyways, that's enough of a digression, back to statistics!
+
+
+|h3| Statistical Hypothesis Testing |h3e|
+
 Some notes on hypothesis testing.
 
 
@@ -216,4 +253,6 @@ Some notes on hypothesis testing.
 .. [6] This categorization is given in *All of Statistics*, Section 6.3: Fundemental Concepts in Inference.  I've found it quite a good way to think about statistics from a high level.
 
 .. [7] An important note outlined in *All of Statistics* about :math:`\theta`, point estimators and confidence intervals is that :math:`\theta` is fixed.  Recall, that our data is drawn from a "true" distribution that has (theoretically) *exact* parameters.  So there is a single fixed, albeit unknown, value of :math:`\theta`.  The randomness comes in through our observations.  Each observation, :math:`X_i`, is a drawn (randomly) from the "true" distribution so by definition a random variable.  This means our point estimators :math:`\widehat{\theta}_n` and confidence intervals :math:`C_n` are also random variables since they are functions of random variables. |br| |br| This can all be a little confusing, so here's another way to think about it:  Say we have a "true" distribution, and we're going to draw :math:`n` samples from it.  Ahead of time, we don't know what the values of those observations are going to be but we know they will follow the "true" distribution.  Thus, the :math:`n` samples are :math:`n` random variables, each distributed according to the "true" distribution.  We can then take those :math:`n` variables and combine them into a function (e.g. a point estimator like a mean) to get a estimator.  This estimator, before we know the actual values of the :math:`n` variables, will also be a random variable.  However, what usually happens is that the values of the :math:`n` samples are actually observed, so we plugs these realizations into our point *estimator* (i.e. the function of the :math:`n` observations) to get a point *estimate* -- a deterministic value.  One reason we make this distinction is so that we can compute properties of our point estimator like bias and variance.  So long story short, the point estimator is a random variable where after having realized values of the observations, we can use it to get a single fixed number called a point estimate.
+
+.. [8] Interestingly, it's very difficult to prove something to be true, whereas usually much easiser to prove it false.  The reason is that many useful statements we want to prove are universally quantified (think of statements that use the word "all").  An example made famous by Nassim Nicholas Taleb is the "black swan" problem.  It's almost impossible to prove the statement "all swans are white" because you'd literally have to check the colour every single swan.  However, it's quite easy to prove it false by finding a single counter-example: a single black swan.  That's why the scientific method and hypothesis testing is such a good framework.  Knowing that it's difficult to prove things universally true, it sets itself up to weed out poor models of reality by allowing a systematic way of finding counter-examples (at least that's one way of looking at it).
 
