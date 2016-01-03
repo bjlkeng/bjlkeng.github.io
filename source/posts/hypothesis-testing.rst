@@ -13,7 +13,7 @@
 
 .. |H2| raw:: html
 
-   <h3>
+   <br/><h3>
 
 .. |H2e| raw:: html
 
@@ -35,15 +35,15 @@
 
    </center>
 
-Introduction
-
-Before we begin talking about statistical hypotheses, it's important to clear
-up some common (classical) statistics terms and ideas that are sometimes
-casually thrown around.  I, for one, did not have a rigorous understanding of
-these concepts and definitely not a very good intuitive sense.  Let's try to
-explain it with enough math to get a good intuition about the subject by
-starting with some of the "big" ideas then onto some more precise definitions.
-
+This post is about some fundamental concepts in classical or frequentist
+statistics: inference and hypothesis testing.  A while back, I came to the
+realization that I didn't rigorous understanding of these concepts (at least
+not to my liking) beyond the mechanical nature of applying them.
+Along with this, a poor intuitive sense of how these concepts relate to
+the more fundamental area of probability.  This bothered me a lot since
+I think having intuition about an area is probably the most useful part
+of learning a subject.  So this post is a result of my re-education on these
+topics.  Enjoy!
 
 .. TEASER_END
 
@@ -427,7 +427,7 @@ A common way of stating what a p-value is (taken from *All of Statistics*):
     the test statistic the same as or more extreme than what was actually
     observed.
 
-Admiittedly, this does not is not exactly line up with how we have looked at
+Admittedly, this does not is not exactly line up with how we have looked at
 :math:`\alpha` in terms of rejection regions, however, rest assured the
 definitions do match up if you went through the derivations of the test
 statistic and critical values.  Personally, I don't find the above definition
@@ -441,13 +441,20 @@ procedure to help us prove our default or null hypothesis false.  Thinkin this
 way helps to remember that the null hypothesis is our default stance and the
 test's aim is prove it true.
 
+|h2| Conclusion |h2e|
+
+While writing this post, I had to dig through the probabilistic foundations for
+these techniques and it can get really deep!  I just scratched the surface,
+enough to satisfy my intellectual curiosity and intuition (for now).
+Hopefully, this post (and some of the references below) will help you along the
+way too.
+
 
 |h2| References and Further Reading |h2e|
 
 * `All of Statistics: A Concise Course in Statistical Inference <http://link.springer.com/book/10.1007%2F978-0-387-21736-9>`_ by Larry Wasserman. (available free online)
-* Wikipedia: `Statistical models <https://en.wikipedia.org/wiki/Statistical_model>`_, `Statistical Inference <https://en.wikipedia.org/wiki/Statistical_inference>`_, `Nonparametric Statistics <https://en.wikipedia.org/wiki/Nonparametric_statistics>`_, `Statistical Hypothesis Testing <https://en.wikipedia.org/wiki/Statistical_hypothesis_testing>`_.
 * `Hypothesis Testing <http://www.stat.columbia.edu/~liam/teaching/4107-fall05/notes4.pdf>`_, Paninski, Intro. Math. Stats., December 6, 2005.
-
+* Wikipedia: `Statistical Model <https://en.wikipedia.org/wiki/Statistical_model>`_, `Statistical Inference <https://en.wikipedia.org/wiki/Statistical_inference>`_, `Nonparametric Statistics <https://en.wikipedia.org/wiki/Nonparametric_statistics>`_, `Statistical Hypothesis Testing <https://en.wikipedia.org/wiki/Statistical_hypothesis_testing>`_, `Statistical Power <https://en.wikipedia.org/wiki/Statistical_power>`_, `Sufficient Statistic <https://en.wikipedia.org/wiki/Sufficient_statistic>`_, `Null Hypothesis <https://en.wikipedia.org/wiki/Null_hypothesis>`_.
 
 
 .. [1] Taking note that no model can truly represent the reality leading to the aphorism: `All models are wrong <https://en.wikipedia.org/wiki/All_models_are_wrong>`_.
