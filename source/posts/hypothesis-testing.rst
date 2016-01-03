@@ -323,9 +323,9 @@ we actually observe our data then it should be quite simple to check if
 
 Another way to view this is in terms of the errors we could make.  
 If we reject :math:`H_0` when it's actually true, we've committed a Type
-I Error or false positive (denoted by :math:`\alpha`).  If we retain
+I Error or false positive (whose probability is denoted by :math:`\alpha`).  If we retain
 :math:`H_0` when it's actually false, we've committed a Type II Error or false
-negative (denoted by :math:`\beta`).  Here's a summary:
+negative (whose probability is denoted by :math:`\beta`).  Here's a summary:
 
 |center|
 
@@ -419,7 +419,7 @@ Two important misconceptions about p-values:
   *A p-value says nothing about evidence in favor of* :math:`H_0`.  A large
   p-value could mean that :math:`H_0` is true, or our test didn't have enough
   power.
-* A p-value is not the probability of that the null hypothesis is true (e.g. :math:`\text{p-value} != P(H_0 | Data)`!).
+* A p-value is not the probability of that the null hypothesis is true (e.g. :math:`\text{p-value} != P(H_0 | Data)`).
 
 A common way of stating what a p-value is (taken from *All of Statistics*):
 
@@ -427,7 +427,19 @@ A common way of stating what a p-value is (taken from *All of Statistics*):
     the test statistic the same as or more extreme than what was actually
     observed.
 
+Admiittedly, this does not is not exactly line up with how we have looked at
+:math:`\alpha` in terms of rejection regions, however, rest assured the
+definitions do match up if you went through the derivations of the test
+statistic and critical values.  Personally, I don't find the above definition
+all that helpful because most people will conflate it with :math:`P(H_0|data)` 
+just because both mention the word "probability".  
 
+The way I like to think of it is simply a measure of evidence against :math:`H_0`
+(but not for :math:`H_0`) according to the table above with no mention of probability.
+In this way, we can remember the point of hypothesis testing is primarily a
+procedure to help us prove our default or null hypothesis false.  Thinkin this
+way helps to remember that the null hypothesis is our default stance and the
+test's aim is prove it true.
 
 
 |h2| References and Further Reading |h2e|
