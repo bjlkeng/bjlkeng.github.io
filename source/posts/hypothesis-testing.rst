@@ -51,7 +51,7 @@ Enjoy!
 
 |h3| A Couple of Big Ideas |h3e|
 
-To start from the beginnging, there are two big ideas that underlie much of 
+To start from the beginning, there are two big ideas that underlie much of 
 classical statistics.
 The first big idea is that *all data* (or observations as statisticians like to
 say) have a "true" probability distribution [1]_.  Of course, it is almost never
