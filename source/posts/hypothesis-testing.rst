@@ -27,6 +27,14 @@
 
    </hk>
 
+.. |center| raw:: html
+
+   <center>
+
+.. |centere| raw:: html
+
+   </center>
+
 Introduction
 
 Before we begin talking about statistical hypotheses, it's important to clear
@@ -230,13 +238,203 @@ Anyways, that's enough of a digression, back to statistics!
 
 |h3| Statistical Hypothesis Testing |h3e|
 
-Some notes on hypothesis testing.
+Statistical hypothesis testing is probably one of the earliest concepts
+learn in a statistics course.  Null hypotheses, Student's t-test, p-values
+these terms get thrown around without explaining their underlying probabilistic
+basis [9]_.  When I first learned statistics it was definitely more biased towards
+a mechanical view of hypothesis testing, rather than an intuitive understanding.
+Here's my attempt to explain it a bit more precisely while hopefully adding some
+colour to give some intuition.
+
+Following the scientific method, we make a hypothesis, run an experiment and
+see if our observations match the prediction from our hypothesis.  However
+in certain cases, the cause and effect is not so clear like it is with laws of
+nature.  For example, when you `double-slit experiment <https://en.wikipedia.org/wiki/Double-slit_experiment>`_ 
+to determine the dual nature of light, the result of the experiment is clear.
+But when you're determining if a new drug helps cure a disease, you usually 
+randomly divide a population into a treatment group which gets the drug and a
+control group which receives a placebo.  If we look at the various scenarios 
+of what can happen, we can see why it's not so clear cut:
+
+ 1. If at least one person in the treatment group doesn't get better, does it
+    mean the drug isn't effective?  Not necessarily, the drug could still be
+    quite effective but for some other *random* reason, the person could have
+    not responded to the drug by pure chance.
+
+ 2. If more people in the treatment group get better than the control, does it
+    mean the drug is effective?  Not necessarily, what if only the treatment
+    group has only 1 person who got better versus control? Probably not. 
+    10? 1000?
+
+You can start to see why we need to start to apply some mathematics to these
+situations in order to see if the effect is significant.  In particular, we
+apply statistical hypothesis testing when we want to determine if an observed
+effect is by purely chance.
+
+The high level setup for this procedure is to first come up with a null
+hypothesis (denoted by :math:`H_0`), that usually denotes the "no effect"
+scenario, or our default position.  We then try to see how likely the data
+is generated in this situation.  If it's unlikely then we say we reject the
+null hypothesis and accept the alternate hypothesis, which just means something
+other than the null hypothesis must true.  Otherwise, we have no evidence to
+reject the null hypothesis and we continue to believe it to be true (since it's
+our default position).  
+
+A good analogy is that of a legal trial, the defendant is innocent until proven
+guilty.  Likewise, we assume the null hypothesis is true from the start, and only
+when we reject it do we say it is false.  This is not unlike how science works
+where we have established models that are assumed to be true until later proven
+otherwise.  Now that we have a conceptual understanding of this process, let's look
+at some details.
+
+|h3| Rejection Regions and Types of Errors |h3e|
+
+Now a critical point when conducting statistical hypothesis testing is
+determining your null hypothesis.  The first step is picking the *correct*
+statistical model :math:`\mathfrak{F}`.  If your model is ill-formed for your
+problem, the results of hypothesis testing will be invalid.  Next, we partition
+the parameter space of :math:`\mathfrak{F}` into two disjoint sets :math:`\Theta_0`
+and :math:`\Theta_1`, and define our hypothesis as:
+
+.. math::
+
+    H_0 : \theta \in \Theta_0 \\
+    H_1 : \theta \in \Theta_1 \tag{4}
+
+where :math:`H_0` is our **null hypothesis** and :math:`H_1` is our
+**alternative hypothesis**.  So we must first pick a good statistical model
+then define an appropriate null hypothesis.  For example, we might pick a
+normal distribution as our statistical model and our null hypothesis is that
+the mean of the distribution is less than or equal to zero (:math:`\mu \leq 0`) .
+
+Now let's suppose our data is the random variable :math:`X` with range :math:`\chi`.
+Our goal is to define a **rejection region** on :math:`\chi` such that:
+
+.. math::
+
+   X \in R    &\implies \text{ reject } H_0 \\
+   X \notin R &\implies \text{ retain (don't reject) } H_0 \tag{5}
+
+We want to define :math:`R` such that when :math:`H_0` is true, we have a high
+probability of retaining :math:`H_0` and when :math:`H_0` is false, we have a
+high chance probability of rejecting it.  If we picked a good :math:`R`, when
+we actually observe our data then it should be quite simple to check if
+:math:`X \in R` and be correct quite often.
+
+Another way to view this is in terms of the errors we could make.  
+If we reject :math:`H_0` when it's actually true, we've committed a Type
+I Error or false positive (denoted by :math:`\alpha`).  If we retain
+:math:`H_0` when it's actually false, we've committed a Type II Error or false
+negative (denoted by :math:`\beta`).  Here's a summary:
+
+|center|
+
+================= ============================= =============
+Cases             Retain Null                   Reject Null
+================= ============================= =============
+:math:`H_0` true  Correct                       Type I Error (:math:`\alpha`)
+----------------- ----------------------------- -------------
+:math:`H_0` false Type II Error (:math:`\beta`) Correct
+================= ============================= =============
+
+|centere|
+
+So it makes sense that we want choose :math:`R` to maximize the "Correct"
+diagonals or alternatively minimize "Error" diagonals in the above table.  To
+throw another wrench in the mix, we usually refer to the bottom right cell
+as the **power**, which is the probability of correctly rejecting the null
+hypothesis when it is false (i.e. the alternative hypothesis is true).
+
+The tricky part is figuring out how to pick the rejection region :math:`R` so
+that we can minimize both :math:`\alpha` and :math:`\beta` since they are
+conflicting goals [10]_.  
+
+|h3| Test Statistics |h3e|
+
+Practically, we rarely explicitly pick a rejection region in terms of the
+range of the data (:math:`\chi`).  It's usually much more convenient to pick a
+rejection region in terms of a function of :math:`X` that summarizes it
+called a **test statistic** (which we denote as :math:`T`).  Thus, our expression
+for rejection region usually ends up looking something like this:
+
+.. math::
+
+    R = \big\{ x : T(x) > c \big\} \tag{6}
+
+The value :math:`c` is called the **critical value** which determines
+whether or not we retain or reject our null hypothesis.
+So now the problem of hypothesis testing comes down to picking an appropriate 
+test statistic :math:`T` and an appropriate value :math:`c` to minimize
+our error rates (:math:`\alpha` and :math:`\beta`).
+
+As mentioned above, minimizing :math:`\alpha` and :math:`\beta` are usually in
+conflict, so what happens is we fix the level for `\alpha` (usually values like
+:math:`0.05` or :math:`0.01`), and find an appropriate :math:`T` and :math:`c`
+so that :math:`\beta` is minimized (alternatively **power** is maximized).
+Computing (and proving) that a test statistic has the highest power for a given 
+an :math:`alpha` is quite complex so I won't mention much more of it here.
+Most of the time though you won't have to actually come up with :math:`T` yourself
+since many common situations have already been worked out.  The usual
+procedure usually ends up being something along the lines of:
+
+0. Define your null hypothesis (and the appropriate statistical model of your data).
+1. Pick an appropriate :math:`\alpha`, e.g. :math:`0.05`.
+2. Look up and compute the appropriate test statistic for your hypothesis/model e.g. `Z statistic <https://en.wikipedia.org/wiki/Z-test>`_.
+3. Look up (or compute) the critical value :math:`c` based on :math:`\alpha` e.g. :math:`Z > 1.96`.
+4. Retain/reject the null hypothesis based on the computed test statistic and critical value.
+
+|h3| p-values and such |h3e|
+
+Of course, just giving a retain/reject the null hypothesis type answer isn't
+very informative.  Instead, we might want to give the smallest :math:`\alpha`
+that rejects the null hypothesis:
+
+.. math::
+
+    \text{p-value} = min\big\{ \alpha : T(X) \in R_{\alpha} \big\} \tag{7}
+
+A p-value is basically a measure of evidence against :math:`H_0`.  
+The smaller the p-value, the more evidence we have the :math:`H_0` is false.
+Researchers usually use this scale for p-values:
+
+|center|
+
+================= =============================
+p-value           Evidence  
+================= =============================
+:math:`<0.01`     very strong evidence against :math:`H_0`
+----------------- -----------------------------
+:math:`0.01-0.05` strong evidence against :math:`H_0`
+----------------- -----------------------------
+:math:`0.05-0.10` weak evidence against :math:`H_0`
+----------------- -----------------------------
+:math:`>0.10`     little or no evidence against :math:`H_0`
+================= =============================
+
+|centere|
+
+Two important misconceptions about p-values:
+
+* Nowhere in the above table do we say if we we have evidence for :math:`H_0`.
+  *A p-value says nothing about evidence in favor of* :math:`H_0`.  A large
+  p-value could mean that :math:`H_0` is true, or our test didn't have enough
+  power.
+* A p-value is not the probability of that the null hypothesis is true (e.g. :math:`\text{p-value} != P(H_0 | Data)`!).
+
+A common way of stating what a p-value is (taken from *All of Statistics*):
+
+    The p-value is the probability (under :math:`H_0`) of observing a value of
+    the test statistic the same as or more extreme than what was actually
+    observed.
+
+
 
 
 |h2| References and Further Reading |h2e|
 
 * `All of Statistics: A Concise Course in Statistical Inference <http://link.springer.com/book/10.1007%2F978-0-387-21736-9>`_ by Larry Wasserman. (available free online)
-* Wikipedia: `Statistical models <https://en.wikipedia.org/wiki/Statistical_model>`_, `Statistical Inference <https://en.wikipedia.org/wiki/Statistical_inference>`_, `Nonparametric Statistics <https://en.wikipedia.org/wiki/Nonparametric_statistics>`_, TODO.
+* Wikipedia: `Statistical models <https://en.wikipedia.org/wiki/Statistical_model>`_, `Statistical Inference <https://en.wikipedia.org/wiki/Statistical_inference>`_, `Nonparametric Statistics <https://en.wikipedia.org/wiki/Nonparametric_statistics>`_, `Statistical Hypothesis Testing <https://en.wikipedia.org/wiki/Statistical_hypothesis_testing>`_.
+* `Hypothesis Testing <http://www.stat.columbia.edu/~liam/teaching/4107-fall05/notes4.pdf>`_, Paninski, Intro. Math. Stats., December 6, 2005.
 
 
 
@@ -255,4 +453,10 @@ Some notes on hypothesis testing.
 .. [7] An important note outlined in *All of Statistics* about :math:`\theta`, point estimators and confidence intervals is that :math:`\theta` is fixed.  Recall, that our data is drawn from a "true" distribution that has (theoretically) *exact* parameters.  So there is a single fixed, albeit unknown, value of :math:`\theta`.  The randomness comes in through our observations.  Each observation, :math:`X_i`, is a drawn (randomly) from the "true" distribution so by definition a random variable.  This means our point estimators :math:`\widehat{\theta}_n` and confidence intervals :math:`C_n` are also random variables since they are functions of random variables. |br| |br| This can all be a little confusing, so here's another way to think about it:  Say we have a "true" distribution, and we're going to draw :math:`n` samples from it.  Ahead of time, we don't know what the values of those observations are going to be but we know they will follow the "true" distribution.  Thus, the :math:`n` samples are :math:`n` random variables, each distributed according to the "true" distribution.  We can then take those :math:`n` variables and combine them into a function (e.g. a point estimator like a mean) to get a estimator.  This estimator, before we know the actual values of the :math:`n` variables, will also be a random variable.  However, what usually happens is that the values of the :math:`n` samples are actually observed, so we plugs these realizations into our point *estimator* (i.e. the function of the :math:`n` observations) to get a point *estimate* -- a deterministic value.  One reason we make this distinction is so that we can compute properties of our point estimator like bias and variance.  So long story short, the point estimator is a random variable where after having realized values of the observations, we can use it to get a single fixed number called a point estimate.
 
 .. [8] Interestingly, it's very difficult to prove something to be true, whereas usually much easiser to prove it false.  The reason is that many useful statements we want to prove are universally quantified (think of statements that use the word "all").  An example made famous by Nassim Nicholas Taleb is the "black swan" problem.  It's almost impossible to prove the statement "all swans are white" because you'd literally have to check the colour every single swan.  However, it's quite easy to prove it false by finding a single counter-example: a single black swan.  That's why the scientific method and hypothesis testing is such a good framework.  Knowing that it's difficult to prove things universally true, it sets itself up to weed out poor models of reality by allowing a systematic way of finding counter-examples (at least that's one way of looking at it).
+
+.. [9] It's probably fair that when learning elementary hypothesis testing that you don't learn about the probabilistic interpretation.  For most students, they will never have to use hypothesis testing beyond rote application of standard tests.  However from an understanding perspective, I find this rather unappealing.  I at least like to have an intuition about how a method works rather than just a mechanical process thus this blog post.
+
+.. [10] Think about a procedure that always rejects the null hypothesis i.e. a rejection consisting of the entire space.  In this case, our :math:`\alpha = 1` but :math:`\beta=0` because we always correctly rejecting the null hypothesis when it is false.  Similarly if :math:`\beta = 1`.  Of course, this choice of rejection region is absolutely useless so we want to pick something a bit smarter.
+
+
 
