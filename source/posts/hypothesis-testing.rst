@@ -1,7 +1,7 @@
 .. title: A Primer on Statistical Inference and Hypothesis Testing
 .. slug: hypothesis-testing
 .. date: 2015-12-29 10:22:26 UTC-05:00
-.. tags: hypothesis testing, frequentist statistics, statistical inference, models, mathjax
+.. tags: hypothesis testing, frequentist statistics, statistical inference, models, p-values, mathjax
 .. category: 
 .. link: 
 .. description: A post explaining classical (frequentist) statistical inference and hypothesis in a (hopefully) straight-forward way.
@@ -25,7 +25,7 @@
 
 .. |H3e| raw:: html
 
-   </hk>
+   </h3>
 
 .. |center| raw:: html
 
@@ -105,15 +105,15 @@ the input data.  In essence, the parameters are determined by the training data
 non-parametric model that estimates a probability distribution because the data
 determines the shape of the histogram.  
 
-Another example would be a k-nearest neighbor algorithm that can classify a new
-observation solely based on its k-nearest neighbors from training data.  The
+Another example would be a k-nearest neighbour algorithm that can classify a new
+observation solely based on its k-nearest neighbours from training data.  The
 surface defined by the classification function is not pre-defined rather it is
-determined soley by the training data (and hyper parameter :math:`k`).  You can
+determined solely by the training data (and hyper parameter :math:`k`).  You can
 contrast this with a logistic regression as a classifier, which has a rigid
 structure regardless of how well the data matches. 
 
 Although, it sounds appealing to let the "data define the model",
-non-parameteric data typically requires a much larger sample size to draw a
+non-parametric data typically requires a much larger sample size to draw a
 similar conclusion compared to parametric methods.  This makes sense
 intuitively since parametric methods have the advantage of having the extra
 model assumptions, so making conclusions should be easier all else being equal.
@@ -129,7 +129,7 @@ and focus on the latter in the next section.
 
 Point estimates aims to find the single "best guess" for a particular quantity
 of interest.  The quantity could be the parameter of a model, a CDF/PDF, or a
-regresssion/prediction function.  Formally:
+regression/prediction function.  Formally:
 
     For :math:`n` independent and identically distributed (IID)
     observations, :math:`X_1, \ldots, X_n`, from some distribution :math:`F` with
@@ -180,7 +180,7 @@ observations.  We would expect that the respective :math:`\theta` in each case
 to be "trapped" in our confidence interval 95% of the time.  Note this is
 different from saying that on any one experiment we "trapped" :math:`\theta`
 with a 95% probability -- after we have a realized confidence interval (i.e.
-fixed values), the "true" parameter either lies in it or it doens't.
+fixed values), the "true" parameter either lies in it or it doesn't.
 
 In some ways confidence intervals give us more context then a single point
 estimate.  For example, if we're looking at the response of a marketing campaign
@@ -226,7 +226,7 @@ In short, we should prefer the simplest explanation or model, which translates
 to hypothesis that have the fewest assumptions.  It makes sense not only from a
 machine learning point of view (over-fitting) but also from an intuitive point
 of view (more assumptions results in a weaker explanation).  An related idea that 
-Charlie Munger espouses is that when explaning things, we should favor the
+Charlie Munger espouses is that when explaining things, we should favour the
 explanation from the most fundamental discipline.  For example, I'm sure many
 economists have some fancy names for the reasons behind the financial crisis
 but we can probably use simpler terminology and concepts related to breaking
@@ -416,7 +416,7 @@ p-value           Evidence
 Two important misconceptions about p-values:
 
 * Nowhere in the above table do we say if we we have evidence for :math:`H_0`.
-  *A p-value says nothing about evidence in favor of* :math:`H_0`.  A large
+  *A p-value says nothing about evidence in favour of* :math:`H_0`.  A large
   p-value could mean that :math:`H_0` is true, or our test didn't have enough
   power.
 * A p-value is not the probability of that the null hypothesis is true (e.g. :math:`\text{p-value} != P(H_0 | Data)`).
@@ -437,7 +437,7 @@ just because both mention the word "probability".
 The way I like to think of it is simply a measure of evidence against :math:`H_0`
 (but not for :math:`H_0`) according to the table above with no mention of probability.
 In this way, we can remember the point of hypothesis testing is primarily a
-procedure to help us prove our default or null hypothesis false.  Thinkin this
+procedure to help us prove our default or null hypothesis false.  Thinking this
 way helps to remember that the null hypothesis is our default stance and the
 test's aim is prove it true.
 
@@ -454,7 +454,7 @@ way too.
 
 * `All of Statistics: A Concise Course in Statistical Inference <http://link.springer.com/book/10.1007%2F978-0-387-21736-9>`_ by Larry Wasserman. (available free online)
 * `Hypothesis Testing <http://www.stat.columbia.edu/~liam/teaching/4107-fall05/notes4.pdf>`_, Paninski, Intro. Math. Stats., December 6, 2005.
-* Wikipedia: `Statistical Model <https://en.wikipedia.org/wiki/Statistical_model>`_, `Statistical Inference <https://en.wikipedia.org/wiki/Statistical_inference>`_, `Nonparametric Statistics <https://en.wikipedia.org/wiki/Nonparametric_statistics>`_, `Statistical Hypothesis Testing <https://en.wikipedia.org/wiki/Statistical_hypothesis_testing>`_, `Statistical Power <https://en.wikipedia.org/wiki/Statistical_power>`_, `Sufficient Statistic <https://en.wikipedia.org/wiki/Sufficient_statistic>`_, `Null Hypothesis <https://en.wikipedia.org/wiki/Null_hypothesis>`_.
+* Wikipedia: `Statistical Model <https://en.wikipedia.org/wiki/Statistical_model>`_, `Statistical Inference <https://en.wikipedia.org/wiki/Statistical_inference>`_, `Non parametric Statistics <https://en.wikipedia.org/wiki/Nonparametric_statistics>`_, `Statistical Hypothesis Testing <https://en.wikipedia.org/wiki/Statistical_hypothesis_testing>`_, `Statistical Power <https://en.wikipedia.org/wiki/Statistical_power>`_, `Sufficient Statistic <https://en.wikipedia.org/wiki/Sufficient_statistic>`_, `Null Hypothesis <https://en.wikipedia.org/wiki/Null_hypothesis>`_.
 
 
 .. [1] Taking note that no model can truly represent the reality leading to the aphorism: `All models are wrong <https://en.wikipedia.org/wiki/All_models_are_wrong>`_.
@@ -467,11 +467,11 @@ way too.
 
 .. [5] In fact, most of the time :math:`\mathfrak{F}` will not contain :math:`F` since as we mentioned above, the "true" distribution is probably much more complex than any model we could come up with.
 
-.. [6] This categorization is given in *All of Statistics*, Section 6.3: Fundemental Concepts in Inference.  I've found it quite a good way to think about statistics from a high level.
+.. [6] This categorization is given in *All of Statistics*, Section 6.3: Fundamental Concepts in Inference.  I've found it quite a good way to think about statistics from a high level.
 
 .. [7] An important note outlined in *All of Statistics* about :math:`\theta`, point estimators and confidence intervals is that :math:`\theta` is fixed.  Recall, that our data is drawn from a "true" distribution that has (theoretically) *exact* parameters.  So there is a single fixed, albeit unknown, value of :math:`\theta`.  The randomness comes in through our observations.  Each observation, :math:`X_i`, is a drawn (randomly) from the "true" distribution so by definition a random variable.  This means our point estimators :math:`\widehat{\theta}_n` and confidence intervals :math:`C_n` are also random variables since they are functions of random variables. |br| |br| This can all be a little confusing, so here's another way to think about it:  Say we have a "true" distribution, and we're going to draw :math:`n` samples from it.  Ahead of time, we don't know what the values of those observations are going to be but we know they will follow the "true" distribution.  Thus, the :math:`n` samples are :math:`n` random variables, each distributed according to the "true" distribution.  We can then take those :math:`n` variables and combine them into a function (e.g. a point estimator like a mean) to get a estimator.  This estimator, before we know the actual values of the :math:`n` variables, will also be a random variable.  However, what usually happens is that the values of the :math:`n` samples are actually observed, so we plugs these realizations into our point *estimator* (i.e. the function of the :math:`n` observations) to get a point *estimate* -- a deterministic value.  One reason we make this distinction is so that we can compute properties of our point estimator like bias and variance.  So long story short, the point estimator is a random variable where after having realized values of the observations, we can use it to get a single fixed number called a point estimate.
 
-.. [8] Interestingly, it's very difficult to prove something to be true, whereas usually much easiser to prove it false.  The reason is that many useful statements we want to prove are universally quantified (think of statements that use the word "all").  An example made famous by Nassim Nicholas Taleb is the "black swan" problem.  It's almost impossible to prove the statement "all swans are white" because you'd literally have to check the colour every single swan.  However, it's quite easy to prove it false by finding a single counter-example: a single black swan.  That's why the scientific method and hypothesis testing is such a good framework.  Knowing that it's difficult to prove things universally true, it sets itself up to weed out poor models of reality by allowing a systematic way of finding counter-examples (at least that's one way of looking at it).
+.. [8] Interestingly, it's very difficult to prove something to be true, whereas usually much easier to prove it false.  The reason is that many useful statements we want to prove are universally quantified (think of statements that use the word "all").  An example made famous by Nassim Nicholas Taleb is the "black swan" problem.  It's almost impossible to prove the statement "all swans are white" because you'd literally have to check the colour every single swan.  However, it's quite easy to prove it false by finding a single counter-example: a single black swan.  That's why the scientific method and hypothesis testing is such a good framework.  Knowing that it's difficult to prove things universally true, it sets itself up to weed out poor models of reality by allowing a systematic way of finding counter-examples (at least that's one way of looking at it).
 
 .. [9] It's probably fair that when learning elementary hypothesis testing that you don't learn about the probabilistic interpretation.  For most students, they will never have to use hypothesis testing beyond rote application of standard tests.  However from an understanding perspective, I find this rather unappealing.  I at least like to have an intuition about how a method works rather than just a mechanical process thus this blog post.
 
