@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="A post explaining classical (frequentist) statistical inference and hypothesis in a (hopefully) straight-forward way.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Primer on Statistical Inference and Hypothesis Testing | Bounded Rationality</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
+<link rel="canonical" href="http://satisficing.briankeng.com/posts/hypothesis-testing/">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="description" itemprop="description" content="A post explaining classical (frequentist) statistical inference and hypothesis in a (hopefully) straight-forward way.">
+<meta name="author" content="Brian Keng">
+<link rel="prev" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/" title="Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="A Primer on Statistical Inference and Hypothesis Testing">
+<meta property="og:url" content="http://satisficing.briankeng.com/posts/hypothesis-testing/">
+<meta property="og:description" content="A post explaining classical (frequentist) statistical inference and hypothesis in a (hopefully) straight-forward way.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2015-12-29T10:22:26-05:00">
+<meta property="article:tag" content="frequentist statistics">
+<meta property="article:tag" content="hypothesis testing">
+<meta property="article:tag" content="mathjax">
+<meta property="article:tag" content="models">
+<meta property="article:tag" content="p-values">
+<meta property="article:tag" content="statistical inference">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://satisficing.briankeng.com/">
+
+                <span class="h1" id="blog-title">Bounded Rationality</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
+            <ul class="nav navbar-nav">
+<p class="lead">Understanding programming, data, and math to a satisfactory degree.</p>
+<!--
+                
+                <li><a href="/archive.html">Archive</a>
+                <li><a href="/categories/">Tags</a>
+                <li><a href="/rss.xml">RSS feed</a>
+
+                 
+-->
+            </ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+    <a href="index.rst" id="sourcelink">Source</a>
+    </li>
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            <div class="col-lg-9">
+                
+                
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">A Primer on Statistical Inference and Hypothesis Testing</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                    Brian Keng
+            </span></p>
+            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2015-12-29T10:22:26-05:00" itemprop="datePublished" title="2015-12-29 10:22">2015-12-29 10:22</time></a></p>
+            
+        <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
+
+                <meta name="description" itemprop="description" content="A post explaining classical (frequentist) statistical inference and hypothesis in a (hopefully) straight-forward way.">
+</div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>This post is about some fundamental concepts in classical (or frequentist)
+statistics: inference and hypothesis testing.  A while back, I came to the
+realization that I didn't have a good intuition of these concepts (at least
+not to my liking) beyond the mechanical nature of applying them.
+What was missing was how they related to a probabilistic view of the subject.
+This bothered me since having a good intuition about a subject is
+probably the most useful (and fun!) part of learning a subject.  So this post
+is a result of my re-education on these topics.  Enjoy!</p>
+<!-- TEASER_END -->
+<p><br></p>
+<h4> Statistical Models and Inference </h4>
+<p></p>
+<h5> A Couple of Big Ideas 
+</h5>
+<p>To start from the beginning, there are two big ideas that underlie much of
+classical statistics.
+The first big idea is that <em>all data</em> (or observations as statisticians like to
+say) have a "true" probability distribution <a class="footnote-reference" href="#id11" id="id1">[1]</a>.  Of course, it is almost never
+possible to precisely define it because the real world rarely fits so nicely
+into the distributions we learn in stats class.  However,
+the implications of this idea is that the "true" distribution and its
+parameters are fixed (i.e.  <em>not</em> random) albeit unknown.  The randomness
+comes in when you sample from this "true" distribution from which each datum
+is randomly drawn.</p>
+<p>The second big idea is that <strong>statistical inference</strong> <a class="footnote-reference" href="#id12" id="id2">[2]</a> (or as computer
+scientists call it "learning" <a class="footnote-reference" href="#id13" id="id3">[3]</a>) basically boils down to estimating this
+distribution directly by computing the distribution or density function <a class="footnote-reference" href="#id14" id="id4">[4]</a>,
+or indirectly by estimating derived metrics such as the mean or median of the
+distribution.  A typical question we might ask is:</p>
+<blockquote>
+Give a sample <span class="math">\(X_1, X_2, \ldots, X_n\)</span> drawn from some (unknown) distribution
+<span class="math">\(F\)</span>, how do we estimate <span class="math">\(F\)</span> (or some properties of <span class="math">\(F\)</span>)?</blockquote>
+<p>Of course there are variations to this question depending on the precise
+problem such as regression but by and large it comes down to finding things
+about <span class="math">\(F\)</span> (or its derived properties).</p>
+<p></p>
+<h5> Models, models, models 
+</h5>
+<p>Now that we have those two big ideas out of the way, let's define a
+(statistical) model:</p>
+<blockquote>
+A <strong>statistical model</strong> <span class="math">\(\mathfrak{F}\)</span> is a set of distributions (or
+densities or regression functions).</blockquote>
+<p>The idea here is that we want to define a subset of all possible distributions
+(or densities or regression functions) that closely approximates the "true"
+distribution (whether or not <span class="math">\(\mathfrak{F}\)</span> actually contains <span class="math">\(F\)</span>
+<a class="footnote-reference" href="#id15" id="id5">[5]</a>).  One of the first tasks in inferential procedures is selecting the
+correct model.  The model is an <em>assumption</em> about your data, picking the wrong
+one will lead to invalid conclusions.</p>
+<p>By far, the most common type of model is a <strong>parametric model</strong>, which defines
+<span class="math">\(\mathfrak{F}\)</span> using a finite number of parameters.  For example, if we
+assume that the data comes from a Normal distribution, we would use the
+parametric model for a Normal distribution:</p>
+<div class="math">
+\begin{equation*}
+\mathfrak{F} = \big\{ f(x; \mu, \sigma) = \frac{1}{\sigma \sqrt{2\pi}}
+e^{-\frac{(x-\mu)^2}{2\sigma^2}}, \mu \in \mathbb{R}, \sigma &gt; 0 \big\}
+\tag{1}
+\end{equation*}
+</div>
+<p>Here we use the notation <span class="math">\(f(x; \mu, \sigma)\)</span> to denote a density function
+of <span class="math">\(x\)</span> parameterized by <span class="math">\(\mu\)</span> and <span class="math">\(\sigma\)</span>.  Similarly, when
+we have data of the form <span class="math">\((X_i, Y_i)\)</span> and we want to learn regression
+function <span class="math">\(r(x) = E(Y|X)\)</span>, we could define a model for
+<span class="math">\(\mathfrak{F}\)</span> to be all functions of <span class="math">\(x\)</span>, <span class="math">\(r(x)\)</span>, that are
+straight lines.  This gives us a linear regression model.</p>
+<p>The other type of model is a <strong>non-parametric model</strong>.  Here the number of
+parameters is not finite or fixed by the model, instead the model is defined by
+the input data.  In essence, the parameters are determined by the training data
+(not the model).  For example, a histogram can be thought of as a simple
+non-parametric model that estimates a probability distribution because the data
+determines the shape of the histogram.
+Another example would be a k-nearest neighbour algorithm that can classify a new
+observation solely based on its k-nearest neighbours from training data.  The
+surface defined by the classification function is not pre-defined rather it is
+determined solely by the training data (and hyper parameter <span class="math">\(k\)</span>).  You can
+contrast this with a logistic regression as a classifier, which has a
+(relatively) more rigid structure regardless of how well the data matches.</p>
+<p>Although, it sounds appealing to let the "data define the model",
+non-parametric models typically requires a much larger sample size to draw a
+similar conclusion compared to parametric methods.  This makes sense
+intuitively since parametric methods have the advantage of having the extra
+model assumptions, so making conclusions should be easier all else being equal.
+Of course, you must be careful picking the <em>right</em> parametric model or else
+it will lead you to incorrect conclusions.</p>
+<p></p>
+<h5> Types of Statistical Inference 
+</h5>
+<p>For the most part, statistical inference problems can be broken into three
+different types of problems <a class="footnote-reference" href="#id16" id="id6">[6]</a>: point estimation, confidence
+intervals, and hypothesis testing.  I'll briefly describe the former two
+and focus on the latter in the next section.</p>
+<p>Point estimates aim to find the single "best guess" for a particular quantity
+of interest.  The quantity could be the parameter of a model, a CDF/PDF, or a
+regression/prediction function.  Formally:</p>
+<blockquote>
+<p>For <span class="math">\(n\)</span> independent and identically distributed (IID)
+observations, <span class="math">\(X_1, \ldots, X_n\)</span>, from some distribution <span class="math">\(F\)</span> with
+parameter(s) <span class="math">\(\theta\)</span>, a <strong>point estimator</strong> <span class="math">\(\widehat{\theta}_n\)</span>
+of parameter <span class="math">\(\theta\)</span> is some function of <span class="math">\(X_1, \ldots, X_n\)</span>:</p>
+<div class="math">
+\begin{equation*}
+\widehat{\theta}_n = g(X_1, \ldots, X_n). \tag{2}
+\end{equation*}
+</div>
+</blockquote>
+<p>For example, if our desired quantity is the expected value of the "true"
+distribution <span class="math">\(F\)</span>, we might use the sample mean of our data as our "best
+guess" (or estimate).  Similarly, for a regression problem with a linear model, we are
+finding a "point" estimate for the regression function <span class="math">\(r\)</span>, which are
+just the coefficients for the covariates (or features) that minimize the
+mean squared error.  From what I've seen, many "machine learning" techniques
+fall in this category where you typically will aim to find a maximum likelihood
+estimate or related measure that is your "best guess" (or estimate) based on
+the data.</p>
+<p>The next category of inference problems are confidence intervals (or sets).
+The basic idea here is that instead of finding a single "best guess" for a
+parameter, we try to find an interval that "traps" the actual value of the
+parameter (remember the observations have a "true" distribution) with a
+particular frequency.  Let's take a look at the formal definition first and then try to
+interpret it:</p>
+<blockquote>
+<p>A <span class="math">\(1-\alpha\)</span> <strong>confidence interval</strong> for parameter
+<span class="math">\(\theta\)</span> is an interval <span class="math">\(C_n(a,b)\)</span> where <span class="math">\(a=a(X_1, \ldots, X_N)\)</span>
+and <span class="math">\(b=b(X_1, \ldots, X_N)\)</span> are functions such that</p>
+<div class="math">
+\begin{equation*}
+P(\theta \in C_n) \geq 1 - \alpha. \tag{3}
+\end{equation*}
+</div>
+</blockquote>
+<p>This basically says that our interval <span class="math">\((a,b)\)</span> "traps" the true value of
+<span class="math">\(\theta\)</span> with probability <span class="math">\(1 - \alpha\)</span> .  Now the confusing part is
+that this does not say anything directly about the probability of
+<span class="math">\(\theta\)</span> occurring because <span class="math">\(\theta\)</span> is fixed (from the "true"
+distribution) and instead it is <span class="math">\(C_n\)</span> that is the random variable <a class="footnote-reference" href="#id17" id="id7">[7]</a>.
+So this is more a statement about how "right" we were in picking <span class="math">\(C_n\)</span>.</p>
+<p>Another way to think about it is this: suppose we set <span class="math">\(\alpha = 0.05\)</span> (a
+95% confidence interval), for every confidence interval, for every statistical
+inference problem we ever compute from now until eternity.
+These problems will, of course, cover a wide range of statistical problems with many
+different "true" distributions and sample observations.
+Since we set a 95% confidence interval for all our problems,
+we would expect that the respective "true" <span class="math">\(\theta\)</span> in each case
+to be "trapped" in our confidence interval 95% of the time.  That is, our confidence
+interval will be "correct" 95% of the time in that the "true" value of <span class="math">\(\theta\)</span>
+is contained within it -- a kind of long-run frequency guarantee.
+Note this is different from saying that on any one experiment we "trapped"
+<span class="math">\(\theta\)</span> with a 95% probability.  After we have a realized confidence
+interval (i.e. fixed values for our confidence interval based on observed values), the
+"true" parameter <span class="math">\(\theta\)</span> either lies in it or it doesn't.</p>
+<p>In some ways confidence intervals give us more context then a single point
+estimate.  For example, if we're looking at the response of a marketing campaign
+versus a control group, the difference in response or  <em>incremental lift</em> is a
+key performance indicator.  We could just compute the difference in the sample
+mean of the two populations to get a point estimate for the lift, which might
+show a positive result say 1%.  However, if we computed a 95% confidence
+interval we might get <span class="math">\((-0.015, 0.0155)\)</span> which overlaps with 0, implying
+that our 1% lift may not be statistically significant.</p>
+<p>Conceptually, point estimates and confidence intervals are not <em>that</em> hard to
+understand.  The complexity comes in when you have to actually pick an
+estimator that has nice properties (like minimizing bias and variance) in the
+case of Equation 2, or picking an interval such that Equation 3 is satisfied.
+Thankfully, many smart mathematicians and statisticians have figured out
+estimators and confidence intervals for many common situations so we rarely
+need to derive things from scratch.  Instead, we can pick the most appropriate
+technique for the problem at hand.</p>
+<p><br></p>
+<h4> Hypothesis Testing </h4>
+<p></p>
+<h5> A Digression 
+</h5>
+<p>I'm a huge fan of hypothesis testing as a general concept (not necessarily
+statistical) because it's such a powerful framework for learning.  One of the
+biggest advantages is it sets you up to "disprove your best-loved ideas" as
+Charlie Munger puts it, not to mention the hundreds of years
+its been used as part of the <a class="reference external" href="https://en.wikipedia.org/wiki/Scientific_method">scientific method</a>.
+There is a huge advantage to having a mental framework that allows you to
+disprove your hardest won ideas, a proverbial <a class="reference external" href="http://c2.com/cgi/wiki?EmptyYourCup">"empty your cup"</a> type situation where
+you can begin to learn after you have let go of your some of your past
+(hopefully, incorrect) beliefs.  I mean that's what science is all about right?</p>
+<p></p>
+<h5> Statistical Hypothesis Testing 
+</h5>
+<p>Statistical hypothesis testing is probably one of the earliest concepts
+learn in a statistics course.  Null hypotheses, Student's t-test, p-values
+these terms get thrown around a lot without explaining their underlying probabilistic
+basis <a class="footnote-reference" href="#id19" id="id8">[9]</a>.  When I first learned statistics it was definitely more biased towards
+a mechanical view of hypothesis testing, rather than an intuitive understanding.
+Here's my attempt to explain it a bit more precisely while hopefully adding some
+colour to give some intuition.</p>
+<p>Following the scientific method, we make a hypothesis, run an experiment and
+see if our observations match the prediction from our hypothesis.  However
+in certain cases, the cause and effect is not so clear like it is with laws of
+nature.  For example, when you conduct a <a class="reference external" href="https://en.wikipedia.org/wiki/Double-slit_experiment">double-slit experiment</a>
+to determine the dual nature of light, the result of the experiment is clear.
+But when you're determining if a new drug helps cure a disease, you usually
+randomly divide a population into a treatment group which gets the drug, and a
+control group which receives a placebo.  If we look at the various scenarios
+of what can happen, we can see why it's not so clear cut:</p>
+<ol class="arabic">
+<li>
+<p class="first">If at least one person in the treatment group doesn't get better, does it
+mean the drug isn't effective?</p>
+<p>Not necessarily, the drug could still be
+quite effective but for some other <em>random</em> reason, the person could have
+not responded to the drug by pure chance.</p>
+</li>
+<li>
+<p class="first">If more people in the treatment group get better than the control, does it
+mean the drug is effective?</p>
+<p>Not necessarily, what if only the treatment group has only 1 person who got
+better versus control. In this case, probably not, it could be due to
+another random factor.  How about 10? 1000?  Now it starts to get unclear.</p>
+</li>
+</ol>
+<p>You can start to see why we need to apply some mathematics to these
+situations in order to see if the effect is significant.  In particular, we
+apply statistical hypothesis testing when we want to determine if an observed
+effect is really there or just happening by purely chance (i.e. other random
+factors).</p>
+<p>The high level setup for this procedure is to first come up with a null
+hypothesis (denoted by <span class="math">\(H_0\)</span>), that usually denotes the "no effect"
+scenario, or our default position.  We then try to see how likely the data
+is generated in this situation.  If it's unlikely then we say we <em>reject</em> the
+null hypothesis and accept the alternate hypothesis, which just means something
+other than the null hypothesis must true.  Otherwise, we have no evidence to
+reject the null hypothesis and we continue to believe it to be true (since it's
+our default position).</p>
+<p>A good analogy is that of a legal trial, the defendant is innocent until proven
+guilty.  Likewise, we assume the null hypothesis is true from the start, and only
+when we reject it do we say it is false.  This is not unlike how science works
+where we have established models that are assumed to be true until later proven
+otherwise.  Now that we have a conceptual understanding of this process, let's look
+at some details.</p>
+<p></p>
+<h5> Rejection Regions and Types of Errors 
+</h5>
+<p>A critical point when conducting statistical hypothesis testing is
+determining your null hypothesis.  The first step of this process is picking an <em>appropriate</em>
+statistical model <span class="math">\(\mathfrak{F}\)</span>.  If your model is ill-formed for your
+problem, the results of hypothesis testing will be invalid.  Next, we partition
+the parameter space of <span class="math">\(\mathfrak{F}\)</span> into two disjoint sets <span class="math">\(\Theta_0\)</span>
+and <span class="math">\(\Theta_1\)</span>, and define our hypotheses as:</p>
+<div class="math">
+\begin{align*}
+H_0 : \theta \in \Theta_0 \\
+H_1 : \theta \in \Theta_1 \tag{4}
+\end{align*}
+</div>
+<p>where <span class="math">\(H_0\)</span> is our <strong>null hypothesis</strong> and <span class="math">\(H_1\)</span> is our
+<strong>alternative hypothesis</strong>.  So we must first pick a good statistical model
+then define an appropriate null hypothesis.  For example, we might pick a
+normal distribution as our statistical model and our null hypothesis is that
+the mean of the distribution is less than or equal to zero (<span class="math">\(\mu \leq 0\)</span>) .</p>
+<p>Now let's suppose our data are represented by the random variable <span class="math">\(X\)</span>
+with range <span class="math">\(\chi\)</span> (all possible values of <span class="math">\(X\)</span>).  Our goal is to
+define a <strong>rejection region</strong> on <span class="math">\(\chi\)</span> such that:</p>
+<div class="math">
+\begin{align*}
+X \in R    &amp;\implies \text{ reject } H_0 \\
+X \notin R &amp;\implies \text{ retain (don't reject) } H_0 \tag{5}
+\end{align*}
+</div>
+<p>We want to define <span class="math">\(R\)</span> such that when <span class="math">\(H_0\)</span> is true, we have a high
+probability of retaining <span class="math">\(H_0\)</span> and when <span class="math">\(H_0\)</span> is false, we have a
+high chance probability of rejecting it.  Of course, our definition of
+<span class="math">\(R\)</span> should be heavily influenced by some estimate of <span class="math">\(\theta\)</span> based
+on our data <span class="math">\(X\)</span>.  If we picked a good <span class="math">\(R\)</span>, when we actually observe
+our data then it should be quite simple to check if <span class="math">\(X \in R\)</span> and be
+correct quite often.</p>
+<p>Another way to view this is in terms of the errors we could make.
+If we reject <span class="math">\(H_0\)</span> when it's actually true, we've committed a <strong>Type
+I Error</strong> or false positive (whose probability is denoted by <span class="math">\(\alpha\)</span>).  If we retain
+<span class="math">\(H_0\)</span> when it's actually false, we've committed a <strong>Type II Error</strong> or false
+negative (whose probability is denoted by <span class="math">\(\beta\)</span>).  Here's a summary:</p>
+<p></p>
+<center>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%">
+<col width="39%">
+<col width="39%">
+</colgroup>
+<thead valign="bottom"><tr>
+<th class="head">Cases</th>
+<th class="head">Retain Null</th>
+<th class="head">Reject Null</th>
+</tr></thead>
+<tbody valign="top">
+<tr>
+<td>
+<span class="math">\(H_0\)</span> true</td>
+<td>Correct</td>
+<td>Type I Error (<span class="math">\(\alpha\)</span>)</td>
+</tr>
+<tr>
+<td>
+<span class="math">\(H_0\)</span> false</td>
+<td>Type II Error (<span class="math">\(\beta\)</span>)</td>
+<td>Correct</td>
+</tr>
+</tbody>
+</table>
+<p></p>
+</center>
+<p>So it makes sense that we want choose <span class="math">\(R\)</span> to maximize the "Correct"
+diagonals or alternatively minimize "Error" diagonals in the above table.  To
+throw another wrench in the mix, we usually refer to the bottom right cell
+as the <strong>power</strong>, which is the probability of correctly rejecting the null
+hypothesis when it is false (i.e. the alternative hypothesis is true).
+The tricky part is that trying to minimize both <span class="math">\(\alpha\)</span> and
+<span class="math">\(\beta\)</span> results in conflicting goals <a class="footnote-reference" href="#id20" id="id9">[10]</a>, which makes picking a good
+rejection region <span class="math">\(R\)</span> highly non-trivial.</p>
+<p></p>
+<h5> Test Statistics 
+</h5>
+<p>Practically, we rarely explicitly pick a rejection region in terms of the
+range of the data (<span class="math">\(\chi\)</span>).  It's usually much more convenient to pick a
+rejection region in terms of a function of <span class="math">\(X\)</span> that produces a single number summarizing
+the data called a <strong>test statistic</strong> (which we denote as <span class="math">\(T\)</span>).  This test
+statistic usually relates in some way to the estimate of the "true" parameter
+<span class="math">\(\theta\)</span> and is usually more convenient to use than a direct estimation.
+Thus, our expression for rejection region usually ends up looking something
+like this:</p>
+<div class="math">
+\begin{equation*}
+R = \big\{ x : T(x) &gt; c \big\} \tag{6}
+\end{equation*}
+</div>
+<p>The value <span class="math">\(c\)</span> is called the <strong>critical value</strong> which determines
+whether or not we retain or reject our null hypothesis.
+So now the problem of hypothesis testing comes down to picking an appropriate
+test statistic <span class="math">\(T\)</span> and an appropriate value <span class="math">\(c\)</span> to minimize
+our error rates (<span class="math">\(\alpha\)</span> and <span class="math">\(\beta\)</span>).</p>
+<p>As mentioned above, minimizing <span class="math">\(\alpha\)</span> and <span class="math">\(\beta\)</span> are usually in
+conflict, so what happens is we fix the level for <span class="math">\(\alpha\)</span> (usually values like
+<span class="math">\(0.05\)</span> or <span class="math">\(0.01\)</span>), and find an appropriate <span class="math">\(T\)</span> and <span class="math">\(c\)</span>
+so that <span class="math">\(\beta\)</span> is minimized (alternatively power is maximized).
+Computing (and proving) that a test statistic has the highest power for a given
+an <span class="math">\(alpha\)</span> is quite complex so I won't mention much more of it here.
+Most of the time though you won't have to actually come up with <span class="math">\(T\)</span> yourself
+since many common situations have already been worked out.  The usual
+procedure usually ends up being something along the lines of:</p>
+<ol class="arabic simple" start="0">
+<li>Define your null hypothesis (and the appropriate statistical model of your data).</li>
+<li>Pick an appropriate <span class="math">\(\alpha\)</span>, e.g. <span class="math">\(0.05\)</span>.</li>
+<li>Look up and compute the appropriate test statistic for your hypothesis/model e.g. <a class="reference external" href="https://en.wikipedia.org/wiki/Z-test">Z statistic</a>.</li>
+<li>Look up (or compute) the critical value <span class="math">\(c\)</span> based on <span class="math">\(\alpha\)</span> e.g. <span class="math">\(Z &gt; 1.96\)</span>.</li>
+<li>Retain/reject the null hypothesis based on the computed test statistic and critical value.</li>
+</ol>
+<p></p>
+<h5> p-values and such 
+</h5>
+<p>Of course, just giving a retain/reject null hypothesis type answer isn't
+very informative.  Instead, we might want to give the smallest <span class="math">\(\alpha\)</span>
+that rejects the null hypothesis which is called a <strong>p-value</strong>:</p>
+<div class="math">
+\begin{equation*}
+\text{p-value} = min\big\{ \alpha : T(X) \in R_{\alpha} \big\} \tag{7}
+\end{equation*}
+</div>
+<p>A p-value is basically a measure of evidence against <span class="math">\(H_0\)</span>.
+The smaller the p-value, the more evidence we have that <span class="math">\(H_0\)</span> is false.
+Researchers usually use this scale for p-values:</p>
+<p></p>
+<center>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%">
+<col width="71%">
+</colgroup>
+<thead valign="bottom"><tr>
+<th class="head">p-value</th>
+<th class="head">Evidence</th>
+</tr></thead>
+<tbody valign="top">
+<tr>
+<td><span class="math">\(&lt;0.01\)</span></td>
+<td>very strong evidence against <span class="math">\(H_0\)</span>
+</td>
+</tr>
+<tr>
+<td><span class="math">\(0.01-0.05\)</span></td>
+<td>strong evidence against <span class="math">\(H_0\)</span>
+</td>
+</tr>
+<tr>
+<td><span class="math">\(0.05-0.10\)</span></td>
+<td>weak evidence against <span class="math">\(H_0\)</span>
+</td>
+</tr>
+<tr>
+<td><span class="math">\(&gt;0.10\)</span></td>
+<td>little or no evidence against <span class="math">\(H_0\)</span>
+</td>
+</tr>
+</tbody>
+</table>
+<p></p>
+</center>
+<p>Two important misconceptions about p-values:</p>
+<ul class="simple">
+<li>Nowhere in the above table do we say we have evidence for <span class="math">\(H_0\)</span>.
+<em>A p-value says nothing about evidence in favour of</em> <span class="math">\(H_0\)</span>.  A large
+p-value could mean that <span class="math">\(H_0\)</span> is true, or our test didn't have enough
+power.</li>
+<li>A p-value is not the probability that the null hypothesis is true (e.g. <span class="math">\(\text{p-value} \neq P(H_0 | Data)\)</span>).</li>
+</ul>
+<p>A common way of stating what a p-value is (taken from <em>All of Statistics</em>):</p>
+<blockquote>
+The p-value is the probability (under <span class="math">\(H_0\)</span>) of observing a value of
+the test statistic the same as or more extreme than what was actually
+observed.</blockquote>
+<p>Admittedly, this does not exactly line up with how we have looked at
+<span class="math">\(\alpha\)</span> in terms of rejection regions, however, rest assured the
+definitions do match up if you went through the derivations of the test
+statistic and critical values.  Personally, I don't find the above definition
+all that helpful because most people will conflate it with <span class="math">\(P(H_0|data)\)</span>
+just because both mention the word "probability".</p>
+<p>The way I like to think of it is simply a measure of evidence against <span class="math">\(H_0\)</span>
+(but <strong>not</strong> for <span class="math">\(H_0\)</span>) according to the table above with no mention of probability.
+In this way, we can remember the point of hypothesis testing is primarily a
+procedure to help us prove our default or null hypothesis false.  Thinking this
+way helps to remember that the null hypothesis is our default stance and the
+test's aim is prove it false <a class="footnote-reference" href="#id21" id="id10">[11]</a>.</p>
+<p><br></p>
+<h4> Conclusion </h4>
+<p>While writing this post, I had to dig through the probabilistic foundations for
+these techniques and it can get really deep!  I just scratched the surface,
+enough to satisfy my intellectual curiosity and intuition (for now).
+Hopefully, this post (and some of the references below) will help you along the
+way too.</p>
+<p><br></p>
+<h4> References and Further Reading </h4>
+<ul class="simple">
+<li>
+<a class="reference external" href="http://link.springer.com/book/10.1007%2F978-0-387-21736-9">All of Statistics: A Concise Course in Statistical Inference</a> by Larry Wasserman. (available free online)</li>
+<li>
+<a class="reference external" href="http://www.stat.columbia.edu/~liam/teaching/4107-fall05/notes4.pdf">Hypothesis Testing</a>, Paninski, Intro. Math. Stats., December 6, 2005.</li>
+<li>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Statistical_model">Statistical Model</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Statistical_inference">Statistical Inference</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Nonparametric_statistics">Non parametric Statistics</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Statistical_hypothesis_testing">Statistical Hypothesis Testing</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Statistical_power">Statistical Power</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Sufficient_statistic">Sufficient Statistic</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Null_hypothesis">Null Hypothesis</a>.</li>
+</ul>
+<p><br></p>
+<table class="docutils footnote" frame="void" id="id11" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
+<td>Taking note that no model can truly represent reality leading to the aphorism: <a class="reference external" href="https://en.wikipedia.org/wiki/All_models_are_wrong">All models are wrong</a>.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id12" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="#id2">[2]</a></td>
+<td>
+<a class="reference external" href="https://en.wikipedia.org/wiki/Statistical_inference">Inferential statistics</a> is in contrast to <a class="reference external" href="https://en.wikipedia.org/wiki/Descriptive_statistics">descriptive statistics</a>, which only tries to describe the sample or observations -- not estimate a probability distribution.  Examples of this are measures of central tendency (like mean or median), or measures of variability (such as standard deviation or min/max values).  Note that although the mean of a sample is a descriptive statistic, it is also an estimate for the expected value of a given distribution, thus used in statistical inference.  Similarly for the other descriptive statistics.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id13" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="#id3">[3]</a></td>
+<td>There is a great chart in <em>All of Statistics</em> that shows the difference between statistics and computer science/data mining terminology on page xi of the preface.  It's very illuminating to contrast the two especially since terms like estimation, learning, covariates, hypothesis are thrown around very casually in their respective literature.  I come more from a computer science/data mining and learned most of my stats afterwards so it's great to see all these terms with their definitions in one place.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id14" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="#id4">[4]</a></td>
+<td>Might be obvious but let's state it explicitly: <em>distribution</em> refers to the cumulative distribution function (CDF), and <em>density</em> refers to the probability density function (PDF).</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id15" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="#id5">[5]</a></td>
+<td>In fact, most of the time <span class="math">\(\mathfrak{F}\)</span> will not contain <span class="math">\(F\)</span> since as we mentioned above, the "true" distribution is probably much more complex than any model we could come up with.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id16" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="#id6">[6]</a></td>
+<td>This categorization is given in <em>All of Statistics</em>, Section 6.3: Fundamental Concepts in Inference.  I've found it quite a good way to think about statistics from a high level.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id17" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="#id7">[7]</a></td>
+<td>An important note outlined in <em>All of Statistics</em> about <span class="math">\(\theta\)</span>, point estimators and confidence intervals is that <span class="math">\(\theta\)</span> is fixed.  Recall, that our data is drawn from a "true" distribution that has (theoretically) <em>exact</em> parameters.  So there is a single fixed, albeit unknown, value of <span class="math">\(\theta\)</span>.  The randomness comes in through our observations.  Each observation, <span class="math">\(X_i\)</span>, is drawn (randomly) from the "true" distribution so by definition a random variable.  This means our point estimators <span class="math">\(\widehat{\theta}_n\)</span> and confidence intervals <span class="math">\(C_n\)</span> are also random variables since they are functions of random variables. <br><br> This can all be a little confusing, so here's another way to think about it:  Say we have a "true" distribution, and we're going to draw <span class="math">\(n\)</span> samples from it.  Ahead of time, we don't know what the values of those observations are going to be but we know they will follow the "true" distribution.  Thus, the <span class="math">\(n\)</span> samples are <span class="math">\(n\)</span> random variables, each distributed according to the "true" distribution.  We can then take those <span class="math">\(n\)</span> variables and combine them into a function (e.g. a point estimator like a mean) to get a estimator.  This estimator, before we know the actual values of the <span class="math">\(n\)</span> variables, will also be a random variable.  However, what usually happens is that the values of the <span class="math">\(n\)</span> samples are actually observed, so we plugs these realizations into our point <em>estimator</em> (i.e. the function of the <span class="math">\(n\)</span> observations) to get a point <em>estimate</em> -- a deterministic value.  One reason we make this distinction is so that we can compute properties of our point estimator like bias and variance.  So long story short, the point estimator is a random variable where after having realized values of the observations, we can use it to get a single fixed number called a point estimate.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id18" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label">[8]</td>
+<td>Interestingly, it's very difficult to prove something to be true, whereas much easier to prove it false.  The reason is that many useful statements we want to prove are universally quantified (think of statements that use the word "all").  An example made famous by Nassim Nicholas Taleb is the "black swan" problem.  It's almost impossible to prove the statement "all swans are white" because you'd literally have to check the colour every single swan.  However, it's quite easy to prove it false by finding a single counter-example: a single black swan.  That's why the scientific method and hypothesis testing is such a good framework.  Knowing that it's difficult to prove things universally true, it sets itself up to weed out poor models of reality by allowing a systematic way of finding counter-examples (at least that's one way of looking at it).</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id19" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="#id8">[9]</a></td>
+<td>It's probably fair that when learning elementary hypothesis testing that you don't learn about the probabilistic interpretation.  For most students, they will never have to use hypothesis testing beyond rote application of standard tests.  However from an understanding perspective, I find this rather unappealing.  I at least like to have an intuition about how a method works rather than just a mechanical process thus this blog post.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id20" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="#id9">[10]</a></td>
+<td>Think about a procedure that always rejects the null hypothesis i.e. a rejection consisting of the entire space.  In this case, our <span class="math">\(\alpha = 1\)</span> but <span class="math">\(\beta=0\)</span> because we are always correctly rejecting the null hypothesis when it is false.  Similarly if <span class="math">\(\beta = 1\)</span>.  Of course, this choice of rejection region is absolutely useless so we want to pick something a bit smarter.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id21" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="#id10">[11]</a></td>
+<td>An important point about hypothesis testing is that it's proving our null hypothesis is false.  For example, our null hypothesis might be that the drug had no effect.  If we correctly reject it, our test or p-value says nothing about the absolute effectiveness of the drug; all it says it that it has some effect.  It could have minimal or negligible effect but still technically have "statistical significance".  We should remember to use the right tool for the right job and not be prone to "man with a hammer"-syndrome.  In our example here, we should be examining the effect size (the difference in the population means), perhaps with confidence intervals along with using our knowledge of the situation to determine if the results we're seeing are useful and practically significant.</td>
+</tr></tbody>
+</table>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/frequentist-statistics/" rel="tag">frequentist statistics</a></li>
+            <li><a class="tag p-category" href="../../categories/hypothesis-testing/" rel="tag">hypothesis testing</a></li>
+            <li><a class="tag p-category" href="../../categories/models/" rel="tag">models</a></li>
+            <li><a class="tag p-category" href="../../categories/p-values/" rel="tag">p-values</a></li>
+            <li><a class="tag p-category" href="../../categories/statistical-inference/" rel="tag">statistical inference</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/" rel="prev" title="Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm">Previous post</a>
+            </li>
+        </ul></nav></aside><script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+            MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
+            </script></article>
+</div>
+            <div class="col-md-3 well">
+            <p>
+            I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
+            a former academic, current data scientist, engineer, and
+            programmer.  This is
+            <a href="../../">the place</a>
+            where I write
+            about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br><p>
+            <a href="../../archive.html">Archive</a>
+            </p>
+            <p>
+            <a href="../../categories/index.html">Tags</a>
+            </p>
+            <p>
+            <a href="../../rss.xml">RSS feed</a>
+            </p>
+
+<!-- Begin MailChimp Signup Form -->
+<hr>
+<link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+    #mc_embed_signup{clear:left; font:13px Helvetica,Arial,sans-serif; }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+       We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="//briankeng.us10.list-manage.com/subscribe/post?u=cedf72ca8daa891e57f4379a0&amp;id=1f1563094f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <b>Signup for Email Blog Posts</b>
+    <div id="mc_embed_signup_scroll">
+<div>
+    <label for="mce-EMAIL"> Email Address </label>
+    <input type="email" value="" name="EMAIL" class="required email form-control input-sm" id="mce-EMAIL">
+</div>
+    <div id="mce-responses" class="clear">
+        <div class="response" id="mce-error-response" style="display:none"></div>
+        <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_cedf72ca8daa891e57f4379a0_1f1563094f" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn btn-default btn-xs"></div>
+    </div>
+</form>
+</div>
+<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
+</div>
+        </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2016         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+        </footer>
+</div>
+</div>
+
+
+            <script src="../../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-15314898-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>

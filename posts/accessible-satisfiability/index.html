@@ -109,7 +109,7 @@ topics.</em></p>
 "basic" concepts that will help us put the satisfiability problem in context.
 I'm going to skip a lot of the formal math that typically comes from the branch
 of compute science called the <a class="reference external" href="https://en.wikipedia.org/wiki/Theory_of_computation">theory of computation</a>.  Instead, I'm going to
-try to explain it in a simpler way -- or at least in the way that I understand it <a class="footnote-reference" href=".#id13" id="id1">[1]</a>.</p>
+try to explain it in a simpler way -- or at least in the way that I understand it <a class="footnote-reference" href="#id13" id="id1">[1]</a>.</p>
 <p>One of the fundamental problems in computing is a <a class="reference external" href="https://en.wikipedia.org/wiki/Decision_problem">decision problem</a>: something that has a yes/no
 answer.  We can think of solving a decision problem as taking a realization
 of that problem, also known as an <em>instance</em>, as input and writing
@@ -118,7 +118,7 @@ an algorithm that spit out the yes/no output (image from Wikipedia):</p>
 problems</a> and <a class="reference external" href="https://en.wikipedia.org/wiki/Optimization_problem">optimization
 problems</a> but you
 probably have some intuition that decision problems are something
-fundamental that we should be studying <a class="footnote-reference" href=".#id14" id="id2">[2]</a>.</p>
+fundamental that we should be studying <a class="footnote-reference" href="#id14" id="id2">[2]</a>.</p>
 <p></p>
 <h5> How fast can you go? </h5>
 <p>Now that we have a rough idea of what decision problems are, we can talk about the
@@ -140,7 +140,7 @@ For example, let's define a decision problem <cite>FINDX</cite>:</p>
 <cite>FINDX</cite>: Does an array of <span class="math">\(n\)</span> integers <span class="math">\(A = [a_1, a_2, \ldots, a_n]\)</span> contain integer <span class="math">\(x\)</span>?</blockquote>
 <p><cite>FINDX</cite> is in the class of decision problems <strong>P</strong> because it's simple to write
 an algorithm that gives a yes/no answer in linear time in the size of the array
-<span class="math">\(A\)</span> <a class="footnote-reference" href=".#id15" id="id3">[3]</a>.  A more succinct way of saying this is that <cite>FINDX</cite> is in <strong>P</strong>.</p>
+<span class="math">\(A\)</span> <a class="footnote-reference" href="#id15" id="id3">[3]</a>.  A more succinct way of saying this is that <cite>FINDX</cite> is in <strong>P</strong>.</p>
 <p></p>
 <h5> NP What? </h5>
 <p>So up to this point, I think most programmers will have a reasonable
@@ -151,7 +151,7 @@ well, strange.</p>
 quite natural to do so and, in fact, we've defined a set of problems based on
 how fast we can solve them, the class of problems called <strong>P</strong>.  However,
 <strong>NP</strong> problems are defined differently.  It's not about how fast we can solve a
-problem, but how fast we can <em>verify</em> a potential answer to the problem <a class="footnote-reference" href=".#id16" id="id4">[4]</a>.
+problem, but how fast we can <em>verify</em> a potential answer to the problem <a class="footnote-reference" href="#id16" id="id4">[4]</a>.
 In particular, <strong>NP</strong> is about how fast we can verify a potential
 answer (and proof of that answer) is correct.  Say what?</p>
 <p>Let's look back at our example to make a bit more sense of this definition.  If
@@ -172,7 +172,7 @@ to verify a potential solution was correct!?  Why would we ever want to define
 problems in such strange, roundabout way?</p>
 <p>It turns out that many important, naturally arising problems can be classified
 as <strong>NP</strong>.  Here are some more examples (try to see if you figure out why these
-would be classified as <strong>NP</strong> problems <a class="footnote-reference" href=".#id17" id="id5">[5]</a> ):</p>
+would be classified as <strong>NP</strong> problems <a class="footnote-reference" href="#id17" id="id5">[5]</a> ):</p>
 <ul class="simple">
 <li>"Is an array of integers sorted?" (might want something like this for binary search)</li>
 <li>"Is there a path from vertex <span class="math">\(s\)</span> to vertex <span class="math">\(t\)</span> in graph <span class="math">\(G\)</span>?" (something that you might want to do in a program like Google Maps).</li>
@@ -181,7 +181,7 @@ would be classified as <strong>NP</strong> problems <a class="footnote-reference
 <p>The last one is of particular note because that is what we're going to be
 talking about in the next section.  Also note, that we saw that <cite>FINDX</cite> was
 in both <strong>P</strong> and <strong>NP</strong>.  The more general result is that all all decision
-problems in <strong>P</strong> are in <strong>NP</strong> (but most likely not the other way around) <a class="footnote-reference" href=".#id18" id="id6">[6]</a>.</p>
+problems in <strong>P</strong> are in <strong>NP</strong> (but most likely not the other way around) <a class="footnote-reference" href="#id18" id="id6">[6]</a>.</p>
 <p>There's one last concept that I should mention and that's the idea of
 <strong>NP</strong>-complete problems (<strong>NPC</strong> for short).  Without going into too much
 detail, a good way to think about it is as the "hardest problems" in <strong>NP</strong>.
@@ -238,7 +238,7 @@ instance might look like Eqn. 1 (recall <span class="math">\(\wedge\)</span> mea
 that SAT is in <strong>NP</strong>.  So given a Boolean formula (e.g. <span class="math">\(\phi\)</span>), and a
 potential solution (e.g. <span class="math">\(x_0=1, x_1=1\)</span>), can we verify that the
 potential solution is correct in polynomial time?  Yes, take a look at the
-footnote for a brief explanation <a class="footnote-reference" href=".#id19" id="id7">[7]</a>.</p>
+footnote for a brief explanation <a class="footnote-reference" href="#id19" id="id7">[7]</a>.</p>
 <p>Practically though, we rarely care if we can <em>verify</em> a potential solution
 in polynomial time; we usually just care about finding <em>a solution</em>
 i.e. the values of <span class="math">\(x_0\)</span> and <span class="math">\(x_1\)</span> that make <span class="math">\(\phi=1\)</span>.
@@ -247,7 +247,7 @@ So for Eqn. 1, we could just try <span class="math">\((x_0=0, x_1=0)\)</span>, <
 <span class="math">\(,(x_0=1, x_1=0)\)</span>, <span class="math">\((x_0=1, x_1=1),\)</span>
 and see if any yield <span class="math">\(\phi=1\)</span>.
 It's not too hard to see that there are <span class="math">\(2^n\)</span> possible values for
-<span class="math">\(n\)</span> Boolean variables <a class="footnote-reference" href=".#id20" id="id8">[8]</a>.  Leading us to an exponential algorithm in
+<span class="math">\(n\)</span> Boolean variables <a class="footnote-reference" href="#id20" id="id8">[8]</a>.  Leading us to an exponential algorithm in
 the worse case.</p>
 <p>In fact, we don't really know of a better algorithm that can find a solution to
 SAT in less than exponential time (in the worse case).  Most modern SAT
@@ -255,9 +255,9 @@ algorithms use some smarter ways to explore the exponential space of variable
 values but invariably, they must try an exponential number assignments in the
 worse case.</p>
 <p>The interesting thing about this worse case scenario is that in many domains it
-doesn't really apply <a class="footnote-reference" href=".#id21" id="id9">[9]</a>.  SAT is widely used in many applications (some of which
+doesn't really apply <a class="footnote-reference" href="#id21" id="id9">[9]</a>.  SAT is widely used in many applications (some of which
 we'll describe below) despite this theoretical worse case scenario.  Through
-a combination of clever engineering <a class="footnote-reference" href=".#id22" id="id10">[10]</a> and application of theory, SAT
+a combination of clever engineering <a class="footnote-reference" href="#id22" id="id10">[10]</a> and application of theory, SAT
 solvers have become increasingly efficient at solving many practical problems
 across a variety of domains.  We should never forget the old adage:</p>
 <blockquote>
@@ -283,7 +283,7 @@ encode this in a SAT formula that might abstractly look like Eqn. 2:</p>
 <p>Here <span class="math">\(ADDER_8\)</span> is a 8-bit hardware <a class="reference external" href="https://en.wikipedia.org/wiki/Adder_%28electronics%29">adder</a>,
 that takes two 8-bit numbers <span class="math">\(A_2, B_2\)</span> and produces an 8-bit number <cite>C_2</cite>.
 So if we encode Eqn. 2 as a SAT instance and send it to a SAT solver, it will
-return "SAT" and give us back values for <span class="math">\(A_2, B_2, C_2\)</span> such that <span class="math">\(A + B = C\)</span> <a class="footnote-reference" href=".#id23" id="id11">[11]</a>!
+return "SAT" and give us back values for <span class="math">\(A_2, B_2, C_2\)</span> such that <span class="math">\(A + B = C\)</span> <a class="footnote-reference" href="#id23" id="id11">[11]</a>!
 Still not quite that useful since they'll be (from our point of view) random
 values for the input numbers.</p>
 <p>What we actually want is to start asking us more interesting questions,
@@ -311,7 +311,7 @@ Are there any (8-bit values) of <span class="math">\(A, B, C\)</span>, such that
 (<span class="math">\(C\)</span>) is less than one of its addends (<span class="math">\(A, B\)</span>)?</blockquote>
 <p>Do you think this instance should be SAT (i.e. at least one assignment of
 values for <span class="math">\(A, B, C\)</span> such that <span class="math">\(\phi=1\)</span>) or UNSAT (no such values
-exist)? See <a class="footnote-reference" href=".#id24" id="id12">[12]</a> for the answer.</p>
+exist)? See <a class="footnote-reference" href="#id24" id="id12">[12]</a> for the answer.</p>
 <p></p>
 <h5> From Bytes to Code </h5>
 <p>We saw above how we can use SAT to start asking some basic questions
@@ -323,12 +323,12 @@ at how we can encode some basic structures first.</p>
 to the one from the last subsection by translating some C code (except the
 variables might be signed 32-bit numbers instead of unsigned 8-bit numbers):</p>
 <table class="codetable"><tr>
-<td class="linenos"><div class="linenodiv"><pre><a href=".#rest_code_42076ae03a804fabb3ad4e8a3d0db170-1">1</a>
-<a href=".#rest_code_42076ae03a804fabb3ad4e8a3d0db170-2">2</a>
-<a href=".#rest_code_42076ae03a804fabb3ad4e8a3d0db170-3">3</a></pre></div></td>
-<td class="code"><pre class="code c"><a name="rest_code_42076ae03a804fabb3ad4e8a3d0db170-1"></a><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
-<a name="rest_code_42076ae03a804fabb3ad4e8a3d0db170-2"></a><span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
-<a name="rest_code_42076ae03a804fabb3ad4e8a3d0db170-3"></a><span class="n">assert</span><span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">z</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">);</span>
+<td class="linenos"><div class="linenodiv"><pre><a href="#rest_code_2fde658fdf5f4b338902a12ac53b40c2-1">1</a>
+<a href="#rest_code_2fde658fdf5f4b338902a12ac53b40c2-2">2</a>
+<a href="#rest_code_2fde658fdf5f4b338902a12ac53b40c2-3">3</a></pre></div></td>
+<td class="code"><pre class="code c"><a name="rest_code_2fde658fdf5f4b338902a12ac53b40c2-1"></a><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
+<a name="rest_code_2fde658fdf5f4b338902a12ac53b40c2-2"></a><span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<a name="rest_code_2fde658fdf5f4b338902a12ac53b40c2-3"></a><span class="n">assert</span><span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">z</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">);</span>
 </pre></td>
 </tr></table>
 <p>Notice that the <cite>assert</cite> is a property we want to guarantee <em>for all</em> possible
@@ -336,12 +336,12 @@ values of <cite>x, y, z</cite>, but our SAT instance can only tell us if there <
 possible way for that to happen.  So instead, we'll flip the question around
 and actually ask the SAT solver something like this:</p>
 <table class="codetable"><tr>
-<td class="linenos"><div class="linenodiv"><pre><a href=".#rest_code_87b26494b028485aa3b8cb63b248d609-1">1</a>
-<a href=".#rest_code_87b26494b028485aa3b8cb63b248d609-2">2</a>
-<a href=".#rest_code_87b26494b028485aa3b8cb63b248d609-3">3</a></pre></div></td>
-<td class="code"><pre class="code c"><a name="rest_code_87b26494b028485aa3b8cb63b248d609-1"></a><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
-<a name="rest_code_87b26494b028485aa3b8cb63b248d609-2"></a><span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">;</span>
-<a name="rest_code_87b26494b028485aa3b8cb63b248d609-3"></a><span class="n">assert_exists</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">z</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">));</span>
+<td class="linenos"><div class="linenodiv"><pre><a href="#rest_code_2131f492ff1a407682c195b527758ff8-1">1</a>
+<a href="#rest_code_2131f492ff1a407682c195b527758ff8-2">2</a>
+<a href="#rest_code_2131f492ff1a407682c195b527758ff8-3">3</a></pre></div></td>
+<td class="code"><pre class="code c"><a name="rest_code_2131f492ff1a407682c195b527758ff8-1"></a><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
+<a name="rest_code_2131f492ff1a407682c195b527758ff8-2"></a><span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">;</span>
+<a name="rest_code_2131f492ff1a407682c195b527758ff8-3"></a><span class="n">assert_exists</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">z</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">));</span>
 </pre></td>
 </tr></table>
 <p>Which is just negating what we had in our original <cite>assert</cite> statement making
@@ -359,20 +359,20 @@ I won't go into too much more detail but I do want to cover another concept
 that will help us deal with <cite>if</cite> statements.  Let's look at the following
 snippet:</p>
 <table class="codetable"><tr>
-<td class="linenos"><div class="linenodiv"><pre><a href=".#rest_code_8437ab3d5a6644a1b21b526dd48c27b7-1">1</a>
-<a href=".#rest_code_8437ab3d5a6644a1b21b526dd48c27b7-2">2</a>
-<a href=".#rest_code_8437ab3d5a6644a1b21b526dd48c27b7-3">3</a>
-<a href=".#rest_code_8437ab3d5a6644a1b21b526dd48c27b7-4">4</a>
-<a href=".#rest_code_8437ab3d5a6644a1b21b526dd48c27b7-5">5</a>
-<a href=".#rest_code_8437ab3d5a6644a1b21b526dd48c27b7-6">6</a>
-<a href=".#rest_code_8437ab3d5a6644a1b21b526dd48c27b7-7">7</a></pre></div></td>
-<td class="code"><pre class="code c"><a name="rest_code_8437ab3d5a6644a1b21b526dd48c27b7-1"></a><span class="kt">int</span> <span class="n">y</span><span class="p">;</span>
-<a name="rest_code_8437ab3d5a6644a1b21b526dd48c27b7-2"></a><span class="k">if</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-<a name="rest_code_8437ab3d5a6644a1b21b526dd48c27b7-3"></a>  <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-<a name="rest_code_8437ab3d5a6644a1b21b526dd48c27b7-4"></a><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-<a name="rest_code_8437ab3d5a6644a1b21b526dd48c27b7-5"></a>  <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">y</span><span class="p">;</span>
-<a name="rest_code_8437ab3d5a6644a1b21b526dd48c27b7-6"></a><span class="p">}</span>
-<a name="rest_code_8437ab3d5a6644a1b21b526dd48c27b7-7"></a><span class="n">assert</span><span class="p">(</span><span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">);</span>
+<td class="linenos"><div class="linenodiv"><pre><a href="#rest_code_3fc8c8b826ec44c09f862d5baed9d6c8-1">1</a>
+<a href="#rest_code_3fc8c8b826ec44c09f862d5baed9d6c8-2">2</a>
+<a href="#rest_code_3fc8c8b826ec44c09f862d5baed9d6c8-3">3</a>
+<a href="#rest_code_3fc8c8b826ec44c09f862d5baed9d6c8-4">4</a>
+<a href="#rest_code_3fc8c8b826ec44c09f862d5baed9d6c8-5">5</a>
+<a href="#rest_code_3fc8c8b826ec44c09f862d5baed9d6c8-6">6</a>
+<a href="#rest_code_3fc8c8b826ec44c09f862d5baed9d6c8-7">7</a></pre></div></td>
+<td class="code"><pre class="code c"><a name="rest_code_3fc8c8b826ec44c09f862d5baed9d6c8-1"></a><span class="kt">int</span> <span class="n">y</span><span class="p">;</span>
+<a name="rest_code_3fc8c8b826ec44c09f862d5baed9d6c8-2"></a><span class="k">if</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+<a name="rest_code_3fc8c8b826ec44c09f862d5baed9d6c8-3"></a>  <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+<a name="rest_code_3fc8c8b826ec44c09f862d5baed9d6c8-4"></a><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+<a name="rest_code_3fc8c8b826ec44c09f862d5baed9d6c8-5"></a>  <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">y</span><span class="p">;</span>
+<a name="rest_code_3fc8c8b826ec44c09f862d5baed9d6c8-6"></a><span class="p">}</span>
+<a name="rest_code_3fc8c8b826ec44c09f862d5baed9d6c8-7"></a><span class="n">assert</span><span class="p">(</span><span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">);</span>
 </pre></td>
 </tr></table>
 <p>Here we have two new structures that cause some issues: (a) the re-assignment
@@ -380,24 +380,24 @@ of y, and (b) the <cite>if-else</cite> statement.  However, both can handled wit
 much trouble.  The easiest way to see this is do some transformations on the
 code to make it more amenable to SAT.  Here's one way to do it:</p>
 <table class="codetable"><tr>
-<td class="linenos"><div class="linenodiv"><pre><a href=".#rest_code_55400d84e72f4fc097c0cda9d407b0c7-1">1</a>
-<a href=".#rest_code_55400d84e72f4fc097c0cda9d407b0c7-2">2</a>
-<a href=".#rest_code_55400d84e72f4fc097c0cda9d407b0c7-3">3</a>
-<a href=".#rest_code_55400d84e72f4fc097c0cda9d407b0c7-4">4</a>
-<a href=".#rest_code_55400d84e72f4fc097c0cda9d407b0c7-5">5</a>
-<a href=".#rest_code_55400d84e72f4fc097c0cda9d407b0c7-6">6</a>
-<a href=".#rest_code_55400d84e72f4fc097c0cda9d407b0c7-7">7</a>
-<a href=".#rest_code_55400d84e72f4fc097c0cda9d407b0c7-8">8</a>
-<a href=".#rest_code_55400d84e72f4fc097c0cda9d407b0c7-9">9</a></pre></div></td>
-<td class="code"><pre class="code c"><a name="rest_code_55400d84e72f4fc097c0cda9d407b0c7-1"></a><span class="kt">int</span> <span class="n">y_1</span><span class="p">,</span> <span class="n">y_2a</span><span class="p">,</span> <span class="n">y_2b</span><span class="p">,</span> <span class="n">y_3</span><span class="p">;</span>
-<a name="rest_code_55400d84e72f4fc097c0cda9d407b0c7-2"></a><span class="n">y_2b</span> <span class="o">=</span> <span class="n">y_1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-<a name="rest_code_55400d84e72f4fc097c0cda9d407b0c7-3"></a><span class="n">y_2a</span> <span class="o">=</span> <span class="o">-</span><span class="n">y_1</span><span class="p">;</span>
-<a name="rest_code_55400d84e72f4fc097c0cda9d407b0c7-4"></a><span class="k">if</span> <span class="p">(</span><span class="n">y_1</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-<a name="rest_code_55400d84e72f4fc097c0cda9d407b0c7-5"></a>  <span class="n">y_3</span> <span class="o">=</span> <span class="n">y_2b</span><span class="p">;</span>
-<a name="rest_code_55400d84e72f4fc097c0cda9d407b0c7-6"></a><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-<a name="rest_code_55400d84e72f4fc097c0cda9d407b0c7-7"></a>  <span class="n">y_3</span> <span class="o">=</span> <span class="n">y_2a</span><span class="p">;</span>
-<a name="rest_code_55400d84e72f4fc097c0cda9d407b0c7-8"></a><span class="p">}</span>
-<a name="rest_code_55400d84e72f4fc097c0cda9d407b0c7-9"></a><span class="n">assert</span><span class="p">(</span><span class="n">y_3</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+<td class="linenos"><div class="linenodiv"><pre><a href="#rest_code_91de8120af234bd8bf42bc5ae4276adf-1">1</a>
+<a href="#rest_code_91de8120af234bd8bf42bc5ae4276adf-2">2</a>
+<a href="#rest_code_91de8120af234bd8bf42bc5ae4276adf-3">3</a>
+<a href="#rest_code_91de8120af234bd8bf42bc5ae4276adf-4">4</a>
+<a href="#rest_code_91de8120af234bd8bf42bc5ae4276adf-5">5</a>
+<a href="#rest_code_91de8120af234bd8bf42bc5ae4276adf-6">6</a>
+<a href="#rest_code_91de8120af234bd8bf42bc5ae4276adf-7">7</a>
+<a href="#rest_code_91de8120af234bd8bf42bc5ae4276adf-8">8</a>
+<a href="#rest_code_91de8120af234bd8bf42bc5ae4276adf-9">9</a></pre></div></td>
+<td class="code"><pre class="code c"><a name="rest_code_91de8120af234bd8bf42bc5ae4276adf-1"></a><span class="kt">int</span> <span class="n">y_1</span><span class="p">,</span> <span class="n">y_2a</span><span class="p">,</span> <span class="n">y_2b</span><span class="p">,</span> <span class="n">y_3</span><span class="p">;</span>
+<a name="rest_code_91de8120af234bd8bf42bc5ae4276adf-2"></a><span class="n">y_2b</span> <span class="o">=</span> <span class="n">y_1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+<a name="rest_code_91de8120af234bd8bf42bc5ae4276adf-3"></a><span class="n">y_2a</span> <span class="o">=</span> <span class="o">-</span><span class="n">y_1</span><span class="p">;</span>
+<a name="rest_code_91de8120af234bd8bf42bc5ae4276adf-4"></a><span class="k">if</span> <span class="p">(</span><span class="n">y_1</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+<a name="rest_code_91de8120af234bd8bf42bc5ae4276adf-5"></a>  <span class="n">y_3</span> <span class="o">=</span> <span class="n">y_2b</span><span class="p">;</span>
+<a name="rest_code_91de8120af234bd8bf42bc5ae4276adf-6"></a><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+<a name="rest_code_91de8120af234bd8bf42bc5ae4276adf-7"></a>  <span class="n">y_3</span> <span class="o">=</span> <span class="n">y_2a</span><span class="p">;</span>
+<a name="rest_code_91de8120af234bd8bf42bc5ae4276adf-8"></a><span class="p">}</span>
+<a name="rest_code_91de8120af234bd8bf42bc5ae4276adf-9"></a><span class="n">assert</span><span class="p">(</span><span class="n">y_3</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
 </pre></td>
 </tr></table>
 <p>There are a couple of things going on here.  First, we use a bunch
@@ -465,7 +465,7 @@ but in this case, theory really does lead to practice.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id1">[1]</a></td>
+<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
 <td>Of course a simpler explanation in English without the math, necessarily makes it less precise.  So the usual caveats apply.</td>
 </tr></tbody>
 </table>
@@ -475,7 +475,7 @@ but in this case, theory really does lead to practice.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id2">[2]</a></td>
+<td class="label"><a class="fn-backref" href="#id2">[2]</a></td>
 <td>For some intuition of why we study at decision problems, think about how "difficult" the different types of problems are.  A yes/no answer seems a heck of a lot easier than coming up with a function, or optimizing something with constraints.  So one way of thinking about it is: if we somehow figure out that a yes/no decision problem is hard, then we can reasonably conclude that the function/optimization "version" of the problem is also hard.  Of course it's a bit more complicated but that's how I like to think about it.</td>
 </tr></tbody>
 </table>
@@ -485,7 +485,7 @@ but in this case, theory really does lead to practice.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id3">[3]</a></td>
+<td class="label"><a class="fn-backref" href="#id3">[3]</a></td>
 <td>A line is a type of polynomial, e.g. <span class="math">\(x = x^k\)</span> where <span class="math">\(k=1\)</span>.</td>
 </tr></tbody>
 </table>
@@ -495,7 +495,7 @@ but in this case, theory really does lead to practice.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id4">[4]</a></td>
+<td class="label"><a class="fn-backref" href="#id4">[4]</a></td>
 <td>There are, of course, many (equivalent) ways to define NP problems.  The one I use, which I find most intuitive is from <cite>Introduction to Algorithms &lt;https://en.wikipedia.org/wiki/Introduction_to_Algorithms&gt;</cite>, known more colloquially as "CLRS" (the first letters of the authors' name).</td>
 </tr></tbody>
 </table>
@@ -505,7 +505,7 @@ but in this case, theory really does lead to practice.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id5">[5]</a></td>
+<td class="label"><a class="fn-backref" href="#id5">[5]</a></td>
 <td>The explanations in order: (i) If we're told an array is sorted, we just have to run through the array to see if they're sorted. (ii) If we're told there is a path from <cite>s</cite> to <cite>t</cite> and the proof is the path, it's simple to see if that path is actually in the graph. (iii) If we're told the formula is true and the proof is the assignment to the variables, we just need to evaluate the formula to see if its true.</td>
 </tr></tbody>
 </table>
@@ -515,7 +515,7 @@ but in this case, theory really does lead to practice.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id6">[6]</a></td>
+<td class="label"><a class="fn-backref" href="#id6">[6]</a></td>
 <td>This is the <a class="reference external" href="https://en.wikipedia.org/wiki/P_versus_NP_problem">P vs. NP</a> problem.</td>
 </tr></tbody>
 </table>
@@ -525,7 +525,7 @@ but in this case, theory really does lead to practice.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id7">[7]</a></td>
+<td class="label"><a class="fn-backref" href="#id7">[7]</a></td>
 <td>If we are given the assignment to the variables, we just have to plug it into the formula and evaluate it. This is surely a linear time operation in the size of the formula.</td>
 </tr></tbody>
 </table>
@@ -535,7 +535,7 @@ but in this case, theory really does lead to practice.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id8">[8]</a></td>
+<td class="label"><a class="fn-backref" href="#id8">[8]</a></td>
 <td>Each Boolean variable can be turned off or on independently, so the number of possibilities is <span class="math">\(2 * 2 * 2 \ldots = 2^n\)</span>, where <span class="math">\(n\)</span> is the number of Boolean variables.</td>
 </tr></tbody>
 </table>
@@ -545,7 +545,7 @@ but in this case, theory really does lead to practice.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id9">[9]</a></td>
+<td class="label"><a class="fn-backref" href="#id9">[9]</a></td>
 <td>That is, many instances of the SAT problem do not have this theoretical worse case scenario.  That means that with some clever tricks, we have a chance of solving large SAT instances without having to wait for the end of the universe to come about.</td>
 </tr></tbody>
 </table>
@@ -555,7 +555,7 @@ but in this case, theory really does lead to practice.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id10">[10]</a></td>
+<td class="label"><a class="fn-backref" href="#id10">[10]</a></td>
 <td>If you want to check out a good implementation you should read about the <a class="reference external" href="http://minisat.se/">MiniSat solver</a>.  The core solver is about 1000 lines of C (with comments) and for a while was the go-to SAT solver for anything to do with SAT.  It was (is?) incredibly fast beating most of the solvers at the time, primarily though clever code/memory optimizations.  I did a bunch of hacking on this code during graduate school and it's surprisingly easy to work with (mostly because of it's small size).  Of course, now-a-days there are faster SAT solvers (many of which are built on top of MiniSat) but it's still quite a robust solution if you need something simple to start with.</td>
 </tr></tbody>
 </table>
@@ -565,7 +565,7 @@ but in this case, theory really does lead to practice.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id11">[11]</a></td>
+<td class="label"><a class="fn-backref" href="#id11">[11]</a></td>
 <td>Since we're dealing with fixed width operations, there is always a possibility that we overflow -- that is, the resulting number of <span class="math">\(A + B\)</span> is too large to fit within the 8-bits we have for <span class="math">\(C\)</span>.</td>
 </tr></tbody>
 </table>
@@ -575,7 +575,7 @@ but in this case, theory really does lead to practice.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id12">[12]</a></td>
+<td class="label"><a class="fn-backref" href="#id12">[12]</a></td>
 <td>If we were just talking about non-negative integers <span class="math">\(A,B,C\)</span>, then the answer should be UNSAT because <span class="math">\(A + B\)</span> should always yield something greater or equal to <span class="math">\(C\)</span>.  However, we're talking about 8-bit numbers here.  If we try to add up two 8-bit numbers whose result can't fit into 8-bits, then we'll get an overflow condition where C will actually be less than A or B.  Our first interesting result!</td>
 </tr></tbody>
 </table>
@@ -595,7 +595,7 @@ but in this case, theory really does lead to practice.</p>
             <li class="next">
                 <a href="../probability-the-logic-of-science/" rel="next" title="Probability as Extended Logic">Next post</a>
             </li>
-        </ul></nav></aside><script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+        </ul></nav></aside><script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
             MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
             </script></article>
 </div>
@@ -653,7 +653,7 @@ but in this case, theory really does lead to practice.</p>
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2015         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2016         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
 </div>
