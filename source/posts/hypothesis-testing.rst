@@ -2,8 +2,8 @@
 .. slug: hypothesis-testing
 .. date: 2015-12-29 10:22:26 UTC-05:00
 .. tags: hypothesis testing, frequentist statistics, statistical inference, models, p-values, mathjax
-.. category: 
-.. link: 
+.. category:
+.. link:
 .. description: A post explaining classical (frequentist) statistical inference and hypothesis in a (hopefully) straight-forward way.
 .. type: text
 
@@ -37,13 +37,12 @@
 
 This post is about some fundamental concepts in classical (or frequentist)
 statistics: inference and hypothesis testing.  A while back, I came to the
-realization that I didn't have a rigorous understanding of these concepts (at least
+realization that I didn't have a good intuition of these concepts (at least
 not to my liking) beyond the mechanical nature of applying them.
-This led to a sense of intuition on how these techniques relate to the more
-fundamental area of probability.  This bothered me a lot since having a good
-intuition about a subject is probably the most useful (and fun!) part of learning
-a subject.  So this post is a result of my re-education on these topics.
-Enjoy!
+What was missing was how they related to a probabilistic view of the subject.
+This bothered me since having a good intuition about a subject is
+probably the most useful (and fun!) part of learning a subject.  So this post
+is a result of my re-education on these topics.  Enjoy!
 
 .. TEASER_END
 
@@ -51,13 +50,13 @@ Enjoy!
 
 |h3| A Couple of Big Ideas |h3e|
 
-To start from the beginning, there are two big ideas that underlie much of 
+To start from the beginning, there are two big ideas that underlie much of
 classical statistics.
 The first big idea is that *all data* (or observations as statisticians like to
 say) have a "true" probability distribution [1]_.  Of course, it is almost never
 possible to precisely define it because the real world rarely fits so nicely
-into the distributions we learn in stats class.
-The implications of this idea is that the "true" distribution and its
+into the distributions we learn in stats class.  However,
+the implications of this idea is that the "true" distribution and its
 parameters are fixed (i.e.  *not* random) albeit unknown.  The randomness
 comes in when you sample from this "true" distribution from which each datum
 is randomly drawn.
@@ -68,7 +67,7 @@ distribution directly by computing the distribution or density function [4]_,
 or indirectly by estimating derived metrics such as the mean or median of the
 distribution.  A typical question we might ask is:
 
-    Give a sample :math:`X_1, X_2, \ldots, X_n` drawn from a distribution
+    Give a sample :math:`X_1, X_2, \ldots, X_n` drawn from some (unknown) distribution
     :math:`F`, how do we estimate :math:`F` (or some properties of :math:`F`)?
 
 Of course there are variations to this question depending on the precise
@@ -113,13 +112,13 @@ parameters is not finite or fixed by the model, instead the model is defined by
 the input data.  In essence, the parameters are determined by the training data
 (not the model).  For example, a histogram can be thought of as a simple
 non-parametric model that estimates a probability distribution because the data
-determines the shape of the histogram.  
+determines the shape of the histogram.
 Another example would be a k-nearest neighbour algorithm that can classify a new
 observation solely based on its k-nearest neighbours from training data.  The
 surface defined by the classification function is not pre-defined rather it is
 determined solely by the training data (and hyper parameter :math:`k`).  You can
-contrast this with a logistic regression as a classifier, which has a rigid
-structure regardless of how well the data matches. 
+contrast this with a logistic regression as a classifier, which has a
+(relatively) more rigid structure regardless of how well the data matches.
 
 Although, it sounds appealing to let the "data define the model",
 non-parametric models typically requires a much larger sample size to draw a
@@ -136,7 +135,7 @@ different types of problems [6]_: point estimation, confidence
 intervals, and hypothesis testing.  I'll briefly describe the former two
 and focus on the latter in the next section.
 
-Point estimates aims to find the single "best guess" for a particular quantity
+Point estimates aim to find the single "best guess" for a particular quantity
 of interest.  The quantity could be the parameter of a model, a CDF/PDF, or a
 regression/prediction function.  Formally:
 
@@ -152,8 +151,8 @@ regression/prediction function.  Formally:
 For example, if our desired quantity is the expected value of the "true"
 distribution :math:`F`, we might use the sample mean of our data as our "best
 guess" (or estimate).  Similarly, for a regression problem with a linear model, we are
-finding a "point" estimate for the regression function :math:`r`, which is
-frequently the coefficients for the covariates (or features) that minimize the
+finding a "point" estimate for the regression function :math:`r`, which are
+just the coefficients for the covariates (or features) that minimize the
 mean squared error.  From what I've seen, many "machine learning" techniques
 fall in this category where you typically will aim to find a maximum likelihood
 estimate or related measure that is your "best guess" (or estimate) based on
@@ -164,7 +163,7 @@ The next category of inference problems are confidence intervals (or sets).
 The basic idea here is that instead of finding a single "best guess" for a
 parameter, we try to find an interval that "traps" the actual value of the
 parameter (remember the observations have a "true" distribution) with a
-particular frequency.  Let's take a look at the formal definition then try to
+particular frequency.  Let's take a look at the formal definition first and then try to
 interpret it:  
 
     A :math:`1-\alpha` **confidence interval** for parameter
@@ -182,14 +181,20 @@ that this does not say anything directly about the probability of
 distribution) and instead it is :math:`C_n` that is the random variable [7]_.
 So this is more a statement about how "right" we were in picking :math:`C_n`.
 
-Another way to think about it is this: suppose we always set :math:`\alpha = 0.05` 
-(a 95% confidence interval) for every confidence interval we ever compute,
-which will be composed of any variety of different "true" distribution and
-observations.  We would expect that the respective :math:`\theta` in each case
-to be "trapped" in our confidence interval 95% of the time.  Note this is
-different from saying that on any one experiment we "trapped" :math:`\theta`
-with a 95% probability -- after we have a realized confidence interval (i.e.
-fixed values), the "true" parameter either lies in it or it doesn't.
+Another way to think about it is this: suppose we set :math:`\alpha = 0.05` (a
+95% confidence interval), for every confidence interval, for every statistical
+inference problem we ever compute from now until eternity.
+These problems will, of course, cover a wide range of statistical problems with many
+different "true" distributions and sample observations.
+Since we set a 95% confidence interval for all our problems,
+we would expect that the respective "true" :math:`\theta` in each case
+to be "trapped" in our confidence interval 95% of the time.  That is, our confidence
+interval will be "correct" 95% of the time in that the "true" value of :math:`\theta`
+is contained within it -- a kind of long-run frequency guarantee.
+Note this is different from saying that on any one experiment we "trapped"
+:math:`\theta` with a 95% probability.  After we have a realized confidence
+interval (i.e. fixed values for our confidence interval based on observed values), the
+"true" parameter :math:`\theta` either lies in it or it doesn't.
 
 In some ways confidence intervals give us more context then a single point
 estimate.  For example, if we're looking at the response of a marketing campaign
@@ -223,28 +228,6 @@ disprove your hardest won ideas, a proverbial `"empty your cup" <http://c2.com/c
 you can begin to learn after you have let go of your some of your past
 (hopefully, incorrect) beliefs.  I mean that's what science is all about right?
 
-Before we conclude this interlude, I want to mention two important points that
-stood out when practicing hypothesis testing.  The first idea is that of testability or
-falsifiability.  This is rather important because if you have a hypothesis that
-cannot be falsified or not have a reasonable expectation of observing a
-counter-example then it's not a very useful hypothesis.  That is, you won't
-really be able to learn much from it because you can never know if it's false [8]_.
-
-The second idea is that of parsimony, or `Occam's Razor <https://en.wikipedia.org/wiki/Occam%27s_razor>`_.
-In short, we should prefer the simplest explanation or model, which translates
-to hypotheses that have the fewest assumptions.  It makes sense not only from a
-machine learning point of view (over-fitting) but also from an intuitive point
-of view (more assumptions results in a weaker explanation).  A related idea that 
-Charlie Munger espouses is that when explaining things, we should favour the
-explanation from the most fundamental discipline.  For example, I'm sure many
-economists have some fancy names for the reasons behind the financial crisis
-but we can probably use simpler terminology and concepts related to breaking
-points and critical mass from engineering and physics.  On an individual level,
-it makes more sense to pull ideas and concepts from the most fundamental of
-disciplines (math, physics, engineering) because they are the most reliable.
-Anyways, that's enough of a digression, back to statistics!
-
-
 |h3| Statistical Hypothesis Testing |h3e|
 
 Statistical hypothesis testing is probably one of the earliest concepts
@@ -258,10 +241,10 @@ colour to give some intuition.
 Following the scientific method, we make a hypothesis, run an experiment and
 see if our observations match the prediction from our hypothesis.  However
 in certain cases, the cause and effect is not so clear like it is with laws of
-nature.  For example, when you `double-slit experiment <https://en.wikipedia.org/wiki/Double-slit_experiment>`_ 
+nature.  For example, when you conduct a `double-slit experiment <https://en.wikipedia.org/wiki/Double-slit_experiment>`_ 
 to determine the dual nature of light, the result of the experiment is clear.
 But when you're determining if a new drug helps cure a disease, you usually 
-randomly divide a population into a treatment group which gets the drug and a
+randomly divide a population into a treatment group which gets the drug, and a
 control group which receives a placebo.  If we look at the various scenarios 
 of what can happen, we can see why it's not so clear cut:
 
@@ -277,7 +260,7 @@ of what can happen, we can see why it's not so clear cut:
    
    Not necessarily, what if only the treatment group has only 1 person who got
    better versus control. In this case, probably not, it could be due to
-   another random factor.  10? 1000?  Maybe.
+   another random factor.  How about 10? 1000?  Now it starts to get unclear.
 
 You can start to see why we need to apply some mathematics to these
 situations in order to see if the effect is significant.  In particular, we
@@ -332,9 +315,11 @@ define a **rejection region** on :math:`\chi` such that:
 
 We want to define :math:`R` such that when :math:`H_0` is true, we have a high
 probability of retaining :math:`H_0` and when :math:`H_0` is false, we have a
-high chance probability of rejecting it.  If we picked a good :math:`R`, when
-we actually observe our data then it should be quite simple to check if
-:math:`X \in R` and be correct quite often.
+high chance probability of rejecting it.  Of course, our definition of
+:math:`R` should be heavily influenced by some estimate of :math:`\theta` based
+on our data :math:`X`.  If we picked a good :math:`R`, when we actually observe
+our data then it should be quite simple to check if :math:`X \in R` and be
+correct quite often.
 
 Another way to view this is in terms of the errors we could make.  
 If we reject :math:`H_0` when it's actually true, we've committed a **Type
@@ -359,18 +344,20 @@ diagonals or alternatively minimize "Error" diagonals in the above table.  To
 throw another wrench in the mix, we usually refer to the bottom right cell
 as the **power**, which is the probability of correctly rejecting the null
 hypothesis when it is false (i.e. the alternative hypothesis is true).
-
 The tricky part is that trying to minimize both :math:`\alpha` and
-:math:`\beta`, which results in conflicting goals [10]_.  So picking a good rejection region :math:`R` is
-non-trivial.
+:math:`\beta` results in conflicting goals [10]_, which makes picking a good
+rejection region :math:`R` highly non-trivial.
 
 |h3| Test Statistics |h3e|
 
 Practically, we rarely explicitly pick a rejection region in terms of the
 range of the data (:math:`\chi`).  It's usually much more convenient to pick a
 rejection region in terms of a function of :math:`X` that produces a single number summarizing
-the data called a **test statistic** (which we denote as :math:`T`).  Thus, our
-expression for rejection region usually ends up looking something like this:
+the data called a **test statistic** (which we denote as :math:`T`).  This test
+statistic usually relates in some way to the estimate of the "true" parameter
+:math:`\theta` and is usually more convenient to use than a direct estimation.
+Thus, our expression for rejection region usually ends up looking something
+like this:
 
 .. math::
 
@@ -402,7 +389,7 @@ procedure usually ends up being something along the lines of:
 
 Of course, just giving a retain/reject null hypothesis type answer isn't
 very informative.  Instead, we might want to give the smallest :math:`\alpha`
-that rejects the null hypothesis:
+that rejects the null hypothesis which is called a **p-value**:
 
 .. math::
 
@@ -442,19 +429,20 @@ A common way of stating what a p-value is (taken from *All of Statistics*):
     the test statistic the same as or more extreme than what was actually
     observed.
 
-Admittedly, this does not is not exactly line up with how we have looked at
+Admittedly, this does not exactly line up with how we have looked at
 :math:`\alpha` in terms of rejection regions, however, rest assured the
 definitions do match up if you went through the derivations of the test
 statistic and critical values.  Personally, I don't find the above definition
-all that helpful because most people will conflate it with :math:`P(H_0|data)` 
-just because both mention the word "probability".  
+all that helpful because most people will conflate it with :math:`P(H_0|data)`
+just because both mention the word "probability".
 
 The way I like to think of it is simply a measure of evidence against :math:`H_0`
 (but **not** for :math:`H_0`) according to the table above with no mention of probability.
 In this way, we can remember the point of hypothesis testing is primarily a
 procedure to help us prove our default or null hypothesis false.  Thinking this
 way helps to remember that the null hypothesis is our default stance and the
-test's aim is prove it false.
+test's aim is prove it false [11]_.
+
 
 |h2| Conclusion |h2e|
 
@@ -493,5 +481,5 @@ way too.
 
 .. [10] Think about a procedure that always rejects the null hypothesis i.e. a rejection consisting of the entire space.  In this case, our :math:`\alpha = 1` but :math:`\beta=0` because we are always correctly rejecting the null hypothesis when it is false.  Similarly if :math:`\beta = 1`.  Of course, this choice of rejection region is absolutely useless so we want to pick something a bit smarter.
 
-
+.. [11] An important point about hypothesis testing is that it's proving our null hypothesis is false.  For example, our null hypothesis might be that the drug had no effect.  If we correctly reject it, our test or p-value says nothing about the absolute effectiveness of the drug; all it says it that it has some effect.  It could have minimal or negligible effect but still technically have "statistical significance".  We should remember to use the right tool for the right job and not be prone to "man with a hammer"-syndrome.  In our example here, we should be examining the effect size (the difference in the population means), perhaps with confidence intervals along with using our knowledge of the situation to determine if the results we're seeing are useful and practically significant.
 
