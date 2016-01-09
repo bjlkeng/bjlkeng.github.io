@@ -1,6 +1,6 @@
 .. title: A Primer on Statistical Inference and Hypothesis Testing
 .. slug: hypothesis-testing
-.. date: 2015-12-29 10:22:26 UTC-05:00
+.. date: 2016-01-09 11:22:26 UTC-05:00
 .. tags: hypothesis testing, frequentist statistics, statistical inference, models, p-values, mathjax
 .. category:
 .. link:
