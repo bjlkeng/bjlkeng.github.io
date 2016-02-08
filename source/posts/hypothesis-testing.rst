@@ -455,7 +455,7 @@ way too.
 
 |h2| References and Further Reading |h2e|
 
-* `All of Statistics: A Concise Course in Statistical Inference <http://link.springer.com/book/10.1007%2F978-0-387-21736-9>`_ by Larry Wasserman. (available free online)
+* `All of Statistics: A Concise Course in Statistical Inference <http://link.springer.com/book/10.1007%2F978-0-387-21736-9>`_ by Larry Wasserman.
 * `Hypothesis Testing <http://www.stat.columbia.edu/~liam/teaching/4107-fall05/notes4.pdf>`_, Paninski, Intro. Math. Stats., December 6, 2005.
 * Wikipedia: `Statistical Model <https://en.wikipedia.org/wiki/Statistical_model>`_, `Statistical Inference <https://en.wikipedia.org/wiki/Statistical_inference>`_, `Non parametric Statistics <https://en.wikipedia.org/wiki/Nonparametric_statistics>`_, `Statistical Hypothesis Testing <https://en.wikipedia.org/wiki/Statistical_hypothesis_testing>`_, `Statistical Power <https://en.wikipedia.org/wiki/Statistical_power>`_, `Sufficient Statistic <https://en.wikipedia.org/wiki/Sufficient_statistic>`_, `Null Hypothesis <https://en.wikipedia.org/wiki/Null_hypothesis>`_.
 
