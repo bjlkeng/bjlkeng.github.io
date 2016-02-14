@@ -1,4 +1,4 @@
-.. title: Elementary Direct Marketing Statistics
+.. title: Elementary Statistics for Direct Marketing
 .. slug: normal-difference-distribution
 .. date: 2016-01-30 13:40:41 UTC-05:00
 .. tags: normal, Gaussian, probability, direct marketing, mathjax
@@ -182,31 +182,32 @@ Let's imagine we have we have :math:`n` `i.i.d.
 <https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables>`_
 variables :math:`Y_1, Y_2, \ldots, Y_n` representing our outcome variables
 i.e. :math:`Y_i` is customer :math:`i`'s total spend at your store during the
-campaign period.  
+campaign period.
 Also denote the binary treatment variable as :math:`X_i=1` as "treated" (given
 the offer) and :math:`X_i=0` as "not treated" (control group or not given the
 offer) for the :math:`i^{th}` customer.
 
-To not bury the lead, an good estimator for measuring campaign effectivness is
-just using the difference of spend per customer or **lift**  of the
-treatment and control group (i.e. different of population means):
+To not bury the lead, a good point estimator for measuring campaign
+effectivness is just using the difference of spend per customer (SPC) or
+**lift**  of the treatment and control group (i.e. different of population
+means):
 
 .. math::
 
     \hat{\text{lift}} &= \hat{E}[Y|X=1] - \hat{E}[Y|X=0] \\
                       &= \bar{Y}_{X=1} - \bar{Y}_{X=0} \\
-                      &= \frac{1}{n_{X=1}} \Sigma_{i=1}^{n} Y_i X_i
-                         - \frac{1}{n_{X=0}} \Sigma_{i=1}^{n} Y_i (1 - X_i) \\
+                      &= \frac{1}{n_T} \Sigma_{i=1}^{n} Y_i X_i
+                         - \frac{1}{n_C} \Sigma_{i=1}^{n} Y_i (1 - X_i) \\
                       &= SPC_{\text{treatment}} - SPC_{\text{control}}          \tag{2}
 
 where the :math:`\hat{}` symbol represents an estimate,
-:math:`n_{X_0} = \Sigma_{i=1}^{n} X_i` and :math:`n_{X_1} = \Sigma_{i=1}^{n} (1-X_i)`.
+:math:`n_T = \Sigma_{i=1}^{n} X_i` and :math:`n_C = \Sigma_{i=1}^{n} (1-X_i)`.
 All those equations boil down to basically just taking the difference of spend
 per customer between treatment and control.  In some of the more math heavy
 sections below, you'll see why we introduced all this notation.
-First, let's see why our control groups have to be a random.
+First, let's see why our control groups have to be a random sample.
 
-|h2| Causal Inference [4]_ |h2e|
+|h3| Causal Inference [4]_ |h3e|
 
 As I mentioned before, we can never simultaneously give a promotional offer
 *and* not give it at the same time (unless we had some kind of parallel universe).  
@@ -289,7 +290,7 @@ are not independent of :math:`X`.  That is the treatment is not independent of t
 customer, in the example, we put all the high value customers in the treatment group
 while putting the low value ones in the "control" group.
 
-.. admonition:: **Theorem 1**
+.. admonition:: **Theorem** 
 
  If we randomly assign subjects to treatment and control such that :math:`P(X=0) > 0`
  and :math:`P(X=1) > 1`, then :math:`\alpha=\text{lift}`.
@@ -305,287 +306,132 @@ while putting the low value ones in the "control" group.
                      &= \alpha   \tag{7}
 
 
+Using Theorem 1 we can see that by assigning random control groups, our
+use of difference in SPC (i.e. association) using in Equation 2 is identical
+the actual causal effect that we want, which is lift.  However, if we
+don't have random assignments then there is no guarantee that the association
+we computed in Equation 2 has anything to do with lift, as we saw in Example 1.
 
 
+|h3| Central Limit Theorem and Confidence Intervals |h3e|
 
+To simplify our notation, let's define :math:`U_i = Y_i X_i` 
+and :math:`V_i = Y_i (1 - X_i)` to represent samples from the treatment
+and control respectively.  Let their respective mean and variance be represented by
+:math:`\mu_U`, :math:`\mu_V` and :math:`\sigma^2_U`, :math:`\sigma^2_V`.  This is
+done just for convenience so we don't have to keep writing our equations with
+:math:`X_i` in them.
 
+In general, the distributions of customer spend, :math:`U_i` and :math:`V_i`,
+do not take any familiar form of distribution that we know.  However, using the
+results of the 
+`central limit theorem (CLT) <https://en.wikipedia.org/wiki/Central_limit_theorem>`_, 
+we can see that the sample mean of each population (treatment :math:`\bar{U}` and control :math:`\bar{V}`) can
+be approximated by a normal distribution, whose expected value is the mean of
+the underlying variable:
+ 
+.. math::
 
-|h2| The Central Limit Theorem and The Normal Distribution |h2e|
+    E[\bar{U}] &= E[\frac{1}{n_U} \Sigma_{i=1}^{n_U} U_i] \approx E[N(\mu_U, \frac{\sigma^2_U}{n_U})] = \mu_U \\
+    E[\bar{V}] &= E[\frac{1}{n_V} \Sigma_{i=1}^{n_V} V_i] \approx E[N(\mu_V, \frac{\sigma^2_V}{n_V})] = \mu_V \tag{8}
 
-Recall the `normal distribution
-<https://en.wikipedia.org/wiki/Normal_distribution>`_ is a continuous
-probability distribution parameterized by it's mean :math:`\mu`
-and standard deviation :math:`\sigma`.  Its density function or PDF has the form:
+Equation 8 also confirms our estimators are consistent because
+:math:`E[\bar{U}] \approx \mu_U` and :math:`E[\bar{V}] \approx \mu_V` for large :math:`n`.
+Usually our :math:`n` is quite large (:math:`>10000`) so our normal
+approximations are quite good.
+Similarly, using the strong `law of large numbers <https://en.wikipedia.org/wiki/Law_of_large_numbers>`_,
+the `sample variance <https://en.wikipedia.org/wiki/Variance#Sample_variance>`_
+(denoted by :math:`s^2`) is a pretty good approximation of the actual variance
+when we have large :math:`n`:
 
 .. math::
 
-  f_N(x) = \frac{1}{\sigma \sqrt{2\pi}}e^{-\frac{(x-\mu)^2}{2\sigma^2}} \tag{1}
+    s_U^2 &\approx \sigma_U^2 \\
+    s_V^2 &\approx \sigma_V^2 \tag{9}
 
-One of the reasons (among many) of why the normal distribution is so pervasive
-is due to the `central limit theorem
-<https://en.wikipedia.org/wiki/Central_limit_theorem>`_ (CLT), which roughly states
-that the sample mean of a set of :math:`n` independent and identically
-distributed (i.i.d.) random variables converge to a normal distribution as the
-:math:`n` grows.  More precisely:
-
-    Let :math:`{X_1, X_2, \ldots, X_n}` be :math:`n` i.i.d. random variables with
-    :math:`E(X_i)=\mu` and :math:`Var(X_i)=\sigma^2` and  let 
-    :math:`\bar{X} = \frac{X_1 + X_2 + \ldots + X_n}{n}` be the sample mean. 
-    Then :math:`\bar{X}` approximates a normal distribution with mean of :math:`\mu` and
-    variance of :math:`\frac{\sigma^2}{n}` for
-    large :math:`n`, i.e. :math:`\bar{X} \approx N(\mu, \frac{\sigma^2}{n})`.
-
-A key point here that cannot be stressed enough is that the i.i.d. random variable
-:math:`X_i` can have *any* shape of distribution.  As long as we sample enough
-of them, the average will converge to a normal distribution.  
-`Wikipedia
-<https://en.wikipedia.org/wiki/Illustration_of_the_central_limit_theorem>`_ has
-a pretty good image showing this:
-
-.. image:: /images/central_limit_theorem.png
-   :height: 450px
-   :alt: unit square
-   :align: center
-
-The top left shows the probability distribution of the original random variable 
-:math:`X_i`.  This obviously doesn't look very "normal" with a finite `support
-<https://en.wikipedia.org/wiki/Support_%28mathematics%29>`_ and sharp corners.
-The next three images show the density functions of the summations of two,
-three and four of the same variable.  You can see the fourth summation, we have
-something that look qualitatively like a normal distribution even though what
-we started out with was quite different.
-
-This illustrates one of the key uses of a normal distribution: if we are trying
-to estimate (i.e. "learn" or "guess") the mean (:math:`\mu`) of the underlying
-random variable :math:`X_i` from a set of data points, we can use the sample
-mean (:math:`\bar{X}`) as the estimator (i.e. our "best" guess) for the mean [1]_.
-
-|h3| Estimators as Random Variables |h3e|
-
-In my `last post <link://slug/hypothesis-testing>`_, I mentioned the fact that
-estimators are random variables.  I just want to talk about this topic a bit
-more because I think it's a pretty big point of confusion.
-Imagine we have a population, for example a population of customers, that has
-some sort of real-valued property associated with it like the spend of each
-customer.  If we randomly draw a member of from this population, there is a
-certain chance that this person will have a certain spend.  It's likely that
-more customers will have spend values around $50 than $500.  We can model
-this as a random variable :math:`X_i`.  A hypothetical distribution might look
-something like this:
-
-**TODO MAKE AN IMAGE OF GAMMA DISTRIBUTION for spend**
-
-Usually we don't really have such a precise idea of distribution :math:`X_i`,
-instead we need to infer it (or some property of it) from some data.  A common
-thing to do is to estimate the mean of :math:`\mu = E(X_i)` given some sample
-data points :math:`X_1, X_2, \ldots, X_n`.  As we mentioned above, an unbiased
-estimator of this is the sample is :math:`\bar{X}`.  So far so good.
-
-Here's a potentially confusing part: :math:`X_i` is a random variable that
-represents a customer's spend from the population but after we sample and
-observe it, its realization has a definite fixed non-random value.  For example,
-customer :math:`i` might have a spend of $50 -- definitely not a random value.
-Similarly, if we observe :math:`n` sample points and take their average to get
-:math:`\bar{X}` we get a fixed, non-random value, for example, $56.87.
-So how is it that :math:`X_i` and :math:`\bar{X}` are random variables?
-
-One way to think about it is that even though customer :math:`i`'s spend
-was $50 in this universe, imagine if we repeated the same experiment in a
-parallel universe where everything was the same except for our random selection
-for customer :math:`i`.  In that parallel universe, customer :math:`i` might
-have a spend of $56.46.  Similarly, in that parallel universe, we might have
-picked a different set of :math:`n` customers, so our sample mean :math:`\bar{X}`
-might be slightly different, say $57.88.
-
-If we look at :math:`X_i` and :math:`\bar{X}` this way, then we see that they are
-"random".  So we want to derive some useful properties about 
-them even before we know what their realization happens to be in this
-universe.  Thus, we can analyze :math:`\bar{X}` as a random variable so that we can
-derive some long-run behavior of it.  For example, we can compute a confidence
-interval around :math:`\bar{X}` to guarantee that the "true value" of the mean,
-:math:`\mu`, will be contained within it say 95% of the time.  I'll expand
-more on this in the next section.  Before we go into that, let's take a look
-at a realistic example of the sample mean.
-
-.. admonition:: Example 1: Estimating Direct Marketing Average Customer Spend
-
-   Let's suppose we're a brick and motar retail store trying to increase sales.
-   One common way to do that is to send out some offers each week to get
-   customers to come into our store to buy things.  This is usually called
-   direct marketing.
-   
-   **First Question**: How do we estimate the average customer spend for
-   someone who gets an offer?
-
-   The intuitive -- and correct -- answer is to just tally up all the sales of
-   people who got offers and divide by the number of people who go the offers.
-   Simple enough but let's talk a bit about how we would do that and be a bit
-   more pedantic about the details.
-
-   Figuring out the number of people who go the offer is pretty simple -- you're
-   sending out the offers!  So let's call this number :math:`n`.
-   The harder part is figuring out which one of those people actually came to
-   your store and spent money.  Some partial solutions to the problem are:
-
-   * Attach a coupon to the offer.  Keep track of everyone who used the coupon
-     as a proxy for people who spent money at your store.  This is imperfect
-     solution because not everyone will actually use the coupon even though
-     the offer could have caused them to come into the store (e.g.
-     forgot/didn't see/doesn't care about the coupon).
-   * Survey customers at checkout to see if they received the offer.  This is 
-     pretty resource intensive (and annoying) so usually impractical.
-   * Track all purchases with a loyalty card.  Since you the customers have a
-     loyalty card, presumably you have their address and you know if you sent
-     them an offer.  The downside is that not everyone will use a loyalty card
-     even if they have one, and you can't measure people who don't have a
-     loyalty card.  Customer Relationship Management (CRM) programs at
-     retailers will usually will have dedicated offers to just loyalty members.
-     This helps in ensuring that your measurement can be as accurate as
-     possible but still imperfect if customers aren't forced to use their
-     loyalty card at purchase.
-
-   Let's assume that we're using the last option and this offer is from our CRM
-   program.  So we can get a relatively accurate measure of average spend of
-   all customers who go the flyer.
-
-   **Next question**: how does this all relate to the CLT and the normal distribution? 
-   (Here's the pedantic part; hopefully it will help with some intuition).
-
-   First we assume that our population are all the people in our CRM program who
-   could receive the offer, let's call it :math:`N`.  Theoretically, this
-   population will have some distribution of spend.  For example, if I randomly
-   sampled a person from this population, whose spend we'll call :math:`X_i`,
-   there likely is a higher probability that he will spend $50 than $500.  The
-   relative chance of each spend level will define the distribution of this
-   population's spend.  This distribution is *unknown* distribution i.e. we do
-   not know what :math:`X_i` looks like but we want to estimate the average
-   spend :math:`\mu = E(X_i)`.
-
-   Now going back to our offer, we sent this offer to :math:`n` random people
-   in our CRM program, where most likely :math:`n < N` (because it would be too
-   expensive to send an offer to everyone).  Presumably, each person's decision
-   to shop at your store after receiving the offer is independent of everyone
-   else.  In other words, the :math:`n` customers are independent and
-   identically distributed according to :math:`X_i` (identically distributed because
-   we randomly samples :math:`n` people from our distribution).
-
-   Applying the CLT, the sample mean for these :math:`n` people will
-   approximate be a normal distribution with :math:`\mu` and :math:`\sigma`
-   according to unknown :math:`X_i`:
-
-   .. math::
-
-        \bar{X} = \frac{X_1 + X_2 + \ldots + X_n}{n}` \approx N(\mu, \frac{\sigma^2}{n}) \tag{2}
+Using Equation 8 and 9, we get our approximation of the sample mean (and spend
+per customer) for large :math:`n` (the :math:`\hat{}` denote our actual point
+estimates for the quantities):
     
-   Since :math:`\bar{X}` is a random variable, taking it's expected value:
+.. math::
 
-   .. math::
-    
-        E(\bar{X}) \approx E(N(\mu, \frac{\sigma^2}{n})) = \mu \tag{3}
-   
-   Here we see that our sample mean is actually an unbiased estimate for our population
-   mean.  Another way to think about it is, if repeatedly used this methodology
-   to estimate the population mean :math:`\mu`, we would over-guess just as
-   much as we would under-guess the true value of :math:`\mu`.  Theoretically
-   this gives justification to our intuition that a simple average will give us
-   a good estimate of the average customer spend of people who got the offer.
+    SPC_T &\approx N(\hat{\bar{U}}, \frac{\hat{s}^2_U}{n_U}) \\
+    SPC_C &\approx N(\hat{\bar{V}}, \frac{\hat{s}^2_V}{n_V})  \tag{10}
 
-|h3| Confidence Interval for :math:`\bar{X}` |h3e|
-   
-As we saw the sample mean :math:`\bar{X}` is an unbiased point estimate for the
-underlying population mean :math:`\mu`, but how good of an estimate is it?  For
-that we need to compute a confidence interval.  In particular, we want to
-compute an interval :math:`(a,b)` such that it "traps" the true value of
-:math:`\mu` with some probability. 
-Take a look at my `previous post <link://slug/hypothesis-testing>`_ for an
-explanation of the intuition behind a confidence interval.
+Knowing that the `difference of two normal distributions
+<http://mathworld.wolfram.com/NormalDifferenceDistribution.html>`_ is just a
+normal distribution (with mean equal to the difference of the means, and
+variance equal to the sum of variances), our lift is:
 
-Let's start with a simplified unrealistic example: suppose we know the
-underlying standard deviation of :math:`X_i`, represented by :math:`\sigma`.
-Knowing this it is pretty simple to determine a confidence interval because as
-we saw :math:`\bar{X} \approx N(\mu, \frac{\sigma}{\sqrt{n}})`.  Thus, :math:`\bar{X}`
-will be normally distributed about :math:`\mu` with standard deviation
-:math:`\frac{\sigma}{\sqrt{n}}`.  If we wanted to find, say an 95% confidence
-interval, we could just use the pdf of our sample mean :math:`f_{\bar{X}}(x)`
-and solve for a symmetric interval around the mean:
 
 .. math::
 
-    \int_{\mu - a}^{\mu + a} f_{\bar{X}}(x) dx = 0.95   \tag{4}
+     \text{lift} &= SPC_T - SPC_C \\
+                 &\approx N(\bar{U}, \frac{s^2_U}{n_U}) - N(\bar{V}, \frac{s^2_V}{n_V}) \\
+                 &= N(\bar{U} - \bar{V}, \frac{s^2_U}{n_U} + \frac{s^2_V}{n_V}) \tag{11} 
 
-remembering that :math:`\bar{X}` is normally distributed.  Another common way to
-approach this is to standardize (i.e. shift and scale) the normal variable to
-the standard normal variable :math:`Z \sim N(0, 1)` with zero mean and unit
-variance.  This is pretty simple by using just a change of variables.
-Let's go through the steps just to make sure we understand what's going on.
-Define:
-
-.. math::
-
-    Z = \frac{\bar{X} - \mu}{\frac{\sigma}{\sqrt{n}}} \tag{5}
-
-And with some manipulation (remember :math:`\mu` and :math:`\sigma` are some
-fixed real number parameterizing our distribution :math:`X_i`):
+Now our lift is simply just a normal random variable whose mean and variance we know how to estimate,
+we can get a :math:`1 - \alpha` two sided confidence interval.  Since lift is approximately normal,
+we know that :math:`Z=\frac{\hat{\text{lift}} - \mu_{\text{lift}}}{\sigma_{\text{lift}}} \approx \frac{\hat{\text{lift}} - \mu_{\text{lift}}}{\hat{s}_{\text{lift}}}` 
+has a standard normal distribution N(0, 1):
 
 .. math::
 
-    P(\bar{X} \leq s) &= P(\frac{\bar{X} - \mu}{\frac{\sigma}{\sqrt{n}}} \leq
-                      \frac{s - \mu}{\frac{\sigma}{\sqrt{n}}}) \\
-                  &= P(Z \leq \frac{s - \mu}{\frac{\sigma}{\sqrt{n}}}) \\
-    &= \int_{-\infty}^{\frac{s - \mu}{\frac{\sigma}{\sqrt{n}}}} 
-            \frac{1}{\frac{\sigma^2}{n}\sqrt{2\pi}} 
-            exp\{-\frac{(x-\mu)^2}{2\frac{\sigma^2}{n}}\}dx \tag{6}
+    P(-z_{\alpha/2} &\leq Z \leq Z_{\alpha/2}) &= 1 - \alpha \\
+    P(-z_{\alpha/2} &\leq \frac{\hat{\text{lift}} - \mu_{\text{lift}}}{\hat{s}_{\text{lift}}} \leq z_{\alpha/2}) = 1 - \alpha \\
+    P(-z_{\alpha/2} \hat{s}_{\text{lift}} &\leq \hat{\text{lift}} - \mu_{\text{lift}} \leq z_{\alpha/2} \hat{s}_{\text{lift}}) = 1 - \alpha \\
+    P(-z_{\alpha/2}{\hat{s}_{\text{lift}}} - \hat{\text{lift}} &\leq - \mu_{\text{lift}} \leq z_{\alpha/2}{\hat{s}_{\text{lift}}} - \hat{\text{lift}}) = 1 - \alpha \\
+    P(\hat{\text{lift}} - z_{\alpha/2}{\hat{s}_{\text{lift}}} &\leq \mu_{\text{lift}} \leq \hat{\text{lift}} + z_{\alpha/2}{\hat{s}_{\text{lift}}}) = 1 - \alpha \tag{12}
 
-Change variables in the integral with :math:`x = \frac{\sigma}{\sqrt{n}}z +
-\mu`, we get the standard normal distribution for :math:`Z`:
+That is, the true lift (:math:`\mu_{\text{lift}}`) lies in the interval :math:`[\hat{\text{lift}} - z_{\alpha/2}{\hat{s}_{\text{lift}}}, \hat{\text{lift}} - z_{\alpha/2}{\hat{s}_{\text{lift}}}]`,
+:math:`1-\alpha` of the time, where :math:`\hat{\text{lift}}` is our point
+estimate of lift and :math:`z_{\alpha/2}` is the :math:`\alpha/2` z-score for a standard normal distribution.
 
-.. math::
+|h3| Activation Rate and Binomial Outcome Variables |h3e|
 
-    P(Z \leq z) =  \int_{-\infty}^{z} \frac{1}{\sqrt{2\pi}} exp\{-\frac{z^2}{2}\}dx \tag{7}
+All the math above equally applies to when your outcome variable is not a
+real-valued number such as a activation or conversion rate.  In that case, each
+customer can only have two outcomes: :math:`1` (shops or converts) and
+:math:`0` (doesn't shop or convert).  There are a few caveats though.
 
-Starting with a 95% confidence interval for a standard normal distribution and working
-back to our sample mean:
-
-.. math::
-
-    P(-z \leq Z \leq z) &= 0.95 \\
-    &= P(-1.96 \leq \frac{\bar{X} - \mu}{\frac{\sigma}{\sqrt{n}}} \leq 1.96) \\
-    &= P(\bar{X} - 1.96\frac{\sigma}{\sqrt{n}} \leq \mu \leq \bar{X} + 1.96\frac{\sigma}{\sqrt{n}}) 
-    \tag{8}
-
-We get a 95% confidence interval for :math:`\mu`: :math:`(\bar{X} - 1.96\frac{\sigma}{\sqrt{n}}, \bar{X} + 1.96\frac{\sigma}{\sqrt{n}})`.
-
-However, remember we used a big simplifying assumption: we know the value of :math:`\sigma`.
-In most realistic cases, this is an unknown quantity that we also have to estimate.
-It turns out an unbiased estimator for the variance :math:`\sigma^2` is the
-`sample variance <https://en.wikipedia.org/wiki/Variance#Sample_variance>`_:
+The standard unbiased estimators for mean and variance of a binomial would be
+used where :math:`Y` are the number of successes (or :math:`1`'s) in the
+sample, and :math:`n` are the total number of samples:
 
 .. math::
 
-    s^2 = \frac{1}{n-1} \Sigma_{i=1}^{n} (x_i - \bar{x})^2 \tag{9}
+    \hat{\mu} &= \frac{Y}{n} \\
+    \hat{\sigma^2} &= \frac{\hat{p}(1-\hat{p})}{n} \tag{13}
+
+Plugging these two values in the above equation will give us a good
+approximation of the true lift in terms of the activation rate.
+
+A good rule of thumb of when you can use a normal to approximate a binomial
+is (from Wackerly et.  al):
+
+.. math::
+
+    n \geq 9 \frac{\text{larger of }p\text{ and }(1-p)}{\text{smaller of }p\text{ and }(1-p)} \tag{14}
+
+So for :math:`p=0.01`, :math:`n \geq 9 \frac{0.99}{0.01} = 891`, meaning you
+want your treatment and control groups to be at least 900.  Most likely you
+will want bigger values of :math:`n` to control the error rate (see below).
+
+|h3| Statistical Power and Selecting a Sample Size |h3e|
 
 
 
-
-|h2| Difference of Two Normal Distributions |h2e|
-
-
-
-
-|h2| Incremental Sales in Direct Marketing |h2e|
 
 |h2| Conclusion |h2e|
 
 |h2| References and Further Reading |h2e|
 
-* Wikipedia: `Direct marketing <https://en.wikipedia.org/wiki/Direct_marketing>`_
-* `All of Statistics: A Concise Course in Statistical Inference <http://link.springer.com/book/10.1007%2F978-0-387-21736-9>`_ by Larry Wasserman.
-* `Data Mining Techniques: For Marketing, Sales, and Customer Relationship Management <http://www.amazon.com/Data-Mining-Techniques-Relationship-Management/dp/0470650931/>`_ by Linoff
+* Wikipedia: `Direct marketing <https://en.wikipedia.org/wiki/Direct_marketing>`_, `Central Limit Theorem <https://en.wikipedia.org/wiki/Central_limit_theorem>`_, `Sample Mean <https://en.wikipedia.org/wiki/Sample_mean_and_covariance>`_, `Sample Variance <https://en.wikipedia.org/wiki/Variance#Sample_variance>`_, `Law of Large Numbers <https://en.wikipedia.org/wiki/Law_of_large_numbers>`_.
+* `All of Statistics: A Concise Course in Statistical Inference <http://link.springer.com/book/10.1007%2F978-0-387-21736-9>`_ by Wasserman.
+* `Mathematical Statistics with Applicatinos <http://www.amazon.ca/Mathematical-Statistics-Applications-Dennis-Wackerly/dp/0495110817>`_ by Wackerly, Mendenhall and Scheaffer.
+* `Data Mining Techniques: For Marketing, Sales, and Customer Relationship Management <http://www.amazon.com/Data-Mining-Techniques-Relationship-Management/dp/0470650931/>`_ by Linoff.
   
   
-  `Sum of normally distributed random variables <https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables>`_, `Central Limit Theorem <https://en.wikipedia.org/wiki/Central_limit_theorem>`_, `Sample Variance <https://en.wikipedia.org/wiki/Variance#Sample_variance>`_
-
-
 
 |br|
 |br|
@@ -598,3 +444,5 @@ It turns out an unbiased estimator for the variance :math:`\sigma^2` is the
 .. [3] Many marketers are tempted to *not* take a control group.  Their reasoning is something along the lines of "but I'm missing out on sales!", in which you should respond back "how do you know that?"  It's quite possible the offer could have absolutely no meaningful effect on your customers (e.g. targeting wrong product to people who don't want it) and possibly a negative effect (e.g. the discount may be too high with not enough people coming in)!  Just because you're giving people a discount doesn't mean it always increases sales.  Further, even if you have an increase, you don't know *how much* of an increase it is by i.e. the effect size.  If you different offers boosted sales by 1% vs. 10%, you should know that!  This is how you can test and learn to improve your overall business.
 
 .. [4] This section was primarily based on *All of Statistics*, Chapter 16.  It has a great explanation of how randomized control groups work.  Check it out if my quick explanation glosses over too many things.
+
+.. [5] This section was primarily based on *All of Statistics*, Chapter 16.  It has a great explanation of how randomized control groups work.  Check it out if my quick explanation glosses over too many things.
