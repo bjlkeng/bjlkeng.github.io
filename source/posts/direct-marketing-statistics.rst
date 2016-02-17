@@ -25,7 +25,7 @@
 
 .. |H3e| raw:: html
 
-   </h3>
+   </h4>
 
 .. |center| raw:: html
 
@@ -186,6 +186,8 @@ campaign period.
 Also denote the binary treatment variable as :math:`X_i=1` as "treated" (given
 the offer) and :math:`X_i=0` as "not treated" (control group or not given the
 offer) for the :math:`i^{th}` customer.
+Note: we'll represent random variables with capital letters  and their corresponding values after they have been observed with
+lower case letters [4]_.
 
 To not bury the lead, a good point estimator for measuring campaign
 effectivness is just using the difference of spend per customer (SPC) or
@@ -195,19 +197,19 @@ means):
 .. math::
 
     \hat{\text{lift}} &= \hat{E}[Y|X=1] - \hat{E}[Y|X=0] \\
-                      &= \bar{Y}_{X=1} - \bar{Y}_{X=0} \\
-                      &= \frac{1}{n_T} \Sigma_{i=1}^{n} Y_i X_i
-                         - \frac{1}{n_C} \Sigma_{i=1}^{n} Y_i (1 - X_i) \\
+                      &= \bar{y}_{X=1} - \bar{y}_{X=0} \\
+                      &= \frac{1}{n_T} \Sigma_{i=1}^{n} y_i x_i
+                         - \frac{1}{n_C} \Sigma_{i=1}^{n} y_i (1 - x_i) \\
                       &= SPC_{\text{treatment}} - SPC_{\text{control}}          \tag{2}
 
 where the :math:`\hat{}` symbol represents an estimate,
-:math:`n_T = \Sigma_{i=1}^{n} X_i` and :math:`n_C = \Sigma_{i=1}^{n} (1-X_i)`.
+:math:`n_T = \Sigma_{i=1}^{n} x_i` and :math:`n_C = \Sigma_{i=1}^{n} (1-x_i)`.
 All those equations boil down to basically just taking the difference of spend
 per customer between treatment and control.  In some of the more math heavy
 sections below, you'll see why we introduced all this notation.
 First, let's see why our control groups have to be a random sample.
 
-|h3| Causal Inference [4]_ |h3e|
+|h3| Causal Inference [5]_ |h3e|
 
 As I mentioned before, we can never simultaneously give a promotional offer
 *and* not give it at the same time (unless we had some kind of parallel universe).  
@@ -215,16 +217,16 @@ However, the ideal measurment for campaign effectiveness is exactly this
 quantity!  Let's define this more precisely.
 
 Introduce two variables :math:`C_{X=0}, C_{X=1}` as potential outcome
-variables.  `C_{X=0}` is the outcome if we did not treat customer :math:`i` and
-`C_{X=1}` is the outcome if we did treat customer :math:`i`.
+variables.  :math:`C_{X=0}` is the outcome if we did not treat customer :math:`i` and
+:math:`C_{X=1}` is the outcome if we did treat customer :math:`i`.
 Therefore:
 
 .. math::
 
  Y = 
  \begin{cases} 
-      C_{X=0} & X = 0 \\
-      C_{X=1} & X = 1
+      C_{X=0} & \text{when }X = 0 \\
+      C_{X=1} & \text{when }X = 1
  \end{cases}  \tag{3}
 
 Or more concisely, :math:`Y=C_X`.  
@@ -235,16 +237,16 @@ value of these two variables called the **average causal effect**:
 
 .. math::
 
-    lift = E(C_{X=1}) - E(C_{X=0}) \tag{4}
+    \text{lift} = E(C_{X=1}) - E(C_{X=0}) \tag{4}
 
 In other words, we want to find the SPC of sending *everyone* an offer minus
 the SPC of *not* sending everyone an offer.
 Equation 2 looks similar but actually measures something different called
-**association** (denoted by :math:`\alpha`):
+**association** (denoted by :math:`A`):
 
 .. math::
 
-    \alpha = E[Y|X=1] - E[Y|X=0]  \tag{5}
+    A = E[Y|X=1] - E[Y|X=0]  \tag{5}
 
 It's a widely known fact that association does not equal causation.
 Let's take a look at a small example why.
@@ -271,8 +273,8 @@ Let's take a look at a small example why.
 
  .. math::
 
-    \alpha &= \frac{$10 + $10 + $10 + $10}{4} - \frac{$0 + $0 + $0 + $0}{4} \\
-           &= \frac{$10} \\
+    A &= \frac{$10 + $10 + $10 + $10}{4} - \frac{$0 + $0 + $0 + $0}{4} \\
+           &= $10 \\
            \\
     \text{lift} &= \frac{$0 + $0 + $0 + $0 + $10 + $10 + $10 + $10}{8} \\
      & - \frac{$0 + $0 + $0 + $0 + $10 + $10 + $10 + $10}{8} \\
@@ -283,17 +285,17 @@ Let's take a look at a small example why.
  treatment was applied.  The association on the other hand is clearly positive
  at $10.
 
-Coming up with other examples where :math:`\alpha > 0` but :math:`\text{lift} < 0` and
-related combinations are not to difficult.  The reason why we got such different
-values for :math:`\alpha` and :math:`\text{lift}` is because :math:`C_{X=0}, C_{X=1}`
+Coming up with other examples where :math:`A > 0` but :math:`\text{lift} < 0` and
+other related combinations is not to difficult.  The reason why we got such different
+values for :math:`A` and :math:`\text{lift}` is because :math:`C_{X=0}, C_{X=1}`
 are not independent of :math:`X`.  That is the treatment is not independent of the 
-customer, in the example, we put all the high value customers in the treatment group
-while putting the low value ones in the "control" group.
+customer.  In the above example, we put all the high value customers in the treatment group
+while putting the low value ones in the control group.
 
 .. admonition:: **Theorem** 
 
  If we randomly assign subjects to treatment and control such that :math:`P(X=0) > 0`
- and :math:`P(X=1) > 1`, then :math:`\alpha=\text{lift}`.
+ and :math:`P(X=1) > 1`, then :math:`A=\text{lift}`.
     
  **Proof**
      Since X is randomly assigned, X is independent of :math:`C_{X=1}, C_{X=0}`, so:
@@ -303,14 +305,15 @@ while putting the low value ones in the "control" group.
          \text{lift} &= E(C_{X=1}) - E(C_{X=0}) \\
                      &= E(C_{X=1}|X=1) - E(C_{X=0}|X=0) && \text{since } X \text{ is independent of } C_X \\
                      &= E(Y|X=1) - E(Y|X=0) && \text{since } Y = C_X \\
-                     &= \alpha   \tag{7}
+                     &= A   \tag{7}
 
 
 Using Theorem 1 we can see that by assigning random control groups, our
 use of difference in SPC (i.e. association) using in Equation 2 is identical
-the actual causal effect that we want, which is lift.  However, if we
-don't have random assignments then there is no guarantee that the association
-we computed in Equation 2 has anything to do with lift, as we saw in Example 1.
+the actual causal effect i.e. lift.  However, if we
+don't have random assignments (and have some kind of bias in assignment towards
+treatment or control) then there is no guarantee that the association we
+computed in Equation 2 has anything to do with lift, as we saw in Example 1.
 
 
 |h3| Central Limit Theorem and Confidence Intervals |h3e|
@@ -326,18 +329,15 @@ In general, the distributions of customer spend, :math:`U_i` and :math:`V_i`,
 do not take any familiar form of distribution that we know.  However, using the
 results of the 
 `central limit theorem (CLT) <https://en.wikipedia.org/wiki/Central_limit_theorem>`_, 
-we can see that the sample mean of each population (treatment :math:`\bar{U}` and control :math:`\bar{V}`) can
-be approximated by a normal distribution, whose expected value is the mean of
-the underlying variable:
+we know that the sample mean of each population (treatment :math:`\bar{U}` and
+control :math:`\bar{V}`) can be approximated by a normal distribution:
  
 .. math::
 
-    E[\bar{U}] &= E[\frac{1}{n_U} \Sigma_{i=1}^{n_U} U_i] \approx E[N(\mu_U, \frac{\sigma^2_U}{n_U})] = \mu_U \\
-    E[\bar{V}] &= E[\frac{1}{n_V} \Sigma_{i=1}^{n_V} V_i] \approx E[N(\mu_V, \frac{\sigma^2_V}{n_V})] = \mu_V \tag{8}
+    \bar{U} \approx N(\mu_U, \frac{\sigma^2_U}{n_U}) \\
+    \bar{V} \approx N(\mu_V, \frac{\sigma^2_V}{n_V}) \tag{8}
 
-Equation 8 also confirms our estimators are consistent because
-:math:`E[\bar{U}] \approx \mu_U` and :math:`E[\bar{V}] \approx \mu_V` for large :math:`n`.
-Usually our :math:`n` is quite large (:math:`>10000`) so our normal
+Usually our :math:`n` is quite large (:math:`n>10,000`) so our normal
 approximations are quite good.
 Similarly, using the strong `law of large numbers <https://en.wikipedia.org/wiki/Law_of_large_numbers>`_,
 the `sample variance <https://en.wikipedia.org/wiki/Variance#Sample_variance>`_
@@ -346,17 +346,15 @@ when we have large :math:`n`:
 
 .. math::
 
-    s_U^2 &\approx \sigma_U^2 \\
-    s_V^2 &\approx \sigma_V^2 \tag{9}
+    \sigma_U^2 &\approx s_U^2 \\
+    \sigma_V^2 &\approx s_V^2 \tag{9}
 
-Using Equation 8 and 9, we get our approximation of the sample mean (and spend
-per customer) for large :math:`n` (the :math:`\hat{}` denote our actual point
-estimates for the quantities):
+Using Equation 8 and 9, we get our approximation of the sample mean for large :math:`n`:
     
 .. math::
 
-    SPC_T &\approx N(\hat{\bar{U}}, \frac{\hat{s}^2_U}{n_U}) \\
-    SPC_C &\approx N(\hat{\bar{V}}, \frac{\hat{s}^2_V}{n_V})  \tag{10}
+    \bar{U} &\approx N(\bar{u}, \frac{{s}^2_U}{n_U}) \\
+    \bar{V} &\approx N(\bar{v}, \frac{{s}^2_V}{n_V})  \tag{10}
 
 Knowing that the `difference of two normal distributions
 <http://mathworld.wolfram.com/NormalDifferenceDistribution.html>`_ is just a
@@ -366,45 +364,47 @@ variance equal to the sum of variances), our lift is:
 
 .. math::
 
-     \text{lift} &= SPC_T - SPC_C \\
-                 &\approx N(\bar{U}, \frac{s^2_U}{n_U}) - N(\bar{V}, \frac{s^2_V}{n_V}) \\
-                 &= N(\bar{U} - \bar{V}, \frac{s^2_U}{n_U} + \frac{s^2_V}{n_V}) \tag{11} 
+     \text{lift} &= \bar{U} - \bar{V} \\
+                 &= N(\mu_{U}, \frac{\sigma^2_U}{n_U}) - N(\mu_{V}, \frac{\sigma^2_V}{n_V}) \\
+                 &= N(\mu_{U} - \mu_{V}, \frac{\sigma^2_U}{n_U} + \frac{\sigma^2_V}{n_V}) \\
+                 &\approx N(\bar{u} - \bar{v}, \frac{s^2_U}{n_U} + \frac{s^2_V}{n_V}) \tag{11} 
 
-Now our lift is simply just a normal random variable whose mean and variance we know how to estimate,
-we can get a :math:`1 - \alpha` two sided confidence interval.  Since lift is approximately normal,
-we know that :math:`Z=\frac{\hat{\text{lift}} - \mu_{\text{lift}}}{\sigma_{\text{lift}}} \approx \frac{\hat{\text{lift}} - \mu_{\text{lift}}}{\hat{s}_{\text{lift}}}` 
+Now that our lift is simply just a normal random variable whose mean and variance we know how to estimate,
+we can get a :math:`1 - \alpha` two sided confidence interval.  
+Since lift is approximately normal,
+we know that :math:`Z=\frac{\text{lift} - \mu_{\text{lift}}}{\sigma_{\text{lift}}}` 
 has a standard normal distribution N(0, 1):
 
 .. math::
 
-    P(-z_{\alpha/2} &\leq Z \leq Z_{\alpha/2}) &= 1 - \alpha \\
-    P(-z_{\alpha/2} &\leq \frac{\hat{\text{lift}} - \mu_{\text{lift}}}{\hat{s}_{\text{lift}}} \leq z_{\alpha/2}) = 1 - \alpha \\
-    P(-z_{\alpha/2} \hat{s}_{\text{lift}} &\leq \hat{\text{lift}} - \mu_{\text{lift}} \leq z_{\alpha/2} \hat{s}_{\text{lift}}) = 1 - \alpha \\
-    P(-z_{\alpha/2}{\hat{s}_{\text{lift}}} - \hat{\text{lift}} &\leq - \mu_{\text{lift}} \leq z_{\alpha/2}{\hat{s}_{\text{lift}}} - \hat{\text{lift}}) = 1 - \alpha \\
-    P(\hat{\text{lift}} - z_{\alpha/2}{\hat{s}_{\text{lift}}} &\leq \mu_{\text{lift}} \leq \hat{\text{lift}} + z_{\alpha/2}{\hat{s}_{\text{lift}}}) = 1 - \alpha \tag{12}
+    P(-z_{\alpha/2} &\leq Z \leq Z_{\alpha/2}) = 1 - \alpha \\
+    P(-z_{\alpha/2} &\leq \frac{{\text{lift}} - \mu_{\text{lift}}}{{\sigma}_{\text{lift}}} \leq z_{\alpha/2}) = 1 - \alpha \\
+    P(-z_{\alpha/2} {\sigma}_{\text{lift}} &\leq {\text{lift}} - \mu_{\text{lift}} \leq z_{\alpha/2} {\sigma}_{\text{lift}}) = 1 - \alpha \\
+    P(-z_{\alpha/2}{{\sigma}_{\text{lift}}} - {\text{lift}} &\leq - \mu_{\text{lift}} \leq z_{\alpha/2}{{\sigma}_{\text{lift}}} - {\text{lift}}) = 1 - \alpha \\
+    P({\text{lift}} - z_{\alpha/2}{{\sigma}_{\text{lift}}} &\leq \mu_{\text{lift}} \leq {\text{lift}} + z_{\alpha/2}{{\sigma}_{\text{lift}}}) = 1 - \alpha \tag{12}
 
-That is, the true lift (:math:`\mu_{\text{lift}}`) lies in the interval :math:`[\hat{\text{lift}} - z_{\alpha/2}{\hat{s}_{\text{lift}}}, \hat{\text{lift}} - z_{\alpha/2}{\hat{s}_{\text{lift}}}]`,
-:math:`1-\alpha` of the time, where :math:`\hat{\text{lift}}` is our point
-estimate of lift and :math:`z_{\alpha/2}` is the :math:`\alpha/2` z-score for a standard normal distribution.
+That is, the true lift (:math:`\mu_{\text{lift}}`) lies in the interval
+:math:`[{\text{lift}} - z_{\alpha/2}{{\sigma}_{\text{lift}}}, {\text{lift}} - z_{\alpha/2}{{\sigma}_{\text{lift}}}]`,
+:math:`1-\alpha` of the time.   Plugging in our estimates of :math:`\hat{\text{lift}}=\bar{u}-\bar{v}` 
+and :math:`\hat{\sigma_{\text{lift}}}=\frac{s^2_U}{n_U} + \frac{s^2_V}{n_V}` and looking up the
+appropriate `Z-score <https://en.wikipedia.org/wiki/Standard_score>`_, we can
+compute our :math:`1-\alpha` confidence interval:
+
+.. math::
+
+    [\bar{u}-\bar{v} - z_{\alpha/2}(\frac{s^2_U}{n_U} + \frac{s^2_V}{n_V}),
+     \bar{u}-\bar{v} + z_{\alpha/2}(\frac{s^2_U}{n_U} + \frac{s^2_V}{n_V})]  \tag{13}
+
+
+
 
 |h3| Activation Rate and Binomial Outcome Variables |h3e|
 
 All the math above equally applies to when your outcome variable is not a
-real-valued number such as a activation or conversion rate.  In that case, each
-customer can only have two outcomes: :math:`1` (shops or converts) and
-:math:`0` (doesn't shop or convert).  There are a few caveats though.
-
-The standard unbiased estimators for mean and variance of a binomial would be
-used where :math:`Y` are the number of successes (or :math:`1`'s) in the
-sample, and :math:`n` are the total number of samples:
-
-.. math::
-
-    \hat{\mu} &= \frac{Y}{n} \\
-    \hat{\sigma^2} &= \frac{\hat{p}(1-\hat{p})}{n} \tag{13}
-
-Plugging these two values in the above equation will give us a good
-approximation of the true lift in terms of the activation rate.
+real-valued number but a binary outcome such as activation or conversion.
+In that case, each customer can only have two outcomes: :math:`1` (shops or
+converts) and :math:`0` (doesn't shop or convert).  There are a few caveats
+though.
 
 A good rule of thumb of when you can use a normal to approximate a binomial
 is (from Wackerly et.  al):
@@ -417,9 +417,107 @@ So for :math:`p=0.01`, :math:`n \geq 9 \frac{0.99}{0.01} = 891`, meaning you
 want your treatment and control groups to be at least 900.  Most likely you
 will want bigger values of :math:`n` to control the error rate (see below).
 
-|h3| Statistical Power and Selecting a Sample Size |h3e|
+
+The standard unbiased estimators for mean and variance of a binomial would be
+used where :math:`Y` is the number of successes (or :math:`1`'s) in the
+sample, and :math:`n` is the total number of samples:
+
+.. math::
+
+    \hat{\mu_\bar{Y}} &= \hat{p_Y} = \frac{y}{n} \\
+    \hat{\sigma^2} &= \frac{\hat{p}(1-\hat{p})}{n} \tag{15}
+
+Using our lift notation above, we would get:
+
+.. math::
+
+    \hat{\text{lift}} &= \hat{p_\text{U}} - \hat{p_\text{V}} = \frac{y_U}{n_U} - \frac{y_V}{n_V} \\
+    \hat{\sigma^2} &= \frac{\hat{p_U}(1-\hat{p_U})}{n_U} + \frac{\hat{p_V}(1-\hat{p_V})}{n_V} \tag{16}
+
+Plugging these two values into the equations from the previous section will
+give us a good approximation of the lift in terms of the activation rate.
+
+|h2| Selecting a Sample Size |h2e|
+
+The above section is finding the confidence *after* you have all your
+observations.  What if you want to ensure that you have statistically
+significance results?  The only thing you can control (usually) a priori is the
+sample size.
+
+There are two main ways to select a sample size using an error bound and using
+the hypothesis testing framework.  Let's take a look at both.
 
 
+|h2| Selecting a Sample Size using an Error Bound |h2e|
+
+In this method, we'll be using our confidence interval from Equation 13.
+We can see that our true mean is bounded within 
+:math:`\pm z_{\alpha/2}(\frac{\sigma^2_U}{n_U} + \frac{\sigma^2_V}{n_V})` our esimate of lift.
+Limiting this quantity to a specific value (:math:`B`) and solving for 
+:math:`n`, we can compute our desired sample size.
+(Set :math:`n = n_U = c n_V` to make our computation a bit simpler.)
+
+.. math::
+
+    z_{\alpha/2}(\frac{\sigma^2_U}{n} + \frac{\sigma^2_V}{cn}) &= B \\
+    \frac{\sigma^2_U}{n} + \frac{\frac{\sigma^2_V}{c}}{n} &= \frac{B}{z_{\alpha/2}} \\
+    \frac{n}{\sigma^2_U + \frac{\sigma^2_V}{c}} &= \frac{z_{\alpha/2}}{B}\\
+    n &= \frac{z_{\alpha/2}}{B} (\sigma^2_U + \frac{\sigma^2_V}{c}) \tag{17}
+
+The only caveat here is finding an estimate for :math:`\sigma` (remember we're
+doing this before we have any observations), so we can't use any samples to
+estimate it.  In that case, you could use a previously known sample variance 
+(from a similar experiment) or another quick and dirty estimate is that
+the range of allowable values usually falls within :math:`4\sigma`.
+Both these will provide a decent estimate of the values.
+Let's take a look at an example.
+
+
+.. admonition:: Example 1
+
+ From a past experiment, we know that customers usually spend between
+ $20 and $140 during a promotion period. We want to send out flyers to
+ :math:`5,000` customers, and want an error bound on spend per customer
+ of $0.05 with 95% confidence.  How many people should we allocate
+ for treatment and control?
+ 
+ First, find an approximate standard deviation:
+
+ .. math::
+
+    \text{range} &= (140-20) = 120  \approx 4\sigma \\
+    \sigma   &\approx 30 \tag{18}
+
+ Using this estimate (assuming that it is valid for both control and treatment)
+ and Equation 17 (with :math:`1 - \alpha = 0.95` so :math:`z_{0.05/2}=1.96`), we get:
+
+ .. math::
+
+    n &= \frac{z_{\alpha/2}}{B} (\sigma^2_U + \frac{\sigma^2_V}{c}) \\
+      &= \frac{1.96}{0.05}(1 + \frac{1}{c})(30) \\
+      &= (1 + \frac{1}{c})(1176) \tag{19}
+
+ We want to allocate as small a control group as possible so we can
+ maximize revenue (assuming our promotion has positive lift).  Knowing that
+ :math:`n + cn = 5000` (since treatment and control add up to this number),
+ solving for :math:`n` with Equation 19 (using the quadratic equation):
+
+ .. math::
+
+    n = (1 + \frac{1}{c})(1176) &= \frac{5000}{1 + c} \\
+        (c+1)^2 &= \frac{5000}{1176}c \\
+        c^2 - 2.25c + 1 = 0 \\
+        c \approx 1.125 \pm 0.515 \\
+        n \approx 3106 \text{ or } 1894 \tag{20}
+
+ The two solutions correspond to :math:`n` being the larger or smaller number
+ because we make not assumptions about which one is larger (:math:`n` or
+ :math:`cn`).  Thus, we should pick the treatment group to be approximately 3100
+ and control to be 1900.  Contrast this with setting :math:`c=1`, which would yield
+ :math:`n=2352`, a slightly larger control group than is necessary.
+
+
+|h2| Selecting a Sample Size using Hypothesis Testing and Statistical Power |h2e|
 
 
 |h2| Conclusion |h2e|
@@ -428,7 +526,7 @@ will want bigger values of :math:`n` to control the error rate (see below).
 
 * Wikipedia: `Direct marketing <https://en.wikipedia.org/wiki/Direct_marketing>`_, `Central Limit Theorem <https://en.wikipedia.org/wiki/Central_limit_theorem>`_, `Sample Mean <https://en.wikipedia.org/wiki/Sample_mean_and_covariance>`_, `Sample Variance <https://en.wikipedia.org/wiki/Variance#Sample_variance>`_, `Law of Large Numbers <https://en.wikipedia.org/wiki/Law_of_large_numbers>`_.
 * `All of Statistics: A Concise Course in Statistical Inference <http://link.springer.com/book/10.1007%2F978-0-387-21736-9>`_ by Wasserman.
-* `Mathematical Statistics with Applicatinos <http://www.amazon.ca/Mathematical-Statistics-Applications-Dennis-Wackerly/dp/0495110817>`_ by Wackerly, Mendenhall and Scheaffer.
+* `Mathematical Statistics with Applications <http://www.amazon.ca/Mathematical-Statistics-Applications-Dennis-Wackerly/dp/0495110817>`_ by Wackerly, Mendenhall and Scheaffer.
 * `Data Mining Techniques: For Marketing, Sales, and Customer Relationship Management <http://www.amazon.com/Data-Mining-Techniques-Relationship-Management/dp/0470650931/>`_ by Linoff.
   
   
@@ -443,6 +541,8 @@ will want bigger values of :math:`n` to control the error rate (see below).
 
 .. [3] Many marketers are tempted to *not* take a control group.  Their reasoning is something along the lines of "but I'm missing out on sales!", in which you should respond back "how do you know that?"  It's quite possible the offer could have absolutely no meaningful effect on your customers (e.g. targeting wrong product to people who don't want it) and possibly a negative effect (e.g. the discount may be too high with not enough people coming in)!  Just because you're giving people a discount doesn't mean it always increases sales.  Further, even if you have an increase, you don't know *how much* of an increase it is by i.e. the effect size.  If you different offers boosted sales by 1% vs. 10%, you should know that!  This is how you can test and learn to improve your overall business.
 
-.. [4] This section was primarily based on *All of Statistics*, Chapter 16.  It has a great explanation of how randomized control groups work.  Check it out if my quick explanation glosses over too many things.
+.. [4] For example, :math:`X` and :math:`Y` represent random variables which we can manipulate and analyze properties from *before* we have actualy observed any values for them.  That means any analysis we apply on them doesn't depend one the actual numbers we observe.  After we observe some samples, we'll have explicit values for them like :math:`x=1` and :math:`y=48`, where we use lower case to distinguish these realizations of the random variables.
 
 .. [5] This section was primarily based on *All of Statistics*, Chapter 16.  It has a great explanation of how randomized control groups work.  Check it out if my quick explanation glosses over too many things.
+
+
