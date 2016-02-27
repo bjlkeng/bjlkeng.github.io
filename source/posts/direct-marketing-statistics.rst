@@ -286,9 +286,9 @@ Let's take a look at a small example why.
  at $10.
 
 Coming up with other examples where :math:`A > 0` but :math:`\text{lift} < 0` and
-other related combinations is not to difficult.  The reason why we got such different
+other related combinations is not too difficult.  The reason why we got such different
 values for :math:`A` and :math:`\text{lift}` is because :math:`C_{X=0}, C_{X=1}`
-are not independent of :math:`X`.  That is the treatment is not independent of the 
+are not independent of :math:`X`.  That is, the treatment is not independent of the 
 customer.  In the above example, we put all the high value customers in the treatment group
 while putting the low value ones in the control group.
 
@@ -309,7 +309,7 @@ while putting the low value ones in the control group.
 
 
 Using Theorem 1 we can see that by assigning random control groups, our
-use of difference in SPC (i.e. association) using in Equation 2 is identical
+use of difference in SPC (i.e. association) using Equation 2 is identical
 the actual causal effect i.e. lift.  However, if we
 don't have random assignments (and have some kind of bias in assignment towards
 treatment or control) then there is no guarantee that the association we
@@ -385,15 +385,15 @@ has a standard normal distribution N(0, 1):
 
 That is, the true lift (:math:`\mu_{\text{lift}}`) lies in the interval
 :math:`[{\text{lift}} - z_{\alpha/2}{{\sigma}_{\text{lift}}}, {\text{lift}} - z_{\alpha/2}{{\sigma}_{\text{lift}}}]`,
-:math:`1-\alpha` of the time.   Plugging in our estimates of :math:`\hat{\text{lift}}=\bar{u}-\bar{v}` 
-and :math:`\hat{\sigma_{\text{lift}}}=\frac{s^2_U}{n_U} + \frac{s^2_V}{n_V}` and looking up the
+:math:`1-\alpha` of the time.   Plugging in our estimates of :math:`\hat{\text{lift}}=\bar{u}-\bar{v} = SPC_{\text{T}} - SPC_\text{C}` 
+and :math:`\hat{\sigma_{\text{lift}}}=\sqrt{\frac{s^2_U}{n_U} + \frac{s^2_V}{n_V}}` and looking up the
 appropriate `Z-score <https://en.wikipedia.org/wiki/Standard_score>`_, we can
 compute our :math:`1-\alpha` confidence interval:
 
 .. math::
 
-    [\bar{u}-\bar{v} - z_{\alpha/2}(\frac{s^2_U}{n_U} + \frac{s^2_V}{n_V}),
-     \bar{u}-\bar{v} + z_{\alpha/2}(\frac{s^2_U}{n_U} + \frac{s^2_V}{n_V})]  \tag{13}
+    [SPC_{\text{T}} - SPC_\text{C} - z_{\alpha/2}\sqrt{\frac{s^2_U}{n_U} + \frac{s^2_V}{n_V}},
+     SPC_{\text{T}} - SPC_\text{C} + z_{\alpha/2}\sqrt{\frac{s^2_U}{n_U} + \frac{s^2_V}{n_V}}]  \tag{13}
 
 
 
@@ -439,30 +439,30 @@ give us a good approximation of the lift in terms of the activation rate.
 
 |h2| Selecting a Sample Size |h2e|
 
-The above section is finding the confidence *after* you have all your
-observations.  What if you want to ensure that you have statistically
-significance results?  The only thing you can control (usually) a priori is the
+The above sections is about finding a confidence interval *after* you have all
+your observations.  What if you want to ensure that you have statistically
+significance results?  The only thing you can (usually) do a priori is pick the
 sample size.
 
-There are two main ways to select a sample size using an error bound and using
+There are two main ways to select a sample size: (i) using an error bound, and (ii) using
 the hypothesis testing framework.  Let's take a look at both.
 
 
-|h2| Selecting a Sample Size using an Error Bound |h2e|
+|h3| Sample Size using an Error Bound |h3e|
 
 In this method, we'll be using our confidence interval from Equation 13.
 We can see that our true mean is bounded within 
-:math:`\pm z_{\alpha/2}(\frac{\sigma^2_U}{n_U} + \frac{\sigma^2_V}{n_V})` our esimate of lift.
+:math:`\pm z_{\alpha/2}\sqrt{\frac{\sigma^2_U}{n_U} + \frac{\sigma^2_V}{n_V}}` our esimate of lift.
 Limiting this quantity to a specific value (:math:`B`) and solving for 
 :math:`n`, we can compute our desired sample size.
 (Set :math:`n = n_U = c n_V` to make our computation a bit simpler.)
 
 .. math::
 
-    z_{\alpha/2}(\frac{\sigma^2_U}{n} + \frac{\sigma^2_V}{cn}) &= B \\
-    \frac{\sigma^2_U}{n} + \frac{\frac{\sigma^2_V}{c}}{n} &= \frac{B}{z_{\alpha/2}} \\
-    \frac{n}{\sigma^2_U + \frac{\sigma^2_V}{c}} &= \frac{z_{\alpha/2}}{B}\\
-    n &= \frac{z_{\alpha/2}}{B} (\sigma^2_U + \frac{\sigma^2_V}{c}) \tag{17}
+    z_{\alpha/2}\sqrt{(\frac{\sigma^2_U}{n} + \frac{\sigma^2_V}{cn})} &= B \\
+    \sqrt{\frac{\sigma^2_U}{n} + \frac{\frac{\sigma^2_V}{c}}{n}} &= \frac{B}{z_{\alpha/2}} \\
+    \sqrt{\frac{n}{\sigma^2_U + \frac{\sigma^2_V}{c}}} &= \frac{z_{\alpha/2}}{B}\\
+    n &= \frac{z_{\alpha/2}^2}{B^2} (\sigma^2_U + \frac{\sigma^2_V}{c}) \tag{17}
 
 The only caveat here is finding an estimate for :math:`\sigma` (remember we're
 doing this before we have any observations), so we can't use any samples to
@@ -476,51 +476,169 @@ Let's take a look at an example.
 .. admonition:: Example 1
 
  From a past experiment, we know that customers usually spend between
- $20 and $140 during a promotion period. We want to send out flyers to
- :math:`5,000` customers, and want an error bound on spend per customer
- of $0.05 with 95% confidence.  How many people should we allocate
- for treatment and control?
+ $20 and $140 during a promotion period. We can send
+ :math:`20,000` customers flyers and want an error bound on spend per customer
+ of $0.50 with 95% confidence.  How many people should we allocate for
+ treatment and control?
  
  First, find an approximate standard deviation:
 
  .. math::
 
-    \text{range} &= (140-20) = 120  \approx 4\sigma \\
-    \sigma   &\approx 30 \tag{18}
+    \text{range} &= (80-20) = 60  \approx 4\sigma \\
+    \sigma   &\approx 15 \tag{18}
 
  Using this estimate (assuming that it is valid for both control and treatment)
- and Equation 17 (with :math:`1 - \alpha = 0.95` so :math:`z_{0.05/2}=1.96`), we get:
+ and Equation 17 (with :math:`1 - \alpha = 0.95` so :math:`z_{0.05/2}\approx 1.96`), we get:
 
  .. math::
 
-    n &= \frac{z_{\alpha/2}}{B} (\sigma^2_U + \frac{\sigma^2_V}{c}) \\
-      &= \frac{1.96}{0.05}(1 + \frac{1}{c})(30) \\
-      &= (1 + \frac{1}{c})(1176) \tag{19}
+    n &= \frac{z^2_{\alpha/2}}{B^2} (\sigma^2_U + \frac{\sigma^2_V}{c}) \\
+      &= \frac{1.96^2}{0.5^2}(1 + \frac{1}{c})(15^2) \\
+      &= (1 + \frac{1}{c})(3457.44) \tag{19}
 
  We want to allocate as small a control group as possible so we can
  maximize revenue (assuming our promotion has positive lift).  Knowing that
- :math:`n + cn = 5000` (since treatment and control add up to this number),
+ :math:`n(1 + c) = 20,000` (since treatment and control add up to this number),
  solving for :math:`n` with Equation 19 (using the quadratic equation):
 
  .. math::
 
-    n = (1 + \frac{1}{c})(1176) &= \frac{5000}{1 + c} \\
-        (c+1)^2 &= \frac{5000}{1176}c \\
-        c^2 - 2.25c + 1 = 0 \\
-        c \approx 1.125 \pm 0.515 \\
-        n \approx 3106 \text{ or } 1894 \tag{20}
+    n = (1 + \frac{1}{c})(3457.44) &= \frac{20000}{1 + c} \\
+        (c+1)^2 &= \frac{20000}{3457.44}c \\
+        c^2 - 3.7846c + 1 = 0 \\
+        c \approx 3.4988 \pm 0.28581 \\
+        n \approx 4446 \text{ or } 15554 \tag{20}
 
  The two solutions correspond to :math:`n` being the larger or smaller number
  because we make not assumptions about which one is larger (:math:`n` or
- :math:`cn`).  Thus, we should pick the treatment group to be approximately 3100
- and control to be 1900.  Contrast this with setting :math:`c=1`, which would yield
- :math:`n=2352`, a slightly larger control group than is necessary.
+ :math:`cn`).  Thus, we should pick the treatment group to be approximately 15550
+ and control to be 4450.  Contrast this with setting :math:`c=1` in Equation
+ 19, which would yield :math:`n=6915`, a slightly larger control group than is
+ necessary.
 
 
-|h2| Selecting a Sample Size using Hypothesis Testing and Statistical Power |h2e|
+|h3| Sample Size using Hypothesis Testing and Statistical Power |h3e|
+
+Another method to pick sample size is to use a hypothesis testing
+framework along with statistical power.  To conduct this procedure, we need a
+few things:
+
+* :math:`\alpha`: the false positive rate (or how often we incorrectly detect
+  something is true when it's not).  This is usually set a :math:`0.01` or
+  :math:`0.05` in most scientific experiments.
+* Power (denoted by :math:`1 - \beta`, where :math:`\beta` is the false
+  negative rate): How often we are able to conclude that the alternative
+  hypothesis is true when it is.  A common value that is used is usually :math:`0.80`.
+* Minimum detectable effect size (denoted by :math:`\Delta`): The minimum effect size (i.e. lift) we want be able
+  to detect.  For example, we may choose a $0.50 SPC as the minimum detectable effect size.
+
+The basic idea is first we establish a test or "rule" using our the
+hypothesis testing framework (and a given :math:`\alpha`) to decide
+when we accept and when we reject a given sample.
+Next, we use this rule along with the power constraint and the minimum
+detectable effect size to compute the required :math:`n`. 
+Let's take a look in detail.
+
+First, let's determine what our test is for determining if something
+is statistically significant.  Since we're dealing with large sample sizes,
+we've already determined that we're working with normally distributed variables.
+The uniformly most powerful test in this case (which you can derive using the 
+`Neyman-Pearson Lemma <https://en.wikipedia.org/wiki/Neyman%E2%80%93Pearson_lemma>`_)
+is given by:
+
+.. math::
+
+    P(\bar{y} > \mu_0 + \frac{z_{\alpha/2}\sigma}{\sqrt{n}} | H_0) = \alpha \tag{21}
+
+Translating that into our problem with the outcome variable being lift,
+the null hypothesis that the lift is zero, we get:
+
+.. math::
+
+    P(\text{lift} = \bar{U} - \bar{V} > \frac{z_{\alpha/2}\sigma_{\text{lift}}}{\sqrt{n}} | \mu_{\text{lift}} = 0) = \alpha \tag{22}
+
+Now that we have established our test: 
+:math:`\bar{U} - \bar{V} > \frac{z_{\alpha/2}\sigma}{\sqrt{n}}`, we can 
+see how often we will correctly identify the alternative hypothesis to be true:
+
+.. math::
+
+    P(\text{lift} &> \frac{z_{\alpha/2}\sigma_{\text{lift}}}{\sqrt{n}} | \mu_{\text{lift}} = \Delta) \geq 1 - \beta \\
+    P(\frac{\text{lift} - \Delta}{\sigma_{\text{lift}} / \sqrt{n}} &> (\frac{z_{\alpha/2}\sigma_{\text{lift}}}{\sqrt{n}} - \Delta)\frac{1}{\sigma_{\text{lift}} / \sqrt{n}} | \mu_{\text{lift}} = \Delta) = 1 - \beta \\
+    P(Z &> z_{\alpha/2} - \frac{\sqrt{n}\Delta}{\sigma_{\text{lift}}} | \mu_{\text{lift}} = \Delta) \geq 1 - \beta   && \text{since lift is normally distributed} \\
+    -z_{\alpha/2} - \frac{\sqrt{n}\Delta}{\sigma_{\text{lift}}} &\geq z_{1 - \beta} \\
+    \frac{\sqrt{n}\Delta}{\sigma_{\text{lift}}} &\geq z_{1 - \beta} + z_{\alpha/2} \\
+    n &\geq \sigma^2_{\text{lift}} \frac{(z_{1 - \beta} + z_{\alpha/2})^2}{\Delta^2} \tag{23}
+
+Let's take a look at an example of how this works.
+
+.. admonition:: Example 2
+
+  Continuing from Example 1, how large of a sample size do we require if :math:`1-\beta=0.80` but now we
+  can send :math:`30,000` flyers?
+
+  Using Equation 23 and estimating :math:`\sigma \approx 15`, we have (where :math:`z_{1-\beta}=0.84`):
+
+  .. math::
+
+    n &\geq (\sigma^2_U + \frac{\sigma^2_V}{c}) \frac{(z_{1 - \beta} + z_{\alpha/2})^2}{\Delta^2} \\
+      &= (1 + \frac{1}{c})(15)^2 \frac{0.84 + 1.96)^2}{0.5^2}  \\
+      &= 7056 (1 + \frac{1}{c}) \tag{24}
+ 
+  With the added constraint :math:`n(1 + c) = 30000`, we solve for :math:`c`:
+
+  .. math::
+
+    n = (1 + \frac{1}{c})(7056) &= \frac{30000}{1 + c} \\
+        (c+1)^2 &= \frac{30000}{7056}c \\
+        c^2 - 2.252c + 1 = 0 \\
+        c \approx 1.644 \pm 0.6084 \\
+        n \approx 11349 \text{ or } 18651 \tag{25}
+
+  So we should send approximately 11350 flyers to the control group and 18650 to the treatment group.
+  Contrast this with setting :math:`c=1` resulting in :math:`n=14112`.
+
+|h3| Binomial Outcome Variables |h3e|
+
+One last point, the above calculations for sample size are equally valid when the outcome
+is binary (e.g. for conversion or activation rate).  The big difference is how we estimate
+the standard deviation/variance.  Since we're dealing with a binary outcome, we can model
+the total number of customers who convert as a binomial random variable
+(:math:`Y`), meaning each customer can be modeled as a Bernoulli random
+variable (:math:`X`), both with underlying parameter :math:`p`.
+Using the same line of reasoning above, a good estimate for the standard deviation
+of :math:`\sigma_X` uses variance of a Binomial random variable:
+
+.. math::
+
+    \sigma^2 = \frac{np(1-p)}{n} = p(1-p) \tag{26}
+
+With Equation 26, to estimate :math:`\sigma_U` or :math:`\sigma_U` in Equation 23,
+we need to estimate :math:`p`.  Usually this can be estimated based on prior campaign
+that you ran where you have a ballpark of the previous conversion rate.
+Putting the two together with estimate :math:`\hat{p}`:
+
+.. math::
+
+    n \geq (\hat{p}(1-\hat{p}) + \frac{\hat{p}(1-\hat{p})}{c}) \frac{(z_{1 - \beta} + z_{\alpha/2})^2}{\Delta^2} \tag{27}
+
+For example, you might expect the baseline conversion rate of the control group
+to be approximately 5% (:math:`\hat{p}=0.05`).  In that case, we can easily
+solve for :math:`n` as before.
+
 
 
 |h2| Conclusion |h2e|
+
+Whew!  This post was a lot longer than I expected.  "Elementary" is such a misleading
+word because in some cases it's obvious and others exceedingly complex.  The
+reason why statistics is sometimes inaccessible is the derivations and details
+of "elementary" statistics is sometimes a bit complex (even though the actual
+procedure is simple).  Hopefully this primer will help put both direct
+marketing and elementary statistics in perspective while giving some intuition
+on both subjects.
+
 
 |h2| References and Further Reading |h2e|
 
@@ -528,7 +646,7 @@ Let's take a look at an example.
 * `All of Statistics: A Concise Course in Statistical Inference <http://link.springer.com/book/10.1007%2F978-0-387-21736-9>`_ by Wasserman.
 * `Mathematical Statistics with Applications <http://www.amazon.ca/Mathematical-Statistics-Applications-Dennis-Wackerly/dp/0495110817>`_ by Wackerly, Mendenhall and Scheaffer.
 * `Data Mining Techniques: For Marketing, Sales, and Customer Relationship Management <http://www.amazon.com/Data-Mining-Techniques-Relationship-Management/dp/0470650931/>`_ by Linoff.
-  
+* `How Not To Run An A/B Test <http://www.evanmiller.org/how-not-to-run-an-ab-test.html>`_, Evan Miller.
   
 
 |br|
