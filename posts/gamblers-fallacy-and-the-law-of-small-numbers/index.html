@@ -99,7 +99,7 @@
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Games and gambling have been part of human cultures around the world for millennia.  Nowadays, the connection between games of chance and mathematics (in particular probability) are so obvious that it is taught to school children.  However, the mathematics of games and gambling only started to formally <a href="https://en.wikipedia.org/wiki/Gambling#History">develop</a> in the 17th century with the works of multiple mathematicians such as Fermat and Pascal.  It is then no wonder that many incorrect beliefs around gambling have formed that are "intuitive" from a layman's perspective but fail to pass muster when applying the rigor of mathematics.</p>
-<p>In this post, I want to discuss how surprisingly easy it is to be fooled into the wrong line of thinking even when approaching it using mathematics.  We'll take a look from both a theoretical (mathematics) point of view looking at topics such as the <a href="https://en.wikipedia.org/wiki/Gambler's_fallacy">Gambler's Fallacy</a> and the <a href="https://en.wikipedia.org/wiki/Hasty_generalization">law of small numbers</a> as well as do some simulations using code to gain some insight into the problem.  This post was inspired by a paper I recently came across a paper by Miller and Sanjurjo<a href="#fn-1"><sup>[1]</sup></a> that explains the surprising result of how easily we can be fooled.</p>
+<p>In this post, I want to discuss how surprisingly easy it is to be fooled into the wrong line of thinking even when approaching it using mathematics.  We'll take a look from both a theoretical (mathematics) point of view looking at topics such as the <a href="https://en.wikipedia.org/wiki/Gambler's_fallacy">Gambler's Fallacy</a> and the <a href="https://en.wikipedia.org/wiki/Hasty_generalization">law of small numbers</a> as well as do some simulations using code to gain some insight into the problem.  This post was inspired by a paper I recently came across a paper by Miller and Sanjurjo<a href=".#fn-1"><sup>[1]</sup></a> that explains the surprising result of how easily we can be fooled.</p>
 <!-- TEASER_END -->
 </div>
 </div>
@@ -109,7 +109,7 @@
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="The-Laws-of-Large-(and-Small)-Numbers">The Laws of Large (and Small) Numbers<a class="anchor-link" href="#The-Laws-of-Large-(and-Small)-Numbers">¶</a>
+<h3 id="The-Laws-of-Large-(and-Small)-Numbers">The Laws of Large (and Small) Numbers<a class="anchor-link" href=".#The-Laws-of-Large-(and-Small)-Numbers">¶</a>
 </h3>
 <p>Let's start by taking a look at one of the simplest situations we can think of: flipping a fair coin.  By "fair", we usually mean that it has a 50% chance of landing heads (or "H" for short) and 50% change of landing tail (or "T").  More formally:</p>
 $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expect to get roughly half of the coins to end up H and half T. This is confirmed by <a href="https://en.wikipedia.org/wiki/Law_of_large_numbers#Borel.27s_law_of_large_numbers">Borel's law of large numbers</a> (one of the various forms) that states:</p>
@@ -117,7 +117,7 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 <p>If an experiment is repeated a large number of times, independently under identical conditions, then the proportion of times that any specified event  occurs approximately equals the probability of the event's occurrence on any particular trial; the larger the number of repetitions, the better the approximation tends to be.</p>
 </blockquote>
 <p>Let's see exactly how man repetitions we need to get close.</p>
-<h4 id="Simulation">Simulation<a class="anchor-link" href="#Simulation">¶</a>
+<h4 id="Simulation">Simulation<a class="anchor-link" href=".#Simulation">¶</a>
 </h4>
 <p>Let's first define some code to do our fair coin flip and also simulations of the fair coin flip.</p>
 
@@ -252,7 +252,7 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>When \(N=10\), we can get some pretty wild swings like in Run 3 with only 20% of the flips resulting in heads.  Even at \(N=50\), we're still not quite close to the 50/50 mark.  Once we start getting past \(N=100\), we start getting quite close to a 50/50 distribution with tighter range of values around \(0.5\).</p>
-<h4 id="Long-Run-vs.-Short-Run">Long-Run vs. Short-Run<a class="anchor-link" href="#Long-Run-vs.-Short-Run">¶</a>
+<h4 id="Long-Run-vs.-Short-Run">Long-Run vs. Short-Run<a class="anchor-link" href=".#Long-Run-vs.-Short-Run">¶</a>
 </h4>
 <p>This leads to a very important point when trying to reason with the law of large numbers:</p>
 <blockquote>
@@ -262,7 +262,7 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 <blockquote>
 <p>In the short-run <strong>anything</strong> can happen.</p>
 </blockquote>
-<p>If you've ever been in a casino, the last statement will ring true (for better or worse).  Not recognizing this second rule is essentially the <a href="https://en.wikipedia.org/wiki/Hasty_generalization">law of small numbers</a><a href="#fn-2"><sup>[2]</sup></a> (also known as hasty generalization/induction):</p>
+<p>If you've ever been in a casino, the last statement will ring true (for better or worse).  Not recognizing this second rule is essentially the <a href="https://en.wikipedia.org/wiki/Hasty_generalization">law of small numbers</a><a href=".#fn-2"><sup>[2]</sup></a> (also known as hasty generalization/induction):</p>
 <blockquote>
 <p>[The law of small numbers] is an informal fallacy of faulty generalization by reaching an inductive generalization based on insufficient evidence—essentially making a hasty conclusion without considering all of the variables. In statistics, it may involve basing broad conclusions regarding the statistics of a survey from a small sample group that fails to sufficiently represent an entire population.</p>
 </blockquote>
@@ -276,7 +276,7 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Independent-Events-and-Gambler's-Fallacy">Independent Events and Gambler's Fallacy<a class="anchor-link" href="#Independent-Events-and-Gambler's-Fallacy">¶</a>
+<h3 id="Independent-Events-and-Gambler's-Fallacy">Independent Events and Gambler's Fallacy<a class="anchor-link" href=".#Independent-Events-and-Gambler's-Fallacy">¶</a>
 </h3>
 <p>Now let's take a look at another concept about random events: <a href="https://en.wikipedia.org/wiki/Independence_%28probability_theory%29">independence</a>.  The definition is basically what you intuitively think it might be:</p>
 <blockquote>
@@ -291,7 +291,7 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 <blockquote>
 <p>The gambler's fallacy, also known as the Monte Carlo fallacy or the fallacy of the maturity of chances, is the mistaken belief that, if something happens more frequently than normal during some period, it will happen less frequently in the future, or that, if something happens less frequently than normal during some period, it will happen more frequently in the future (presumably as a means of balancing nature).</p>
 </blockquote>
-<p>You might think that this fallacy is so obvious that no one would make this mistake but you would be wrong.  You don't have to look any further than your local casino where each roulette wheel has an electronic display showing the last ten or so spins <a href="#fn-3"><sup>[3]</sup></a>.  Many casino patrons will use this screen to religiously count how many red and black numbers have come up, along with a bunch of other various statistics in hopes that they might predict the next spin.  Of course each spin in independent, so these statistics won't help at all but that doesn't stop the casino from letting people throw their money away.</p>
+<p>You might think that this fallacy is so obvious that no one would make this mistake but you would be wrong.  You don't have to look any further than your local casino where each roulette wheel has an electronic display showing the last ten or so spins <a href=".#fn-3"><sup>[3]</sup></a>.  Many casino patrons will use this screen to religiously count how many red and black numbers have come up, along with a bunch of other various statistics in hopes that they might predict the next spin.  Of course each spin in independent, so these statistics won't help at all but that doesn't stop the casino from letting people throw their money away.</p>
 
 </div>
 </div>
@@ -301,11 +301,11 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="An-Unexpected-Truth">An Unexpected Truth<a class="anchor-link" href="#An-Unexpected-Truth">¶</a>
+<h3 id="An-Unexpected-Truth">An Unexpected Truth<a class="anchor-link" href=".#An-Unexpected-Truth">¶</a>
 </h3>
 <p>Now that we have an understanding of the law of large numbers, independent events and the gambler's fallacy, let's try to simulate a situation where we might run into the gambler's fallacy.</p>
 <p>Let's concoct a situation.  Take our fair coin.  Flip it \(4\) times in a row, write down each outcome and on a piece of paper (or equivalently save it in memory).  Next, count the number of outcomes that immediately followed a heads, and the number of those outcomes that were heads.  Essentially, we're trying to compute \(P(H|H)\).  Now repeat that experiment \(N\) times.  We would expect that the chance of getting a H is roughly \(0.5\), or \(P(H|H) = 0.5\).  Let's see if our intuition matches the empirical results.</p>
-<h4 id="Simulation">Simulation<a class="anchor-link" href="#Simulation">¶</a>
+<h4 id="Simulation">Simulation<a class="anchor-link" href=".#Simulation">¶</a>
 </h4>
 <p>First, we can reuse our <code>simulate()</code> function from before to flip the coin 4 times.  Next, we'll add two more functions to help us count the outcomes that immediately follow heads (and whether or not it is a heads), as well as running the \(N\) experiments.</p>
 
@@ -721,7 +721,7 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Now we see that the runs are much closer to what we would expect.  So obviously the number of flips plays a big part in the bias we were initially seeing, while the number of experiments less so.</p>
-<h4 id="A-Hidden-Bias">A Hidden Bias<a class="anchor-link" href="#A-Hidden-Bias">¶</a>
+<h4 id="A-Hidden-Bias">A Hidden Bias<a class="anchor-link" href=".#A-Hidden-Bias">¶</a>
 </h4>
 <p>Let's take a look at our first simulation with <code>num_flips=4</code> and the probability of flips for each realization of four flips.  The following table enumerates all possible sequences and shows the count of the numerator and denominator of our <code>count_heads_after_heads()</code> function.  We also add the last columns to show the ratio between the two, which we denote loosely as the empirical probability of heads after heads.</p>
 <table>
@@ -858,7 +858,7 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 You can see that this analysis matches what our simulation shows, a value close to \(0.40\).  But where does the bias coming from?</p>
 <p>First, we should note that for <code>num_flips=4</code>, we would (correctly) expect roughly \(2\) out of \(4\) flips to be heads.  But what about a heads after heads?  For a given number of heads (first column), for example \(2\), it is impossible to get \(2\) or more heads (fourth column).  Likewise, the total number of flips after H must be less than or equal to \(2\).  So the ratio of the two leads to an empirical probability that is strictly less than \(\frac{2}{4}\).  This big constraint of a short run of flips over represents tails for a given amount of heads.  We saw that as we increase the run length (<code>num_flips</code> in our code), the probability approaches the expected 50/50 distribution.</p>
 <p>But why does increasing the number of experiments (<code>N</code> in our code) not work as per our expectation of the law of large numbers?  The issue is that our "unit" of measurement is not a single flip, but rather independent short sequences of flips (in our case \(4\)).  In this case, we just repeatedly run into this bias for each independent experiment we perform, regardless of how many times it is run.  A different setup where each of the short runs were concatenated together would produce the 50/50 split our intuition expects effectively removing the bias.</p>
-<h4 id="Psychology-of-Gambler's-Fallacy">Psychology of Gambler's Fallacy<a class="anchor-link" href="#Psychology-of-Gambler's-Fallacy">¶</a>
+<h4 id="Psychology-of-Gambler's-Fallacy">Psychology of Gambler's Fallacy<a class="anchor-link" href=".#Psychology-of-Gambler's-Fallacy">¶</a>
 </h4>
 <p>One of the reasons why this bias is so insidious is that, as humans, we naturally tend to update our beliefs on finite sequences of observations.  Imagine the roulette wheel with the electronic display.  When looking for patterns, most people will just take a glance at the current 10 numbers and make a mental note of it.  Five minutes later, they may do the same thing.  This leads to precisely the bias that we saw above of using short sequences to infer the overall probability of a situation.  Thus, the more "observations" they make, the strong the tendency to fall for the Gambler's Fallacy.</p>
 <p>Of course, there are ways around making this mistake.  As we saw, the most straight forward is to observe longer sequences.  However, there's reason to believe that this is not practical given the limitations of human attention span and memory.  Another method is to just do straight counts of the favorable outcomes and total outcomes (instead of computing interim probabilities after each "observation" like we did in our experiment), and then just compute the probability of this composite sample.  This leads to the expected true long-run probability.  Again, this bumps up against the limitations of human attention and memory.  Probably the best way is to use external aids (e.g. pen and paper, computer) to properly record and compute the probability.  Unfortunately, casinos are not as sympathetic to this solution.</p>
@@ -871,7 +871,7 @@ You can see that this analysis matches what our simulation shows, a value close 
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Conclusion">Conclusion<a class="anchor-link" href="#Conclusion">¶</a>
+<h3 id="Conclusion">Conclusion<a class="anchor-link" href=".#Conclusion">¶</a>
 </h3>
 <p>Probability is far from a natural line of human thinking.  Humans do have limited capacities in attention span and memory, which bias the observations we make and fool us into such fallacies such as the Gambler's Fallacy.  Even with knowledge of probability, it is easy to be misled into an incorrect line of thinking.  The best we can do is be aware of these biases and take extra measures to avoid them.</p>
 <p>One of my favorite thinkers is Charlie Munger who espouses this line of thinking.  He always has something interesting to say and so I'll leave you with one of his quotes:</p>
@@ -887,15 +887,15 @@ You can see that this analysis matches what our simulation shows, a value close 
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Notes">Notes<a class="anchor-link" href="#Notes">¶</a>
+<h3 id="Notes">Notes<a class="anchor-link" href=".#Notes">¶</a>
 </h3>
-<p>List of Notes: <sup class="footnote-ref" id="fnref-1"><a href="#fn-1" rel="footnote">1</a></sup>, <sup class="footnote-ref" id="fnref-2"><a href="#fn-2" rel="footnote">2</a></sup>, <sup class="footnote-ref" id="fnref-3"><a href="#fn-3" rel="footnote">3</a></sup></p>
+<p>List of Notes: <sup class="footnote-ref" id="fnref-1"><a href=".#fn-1" rel="footnote">1</a></sup>, <sup class="footnote-ref" id="fnref-2"><a href=".#fn-2" rel="footnote">2</a></sup>, <sup class="footnote-ref" id="fnref-3"><a href=".#fn-3" rel="footnote">3</a></sup></p>
 <div class="footnotes">
 <hr>
 <ol>
-<li id="fn-1"><p>Miller, Joshua Benjamin and Sanjurjo, Adam, Surprised by the Gambler's and Hot Hand Fallacies? A Truth in the Law of Small Numbers (September 15, 2015). IGIER Working Paper #552. Available at SSRN: <a href="http://ssrn.com/abstract=2627354">http://ssrn.com/abstract=2627354</a> or <a href="http://dx.doi.org/10.2139/ssrn.2627354">http://dx.doi.org/10.2139/ssrn.2627354</a><a href="#fnref-1" rev="footnote">↩</a></p></li>
-<li id="fn-2"><p>Of course it's not <em>really</em> a law, especially since it is a fallacy.<a href="#fnref-2" rev="footnote">↩</a></p></li>
-<li id="fn-3"><p>Check out this story: <a href="http://gawker.com/5919675/what-are-the-odds-las-vegas-roulette-wheel-stops-on-same-number-seven-times-in-a-row">Las Vegas Roulette Wheel Stops on Same Number 7 Times in a Row</a>.  Imagine you were there when the wheel stopped on the same number for the sixth time.  How tempted would you be to make a huge bet on it <em>not</em> coming up to that number on the seventh time?<a href="#fnref-3" rev="footnote">↩</a></p></li>
+<li id="fn-1"><p>Miller, Joshua Benjamin and Sanjurjo, Adam, Surprised by the Gambler's and Hot Hand Fallacies? A Truth in the Law of Small Numbers (September 15, 2015). IGIER Working Paper #552. Available at SSRN: <a href="http://ssrn.com/abstract=2627354">http://ssrn.com/abstract=2627354</a> or <a href="http://dx.doi.org/10.2139/ssrn.2627354">http://dx.doi.org/10.2139/ssrn.2627354</a><a href=".#fnref-1" rev="footnote">↩</a></p></li>
+<li id="fn-2"><p>Of course it's not <em>really</em> a law, especially since it is a fallacy.<a href=".#fnref-2" rev="footnote">↩</a></p></li>
+<li id="fn-3"><p>Check out this story: <a href="http://gawker.com/5919675/what-are-the-odds-las-vegas-roulette-wheel-stops-on-same-number-seven-times-in-a-row">Las Vegas Roulette Wheel Stops on Same Number 7 Times in a Row</a>.  Imagine you were there when the wheel stopped on the same number for the sixth time.  How tempted would you be to make a huge bet on it <em>not</em> coming up to that number on the seventh time?<a href=".#fnref-3" rev="footnote">↩</a></p></li>
 </ol>
 </div>
 
@@ -919,7 +919,7 @@ You can see that this analysis matches what our simulation shows, a value close 
             <li class="next">
                 <a href="../optimal-betting-and-the-kelly-criterion/" rel="next" title="Optimal Betting Strategies and The Kelly Criterion">Next post</a>
             </li>
-        </ul></nav></aside><script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+        </ul></nav></aside><script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
             MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
             </script></article>
 </div>

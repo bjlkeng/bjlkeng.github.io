@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (marketing)</title><link>http://satisficing.briankeng.com/</link><description></description><atom:link rel="self" type="application/rss+xml" href="http://satisficing.briankeng.com/categories/marketing.xml"></atom:link><language>en</language><lastBuildDate>Sun, 07 Feb 2016 22:18:41 GMT</lastBuildDate><generator>https://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Direct Marketing Statistics</title><link>http://satisficing.briankeng.com/posts/normal-difference-distribution/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to look at a widely used probability distribution:
+the normal difference distribution, or more explicitly the distribution that
+results from the difference of two normally distributed random variables.
+Any self respecting statistics class will teach students about the application
+of this key distribution that has wide applicability across numerous fields such
+as the economics, social sciences, and physical sciences to name a few.
+As usual, we'll cover some of the theory about this distribution to gain some
+intuition and apply it to a common problem in direct marketing of incremental
+revenue.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://satisficing.briankeng.com/posts/normal-difference-distribution/"&gt;Read more…&lt;/a&gt; (10 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Gaussian</category><category>marketing</category><category>mathjax</category><category>normal</category><category>probability</category><guid>http://satisficing.briankeng.com/posts/normal-difference-distribution/</guid><pubDate>Sat, 30 Jan 2016 18:40:41 GMT</pubDate></item></channel></rss>
