@@ -198,7 +198,7 @@ lower case letters [4]_.
 
 To not bury the lead, a good point estimator for measuring campaign
 effectiveness is just using the difference of spend per customer (SPC) or
-**lift**  of the treatment and control group (i.e. different of population
+**lift**  of the treatment and control group (i.e. difference of population
 means):
 
 .. math::
@@ -207,7 +207,7 @@ means):
                       &= \bar{y}_{X=1} - \bar{y}_{X=0} \\
                       &= \frac{1}{n_T} \Sigma_{i=1}^{n} y_i x_i
                          - \frac{1}{n_C} \Sigma_{i=1}^{n} y_i (1 - x_i) \\
-                      &= SPC_{\text{treatment}} - SPC_{\text{control}}          \tag{2}
+                      &= SPC_{\text{T}} - SPC_{\text{C}}          \tag{2}
 
 where the :math:`\hat{}` symbol represents an estimate,
 :math:`n_T = \Sigma_{i=1}^{n} x_i` and :math:`n_C = \Sigma_{i=1}^{n} (1-x_i)`.
@@ -443,7 +443,7 @@ Using our lift notation above, we would get:
 .. math::
 
     \hat{\text{lift}} &= \hat{p_\text{U}} - \hat{p_\text{V}} = \frac{y_U}{n_U} - \frac{y_V}{n_V} \\
-    \hat{\sigma_{\bar{Y}}^2} &= \frac{\hat{p_U}(1-\hat{p_U})}{n_U} + \frac{\hat{p_V}(1-\hat{p_V})}{n_V} \tag{16}
+    \hat{\sigma_{\text{lift}}^2} &= \frac{\hat{p_U}(1-\hat{p_U})}{n_U} + \frac{\hat{p_V}(1-\hat{p_V})}{n_V} \tag{16}
 
 Plugging these two values into the equations from the previous section will
 give us a good approximation of the lift with respect to the activation rate.
@@ -452,7 +452,7 @@ give us a good approximation of the lift with respect to the activation rate.
 
 The above sections are about finding a confidence interval *after* you have all
 your observations.  What if you want to ensure that you can detect a statistically
-significance results (if there is one)?  The only thing you can (usually) do a priori is pick the
+significance result (if there is one)?  The only thing you can (usually) do a priori is pick the
 sample size.
 
 There are two main ways to select a sample size: (i) using an error bound, and (ii) using
@@ -463,7 +463,7 @@ the hypothesis testing framework.  Let's take a look at both.
 
 In this method, we'll be using our confidence interval from Equation 13.
 We can see that our true mean is bounded within 
-:math:`\pm z_{\alpha/2}\sqrt{\frac{\sigma^2_U}{n_U} + \frac{\sigma^2_V}{n_V}}` our estimate of lift.
+:math:`\pm z_{\alpha/2}\sqrt{\frac{\sigma^2_U}{n_U} + \frac{\sigma^2_V}{n_V}}` of our estimate of lift.
 Limiting this quantity to a specific value (:math:`B`) and solving for 
 :math:`n`, we can compute our desired sample size.
 (Set :math:`n_U = n` and :math:`n_V = c n` for some constant :math:`c` to make our computation a bit simpler.)
@@ -547,8 +547,8 @@ few things:
 The basic idea is first we establish a test or "rule" using our the
 hypothesis testing framework (and a given :math:`\alpha`) to decide
 when we accept and when we reject a given sample.
-Next, we use this rule along with the minimum detectable effect size
-as our alternative hypothesis and power to compute the required :math:`n`. 
+Next, we use this rule, the minimum detectable effect size
+as our alternative hypothesis along with the statistical power to compute the required :math:`n`. 
 Let's take a look in detail.
 
 First, we determine our statistical test.  Since we're dealing with large sample sizes,
@@ -578,7 +578,7 @@ see how often we will correctly identify the alternative hypothesis
     P(\text{lift} &> \frac{z_{\alpha/2}\sigma_{\text{lift}}}{\sqrt{n}} | \mu_{\text{lift}} = \Delta) \geq 1 - \beta \\
     P(\frac{\text{lift} - \Delta}{\sigma_{\text{lift}} / \sqrt{n}} &> (\frac{z_{\alpha/2}\sigma_{\text{lift}}}{\sqrt{n}} - \Delta)\frac{1}{\sigma_{\text{lift}} / \sqrt{n}} | \mu_{\text{lift}} = \Delta) = 1 - \beta \\
     P(Z &> z_{\alpha/2} - \frac{\sqrt{n}\Delta}{\sigma_{\text{lift}}} | \mu_{\text{lift}} = \Delta) \geq 1 - \beta & \text{since lift is normally distributed} \\
-    -z_{\alpha/2} - \frac{\sqrt{n}\Delta}{\sigma_{\text{lift}}} &\geq z_{1 - \beta} \\
+    -z_{\alpha/2} + \frac{\sqrt{n}\Delta}{\sigma_{\text{lift}}} &\geq z_{1 - \beta} \\
     \frac{\sqrt{n}\Delta}{\sigma_{\text{lift}}} &\geq z_{1 - \beta} + z_{\alpha/2} \\
     n &\geq \sigma^2_{\text{lift}} \frac{(z_{\alpha/2} + z_{1 - \beta})^2}{\Delta^2} \tag{23}
 
@@ -624,7 +624,7 @@ the total number of customers who convert as a binomial random variable
 
 With Equation 26, we need to estimate :math:`p`.  Usually this can be estimated
 based on prior campaign that you ran where you have a ballpark of the previous
-conversion rate.  Putting the two together with estimate :math:`\hat{p}` (for
+conversion rate.  Putting it all together with the estimate :math:`\hat{p}` (for
 both :math:`U` and :math:`V`):
 
 .. math::
@@ -642,7 +642,7 @@ before.
 
 Whew!  This post was a lot longer than I expected.  "Elementary" is such a misleading
 word because in some cases it's obvious and others exceedingly complex.  The
-reason why statistics is often inaccessible is the derivations and details
+reason why statistics is often inaccessible is that the derivations and details
 of "elementary" statistics is sometimes a bit complex (even though the actual
 procedure is simple).  Hopefully this primer will help put both direct
 marketing and elementary statistics in perspective while giving some intuition
