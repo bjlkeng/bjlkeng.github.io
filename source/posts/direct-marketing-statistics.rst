@@ -1,7 +1,7 @@
 .. title: Elementary Statistics for Direct Marketing
 .. slug: normal-difference-distribution
-.. date: 2016-01-30 13:40:41 UTC-05:00
-.. tags: normal, Gaussian, probability, direct marketing, mathjax
+.. date: 2016-02-27 20:40:41 UTC-05:00
+.. tags: normal, probability, direct marketing, sample size, mathjax
 .. category: 
 .. link: 
 .. description: A primer on some elementary statistics for direct marketing.
