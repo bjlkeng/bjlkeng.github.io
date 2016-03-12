@@ -383,7 +383,7 @@ HIDDEN_CATEGORIES = []
 # RSS_PATH = ""
 
 # Number of posts in RSS feeds
-# FEED_LENGTH = 10
+FEED_LENGTH = 10
 
 # Slug the Tag URL easier for users to type, special characters are
 # often removed or replaced as well.
@@ -622,7 +622,7 @@ IMAGE_THUMBNAIL_SIZE = 400
 # )
 
 # Show only teasers in the index pages? Defaults to False.
-# INDEX_TEASERS = False
+INDEX_TEASERS = True
 
 # HTML fragments with the Read more... links.
 # The following tags exist and are replaced for you:
@@ -836,11 +836,11 @@ MARKDOWN_EXTENSIONS = ['fenced_code', 'codehilite', 'extra']
 
 # Modify the number of Post per Index Page
 # Defaults to 10
-INDEX_DISPLAY_POST_COUNT = 1
+INDEX_DISPLAY_POST_COUNT = 5
 
 # By default, Nikola generates RSS files for the website and for tags, and
 # links to it.  Set this to False to disable everything RSS-related.
-# GENERATE_RSS = True
+GENERATE_RSS = True
 
 # By default, Nikola does not generates Atom files for indexes and links to
 # them. Generate Atom for tags by setting TAG_PAGES_ARE_INDEXES to True.
@@ -857,7 +857,7 @@ INDEX_DISPLAY_POST_COUNT = 1
 # RSS_LINK = None
 
 # Show only teasers in the RSS and Atom feeds? Default to True
-# RSS_TEASERS = True
+RSS_TEASERS = True
 
 # Strip HTML in the RSS feed? Default to False
 # RSS_PLAIN = False
