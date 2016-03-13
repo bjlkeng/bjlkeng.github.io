@@ -59,14 +59,126 @@
                 
 
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/a-first-post/" class="u-url">A First Post</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/probability-the-logic-of-science/" class="u-url">Probability as Extended Logic</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/probability-the-logic-of-science/" rel="bookmark"><time class="published dt-published" datetime="2015-10-14T20:30:05-04:00" title="2015-10-14 20:30">2015-10-14 20:30</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>Modern probability theory is typically derived from the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Probability_axioms">Kolmogorov axioms</a>,
+using measure theory with concepts like events and sample space.
+In one way, it's intuitive to understand how this works as Laplace
+<a class="reference external" href="https://en.wikipedia.org/wiki/Classical_definition_of_probability">wrote</a>:</p>
+<blockquote>
+The probability of an event is the ratio of the number of cases favorable
+to it, to the number of all cases possible, when [the cases are] equally
+possible. ... Probability is thus simply a fraction whose numerator is the
+number of favorable cases and whose denominator is the number of all the
+cases possible.</blockquote>
+<p>However, the intuition of this view of probability breaks down when we want to
+do more complex reasoning.  After learning probability from the lens of coins,
+dice and urns full of red and white balls, I still didn't feel that I had
+have a strong grasp about how to apply it to other situations -- especially
+ones where it was difficult or too abstract to apply the idea of <em>"a fraction
+whose numerator is the number of favorable cases and whose denominator is the
+number of all the cases possible"</em>.  And then I read <a class="reference external" href="http://www.cambridge.org/gb/academic/subjects/physics/theoretical-physics-and-mathematical-physics/probability-theory-logic-science">Probability Theory: The Logic of Science</a> by E. T. Jayne.</p>
+<p>Jayne takes a drastically different approach to probability, not with events and
+sample spaces, but rather as an extension of Boolean logic.  Taking this view made
+a great deal of sense to me since I spent a lot of time <a class="reference external" href="posts/accessible-satisfiability">studying and reasoning</a> in Boolean logic.  The following post
+is my attempt to explain Jayne's view of probability theory, where he derives
+it from "common sense" extensions to Boolean logic.  (<em>Spoiler alert: he ends
+up with pretty much the same mathematical system as Kolmogorov's probability
+theory.</em>) I'll stay away from any heavy derivations and stick with the
+intuition, which is exactly where I think this view of probability theory is most
+useful.</p>
+<p class="more"><a href="posts/probability-the-logic-of-science/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/accessible-satisfiability/" class="u-url">Accessible Satisfiability</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/accessible-satisfiability/" rel="bookmark"><time class="published dt-published" datetime="2015-10-03T20:28:04-04:00" title="2015-10-03 20:28">2015-10-03 20:28</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>Even though it was just a scant few years ago, my research in grad school seems
+like it was from another lifetime.  Nowadays I deal with data and most of my
+code revolves around manipulating and extracting interesting insights from it.
+However in my previous life I spent quite a bit of time dealing with
+satisfiability problems.  So before I start writing about data and related
+topics, I thought I'd kick it old school and write about some topics from my
+formative years.</p>
+<p class="more"><a href="posts/accessible-satisfiability/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/functions-and-procedures/" class="u-url">Functions and Procedures</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/functions-and-procedures/" rel="bookmark"><time class="published dt-published" datetime="2015-09-06T03:04:05-04:00" title="2015-09-06 03:04">2015-09-06 03:04</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>I have something to admit: I've never done any serious programming in a
+functional language.  Yes, yes, I've done some small school assignments in
+<a class="reference external" href="https://en.wikipedia.org/wiki/Scheme_%28programming_language%29">Scheme</a> (a
+dialect of Lisp), even helping out my friend from another university with his
+Scheme assignment but nothing <em>real</em> <a class="footnote-reference" href="posts/functions-and-procedures/#id3" id="id1">[1]</a>.  Does this
+make me a worse programmer?  Probably not, I imagine most developers haven't
+done anything <em>real</em> with functional programming.  Although that's probably not
+what you'd expect from reading <a class="reference external" href="https://news.ycombinator.com/">Hacker News</a>,
+where you don't know programming if you haven't tried Clojure or Haskell <a class="footnote-reference" href="posts/functions-and-procedures/#id4" id="id2">[2]</a>.</p>
+<p>My position is much more pragmatic: I'm interested in tools and techniques that
+help me solve problems faster, cleaner and with less headache.  Ideas and
+concepts from functional programming languages are <em>supposed</em> to help with at
+least some of that -- and they do; they're just not a panacea for all your
+programming woes.  Like most things a solid grasp of the fundamentals goes a
+long way.  So the topic of this post is about something pretty fundamental: a
+subroutine.  In particular, two important kinds of subroutines:
+procedures and pure functions.</p>
+<p class="more"><a href="posts/functions-and-procedures/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/common-sense-and-investing/" class="u-url">Common Sense and Investing</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/common-sense-and-investing/" rel="bookmark"><time class="published dt-published" datetime="2015-08-30T10:44:22-04:00" title="2015-08-30 10:44">2015-08-30 10:44</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p><strong>Preface</strong>: <em>Second post and I'm already off topic according to my subtitle.  I
+do have another post that is more topic appropriate but it's been pretty hectic
+so I haven't had time to finish it.  Although, investing is definitely a kind of
+technical topic involving data and numbers, so one could argue it is still on
+topic.  And argue I shall!  Enjoy!</em></p>
+<p>A lot of smart people I meet frequently mention that they have no clue about
+investing or other related financial matters.  They're quite right that modern
+finance can get complicated really fast such as <a class="reference external" href="https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model">option pricing models</a> (that require
+differential equations and other such complicated maths) but as in most things
+though, a little common sense goes a long way.  So I want to share an analogy
+that I think will help people understand a rational way to invest <em>i.e.</em> value
+investing.  In particular, the discussion will be geared towards investing in
+publicly traded stocks but the general idea applies to most asset classes.</p>
+<p class="more"><a href="posts/common-sense-and-investing/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/a-first-post/" class="u-url">A First Post</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Brian Keng
             </span></p>
             <p class="dateline"><a href="posts/a-first-post/" rel="bookmark"><time class="published dt-published" datetime="2015-08-02T05:03:25-04:00" title="2015-08-02 05:03">2015-08-02 05:03</time></a></p>
         </div>
-    </header><div class="e-content entry-content">
+    </header><div class="p-summary entry-summary">
     <div>
 <p>Hi all, this the first post in my technical blog.  For a long time I've resisted making
 a blog about anything technical because, to be frank, I didn't feel like I
@@ -111,41 +223,7 @@ confirmed that it's not really what I like doing.  Getting to a satisfactory
 layout was as much effort as I really wanted to put in.</p>
 </dd>
 </dl>
-<!-- TEASER_END --><p><br></p>
-<p>As for the name of the blog, ever since I read the autobiography of <a class="reference external" href="https://en.wikipedia.org/wiki/Herbert_A._Simon">Herbert Simon</a>,
-I've been fascinated by his idea of <a class="reference external" href="https://en.wikipedia.org/wiki/Bounded_rationality">bounded rationality</a> which is the idea that:</p>
-<blockquote>
-"when individuals make decisions, their rationality is limited
-by the information they have, the cognitive limitations of their minds, and
-the time available to make the decision."</blockquote>
-<p>Along with this idea, Simon also gives the idea of <em>satisficing</em>, a term
-combining the meaning <em>satisfy</em> and <em>suffice</em>, a stark contrast to optimal
-decision making.  Not only was he quite ahead of the times applying this idea
-of bounded rationality to economics/social science analysis, it also really
-speaks to his strong inclination to look at reality in the most rational way.
-This is as opposed to how many academics behave by trying to fit reality
-into their elegant mathematical models (A pithy quote from Galbraith:
-<tt class="docutils literal">economists are most economical about ideas. They make the ones they learned
-in graduate school last a lifetime</tt>).</p>
-<p>Simon is definitely a personal hero of mine, a true polymath.  This is quite
-apparent from Simon winning both a Nobel Prize <em>and</em> a Turing award (the Turing
-award was for his contributions to artificial intelligence and IPL, a precursor
-to Lisp).  Beyond his massive contributions to the social and computer
-sciences, his multi-disciplinary approach to problems along with a strong
-tendency towards rational thinking really speak to me.  So naturally, I
-don't mind lifting the terms <em>satisficing</em> and <em>bounded rationality</em> to use
-as names for the domain/blog title.</p>
-<p>In this weblog, I hope to apply the spirit of these two ideas, trying to
-understand and explain technical subjects without getting bogged down in the
-minutiae that so frequently surrounds technical subjects.  Instead, try to
-focus on the ideas that actually help us move forward in solving practical
-problems to a satisfactory degree (satisficing).</p>
-<p>With respect to the subject area of the blog, it will probably vary quite a
-bit.  There will probably be a lot of focus on programming and data science
-since that's what I spend most of my time at work doing.  However, don't be
-surprised if I write about other various technical subjects that interest me
-such as math or investing.  Real world problems rarely fit into such neat
-classifications, so why limit what I write about?  Hope you enjoy it.</p>
+<p class="more"><a href="posts/a-first-post/">Read more…</a></p>
 </div>
     </div>
     </article>
@@ -155,7 +233,9 @@ classifications, so why limit what I write about?  Hope you enjoy it.</p>
 <li class="previous">
                 <a href="index-2.html" rel="prev">Newer posts</a>
             </li>
-        </ul></nav>
+        </ul></nav><script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+            MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
+            </script>
 </div>
             <div class="col-md-3 well">
             <p>

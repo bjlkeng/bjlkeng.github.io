@@ -10,7 +10,7 @@
 <link href="assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
 <link rel="canonical" href="http://satisficing.briankeng.com/index-2.html">
-<link rel="prev" href="index-3.html" type="text/html">
+<link rel="prev" href="." type="text/html">
 <link rel="next" href="index-1.html" type="text/html">
 <!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
 </head>
@@ -60,198 +60,50 @@
                 
 
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/common-sense-and-investing/" class="u-url">Common Sense and Investing</a></h1>
+    <article class="h-entry post-A look at optimal betting and the Kelly criterion digging into some of the math."><header><h1 class="p-name entry-title"><a href="posts/optimal-betting-and-the-kelly-criterion/" class="u-url">Optimal Betting Strategies and The Kelly Criterion</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Brian Keng
             </span></p>
-            <p class="dateline"><a href="posts/common-sense-and-investing/" rel="bookmark"><time class="published dt-published" datetime="2015-08-30T10:44:22-04:00" title="2015-08-30 10:44">2015-08-30 10:44</time></a></p>
+            <p class="dateline"><a href="posts/optimal-betting-and-the-kelly-criterion/" rel="bookmark"><time class="published dt-published" datetime="2015-11-15T16:13:31-05:00" title="2015-11-15 16:13">2015-11-15 16:13</time></a></p>
         </div>
-    </header><div class="e-content entry-content">
+    </header><div class="p-summary entry-summary">
     <div>
-<p><strong>Preface</strong>: <em>Second post and I'm already off topic according to my subtitle.  I
-do have another post that is more topic appropriate but it's been pretty hectic
-so I haven't had time to finish it.  Although, investing is definitely a kind of
-technical topic involving data and numbers, so one could argue it is still on
-topic.  And argue I shall!  Enjoy!</em></p>
-<p>A lot of smart people I meet frequently mention that they have no clue about
-investing or other related financial matters.  They're quite right that modern
-finance can get complicated really fast such as <a class="reference external" href="https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model">option pricing models</a> (that require
-differential equations and other such complicated maths) but as in most things
-though, a little common sense goes a long way.  So I want to share an analogy
-that I think will help people understand a rational way to invest <em>i.e.</em> value
-investing.  In particular, the discussion will be geared towards investing in
-publicly traded stocks but the general idea applies to most asset classes.</p>
-<!-- TEASER_END -->
-<p></p>
-<h4> Stocks: An Emotional Roller Coaster </h4>
-<p>There's a huge disconnect between <em>how</em> a stock certificate is perceived and <em>what</em>
-it actually represents.  How it is usually perceived is as a number.  A number
-that randomly goes up and down while taking you (usually without asking) on an
-emotional roller coaster ride.  The higher the peaks and lower the troughs, the
-more exhilarating the ride.  Just like gambling, when emotions are involved,
-it rarely turns out well (or profitable).</p>
-<p>What a stock certificate actually represents is much more boring.  It
-represents a part ownership in the underlying company.  That is, you are
-entitled to dividends and other assets of the company in proportion to your
-ownership stake.  In the limit, you own the company.</p>
-<p>So I think most people can rationally follow along with this idea: stocks =
-part ownership of a company.  Buying a better company, all things being equal,
-is better.  Most of the time, things aren't equal though, and the biggest
-thing you have control over is the the <em>price</em> you purchase the stock (you
-rarely have any ability to change its underlying economics).</p>
-<p><em>"Great, so I get that Brian, but how can I make money off of it?"</em></p>
-<p>This is where it gets tricky.  Remember the emotional roller coaster?
-Well for many people investing is kind of like trying to do
-math <em>while</em> riding this roller coaster: it's hard to do right!  But what I
-would like to show is how you probably already have a good intuition on how
-investing <em>should</em> work.  Let's take a hypothetical example from everyday life
-<a class="footnote-reference" href="posts/common-sense-and-investing/#id4" id="id1">[1]</a> and see how some common sense really matches up with a rational way to
-invest.</p>
-<p></p>
-<h4> From Buying Groceries to Investing </h4>
-<p>Most people generally know the price of common items they buy.  For items such as
-toilet paper, laundry detergent or a carton of milk, most people have a general
-idea of what the price should be.  For me, I have a good idea of what a
-12-packs of Coke Zero costs.  The price varies, regular is $4.99 - $5.99,
-sometimes when it's on sale it can go down to $3.99, and once in a blue moon it
-will go down to $2.99 per case.</p>
-<p>Now imagine that you could return this case of Coke whenever you want,
-but not just for the price you paid, for the <em>current</em> sale price of the case.
-So if you bought it on sale for $3.99 last week, you could refund it and get
-back $5.99 this week when the sale is over (or vice versa).  In this
-hypothetical example, you've actually made $5.99 - $3.99 = $2.00.  A return of
-about 50% ($2.00 / $3.99)!</p>
-<p>Although contrived, this example shows a key idea.  You have some sense of what
-the case of Coke is worth.  That is, $5.99 is over paying for a case of Coke,
-while $3.99 is a pretty good deal.  This is directly analogous to investing in
-stocks.  If you can have a pretty good idea when a stock is on "sale", then you
-can buy it, wait a little bit until the sale is over, then sell it for a profit.</p>
-<p>Now here's the part where people get lost.  "Sale" means different things to
-different people.  The common way to determine if something is on sale (for
-everyday items) is to look at the history of its price and see when it's low
-relative to regular price.  People do invest using a much more complicated
-version of this called <cite>Technical Analysis</cite> where they only look at
-charts (for price and other related things like volume) to determine whether or not to
-buy/sell.  It doesn't make much rational sense to me so I won't talk much about
-it.</p>
-<p>The other big school of thought, which is much more rational, is called
-<cite>Fundamental Analysis</cite> where you look at the actual characteristics of the
-business (like how much money they make) and estimate what it's worth.  The key
-idea here is that when determining if something is on "sale", we should have
-some rational line of economic reasoning to back it up.  Let's go back to our
-example of a case of Coke.</p>
-<p></p>
-<h4> The Cost of a Case of Coke </h4>
-<p>Imagine you really wanted to understand (using "Fundamentals") what a case of
-Coke was really worth.  So you call up your buddy who works at Coke, talk to
-him and his friends, and you estimate that it costs Coca-Cola about $0.15 for
-each can of Coke (including cost of water, syrup, aluminum, packaging,
-distribution).  Further, you also call up your buddy at the grocery store and
-he tells you that he buys a case of Coke from Coca-Cola for between $2.00 and
-$3.00 per case ($0.16 - $0.25 per can) depending on what kind of deal he can
-work out with Coca-Cola.</p>
-<p>Now, we have a good idea of what the minimum price of a case
-of Coke given different assumptions:</p>
-<ul>
-<li>
-<p class="first"><strong>Case 1</strong>: Assume Coca-Cola makes no money, grocer makes no money (just cost of
-manufacturing/distribution):</p>
-<blockquote>
-<p>Cost = $0.15/can * 12 cans/case = <strong>$1.80/case</strong></p>
-</blockquote>
-</li>
-<li>
-<p class="first"><strong>Case 2</strong>: Assume Coca-Cola sells to grocer at historic average price ($2.50; $0.058/can profit), and grocer has no profit:</p>
-<blockquote>
-<p>Cost = <strong>$2.50/case</strong></p>
-</blockquote>
-</li>
-<li>
-<p class="first"><strong>Case 3</strong>: Assume Coca-Cola sells to grocer at historic average price ($2.50/case; profit: $0.058/can), grocer wants to make $0.60/case profit ($0.05/can):</p>
-<blockquote>
-<p>Cost = $2.50 + $0.60 = <strong>$3.10/case</strong></p>
-</blockquote>
-</li>
-</ul>
-<p>So with a minimum price of a case of Coke between $1.80 - $3.10, what is a good
-price for a case of Coke?  Our $2.99 price isn't looking too bad right.  It
-would be even better if we could get a lower price but $2.99 seems like a price
-that we could reasonably sell it for more down the road (the grocer and
-Coca-Cola probably will want more profit at some point down the road).</p>
-<p>So in the end, our deep research into what a case of Coke costs is pretty
-similar to ad-hoc technical analysis because we both see that $2.99 isn't bad.
-In this case it worked out to be roughly the same but not always.  Next, let's
-take a look at an up and coming beverage Zico Coconut Water.</p>
-<p></p>
-<h4> The Cost of Buying the Trendy: Zico Coconut Water </h4>
-<p>Imagine Coca-Cola had just released their hot new product: Zico Coconut Water.
-You're eager to get some, not to drink, but to buy on sale and sell at a higher
-price.  So you watch the price for a 1L bottle go up and down at different
-grocers for a few months.  You figure that the typical price range is $2.50 -
-$5.00.  It looks like if you can buy at $2.50, you've got a great deal!  In
-fact, you observe that it is so rarely at a $2.50 price point because people
-can't drink enough of it (Taylor Swift drinks it!).  Most of the time it's
-selling for much more.  You might even hear rumours that it could go high as
-$6.00/bottle.  So question: buy or not buy at $2.99?</p>
-<p>Not buy.  Here's why (in our hypothetical example).  Coconut water was actually
-just a fad.  It had the typical run-up only to fall back down in popularity
-when the next big drink hit.  So to ensure that it can still move product, the
-grocer and Coca-Cola reined in their profits and started selling at regular
-price of $2.50 and sometimes on sale to $1.99.  The $2.99 price no longer seems
-like a great deal does it?  You potentially lost $0.49 ($2.99 - $2.50)!</p>
-<p>If we had done some research though, you might have avoided this devastating loss.
-You might have found out that Coconut water is roughly 3x more expensive to
-make that Coca-Cola.  So that's roughly $0.45/can equivalent, which translates
-to roughly $1.35/1L bottle.  All of a sudden $2.99 doesn't look like a great
-price, <em>maybe</em> $1.99 is more reasonable.</p>
-<p></p>
-<h4> Common Sense sprinkled with Economic Rationalism </h4>
-<p>As I mentioned at the top, rational investing is not too far off from our
-intuition when buying everyday items such as groceries: you want to buy when
-things that are on sale <a class="footnote-reference" href="posts/common-sense-and-investing/#id5" id="id2">[2]</a>.  The biggest mistake people make though is that
-their idea of a "sale" doesn't match economic reality.  Buying should be done
-when a thorough economic analysis has shown that it is on "sale".</p>
-<p>Admittedly, this is a really hard thing to do.  Most of the time, the closest
-you can get is a rough idea of an asset's price <a class="footnote-reference" href="posts/common-sense-and-investing/#id6" id="id3">[3]</a>, so you have to factor that
-into your calculations when deciding if something is on sale.  The important
-thing to remember is that our intuition isn't too far off from a smart (read:
-rational) way to invest: just buy when on sale.  The trick (for most people) is
-that if you can't determine whether it's on sale, you probably shouldn't be
-investing in the first place.</p>
-<p><br></p>
-<p></p>
-<h4> Notes </h4>
-<table class="docutils footnote" frame="void" id="id4" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="posts/common-sense-and-investing/#id1">[1]</a></td>
-<td>Warren Buffett has a similar real-life example in this fortune <a class="reference external" href="http://fortune.com/2014/02/24/buffetts-annual-letter-what-you-can-learn-from-my-real-estate-investments/">article</a> involving a farm but at least for a city boy like me, it's harder to relate to.</td>
-</tr></tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id5" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="posts/common-sense-and-investing/#id2">[2]</a></td>
-<td>Everyone knows the old adage "buy low, sell high" but not many people are good at following it.</td>
-</tr></tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id6" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="posts/common-sense-and-investing/#id3">[3]</a></td>
-<td>Usually the term "intrinsic value" is used, which roughly means an asset's underlying worth (not to be confused with its current price).  Rarely can this be estimated with much precision.</td>
-</tr></tbody>
-</table>
+<p>My last post was about some <a class="reference external" href="posts/gamblers-fallacy-and-the-law-of-small-numbers">common mistakes</a> when betting
+or gambling, even with a basic understanding of probability.  This post is going to
+talk about the other side: optimal betting strategies using some very
+interesting results from some very famous mathematicians in the 50s and 60s.
+I'll spend a bit of time introducing some new concepts (at least to me), setting up the
+problem and digging into some of the math.  We'll be looking at it from the
+lens of our simplest probability problem: the coin flip.  A note: I will not be
+covering the part that shows you how to make a fortune -- that's an exercise
+best left to the reader.</p>
+<p class="more"><a href="posts/optimal-betting-and-the-kelly-criterion/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/gamblers-fallacy-and-the-law-of-small-numbers/" class="u-url">The Gambler's Fallacy and The Law of Small Numbers</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/gamblers-fallacy-and-the-law-of-small-numbers/" rel="bookmark"><time class="published dt-published" datetime="2015-11-01T11:08:11-04:00" title="2015-11-01 11:08">2015-11-01 11:08</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div tabindex="-1" id="notebook" class="border-box-sizing">
+    <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Games and gambling have been part of human cultures around the world for millennia.  Nowadays, the connection between games of chance and mathematics (in particular probability) are so obvious that it is taught to school children.  However, the mathematics of games and gambling only started to formally <a href="https://en.wikipedia.org/wiki/Gambling#History">develop</a> in the 17th century with the works of multiple mathematicians such as Fermat and Pascal.  It is then no wonder that many incorrect beliefs around gambling have formed that are "intuitive" from a layman's perspective but fail to pass muster when applying the rigor of mathematics.</p>
+<p>In this post, I want to discuss how surprisingly easy it is to be fooled into the wrong line of thinking even when approaching it using mathematics.  We'll take a look from both a theoretical (mathematics) point of view looking at topics such as the <a href="https://en.wikipedia.org/wiki/Gambler's_fallacy">Gambler's Fallacy</a> and the <a href="https://en.wikipedia.org/wiki/Hasty_generalization">law of small numbers</a> as well as do some simulations using code to gain some insight into the problem.  This post was inspired by a paper I recently came across a paper by Miller and Sanjurjo<a href="posts/gamblers-fallacy-and-the-law-of-small-numbers/#fn-1"><sup>[1]</sup></a> that explains the surprising result of how easily we can be fooled.</p>
+<p class="more"><a href="posts/gamblers-fallacy-and-the-law-of-small-numbers/">Read more…</a></p>
+</div>
+</div>
+</div>
+</div>
 </div>
     </div>
     </article>
@@ -259,12 +111,14 @@ investing in the first place.</p>
 
         <nav class="postindexpager"><ul class="pager">
 <li class="previous">
-                <a href="index-3.html" rel="prev">Newer posts</a>
+                <a href="." rel="prev">Newer posts</a>
             </li>
             <li class="next">
                 <a href="index-1.html" rel="next">Older posts</a>
             </li>
-        </ul></nav>
+        </ul></nav><script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+            MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
+            </script>
 </div>
             <div class="col-md-3 well">
             <p>

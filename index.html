@@ -10,8 +10,8 @@
 <link href="assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
 <link rel="canonical" href="http://satisficing.briankeng.com/">
-<link rel="next" href="index-10.html" type="text/html">
-<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/normal-difference-distribution/" type="text/html">
+<link rel="next" href="index-2.html" type="text/html">
+<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/the-empirical-distribution-function/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -59,14 +59,38 @@
                 
 
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/normal-difference-distribution/" class="u-url">Elementary Statistics for Direct Marketing</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/the-empirical-distribution-function/" class="u-url">The Empirical Distribution Function</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/the-empirical-distribution-function/" rel="bookmark"><time class="published dt-published" datetime="2016-03-12T20:08:21-05:00" title="2016-03-12 20:08">2016-03-12 20:08</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div tabindex="-1" id="notebook" class="border-box-sizing">
+    <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This post is going to look at a useful non-parametric method for estimating the cumulative distribution function (CDF) of a random variable called the <a href="https://en.wikipedia.org/wiki/Empirical_distribution_function">empirical distribution function</a> (sometimes called the empirical CDF).  We'll talk a bit about the mechanics of computing it, some theory about its confidence intervals and also do some simulations to gain some intuition about how it behaves.</p>
+<p class="more"><a href="posts/the-empirical-distribution-function/">Read more…</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/normal-difference-distribution/" class="u-url">Elementary Statistics for Direct Marketing</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Brian Keng
             </span></p>
             <p class="dateline"><a href="posts/normal-difference-distribution/" rel="bookmark"><time class="published dt-published" datetime="2016-02-27T20:40:41-05:00" title="2016-02-27 20:40">2016-02-27 20:40</time></a></p>
         </div>
-    </header><div class="e-content entry-content">
+    </header><div class="p-summary entry-summary">
     <div>
 <p>This post is going to look at some elementary statistics for direct marketing.
 Most of the techniques are direct applications of topics learned in a first
@@ -74,633 +98,77 @@ year statistics course hence the "elementary".  I'll start off by covering some
 background and terminology on the direct marketing and then introduce some of
 the statistical inference techniques that are commonly used.  As usual, I'll
 mix in some theory where appropriate to build some intuition.</p>
-<!-- TEASER_END -->
-<p><br></p>
-<h4> Direct Marketing </h4>
-<p><a class="reference external" href="https://en.wikipedia.org/wiki/Direct_marketing">Direct marketing</a> is a form
-of advertising that sends communications directly to potential customers through
-a wide variety of media such as (snail) mail, e-mail, text message, websites
-among others.  The distinguishing feature of direct marketing efforts is that a
-business has a database of potential customers where the business will send a
-direct (usually personally addressed) message to these customers (or a segment
-of them) with a specific outcome in mind.  Some familiar examples include:</p>
-<ul class="simple">
-<li>Signing up for a rewards plan at a retailer and receiving emails about offers
-periodically at the store (e.g. "Buy $75 get $25 off").</li>
-<li>A (snail) mail offer for a "discounted" magazine subscription (usually they
-get your address from another magazine you've subscribed to).</li>
-<li>A telemarketer calls you (at what seems to always be an inconvenient time)
-to get you to buy their product.</li>
-</ul>
-<p>The interesting thing about direct marketing campaigns (as opposed to
-<a class="reference external" href="https://en.wikipedia.org/wiki/Mass_marketing">mass market campaigns</a>) is that
-you can (usually) individually track the behavior of each message that you send out.
-This fine grained tracking allows you to scientifically (read:
-statistically) measure the effectiveness of a certain direct marketing campaign
-and allows you to learn what works and what doesn't.</p>
-<p>In the following sections, I'll discuss direct marketing campaigns with respect
-to retail direct marketing campaigns because that's what I'm most familiar
-with, but the general idea should apply in other domains as well.</p>
-<p></p>
-<h5> Direct Marketing Campaigns </h5>
-<p>Imagine you are a retailer wanting to increase sales.  With very broad strokes,
-there are three ways to go about it:</p>
-<ol class="arabic simple">
-<li>Get more (unique) customers to come in the door (or onto your website).</li>
-<li>Get each customer to spend more money on each visit.</li>
-<li>Get each customer to come back more often.</li>
-</ol>
-<p>Obviously there are many ways to do this and it is a very complex subject, so
-let's stick with one of the most popular ways: by providing an offer to the
-customer.  The offer might entice a new customer to walk in, stretch
-an existing customer to spend a bit more, or even cause a previous customer to
-come back earlier than she would have without the offer.</p>
-<p>The simplest type of offer is a mass-promotion where the offer is available to
-everyone. For example: "$2 off a bag of milk".  The drawback of giving it to
-everyone is that some people would have bought the milk without the mass-offer
-(resulting in a missed opportunity for full-priced revenue), while for others, $2 may not
-be enough of a bargain to buy.  Enter direct marketing.</p>
-<p>Now suppose you have a database of all (or a large segment) of your customers.
-You might have their email address, phone number, age, purchase history,
-address, and any number of other individual attributes.  Now you can target
-customers in a more fine grained way.  You might only want to give that $2 milk deal
-to the price-sensitive shoppers so that they don't go over to your competitor while
-also trying to <a class="reference external" href="https://en.wikipedia.org/wiki/Cross-selling">cross-sell</a> them
-other complementary products.  Or you might want to target your high-end
-customers by <a class="reference external" href="https://en.wikipedia.org/wiki/Upselling">upselling</a> them with
-an offer for a luxury version of products they previously bought.
-In the limit, you can customize the offer on a one-to-one basis for true
-<a class="reference external" href="https://en.wikipedia.org/wiki/Personalization">personalization</a>.</p>
-<p>There are many machine learning and statistical techniques to build models to
-target and predict how customers will respond to the various combinations of
-offers.  I'll cover that in another post, for now let's stick with
-something more mundane (but perhaps more important): after sending out a direct
-marketing campaign, how do I know if it worked?</p>
-<p></p>
-<h5> Important Metrics </h5>
-<p>The most important aspect when running a direct marketing campaign is make sure
-it is achieving your business objective, which usually relates to one of the
-following:</p>
-<ul class="simple">
-<li>Incremental revenue</li>
-<li>Incremental active rate (similar to a conversion rate)</li>
-<li>Return On Investment (ROI)</li>
-</ul>
-<p>We'll focus on the first one, talk a bit about the second one, and leave the last
-one out for now.</p>
-<p>Let's try to translate our business objective into something that we can
-measure.  Increasing incremental revenue in a direct marketing campaign means
-that by running this marketing campaign, we will have made more money than not
-running this campaign.  Incremental active rate means that we will have
-convinced more (unique) customers to walk in the door than we would have
-without providing this offer to them.  Lastly, ROI is simply the efficiency
-of the campaign dollars, if you have negative ROI, you're basically losing
-money by running this campaign.</p>
-<p>Average revenue per customer (or spend per customer), active rate and ROI can
-be measured across campaigns using some simple ratios:</p>
-<div class="math">
-\begin{align*}
-\text{spend per customer (SPC)} &amp;= \frac{\text{total revenue}}{\text{customers who received offer}} \\
-\text{active rate} &amp;= \frac{\text{unique customers}}{\text{customers who received offer}} \\
-\text{ROI} &amp;= \frac{\text{revenue} - \text{cost of campaign}}{\text{cost of campaign}} \tag{1}
-\end{align*}
+<p class="more"><a href="posts/normal-difference-distribution/">Read more…</a></p>
 </div>
-<p>The difficulty question is how can you measure the effectiveness of the offer
-because you can't simultaneously give the offer to a person <em>and</em> not give it
-to them at the same time.  This is a well known problem in the medical field
-relating to the effectiveness of treatments and has been solved for
-decades.</p>
-<p></p>
-<h5> Control, Control, Control </h5>
-<p>The experimental setup involves dividing your population (e.g. customers whom
-you send the offer to) into two randomly selected groups: treatment and
-control.  The treatment group receives the direct marketing offer (or drug in
-the case of medical trials) and the control group will receive the
-business-as-usual placebo.  Depending on what you are trying to measure the
-business-as-usual treatment might be nothing (measuring the overall
-effectiveness of the offer), a generic offer (measuring the A vs. B
-effectiveness of your offer), or some variation that allows you to compare one
-treatment to another.</p>
-<p>The randomized control group allows us the "control" for confounding variables.
-That is, for hidden biases that might be introduced when running the experiment <a class="footnote-reference" href="posts/normal-difference-distribution/#id9" id="id1">[1]</a>
-such as a holiday or perhaps a competitor's sale.
-It also allows us to make causal statements about the relationship between two
-variables.  Instead of just saying treatment A is correlated or associated with
-a sales increase, we can say treatment A <em>causes</em> a sales increase.
-Randomized control groups are the primary method in which we can verify causality
-between two events.</p>
-<p>A few important points when practically designing an experiment in this
-scenario <a class="footnote-reference" href="posts/normal-difference-distribution/#id10" id="id2">[2]</a>:</p>
-<ul class="simple">
-<li>A randomly selected control group is needed in order to make a causal statement.</li>
-<li>The samples (i.e. customers) are independent and measured on an individual
-basis (not just the total revenue but the revenue for each customer too).</li>
-<li>Sample size have to be large enough (for both groups) in order to have a
-statistically significant conclusion <a class="footnote-reference" href="posts/normal-difference-distribution/#id11" id="id3">[3]</a>.</li>
-</ul>
-<p>We'll cover more on these topics below.</p>
-<p><br></p>
-<h4> Elementary Statistics </h4>
-<p>Now that we have a high level understanding of how direct marketing campaigns
-work, let's try to work out some of the math.</p>
-<p>Let's imagine we have we have <span class="math">\(n\)</span> <a class="reference external" href="https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables">i.i.d.</a>
-variables <span class="math">\(Y_1, Y_2, \ldots, Y_n\)</span> representing our outcome variables
-i.e. <span class="math">\(Y_i\)</span> is customer <span class="math">\(i\)</span>'s total spend at your store during the
-campaign period.
-Also denote the binary treatment variable as <span class="math">\(X_i=1\)</span> as "treated" (given
-the offer) and <span class="math">\(X_i=0\)</span> as "not treated" (i.e. control group or not given the
-offer) for the <span class="math">\(i^{th}\)</span> customer.
-Note: we'll represent random variables with capital letters  and their corresponding values after they have been observed with
-lower case letters <a class="footnote-reference" href="posts/normal-difference-distribution/#id12" id="id4">[4]</a>.</p>
-<p>To not bury the lead, a good point estimator for measuring campaign
-effectiveness is just using the difference of spend per customer (SPC) or
-<strong>lift</strong>  of the treatment and control group (i.e. difference of population
-means):</p>
-<div class="math">
-\begin{align*}
-\hat{\text{lift}} &amp;= \hat{E}[Y|X=1] - \hat{E}[Y|X=0] \\
-                  &amp;= \bar{y}_{X=1} - \bar{y}_{X=0} \\
-                  &amp;= \frac{1}{n_T} \Sigma_{i=1}^{n} y_i x_i
-                     - \frac{1}{n_C} \Sigma_{i=1}^{n} y_i (1 - x_i) \\
-                  &amp;= SPC_{\text{T}} - SPC_{\text{C}}          \tag{2}
-\end{align*}
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/hypothesis-testing/" class="u-url">A Primer on Statistical Inference and Hypothesis Testing</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/hypothesis-testing/" rel="bookmark"><time class="published dt-published" datetime="2016-01-09T11:22:26-05:00" title="2016-01-09 11:22">2016-01-09 11:22</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>This post is about some fundamental concepts in classical (or frequentist)
+statistics: inference and hypothesis testing.  A while back, I came to the
+realization that I didn't have a good intuition of these concepts (at least
+not to my liking) beyond the mechanical nature of applying them.
+What was missing was how they related to a probabilistic view of the subject.
+This bothered me since having a good intuition about a subject is
+probably the most useful (and fun!) part of learning a subject.  So this post
+is a result of my re-education on these topics.  Enjoy!</p>
+<p class="more"><a href="posts/hypothesis-testing/">Read more…</a></p>
 </div>
-<p>where the <span class="math">\(\hat{}\)</span> symbol represents an estimate,
-<span class="math">\(n_T = \Sigma_{i=1}^{n} x_i\)</span> and <span class="math">\(n_C = \Sigma_{i=1}^{n} (1-x_i)\)</span>.
-All those equations boil down to basically just taking the difference of spend
-per customer between treatment and control.  In some of the more math heavy
-sections below, you'll see why we introduced all this notation.
-First, let's see why our control groups have to be randomized.</p>
-<p></p>
-<h5> Causal Inference <a class="footnote-reference" href="posts/normal-difference-distribution/#id13" id="id5">[5]</a> </h5>
-<p>As I mentioned before, we can never simultaneously give a promotional offer
-<em>and</em> not give it at the same time (unless we had access to some kind of parallel universe).
-However, the ideal measurement for campaign effectiveness is exactly this
-quantity!  Let's define this more precisely.</p>
-<p>Introduce two variables <span class="math">\(C_{X=0}, C_{X=1}\)</span> as potential outcome
-variables.  <span class="math">\(C_{X=0}\)</span> is the outcome if we did not treat customer <span class="math">\(i\)</span> and
-<span class="math">\(C_{X=1}\)</span> is the outcome if we did treat customer <span class="math">\(i\)</span>.
-Therefore:</p>
-<div class="math">
-\begin{equation*}
-Y =
-\begin{cases}
-     C_{X=0} &amp; \text{when }X = 0 \\
-     C_{X=1} &amp; \text{when }X = 1
-\end{cases}  \tag{3}
-\end{equation*}
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/" class="u-url">Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/" rel="bookmark"><time class="published dt-published" datetime="2015-12-13T15:05:56-05:00" title="2015-12-13 15:05">2015-12-13 15:05</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div tabindex="-1" id="notebook" class="border-box-sizing">
+    <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
-<p>Or more concisely, <span class="math">\(Y=C_X\)</span>.
-(Note: we can never observe both <span class="math">\(C_{X=0}\)</span> and <span class="math">\(C_{X=1}\)</span> at the same time.)</p>
-<p>The actual effect we want to measure is actually the difference in expected
-value of these two variables called the <strong>average causal effect</strong>:</p>
-<div class="math">
-\begin{equation*}
-\text{lift} = E(C_{X=1}) - E(C_{X=0}) \tag{4}
-\end{equation*}
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In this post, I'm going to continue on the same theme from the last post: <a href="posts/sampling-from-a-normal-distribution">random sampling</a>.  We're going to look at two methods for sampling a distribution: rejection sampling and Markov Chain Monte Carlo Methods (MCMC) using the Metropolis Hastings algorithm.  As usual, I'll be providing a mix of intuitive explanations, theory and some examples with code.  Hopefully, this will help explain a relatively straight-forward topic that is frequently presented in a complex way.</p>
+<p class="more"><a href="posts/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/">Read more…</a></p>
 </div>
-<p>In other words, we want to find the SPC of sending <em>everyone</em> an offer minus
-the SPC of not sending <em>everyone</em> an offer.
-Equation 2 looks similar but actually measures something different called
-<strong>association</strong> (denoted by <span class="math">\(A\)</span>):</p>
-<div class="math">
-\begin{equation*}
-A = E[Y|X=1] - E[Y|X=0]  \tag{5}
-\end{equation*}
 </div>
-<p>It's a widely known fact that association does not equal causation.
-Let's take a look at a small example why.</p>
-<div class="admonition-example-1 admonition">
-<p class="first admonition-title">Example 1</p>
-<div class="math">
-\begin{equation*}
-\newcommand\T{\Rule{0pt}{1em}{.3em}}
-\begin{array}{|c|c|c|c|}
-\hline X &amp; Y &amp; C_{X=0} &amp; C_{X=1} \T \\\hline
-  0  &amp; $0 &amp; $0 &amp; $0 \\\hline
-  0  &amp; $0 &amp; $0 &amp; $0 \\\hline
-  0  &amp; $0 &amp; $0 &amp; $0 \\\hline
-  0  &amp; $0 &amp; $0 &amp; $0 \\\hline
-  1  &amp; $10 &amp; $10 &amp; $10 \\\hline
-  1  &amp; $10 &amp; $10 &amp; $10 \\\hline
-  1  &amp; $10 &amp; $10 &amp; $10 \\\hline
-  1  &amp; $10 &amp; $10 &amp; $10 \\\hline
-\end{array}
-\end{equation*}
 </div>
-<p>Here we can can calculate the lift and association:</p>
-<div class="math">
-\begin{align*}
-A &amp;= \frac{$10 + $10 + $10 + $10}{4} - \frac{$0 + $0 + $0 + $0}{4} \\
-       &amp;= $10 \\
-       \\
-\text{lift} &amp;= \frac{$0 + $0 + $0 + $0 + $10 + $10 + $10 + $10}{8} \\
- &amp; - \frac{$0 + $0 + $0 + $0 + $10 + $10 + $10 + $10}{8} \\
-            &amp;= $0 \tag{6}
-\end{align*}
 </div>
-<p class="last">The lift is zero because the treatment has no effect: look at the hypothetical
-<span class="math">\(C_X\)</span> variables, they are the same regardless of whether or not the
-treatment was applied.  The association on the other hand is clearly positive
-at $10.</p>
 </div>
-<p>Coming up with other examples where association and lift have opposite signs is
-not too difficult.  The reason why we got such different
-values for <span class="math">\(A\)</span> and <span class="math">\(\text{lift}\)</span> is because <span class="math">\(C_{X=0}, C_{X=1}\)</span>
-are not independent of <span class="math">\(X\)</span>.  That is, the treatment is not independent of the
-customer.  In the above example, we put all the high value customers in the treatment group
-while putting the low value ones in the control group.  We want to ensure any
-confounding variables (like whether or not a customer is a high spender) is
-spread out proportionally across both treatment and control.  The next theorem
-states this idea.</p>
-<div class="admonition-theorem admonition">
-<p class="first admonition-title"><strong>Theorem</strong></p>
-<p>If we randomly assign subjects to treatment and control such that <span class="math">\(P(X=0) &gt; 0\)</span>
-and <span class="math">\(P(X=1) &gt; 0\)</span>, then <span class="math">\(A=\text{lift}\)</span>.</p>
-<dl class="last docutils">
-<dt><strong>Proof</strong></dt>
-<dd>
-<p class="first">Since X is randomly assigned, X is independent of <span class="math">\(C_{X=1}, C_{X=0}\)</span>, so:</p>
-<div class="last math">
-\begin{align*}
-\text{lift} &amp;= E(C_{X=1}) - E(C_{X=0}) \\
-            &amp;= E(C_{X=1}|X=1) - E(C_{X=0}|X=0) &amp;&amp; \text{since } X \text{ is independent of } C_X \\
-            &amp;= E(Y|X=1) - E(Y|X=0) &amp;&amp; \text{since } Y = C_X \\
-            &amp;= A   \tag{7}
-\end{align*}
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/sampling-from-a-normal-distribution/" class="u-url">Sampling from a Normal Distribution</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/sampling-from-a-normal-distribution/" rel="bookmark"><time class="published dt-published" datetime="2015-11-28T21:57:02-05:00" title="2015-11-28 21:57">2015-11-28 21:57</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div tabindex="-1" id="notebook" class="border-box-sizing">
+    <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
-</dd>
-</dl>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>One of the most common probability distributions is the normal (or Gaussian) distribution.  Many natural phenomena can be modeled using a normal distribution.  It's also of great importance due to its relation to the <a href="https://en.wikipedia.org/wiki/Central_limit_theorem">Central Limit Theorem</a>.</p>
+<p>In this post, we'll be reviewing the normal distribution and looking at how to draw samples from it using two methods.  The first method using the central limit theorem, and the second method using the <a href="https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform">Box-Muller transform</a>.  As usual, some brief coverage of the mathematics and code will be included to help drive intuition.
+</p>
+<p class="more"><a href="posts/sampling-from-a-normal-distribution/">Read more…</a></p>
 </div>
-<p>Using Theorem 1 we can see that by assigning random control groups, our
-use of difference in SPC or association (Equation 2) is identical
-the actual causal effect i.e. lift.  However, if we
-don't have random assignments (and have some kind of bias in assignment towards
-treatment or control) then there is no guarantee that the association we
-computed in Equation 2 has anything to do with lift, as we saw in Example 1.</p>
-<p></p>
-<h5> Central Limit Theorem and Confidence Intervals </h5>
-<p>From here on out to simplify our notation, let's define <span class="math">\(U_i = Y_i X_i\)</span>
-and <span class="math">\(V_i = Y_i (1 - X_i)\)</span> to represent samples from the treatment
-and control respectively.  Let their respective mean and variance be represented by
-<span class="math">\(\mu_U\)</span>, <span class="math">\(\mu_V\)</span> and <span class="math">\(\sigma^2_U\)</span>, <span class="math">\(\sigma^2_V\)</span>.  This is
-done just for convenience so we don't have to keep writing our equations with
-<span class="math">\(X_i\)</span> in them.</p>
-<p>In general, the distributions of customer spend, <span class="math">\(U_i\)</span> and <span class="math">\(V_i\)</span>,
-do not take any familiar form of distribution that we know.  However, using the
-results of the
-<a class="reference external" href="https://en.wikipedia.org/wiki/Central_limit_theorem">central limit theorem (CLT)</a>,
-we know that the sample mean of each population (treatment <span class="math">\(\bar{U}\)</span> and
-control <span class="math">\(\bar{V}\)</span>) can be approximated by a normal distribution (if our
-samples are large enough):</p>
-<div class="math">
-\begin{align*}
-\bar{U} \approx N(\mu_U, \frac{\sigma^2_U}{n_U}) \\
-\bar{V} \approx N(\mu_V, \frac{\sigma^2_V}{n_V}) \tag{8}
-\end{align*}
 </div>
-<p>Usually <span class="math">\(n\)</span> is quite large (<span class="math">\(n&gt;10,000\)</span>) so the normal
-approximation is quite good.
-Similarly, using the strong <a class="reference external" href="https://en.wikipedia.org/wiki/Law_of_large_numbers">law of large numbers</a>,
-the <a class="reference external" href="https://en.wikipedia.org/wiki/Variance#Sample_variance">sample variance</a>
-(denoted by <span class="math">\(s^2\)</span>) is a pretty good approximation of the actual variance
-when we have large <span class="math">\(n\)</span>:</p>
-<div class="math">
-\begin{align*}
-\sigma_U^2 &amp;\approx s_U^2 \\
-\sigma_V^2 &amp;\approx s_V^2 \tag{9}
-\end{align*}
 </div>
-<p>Using Equation 8 and 9, we get our approximation of the sample mean for large <span class="math">\(n\)</span>:</p>
-<div class="math">
-\begin{align*}
-\bar{U} &amp;\approx N(\bar{u}, \frac{{s}^2_U}{n_U}) \\
-\bar{V} &amp;\approx N(\bar{v}, \frac{{s}^2_V}{n_V})  \tag{10}
-\end{align*}
 </div>
-<p>Knowing that the <a class="reference external" href="http://mathworld.wolfram.com/NormalDifferenceDistribution.html">difference of two normal distributions</a> is just a
-normal distribution (with mean equal to the difference of the means, and
-variance equal to the sum of variances), our lift is:</p>
-<div class="math">
-\begin{align*}
-\text{lift} &amp;= \bar{U} - \bar{V} \\
-            &amp;= N(\mu_{U}, \frac{\sigma^2_U}{n_U}) - N(\mu_{V}, \frac{\sigma^2_V}{n_V}) \\
-            &amp;= N(\mu_{U} - \mu_{V}, \frac{\sigma^2_U}{n_U} + \frac{\sigma^2_V}{n_V}) \\
-            &amp;\approx N(\bar{u} - \bar{v}, \frac{s^2_U}{n_U} + \frac{s^2_V}{n_V}) \tag{11}
-\end{align*}
-</div>
-<p>Now that our lift is simply just a normal random variable whose mean and variance we know how to estimate,
-we can get a <span class="math">\(1 - \alpha\)</span> two sided confidence interval.
-Since lift is approximately normal,
-we know that <span class="math">\(Z=\frac{\text{lift} - \mu_{\text{lift}}}{\sigma_{\text{lift}}}\)</span>
-has a standard normal distribution:</p>
-<div class="math">
-\begin{align*}
-P(-z_{\alpha/2} &amp;\leq Z \leq z_{\alpha/2}) = 1 - \alpha \\
-P(-z_{\alpha/2} &amp;\leq \frac{{\text{lift}} - \mu_{\text{lift}}}{{\sigma}_{\text{lift}}} \leq z_{\alpha/2}) = 1 - \alpha \\
-P(-z_{\alpha/2} {\sigma}_{\text{lift}} &amp;\leq {\text{lift}} - \mu_{\text{lift}} \leq z_{\alpha/2} {\sigma}_{\text{lift}}) = 1 - \alpha \\
-P(-z_{\alpha/2}{{\sigma}_{\text{lift}}} - {\text{lift}} &amp;\leq - \mu_{\text{lift}} \leq z_{\alpha/2}{{\sigma}_{\text{lift}}} - {\text{lift}}) = 1 - \alpha \\
-P({\text{lift}} - z_{\alpha/2}{{\sigma}_{\text{lift}}} &amp;\leq \mu_{\text{lift}} \leq {\text{lift}} + z_{\alpha/2}{{\sigma}_{\text{lift}}}) = 1 - \alpha \tag{12}
-\end{align*}
-</div>
-<p>That is, the true lift (<span class="math">\(\mu_{\text{lift}}\)</span>) lies in the interval
-<span class="math">\(({\text{lift}} - z_{\alpha/2}{{\sigma}_{\text{lift}}}, {\text{lift}} - z_{\alpha/2}{{\sigma}_{\text{lift}}})\)</span>
-with frequency <span class="math">\(1-\alpha\)</span>.   Plugging in our estimates of <span class="math">\(\hat{\text{lift}}=\bar{u}-\bar{v} = SPC_{\text{T}} - SPC_\text{C}\)</span>
-and <span class="math">\(\hat{\sigma_{\text{lift}}}=\sqrt{\frac{s^2_U}{n_U} + \frac{s^2_V}{n_V}}\)</span> and looking up the
-appropriate <a class="reference external" href="https://en.wikipedia.org/wiki/Standard_score">Z-score</a>, we can
-compute our <span class="math">\(1-\alpha\)</span> confidence interval:</p>
-<div class="math">
-\begin{equation*}
-(SPC_{\text{T}} - SPC_\text{C} - z_{\alpha/2}\sqrt{\frac{s^2_U}{n_U} + \frac{s^2_V}{n_V}},
- SPC_{\text{T}} - SPC_\text{C} + z_{\alpha/2}\sqrt{\frac{s^2_U}{n_U} + \frac{s^2_V}{n_V}})  \tag{13}
-\end{equation*}
-</div>
-<p></p>
-<h5> Activation Rate and Binomial Outcome Variables </h5>
-<p>All the math above equally applies to when your outcome variable is not a
-real-valued number but a binary outcome such as activation or conversion.
-In that case, each customer can only have two outcomes: <span class="math">\(1\)</span> (shops or
-converts) and <span class="math">\(0\)</span> (doesn't shop or convert).  There are a few caveats
-though.</p>
-<p>A good rule of thumb of when you can use a normal to approximate a binomial
-is (from Wackerly et al.):</p>
-<div class="math">
-\begin{equation*}
-n \geq 9 \frac{\text{larger of }p\text{ and }(1-p)}{\text{smaller of }p\text{ and }(1-p)} \tag{14}
-\end{equation*}
-</div>
-<p>So for <span class="math">\(p=0.01\)</span>, <span class="math">\(n \geq 9 \frac{0.99}{0.01} = 891\)</span>, meaning you
-want your treatment and control groups to be at least 900.  Most likely you
-will want bigger values of <span class="math">\(n\)</span> to control the error rate (see below).</p>
-<p>The standard unbiased estimators for mean and variance of a binomial would be
-used where <span class="math">\(Y\)</span> is the number of successes (or <span class="math">\(1\)</span>'s) in the
-sample, and <span class="math">\(n\)</span> is the total number of samples:</p>
-<div class="math">
-\begin{align*}
-\hat{\mu_\bar{Y}} &amp;= \hat{p_Y} = \frac{y}{n} \\
-\hat{\sigma^2_{\bar{Y}}} &amp;= \frac{\hat{p}(1-\hat{p})}{n} \tag{15}
-\end{align*}
-</div>
-<p>Using our lift notation above, we would get:</p>
-<div class="math">
-\begin{align*}
-\hat{\text{lift}} &amp;= \hat{p_\text{U}} - \hat{p_\text{V}} = \frac{y_U}{n_U} - \frac{y_V}{n_V} \\
-\hat{\sigma_{\text{lift}}^2} &amp;= \frac{\hat{p_U}(1-\hat{p_U})}{n_U} + \frac{\hat{p_V}(1-\hat{p_V})}{n_V} \tag{16}
-\end{align*}
-</div>
-<p>Plugging these two values into the equations from the previous section will
-give us a good approximation of the lift with respect to the activation rate.</p>
-<p><br></p>
-<h4> Selecting a Sample Size </h4>
-<p>The above sections are about finding a confidence interval <em>after</em> you have all
-your observations.  What if you want to ensure that you can detect a statistically
-significance result (if there is one)?  The only thing you can (usually) do a priori is pick the
-sample size.</p>
-<p>There are two main ways to select a sample size: (i) using an error bound, and (ii) using
-the hypothesis testing framework.  Let's take a look at both.</p>
-<p></p>
-<h5> Sample Size using an Error Bound </h5>
-<p>In this method, we'll be using our confidence interval from Equation 13.
-We can see that our true mean is bounded within
-<span class="math">\(\pm z_{\alpha/2}\sqrt{\frac{\sigma^2_U}{n_U} + \frac{\sigma^2_V}{n_V}}\)</span> of our estimate of lift.
-Limiting this quantity to a specific value (<span class="math">\(B\)</span>) and solving for
-<span class="math">\(n\)</span>, we can compute our desired sample size.
-(Set <span class="math">\(n_U = n\)</span> and <span class="math">\(n_V = c n\)</span> for some constant <span class="math">\(c\)</span> to make our computation a bit simpler.)</p>
-<div class="math">
-\begin{align*}
-z_{\alpha/2}\sqrt{(\frac{\sigma^2_U}{n} + \frac{\sigma^2_V}{cn})} &amp;= B \\
-\sqrt{\frac{\sigma^2_U}{n} + \frac{\frac{\sigma^2_V}{c}}{n}} &amp;= \frac{B}{z_{\alpha/2}} \\
-\sqrt{\frac{n}{\sigma^2_U + \frac{\sigma^2_V}{c}}} &amp;= \frac{z_{\alpha/2}}{B}\\
-n &amp;= \frac{z_{\alpha/2}^2}{B^2} (\sigma^2_U + \frac{\sigma^2_V}{c}) \tag{17}
-\end{align*}
-</div>
-<p>The only caveat here is finding an estimate for <span class="math">\(\sigma\)</span> (remember we're
-doing this before we have any observations), so we can't use any samples to
-estimate it.  In that case, you could use a previously known sample variance
-(from a similar experiment) or another quick and dirty estimate is that
-the range of allowable values usually falls within <span class="math">\(4\sigma\)</span>.
-Both these will provide a decent estimate of the values.
-Let's take a look at an example.</p>
-<div class="admonition-example-2 admonition">
-<p class="first admonition-title">Example 2</p>
-<p>From a past experiment, we know that customers usually spend between
-$20 and $80. We can send
-<span class="math">\(20,000\)</span> flyers to customers and want an error bound on spend per customer
-of $0.50 with 95% confidence.  How many people should we allocate for
-treatment and control?</p>
-<p>First, find an approximate standard deviation:</p>
-<div class="math">
-\begin{align*}
-\text{range} &amp;= (80-20) = 60  \approx 4\sigma \\
-\sigma   &amp;\approx 15 \tag{18}
-\end{align*}
-</div>
-<p>Using this estimate (assuming that it is valid for both control and treatment)
-and Equation 17 (with <span class="math">\(1 - \alpha = 0.95\)</span> so <span class="math">\(z_{0.05/2}\approx 1.96\)</span>), we get:</p>
-<div class="math">
-\begin{align*}
-n &amp;= \frac{z^2_{\alpha/2}}{B^2} (\sigma^2_U + \frac{\sigma^2_V}{c}) \\
-  &amp;= \frac{1.96^2}{0.5^2}(1 + \frac{1}{c})(15^2) \\
-  &amp;= (1 + \frac{1}{c})(3457.44) \tag{19}
-\end{align*}
-</div>
-<p>We want to allocate as small a control group as possible so we can
-maximize revenue (assuming our promotion has positive lift).  Knowing that
-<span class="math">\(n(1 + c) = 20,000\)</span> (since treatment and control add up to this number),
-we can solve for <span class="math">\(n\)</span> in Equation 19 (using the quadratic equation):</p>
-<div class="math">
-\begin{align*}
-n = (1 + \frac{1}{c})(3457.44) &amp;= \frac{20000}{1 + c} \\
-    (c+1)^2 &amp;= \frac{20000}{3457.44}c \\
-    c^2 - 3.7846c + 1 = 0 \\
-    c \approx 3.4988 \pm 0.28581 \\
-    n \approx 4446 \text{ or } 15554 \tag{20}
-\end{align*}
-</div>
-<p class="last">The two solutions correspond to <span class="math">\(n\)</span> being the larger or smaller number
-because we did not make any assumptions about which one is larger (<span class="math">\(n\)</span> or
-<span class="math">\(cn\)</span>).  Thus, we should pick the treatment group to be approximately 15550
-and control to be 4450.  Contrast this with setting <span class="math">\(c=1\)</span> in Equation
-19, which would yield <span class="math">\(n=6915\)</span>, a slightly larger control group than is
-necessary.</p>
-</div>
-<p></p>
-<h5> Sample Size using Hypothesis Testing and Statistical Power </h5>
-<p>Another method to pick sample size is to use a hypothesis testing
-framework along with statistical power.  To conduct this procedure, we need a
-few things:</p>
-<ul class="simple">
-<li>
-<span class="math">\(\alpha\)</span>: the false positive rate (or how often we incorrectly detect
-something is true when it's not).  This is usually set a <span class="math">\(0.01\)</span> or
-<span class="math">\(0.05\)</span> in most scientific experiments.</li>
-<li>Power (denoted by <span class="math">\(1 - \beta\)</span>, where <span class="math">\(\beta\)</span> is the false
-negative rate): How often we are able to conclude that the alternative
-hypothesis is true when it is.  A common value is usually <span class="math">\(0.80\)</span>.</li>
-<li>Minimum detectable effect size (denoted by <span class="math">\(\Delta\)</span>): The minimum effect size (i.e. lift) we want be able
-to detect.  For example, we may choose a $0.50 SPC as the minimum detectable effect size.</li>
-</ul>
-<p>The basic idea is first we establish a test or "rule" using our the
-hypothesis testing framework (and a given <span class="math">\(\alpha\)</span>) to decide
-when we accept and when we reject a given sample.
-Next, we use this rule, the minimum detectable effect size
-as our alternative hypothesis along with the statistical power to compute the required <span class="math">\(n\)</span>.
-Let's take a look in detail.</p>
-<p>First, we determine our statistical test.  Since we're dealing with large sample sizes,
-we've already said that we can approximate things using a normal distribution.
-The uniformly most powerful test in this case (which you can derive using the
-<a class="reference external" href="https://en.wikipedia.org/wiki/Neyman%E2%80%93Pearson_lemma">Neyman-Pearson Lemma</a>)
-is given by:</p>
-<div class="math">
-\begin{equation*}
-P(\bar{y} &gt; \mu_0 + \frac{z_{\alpha/2}\sigma}{\sqrt{n}} | H_0) = \alpha \tag{21}
-\end{equation*}
-</div>
-<p>Translating that into our problem with the outcome variable being lift and
-the null hypothesis being <span class="math">\(\mu_{\text{lift}}=0\)</span>, we get:</p>
-<div class="math">
-\begin{equation*}
-P(\text{lift} = \bar{U} - \bar{V} &gt; \frac{z_{\alpha/2}\sigma_{\text{lift}}}{\sqrt{n}} | \mu_{\text{lift}} = 0) = \alpha \tag{22}
-\end{equation*}
-</div>
-<p>Now that we have established our test:
-<span class="math">\(\bar{U} - \bar{V} &gt; \frac{z_{\alpha/2}\sigma}{\sqrt{n}}\)</span>, we can
-see how often we will correctly identify the alternative hypothesis
-(<span class="math">\(\mu_{\text{lift}} = \Delta\)</span>) to be true when it is true:</p>
-<div class="math">
-\begin{align*}
-P(\text{lift} &amp;&gt; \frac{z_{\alpha/2}\sigma_{\text{lift}}}{\sqrt{n}} | \mu_{\text{lift}} = \Delta) \geq 1 - \beta \\
-P(\frac{\text{lift} - \Delta}{\sigma_{\text{lift}} / \sqrt{n}} &amp;&gt; (\frac{z_{\alpha/2}\sigma_{\text{lift}}}{\sqrt{n}} - \Delta)\frac{1}{\sigma_{\text{lift}} / \sqrt{n}} | \mu_{\text{lift}} = \Delta) = 1 - \beta \\
-P(Z &amp;&gt; z_{\alpha/2} - \frac{\sqrt{n}\Delta}{\sigma_{\text{lift}}} | \mu_{\text{lift}} = \Delta) \geq 1 - \beta &amp; \text{since lift is normally distributed} \\
--z_{\alpha/2} + \frac{\sqrt{n}\Delta}{\sigma_{\text{lift}}} &amp;\geq z_{1 - \beta} \\
-\frac{\sqrt{n}\Delta}{\sigma_{\text{lift}}} &amp;\geq z_{1 - \beta} + z_{\alpha/2} \\
-n &amp;\geq \sigma^2_{\text{lift}} \frac{(z_{\alpha/2} + z_{1 - \beta})^2}{\Delta^2} \tag{23}
-\end{align*}
-</div>
-<p>Let's take a look at an example of how this works.</p>
-<div class="admonition-example-3 admonition">
-<p class="first admonition-title">Example 3</p>
-<p>Using the numbers from Example 2, how large of a sample size do we require if <span class="math">\(1-\beta=0.80\)</span> and now we
-can send <span class="math">\(30,000\)</span> flyers?</p>
-<p>Using Equation 23 and estimating <span class="math">\(\sigma \approx 15\)</span>, we have (where <span class="math">\(z_{1-\beta}\approx 0.84\)</span>):</p>
-<div class="math">
-\begin{align*}
-n &amp;\geq (\sigma^2_U + \frac{\sigma^2_V}{c}) \frac{(z_{\alpha/2} + z_{1 - \beta})^2}{\Delta^2} \\
-  &amp;= (1 + \frac{1}{c})(15)^2 \frac{(1.96 + 0.84)^2}{0.5^2}  \\
-  &amp;= 7056 (1 + \frac{1}{c}) \tag{24}
-\end{align*}
-</div>
-<p>With the added constraint <span class="math">\(n(1 + c) = 30000\)</span>, we solve for <span class="math">\(c\)</span>:</p>
-<div class="math">
-\begin{align*}
-n = (1 + \frac{1}{c})(7056) &amp;= \frac{30000}{1 + c} \\
-    (c+1)^2 &amp;= \frac{30000}{7056}c \\
-    c^2 - 2.252c + 1 = 0 \\
-    c \approx 1.644 \pm 0.6084 \\
-    n \approx 11349 \text{ or } 18651 \tag{25}
-\end{align*}
-</div>
-<p class="last">So we should send approximately 11350 flyers to the control group and 18650 to the treatment group.
-Contrast this with setting <span class="math">\(c=1\)</span> resulting in <span class="math">\(n=14112\)</span>.</p>
-</div>
-<p></p>
-<h5> Binomial Outcome Variables </h5>
-<p>One last point, the above calculations for sample size are equally valid when the outcome
-is binary (e.g. for conversion or activation rate).  The big difference is how we estimate
-the standard deviation/variance.  Since we're dealing with a binary outcome, we can model
-the total number of customers who convert as a binomial random variable
-(<span class="math">\(Y\)</span>) and estimate the variance (and standard deviation) according to Equation 16:</p>
-<div class="math">
-\begin{equation*}
-\hat{\sigma_{\bar{Y}}^2} = \frac{\hat{p_U}(1-\hat{p_U})}{n_U} + \frac{\hat{p_V}(1-\hat{p_V})}{n_V} \tag{26}
-\end{equation*}
-</div>
-<p>With Equation 26, we need to estimate <span class="math">\(p\)</span>.  Usually this can be estimated
-based on prior campaign that you ran where you have a ballpark of the previous
-conversion rate.  Putting it all together with the estimate <span class="math">\(\hat{p}\)</span> (for
-both <span class="math">\(U\)</span> and <span class="math">\(V\)</span>):</p>
-<div class="math">
-\begin{equation*}
-n \geq (\frac{\hat{p}(1-\hat{p})}{n_U} + \frac{\hat{p}(1-\hat{p})}{n_V})
- \frac{(z_{\alpha/2} + z_{1 - \beta})^2}{\Delta^2} \tag{27}
-\end{equation*}
-</div>
-<p>For example, you might expect the baseline conversion rate to be approximately
-5% (<span class="math">\(\hat{p}=0.05\)</span>).  In that case, we can easily solve for <span class="math">\(n\)</span> as
-before.</p>
-<p><br></p>
-<h4> Conclusion </h4>
-<p>Whew!  This post was a lot longer than I expected.  "Elementary" is such a misleading
-word because in some cases it's obvious and others exceedingly complex.  The
-reason why statistics is often inaccessible is that the derivations and details
-of "elementary" statistics is sometimes a bit complex (even though the actual
-procedure is simple).  Hopefully this primer will help put both direct
-marketing and elementary statistics in perspective while giving some intuition
-on both subjects.</p>
-<p><br></p>
-<h4> References and Further Reading </h4>
-<ul class="simple">
-<li>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Direct_marketing">Direct marketing</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Central_limit_theorem">Central Limit Theorem</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Sample_mean_and_covariance">Sample Mean</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Variance#Sample_variance">Sample Variance</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Law_of_large_numbers">Law of Large Numbers</a>.</li>
-<li>
-<a class="reference external" href="http://link.springer.com/book/10.1007%2F978-0-387-21736-9">All of Statistics: A Concise Course in Statistical Inference</a> by Wasserman.</li>
-<li>
-<a class="reference external" href="http://www.amazon.ca/Mathematical-Statistics-Applications-Dennis-Wackerly/dp/0495110817">Mathematical Statistics with Applications</a> by Wackerly, Mendenhall and Scheaffer.</li>
-<li>
-<a class="reference external" href="http://www.amazon.com/Data-Mining-Techniques-Relationship-Management/dp/0470650931/">Data Mining Techniques: For Marketing, Sales, and Customer Relationship Management</a> by Linoff.</li>
-<li>
-<a class="reference external" href="http://www.evanmiller.org/how-not-to-run-an-ab-test.html">How Not To Run An A/B Test</a>, Evan Miller.</li>
-</ul>
-<p><br><br></p>
-<table class="docutils footnote" frame="void" id="id9" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="posts/normal-difference-distribution/#id1">[1]</a></td>
-<td>An interesting story I read about in <a class="reference external" href="https://en.wikipedia.org/wiki/The_Emperor_of_All_Maladies">The Emperor of All Maladies</a> about how several large scale trials testing the effectiveness of mammograms (low-dose x-ray imaging to detect breast cancer) were undone by implicit selection biases.  In one of the Canadian studies, nurses would write down trial patients names in a notebook where the first line corresponded to the treatment group, second control group, third treatment and so forth.  The nurses administering the trial subtlety biased the results by feeding patients who they thought were more in need to the treatment group.  A compassionate gesture but, statistically, a failed experiment.  Without the benefit of a truly randomized trial, they could not longer analyze the effectiveness of the treatment in isolation of confounding variables.</td>
-</tr></tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id10" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="posts/normal-difference-distribution/#id2">[2]</a></td>
-<td>The topic of design of <a class="reference external" href="https://en.wikipedia.org/wiki/Randomized_controlled_trial">randomized control trials</a> can actually be quite complex.  In this explanation, we're assuming relatively large population sizes (10s of thousands), which allows us to make a lot of simplifying assumptions.  When dealing with small sample sizes, the variation of the samples can be quite large making it much more important to design your experiment properly.  For larger population sizes, we usually "hide" behind the central limit theorem and normal approximations.</td>
-</tr></tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id11" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="posts/normal-difference-distribution/#id3">[3]</a></td>
-<td>Many marketers are tempted to <em>not</em> take a control group.  Their reasoning is something along the lines of "but I'm missing out on sales!", in which you should respond back "how do you know that?"  It's quite possible the offer could have absolutely no meaningful effect on your customers (e.g. targeting wrong product to people who don't want it) and possibly a negative effect (e.g. the discount may be too high with not enough people coming in)!  Just because you're giving people a discount doesn't mean it always increases sales.  Further, even if you have an increase, you don't know <em>how much</em> of an increase it is by i.e. the effect size.  If two different offers boosted sales by 1% vs. 10%, you should know that!  This is how you can test and learn to improve your overall business.</td>
-</tr></tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id12" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="posts/normal-difference-distribution/#id4">[4]</a></td>
-<td>For example, <span class="math">\(X\)</span> and <span class="math">\(Y\)</span> represent random variables which we can manipulate and analyze properties from <em>before</em> we have actually observed any values for them.  That means any analysis we apply on them doesn't depend one the actual numbers we observe.  After we observe some samples, we'll have explicit values for them like <span class="math">\(x=1\)</span> and <span class="math">\(y=48\)</span>, where we use lower case to distinguish these realizations of the random variables.</td>
-</tr></tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id13" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="posts/normal-difference-distribution/#id5">[5]</a></td>
-<td>This section was primarily based on <em>All of Statistics</em>, Chapter 16.  It has a great explanation of how randomized control groups work.  Check it out if my quick explanation glosses over too many things.</td>
-</tr></tbody>
-</table>
 </div>
     </div>
     </article>
@@ -708,7 +176,7 @@ on both subjects.</p>
 
         <nav class="postindexpager"><ul class="pager">
 <li class="next">
-                <a href="index-10.html" rel="next">Older posts</a>
+                <a href="index-2.html" rel="next">Older posts</a>
             </li>
         </ul></nav><script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
             MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
