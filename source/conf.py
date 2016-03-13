@@ -549,7 +549,7 @@ IMAGE_THUMBNAIL_SIZE = 400
 # If False, index-1.html has the second-newest posts, index-2.html the third-newest,
 # and index-n.html the oldest posts. When this is active, old posts can be moved
 # to other index pages when new posts are added.
-# INDEXES_STATIC = True
+INDEXES_STATIC = False
 #
 # (translatable) If PRETTY_URLS is set to True, this setting will be used to create
 # prettier URLs for index pages, such as page/2/index.html instead of index-2.html.
