@@ -857,7 +857,8 @@ GENERATE_RSS = True
 # RSS_LINK = None
 
 # Show only teasers in the RSS and Atom feeds? Default to True
-RSS_TEASERS = True
+#RSS_TEASERS = True
+FEED_TEASERS = True
 
 # Strip HTML in the RSS feed? Default to False
 # RSS_PLAIN = False
