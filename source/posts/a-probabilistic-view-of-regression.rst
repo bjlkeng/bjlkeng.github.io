@@ -134,7 +134,7 @@ maximize the `likelihood <https://en.wikipedia.org/wiki/Likelihood_function>`_
 
 |h3| Maximizing Likelihood |h3e|
 
-Consider that we have :math:`n` points, each of which is drawn in an indepdent
+Consider that we have :math:`n` points, each of which is drawn in an independent
 and identically distributed (i.i.d.) way from the normal distribution in Equation 4.
 For a given, :math:`\mu, \sigma^2`, the probability of those :math:`n` points
 being drawn define the likelihood function, which are just the multiplication
@@ -197,7 +197,7 @@ expected value.
 Second, :math:`\mu = \frac{1}{n}\sum_{i=1}^{n} y_i` (from Equation 6) is a
 *point estimate*.  We don't know its exact value, whatever we estimate will probably
 not be equal to its "true" value (if such a thing exists).  Had we sampled our data
-points slighlyt differently, we would get a slightly different estimate of
+points slightly differently, we would get a slightly different estimate of
 :math:`\mu`. *This all points to the fact that* :math:`\mu` *is a random variable*.  
 Thus, :math:`\mu` can have a probability distribution that we can model in the
 same way we're modeling :math:`y` with a normal distribution.  What we're doing
@@ -234,7 +234,7 @@ parameters instead of just a single :math:`\mu` value.
 
 To get point estimates for the :math:`\beta_i` parameters, we can again use a
 maximum likelihood estimate.  Thankfully, the work we did above did not go to
-waste as the steps are the same upto Equation 5.  From there, we can substitute
+waste as the steps are the same up to Equation 5.  From there, we can substitute
 the linear equation from Equation 8 in for :math:`\mu` and try to find the maximum
 values for the vector of :math:`{\bf \beta}` values:
 
@@ -307,7 +307,7 @@ instead of a normal distribution:
 The Poisson distribution is a discrete probability distribution with a single
 parameter :math:`\lambda`.  Since the Poisson regression is discrete,
 so is our outcome variable.  Typically, a Poisson regression is used to
-represent count data such as the numbrr of letters of mail (or email) in a
+represent count data such as the number of letters of mail (or email) in a
 day, or perhaps the number of customers walking into a store.
 
 The second difference between ordinary and Poisson regressions is how we relate
@@ -324,7 +324,7 @@ in order to derive an expression to estimate the :math:`{\bf \beta}` parameters
 (i.e. maximum likelihood estimate).
 Using the same scenario as Equation 5, namely :math:`n` :math:`(y_i, {\bf x_i})` 
 i.i.d. points, we can derive a log likelihood function (refer to the Wikipedia
-link for a reference of the probability mass function of a Poission distribution):
+link for a reference of the probability mass function of a Poisson distribution):
 
 .. math::
 
@@ -396,6 +396,6 @@ of this basic topic in a new way.
 
 
 
-.. [1] Since logarithm is monotonically increasing, it achieves the same maximum as the logarithmof a function at the same point.  It's also much more convenient to work with because many probability distributions have an exponents or are multiplicative.  The logarithm brings down the exponents and changes the multiplications to additions.
+.. [1] Since logarithm is monotonically increasing, it achieves the same maximum as the logarithm of a function at the same point.  It's also much more convenient to work with because many probability distributions have an exponents or are multiplicative.  The logarithm brings down the exponents and changes the multiplications to additions.
 
 .. [2] We explicitly use the conditional notation here because the value of :math:`y` depends on :math:`{\bf x}`.
