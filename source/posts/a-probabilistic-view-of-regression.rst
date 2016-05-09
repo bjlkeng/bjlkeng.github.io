@@ -367,7 +367,7 @@ from Wikipedia has a really good overview which you can derive.
 
 The `logistic regression <https://en.wikipedia.org/wiki/Logistic_regression>`_ is
 actually a type of GLM with outcome variable modeled as a 
-`Bernoulli distribution <https://en.wikipedia.org/wiki/Bernoulli_distribution>`
+`Bernoulli distribution <https://en.wikipedia.org/wiki/Bernoulli_distribution>`_
 and link function as the `logit <https://en.wikipedia.org/wiki/Logit>`_
 function (inverse of the `logistic function
 <https://en.wikipedia.org/wiki/Logistic_function>`_, hence the name).
@@ -378,7 +378,13 @@ coefficients (there is no closed form solution similar to the Poisson regression
 
 |h2| Conclusion |h2e|
 
-Undestanding
+Linear regression is such a fundamental tool in statistics that it is often
+glossed over in explanations.  Starting from the bottom and building the model
+up is much more interesting that the traditional method of presenting the end
+result and scarcely relating it back to its probabilistic roots.  
+In my opinion, there's a lot of beauty in statistics but only because it has
+its roots in probability.  I hope this post helped you see some of the beauty
+of this basic topic in a new way.
 
 
 |h2| References and Further Reading |h2e|
