@@ -83,7 +83,7 @@ There are usually two main reasons to use a regression model:
 The simplest form of linear regression model equates the outcome variable with
 the linear predictor function (ordinary linear regression), adding an error
 term (:math:`\varepsilon`) to model the noise that appears when fitting the
-model.  The error term is added because :math:`y` variable almost never can be
+model.  The error term is added because the :math:`y` variable almost never can be
 exactly determined by :math:`{\bf x}`, there is always some noise or
 uncertainty in the relationship which we want to model.
 
@@ -178,7 +178,7 @@ Also, we can remove any additive or multiplicative constants where appropriate
 because they do not affect the maximum likelihood value.  
 
 To find the actual value of the optimum point, we can take the partial
-derivative of Equation 6 with respect to :math:`\mu` and setting it to zero:
+derivative of Equation 6 with respect to :math:`\mu` and set it to zero:
 
 .. math::
 
@@ -286,7 +286,7 @@ predicting :math:`y` is a simple computation:
 
 .. math::
 
-    \hat{y_i} = E(y|{\bf x}) = \beta_0 + \beta_1 x_{1} + ... + \beta_p x_{p} \tag{12}
+    \hat{y_i} = E(y_i|{\bf x_i}) = \beta_{i0} + \beta_1 x_{i1} + ... + \beta_p x_{ip} \tag{12}
 
 I included the expectation here to emphasize that we're generating a point
 estimate for :math:`y`.  The expectation is the most likely value for :math:`y`
@@ -308,11 +308,11 @@ Changing up some of the modeling decision we made above, we get a different
 type of regression model that is not any more complicated.
 `Generalized linear models <https://en.wikipedia.org/wiki/Generalized_linear_model>`_
 are a generalization of the ordinary linear regression model we just looked at above
-except that it makes different choices.  Namely, the probability distribution and how
-the mean of the outcome variable relates to the explanatory variables (i.e.
-"link function").  The above methodology for deriving ordinary linear
-regression can be equally applied to any of the generalized linear models.
-We'll take a look at a `Poisson Regression
+except that it makes different choices.  Namely, the choice of probability
+distribution and choice of how the mean of the outcome variable relate to the
+explanatory variables (i.e. "link function").  The above methodology for
+deriving ordinary linear regression can be equally applied to any of the
+generalized linear models.  We'll take a look at a `Poisson Regression
 <https://en.wikipedia.org/wiki/Poisson_regression>`_ as an example.
 
 |h3| Poisson Regression |h3e|
@@ -360,7 +360,7 @@ link for a reference of the probability mass function of a Poisson distribution)
         &= \sum_{i=1}^{n} \big( y_i (\beta_0 + \beta_1 x_{i1} + ... + \beta_p x_{ip}) 
             - e^{(\beta_0 + \beta_1 x_{i1} + ... + \beta_p x_{ip})} \big) \tag{15}
 
-You can arrive at the last line by substituting Equation 14 in.  Unlike ordinary
+You can arrive at the last line by substituting Equation 14 in.  Unlike ordinary linear
 regression, Equation 15 doesn't have a closed form for its solution.  However, it is a convex
 function meaning that we can use a numerical technique such as gradient descent
 to find the unique optimal values of :math:`{\bf \beta}` that maximize the
@@ -406,12 +406,11 @@ coefficients (there is no closed form solution similar to the Poisson regression
 
 Linear regression is such a fundamental tool in statistics that sometimes
 it is not explained in enough detail (or as clearly as it should be).
-Starting from the bottom and building up a regression model is much more
-interesting that the traditional method of presenting the end result and
+Building up a regression model from the bottom up is much more
+interesting than the traditional method of presenting the end result and
 scarcely relating it back to its probabilistic roots.  In my opinion, there's a
 lot of beauty in statistics but only because it has its roots in probability.
-I hope this post helped you see some of the beauty of this fundamental topic in
-a new way.
+I hope this post helped you see some of the beauty of this fundamental topic too.
 
 
 |h2| References and Further Reading |h2e|
