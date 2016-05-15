@@ -129,20 +129,20 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 <div class="prompt input_prompt">In [478]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="kn">import</span> <span class="nn">random</span> 
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">random</span> 
 
 <span class="k">def</span> <span class="nf">flip</span><span class="p">():</span>
-    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s">'H'</span><span class="p">,</span> <span class="s">'T'</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s1">'H'</span><span class="p">,</span> <span class="s1">'T'</span><span class="p">])</span>
 
 <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">[</span><span class="mi">1</span> <span class="k">if</span> <span class="n">flip</span><span class="p">()</span> <span class="o">==</span> <span class="s">'H'</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="mi">1</span> <span class="k">if</span> <span class="n">flip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">'H'</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
 
 <span class="k">def</span> <span class="nf">flip_ratio</span><span class="p">(</span><span class="n">flips</span><span class="p">):</span>
     <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">flips</span><span class="p">)</span>
     <span class="n">heads</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">flips</span><span class="p">)</span>
     <span class="n">tails</span> <span class="o">=</span> <span class="n">N</span> <span class="o">-</span> <span class="n">heads</span>
-    <span class="c"># Python 3: implicit float division, love it!</span>
-    <span class="k">return</span> <span class="s">'(%.3f, %.3f)'</span> <span class="o">%</span> <span class="p">(</span><span class="n">heads</span> <span class="o">/</span> <span class="n">N</span><span class="p">,</span> <span class="n">tails</span> <span class="o">/</span> <span class="n">N</span><span class="p">)</span>
+    <span class="c1"># Python 3: implicit float division, love it!</span>
+    <span class="k">return</span> <span class="s1">'(</span><span class="si">%.3f</span><span class="s1">, </span><span class="si">%.3f</span><span class="s1">)'</span> <span class="o">%</span> <span class="p">(</span><span class="n">heads</span> <span class="o">/</span> <span class="n">N</span><span class="p">,</span> <span class="n">tails</span> <span class="o">/</span> <span class="n">N</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -165,17 +165,17 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 <div class="prompt input_prompt">In [482]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">pandas</span> <span class="k">import</span> <span class="n">Series</span><span class="p">,</span> <span class="n">DataFrame</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">pandas</span> <span class="k">import</span> <span class="n">Series</span><span class="p">,</span> <span class="n">DataFrame</span>
 
 <span class="k">def</span> <span class="nf">toseries</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">Series</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s">'Run %d'</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">))])</span>
+    <span class="k">return</span> <span class="n">Series</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">'Run </span><span class="si">%d</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">))])</span>
 
 <span class="n">nvals</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">]</span>
 <span class="n">runs</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">toseries</span><span class="p">([</span><span class="n">flip_ratio</span><span class="p">(</span><span class="n">simulate</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">runs</span><span class="p">)])</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nvals</span><span class="p">]</span>
 
-<span class="c"># Put it in pandas data frame for pretty printing</span>
-<span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s">'N=%d'</span> <span class="o">%</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nvalues</span><span class="p">])</span>
+<span class="c1"># Put it in pandas data frame for pretty printing</span>
+<span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">'N=</span><span class="si">%d</span><span class="s1">'</span> <span class="o">%</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nvalues</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -317,10 +317,10 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 <div class="prompt input_prompt">In [432]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="k">def</span> <span class="nf">count_heads_after_heads</span><span class="p">(</span><span class="n">flips</span><span class="p">):</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">count_heads_after_heads</span><span class="p">(</span><span class="n">flips</span><span class="p">):</span>
     <span class="n">heads_after_heads</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="c"># Need at least one flip</span>
+    <span class="c1"># Need at least one flip</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">flips</span><span class="p">)):</span>
         <span class="k">if</span> <span class="n">flips</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">total</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -359,21 +359,21 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 <div class="prompt input_prompt">In [454]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="k">def</span> <span class="nf">gen_fallacy_data</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span> <span class="n">num_flips</span><span class="p">,</span> <span class="n">Ns</span><span class="p">):</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">gen_fallacy_data</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span> <span class="n">num_flips</span><span class="p">,</span> <span class="n">Ns</span><span class="p">):</span>
     <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="n">Ns</span><span class="p">:</span>
         <span class="n">sdata</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">runs</span><span class="p">):</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">simulate_fallacy</span><span class="p">(</span><span class="n">num_flips</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
             <span class="n">avg</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-            <span class="n">sdata</span> <span class="o">+=</span> <span class="p">[</span><span class="s">'%.4f'</span> <span class="o">%</span> <span class="n">avg</span><span class="p">]</span>
+            <span class="n">sdata</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">'</span><span class="si">%.4f</span><span class="s1">'</span> <span class="o">%</span> <span class="n">avg</span><span class="p">]</span>
         <span class="n">data</span> <span class="o">+=</span> <span class="p">[</span><span class="n">toseries</span><span class="p">(</span><span class="n">sdata</span><span class="p">)]</span>
     <span class="k">return</span> <span class="n">data</span>
     
 <span class="n">runs</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">num_flips</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">Ns</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="mi">100000</span><span class="p">]</span>
-<span class="n">DataFrame</span><span class="p">(</span><span class="n">gen_fallacy_data</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span> <span class="n">num_flips</span><span class="p">,</span> <span class="n">Ns</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s">'N=%d'</span> <span class="o">%</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">Ns</span><span class="p">])</span>
+<span class="n">DataFrame</span><span class="p">(</span><span class="n">gen_fallacy_data</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span> <span class="n">num_flips</span><span class="p">,</span> <span class="n">Ns</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">'N=</span><span class="si">%d</span><span class="s1">'</span> <span class="o">%</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">Ns</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -460,10 +460,10 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 <div class="prompt input_prompt">In [443]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="n">runs</span> <span class="o">=</span> <span class="mi">4</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">runs</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">num_flips</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="n">Ns</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">]</span>
-<span class="n">DataFrame</span><span class="p">(</span><span class="n">gen_fallacy_data</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span> <span class="n">num_flips</span><span class="p">,</span> <span class="n">Ns</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s">'N=%d'</span> <span class="o">%</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">Ns</span><span class="p">])</span>
+<span class="n">DataFrame</span><span class="p">(</span><span class="n">gen_fallacy_data</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span> <span class="n">num_flips</span><span class="p">,</span> <span class="n">Ns</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">'N=</span><span class="si">%d</span><span class="s1">'</span> <span class="o">%</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">Ns</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -542,14 +542,14 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 <div class="prompt input_prompt">In [449]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="k">import</span> <span class="n">display</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="k">import</span> <span class="n">display</span>
 
 <span class="n">runs</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">Ns</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">]</span>
 <span class="k">for</span> <span class="n">nf</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">]:</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">(</span><span class="n">gen_fallacy_data</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span> <span class="n">nf</span><span class="p">,</span> <span class="n">Ns</span><span class="p">),</span> 
-                   <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s">'N=%d'</span> <span class="o">%</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">Ns</span><span class="p">])</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s">"Number of flips = %d:"</span> <span class="o">%</span> <span class="n">nf</span><span class="p">)</span>
+                   <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">'N=</span><span class="si">%d</span><span class="s1">'</span> <span class="o">%</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">Ns</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Number of flips = </span><span class="si">%d</span><span class="s2">:"</span> <span class="o">%</span> <span class="n">nf</span><span class="p">)</span>
     <span class="n">display</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 </pre></div>
 

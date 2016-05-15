@@ -164,14 +164,14 @@ P =
 <div class="prompt input_prompt">In [6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">linalg</span> <span class="k">as</span> <span class="n">LA</span>
 
 <span class="k">def</span> <span class="nf">simulate_markov</span><span class="p">(</span><span class="n">x_0</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
         <span class="n">P_k</span> <span class="o">=</span> <span class="n">LA</span><span class="o">.</span><span class="n">matrix_power</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
         <span class="n">x_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x_0</span><span class="p">,</span> <span class="n">P_k</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s">"x^(%d) = [%.4f %.4f]"</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">x_k</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x_k</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"x^(</span><span class="si">%d</span><span class="s2">) = [</span><span class="si">%.4f</span><span class="s2"> </span><span class="si">%.4f</span><span class="s2">]"</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">x_k</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x_k</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
         
 <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
 <span class="n">istate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
@@ -223,7 +223,7 @@ x^(9) = [0.8334 0.1666]
 <div class="prompt input_prompt">In [4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span>
 <span class="n">simulate_markov</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">r</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">r</span><span class="p">]),</span> <span class="n">P</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 </pre></div>
 
@@ -328,33 +328,33 @@ P(\text{sampling } x_0) \propto g(x_0) * \frac{f(x_0)}{Mg(x_0)} = \frac{f(x_0)}{
 <div class="prompt input_prompt">In [7]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="o">%</span><span class="k">matplotlib</span> inline
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> inline
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="nn">stats</span>
 
-<span class="c"># Target = double gamma distribution</span>
-<span class="c"># Envelope = normal distribution </span>
+<span class="c1"># Target = double gamma distribution</span>
+<span class="c1"># Envelope = normal distribution </span>
 <span class="n">dg</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">dgamma</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">norm</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
-<span class="c"># Generate samples for PDF</span>
+<span class="c1"># Generate samples for PDF</span>
 <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mf">0.001</span><span class="p">),</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)),</span> 
                 <span class="nb">max</span><span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mf">0.999</span><span class="p">),</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mf">0.999</span><span class="p">)),</span> <span class="mi">1000</span><span class="p">)</span>
 <span class="n">dg_samples</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 <span class="n">norm_samples</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
-<span class="c"># Find scaling constant for envelope </span>
+<span class="c1"># Find scaling constant for envelope </span>
 <span class="n">M</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">dg_samples</span> <span class="o">/</span> <span class="n">norm_samples</span><span class="p">)</span>
 
-<span class="c"># Plot</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">'Target'</span><span class="p">:</span> <span class="n">dg_samples</span><span class="p">,</span> <span class="s">'Envelope'</span><span class="p">:</span> <span class="n">M</span> <span class="o">*</span> <span class="n">norm_samples</span><span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="p">[</span><span class="s">'--'</span><span class="p">,</span> <span class="s">'-'</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="s">'black'</span><span class="p">,</span> <span class="s">'blue'</span><span class="p">],</span> 
+<span class="c1"># Plot</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">'Target'</span><span class="p">:</span> <span class="n">dg_samples</span><span class="p">,</span> <span class="s1">'Envelope'</span><span class="p">:</span> <span class="n">M</span> <span class="o">*</span> <span class="n">norm_samples</span><span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="p">[</span><span class="s1">'--'</span><span class="p">,</span> <span class="s1">'-'</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="s1">'black'</span><span class="p">,</span> <span class="s1">'blue'</span><span class="p">],</span> 
              <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dg</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span> <span class="s">'g--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">M</span> <span class="o">*</span> <span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span> <span class="s">'r--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">,</span> <span class="s">'Reject'</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="s">'Accept'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dg</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span> <span class="s1">'g--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">M</span> <span class="o">*</span> <span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span> <span class="s1">'r--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">,</span> <span class="s1">'Reject'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="s1">'Accept'</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -407,23 +407,23 @@ P(\text{sampling } x_0) \propto g(x_0) * \frac{f(x_0)}{Mg(x_0)} = \frac{f(x_0)}{
 <div class="prompt input_prompt">In [8]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="k">def</span> <span class="nf">rejection_sampling</span><span class="p">():</span>
-    <span class="k">while</span> <span class="k">True</span><span class="p">:</span>
-        <span class="c"># Re-use global parameters from above</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">rejection_sampling</span><span class="p">():</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># Re-use global parameters from above</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
         <span class="n">envelope</span> <span class="o">=</span> <span class="n">M</span> <span class="o">*</span> <span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">envelope</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="n">dg</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">x</span>
 
-<span class="c"># Generation samples from rejection sampling algorithm</span>
+<span class="c1"># Generation samples from rejection sampling algorithm</span>
 <span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="n">rejection_sampling</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000</span><span class="p">)]</span>
 
-<span class="c"># Plot Histogram vs. Target PDF</span>
-<span class="n">df</span><span class="p">[</span><span class="s">'Target'</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s">'blue'</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s">'--'</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-<span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="k">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">'green'</span><span class="p">,</span> 
+<span class="c1"># Plot Histogram vs. Target PDF</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">'Target'</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">'blue'</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'green'</span><span class="p">,</span> 
                         <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s">'Target PDF'</span><span class="p">,</span> <span class="s">'Rejection Sampling'</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s1">'Target PDF'</span><span class="p">,</span> <span class="s1">'Rejection Sampling'</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -537,38 +537,38 @@ A(x \rightarrow x') = min(1, \frac{f(x')f_{N(x',2)}(x)}{f(x)f_{N(x,2)}(x')})
 <div class="prompt input_prompt">In [28]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="kn">import</span> <span class="nn">math</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">pandas.tools.plotting</span> <span class="k">import</span> <span class="n">autocorrelation_plot</span>
 
-<span class="c"># Simulate a f(x) proportional to the double gamma distribution</span>
+<span class="c1"># Simulate a f(x) proportional to the double gamma distribution</span>
 <span class="n">f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span>
 
 <span class="k">def</span> <span class="nf">mh_sampler</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
     <span class="n">T</span><span class="o">=</span><span class="mi">100</span>
     <span class="n">x_curr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span>
-    <span class="k">while</span> <span class="k">True</span><span class="p">:</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
             <span class="n">x_next</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">x_curr</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">min</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">f</span><span class="p">(</span><span class="n">x_next</span><span class="p">)</span> <span class="o">/</span> <span class="n">f</span><span class="p">(</span><span class="n">x_curr</span><span class="p">))</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
                 <span class="n">x_curr</span> <span class="o">=</span> <span class="n">x_next</span>
         <span class="k">yield</span> <span class="n">x_curr</span>
 
-<span class="c"># Burn-in</span>
+<span class="c1"># Burn-in</span>
 <span class="n">sampler</span> <span class="o">=</span> <span class="n">mh_sampler</span><span class="p">()</span>
 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
     <span class="nb">next</span><span class="p">(</span><span class="n">sampler</span><span class="p">)</span>
 
-<span class="c"># Sample</span>
+<span class="c1"># Sample</span>
 <span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="nb">next</span><span class="p">(</span><span class="n">sampler</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000</span><span class="p">)]</span>
 
-<span class="c"># Plot Histogram vs. Target PDF</span>
-<span class="n">df</span><span class="p">[</span><span class="s">'Target'</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s">'blue'</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s">'--'</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-<span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="k">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">'green'</span><span class="p">,</span> 
+<span class="c1"># Plot Histogram vs. Target PDF</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">'Target'</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">'blue'</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'green'</span><span class="p">,</span> 
                         <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s">'Target PDF'</span><span class="p">,</span> <span class="s">'MH Sampling'</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s1">'Target PDF'</span><span class="p">,</span> <span class="s1">'MH Sampling'</span><span class="p">])</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
-<span class="c"># Plot autocorrelation to ensure samples are independent</span>
+<span class="c1"># Plot autocorrelation to ensure samples are independent</span>
 <span class="n">autocorrelation_plot</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">samples</span><span class="p">))</span>
 </pre></div>
 

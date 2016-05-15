@@ -5,8 +5,10 @@ pre.code .c { color: #408080; font-style: italic } /* Comment */
 pre.code .err { border: 1px solid #FF0000 } /* Error */
 pre.code .k { color: #008000; font-weight: bold } /* Keyword */
 pre.code .o { color: #666666 } /* Operator */
+pre.code .ch { color: #408080; font-style: italic } /* Comment.Hashbang */
 pre.code .cm { color: #408080; font-style: italic } /* Comment.Multiline */
 pre.code .cp { color: #BC7A00 } /* Comment.Preproc */
+pre.code .cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
 pre.code .c1 { color: #408080; font-style: italic } /* Comment.Single */
 pre.code .cs { color: #408080; font-style: italic } /* Comment.Special */
 pre.code .gd { color: #A00000 } /* Generic.Deleted */
