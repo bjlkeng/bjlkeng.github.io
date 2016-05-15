@@ -1,7 +1,7 @@
 .. title: A Probabilistic View of Linear Regression
 .. slug: a-probabilistic-view-of-regression
-.. date: 2016-05-08 14:43:05 UTC-04:00
-.. tags: regression, probability, Bayesian, mathjax
+.. date: 2016-05-14 20:43:05 UTC-04:00
+.. tags: regression, probability, Poisson, logistic, Bayesian, mathjax
 .. category: 
 .. link: 
 .. description: Another look at linear regression through the lens of probability.
