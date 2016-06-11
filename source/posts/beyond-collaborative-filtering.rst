@@ -9,7 +9,7 @@
 
 I wrote a couple of posts about some of the work on recommendation systems and
 collaborative filtering that we're doing at my job as a Data Scientist at
-Rubikloud:
+`Rubikloud <http://www.rubikloud.com>`_:
 
 * `Beyond Collaborative Filtering (Part 1) <http://rubikloud.com/labs/data-science/beyond-collaborative-filtering/>`_
 * `Beyond Collaborative Filtering (Part 2) <http://rubikloud.com/labs/data-science/beyond-collaborative-filtering-part-2/>`_
