@@ -7,298 +7,314 @@
                         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
  <url>
   <loc>http://satisficing.briankeng.com/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/2015/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/2016/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/archive.html</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/bayesian/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/betting/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/boolean/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/cdf/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/categories/collaborative-filtering/</loc>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/common-sense/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/confidence-bands/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/confidence-intervals/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/direct-marketing/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/empirical-distribution-function/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/first-post/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/formal/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/frequentist-statistics/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/functional-programming/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/functions/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/fundamentals/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/gamblers-fallacy/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/github/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/greg-ward/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/hypothesis-testing/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/investing/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/james-hague/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/jayne/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/kelly-criterion/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/law-of-large-numbers/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/law-of-small-numbers/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/logic/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/logistic/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/categories/machine-learning/</loc>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/markov-chain/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/mathjax/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/mcmc/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/metropolis-hastings/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/models/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/monte-carlo/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/nikola/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/normal-distribution/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/normal/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/np-complete/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/p-values/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/poisson/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/posterior/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/prior/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/probability/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/procedures/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/categories/recommendation-systems/</loc>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/regression/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/rejection-sampling/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/sample-size/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/sampling/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/sat/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/satisficing/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/shannon/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/statistical-inference/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/thorp/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/categories/verification/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/index-1.html</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/index-2.html</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/a-first-post/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/a-probabilistic-view-of-regression/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/accessible-satisfiability/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://satisficing.briankeng.com/posts/beyond-collaborative-filtering/</loc>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/common-sense-and-investing/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/functions-and-procedures/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/gamblers-fallacy-and-the-law-of-small-numbers/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/hypothesis-testing/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/normal-approximations-to-the-posterior-distribution/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/normal-difference-distribution/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/optimal-betting-and-the-kelly-criterion/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/probability-the-logic-of-science/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/sampling-from-a-normal-distribution/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
  <url>
   <loc>http://satisficing.briankeng.com/posts/the-empirical-distribution-function/</loc>
-  <lastmod>2016-05-15T01:45:00Z</lastmod>
+  <lastmod>2016-06-11T22:13:00Z</lastmod>
  </url>
 </urlset>
