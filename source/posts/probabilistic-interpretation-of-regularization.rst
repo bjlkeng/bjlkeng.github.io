@@ -1,4 +1,4 @@
-.. title: Probabilistic Interpretation of Regularization
+.. title: A Probabilistic Interpretation of Regularization
 .. slug: probabilistic-interpretation-of-regularization
 .. date: 2016-06-25 15:52:33 UTC-04:00
 .. tags: probability, regularization, Bayesian, mathjax
@@ -40,9 +40,8 @@ regularization.  We'll take a look at both L1 and L2 regularization in the
 context of ordinary linear regression.  The discussion will start off 
 with a quick introduction to regularization, followed by a back-to-basics
 explanation starting with the maximum likelihood estimate (MLE), then on to the
-maximum a posteriori estimate (MAP), and finally playing around with the priors to
-end up with L1 and L2 regularization.  Hopefully, this will help give some
-intuition on how regularization works.
+maximum a posteriori estimate (MAP), and finally playing around with priors to
+end up with L1 and L2 regularization.
 
 .. TEASER_END
 
@@ -51,11 +50,11 @@ intuition on how regularization works.
 `Regularization <https://en.wikipedia.org/wiki/Regularization_(mathematics)>`_
 is the process of introducing additional information in order to solve
 ill-posed problems or prevent overfitting.  A trivial example is when trying to
-fit a normal distribution but you only have one point.  In this case, you can't
-estimate the variance (you need at least two points) so any MLE estimate (which
-*only* uses the data) will be ill-formed.  Instead, by providing some
-"additional information" (i.e. prior information [1]_) you will be able to get
-a reasonable estimate for the variance.
+fit a simple linear regression but you only have one point.  In this case, you can't
+estimate both the slope and intercept (you need at least two points) so any MLE
+estimate (which *only* uses the data) will be ill-formed.  Instead, if you
+provide some "additional information" (i.e. prior information [1]_), you can
+get a much more reasonable estimate.
 
 To make things a bit more concrete, let's talk about things in the context of a
 `ordinary linear regression <https://en.wikipedia.org/wiki/Linear_regression>`_.
@@ -217,7 +216,7 @@ see how this works.
 
 |h3| Normally Distributed Priors |h3e|
 
-We'll start with our good old friend the normal distribution, by placing a
+We'll start with our good old friend the normal distribution and place a
 zero-mean normally distributed prior on *each* :math:`\beta_i` value, all with 
 identical variance :math:`\tau^2`.  From Equation 6 and filling in the
 likelihood function from Equation 4 and our prior:
@@ -225,12 +224,12 @@ likelihood function from Equation 4 and our prior:
 .. math::
 
    &\arg\max_{\bf \beta} \Big[ \log \prod_{i=1}^{n} \frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{(y_i-\beta_0 + \beta_1 x_{1} + ... + \beta_p x_{p})^2}{2\sigma^2}}  
-   + \log \prod_{j=1}^{p} \frac{1}{\tau\sqrt{2\pi}}e^{-\frac{\beta_j^2}{2\tau^2}} \Big] \\
+   + \log \prod_{j=0}^{p} \frac{1}{\tau\sqrt{2\pi}}e^{-\frac{\beta_j^2}{2\tau^2}} \Big] \\
   &= \arg\max_{\bf \beta} \Big[- \sum_{i=1}^{n} {\frac{(y_i-\beta_0 + \beta_1 x_{1} + ... + \beta_p x_{p})^2}{2\sigma^2}}
-   - \sum_{j=1}^{p} {\frac{\beta_j^2}{2\tau^2}} \Big]\\
+   - \sum_{j=0}^{p} {\frac{\beta_j^2}{2\tau^2}} \Big]\\
   &= \arg\min_{\bf \beta} \frac{1}{2\sigma^2} \big[ \sum_{i=1}^{n} (y_i-\beta_0 + \beta_1 x_{1} + ... + \beta_p x_{p})^2
-   + \frac{\sigma^2}{\tau^2} \sum_{j=1}^{p} \beta_j^2 \big] \\
-  &= \arg\min_{\bf \beta} \big[ \sum_{i=1}^{n} (y_i-\beta_0 + \beta_1 x_{1} + ... + \beta_p x_{p})^2 + \lambda \sum_{j=1}^{p} \beta_j^2 \big]
+   + \frac{\sigma^2}{\tau^2} \sum_{j=0}^{p} \beta_j^2 \big] \\
+  &= \arg\min_{\bf \beta} \big[ \sum_{i=1}^{n} (y_i-\beta_0 + \beta_1 x_{1} + ... + \beta_p x_{p})^2 + \lambda \sum_{j=0}^{p} \beta_j^2 \big]
    \tag{8} 
 
 Notice that we dropped many of the constants (with respect to :math:`\beta`)
@@ -267,12 +266,12 @@ in the previous subsection:
 .. math::
 
    &\arg\max_{\bf \beta} \Big[ \log \prod_{i=1}^{n} \frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{(y_i-\beta_0 + \beta_1 x_{1} + ... + \beta_p x_{p})^2}{2\sigma^2}}  
-   + \log \prod_{j=1}^{p} \frac{1}{2b}e^{-\frac{|\beta_j|}{2b}} \Big] \\
+   + \log \prod_{j=0}^{p} \frac{1}{2b}e^{-\frac{|\beta_j|}{2b}} \Big] \\
   &= \arg\max_{\bf \beta} \Big[- \sum_{i=1}^{n} {\frac{(y_i-\beta_0 + \beta_1 x_{1} + ... + \beta_p x_{p})^2}{2\sigma^2}}
-   - \sum_{j=1}^{p} {\frac{|\beta_j|}{2b}} \Big]\\
+   - \sum_{j=0}^{p} {\frac{|\beta_j|}{2b}} \Big]\\
   &= \arg\min_{\bf \beta} \frac{1}{2\sigma^2} \big[ \sum_{i=1}^{n} (y_i-\beta_0 + \beta_1 x_{1} + ... + \beta_p x_{p})^2
-   + \frac{\sigma^2}{b} \sum_{j=1}^{p} |\beta_j| \big] \\
-  &= \arg\min_{\bf \beta} \big[ \sum_{i=1}^{n} (y_i-\beta_0 + \beta_1 x_{1} + ... + \beta_p x_{p})^2 + \lambda \sum_{j=1}^{p} |\beta_j| \big]
+   + \frac{\sigma^2}{b} \sum_{j=0}^{p} |\beta_j| \big] \\
+  &= \arg\min_{\bf \beta} \big[ \sum_{i=1}^{n} (y_i-\beta_0 + \beta_1 x_{1} + ... + \beta_p x_{p})^2 + \lambda \sum_{j=0}^{p} |\beta_j| \big]
    \tag{9} 
 
 Again we can see that Equation 9 contains the same expression as L1
@@ -281,9 +280,10 @@ Regularization in Equation 2.
 The Laplacean prior has a slightly different effect compared to L2
 regularization.  Instead of preventing any of the coefficients from being too
 large (due to the squaring), L1 promotes sparsity.  That is, zeroing out some
-of the coefficients.  
+of the coefficients.  This makes some sense if you look at the density of a
+Laplacean prior where there is a sharp increase in the density at its mean.
 
-One way to intuitively see this is to compare two solutions [4]_.  Let's
+Another way to intuitively see this is to compare two solutions [4]_.  Let's
 imagine we are estimating two coefficients in a regression.  In L2
 regularization, the solution :math:`{\bf \beta} = (1, 0)` has the same weight
 as :math:`{\bf \beta} = (\frac{1}{\sqrt{2}}, \frac{1}{\sqrt{2}})` so they are
@@ -296,7 +296,7 @@ favor the sparse one:
    \tag{10} 
 
 So L2 regularization doesn't have any specific built in mechanisms to favor
-zeroed out coefficients, while L2 regularization actually favors these sparser
+zeroed out coefficients, while L1 regularization actually favors these sparser
 solutions.
 
 |h2| Conclusion |h2e|
