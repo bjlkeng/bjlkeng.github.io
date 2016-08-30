@@ -35,7 +35,7 @@
 
    </center>
 
-This post is going to look at a probabilitic (Bayesian) interpretation of
+This post is going to look at a probabilistic (Bayesian) interpretation of
 regularization.  We'll take a look at both L1 and L2 regularization in the
 context of ordinary linear regression.  The discussion will start off 
 with a quick introduction to regularization, followed by a back-to-basics
@@ -110,7 +110,7 @@ Sparsity translates to some coefficients having values, while others are zero
 <https://en.wikipedia.org/wiki/Regularization_(mathematics)#Tikhonov_regularization>`_
 (also known as ridge regression in the context of linear regression and
 generally as Tikhonov regularization) promotes smaller coefficients (i.e. no one
-coefficient should be too large).  This type of regulization is pretty common
+coefficient should be too large).  This type of regularization is pretty common
 and typically will help in producing reasonable estimates.  It also has a simple probabilistic
 interpretation (at least in the context of linear regression) which we will see below.
 (You can skip the next two sections if you're already familiar with the basics
@@ -166,7 +166,7 @@ interpretation is much more natural [2]_.
 Looking at Equation 5 in more detail, we already know how to compute the likelihood but
 the two new parts are the prior and the evidence.  This is where proponents of
 frequentist statistics usually have a philosophical dilemma.  The prior is actually
-something we (the modeller) explicitly choose that is **not** based on the data [3]_
+something we (the modeler) explicitly choose that is **not** based on the data [3]_
 (:math:`y`)  \*gasp\*!  
 
 Without getting into a whole philosophical spiel, adding some additional prior
@@ -184,7 +184,7 @@ parameters (:math:`\theta`).  However, most people will settle for something a
 bit less involved: finding the maximum of the posterior (which turns out to be
 an easier problem in most cases).  This is known as the 
 `maximum a posteriori probability estimate <https://en.wikipedia.org/wiki/Maximum_a_posteriori_estimation>`_, 
-usually abreviated by MAP.  This simlifies the analysis and in particular
+usually abbreviated by MAP.  This simplifies the analysis and in particular
 allows us to ignore the evidence (:math:`P(y)`), which is constant relative to
 the parameters we're trying to estimate (:math:`\theta`).
 
@@ -279,7 +279,7 @@ Again we can see that Equation 9 contains the same expression as L1
 Regularization in Equation 2.  
 
 The Laplacean prior has a slightly different effect compared to L2
-regularization.  Instead of preventing any of the cofficients from being too
+regularization.  Instead of preventing any of the coefficients from being too
 large (due to the squaring), L1 promotes sparsity.  That is, zeroing out some
 of the coefficients.  
 
@@ -318,7 +318,7 @@ many more posts on this subject!
   `"weak" prior <https://en.wikipedia.org/wiki/Prior_probability#Uninformative_priors>`_,
   `maximum a posteriori probability estimate <https://en.wikipedia.org/wiki/Maximum_a_posteriori_estimation>`_,
 * A previous post on `linear regression <link://slug/a-probabilistic-view-of-regression>`_
-* Machine Learning: A Probablistic Perspective, Kevin P. Murphy
+* Machine Learning: A Probabilistic Perspective, Kevin P. Murphy
 
 |br|
 
@@ -326,6 +326,6 @@ many more posts on this subject!
 
 .. [2] As you might have guessed, I'm fall into the Bayesian camp.  Although I would have to say that I'm much more of a pragmatist above all else.  I'll use whatever works, frequentist, Bayesian, no theoretical basis, doesn't really matter as long as I can solve the desired problem in a reasonable manner.  It just so happens Bayesian methods produce reasonable estimates very often.
 
-.. [3] Well that's not exactly true.  As a modeller, we can pick a prior that does depend on the data, although that's a bit of "double dipping".  These methods are generally known as `empirical Bayes methods <https://en.wikipedia.org/wiki/Empirical_Bayes_method>`_.
+.. [3] Well that's not exactly true.  As a modeler, we can pick a prior that does depend on the data, although that's a bit of "double dipping".  These methods are generally known as `empirical Bayes methods <https://en.wikipedia.org/wiki/Empirical_Bayes_method>`_.
 
-.. [4] I got this example from Machine Learning: A Probablistic Perspective.  It has great explanations on both L1 and L2 regularization as long as you have some moderate fluency in probability.  I highly recommend this textbook if you want to dig into the meat of ML techniques.  It's very math (probability) heavy but really provides good high level explanations that help with intuition.
+.. [4] I got this example from Machine Learning: A Probabilistic Perspective.  It has great explanations on both L1 and L2 regularization as long as you have some moderate fluency in probability.  I highly recommend this textbook if you want to dig into the meat of ML techniques.  It's very math (probability) heavy but really provides good high level explanations that help with intuition.
