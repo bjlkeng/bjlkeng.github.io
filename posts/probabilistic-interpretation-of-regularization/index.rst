@@ -1,6 +1,6 @@
 .. title: A Probabilistic Interpretation of Regularization
 .. slug: probabilistic-interpretation-of-regularization
-.. date: 2016-06-25 15:52:33 UTC-04:00
+.. date: 2016-08-29 8:52:33 UTC-04:00
 .. tags: probability, regularization, Bayesian, mathjax
 .. category: 
 .. link: 
