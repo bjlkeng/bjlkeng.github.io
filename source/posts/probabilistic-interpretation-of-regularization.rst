@@ -316,7 +316,7 @@ many more posts on this subject!
   `ordinary linear regression <https://en.wikipedia.org/wiki/Linear_regression>`_,
   `Bayes Theorem <https://en.wikipedia.org/wiki/Bayesian_inference#Formal>`_,
   `"weak" prior <https://en.wikipedia.org/wiki/Prior_probability#Uninformative_priors>`_,
-  `maximum a posteriori probability estimate <https://en.wikipedia.org/wiki/Maximum_a_posteriori_estimation>`_,
+  `maximum a posteriori probability estimate <https://en.wikipedia.org/wiki/Maximum_a_posteriori_estimation>`_
 * A previous post on `linear regression <link://slug/a-probabilistic-view-of-regression>`_
 * Machine Learning: A Probabilistic Perspective, Kevin P. Murphy
 
