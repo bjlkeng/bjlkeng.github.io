@@ -4,8 +4,8 @@
 .. tags: betting, Kelly Criterion, probability, Thorp, Shannon, mathjax
 .. category: 
 .. link: 
-.. description: 
-.. type: A look at optimal betting and the Kelly criterion digging into some of the math.
+.. description: A look at optimal betting and the Kelly criterion digging into some of the math.
+.. type: text
 
 .. |br| raw:: html
 

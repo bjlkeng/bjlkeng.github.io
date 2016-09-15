@@ -1,7 +1,7 @@
 .. title: The Expectation-Maximization Algorithm
 .. slug: the-expectation-maximization-algorithm
 .. date: 2016-09-12 07:47:47 UTC-04:00
-.. tags: expectation-maximization, latent models, gaussian mixture models
+.. tags: expectation-maximization, latent models, gaussian mixture models, mathjax
 .. category: 
 .. link: 
 .. description: An overview of the expectation-maximization algorithm
@@ -46,13 +46,13 @@ lecture notes or papers, I never quite got the intuition right.  Now a bit
 wiser, I'm going to *attempt* to explain the algorithm hopefully with a bit
 more clarity by going back to the basics starting with latent variable models
 and the likelihood function, then moving on showing the math relating to a
-simple Gaussian mixture model.  The material in this post is heavily based upon
-the treatment in *Machine Learning: A Probabilistic Perspective* by Kevin P.
-Murphy; it has a much more detailed explanation and I encourage you to check it out.
+simple Gaussian mixture model [1]_. 
 
 .. TEASER_END
 
-|h2| Latent Variables and Gaussian Mixture Models |h2e|
+|h2| Background |h2e|
+
+|h3| Latent Variables |h3e|
 
 A latent variable model is a type of statistical model that contains two types
 of variables: *observed variables* and *latent variables*.  Observed variables
@@ -62,34 +62,73 @@ inferred from the observed variables.
 
 One reason why we add latent variables is to model "higher level concepts"
 (i.e. latent variables) in the data, usually these "concepts" are unobserved
-but easily understood by the modeller.  In certain application, learning these
-concepts can regarded as a type of unsupervised learning.  Another reason we
-add thse variables is that is reduces the number of parameters we have to
-estimate, simplifying the model.  The next image shows a complex distribution
-that can easily be modelled using three Gaussians
-(image taken from http://dirichletprocess.weebly.com/clustering.html).
+but easily understood by the modeller.  Adding these variables can simplify
+our model by reducing the number of parameters we have to estimate.  Consider
+the problem of modelling medical symptoms such as blood pressure, heart rate
+and glucose levels (observed outcomes) and mediating factors such as smoking,
+diet and exercise (observed "inputs").  We could model all the possible
+relationships between the mediating factors and observed outcomes but the
+number of connections grows very quickly.
+Instead, we can model this problem as having the mediating factors
+causing a non-observable hidden variable such as heart disease, which
+in turn causes our medical symptoms.  This is shown in the next figure.
 
-.. image:: /images/gmm.png
-   :height: 250px
-   :alt: Mixtures of Gaussian
+.. image:: /images/latent_vars.png
+   :height: 300px
+   :alt: Latent Variables
    :align: center
+
+Notice that the number of connections now grows linearly instead of
+multiplicatively as you add more factors, this greatly reduces the number of
+parameters you need to estimate.  In general, you can have an arbitrary number
+of connections between variables with as many latent variables as you wish.
+These models are more generally known as `Probabilistic graphical models (PGMs)
+<https://en.wikipedia.org/wiki/Graphical_model>`_.  We'll be focusing on a much
+simpler case however, as explained in the next section.
+
+|h3| Gaussian Mixture Models |h3e|
 
 As an example, suppose we're trying to understand the prices of houses across
 the city.  The housing price will be heavily dependent on the neighbourhood,
 that is, houses clustered around a neighbourhood will be close to the average
 price of the neighbourhood.
 In this context, it is straight forward to observe the prices at which houses
-are sold but what is not so clear is how is to estimate the price of a
-"neighbourhood".  A natural model for modelling the neighbourhood is using a
-Gaussian (or normal) distribution, but which house prices should be used to
-estimate the average neighbourhood price?  Should all house prices be used in
-equal proportion, even those on the edge?  What if a house is on the border
-between two neighbourhoods?  These are all great questions that lead us
-to a particular type of latent variable model called a Gaussian mixture model.
+are sold (observed variables) but what is not so clear is how is to observe or
+estimate the price of a "neighbourhood" (the latent variables).  A simple model
+for modelling the neighbourhood price is using a Gaussian (or normal)
+distribution, but which house prices should be used to estimate the average
+neighbourhood price?  Should all house prices be used in equal proportion, even
+those on the edge?  What if a house is on the border between two
+neighbourhoods?  These are all great questions that lead us to a particular
+type of latent variable model called a Gaussian mixture model.
 
+Following along with this housing price example, let's represent the price of
+each house as random variable :math:`x_i` and let's suppose we have :math:`K`
+neighbourhoods, each of which we model using a Gaussian :math:`\mathcal{N}(\mu_k,
+\sigma_k^2)` with mean :math:`\mu_k` and variance :math:`\sigma_k^2`.   Then,
+the density of :math:`x_i` is given by:
 
+.. math::
 
+    p(x_i|\theta) = \sum_{k=1}^K \pi_k p_k(x_i|\theta)  \tag{1}
 
+Where :math:`\theta` are the parameters of the Gaussians, :math:`p_k` is the
+density of the :math:`k^{th}` Gaussian, and :math:`\pi_k` are the mixing
+weights that satisfy :math:`0 \leq \pi_k \leq 1` and :math:`\sum_{k=1}^K \pi_k = 1`.
+Translating that to plain language: we model the distribution of each housing
+price as a linear combination of our :math:`K` Gaussians (neighbourhoods).
+
+Rephrasing the questions we posed above: we now have a bunch of observations
+:math:`x_i` (housing prices), and we want to estimate our :math:`K` Gaussian
+distributions :math:`\mathcal{N}(\mu_k, \sigma_k^2)` (neighbourhoods) i.e.
+estimate all the parameters of :math:`\theta` (:math:`\mu_k` and
+:math:`\sigma_k^2`).  Turns out that there is a relatively simple algorithm for
+finding the MLE (or MAP) estimate for this problem called the
+Expectation-Maximization algorithm [2]_.
+
+TODO: Introduce "z_i" notation
+
+|h2| The Expectation-Maximization Algorithm |h2e|
 
 |h2| Further Reading |h2e|
 
@@ -100,4 +139,6 @@ to a particular type of latent variable model called a Gaussian mixture model.
 
 |br|
 
-.. [1] Footnote 1
+.. [1] The material in this post is heavily based upon the treatment in *Machine Learning: A Probabilistic Perspective* by Kevin P.  Murphy; it has a much more detailed explanation and I encourage you to check it out.
+
+.. [2] To perform full Bayesian analysis and get the full posterior distribution, you would probably require something more complicated like MCMC, which I've explained in a `previous post <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`_.
