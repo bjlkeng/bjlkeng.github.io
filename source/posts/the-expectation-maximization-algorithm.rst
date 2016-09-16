@@ -103,32 +103,49 @@ neighbourhoods?  These are all great questions that lead us to a particular
 type of latent variable model called a Gaussian mixture model.
 
 Following along with this housing price example, let's represent the price of
-each house as random variable :math:`x_i` and let's suppose we have :math:`K`
+each house as random variable :math:`x_i` and the unobserved neighbourhood 
+it belongs to as :math:`z_i` [2]_.  Further, let's suppose we have :math:`K`
 neighbourhoods, each of which we model using a Gaussian :math:`\mathcal{N}(\mu_k,
 \sigma_k^2)` with mean :math:`\mu_k` and variance :math:`\sigma_k^2`.   Then,
 the density of :math:`x_i` is given by:
 
 .. math::
 
-    p(x_i|\theta) = \sum_{k=1}^K \pi_k p_k(x_i|\theta)  \tag{1}
+    p(x_i|\theta) &=  \sum_{z=1}^K p(z_i=z) p(x_i| z_i=z, \mu_k, \sigma_k^2)  \\
+    x_i| z_i &\sim \mathcal{N}(\mu_k, \sigma_k^2) \\
+    z_i &\sim \text{Categorical}(\pi_i) \tag{1}
+    
+Where :math:`\theta` are the parameters of the Gaussians (all the :math:`\mu_k,
+\sigma_k^2`).  
 
-Where :math:`\theta` are the parameters of the Gaussians, :math:`p_k` is the
-density of the :math:`k^{th}` Gaussian, and :math:`\pi_k` are the mixing
-weights that satisfy :math:`0 \leq \pi_k \leq 1` and :math:`\sum_{k=1}^K \pi_k = 1`.
-Translating that to plain language: we model the distribution of each housing
-price as a linear combination of our :math:`K` Gaussians (neighbourhoods).
+Notice that since :math:`z_i` variables are non-observed, we need
+to `marginalize <https://en.wikipedia.org/wiki/Marginal_distribution>`_ them out
+to get the density of the observed variables.
+Translating Equation 1 to plainer language: we model the price distribution of each
+house as a linear combination [3]_ of our :math:`K` Gaussians (neighbourhoods).
+
+Now we have a couple of inference problems:
+
+* Computing responsibility of each cluster to a point :math:`x_i`; and
+* Estimating the parameters of the Gaussians
+
+TODO EXPLAIN THIS MORE
 
 Rephrasing the questions we posed above: we now have a bunch of observations
 :math:`x_i` (housing prices), and we want to estimate our :math:`K` Gaussian
 distributions :math:`\mathcal{N}(\mu_k, \sigma_k^2)` (neighbourhoods) i.e.
 estimate all the parameters of :math:`\theta` (:math:`\mu_k` and
-:math:`\sigma_k^2`).  Turns out that there is a relatively simple algorithm for
-finding the MLE (or MAP) estimate for this problem called the
-Expectation-Maximization algorithm [2]_.
+:math:`\sigma_k^2`).  
 
-TODO: Introduce "z_i" notation
+
+Turns out that there is a relatively simple algorithm for
+finding the MLE (or MAP) estimate for this problem called the
+Expectation-Maximization algorithm [4]_.
+
 
 |h2| The Expectation-Maximization Algorithm |h2e|
+
+* Need hidden variables to discrete
 
 |h2| Further Reading |h2e|
 
@@ -141,4 +158,8 @@ TODO: Introduce "z_i" notation
 
 .. [1] The material in this post is heavily based upon the treatment in *Machine Learning: A Probabilistic Perspective* by Kevin P.  Murphy; it has a much more detailed explanation and I encourage you to check it out.
 
-.. [2] To perform full Bayesian analysis and get the full posterior distribution, you would probably require something more complicated like MCMC, which I've explained in a `previous post <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`_.
+.. [2] This is actually only one application of Gaussian Mixture Models.  Another common one is using it as a generative classifier i.e. estimating :math:`p(X_i, y_i)` (where we label :math:`z_i` as :math:`y_i` as per convention for classifiers).  Since both :math:`X_i` and :math:`y_i` are observable, it's much easier to directly estimate the density versus the case where we have to infer values for hidden variables.
+
+.. [3] I say linear combination because we don't actually know the value of :math:`z_i`, so one way to think about it is the expected value of :math:`z_i`.  This translates to :math:`x_i` having a portion of each of the :math:`K` Gaussians being responsible for generating it.  Thus, the linear combination idea.
+
+.. [4] To perform full Bayesian analysis and get the full posterior distribution, you would probably require something more complicated like MCMC, which I've explained in a `previous post <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`_.
