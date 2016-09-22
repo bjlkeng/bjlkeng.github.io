@@ -83,8 +83,13 @@ multiplicatively as you add more factors, this greatly reduces the number of
 parameters you need to estimate.  In general, you can have an arbitrary number
 of connections between variables with as many latent variables as you wish.
 These models are more generally known as `Probabilistic graphical models (PGMs)
-<https://en.wikipedia.org/wiki/Graphical_model>`_.  We'll be focusing on a much
-simpler case however, as explained in the next section.
+<https://en.wikipedia.org/wiki/Graphical_model>`_.  
+
+One of the simplest kinds of PGMs is when you have a 1-1 mapping between your
+latent variables (usually represented by :math:`z_i`) and observed variables
+(:math:`x_i`), and your latent variables take on discrete values (:math:`z_i
+\in {1,\ldots,K}`).  We'll be focusing on this much simpler
+case as explained in the next section.
 
 |h3| Gaussian Mixture Models |h3e|
 
@@ -102,50 +107,165 @@ those on the edge?  What if a house is on the border between two
 neighbourhoods?  These are all great questions that lead us to a particular
 type of latent variable model called a Gaussian mixture model.
 
+Visually, we can imagine the density of the observed
+variables (housing prices) as the "sum" or mixture of several Gaussians (image
+from http://dirichletprocess.weebly.com/clustering.html): 
+
+.. image:: /images/gmm.png
+   :height: 300px
+   :alt: Latent Variables
+   :align: center
+
+So when a value is observed, there is an implicit latent variable that decided
+which of the Gaussians (neighbourhoods) it came from.  
+
 Following along with this housing price example, let's represent the price of
-each house as random variable :math:`x_i` and the unobserved neighbourhood 
-it belongs to as :math:`z_i` [2]_.  Further, let's suppose we have :math:`K`
-neighbourhoods, each of which we model using a Gaussian :math:`\mathcal{N}(\mu_k,
-\sigma_k^2)` with mean :math:`\mu_k` and variance :math:`\sigma_k^2`.   Then,
-the density of :math:`x_i` is given by:
+each house as real-valued random variable :math:`x_i` and the unobserved
+neighbourhood it belongs to as a discrete valued random variable :math:`z_i` [2]_.
+Further, let's suppose we have :math:`K` neighbourhoods therefore,
+:math:`z_i` can be modelled as a
+`categorical distribution <https://en.wikipedia.org/wiki/Categorical_distribution>`_
+with parameter :math:`\pi = [\pi_1, \ldots, \pi_k]`, and the price distribution
+of the :math:`k^{th}` neighbourhood as a Gaussian :math:`\mathcal{N}(\mu_k,
+\sigma_k^2)` with mean :math:`\mu_k` and variance :math:`\sigma_k^2`.  
+The density, then, of :math:`x_i` is given by:
 
 .. math::
 
-    p(x_i|\theta) &=  \sum_{z=1}^K p(z_i=z) p(x_i| z_i=z, \mu_k, \sigma_k^2)  \\
+    p(x_i|\theta) &=  \sum_{k=1}^K p(z_i=k) p(x_i| z_i=k, \mu_k, \sigma_k^2)  \\
     x_i| z_i &\sim \mathcal{N}(\mu_k, \sigma_k^2) \\
-    z_i &\sim \text{Categorical}(\pi_i) \tag{1}
+    z_i &\sim \text{Categorical}(\pi) \tag{1}
     
-Where :math:`\theta` are the parameters of the Gaussians (all the :math:`\mu_k,
-\sigma_k^2`).  
+Where :math:`\theta` represents the parameters of the Gaussians (all the :math:`\mu_k,
+\sigma_k^2`) and the categorical variables (:math:`\pi`).  Notice that since
+:math:`z_i` variables are non-observed, we need to `marginalize
+<https://en.wikipedia.org/wiki/Marginal_distribution>`_ them out to get the
+density of the observed variables (:math:`x_i`).  Translating Equation 1 to
+plainer language: we model the price distribution of each house as a linear
+combination [3]_ ("mixture model") of our :math:`K` Gaussians (neighbourhoods).
 
-Notice that since :math:`z_i` variables are non-observed, we need
-to `marginalize <https://en.wikipedia.org/wiki/Marginal_distribution>`_ them out
-to get the density of the observed variables.
-Translating Equation 1 to plainer language: we model the price distribution of each
-house as a linear combination [3]_ of our :math:`K` Gaussians (neighbourhoods).
+Now we have a couple of relevant inference problems, given different
+assumptions:
 
-Now we have a couple of inference problems:
+1. Assuming you know the values of all the parameters (:math:`\theta`), compute
+   the *responsibility*, :math:`r_{ik}`, of a cluster :math:`k` to a
+   point :math:`i`: :math:`r_{ik} = p(z_i=k | x_i, \theta)`.
 
-* Computing responsibility of each cluster to a point :math:`x_i`; and
-* Estimating the parameters of the Gaussians
+   This essentially tells you how "likely" or "close" a point is to an existing
+   cluster.  We'll use this below in the EM algorithm but this computation can
+   also be used for GMM classifiers to find out which class :math:`x_i` belongs
+   to.
 
-TODO EXPLAIN THIS MORE
+2. Estimating the parameters of the Gaussians (:math:`\mu_k, \sigma^2`) and categorical
+   variable (:math:`\pi`) given a) Just the observed points (:math:`x_i`);
+   b) The observed points (:math:`x_i`) **and** the values of the latent variables
+   (:math:`z_i`).
+    
+   The former problem is the general unsupervised learning problem that we'll solve
+   with the EM algorithm (e.g. finding the neighbourhoods).  The latter is a
+   specific problem that we'll indirectly use as one of the steps in the EM
+   algorithm.  Coincidently, this latter problem is the same one when using
+   GMMs for classification except we label the :math:`z_i` as :math:`y_i` (See [2]_).
 
-Rephrasing the questions we posed above: we now have a bunch of observations
-:math:`x_i` (housing prices), and we want to estimate our :math:`K` Gaussian
-distributions :math:`\mathcal{N}(\mu_k, \sigma_k^2)` (neighbourhoods) i.e.
-estimate all the parameters of :math:`\theta` (:math:`\mu_k` and
-:math:`\sigma_k^2`).  
-
-
-Turns out that there is a relatively simple algorithm for
-finding the MLE (or MAP) estimate for this problem called the
-Expectation-Maximization algorithm [4]_.
-
+We'll cover the steps needed to compute both of these in the next section.
 
 |h2| The Expectation-Maximization Algorithm |h2e|
 
-* Need hidden variables to discrete
+The `Expectation-Maximization (EM) Algorithm
+<https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm>`_ is
+an iterative method to find the MLE or MAP estimate for models with latent
+variables.  This is a description of how the algorithm works from 10,000 feet:
+
+0. **Initialization**: Get an initial estimate for parameters
+   :math:`\theta^0` (e.g. all the :math:`\mu_k, \sigma_k^2` and :math:`\pi`
+   variables).  In many cases, this can just be a random initialization.
+1. **Expectation Step**: Assume the parameters (:math:`\theta^{t-1}`) from the
+   previous step are fixed, compute the expected values of the latent variables
+   (or more often a *function* of the expected values of the latent variables) 
+2. **Maximization Step**: Given the values you computed in the last step 
+   (essentially known values for the latent varibles), estimate new values
+   for :math:`\theta^t` that maximize a variant of the likelihood function.
+3. If likelihood has not changed much, exit; otherwise, go back to Step 1.
+
+One very nice part about Steps 2 and 3 are that they are quite easy to compute
+separately because we're not trying to figure out both the latent variables and
+the model parameters at the same time.  It turns out that every iteration of
+the algorithm will increase the likelihood function, implying a better fit.
+However, the likelihood function is non-convex so we're only guaranteed to
+approach a local maxima.  One way to get around this by running the algorithm
+for multiple initial values to get broader coverage of the parameter space.
+
+|h3| EM algorithm for Gaussian Mixture Models |h3e|
+
+Coming back to GMMs, let's review what information we have when we're
+estimating them (i.e. problem 2(a) from the previous section).
+To start, we have a bunch of observed variables (:math:`x_i`).  Since
+we've decided on using a GMM model, we also have to pick the hyper parameter
+:math:`K` that decides how many Gaussians we want in our model [4]_.
+That's about all the information we have.  Given that, the next algorithm
+(using pseudo-Python) describes how we would estimate the relevant unknowns:
+
+.. code:: python
+    
+    # Assume we have function to compute density of Gaussian 
+    # at point x_i given mu, sigma: G(x_i, mu, sigma); and
+    # a function to compute the log-likelihoods: L(x, mu, sigma, pi)
+    def estimate_gmm(x, K, tol=0.001, max_iter=100):
+        ''' Estimate GMM parameters.
+            :param x: list of observed real-valued variables
+            :param K: integer for number of Gaussian
+            :param tol: tolerated change for log-likelihood
+            :return: mu, sigma, pi parameters
+        '''
+        # 0. Initialize thetas
+        N = len(x)
+        mu, sigma = [rand()] * K, [rand()] * K
+        pi = [rand()] * N
+        
+        current_L = np.inf
+        for j in range(max_iter):
+            prev_L = curr_L
+            # 1. E-step: responsibility = p(z_i = k | x_i, theta^(t-1))
+            r = {}
+            for i in range(N):
+                parts = [pi[k] * G(x_i, mu[k], sigma[k]) for i in range(K)]
+                total = sum(parts)
+                for i in k:
+                    r[(i, k)] = parts[k] / total
+
+            # 2. M-step: Update mu, sigma, pi values
+            rk = [sum([r[(i, k)] for i in range(N)]) for k in range(K)]
+            for k in range(K):
+                pi[k] = rk[k] / N
+                mu[k] = sum(r[(i, k)] * x[i] for i in range(N)) / rk[k]
+                sigma[k] = sum(r[(i, k)] * (x[i] - mu[k]) ** 2) / rk[k]
+
+            # 3. Check exit condition
+            curr_L = L(x, mu, sigma, pi)
+            if abs(prev_L - curr_L) < tol:
+                break
+
+        return mu, sigma, pi
+
+Caution: This is just an illustration of the algorithm, please don't use it!
+It probably suffers from a lot of real-world issues like floating point
+overflow (or maybe a bug?).  However, we can still learn something from it.
+Let's break the major computation steps down to understand the math behind it.
+
+
+  * Pseudo code
+  * Have formula mixed in
+  * Variants: K-means
+
+|h3| Derivation EM for Gaussian Mixture Models ** |h3e|
+
+  * Complete Log-Likelihood
+
+|h3| Proof of Correctness for EM ** |h3e|
+
+
+|h2| Conclusion |h2e|
+
 
 |h2| Further Reading |h2e|
 
@@ -162,4 +282,6 @@ Expectation-Maximization algorithm [4]_.
 
 .. [3] I say linear combination because we don't actually know the value of :math:`z_i`, so one way to think about it is the expected value of :math:`z_i`.  This translates to :math:`x_i` having a portion of each of the :math:`K` Gaussians being responsible for generating it.  Thus, the linear combination idea.
 
-.. [4] To perform full Bayesian analysis and get the full posterior distribution, you would probably require something more complicated like MCMC, which I've explained in a `previous post <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`_.
+.. [4] Picking :math:`K` is non-trivial since for the typical application of unsupervised learning, you don't know how many clusters you have! Ideally, some domain knowledge will help drive that decision or more often than not you vary :math:`K` until the results are useful for your application.
+
+.. [40] To perform full Bayesian analysis and get the full posterior distribution, you would probably require something more complicated like MCMC, which I've explained in a `previous post <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`_.
