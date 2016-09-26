@@ -181,11 +181,12 @@ variables.  This is a description of how the algorithm works from 10,000 feet:
    variables).  In many cases, this can just be a random initialization.
 1. **Expectation Step**: Assume the parameters (:math:`\theta^{t-1}`) from the
    previous step are fixed, compute the expected values of the latent variables
-   (or more often a *function* of the expected values of the latent variables) 
+   (or more often a *function* of the expected values of the latent variables).
 2. **Maximization Step**: Given the values you computed in the last step 
    (essentially known values for the latent varibles), estimate new values
    for :math:`\theta^t` that maximize a variant of the likelihood function.
-3. If likelihood has not changed much, exit; otherwise, go back to Step 1.
+3. **Exit Condition**: If likelihood has not changed much, exit; otherwise, go
+   back to Step 1.
 
 One very nice part about Steps 2 and 3 are that they are quite easy to compute
 separately because we're not trying to figure out both the latent variables and
@@ -217,7 +218,7 @@ That's about all the information we have.  Given that, the next algorithm
             :param tol: tolerated change for log-likelihood
             :return: mu, sigma, pi parameters
         '''
-        # 0. Initialize thetas
+        # 0. Initialize theta = (mu, sigma, pi)
         N = len(x)
         mu, sigma = [rand()] * K, [rand()] * K
         pi = [rand()] * N
@@ -249,13 +250,76 @@ That's about all the information we have.  Given that, the next algorithm
 
 Caution: This is just an illustration of the algorithm, please don't use it!
 It probably suffers from a lot of real-world issues like floating point
-overflow (or maybe a bug?).  However, we can still learn something from it.
-Let's break the major computation steps down to understand the math behind it.
+overflow.  However, we can still learn something from it.  Let's break the
+major computation steps down to understand the math behind it.
 
+In the Expectation Step, we assume that we know the values of all the parameters
+(:math:`\theta = (\mu_k, \sigma_k^2, \pi)`) are fixed and are set to the ones
+from the previous iteration of the algorithm.  We then just need to compute the
+responsibility of each cluster to each point.  Re-phasing this problem:
+Assuming you know the locations of each of the :math:`K` Gaussians
+(:math:`\mu_k, \sigma_k`), and the overall distribution of the latent variables
+(:math:`pi_k`), what is the probability that a given point :math:`x_i` is drawn
+from cluster :math:`k`?
 
-  * Pseudo code
-  * Have formula mixed in
-  * Variants: K-means
+We can write this in terms of probability and use Bayes theorem to find the
+answer:
+
+.. math::
+
+    r_{ik} = p(z_i=k|x_i, \theta) &= \frac{p(x_i | z_i=k, \theta) \cdot p(z_i=k)}{\sum_{j=1}^K p(x_i | z_i=j, \theta) \cdot p(z_i=j)} \\
+    &= \frac{\mathcal{N}(x_i | \mu_k, \sigma_k) \cdot \pi_k}
+            {\sum_{j=1}^K \mathcal{N}(x_i | \mu_j, \sigma_j) \cdot \pi_j}
+    \tag{2}
+
+This is just the normalized probability of each each point belonging to one of
+the :math:`K` Gaussians weighted by the mixture distribution (:math:`\pi_k`).
+We'll see later on that this expression actually comes out by taking an
+expectation over the complete data log likelihood function, which is where the
+"E" comes from.  In any case, this step becomes quite simple once we can assume
+that the parameters :math:`\theta` are fixed.
+
+The Maxmization Step turns things around and assumes the responsibilities
+(proxies for the latent variables) are fixed, and now the problem is we want to
+maximize our (expected complete data log) likelihood function across all the
+:math:`\theta = (\mu_k, \sigma_k^2, \pi)` variables.  We'll show the math of
+how to arrive at these expressions below and describe the intuitive
+interpretation here.
+
+First up, the overall distribution of the latent variables :math:`\pi`.
+Assuming you know all the values of the latent variables (i.e. :math:`r_{ik}`:
+how much each point :math:`x_i` contributes to each cluster :math:`k`), then
+intuitively, we just need to sum up the contribution to each cluster and
+normalize (just like we would estimate the distibution of a six-sided dice
+roll):
+
+.. math::
+
+    \pi_k = \frac{1}{N} \sum_i r_{ik} \tag{3}
+
+Next, we need to estimate the Gaussians.  Again, since we know the
+responsibilities of each point to each cluster, we can just use our standard
+methods for estimating the mean and standard deviation of Gaussians but
+weighted according to the responsibilities:
+
+.. math::
+
+    \mu_k &= \frac{\sum_i r_{ik}x_i}{\sum_i r_{ik}} \\
+    \sigma_k &= \frac{\sum_i r_{ik}(x_i - \mu_k)(x_i - \mu_k)}{\sum_i r_{ik}} \tag{4}
+
+Again we shall see that this comes out from the expected complete data log
+likelihood function.
+
+As a last note, there are many variants of this algorithm.  The most popular being the
+`K-Means algorithm <https://en.wikipedia.org/wiki/K-means_clustering>`_.  In
+this variant, we assume that both the shape of the Gaussians
+(:math:`\sigma_k = \sigma^2I_D`) and distribution of latent variables
+:math:`\pi=\frac{1}{K}` are fixed, so now all we have to compute are the
+cluster centers.  The other big difference is that we now perform *hard
+clustering*, where we assign responsibility of a point :math:`x_i` to exactly
+one cluster (and zero responsibility to other clusters).  These assumptions
+simplify Equation 2-4 while keeping all the nice properties of the EM algorithm,
+making it quite a popular algorithm for unsupervised clustering.
 
 |h3| Derivation EM for Gaussian Mixture Models ** |h3e|
 
