@@ -165,7 +165,7 @@ assumptions:
    with the EM algorithm (e.g. finding the neighbourhoods).  The latter is a
    specific problem that we'll indirectly use as one of the steps in the EM
    algorithm.  Coincidently, this latter problem is the same one when using
-   GMMs for classification except we label the :math:`z_i` as :math:`y_i` (See [2]_).
+   GMMs for classification except we label the :math:`z_i` as :math:`y_i`.
 
 We'll cover the steps needed to compute both of these in the next section.
 
@@ -321,9 +321,67 @@ one cluster (and zero responsibility to other clusters).  These assumptions
 simplify Equation 2-4 while keeping all the nice properties of the EM algorithm,
 making it quite a popular algorithm for unsupervised clustering.
 
-|h3| Derivation EM for Gaussian Mixture Models ** |h3e|
+|h2| Expectation-Maximization Math |h2e|
 
-  * Complete Log-Likelihood
+In this section, we'll go over some of the derivations and proofs related to
+the EM algorithm.  It's going to get a bit math-heavy but that's usually where
+I find that I get the best intuition.
+
+|h3| Complete Data Log-Likelihood and the :math:`Q` function |h3e|
+
+Recall the overall goal of the EM algorithm is finding an MLE (or MAP)
+estimation in a model with unobserved latent variables.  MLE estimates
+by definition attempt to maximize the likelihood function.  In the 
+general case, with observations :math:`x_i` and latent variables :math:`z_i`,
+we have the log-likelihood as:
+
+.. math::
+
+    l(\theta) = \sum_{i=1}^N \log p(x_i|\theta)
+              = \sum_{i=1}^N \log \sum_{z_i} p(x_i, z_i | \theta) \tag{5}
+
+The first expression is just the plain definition of the likelihood function
+(the probability that the data fits a given set of a parameters).  The second
+expression shows that we need to marginalize out (integrate out if it were
+continuous) the unobserved latent variable :math:`z_i`.
+Unfortunately, this expression is hard to optimize because we can't push
+the "log" inside the summation.  The EM algorithm gets around this by
+defining a related quantity called the *complete data log-likelihood* function:
+
+.. math::
+
+    l_c(\theta) = \sum_{i=1}^N \log p(x_i, z_i | \theta) \tag{6}
+
+Again this cannot be computed because we don't know :math:`z_i` but now
+we can take the expectation of Equation 6 with respect to our unobserved
+variables :math:`z_i`.  Additionally, we introduce the idea that
+:math:`z_i` is a fixed function of some
+
+**TODO CONTINUE ON** 
+
+.. math::
+
+    Q(\theta, \theta^{t-1}) = E[l_c(\theta) | D, \theta^{t-1}] \tag{7}
+
+The notation might be a bit confusing but let's break it down.  The
+first thing to notice is that we have the concept of iterations now
+with the introduction of the expectation.  The expectation is actually
+taken over
+
+
+The other question you may have is why are we defining this 
+:math:`Q(\theta, \theta^{t-1})` function?  It turns out that improving the
+:math:`Q` function will never cause a loss in our actual likelihood function,
+we'll show this down below.  Therefore, the EM loop should always improve
+our likelihood function (up to a local maximum).
+
+
+|h3| EM for Gaussian Mixture Models |h3e|
+
+
+
+
+* 
 
 |h3| Proof of Correctness for EM ** |h3e|
 
@@ -347,5 +405,3 @@ making it quite a popular algorithm for unsupervised clustering.
 .. [3] I say linear combination because we don't actually know the value of :math:`z_i`, so one way to think about it is the expected value of :math:`z_i`.  This translates to :math:`x_i` having a portion of each of the :math:`K` Gaussians being responsible for generating it.  Thus, the linear combination idea.
 
 .. [4] Picking :math:`K` is non-trivial since for the typical application of unsupervised learning, you don't know how many clusters you have! Ideally, some domain knowledge will help drive that decision or more often than not you vary :math:`K` until the results are useful for your application.
-
-.. [40] To perform full Bayesian analysis and get the full posterior distribution, you would probably require something more complicated like MCMC, which I've explained in a `previous post <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`_.
