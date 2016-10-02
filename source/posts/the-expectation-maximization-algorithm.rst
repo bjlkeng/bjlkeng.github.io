@@ -327,7 +327,7 @@ In this section, we'll go over some of the derivations and proofs related to
 the EM algorithm.  It's going to get a bit math-heavy but that's usually where
 I find that I get the best intuition.
 
-|h3| Complete Data Log-Likelihood and the :math:`Q` function |h3e|
+|h3| Complete Data Log-Likelihood and the Auxiliary Function |h3e|
 
 Recall the overall goal of the EM algorithm is finding an MLE (or MAP)
 estimation in a model with unobserved latent variables.  MLE estimates
@@ -346,27 +346,51 @@ expression shows that we need to marginalize out (integrate out if it were
 continuous) the unobserved latent variable :math:`z_i`.
 Unfortunately, this expression is hard to optimize because we can't push
 the "log" inside the summation.  The EM algorithm gets around this by
-defining a related quantity called the *complete data log-likelihood* function:
+defining a related quantity called the *complete data log-likelihood* function
+(we'll explain why this works later):
 
 .. math::
 
-    l_c(\theta) = \sum_{i=1}^N \log p(x_i, z_i | \theta) \tag{6}
+    l_c(\theta) &= \sum_{i=1}^N \log p(x_i, z_i | \theta) \\
+                &= \sum_{i=1}^N \log [p(z_i | \theta)p(x_i | z_i, \theta)] \tag{6}
 
-Again this cannot be computed because we don't know :math:`z_i` but now
-we can take the expectation of Equation 6 with respect to our unobserved
-variables :math:`z_i`.  Additionally, we introduce the idea that
-:math:`z_i` is a fixed function of some
+Again this cannot be computed because we never observe the :math:`z_i` values.
+However, we can take the expected value of Equation 6 with respect to
+the conditional distribution of :math:`z_i's` given the data and our *previous*
+value of the parameters, :math:`\theta^{t-1}`.  That's a mouth full, so let me
+explain in another way.  
 
-**TODO CONTINUE ON** 
+Taking the expectation helps because any of the places
+where we needed to explicitly know the value of the unobserved :math:`z_i`, we
+can use its expected value.  Thus, all the unknown :math:`z_i` values get
+"filled in" and what we are left with is a function *only* of the values we
+want to maximize i.e. :math:`\theta`.
+Now the caveat is that when computing the expected value of :math:`z_i`,
+we use the conditional distribution, :math:`p(z_i | x_i, \theta^{t-1})`,
+over the data and *previous* values of the parameters.  This is how we get into
+the iterative nature of the EM algorithm.  Let's take a look at some math and
+break it down. 
+
+We first take the `expectation <http://www.math.uah.edu/stat/expect/Conditional.html>`_ 
+of Equation 6 with respect to the conditional distribution of :math:`z_i's`
+given the data and our *previous* value of the parameters, which we define as
+the **auxiliary function**, :math:`Q(\theta, \theta^{t-1})`:
 
 .. math::
 
-    Q(\theta, \theta^{t-1}) = E[l_c(\theta) | D, \theta^{t-1}] \tag{7}
+    Q(\theta, \theta^{t-1}) &= E[l_c(\theta) | \mathcal{D}, \theta^{t-1}] \\
+        &= \sum_{i=1}^N E[\log [p(z_i | \theta)p(x_i | z_i, \theta)]] \tag{7}
 
-The notation might be a bit confusing but let's break it down.  The
-first thing to notice is that we have the concept of iterations now
-with the introduction of the expectation.  The expectation is actually
-taken over
+where the expected value translates to :math:`E[l_c(\theta) | \mathcal{D},
+\theta^{t-1}] = \sum_{k'=1}^K l_c(\theta) \cdot p(z_i | \mathcal{D},
+\theta^{t-1})` and :math:`\mathcal{D}` represents all our data.  At this point,
+it's not clear at all how the expectation gets evaluated.  There's a handy
+little trick we can use which will make it more clear how the expectation gets
+handled, assuming that our latent variables :math:`z_i` are discrete (typically
+the case when we use the EM algorithm).
+
+**TODO SHOW Indicator function trick, Then show derivation to get E[I(z_i=k)], 
+explain why p(z_i) is constant wrt to E[] etc**
 
 
 The other question you may have is why are we defining this 
