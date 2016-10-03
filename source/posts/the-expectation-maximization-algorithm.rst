@@ -381,24 +381,70 @@ the **auxiliary function**, :math:`Q(\theta, \theta^{t-1})`:
     Q(\theta, \theta^{t-1}) &= E[l_c(\theta) | \mathcal{D}, \theta^{t-1}] \\
         &= \sum_{i=1}^N E[\log [p(z_i | \theta)p(x_i | z_i, \theta)]] \tag{7}
 
-where the expected value translates to :math:`E[l_c(\theta) | \mathcal{D},
-\theta^{t-1}] = \sum_{k'=1}^K l_c(\theta) \cdot p(z_i | \mathcal{D},
-\theta^{t-1})` and :math:`\mathcal{D}` represents all our data.  At this point,
-it's not clear at all how the expectation gets evaluated.  There's a handy
-little trick we can use which will make it more clear how the expectation gets
-handled, assuming that our latent variables :math:`z_i` are discrete (typically
-the case when we use the EM algorithm).
+where :math:`\mathcal{D}` represents all our data.  
+Recall, that we're taking the expectation over the conditional probability
+translating to :math:`E[l_c(\theta) | \mathcal{D},
+\theta^{t-1}] = \sum_{k'=1}^K l_c(\theta) \cdot p(z_i = k' | \mathcal{D}, \theta^{t-1})`.
+This is important to remember because the notation is going to get a bit confusing
+and we need to keep mindful of which terms are constant with respect to the expectation.
 
-**TODO SHOW Indicator function trick, Then show derivation to get E[I(z_i=k)], 
-explain why p(z_i) is constant wrt to E[] etc**
+At this point, it's not clear at all how the expectation gets evaluated.
+There's a handy little trick we can use, assuming that our latent variables
+:math:`z_i` are discrete (typically the case when we use the EM algorithm).
+From Equation 7:
 
+.. math::
 
-The other question you may have is why are we defining this 
-:math:`Q(\theta, \theta^{t-1})` function?  It turns out that improving the
-:math:`Q` function will never cause a loss in our actual likelihood function,
-we'll show this down below.  Therefore, the EM loop should always improve
-our likelihood function (up to a local maximum).
+    Q(\theta, \theta^{t-1})
+        &= \sum_{i=1}^N E[\log [p(z_i | \theta)p(x_i | z_i, \theta)]] \\
+        &= \sum_{i=1}^N E\big[\log\Pi_{k=1}^K  [p(z_i=k | \theta) p(x_i | z_i=k, \theta)]^{I(z_i=k)}\big]  \\
+        &= \sum_{i=1}^N E\big[\sum_{k=1}^K \log[p(z_i=k | \theta) p(x_i | z_i=k, \theta)]^{I(z_i=k)}\big] 
+        \tag{8}
 
+where :math:`I(z_i=k)` is the `indicator function <https://en.wikipedia.org/wiki/Indicator_function>`_.
+This little trick is a mouthful of notation but not that difficult to grasp.
+Recall in Equation 6, we could not evaluate any of the :math:`z_i` values directly
+because they were not observed.  That is, we didn't know if :math:`z_i=1` or
+:math:`z_1=2` etc, which would be known if it were observed.  
+This trick uses the indicator function acts like a "filter" for the products
+over :math:`k`, taking out the exact value of :math:`z_i` (if it were known).
+The reason we do this trick is it breaks down the unobserved :math:`z_i`
+variables into probability statements (e.g. :math:`p(z_i=k | \theta),
+p(x_i|z_i, \theta)`) and a function of a random variable (:math:`I(z_i=k)`).
+The former will *only* be functions of our parameters-to-be-maximized (e.g. :math:`\theta`),
+while the latter we can take an expectation over.  
+
+We can simplify Equation 8 a bit more:
+
+.. math::
+
+    Q(\theta, \theta^{t-1})
+        &= \sum_{i=1}^N E\big[\sum_{k=1}^K \log[p(z_i=k | \theta) p(x_i | z_i=k, \theta)]^{I(z_i=k)}\big] \\
+        &= \sum_{i=1}^N E\big[\sum_{k=1}^K I(z_i=k) \log[p(z_i=k | \theta) p(x_i | z_i=k, \theta)]\big] \\
+        &= \sum_{i=1}^N \sum_{k=1}^K E[I(z_i=k)] \log[p(z_i=k | \theta) p(x_i | z_i=k, \theta)] \\
+        &= \sum_{i=1}^N \sum_{k=1}^K p(z_i=k|\mathcal{D}, \theta^{t-1}) \log[p(z_i=k | \theta) p(x_i | z_i=k, \theta)]
+        \tag{9}
+
+Notice that the expectation is only performed oved the indicator function, while
+the probability statements in the log are readily evaluated to functions of *only*
+the parameters.
+
+To summarize, the EM loop aims to maximize the expected complete data log-likelihood,
+or auxiliary function :math:`Q(\theta, \theta^{t-1})` in two steps:
+
+1. Given the parameters :math:`\theta^{t-1}` from the previous iteration,
+   evaulate the :math:`Q` function so that it's only in terms of
+   :math:`\theta`.
+2. Maximize this simplified :math:`Q` function in terms of :math:`\theta`.  This becomes
+   your starting point for the next iteraiton.
+
+We'll see how this plays out explicitly with GMMs in the next section.
+
+The other question you may have is why are we defining this :math:`Q(\theta,
+\theta^{t-1})` function?  It turns out that improving the :math:`Q` function
+will never cause a loss in our actual likelihood function.  Therefore, the EM
+loop should always improve our likelihood function (up to a local maximum).
+We'll see this a bit futher below.
 
 |h3| EM for Gaussian Mixture Models |h3e|
 
