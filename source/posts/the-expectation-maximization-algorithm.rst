@@ -36,17 +36,17 @@
 
    </center>
 
-This post is going to talk about a widely used method to find either the
+This post is going to talk about a widely used method to find the
 maximum likelihood (MLE) or maximum a posteriori (MAP) estimate of parameters
-in latent variable models.  It's a very widely used algorithm with perhaps the 
-most famous variant being the one used in the k-means algorithm.
+in latent variable models called the Expectation-Maximization algorithm.  You
+have probably heard about the most famous variant of this algorithm called the
+k-means algorithm for clustering.
 Even though it's so ubiquitous, whenever I've tried to understand *why* this
-algorithm works, using a variety of sources from the web such as
-lecture notes or papers, I never quite got the intuition right.  Now a bit
-wiser, I'm going to *attempt* to explain the algorithm hopefully with a bit
-more clarity by going back to the basics starting with latent variable models
-and the likelihood function, then moving on showing the math relating to a
-simple Gaussian mixture model [1]_. 
+algorithm works, I never quite got the intuition right.  Now that I've taken
+the time to work through the math, I'm going to *attempt* to explain the
+algorithm hopefully with a bit more clarity.  We'll start by going back to the
+basics with latent variable models and the likelihood functions, then moving on
+to showing the math with a simple Gaussian mixture model [1]_. 
 
 .. TEASER_END
 
@@ -69,21 +69,22 @@ and glucose levels (observed outcomes) and mediating factors such as smoking,
 diet and exercise (observed "inputs").  We could model all the possible
 relationships between the mediating factors and observed outcomes but the
 number of connections grows very quickly.
-Instead, we can model this problem as having the mediating factors
+Instead, we can model this problem as having mediating factors
 causing a non-observable hidden variable such as heart disease, which
-in turn causes our medical symptoms.  This is shown in the next figure.
+in turn causes our medical symptoms.  This is shown in the next figure
+(example taken from *Machine Learning: A Probabilistic Perspective*).
 
 .. image:: /images/latent_vars.png
    :height: 300px
    :alt: Latent Variables
    :align: center
 
-Notice that the number of connections now grows linearly instead of
-multiplicatively as you add more factors, this greatly reduces the number of
-parameters you need to estimate.  In general, you can have an arbitrary number
-of connections between variables with as many latent variables as you wish.
-These models are more generally known as `Probabilistic graphical models (PGMs)
-<https://en.wikipedia.org/wiki/Graphical_model>`_.  
+Notice that the number of connections now grows linearly (in this case)
+instead of multiplicatively as you add more latent factors, this greatly
+reduces the number of parameters you have to estimate.  In general, you can
+have an arbitrary number of connections between variables with as many latent
+variables as you wish.  These models are more generally known as `Probabilistic
+graphical models (PGMs) <https://en.wikipedia.org/wiki/Graphical_model>`_.  
 
 One of the simplest kinds of PGMs is when you have a 1-1 mapping between your
 latent variables (usually represented by :math:`z_i`) and observed variables
@@ -104,8 +105,9 @@ for modelling the neighbourhood price is using a Gaussian (or normal)
 distribution, but which house prices should be used to estimate the average
 neighbourhood price?  Should all house prices be used in equal proportion, even
 those on the edge?  What if a house is on the border between two
-neighbourhoods?  These are all great questions that lead us to a particular
-type of latent variable model called a Gaussian mixture model.
+neighbourhoods?  Can we even define clearly if a house is in one neighbourhood
+or the other? These are all great questions that lead us to a particular type
+of latent variable model called a Gaussian mixture model.
 
 Visually, we can imagine the density of the observed
 variables (housing prices) as the "sum" or mixture of several Gaussians (image
@@ -116,13 +118,13 @@ from http://dirichletprocess.weebly.com/clustering.html):
    :alt: Latent Variables
    :align: center
 
-So when a value is observed, there is an implicit latent variable that decided
-which of the Gaussians (neighbourhoods) it came from.  
+So when a value is observed, there is an implicit latent variable (:math:`z_i`)
+that decided which of the Gaussians (neighbourhoods) it came from.  
 
 Following along with this housing price example, let's represent the price of
 each house as real-valued random variable :math:`x_i` and the unobserved
 neighbourhood it belongs to as a discrete valued random variable :math:`z_i` [2]_.
-Further, let's suppose we have :math:`K` neighbourhoods therefore,
+Further, let's suppose we have :math:`K` neighbourhoods, therefore
 :math:`z_i` can be modelled as a
 `categorical distribution <https://en.wikipedia.org/wiki/Categorical_distribution>`_
 with parameter :math:`\pi = [\pi_1, \ldots, \pi_k]`, and the price distribution
@@ -153,13 +155,14 @@ assumptions:
 
    This essentially tells you how "likely" or "close" a point is to an existing
    cluster.  We'll use this below in the EM algorithm but this computation can
-   also be used for GMM classifiers to find out which class :math:`x_i` belongs
-   to.
+   also be used for GMM classifiers to find out which class :math:`x_i` most
+   likely belongs to.
 
 2. Estimating the parameters of the Gaussians (:math:`\mu_k, \sigma^2`) and categorical
-   variable (:math:`\pi`) given a) Just the observed points (:math:`x_i`);
-   b) The observed points (:math:`x_i`) **and** the values of the latent variables
-   (:math:`z_i`).
+   variable (:math:`\pi`) given:
+
+   a. Just the observed points (:math:`x_i`);
+   b. The observed points (:math:`x_i`) **and** the values of the latent variables (:math:`z_i`).
     
    The former problem is the general unsupervised learning problem that we'll solve
    with the EM algorithm (e.g. finding the neighbourhoods).  The latter is a
@@ -185,16 +188,16 @@ variables.  This is a description of how the algorithm works from 10,000 feet:
 2. **Maximization Step**: Given the values you computed in the last step 
    (essentially known values for the latent varibles), estimate new values
    for :math:`\theta^t` that maximize a variant of the likelihood function.
-3. **Exit Condition**: If likelihood has not changed much, exit; otherwise, go
-   back to Step 1.
+3. **Exit Condition**: If likelihood of the observations has not changed much,
+   exit; otherwise, go back to Step 1.
 
 One very nice part about Steps 2 and 3 are that they are quite easy to compute
-separately because we're not trying to figure out both the latent variables and
-the model parameters at the same time.  It turns out that every iteration of
-the algorithm will increase the likelihood function, implying a better fit.
-However, the likelihood function is non-convex so we're only guaranteed to
-approach a local maxima.  One way to get around this by running the algorithm
-for multiple initial values to get broader coverage of the parameter space.
+sequentially because we're not trying to figure out both the latent variables and
+the model parameters at the same time.  We'll show later that every iteration
+of the algorithm will increase the likelihood function but since it's
+non-convex, we're only guaranteed to approach a local maxima.  One way to get
+around this by running the algorithm for multiple initial values to get broader
+coverage of the parameter space.
 
 |h3| EM algorithm for Gaussian Mixture Models |h3e|
 
@@ -223,7 +226,7 @@ That's about all the information we have.  Given that, the next algorithm
         mu, sigma = [rand()] * K, [rand()] * K
         pi = [rand()] * N
         
-        current_L = np.inf
+        curr_L = np.inf
         for j in range(max_iter):
             prev_L = curr_L
             # 1. E-step: responsibility = p(z_i = k | x_i, theta^(t-1))
@@ -253,7 +256,7 @@ It probably suffers from a lot of real-world issues like floating point
 overflow.  However, we can still learn something from it.  Let's break the
 major computation steps down to understand the math behind it.
 
-In the Expectation Step, we assume that we know the values of all the parameters
+In the Expectation Step, we assume that the values of all the parameters
 (:math:`\theta = (\mu_k, \sigma_k^2, \pi)`) are fixed and are set to the ones
 from the previous iteration of the algorithm.  We then just need to compute the
 responsibility of each cluster to each point.  Re-phasing this problem:
@@ -283,15 +286,14 @@ The Maxmization Step turns things around and assumes the responsibilities
 (proxies for the latent variables) are fixed, and now the problem is we want to
 maximize our (expected complete data log) likelihood function across all the
 :math:`\theta = (\mu_k, \sigma_k^2, \pi)` variables.  We'll show the math of
-how to arrive at these expressions below and describe the intuitive
+how to arrive at these expressions below and just describe the intuitive
 interpretation here.
 
 First up, the overall distribution of the latent variables :math:`\pi`.
 Assuming you know all the values of the latent variables (i.e. :math:`r_{ik}`:
 how much each point :math:`x_i` contributes to each cluster :math:`k`), then
 intuitively, we just need to sum up the contribution to each cluster and
-normalize (just like we would estimate the distibution of a six-sided dice
-roll):
+normalize:
 
 .. math::
 
@@ -329,11 +331,11 @@ I find that I get the best intuition.
 
 |h3| Complete Data Log-Likelihood and the Auxiliary Function |h3e|
 
-Recall the overall goal of the EM algorithm is finding an MLE (or MAP)
-estimation in a model with unobserved latent variables.  MLE estimates
+Recall the overall goal of the EM algorithm is to find an MLE (or MAP)
+estimate in a model with unobserved latent variables.  MLE estimates
 by definition attempt to maximize the likelihood function.  In the 
 general case, with observations :math:`x_i` and latent variables :math:`z_i`,
-we have the log-likelihood as:
+we have the log-likelihood as follows:
 
 .. math::
 
@@ -344,8 +346,8 @@ The first expression is just the plain definition of the likelihood function
 (the probability that the data fits a given set of a parameters).  The second
 expression shows that we need to marginalize out (integrate out if it were
 continuous) the unobserved latent variable :math:`z_i`.
-Unfortunately, this expression is hard to optimize because we can't push
-the "log" inside the summation.  The EM algorithm gets around this by
+Unfortunately, this expression is hard to optimize because we can't "push"
+the :math:`\log` inside the summation.  The EM algorithm gets around this by
 defining a related quantity called the *complete data log-likelihood* function
 (we'll explain why this works later):
 
@@ -406,7 +408,7 @@ This little trick is a mouthful of notation but not that difficult to grasp.
 Recall in Equation 6, we could not evaluate any of the :math:`z_i` values directly
 because they were not observed.  That is, we didn't know if :math:`z_i=1` or
 :math:`z_1=2` etc, which would be known if it were observed.  
-This trick uses the indicator function acts like a "filter" for the products
+This trick uses the indicator function to act like a "filter" for the products
 over :math:`k`, taking out the exact value of :math:`z_i` (if it were known).
 The reason we do this trick is it breaks down the unobserved :math:`z_i`
 variables into probability statements (e.g. :math:`p(z_i=k | \theta),
@@ -436,7 +438,7 @@ or auxiliary function :math:`Q(\theta, \theta^{t-1})` in two steps:
    evaulate the :math:`Q` function so that it's only in terms of
    :math:`\theta`.
 2. Maximize this simplified :math:`Q` function in terms of :math:`\theta`.  This becomes
-   your starting point for the next iteraiton.
+   the starting point for the next iteraiton.
 
 We'll see how this plays out explicitly with GMMs in the next section.
 
@@ -448,16 +450,120 @@ We'll see this a bit futher below.
 
 |h3| EM for Gaussian Mixture Models |h3e|
 
+Starting from Equation 9, we get most of the way to EM for GMMs,
+rearranging a bit:
+
+.. math::
+
+    Q(\theta, \theta^{t-1})
+        &= \sum_{i=1}^N \sum_{k=1}^K p(z_i=k|\mathcal{D}, \theta^{t-1}) \log[p(z_i=k | \theta) p(x_i | z_i=k, \theta)] \\
+        &= \sum_{i=1}^N \sum_{k=1}^K \big[ r_{ik} \log p(z_i=k | \theta) + r_{ik} \log p(x_i | z_i=k, \theta)] \big] \\
+        &= \sum_{i=1}^N \sum_{k=1}^K \big[r_{ik} \log \pi_k 
+           + r_{ik} \log [\frac{1}{\sqrt{2\sigma_k^2\pi}}
+             \exp(\frac{-(x_i - \mu_k)^2}{2\sigma_k^2})] \big]
+    \tag{10}
+
+where :math:`r_{ik}` is defined above in Equation 2.  Notice that Equation 10
+is only in terms of of our parameters, :math:`\pi_k, \mu_k, \sigma_k`.
+So the EM algorithm for GMMs boils down to first computing :math:`r_{ik}`
+(using our previous iteration parameters :math:`\theta^{t-1}`) so that our
+:math:`Q(\theta, \theta^{t-1})` function is defined, then maximizing it:
+
+.. math::
+
+    \DeclareMathOperator*{\argmax}{arg\,max}
+    \theta^t &= \argmax_{\theta} Q(\theta, \theta^{t-1}) \\
+             &= ({\boldsymbol \pi}^t, {\boldsymbol \mu}^t, {\boldsymbol \sigma}^t)
+    \tag{11}
+
+where we have defined :math:`\pi_k, \mu_k, \sigma_k` in Equation 3 and 4.
+You can derive expressions for these from first principals from Equation 11 by
+simply looking at the MLE estimates for the 
+`multinomial distribution
+<http://math.stackexchange.com/questions/421105/maximum-likelihood-estimator-of-parameters-of-multinomial-distribution>`_ (with :math:`n=1`)
+and the `Gaussian distribution
+<https://en.wikipedia.org/wiki/Normal_distribution#Estimation_of_parameters>`_.
+The normal distribution should be a simple application of taking the gradient
+but the multinomial one gets a bit more complicated because of the additional
+constraint that the :math:`\sum_{k} \pi_k = 1`.  However, Equation 3 and 4
+should look similar to the MLE estimates of these two distributions, except
+that they're weighted by :math:`r_{ik}`.
 
 
+|h3| Proof of Correctness for EM |h3e|
 
-* 
+There's one last point we still need to address: why does using the complete
+data log-likelihood work?  We can show this by starting with the likelihood function
+in Equation 5 and re-write it like so using the `chain rule <https://en.wikipedia.org/wiki/Chain_rule_(probability)>`_:
 
-|h3| Proof of Correctness for EM ** |h3e|
+.. math::
 
+    \sum_{i=1}^N \log p(x_i|\theta) =  
+    \sum_{i=1}^N \big[ \log p(x_i, z_i|\theta) - \log p(z_i|x_i, \theta)\big]
+    \tag{12}
+
+Now taking the expectation with respect to :math:`p(z_i = k' | \mathcal{D},
+\theta^{t-1})` (just like we did for the :math:`Q` function):
+
+.. math::
+
+    E[\sum_{i=1}^N \log p(x_i|\theta) \big| \mathcal{D}, \theta^{t-1}] &= 
+        E[\sum_{i=1}^N \big[ \log p(x_i, z_i|\theta) - \log p(z_i|x_i, \theta)\big] \big| \mathcal{D}, \theta^{t-1}] \\
+    \sum_{k'=1}^K \sum_{i=1}^N \log p(x_i|\theta) p(z_i = k' | \mathcal{D}, \theta^{t-1}) &=
+   \sum_{k'=1}^K  \sum_{i=1}^N \big[ \log p(x_i, z_i|\theta) - \log p(z_i|x_i, \theta)\big] p(z_i = k' | \mathcal{D}, \theta^{t-1}) \\
+    \sum_{i=1}^N \log p(x_i|\theta) \sum_{k'=1}^K p(z_i = k' | \mathcal{D}, \theta^{t-1}) &=
+    Q(\theta, \theta^{t-1}) - \sum_{k'=1}^K  \sum_{i=1}^N \log p(z_i|x_i, \theta) p(z_i = k' | \mathcal{D}, \theta^{t-1}) \\
+    \sum_{i=1}^N \log p(x_i|\theta) &=
+    Q(\theta, \theta^{t-1}) + \sum_{i=1}^N H(z_i|\theta^{t-1}, x_i; z_i|\theta, x_i)
+              \tag{13}
+
+where the expectation on the lhs reduces to a constant, :math:`Q` is defined as before, and 
+the last term is the `cross entropy <https://en.wikipedia.org/wiki/Cross_entropy>`_ 
+of :math:`z_i|\theta^{t-1}, x_i` and :math:`z_i|\theta, x_i` (we changed :math:`\mathcal{D}` to :math:`x_i` because :math:`z_i` only depends on its own data point).
+Now equation 13 holds for any value of :math:`\theta` including :math:`\theta^{t-1}`:
+
+.. math::
+
+    \sum_{i=1}^N \log p(x_i|\theta^{t-1}) =
+    Q(\theta^{t-1}, \theta^{t-1}) + \sum_{i=1}^N H(z_i|\theta^{t-1}, x_i; z_i|\theta^{t-1}, x_i)
+              \tag{14}
+
+Subtracting Equation 14 from Equation 13:
+
+.. math::
+
+    \sum_{i=1}^N \log p(x_i|\theta) - \sum_{i=1}^N \log p(x_i|\theta^{t-1}) &= \\
+    Q(\theta, \theta^{t-1}) - Q(\theta^{t-1}, \theta^{t-1})
+    &+ \sum_{i=1}^N H(z_i|\theta, x_i; z_i|\theta^{t-1}, x_i) - H(z_i|\theta^{t-1}, x_i; z_i|\theta^{t-1}, x_i)
+    \tag{14}
+
+However `Gibbs' inequality <https://en.wikipedia.org/wiki/Gibbs%27_inequality>`_
+tells us that the entropy of a distribution (:math:`H(P) = H(P, P)`) is always less
+than the cross entropy with any other distribution i.e. 
+:math:`H(z_i|\theta^{t-1}, x_i; z_i|\theta^{t-1}, x_i) \leq H(z_i|\theta^{t-1}, x_i; z_i|\theta^{t-1}, x_i)`.  Therefore, 
+Equation 14 becomes the inequality:
+
+.. math::
+
+    \sum_{i=1}^N \log p(x_i|\theta) - \sum_{i=1}^N \log p(x_i|\theta^{t-1}) \geq
+    Q(\theta, \theta^{t-1}) - Q(\theta^{t-1}, \theta^{t-1})
+    \tag{14}
+
+which tells us that improving :math:`Q(\theta, \theta^{t-1})` beyond :math:`Q(\theta^{t-1}, \theta^{t-1})`
+will not cause the likelihood :math:`l(\theta)` to decrease below
+:math:`l(\theta^{t-1})`.  In other words, when do our EM iteration to maximize
+the :math:`Q(\theta, \theta^{t-1})` function, we're guaranteeing that we don't decrease
+the likelihood function.  Since we're dealing with convex functions, we can only
+get a local maximum but this is pretty good for most applications.
 
 |h2| Conclusion |h2e|
 
+Deriving the math for the EM algorithm is quite a bit of work but the end
+result is actually quite simple.  I've tried to work out all the math in more
+detail because many of the sources that I've seen gloss over some of the
+details, inadvertently putting up a roadblock for those of us who want to work
+through the math.  Hopefully my explanation in this post helps clears a path to
+understanding the intuition and math behind the EM algorithm.
 
 |h2| Further Reading |h2e|
 
@@ -470,7 +576,7 @@ We'll see this a bit futher below.
 
 .. [1] The material in this post is heavily based upon the treatment in *Machine Learning: A Probabilistic Perspective* by Kevin P.  Murphy; it has a much more detailed explanation and I encourage you to check it out.
 
-.. [2] This is actually only one application of Gaussian Mixture Models.  Another common one is using it as a generative classifier i.e. estimating :math:`p(X_i, y_i)` (where we label :math:`z_i` as :math:`y_i` as per convention for classifiers).  Since both :math:`X_i` and :math:`y_i` are observable, it's much easier to directly estimate the density versus the case where we have to infer values for hidden variables.
+.. [2] This is actually only one application of Gaussian mixture models.  Another common one is using it as a generative classifier i.e. estimating :math:`p(X_i, y_i)` (where we label :math:`z_i` as :math:`y_i` as per convention for classifiers).  Since both :math:`X_i` and :math:`y_i` are observable, it's much easier to directly estimate the density versus the case where we have to infer values for hidden variables.
 
 .. [3] I say linear combination because we don't actually know the value of :math:`z_i`, so one way to think about it is the expected value of :math:`z_i`.  This translates to :math:`x_i` having a portion of each of the :math:`K` Gaussians being responsible for generating it.  Thus, the linear combination idea.
 
