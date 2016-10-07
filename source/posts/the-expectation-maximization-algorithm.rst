@@ -80,7 +80,7 @@ in turn causes our medical symptoms.  This is shown in the next figure
    :align: center
 
 Notice that the number of connections now grows linearly (in this case)
-instead of multiplicatively as you add more latent factors, this greatly
+instead of multiplicative as you add more latent factors, this greatly
 reduces the number of parameters you have to estimate.  In general, you can
 have an arbitrary number of connections between variables with as many latent
 variables as you wish.  These models are more generally known as `Probabilistic
@@ -95,17 +95,17 @@ case as explained in the next section.
 |h3| Gaussian Mixture Models |h3e|
 
 As an example, suppose we're trying to understand the prices of houses across
-the city.  The housing price will be heavily dependent on the neighbourhood,
-that is, houses clustered around a neighbourhood will be close to the average
-price of the neighbourhood.
+the city.  The housing price will be heavily dependent on the neighborhood,
+that is, houses clustered around a neighborhood will be close to the average
+price of the neighborhood.
 In this context, it is straight forward to observe the prices at which houses
 are sold (observed variables) but what is not so clear is how is to observe or
-estimate the price of a "neighbourhood" (the latent variables).  A simple model
-for modelling the neighbourhood price is using a Gaussian (or normal)
+estimate the price of a "neighborhood" (the latent variables).  A simple model
+for modelling the neighborhood price is using a Gaussian (or normal)
 distribution, but which house prices should be used to estimate the average
-neighbourhood price?  Should all house prices be used in equal proportion, even
+neighborhood price?  Should all house prices be used in equal proportion, even
 those on the edge?  What if a house is on the border between two
-neighbourhoods?  Can we even define clearly if a house is in one neighbourhood
+neighborhoods?  Can we even define clearly if a house is in one neighborhood
 or the other? These are all great questions that lead us to a particular type
 of latent variable model called a Gaussian mixture model.
 
@@ -119,16 +119,16 @@ from http://dirichletprocess.weebly.com/clustering.html):
    :align: center
 
 So when a value is observed, there is an implicit latent variable (:math:`z_i`)
-that decided which of the Gaussians (neighbourhoods) it came from.  
+that decided which of the Gaussians (neighborhoods) it came from.  
 
 Following along with this housing price example, let's represent the price of
 each house as real-valued random variable :math:`x_i` and the unobserved
-neighbourhood it belongs to as a discrete valued random variable :math:`z_i` [2]_.
-Further, let's suppose we have :math:`K` neighbourhoods, therefore
+neighborhood it belongs to as a discrete valued random variable :math:`z_i` [2]_.
+Further, let's suppose we have :math:`K` neighborhoods, therefore
 :math:`z_i` can be modelled as a
 `categorical distribution <https://en.wikipedia.org/wiki/Categorical_distribution>`_
 with parameter :math:`\pi = [\pi_1, \ldots, \pi_k]`, and the price distribution
-of the :math:`k^{th}` neighbourhood as a Gaussian :math:`\mathcal{N}(\mu_k,
+of the :math:`k^{th}` neighborhood as a Gaussian :math:`\mathcal{N}(\mu_k,
 \sigma_k^2)` with mean :math:`\mu_k` and variance :math:`\sigma_k^2`.  
 The density, then, of :math:`x_i` is given by:
 
@@ -144,7 +144,7 @@ Where :math:`\theta` represents the parameters of the Gaussians (all the :math:`
 <https://en.wikipedia.org/wiki/Marginal_distribution>`_ them out to get the
 density of the observed variables (:math:`x_i`).  Translating Equation 1 to
 plainer language: we model the price distribution of each house as a linear
-combination [3]_ ("mixture model") of our :math:`K` Gaussians (neighbourhoods).
+combination [3]_ ("mixture model") of our :math:`K` Gaussians (neighborhoods).
 
 Now we have a couple of relevant inference problems, given different
 assumptions:
@@ -165,9 +165,9 @@ assumptions:
    b. The observed points (:math:`x_i`) **and** the values of the latent variables (:math:`z_i`).
     
    The former problem is the general unsupervised learning problem that we'll solve
-   with the EM algorithm (e.g. finding the neighbourhoods).  The latter is a
+   with the EM algorithm (e.g. finding the neighborhoods).  The latter is a
    specific problem that we'll indirectly use as one of the steps in the EM
-   algorithm.  Coincidently, this latter problem is the same one when using
+   algorithm.  Coincidentally, this latter problem is the same one when using
    GMMs for classification except we label the :math:`z_i` as :math:`y_i`.
 
 We'll cover the steps needed to compute both of these in the next section.
@@ -186,7 +186,7 @@ variables.  This is a description of how the algorithm works from 10,000 feet:
    previous step are fixed, compute the expected values of the latent variables
    (or more often a *function* of the expected values of the latent variables).
 2. **Maximization Step**: Given the values you computed in the last step 
-   (essentially known values for the latent varibles), estimate new values
+   (essentially known values for the latent variables), estimate new values
    for :math:`\theta^t` that maximize a variant of the likelihood function.
 3. **Exit Condition**: If likelihood of the observations has not changed much,
    exit; otherwise, go back to Step 1.
@@ -282,7 +282,7 @@ expectation over the complete data log likelihood function, which is where the
 "E" comes from.  In any case, this step becomes quite simple once we can assume
 that the parameters :math:`\theta` are fixed.
 
-The Maxmization Step turns things around and assumes the responsibilities
+The Maximization Step turns things around and assumes the responsibilities
 (proxies for the latent variables) are fixed, and now the problem is we want to
 maximize our (expected complete data log) likelihood function across all the
 :math:`\theta = (\mu_k, \sigma_k^2, \pi)` variables.  We'll show the math of
@@ -427,7 +427,7 @@ We can simplify Equation 8 a bit more:
         &= \sum_{i=1}^N \sum_{k=1}^K p(z_i=k|\mathcal{D}, \theta^{t-1}) \log[p(z_i=k | \theta) p(x_i | z_i=k, \theta)]
         \tag{9}
 
-Notice that the expectation is only performed oved the indicator function, while
+Notice that the expectation is only performed over the indicator function, while
 the probability statements in the log are readily evaluated to functions of *only*
 the parameters.
 
@@ -435,10 +435,10 @@ To summarize, the EM loop aims to maximize the expected complete data log-likeli
 or auxiliary function :math:`Q(\theta, \theta^{t-1})` in two steps:
 
 1. Given the parameters :math:`\theta^{t-1}` from the previous iteration,
-   evaulate the :math:`Q` function so that it's only in terms of
+   evaluate the :math:`Q` function so that it's only in terms of
    :math:`\theta`.
 2. Maximize this simplified :math:`Q` function in terms of :math:`\theta`.  This becomes
-   the starting point for the next iteraiton.
+   the starting point for the next iteration.
 
 We'll see how this plays out explicitly with GMMs in the next section.
 
@@ -446,7 +446,7 @@ The other question you may have is why are we defining this :math:`Q(\theta,
 \theta^{t-1})` function?  It turns out that improving the :math:`Q` function
 will never cause a loss in our actual likelihood function.  Therefore, the EM
 loop should always improve our likelihood function (up to a local maximum).
-We'll see this a bit futher below.
+We'll see this a bit further below.
 
 |h3| EM for Gaussian Mixture Models |h3e|
 
