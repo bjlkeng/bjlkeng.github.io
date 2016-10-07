@@ -1,7 +1,7 @@
 .. title: The Expectation-Maximization Algorithm
 .. slug: the-expectation-maximization-algorithm
-.. date: 2016-09-12 07:47:47 UTC-04:00
-.. tags: expectation-maximization, latent models, gaussian mixture models, mathjax
+.. date: 2016-10-07 08:47:47 UTC-04:00
+.. tags: expectation-maximization, latent variables, gaussian mixture models, mathjax
 .. category: 
 .. link: 
 .. description: An overview of the expectation-maximization algorithm
@@ -61,18 +61,19 @@ are ones that we can measure or record, while latent (sometimes called
 inferred from the observed variables. 
 
 One reason why we add latent variables is to model "higher level concepts"
-(i.e. latent variables) in the data, usually these "concepts" are unobserved
-but easily understood by the modeller.  Adding these variables can simplify
-our model by reducing the number of parameters we have to estimate.  Consider
-the problem of modelling medical symptoms such as blood pressure, heart rate
-and glucose levels (observed outcomes) and mediating factors such as smoking,
-diet and exercise (observed "inputs").  We could model all the possible
-relationships between the mediating factors and observed outcomes but the
-number of connections grows very quickly.
-Instead, we can model this problem as having mediating factors
-causing a non-observable hidden variable such as heart disease, which
-in turn causes our medical symptoms.  This is shown in the next figure
-(example taken from *Machine Learning: A Probabilistic Perspective*).
+in the data, usually these "concepts" are unobserved
+but easily understood by the modeller.  Adding these variables can also simplify
+our model by reducing the number of parameters we have to estimate.  
+
+Consider the problem of modelling medical symptoms such as blood pressure,
+heart rate and glucose levels (observed outcomes) and mediating factors such as
+smoking, diet and exercise (observed "inputs").  We could model all the
+possible relationships between the mediating factors and observed outcomes but
+the number of connections grows very quickly.  Instead, we can model this
+problem as having mediating factors causing a non-observable hidden variable
+such as heart disease, which in turn causes our medical symptoms.  This is
+shown in the next figure (example taken from *Machine Learning: A Probabilistic
+Perspective*).
 
 .. image:: /images/latent_vars.png
    :height: 300px
@@ -80,7 +81,7 @@ in turn causes our medical symptoms.  This is shown in the next figure
    :align: center
 
 Notice that the number of connections now grows linearly (in this case)
-instead of multiplicative as you add more latent factors, this greatly
+instead of multiplicatively as you add more latent factors, this greatly
 reduces the number of parameters you have to estimate.  In general, you can
 have an arbitrary number of connections between variables with as many latent
 variables as you wish.  These models are more generally known as `Probabilistic
@@ -107,7 +108,8 @@ neighborhood price?  Should all house prices be used in equal proportion, even
 those on the edge?  What if a house is on the border between two
 neighborhoods?  Can we even define clearly if a house is in one neighborhood
 or the other? These are all great questions that lead us to a particular type
-of latent variable model called a Gaussian mixture model.
+of latent variable model called a 
+`Gaussian mixture model <https://en.wikipedia.org/wiki/Mixture_model#Gaussian_mixture_model>`_.
 
 Visually, we can imagine the density of the observed
 variables (housing prices) as the "sum" or mixture of several Gaussians (image
@@ -139,10 +141,13 @@ The density, then, of :math:`x_i` is given by:
     z_i &\sim \text{Categorical}(\pi) \tag{1}
     
 Where :math:`\theta` represents the parameters of the Gaussians (all the :math:`\mu_k,
-\sigma_k^2`) and the categorical variables (:math:`\pi`).  Notice that since
-:math:`z_i` variables are non-observed, we need to `marginalize
-<https://en.wikipedia.org/wiki/Marginal_distribution>`_ them out to get the
-density of the observed variables (:math:`x_i`).  Translating Equation 1 to
+\sigma_k^2`) and the categorical variables (:math:`\pi`).  
+:math:`\pi` represents the prior mixture weights of the neighborhoods i.e. if
+you didn't know anything else, what is the relative proportion of
+neighborhoods.  Notice that since :math:`z_i` variables are non-observed, we
+need to `marginalize <https://en.wikipedia.org/wiki/Marginal_distribution>`_
+them out to get the density of the observed variables (:math:`x_i`).  
+Translating Equation 1 to
 plainer language: we model the price distribution of each house as a linear
 combination [3]_ ("mixture model") of our :math:`K` Gaussians (neighborhoods).
 
@@ -188,7 +193,7 @@ variables.  This is a description of how the algorithm works from 10,000 feet:
 2. **Maximization Step**: Given the values you computed in the last step 
    (essentially known values for the latent variables), estimate new values
    for :math:`\theta^t` that maximize a variant of the likelihood function.
-3. **Exit Condition**: If likelihood of the observations has not changed much,
+3. **Exit Condition**: If likelihood of the observations have not changed much,
    exit; otherwise, go back to Step 1.
 
 One very nice part about Steps 2 and 3 are that they are quite easy to compute
@@ -224,7 +229,7 @@ That's about all the information we have.  Given that, the next algorithm
         # 0. Initialize theta = (mu, sigma, pi)
         N = len(x)
         mu, sigma = [rand()] * K, [rand()] * K
-        pi = [rand()] * N
+        pi = [rand()] * K
         
         curr_L = np.inf
         for j in range(max_iter):
@@ -261,8 +266,8 @@ In the Expectation Step, we assume that the values of all the parameters
 from the previous iteration of the algorithm.  We then just need to compute the
 responsibility of each cluster to each point.  Re-phasing this problem:
 Assuming you know the locations of each of the :math:`K` Gaussians
-(:math:`\mu_k, \sigma_k`), and the overall distribution of the latent variables
-(:math:`pi_k`), what is the probability that a given point :math:`x_i` is drawn
+(:math:`\mu_k, \sigma_k`), and the prior mixture weights of the Gaussians 
+(:math:`\pi_k`), what is the probability that a given point :math:`x_i` is drawn
 from cluster :math:`k`?
 
 We can write this in terms of probability and use Bayes theorem to find the
@@ -289,7 +294,7 @@ maximize our (expected complete data log) likelihood function across all the
 how to arrive at these expressions below and just describe the intuitive
 interpretation here.
 
-First up, the overall distribution of the latent variables :math:`\pi`.
+First up, the distribution of the prior mixture weights :math:`\pi`.
 Assuming you know all the values of the latent variables (i.e. :math:`r_{ik}`:
 how much each point :math:`x_i` contributes to each cluster :math:`k`), then
 intuitively, we just need to sum up the contribution to each cluster and
@@ -383,7 +388,8 @@ the **auxiliary function**, :math:`Q(\theta, \theta^{t-1})`:
     Q(\theta, \theta^{t-1}) &= E[l_c(\theta) | \mathcal{D}, \theta^{t-1}] \\
         &= \sum_{i=1}^N E[\log [p(z_i | \theta)p(x_i | z_i, \theta)]] \tag{7}
 
-where :math:`\mathcal{D}` represents all our data.  
+where :math:`\mathcal{D}` represents all our data (dropping the
+conditioning in the second expression to make the notation a bit more clear).
 Recall, that we're taking the expectation over the conditional probability
 translating to :math:`E[l_c(\theta) | \mathcal{D},
 \theta^{t-1}] = \sum_{k'=1}^K l_c(\theta) \cdot p(z_i = k' | \mathcal{D}, \theta^{t-1})`.
@@ -412,7 +418,8 @@ This trick uses the indicator function to act like a "filter" for the products
 over :math:`k`, taking out the exact value of :math:`z_i` (if it were known).
 The reason we do this trick is it breaks down the unobserved :math:`z_i`
 variables into probability statements (e.g. :math:`p(z_i=k | \theta),
-p(x_i|z_i, \theta)`) and a function of a random variable (:math:`I(z_i=k)`).
+p(x_i|z_i=k, \theta)`) that can be evaluated and a simple function of a random
+variable (:math:`I(z_i=k)`).
 The former will *only* be functions of our parameters-to-be-maximized (e.g. :math:`\theta`),
 while the latter we can take an expectation over.  
 
@@ -437,8 +444,8 @@ or auxiliary function :math:`Q(\theta, \theta^{t-1})` in two steps:
 1. Given the parameters :math:`\theta^{t-1}` from the previous iteration,
    evaluate the :math:`Q` function so that it's only in terms of
    :math:`\theta`.
-2. Maximize this simplified :math:`Q` function in terms of :math:`\theta`.  This becomes
-   the starting point for the next iteration.
+2. Maximize this simplified :math:`Q` function in terms of :math:`\theta`.
+   These parameters becomes the starting point for the next iteration.
 
 We'll see how this plays out explicitly with GMMs in the next section.
 
@@ -450,7 +457,7 @@ We'll see this a bit further below.
 
 |h3| EM for Gaussian Mixture Models |h3e|
 
-Starting from Equation 9, we get most of the way to EM for GMMs,
+Starting from Equation 9, we get most of the way to EM for GMM,
 rearranging a bit:
 
 .. math::
@@ -502,7 +509,7 @@ in Equation 5 and re-write it like so using the `chain rule <https://en.wikipedi
     \sum_{i=1}^N \big[ \log p(x_i, z_i|\theta) - \log p(z_i|x_i, \theta)\big]
     \tag{12}
 
-Now taking the expectation with respect to :math:`p(z_i = k' | \mathcal{D},
+Now taking the expectation with respect to :math:`p(z_i | \mathcal{D},
 \theta^{t-1})` (just like we did for the :math:`Q` function):
 
 .. math::
@@ -517,7 +524,7 @@ Now taking the expectation with respect to :math:`p(z_i = k' | \mathcal{D},
     Q(\theta, \theta^{t-1}) + \sum_{i=1}^N H(z_i|\theta^{t-1}, x_i; z_i|\theta, x_i)
               \tag{13}
 
-where the expectation on the lhs reduces to a constant, :math:`Q` is defined as before, and 
+where the expectation on the LHS reduces to a constant, :math:`Q` is defined as before, and 
 the last term is the `cross entropy <https://en.wikipedia.org/wiki/Cross_entropy>`_ 
 of :math:`z_i|\theta^{t-1}, x_i` and :math:`z_i|\theta, x_i` (we changed :math:`\mathcal{D}` to :math:`x_i` because :math:`z_i` only depends on its own data point).
 Now equation 13 holds for any value of :math:`\theta` including :math:`\theta^{t-1}`:
@@ -534,13 +541,13 @@ Subtracting Equation 14 from Equation 13:
 
     \sum_{i=1}^N \log p(x_i|\theta) - \sum_{i=1}^N \log p(x_i|\theta^{t-1}) &= \\
     Q(\theta, \theta^{t-1}) - Q(\theta^{t-1}, \theta^{t-1})
-    &+ \sum_{i=1}^N H(z_i|\theta, x_i; z_i|\theta^{t-1}, x_i) - H(z_i|\theta^{t-1}, x_i; z_i|\theta^{t-1}, x_i)
+    &+ \sum_{i=1}^N H(z_i|\theta^{t-1}, x_i; z_i|\theta, x_i) - H(z_i|\theta^{t-1}, x_i; z_i|\theta^{t-1}, x_i)
     \tag{14}
 
 However `Gibbs' inequality <https://en.wikipedia.org/wiki/Gibbs%27_inequality>`_
 tells us that the entropy of a distribution (:math:`H(P) = H(P, P)`) is always less
 than the cross entropy with any other distribution i.e. 
-:math:`H(z_i|\theta^{t-1}, x_i; z_i|\theta^{t-1}, x_i) \leq H(z_i|\theta^{t-1}, x_i; z_i|\theta^{t-1}, x_i)`.  Therefore, 
+:math:`H(z_i|\theta^{t-1}, x_i; z_i|\theta^{t-1}, x_i) \leq H(z_i|\theta^{t-1}, x_i; z_i|\theta, x_i)`.  Therefore, 
 Equation 14 becomes the inequality:
 
 .. math::
@@ -553,17 +560,16 @@ which tells us that improving :math:`Q(\theta, \theta^{t-1})` beyond :math:`Q(\t
 will not cause the likelihood :math:`l(\theta)` to decrease below
 :math:`l(\theta^{t-1})`.  In other words, when do our EM iteration to maximize
 the :math:`Q(\theta, \theta^{t-1})` function, we're guaranteeing that we don't decrease
-the likelihood function.  Since we're dealing with convex functions, we can only
-get a local maximum but this is pretty good for most applications.
+the likelihood function as required.
 
 |h2| Conclusion |h2e|
 
-Deriving the math for the EM algorithm is quite a bit of work but the end
-result is actually quite simple.  I've tried to work out all the math in more
+Deriving the math for the EM algorithm is quite a bit of work but the resulting
+algorithm is actually quite simple.  I've tried to work out all the math in more
 detail because many of the sources that I've seen gloss over some of the
-details, inadvertently putting up a roadblock for those of us who want to work
-through the math.  Hopefully my explanation in this post helps clears a path to
-understanding the intuition and math behind the EM algorithm.
+steps, inadvertently putting up a roadblock for those of us who want to work
+through the math.  Hopefully my explanation helps clears a path for you to
+understand the intuition and math behind the EM algorithm too.
 
 |h2| Further Reading |h2e|
 
