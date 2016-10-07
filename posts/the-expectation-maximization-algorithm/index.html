@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="An overview of the expectation-maximization algorithm">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Expectation-Maximization Algorithm | Bounded Rationality</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
+<link rel="canonical" href="http://satisficing.briankeng.com/posts/the-expectation-maximization-algorithm/">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="description" itemprop="description" content="An overview of the expectation-maximization algorithm">
+<meta name="author" content="Brian Keng">
+<link rel="prev" href="../probabilistic-interpretation-of-regularization/" title="A Probabilistic Interpretation of Regularization" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="The Expectation-Maximization Algorithm">
+<meta property="og:url" content="http://satisficing.briankeng.com/posts/the-expectation-maximization-algorithm/">
+<meta property="og:description" content="An overview of the expectation-maximization algorithm">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2016-10-07T08:47:47-04:00">
+<meta property="article:tag" content="expectation-maximization">
+<meta property="article:tag" content="gaussian mixture models">
+<meta property="article:tag" content="latent variables">
+<meta property="article:tag" content="mathjax">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://satisficing.briankeng.com/">
+
+                <span class="h1" id="blog-title">Bounded Rationality</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
+            <ul class="nav navbar-nav">
+<p class="lead">Understanding programming, data, and math to a satisfactory degree.</p>
+<!--
+                
+                <li><a href="/archive.html">Archive</a>
+                <li><a href="/categories/">Tags</a>
+                <li><a href="/rss.xml">RSS feed</a>
+
+                 
+-->
+            </ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+    <a href="index.rst" id="sourcelink">Source</a>
+    </li>
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            <div class="col-lg-9">
+                
+                
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">The Expectation-Maximization Algorithm</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                    Brian Keng
+            </span></p>
+            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2016-10-07T08:47:47-04:00" itemprop="datePublished" title="2016-10-07 08:47">2016-10-07 08:47</time></a></p>
+            
+        <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
+
+                <meta name="description" itemprop="description" content="An overview of the expectation-maximization algorithm">
+</div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>This post is going to talk about a widely used method to find the
+maximum likelihood (MLE) or maximum a posteriori (MAP) estimate of parameters
+in latent variable models called the Expectation-Maximization algorithm.  You
+have probably heard about the most famous variant of this algorithm called the
+k-means algorithm for clustering.
+Even though it's so ubiquitous, whenever I've tried to understand <em>why</em> this
+algorithm works, I never quite got the intuition right.  Now that I've taken
+the time to work through the math, I'm going to <em>attempt</em> to explain the
+algorithm hopefully with a bit more clarity.  We'll start by going back to the
+basics with latent variable models and the likelihood functions, then moving on
+to showing the math with a simple Gaussian mixture model <a class="footnote-reference" href=".#id5" id="id1">[1]</a>.</p>
+<!-- TEASER_END -->
+<p><br></p>
+<h4> Background </h4>
+<p></p>
+<h5> Latent Variables </h5>
+<p>A latent variable model is a type of statistical model that contains two types
+of variables: <em>observed variables</em> and <em>latent variables</em>.  Observed variables
+are ones that we can measure or record, while latent (sometimes called
+<em>hidden</em>) variables are ones that we cannot directly observe but rather
+inferred from the observed variables.</p>
+<p>One reason why we add latent variables is to model "higher level concepts"
+in the data, usually these "concepts" are unobserved
+but easily understood by the modeller.  Adding these variables can also simplify
+our model by reducing the number of parameters we have to estimate.</p>
+<p>Consider the problem of modelling medical symptoms such as blood pressure,
+heart rate and glucose levels (observed outcomes) and mediating factors such as
+smoking, diet and exercise (observed "inputs").  We could model all the
+possible relationships between the mediating factors and observed outcomes but
+the number of connections grows very quickly.  Instead, we can model this
+problem as having mediating factors causing a non-observable hidden variable
+such as heart disease, which in turn causes our medical symptoms.  This is
+shown in the next figure (example taken from <em>Machine Learning: A Probabilistic
+Perspective</em>).</p>
+<img alt="Latent Variables" class="align-center" src="../../images/latent_vars.png" style="height: 300px;"><p>Notice that the number of connections now grows linearly (in this case)
+instead of multiplicatively as you add more latent factors, this greatly
+reduces the number of parameters you have to estimate.  In general, you can
+have an arbitrary number of connections between variables with as many latent
+variables as you wish.  These models are more generally known as <a class="reference external" href="https://en.wikipedia.org/wiki/Graphical_model">Probabilistic
+graphical models (PGMs)</a>.</p>
+<p>One of the simplest kinds of PGMs is when you have a 1-1 mapping between your
+latent variables (usually represented by <span class="math">\(z_i\)</span>) and observed variables
+(<span class="math">\(x_i\)</span>), and your latent variables take on discrete values (<span class="math">\(z_i
+\in {1,\ldots,K}\)</span>).  We'll be focusing on this much simpler
+case as explained in the next section.</p>
+<p></p>
+<h5> Gaussian Mixture Models </h5>
+<p>As an example, suppose we're trying to understand the prices of houses across
+the city.  The housing price will be heavily dependent on the neighborhood,
+that is, houses clustered around a neighborhood will be close to the average
+price of the neighborhood.
+In this context, it is straight forward to observe the prices at which houses
+are sold (observed variables) but what is not so clear is how is to observe or
+estimate the price of a "neighborhood" (the latent variables).  A simple model
+for modelling the neighborhood price is using a Gaussian (or normal)
+distribution, but which house prices should be used to estimate the average
+neighborhood price?  Should all house prices be used in equal proportion, even
+those on the edge?  What if a house is on the border between two
+neighborhoods?  Can we even define clearly if a house is in one neighborhood
+or the other? These are all great questions that lead us to a particular type
+of latent variable model called a
+<a class="reference external" href="https://en.wikipedia.org/wiki/Mixture_model#Gaussian_mixture_model">Gaussian mixture model</a>.</p>
+<p>Visually, we can imagine the density of the observed
+variables (housing prices) as the "sum" or mixture of several Gaussians (image
+from <a class="reference external" href="http://dirichletprocess.weebly.com/clustering.html">http://dirichletprocess.weebly.com/clustering.html</a>):</p>
+<img alt="Latent Variables" class="align-center" src="../../images/gmm.png" style="height: 300px;"><p>So when a value is observed, there is an implicit latent variable (<span class="math">\(z_i\)</span>)
+that decided which of the Gaussians (neighborhoods) it came from.</p>
+<p>Following along with this housing price example, let's represent the price of
+each house as real-valued random variable <span class="math">\(x_i\)</span> and the unobserved
+neighborhood it belongs to as a discrete valued random variable <span class="math">\(z_i\)</span> <a class="footnote-reference" href=".#id6" id="id2">[2]</a>.
+Further, let's suppose we have <span class="math">\(K\)</span> neighborhoods, therefore
+<span class="math">\(z_i\)</span> can be modelled as a
+<a class="reference external" href="https://en.wikipedia.org/wiki/Categorical_distribution">categorical distribution</a>
+with parameter <span class="math">\(\pi = [\pi_1, \ldots, \pi_k]\)</span>, and the price distribution
+of the <span class="math">\(k^{th}\)</span> neighborhood as a Gaussian <span class="math">\(\mathcal{N}(\mu_k,
+\sigma_k^2)\)</span> with mean <span class="math">\(\mu_k\)</span> and variance <span class="math">\(\sigma_k^2\)</span>.
+The density, then, of <span class="math">\(x_i\)</span> is given by:</p>
+<div class="math">
+\begin{align*}
+p(x_i|\theta) &amp;=  \sum_{k=1}^K p(z_i=k) p(x_i| z_i=k, \mu_k, \sigma_k^2)  \\
+x_i| z_i &amp;\sim \mathcal{N}(\mu_k, \sigma_k^2) \\
+z_i &amp;\sim \text{Categorical}(\pi) \tag{1}
+\end{align*}
+</div>
+<p>Where <span class="math">\(\theta\)</span> represents the parameters of the Gaussians (all the <span class="math">\(\mu_k,
+\sigma_k^2\)</span>) and the categorical variables (<span class="math">\(\pi\)</span>).
+<span class="math">\(\pi\)</span> represents the prior mixture weights of the neighborhoods i.e. if
+you didn't know anything else, what is the relative proportion of
+neighborhoods.  Notice that since <span class="math">\(z_i\)</span> variables are non-observed, we
+need to <a class="reference external" href="https://en.wikipedia.org/wiki/Marginal_distribution">marginalize</a>
+them out to get the density of the observed variables (<span class="math">\(x_i\)</span>).
+Translating Equation 1 to
+plainer language: we model the price distribution of each house as a linear
+combination <a class="footnote-reference" href=".#id7" id="id3">[3]</a> ("mixture model") of our <span class="math">\(K\)</span> Gaussians (neighborhoods).</p>
+<p>Now we have a couple of relevant inference problems, given different
+assumptions:</p>
+<ol class="arabic">
+<li>
+<p class="first">Assuming you know the values of all the parameters (<span class="math">\(\theta\)</span>), compute
+the <em>responsibility</em>, <span class="math">\(r_{ik}\)</span>, of a cluster <span class="math">\(k\)</span> to a
+point <span class="math">\(i\)</span>: <span class="math">\(r_{ik} = p(z_i=k | x_i, \theta)\)</span>.</p>
+<p>This essentially tells you how "likely" or "close" a point is to an existing
+cluster.  We'll use this below in the EM algorithm but this computation can
+also be used for GMM classifiers to find out which class <span class="math">\(x_i\)</span> most
+likely belongs to.</p>
+</li>
+<li>
+<p class="first">Estimating the parameters of the Gaussians (<span class="math">\(\mu_k, \sigma^2\)</span>) and categorical
+variable (<span class="math">\(\pi\)</span>) given:</p>
+<ol class="loweralpha simple">
+<li>Just the observed points (<span class="math">\(x_i\)</span>);</li>
+<li>The observed points (<span class="math">\(x_i\)</span>) <strong>and</strong> the values of the latent variables (<span class="math">\(z_i\)</span>).</li>
+</ol>
+<p>The former problem is the general unsupervised learning problem that we'll solve
+with the EM algorithm (e.g. finding the neighborhoods).  The latter is a
+specific problem that we'll indirectly use as one of the steps in the EM
+algorithm.  Coincidentally, this latter problem is the same one when using
+GMMs for classification except we label the <span class="math">\(z_i\)</span> as <span class="math">\(y_i\)</span>.</p>
+</li>
+</ol>
+<p>We'll cover the steps needed to compute both of these in the next section.</p>
+<p><br></p>
+<h4> The Expectation-Maximization Algorithm </h4>
+<p>The <a class="reference external" href="https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm">Expectation-Maximization (EM) Algorithm</a> is
+an iterative method to find the MLE or MAP estimate for models with latent
+variables.  This is a description of how the algorithm works from 10,000 feet:</p>
+<ol class="arabic simple" start="0">
+<li>
+<strong>Initialization</strong>: Get an initial estimate for parameters
+<span class="math">\(\theta^0\)</span> (e.g. all the <span class="math">\(\mu_k, \sigma_k^2\)</span> and <span class="math">\(\pi\)</span>
+variables).  In many cases, this can just be a random initialization.</li>
+<li>
+<strong>Expectation Step</strong>: Assume the parameters (<span class="math">\(\theta^{t-1}\)</span>) from the
+previous step are fixed, compute the expected values of the latent variables
+(or more often a <em>function</em> of the expected values of the latent variables).</li>
+<li>
+<strong>Maximization Step</strong>: Given the values you computed in the last step
+(essentially known values for the latent variables), estimate new values
+for <span class="math">\(\theta^t\)</span> that maximize a variant of the likelihood function.</li>
+<li>
+<strong>Exit Condition</strong>: If likelihood of the observations have not changed much,
+exit; otherwise, go back to Step 1.</li>
+</ol>
+<p>One very nice part about Steps 2 and 3 are that they are quite easy to compute
+sequentially because we're not trying to figure out both the latent variables and
+the model parameters at the same time.  We'll show later that every iteration
+of the algorithm will increase the likelihood function but since it's
+non-convex, we're only guaranteed to approach a local maxima.  One way to get
+around this by running the algorithm for multiple initial values to get broader
+coverage of the parameter space.</p>
+<p></p>
+<h5> EM algorithm for Gaussian Mixture Models </h5>
+<p>Coming back to GMMs, let's review what information we have when we're
+estimating them (i.e. problem 2(a) from the previous section).
+To start, we have a bunch of observed variables (<span class="math">\(x_i\)</span>).  Since
+we've decided on using a GMM model, we also have to pick the hyper parameter
+<span class="math">\(K\)</span> that decides how many Gaussians we want in our model <a class="footnote-reference" href=".#id8" id="id4">[4]</a>.
+That's about all the information we have.  Given that, the next algorithm
+(using pseudo-Python) describes how we would estimate the relevant unknowns:</p>
+<pre class="code python"><a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-1"></a><span class="c1"># Assume we have function to compute density of Gaussian</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-2"></a><span class="c1"># at point x_i given mu, sigma: G(x_i, mu, sigma); and</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-3"></a><span class="c1"># a function to compute the log-likelihoods: L(x, mu, sigma, pi)</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-4"></a><span class="k">def</span> <span class="nf">estimate_gmm</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-5"></a>    <span class="sd">''' Estimate GMM parameters.</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-6"></a><span class="sd">        :param x: list of observed real-valued variables</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-7"></a><span class="sd">        :param K: integer for number of Gaussian</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-8"></a><span class="sd">        :param tol: tolerated change for log-likelihood</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-9"></a><span class="sd">        :return: mu, sigma, pi parameters</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-10"></a><span class="sd">    '''</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-11"></a>    <span class="c1"># 0. Initialize theta = (mu, sigma, pi)</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-12"></a>    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-13"></a>    <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="p">[</span><span class="n">rand</span><span class="p">()]</span> <span class="o">*</span> <span class="n">K</span><span class="p">,</span> <span class="p">[</span><span class="n">rand</span><span class="p">()]</span> <span class="o">*</span> <span class="n">K</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-14"></a>    <span class="n">pi</span> <span class="o">=</span> <span class="p">[</span><span class="n">rand</span><span class="p">()]</span> <span class="o">*</span> <span class="n">K</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-15"></a>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-16"></a>    <span class="n">curr_L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-17"></a>    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iter</span><span class="p">):</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-18"></a>        <span class="n">prev_L</span> <span class="o">=</span> <span class="n">curr_L</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-19"></a>        <span class="c1"># 1. E-step: responsibility = p(z_i = k | x_i, theta^(t-1))</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-20"></a>        <span class="n">r</span> <span class="o">=</span> <span class="p">{}</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-21"></a>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-22"></a>            <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">pi</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">G</span><span class="p">(</span><span class="n">x_i</span><span class="p">,</span> <span class="n">mu</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">sigma</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">)]</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-23"></a>            <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-24"></a>            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-25"></a>                <span class="n">r</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">)]</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="n">total</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-26"></a>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-27"></a>        <span class="c1"># 2. M-step: Update mu, sigma, pi values</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-28"></a>        <span class="n">rk</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">([</span><span class="n">r</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">)]</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-29"></a>        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-30"></a>            <span class="n">pi</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">rk</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="n">N</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-31"></a>            <span class="n">mu</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">)]</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">))</span> <span class="o">/</span> <span class="n">rk</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-32"></a>            <span class="n">sigma</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">)]</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">mu</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">rk</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-33"></a>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-34"></a>        <span class="c1"># 3. Check exit condition</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-35"></a>        <span class="n">curr_L</span> <span class="o">=</span> <span class="n">L</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">pi</span><span class="p">)</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-36"></a>        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">prev_L</span> <span class="o">-</span> <span class="n">curr_L</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-37"></a>            <span class="k">break</span>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-38"></a>
+<a name="rest_code_30fe36a2c1254010a5e0c3172e571ca3-39"></a>    <span class="k">return</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">pi</span>
+</pre>
+<p>Caution: This is just an illustration of the algorithm, please don't use it!
+It probably suffers from a lot of real-world issues like floating point
+overflow.  However, we can still learn something from it.  Let's break the
+major computation steps down to understand the math behind it.</p>
+<p>In the Expectation Step, we assume that the values of all the parameters
+(<span class="math">\(\theta = (\mu_k, \sigma_k^2, \pi)\)</span>) are fixed and are set to the ones
+from the previous iteration of the algorithm.  We then just need to compute the
+responsibility of each cluster to each point.  Re-phasing this problem:
+Assuming you know the locations of each of the <span class="math">\(K\)</span> Gaussians
+(<span class="math">\(\mu_k, \sigma_k\)</span>), and the prior mixture weights of the Gaussians
+(<span class="math">\(\pi_k\)</span>), what is the probability that a given point <span class="math">\(x_i\)</span> is drawn
+from cluster <span class="math">\(k\)</span>?</p>
+<p>We can write this in terms of probability and use Bayes theorem to find the
+answer:</p>
+<div class="math">
+\begin{align*}
+r_{ik} = p(z_i=k|x_i, \theta) &amp;= \frac{p(x_i | z_i=k, \theta) \cdot p(z_i=k)}{\sum_{j=1}^K p(x_i | z_i=j, \theta) \cdot p(z_i=j)} \\
+&amp;= \frac{\mathcal{N}(x_i | \mu_k, \sigma_k) \cdot \pi_k}
+        {\sum_{j=1}^K \mathcal{N}(x_i | \mu_j, \sigma_j) \cdot \pi_j}
+\tag{2}
+\end{align*}
+</div>
+<p>This is just the normalized probability of each each point belonging to one of
+the <span class="math">\(K\)</span> Gaussians weighted by the mixture distribution (<span class="math">\(\pi_k\)</span>).
+We'll see later on that this expression actually comes out by taking an
+expectation over the complete data log likelihood function, which is where the
+"E" comes from.  In any case, this step becomes quite simple once we can assume
+that the parameters <span class="math">\(\theta\)</span> are fixed.</p>
+<p>The Maximization Step turns things around and assumes the responsibilities
+(proxies for the latent variables) are fixed, and now the problem is we want to
+maximize our (expected complete data log) likelihood function across all the
+<span class="math">\(\theta = (\mu_k, \sigma_k^2, \pi)\)</span> variables.  We'll show the math of
+how to arrive at these expressions below and just describe the intuitive
+interpretation here.</p>
+<p>First up, the distribution of the prior mixture weights <span class="math">\(\pi\)</span>.
+Assuming you know all the values of the latent variables (i.e. <span class="math">\(r_{ik}\)</span>:
+how much each point <span class="math">\(x_i\)</span> contributes to each cluster <span class="math">\(k\)</span>), then
+intuitively, we just need to sum up the contribution to each cluster and
+normalize:</p>
+<div class="math">
+\begin{equation*}
+\pi_k = \frac{1}{N} \sum_i r_{ik} \tag{3}
+\end{equation*}
+</div>
+<p>Next, we need to estimate the Gaussians.  Again, since we know the
+responsibilities of each point to each cluster, we can just use our standard
+methods for estimating the mean and standard deviation of Gaussians but
+weighted according to the responsibilities:</p>
+<div class="math">
+\begin{align*}
+\mu_k &amp;= \frac{\sum_i r_{ik}x_i}{\sum_i r_{ik}} \\
+\sigma_k &amp;= \frac{\sum_i r_{ik}(x_i - \mu_k)(x_i - \mu_k)}{\sum_i r_{ik}} \tag{4}
+\end{align*}
+</div>
+<p>Again we shall see that this comes out from the expected complete data log
+likelihood function.</p>
+<p>As a last note, there are many variants of this algorithm.  The most popular being the
+<a class="reference external" href="https://en.wikipedia.org/wiki/K-means_clustering">K-Means algorithm</a>.  In
+this variant, we assume that both the shape of the Gaussians
+(<span class="math">\(\sigma_k = \sigma^2I_D\)</span>) and distribution of latent variables
+<span class="math">\(\pi=\frac{1}{K}\)</span> are fixed, so now all we have to compute are the
+cluster centers.  The other big difference is that we now perform <em>hard
+clustering</em>, where we assign responsibility of a point <span class="math">\(x_i\)</span> to exactly
+one cluster (and zero responsibility to other clusters).  These assumptions
+simplify Equation 2-4 while keeping all the nice properties of the EM algorithm,
+making it quite a popular algorithm for unsupervised clustering.</p>
+<p><br></p>
+<h4> Expectation-Maximization Math </h4>
+<p>In this section, we'll go over some of the derivations and proofs related to
+the EM algorithm.  It's going to get a bit math-heavy but that's usually where
+I find that I get the best intuition.</p>
+<p></p>
+<h5> Complete Data Log-Likelihood and the Auxiliary Function </h5>
+<p>Recall the overall goal of the EM algorithm is to find an MLE (or MAP)
+estimate in a model with unobserved latent variables.  MLE estimates
+by definition attempt to maximize the likelihood function.  In the
+general case, with observations <span class="math">\(x_i\)</span> and latent variables <span class="math">\(z_i\)</span>,
+we have the log-likelihood as follows:</p>
+<div class="math">
+\begin{equation*}
+l(\theta) = \sum_{i=1}^N \log p(x_i|\theta)
+          = \sum_{i=1}^N \log \sum_{z_i} p(x_i, z_i | \theta) \tag{5}
+\end{equation*}
+</div>
+<p>The first expression is just the plain definition of the likelihood function
+(the probability that the data fits a given set of a parameters).  The second
+expression shows that we need to marginalize out (integrate out if it were
+continuous) the unobserved latent variable <span class="math">\(z_i\)</span>.
+Unfortunately, this expression is hard to optimize because we can't "push"
+the <span class="math">\(\log\)</span> inside the summation.  The EM algorithm gets around this by
+defining a related quantity called the <em>complete data log-likelihood</em> function
+(we'll explain why this works later):</p>
+<div class="math">
+\begin{align*}
+l_c(\theta) &amp;= \sum_{i=1}^N \log p(x_i, z_i | \theta) \\
+            &amp;= \sum_{i=1}^N \log [p(z_i | \theta)p(x_i | z_i, \theta)] \tag{6}
+\end{align*}
+</div>
+<p>Again this cannot be computed because we never observe the <span class="math">\(z_i\)</span> values.
+However, we can take the expected value of Equation 6 with respect to
+the conditional distribution of <span class="math">\(z_i's\)</span> given the data and our <em>previous</em>
+value of the parameters, <span class="math">\(\theta^{t-1}\)</span>.  That's a mouth full, so let me
+explain in another way.</p>
+<p>Taking the expectation helps because any of the places
+where we needed to explicitly know the value of the unobserved <span class="math">\(z_i\)</span>, we
+can use its expected value.  Thus, all the unknown <span class="math">\(z_i\)</span> values get
+"filled in" and what we are left with is a function <em>only</em> of the values we
+want to maximize i.e. <span class="math">\(\theta\)</span>.
+Now the caveat is that when computing the expected value of <span class="math">\(z_i\)</span>,
+we use the conditional distribution, <span class="math">\(p(z_i | x_i, \theta^{t-1})\)</span>,
+over the data and <em>previous</em> values of the parameters.  This is how we get into
+the iterative nature of the EM algorithm.  Let's take a look at some math and
+break it down.</p>
+<p>We first take the <a class="reference external" href="http://www.math.uah.edu/stat/expect/Conditional.html">expectation</a>
+of Equation 6 with respect to the conditional distribution of <span class="math">\(z_i's\)</span>
+given the data and our <em>previous</em> value of the parameters, which we define as
+the <strong>auxiliary function</strong>, <span class="math">\(Q(\theta, \theta^{t-1})\)</span>:</p>
+<div class="math">
+\begin{align*}
+Q(\theta, \theta^{t-1}) &amp;= E[l_c(\theta) | \mathcal{D}, \theta^{t-1}] \\
+    &amp;= \sum_{i=1}^N E[\log [p(z_i | \theta)p(x_i | z_i, \theta)]] \tag{7}
+\end{align*}
+</div>
+<p>where <span class="math">\(\mathcal{D}\)</span> represents all our data (dropping the
+conditioning in the second expression to make the notation a bit more clear).
+Recall, that we're taking the expectation over the conditional probability
+translating to <span class="math">\(E[l_c(\theta) | \mathcal{D},
+\theta^{t-1}] = \sum_{k'=1}^K l_c(\theta) \cdot p(z_i = k' | \mathcal{D}, \theta^{t-1})\)</span>.
+This is important to remember because the notation is going to get a bit confusing
+and we need to keep mindful of which terms are constant with respect to the expectation.</p>
+<p>At this point, it's not clear at all how the expectation gets evaluated.
+There's a handy little trick we can use, assuming that our latent variables
+<span class="math">\(z_i\)</span> are discrete (typically the case when we use the EM algorithm).
+From Equation 7:</p>
+<div class="math">
+\begin{align*}
+Q(\theta, \theta^{t-1})
+    &amp;= \sum_{i=1}^N E[\log [p(z_i | \theta)p(x_i | z_i, \theta)]] \\
+    &amp;= \sum_{i=1}^N E\big[\log\Pi_{k=1}^K  [p(z_i=k | \theta) p(x_i | z_i=k, \theta)]^{I(z_i=k)}\big]  \\
+    &amp;= \sum_{i=1}^N E\big[\sum_{k=1}^K \log[p(z_i=k | \theta) p(x_i | z_i=k, \theta)]^{I(z_i=k)}\big]
+    \tag{8}
+\end{align*}
+</div>
+<p>where <span class="math">\(I(z_i=k)\)</span> is the <a class="reference external" href="https://en.wikipedia.org/wiki/Indicator_function">indicator function</a>.
+This little trick is a mouthful of notation but not that difficult to grasp.
+Recall in Equation 6, we could not evaluate any of the <span class="math">\(z_i\)</span> values directly
+because they were not observed.  That is, we didn't know if <span class="math">\(z_i=1\)</span> or
+<span class="math">\(z_1=2\)</span> etc, which would be known if it were observed.
+This trick uses the indicator function to act like a "filter" for the products
+over <span class="math">\(k\)</span>, taking out the exact value of <span class="math">\(z_i\)</span> (if it were known).
+The reason we do this trick is it breaks down the unobserved <span class="math">\(z_i\)</span>
+variables into probability statements (e.g. <span class="math">\(p(z_i=k | \theta),
+p(x_i|z_i=k, \theta)\)</span>) that can be evaluated and a simple function of a random
+variable (<span class="math">\(I(z_i=k)\)</span>).
+The former will <em>only</em> be functions of our parameters-to-be-maximized (e.g. <span class="math">\(\theta\)</span>),
+while the latter we can take an expectation over.</p>
+<p>We can simplify Equation 8 a bit more:</p>
+<div class="math">
+\begin{align*}
+Q(\theta, \theta^{t-1})
+    &amp;= \sum_{i=1}^N E\big[\sum_{k=1}^K \log[p(z_i=k | \theta) p(x_i | z_i=k, \theta)]^{I(z_i=k)}\big] \\
+    &amp;= \sum_{i=1}^N E\big[\sum_{k=1}^K I(z_i=k) \log[p(z_i=k | \theta) p(x_i | z_i=k, \theta)]\big] \\
+    &amp;= \sum_{i=1}^N \sum_{k=1}^K E[I(z_i=k)] \log[p(z_i=k | \theta) p(x_i | z_i=k, \theta)] \\
+    &amp;= \sum_{i=1}^N \sum_{k=1}^K p(z_i=k|\mathcal{D}, \theta^{t-1}) \log[p(z_i=k | \theta) p(x_i | z_i=k, \theta)]
+    \tag{9}
+\end{align*}
+</div>
+<p>Notice that the expectation is only performed over the indicator function, while
+the probability statements in the log are readily evaluated to functions of <em>only</em>
+the parameters.</p>
+<p>To summarize, the EM loop aims to maximize the expected complete data log-likelihood,
+or auxiliary function <span class="math">\(Q(\theta, \theta^{t-1})\)</span> in two steps:</p>
+<ol class="arabic simple">
+<li>Given the parameters <span class="math">\(\theta^{t-1}\)</span> from the previous iteration,
+evaluate the <span class="math">\(Q\)</span> function so that it's only in terms of
+<span class="math">\(\theta\)</span>.</li>
+<li>Maximize this simplified <span class="math">\(Q\)</span> function in terms of <span class="math">\(\theta\)</span>.
+These parameters becomes the starting point for the next iteration.</li>
+</ol>
+<p>We'll see how this plays out explicitly with GMMs in the next section.</p>
+<p>The other question you may have is why are we defining this <span class="math">\(Q(\theta,
+\theta^{t-1})\)</span> function?  It turns out that improving the <span class="math">\(Q\)</span> function
+will never cause a loss in our actual likelihood function.  Therefore, the EM
+loop should always improve our likelihood function (up to a local maximum).
+We'll see this a bit further below.</p>
+<p></p>
+<h5> EM for Gaussian Mixture Models </h5>
+<p>Starting from Equation 9, we get most of the way to EM for GMM,
+rearranging a bit:</p>
+<div class="math">
+\begin{align*}
+Q(\theta, \theta^{t-1})
+    &amp;= \sum_{i=1}^N \sum_{k=1}^K p(z_i=k|\mathcal{D}, \theta^{t-1}) \log[p(z_i=k | \theta) p(x_i | z_i=k, \theta)] \\
+    &amp;= \sum_{i=1}^N \sum_{k=1}^K \big[ r_{ik} \log p(z_i=k | \theta) + r_{ik} \log p(x_i | z_i=k, \theta)] \big] \\
+    &amp;= \sum_{i=1}^N \sum_{k=1}^K \big[r_{ik} \log \pi_k
+       + r_{ik} \log [\frac{1}{\sqrt{2\sigma_k^2\pi}}
+         \exp(\frac{-(x_i - \mu_k)^2}{2\sigma_k^2})] \big]
+\tag{10}
+\end{align*}
+</div>
+<p>where <span class="math">\(r_{ik}\)</span> is defined above in Equation 2.  Notice that Equation 10
+is only in terms of of our parameters, <span class="math">\(\pi_k, \mu_k, \sigma_k\)</span>.
+So the EM algorithm for GMMs boils down to first computing <span class="math">\(r_{ik}\)</span>
+(using our previous iteration parameters <span class="math">\(\theta^{t-1}\)</span>) so that our
+<span class="math">\(Q(\theta, \theta^{t-1})\)</span> function is defined, then maximizing it:</p>
+<div class="math">
+\begin{align*}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\theta^t &amp;= \argmax_{\theta} Q(\theta, \theta^{t-1}) \\
+         &amp;= ({\boldsymbol \pi}^t, {\boldsymbol \mu}^t, {\boldsymbol \sigma}^t)
+\tag{11}
+\end{align*}
+</div>
+<p>where we have defined <span class="math">\(\pi_k, \mu_k, \sigma_k\)</span> in Equation 3 and 4.
+You can derive expressions for these from first principals from Equation 11 by
+simply looking at the MLE estimates for the
+<a class="reference external" href="http://math.stackexchange.com/questions/421105/maximum-likelihood-estimator-of-parameters-of-multinomial-distribution">multinomial distribution</a> (with <span class="math">\(n=1\)</span>)
+and the <a class="reference external" href="https://en.wikipedia.org/wiki/Normal_distribution#Estimation_of_parameters">Gaussian distribution</a>.
+The normal distribution should be a simple application of taking the gradient
+but the multinomial one gets a bit more complicated because of the additional
+constraint that the <span class="math">\(\sum_{k} \pi_k = 1\)</span>.  However, Equation 3 and 4
+should look similar to the MLE estimates of these two distributions, except
+that they're weighted by <span class="math">\(r_{ik}\)</span>.</p>
+<p></p>
+<h5> Proof of Correctness for EM </h5>
+<p>There's one last point we still need to address: why does using the complete
+data log-likelihood work?  We can show this by starting with the likelihood function
+in Equation 5 and re-write it like so using the <a class="reference external" href="https://en.wikipedia.org/wiki/Chain_rule_(probability)">chain rule</a>:</p>
+<div class="math">
+\begin{equation*}
+\sum_{i=1}^N \log p(x_i|\theta) =
+\sum_{i=1}^N \big[ \log p(x_i, z_i|\theta) - \log p(z_i|x_i, \theta)\big]
+\tag{12}
+\end{equation*}
+</div>
+<p>Now taking the expectation with respect to <span class="math">\(p(z_i | \mathcal{D},
+\theta^{t-1})\)</span> (just like we did for the <span class="math">\(Q\)</span> function):</p>
+<div class="math">
+\begin{align*}
+ E[\sum_{i=1}^N \log p(x_i|\theta) \big| \mathcal{D}, \theta^{t-1}] &amp;=
+     E[\sum_{i=1}^N \big[ \log p(x_i, z_i|\theta) - \log p(z_i|x_i, \theta)\big] \big| \mathcal{D}, \theta^{t-1}] \\
+ \sum_{k'=1}^K \sum_{i=1}^N \log p(x_i|\theta) p(z_i = k' | \mathcal{D}, \theta^{t-1}) &amp;=
+\sum_{k'=1}^K  \sum_{i=1}^N \big[ \log p(x_i, z_i|\theta) - \log p(z_i|x_i, \theta)\big] p(z_i = k' | \mathcal{D}, \theta^{t-1}) \\
+ \sum_{i=1}^N \log p(x_i|\theta) \sum_{k'=1}^K p(z_i = k' | \mathcal{D}, \theta^{t-1}) &amp;=
+ Q(\theta, \theta^{t-1}) - \sum_{k'=1}^K  \sum_{i=1}^N \log p(z_i|x_i, \theta) p(z_i = k' | \mathcal{D}, \theta^{t-1}) \\
+ \sum_{i=1}^N \log p(x_i|\theta) &amp;=
+ Q(\theta, \theta^{t-1}) + \sum_{i=1}^N H(z_i|\theta^{t-1}, x_i; z_i|\theta, x_i)
+           \tag{13}
+\end{align*}
+</div>
+<p>where the expectation on the LHS reduces to a constant, <span class="math">\(Q\)</span> is defined as before, and
+the last term is the <a class="reference external" href="https://en.wikipedia.org/wiki/Cross_entropy">cross entropy</a>
+of <span class="math">\(z_i|\theta^{t-1}, x_i\)</span> and <span class="math">\(z_i|\theta, x_i\)</span> (we changed <span class="math">\(\mathcal{D}\)</span> to <span class="math">\(x_i\)</span> because <span class="math">\(z_i\)</span> only depends on its own data point).
+Now equation 13 holds for any value of <span class="math">\(\theta\)</span> including <span class="math">\(\theta^{t-1}\)</span>:</p>
+<div class="math">
+\begin{equation*}
+\sum_{i=1}^N \log p(x_i|\theta^{t-1}) =
+Q(\theta^{t-1}, \theta^{t-1}) + \sum_{i=1}^N H(z_i|\theta^{t-1}, x_i; z_i|\theta^{t-1}, x_i)
+          \tag{14}
+\end{equation*}
+</div>
+<p>Subtracting Equation 14 from Equation 13:</p>
+<div class="math">
+\begin{align*}
+\sum_{i=1}^N \log p(x_i|\theta) - \sum_{i=1}^N \log p(x_i|\theta^{t-1}) &amp;= \\
+Q(\theta, \theta^{t-1}) - Q(\theta^{t-1}, \theta^{t-1})
+&amp;+ \sum_{i=1}^N H(z_i|\theta^{t-1}, x_i; z_i|\theta, x_i) - H(z_i|\theta^{t-1}, x_i; z_i|\theta^{t-1}, x_i)
+\tag{14}
+\end{align*}
+</div>
+<p>However <a class="reference external" href="https://en.wikipedia.org/wiki/Gibbs%27_inequality">Gibbs' inequality</a>
+tells us that the entropy of a distribution (<span class="math">\(H(P) = H(P, P)\)</span>) is always less
+than the cross entropy with any other distribution i.e.
+<span class="math">\(H(z_i|\theta^{t-1}, x_i; z_i|\theta^{t-1}, x_i) \leq H(z_i|\theta^{t-1}, x_i; z_i|\theta, x_i)\)</span>.  Therefore,
+Equation 14 becomes the inequality:</p>
+<div class="math">
+\begin{equation*}
+\sum_{i=1}^N \log p(x_i|\theta) - \sum_{i=1}^N \log p(x_i|\theta^{t-1}) \geq
+Q(\theta, \theta^{t-1}) - Q(\theta^{t-1}, \theta^{t-1})
+\tag{14}
+\end{equation*}
+</div>
+<p>which tells us that improving <span class="math">\(Q(\theta, \theta^{t-1})\)</span> beyond <span class="math">\(Q(\theta^{t-1}, \theta^{t-1})\)</span>
+will not cause the likelihood <span class="math">\(l(\theta)\)</span> to decrease below
+<span class="math">\(l(\theta^{t-1})\)</span>.  In other words, when do our EM iteration to maximize
+the <span class="math">\(Q(\theta, \theta^{t-1})\)</span> function, we're guaranteeing that we don't decrease
+the likelihood function as required.</p>
+<p><br></p>
+<h4> Conclusion </h4>
+<p>Deriving the math for the EM algorithm is quite a bit of work but the resulting
+algorithm is actually quite simple.  I've tried to work out all the math in more
+detail because many of the sources that I've seen gloss over some of the
+steps, inadvertently putting up a roadblock for those of us who want to work
+through the math.  Hopefully my explanation helps clears a path for you to
+understand the intuition and math behind the EM algorithm too.</p>
+<p><br></p>
+<h4> Further Reading </h4>
+<ul class="simple">
+<li>Wikipedia:
+<a class="reference external" href="https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm">Expectation-Maximization algorithm</a>,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Mixture_model">Mixture Models</a>
+</li>
+<li>Machine Learning: A Probabilistic Perspective, Kevin P. Murphy</li>
+</ul>
+<p><br></p>
+<table class="docutils footnote" frame="void" id="id5" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id1">[1]</a></td>
+<td>The material in this post is heavily based upon the treatment in <em>Machine Learning: A Probabilistic Perspective</em> by Kevin P.  Murphy; it has a much more detailed explanation and I encourage you to check it out.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id6" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id2">[2]</a></td>
+<td>This is actually only one application of Gaussian mixture models.  Another common one is using it as a generative classifier i.e. estimating <span class="math">\(p(X_i, y_i)\)</span> (where we label <span class="math">\(z_i\)</span> as <span class="math">\(y_i\)</span> as per convention for classifiers).  Since both <span class="math">\(X_i\)</span> and <span class="math">\(y_i\)</span> are observable, it's much easier to directly estimate the density versus the case where we have to infer values for hidden variables.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id7" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id3">[3]</a></td>
+<td>I say linear combination because we don't actually know the value of <span class="math">\(z_i\)</span>, so one way to think about it is the expected value of <span class="math">\(z_i\)</span>.  This translates to <span class="math">\(x_i\)</span> having a portion of each of the <span class="math">\(K\)</span> Gaussians being responsible for generating it.  Thus, the linear combination idea.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id8" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id4">[4]</a></td>
+<td>Picking <span class="math">\(K\)</span> is non-trivial since for the typical application of unsupervised learning, you don't know how many clusters you have! Ideally, some domain knowledge will help drive that decision or more often than not you vary <span class="math">\(K\)</span> until the results are useful for your application.</td>
+</tr></tbody>
+</table>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/expectation-maximization/" rel="tag">expectation-maximization</a></li>
+            <li><a class="tag p-category" href="../../categories/gaussian-mixture-models/" rel="tag">gaussian mixture models</a></li>
+            <li><a class="tag p-category" href="../../categories/latent-variables/" rel="tag">latent variables</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../probabilistic-interpretation-of-regularization/" rel="prev" title="A Probabilistic Interpretation of Regularization">Previous post</a>
+            </li>
+        </ul></nav></aside><script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+            MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
+            </script></article>
+</div>
+            <div class="col-md-3 well">
+            <p>
+            I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
+            a former academic, current data scientist, engineer, and
+            programmer.  This is
+            <a href="../../">the place</a>
+            where I write
+            about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br><p>
+            <a href="../../archive.html">Archive</a>
+            </p>
+            <p>
+            <a href="../../categories/index.html">Tags</a>
+            </p>
+            <p>
+            <a href="../../rss.xml">RSS feed</a>
+            </p>
+
+<!-- Begin MailChimp Signup Form -->
+<hr>
+<link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+    #mc_embed_signup{clear:left; font:13px Helvetica,Arial,sans-serif; }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+       We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="//briankeng.us10.list-manage.com/subscribe/post?u=cedf72ca8daa891e57f4379a0&amp;id=1f1563094f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <b>Signup for Email Blog Posts</b>
+    <div id="mc_embed_signup_scroll">
+<div>
+    <label for="mce-EMAIL"> Email Address </label>
+    <input type="email" value="" name="EMAIL" class="required email form-control input-sm" id="mce-EMAIL">
+</div>
+    <div id="mce-responses" class="clear">
+        <div class="response" id="mce-error-response" style="display:none"></div>
+        <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_cedf72ca8daa891e57f4379a0_1f1563094f" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn btn-default btn-xs"></div>
+    </div>
+</form>
+</div>
+<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
+</div>
+        </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2016         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+        </footer>
+</div>
+</div>
+
+
+            <script src="../../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-15314898-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>
