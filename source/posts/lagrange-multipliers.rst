@@ -53,6 +53,8 @@ in physical reality) so as usual we'll start there.  We'll work through some
 problems and hopefully by the end of this post, this topic won't seem as
 mysterious anymore [1]_.
 
+.. TEASER_END
+
 |h2| Motivation |h2e|
 
 One of the most common problems of calculus is finding the minima or maxima of
@@ -92,15 +94,110 @@ impose constraints on what we're trying to minimize/maximize (reality can be
 pretty annoying sometimes!).  Fortunately, Lagrange multipliers can help us in
 all three of these scenarios.
 
+|h2| Lagrange Multipliers |h2e|
+
+|h3| The Basics |h3e|
+
+Let's start out with the simplest case in two dimensions since it's easier to
+visualize.  We have a function :math:`f(x, y)` that we want to maximize and
+also a constraint :math:`g(x, y)=0` that we must satisfy.  Translating this into a
+physical situation, imagine :math:`f(x, y)` defines some hill.  At each
+:math:`(x,y)` location, we have the height of the hill.  Figure 1 shows
+this as a blue (purple?) surface.  Now image we draw a red path (as shown in
+Figure 1) on our :math:`(x, y)` plane, defined by :math:`g(x, y)=0`.  We wish
+to find the highest point on the hill that stays on this red path (i.e.
+maximize :math:`f(x,y)` such that :math:`g(x,y)=0`.
+
+.. figure:: /images/450px-LagrangeMultipliers3D.png
+   :height: 300px
+   :alt: Lagrange Multipliers 3D (source: Wikipedia)
+   :align: center
+
+   Figure 1: A 3D depiction of :math:`f(x,y)` (blue surface) and :math:`g(x,y)`
+   (red line). (source: Wikipedia)
+
+If we imagine ourselves trying to solve this problem in reality, there is (at
+least) one easy way to go about it: Keep walking along the red path, which
+potentially will take you up and down the hill, until you find the highest
+point (:math:`f(x,y)` maximized).  Of course, this is a way to do it but remember
+that :math:`g(x,y)=0` might be infinitely long so it's a bit less practical.
+Instead, we'll do something a bit less exhaustive and identify points along the
+path that *may* give us clues (i.e. necessary conditions) to which points along
+
+Using our original idea of walking along the path, how do we know when we've
+potentially come across a maxima?  Well, if we are walking uphill for a while
+along the path and then suddenly start walking downhill.  If this sounds
+familiar, this resembles the idea of setting derivative to :math:`0`.
+In higher dimensions the generalization of the derivative is a gradient but
+we're not simply setting it to :math:`0` because, remember, we're actually
+walking along a path (:math:`g(x,y)`).
+
+.. admonition:: Gradients
+
+   The `gradient <https://en.wikipedia.org/wiki/Gradient>`_, denoted with the
+   :math:`\nabla` symbol, defines a vector of
+   the :math:`n` partial derivatives of a function of several variables:
+   :math:`\nabla f(x,y) = (\frac{\partial f(x,y)}{\partial x}, \frac{\partial
+   f(x,y)}{\partial y})`.  Similar to a single variable function, the direction
+   of the gradient points in the direction of greatest rate of increase and its
+   magnitude is the slope in that direction.
+   
+   By this `theorem <https://en.wikipedia.org/wiki/Level_set#Level_sets_versus_the_gradient>`_,
+   a :math:`\nabla f`'s direction is either zero or perpendicular to contours
+   of :math:`f`.  Using the analogy from Wikipedia, if you have two hikers at the same
+   place on our hill.  One hikes in the direction of steepest ascent uphill
+   (the gradient).  The other one is more timid and just walks along the hill
+   at the same height (contour lines).  The theorem says that the two hikers
+   will (initially) walk perpendicular to each other.
+
+There are two cases to know if we've walked up and down the hill while staying
+along our path.  Either, we've reached the top of the hill and the gradient of
+:math:`f(x,y)` will be zero.  Or while walking along the path, we have reached
+a level part of :math:`f(x,y)`, which means (at least for that point) our red
+path follows a contour line of :math:`f(x,y)`.
+Figure 2 shows a depiction of this idea in 2D, where blue is our hill, red is
+our path and the arrows represent the gradient.
+
+.. figure:: /images/450px-LagrangeMultipliers2D.png
+   :height: 300px
+   :alt: Lagrange Multipliers 2D (source: Wikipedia)
+   :align: center
+
+   Figure 2: A 2D depiction of :math:`f(x,y)` and :math:`g(x,y)=0`.  The
+   points on each ellipses define a constant height.  The arrows define the
+   direction of the gradient. (source: Wikipedia)
+
+We can see that point where our red line is tangent to a contour line, the 
+gradients point in the same direction (up to a constant multiplier).  This
+makes sense because our path and the contour line follow the same direction (at
+least at that point), which means the gradients (which are perpendicular to the
+path) must be equal.  Now there's not guarantee that the magnitude's are the same,
+so we'll introduce a constant multiplier called a **Lagrange Multiplier** to
+balance them.  Translating that into some equations, we have:
+
+.. math::
+
+    \nabla f(x,y) = \lambda \nabla g(x, y) \tag{1} \\
+    g(x,y) = 0 \tag{2}
+
+Equation 1 is what we just described, and Equation 2 is our original condition
+on :math:`g(x,y)`.  That's it!  Lagrange multipliers are nothing more than
+these equations. You have three equations (gradient in two dimensions has two
+components) and three unknowns (:math:`x, y, \lambda`), so you can solve for 
+the values of :math:`x,y` and find the one that maximizes :math:`f`.
+Note that this is a necessary, not sufficient condition, generally the solutions
+will be `critical points <https://en.wikipedia.org/wiki/Critical_point_(mathematics)>`_ 
+of :math:`f`.
+
+|h3| The Lagrangian and Multiple Constrants |h3e|
 
 
-
-
-.. TEASER_END
+|h2| Examples |h2e|
 
 |h2| Further Reading |h2e|
 
-* Wikipedia: `Lagrange multiplier <https://en.wikipedia.org/wiki/Lagrange_multiplier>`_
+* Wikipedia: `Lagrange multiplier <https://en.wikipedia.org/wiki/Lagrange_multiplier>`_,
+  `Gradient <https://en.wikipedia.org/wiki/Gradient>`_
 * `An Introduction to Lagrange Multipliers <http://www.slimy.com/~steuard/teaching/tutorials/Lagrange.html>`_, Steuard Jensen
 
 |br|
