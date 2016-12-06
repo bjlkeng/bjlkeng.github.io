@@ -83,7 +83,7 @@ A few interesting examples:
    given some observations.  For example, suppose we have a weighted six-sided
    die and we observe rolling it :math:`n` times (i.e. we have the count of the
    number of times each side of the die has come up).  What is the MLE estimate
-   for each of the die probabilties (:math:`p_1, \ldots, p_6`?  It's clear
+   for each of the die probabilties (:math:`p_1, \ldots, p_6`)?  It's clear
    we're maximizing the likelihood function but we're also subject to the constraint
    that the probabilities need to sum to :math:`1`, i.e. :math:`\sum_{i=1}^6 p_i = 1`.
 
@@ -185,20 +185,176 @@ on :math:`g(x,y)`.  That's it!  Lagrange multipliers are nothing more than
 these equations. You have three equations (gradient in two dimensions has two
 components) and three unknowns (:math:`x, y, \lambda`), so you can solve for 
 the values of :math:`x,y` and find the one that maximizes :math:`f`.
-Note that this is a necessary, not sufficient condition, generally the solutions
-will be `critical points <https://en.wikipedia.org/wiki/Critical_point_(mathematics)>`_ 
-of :math:`f`.
+Note that this is a necessary, not sufficient condition.  Generally the solutions
+will be `critical points
+<https://en.wikipedia.org/wiki/Critical_point_(mathematics)>`_ of :math:`f`, so
+you probably will want to find all possible solutions and then pick the max/min
+among those ones (or use another method to guarantee the global optima).
 
-|h3| The Lagrangian and Multiple Constrants |h3e|
 
+|h3| The Lagrangian |h3e|
+
+It turns out solving the solutions for Equation 1 and 2 are equivalent to
+solving the maxima of another function called the  *Lagrangian*
+:math:`\mathcal{L}`:
+
+.. math::
+
+    \mathcal{L}(x, y, \lambda) = f(x,y) - \lambda g(x, y) \tag{3}
+
+If Equation 3 looks similar to the ones above, it should.  Using the usual method
+of finding optima by taking the derivative and setting it to zero, we get:
+
+.. math::
+
+    \nabla_{x, y, \lambda} \mathcal{L}(x, y, \lambda) &= 0 \\
+    \Longleftrightarrow \\
+    \frac{\partial f(x,y)}{\partial x} - \lambda \frac{\partial g(x,y)}{\partial x} &= 0 \\
+    \frac{\partial f(x,y)}{\partial y} - \lambda \frac{\partial g(x,y)}{\partial y} &= 0 \\
+    \frac{\partial f(x,y)}{\partial \lambda} - \frac{\lambda \partial g(x,y)}{\partial \lambda} &=  g(x,y) = 0
+    \tag{4}
+
+As we can see, with a bit of manipulation these equations are equivalent to
+Equations 1 and 2.  You'll probably see both ways of doing it depending on 
+which source you're using.
+
+|h3| Multiple Variables and Constraints |h3e|
+
+Now the other non-trivial result is that Lagrange multipliers can extend to any
+number of dimensions (:math:`{\bf x} = (x_1, x_2, \ldots, x_n)`) and any number of
+constraints (:math:`g_1({\bf x})=0, g_2({\bf x})=0, \ldots, g_m({\bf x}=0)`).
+The setup for the Lagrangian is essentially the same thing with one Lagrange multiplier
+for each constriant:
+
+.. math::
+
+    \mathcal{L}(x_1, \ldots, x_n, \lambda_1, \ldots, \lambda_n) = 
+        f(x_1,\ldots, x_n) - \sum_{k=1}^{M} \lambda_k g_k(x_1, \ldots, x_n) \tag{5}
+
+This works out to solving :math:`n + M` equations with :math:`n + M` unknowns.
 
 |h2| Examples |h2e|
+
+Now let's take a look at solving the examples from above to get a feel for how
+they work.
+
+.. admonition:: Example 1: Minimizing surface area of a can given a constraint.
+    
+    **Problem**: Find the minimal surface area of a can with the constraint that it
+    needs at least :math:`250 cm^3` volume.
+
+    Recall the surface area of a cylinder is:
+
+    .. math::
+        
+        A(r, h) = 2\pi rh + 2\pi r^2  \tag{6}
+
+    This forms our "f" function.  Our constraint is pretty simple, the volume
+    needs to be at least :math:`K=250 cm^3`, using the formula for the volume
+    of a cylinder:
+
+    .. math::
+        
+        V(r, h) &= \pi r^2 h = K \\
+        g(r, h) &= \pi r^2 h - K = 0 \tag{7}
+
+    Now using the method of Lagrange multipliers by taking the appropriate
+    derivative, we get the following equations:
+
+    .. math::
+        
+        \frac{\partial A(r, h)}{\partial r} &= \lambda \frac{\partial V(r, h)}{\partial r} \\
+        2\pi h + 4\pi r &= 2 \lambda \pi r h \\
+        2r + h(1-\lambda r) &= 0 \tag{8}
+    
+        \frac{\partial A(r, h)}{\partial h} &= \lambda \frac{\partial V(r, h)}{\partial h} \\
+        2\pi r &= \lambda \pi r^2  \\
+        r &= \frac{2}{\lambda} \tag{9}
+
+        g(r, h) &= \pi r^2 h - K = 0 \tag{10} \\
+
+    Solving 8, 9 and 10, we get:
+
+    .. math::
+    
+        \lambda &= \sqrt[3]{\frac{16\pi}{K}} \\
+        r &= 2\sqrt[3]{\frac{K}{16\pi}} \\
+        h &= \frac{K}{4\pi}(\frac{16\pi}{K})^{\frac{2}{3}}
+        \tag{11}
+
+    Plugging in K=250, we get (rounded) :math:`r=3.414, h=6.823`, giving a
+    volume of :math:`250 cm^3`, and a surface area of :math:`219.7 cm^2`.
+
+
+.. admonition:: Example 2: Milkmaid Problem.
+
+    Since we don't have a concrete definition of :math:`g(x,y)`, we'll just
+    set this problem up.  The most important part is defining our function to
+    minimize.  Given our starting point :math:`P`, our point we hit along the
+    river :math:`(x,y)`, and our cow :math:`C`, and also assuming a Euclidean
+    distance, we can come up with the total distance the milkmaid needs to walk:
+
+    .. math::
+
+        f(x,y) = \sqrt{(p_x - x)^2 + (p_y - y)^2} + \sqrt{(C_x - x)^2 + (C_y - y)^2}
+
+    From here, you can use the same method as above to solve for x and y.
+
+
+.. admonition:: Example 3: Maximum likelihood estimate (MLE) for a multinomial distribution.
+
+    **Problem**: Suppose we have observed :math:`n` rolls of a six-sided die.
+    What is the MLE estimate for the probability of each side of the die
+    (:math:`p_1, \ldots, p_6`)?
+
+    Recall the log-likelihood of a `multinomial distribution <https://en.wikipedia.org/wiki/Multinomial_distribution>`_ with :math:`n` trials and observations :math:`x_1, \ldots, x_6`: 
+
+    .. math::
+
+        f(p_1, \ldots, p_6) &= \log\mathcal{L}(p_1, \ldots, p_6) \\
+        &= \log P(X_1 = x_1, \ldots, X_6 = x_6; p_1, \ldots, p_6) \\
+        &= \log\big[ \frac{n!}{x_1! \ldots x_6!} p_1^{x_1} \ldots p_6^{x_6} \big] \\
+        &= \log n! - \log x_1! - \ldots - \log x_6! + x_1 \log p_1 + \ldots x_6 \log p_6
+        \tag{12}
+
+    This defines our :math:`f` function to maximize with six variables
+    :math:`p_1, \ldots, p_6`.  Our constraint is that the probabilities must sum to 1:
+
+    .. math::
+
+        g(p_1, \ldots, p_6) = \sum_{k=1}^6 p_k - 1 = 0 \tag{13}
+
+    Computing the partial derivatives:
+
+    .. math::
+
+        \frac{\partial f(p_1, \ldots, p_6)}{\partial p_k} &= \frac{x_k}{p_k} \tag{14} \\
+        \frac{\partial g(p_1, \ldots, p_6)}{\partial p_k} &= 1 \tag{15}
+
+    Equations 13, 14, 15 gives us the following system of equations:
+
+    .. math::
+
+        \frac{x_k}{p_k} &= \lambda \text{ for } k=1,\ldots,6 \\
+        \sum_{k=1}^6 p_k - 1 &= 0 \text{ for } k=1,\ldots,6 \tag{16}
+
+    Solving gives us:
+
+    .. math::
+
+        \lambda &= \sum_{k=1}^{6} x_k \\
+        p_k &= \frac{x_k}{\lambda} = \frac{x_k}{\sum_{k=1}^{6} x_k} \tag{17}
+
+    Which is exactly what you would expect from the MLE estimate: the
+    probability of a side coming up is proportional to the relative number of
+    times you have seen it come up.
 
 |h2| Further Reading |h2e|
 
 * Wikipedia: `Lagrange multiplier <https://en.wikipedia.org/wiki/Lagrange_multiplier>`_,
   `Gradient <https://en.wikipedia.org/wiki/Gradient>`_
 * `An Introduction to Lagrange Multipliers <http://www.slimy.com/~steuard/teaching/tutorials/Lagrange.html>`_, Steuard Jensen
+* `Lagrange Multiplers <https://www.khanacademy.org/math/multivariable-calculus/applications-of-multivariable-derivatives/constrained-optimization/a/lagrange-multipliers-single-constraint>`_, Kahn Academy
 
 |br|
 
