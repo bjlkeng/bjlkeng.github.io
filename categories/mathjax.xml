@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0"><channel><title>Bounded Rationality (mathjax)</title><link>http://satisficing.briankeng.com/</link><description></description><atom:link href="http://satisficing.briankeng.com/categories/mathjax.xml" type="application/rss+xml" rel="self"></atom:link><language>en</language><lastBuildDate>Fri, 07 Oct 2016 13:04:07 GMT</lastBuildDate><generator>https://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>The Expectation-Maximization Algorithm</title><link>http://satisficing.briankeng.com/posts/the-expectation-maximization-algorithm/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to talk about a widely used method to find the
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (mathjax)</title><link>http://satisficing.briankeng.com/</link><description></description><atom:link rel="self" type="application/rss+xml" href="http://satisficing.briankeng.com/categories/mathjax.xml"></atom:link><language>en</language><lastBuildDate>Tue, 13 Dec 2016 13:48:52 GMT</lastBuildDate><generator>https://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Lagrange Multipliers</title><link>http://satisficing.briankeng.com/posts/lagrange-multipliers/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to be about finding the maxima or minima of a function
+subject to some constraints.  This is usually introduced in a multivariate
+calculus course, unfortunately (or fortunately?) I never got the chance to take
+a multivariate calculus course that covered this topic.  In my undergraduate class, computer
+engineers only took three half year engineering calculus courses, and the
+&lt;a class="reference external" href="http://www.ucalendar.uwaterloo.ca/1617/COURSE/course-ECE.html#ECE206"&gt;fourth one&lt;/a&gt;
+(for electrical engineers) seems to have covered other basic multivariate
+calculus topics such as all the various theorems such as Green's, Gauss', Stokes' (I
+could be wrong though, I never did take that course!).  You know what I always imagined Newton
+saying, "It's never too late to learn multivariate calculus!".&lt;/p&gt;
+&lt;p&gt;In that vein, this post will discuss one widely used method for finding optima
+subject to constraints: Lagrange multipliers.  The concepts
+behind it are actually quite intuitive once we come up with the right analogue
+in physical reality, so as usual we'll start there.  We'll work through some
+problems and hopefully by the end of this post, this topic won't seem as
+mysterious anymore &lt;a class="footnote-reference" href="http://satisficing.briankeng.com/posts/lagrange-multipliers/#id3" id="id1"&gt;[1]&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://satisficing.briankeng.com/posts/lagrange-multipliers/"&gt;Read more…&lt;/a&gt; (11 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>calculus</category><category>lagrange multipliers</category><category>mathjax</category><guid>http://satisficing.briankeng.com/posts/lagrange-multipliers/</guid><pubDate>Tue, 13 Dec 2016 12:48:31 GMT</pubDate></item><item><title>The Expectation-Maximization Algorithm</title><link>http://satisficing.briankeng.com/posts/the-expectation-maximization-algorithm/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to talk about a widely used method to find the
 maximum likelihood (MLE) or maximum a posteriori (MAP) estimate of parameters
 in latent variable models called the Expectation-Maximization algorithm.  You
 have probably heard about the most famous variant of this algorithm called the

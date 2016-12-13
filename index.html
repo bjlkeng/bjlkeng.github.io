@@ -11,7 +11,7 @@
 <link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
 <link rel="canonical" href="http://satisficing.briankeng.com/">
 <link rel="next" href="index-1.html" type="text/html">
-<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/the-expectation-maximization-algorithm/" type="text/html">
+<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/lagrange-multipliers/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -59,7 +59,35 @@
                 
 
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/the-expectation-maximization-algorithm/" class="u-url">The Expectation-Maximization Algorithm</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/lagrange-multipliers/" class="u-url">Lagrange Multipliers</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/lagrange-multipliers/" rel="bookmark"><time class="published dt-published" datetime="2016-12-13T07:48:31-05:00" title="2016-12-13 07:48">2016-12-13 07:48</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>This post is going to be about finding the maxima or minima of a function
+subject to some constraints.  This is usually introduced in a multivariate
+calculus course, unfortunately (or fortunately?) I never got the chance to take
+a multivariate calculus course that covered this topic.  In my undergraduate class, computer
+engineers only took three half year engineering calculus courses, and the
+<a class="reference external" href="http://www.ucalendar.uwaterloo.ca/1617/COURSE/course-ECE.html#ECE206">fourth one</a>
+(for electrical engineers) seems to have covered other basic multivariate
+calculus topics such as all the various theorems such as Green's, Gauss', Stokes' (I
+could be wrong though, I never did take that course!).  You know what I always imagined Newton
+saying, "It's never too late to learn multivariate calculus!".</p>
+<p>In that vein, this post will discuss one widely used method for finding optima
+subject to constraints: Lagrange multipliers.  The concepts
+behind it are actually quite intuitive once we come up with the right analogue
+in physical reality, so as usual we'll start there.  We'll work through some
+problems and hopefully by the end of this post, this topic won't seem as
+mysterious anymore <a class="footnote-reference" href="posts/lagrange-multipliers/#id3" id="id1">[1]</a>.</p>
+<p class="more"><a href="posts/lagrange-multipliers/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/the-expectation-maximization-algorithm/" class="u-url">The Expectation-Maximization Algorithm</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Brian Keng
@@ -154,30 +182,6 @@ with a Poisson regression using the exact same principles showing how
 generalized linear models aren't any more complicated.  Hopefully, this will
 help explain the "randomness" in linear regression in a more intuitive way.</p>
 <p class="more"><a href="posts/a-probabilistic-view-of-regression/">Read more…</a></p>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/normal-approximations-to-the-posterior-distribution/" class="u-url">Normal Approximation to the Posterior Distribution</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Brian Keng
-            </span></p>
-            <p class="dateline"><a href="posts/normal-approximations-to-the-posterior-distribution/" rel="bookmark"><time class="published dt-published" datetime="2016-04-02T15:22:54-04:00" title="2016-04-02 15:22">2016-04-02 15:22</time></a></p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div tabindex="-1" id="notebook" class="border-box-sizing">
-    <div class="container" id="notebook-container">
-
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>In this post, I'm going to write about how the ever versatile normal distribution can be used to approximate a Bayesian posterior distribution.  Unlike some other normal approximations, this is <em>not</em> a direct application of the central limit theorem.  The result has a straight forward proof using Laplace's Method whose main ideas I will attempt to present.  I'll also simulate a simple scenario to see how it works in practice.</p>
-<p class="more"><a href="posts/normal-approximations-to-the-posterior-distribution/">Read more…</a></p>
-</div>
-</div>
-</div>
-</div>
 </div>
     </div>
     </article>

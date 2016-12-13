@@ -60,7 +60,31 @@
                 
 
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/the-empirical-distribution-function/" class="u-url">The Empirical Distribution Function</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/normal-approximations-to-the-posterior-distribution/" class="u-url">Normal Approximation to the Posterior Distribution</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/normal-approximations-to-the-posterior-distribution/" rel="bookmark"><time class="published dt-published" datetime="2016-04-02T15:22:54-04:00" title="2016-04-02 15:22">2016-04-02 15:22</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div tabindex="-1" id="notebook" class="border-box-sizing">
+    <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In this post, I'm going to write about how the ever versatile normal distribution can be used to approximate a Bayesian posterior distribution.  Unlike some other normal approximations, this is <em>not</em> a direct application of the central limit theorem.  The result has a straight forward proof using Laplace's Method whose main ideas I will attempt to present.  I'll also simulate a simple scenario to see how it works in practice.</p>
+<p class="more"><a href="posts/normal-approximations-to-the-posterior-distribution/">Read more…</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/the-empirical-distribution-function/" class="u-url">The Empirical Distribution Function</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Brian Keng
@@ -140,32 +164,6 @@ is a result of my re-education on these topics.  Enjoy!</p>
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>In this post, I'm going to continue on the same theme from the last post: <a href="posts/sampling-from-a-normal-distribution">random sampling</a>.  We're going to look at two methods for sampling a distribution: rejection sampling and Markov Chain Monte Carlo Methods (MCMC) using the Metropolis Hastings algorithm.  As usual, I'll be providing a mix of intuitive explanations, theory and some examples with code.  Hopefully, this will help explain a relatively straight-forward topic that is frequently presented in a complex way.</p>
 <p class="more"><a href="posts/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/">Read more…</a></p>
-</div>
-</div>
-</div>
-</div>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/sampling-from-a-normal-distribution/" class="u-url">Sampling from a Normal Distribution</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Brian Keng
-            </span></p>
-            <p class="dateline"><a href="posts/sampling-from-a-normal-distribution/" rel="bookmark"><time class="published dt-published" datetime="2015-11-28T21:57:02-05:00" title="2015-11-28 21:57">2015-11-28 21:57</time></a></p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div tabindex="-1" id="notebook" class="border-box-sizing">
-    <div class="container" id="notebook-container">
-
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>One of the most common probability distributions is the normal (or Gaussian) distribution.  Many natural phenomena can be modeled using a normal distribution.  It's also of great importance due to its relation to the <a href="https://en.wikipedia.org/wiki/Central_limit_theorem">Central Limit Theorem</a>.</p>
-<p>In this post, we'll be reviewing the normal distribution and looking at how to draw samples from it using two methods.  The first method using the central limit theorem, and the second method using the <a href="https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform">Box-Muller transform</a>.  As usual, some brief coverage of the mathematics and code will be included to help drive intuition.
-</p>
-<p class="more"><a href="posts/sampling-from-a-normal-distribution/">Read more…</a></p>
 </div>
 </div>
 </div>
