@@ -26,7 +26,7 @@ SITE_URL = "http://satisficing.briankeng.com/"
 # If not set, defaults to SITE_URL
 # BASE_URL = "http://satisficing.briankeng.com/"
 BLOG_EMAIL = "brian@briankeng.com"
-BLOG_DESCRIPTION = "Understanding programming, data, and math to a satisfactory degree."  
+BLOG_DESCRIPTION = "Understanding data, math, and programming to a satisfactory degree."  
 
 # (translatable)
 
