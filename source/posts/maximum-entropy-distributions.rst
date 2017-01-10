@@ -99,8 +99,10 @@ Let's take a look at a couple examples to get a feel for how information works:
    alphabet with probabilities proportional to the relative frequencies of letters
    occurring in the English language.
 
-When we have the probability of an event, we can generalize this idea to define
-information as a number like so:
+Another way of describing information is a measure of "surprise".  If you are more
+surprised by the result then it has more information.
+Based on some desired mathematical properties shown in the box below, we can
+generalize this idea to define information as: 
 
 .. math::
 
@@ -117,8 +119,9 @@ value by a constant.  A usualy choice is base 2 which we'll usually call a
     
     1. :math:`I(p_i)` is anti-monotonic - information increases when the probability of an
        event decreases, and vice versa.  If something almost always happens (e.g. the
-       sun will rise tomorrow), then you really haven't gained much information; or
-       if something very rarely happens (e.g. a gigantic earth quake), then more
+       sun will rise tomorrow), then there is no surprise and you really
+       haven't gained much information; or if something very rarely happens
+       (e.g. a gigantic earth quake), then you will be surprised and more
        information is gained.
     2. :math:`I(p_i=0)` is undefined - for infintensimally small probability events,
        you have a infinitely large amount of information.
@@ -141,12 +144,18 @@ of the information of :math:`X`:
     &= -\sum_{i=1}^n p_i \log(p_i) \tag{2}
 
 Eh voila!  The usual (non-intuitive) definition of entropy we all know and
-love.  Basically, entropy is the *average* amount of information an event in a
-given probability distribution.
-Going back to our example above, when transmitting only "A"s, the average
-information transmitted is 0, so the entropy is naturally 0.
-When transmitting English text, the entropy will be the average entropy
-using `letter frequencies <https://en.wikipedia.org/wiki/Letter_frequency#Relative_frequencies_of_letters_in_the_English_language>`_ [1]_.
+love.  Note: When any of the probabilities are :math:`p_i=0`, you replace
+:math:`0\log(0)` with :math:`0`, which is consistent with the limit as
+:math:`p` approaches to 0 from the right.
+
+Entropy, then, is the *average* amount of information or surprise for an event
+in a probability distribution.  Going back to our example above, when
+transmitting only "A"s, the information transmitted is 0 (because
+:math:`P("a")=1` and :math:`0` for other letters), so the entropy is naturally
+0.  When transmitting English text, the entropy will be
+the average entropy using `letter frequencies
+<https://en.wikipedia.org/wiki/Letter_frequency#Relative_frequencies_of_letters_in_the_English_language>`_
+[1]_.
 
 
 .. admonition:: Example 1: Entropy of a fair coin.
@@ -180,10 +189,11 @@ instead of sums:
 
 .. math::
 
-    H(X) := - \int_{-\infty}^{\infty} f(x)ln(f(x)) dx \tag{4}
+    H(X) := - \int_{-\infty}^{\infty} p(x)\log(p(x)) dx \tag{4}
 
-We have to be careful with differential entropy because some of the properties
-of (discrete) entropy do not apply to differential entropy, for example,
+where it is understood that :math:`p(x)\log(p(x))=0` when :math:`p(x)=0`.  We
+have to be careful with differential entropy because some of the properties of
+(discrete) entropy do not apply to differential entropy, for example,
 differential entropy can be negative.
 
 |h2| Principle of Maximum Entropy |h2e|
