@@ -198,6 +198,170 @@ differential entropy can be negative.
 
 |h2| Principle of Maximum Entropy |h2e|
 
+The *principle of maximum entropy* states that given precisely stated prior data,
+the probability distribution that best represents the current state of knowledge
+it the one with the largest (information) entropy.  In other words, if we only
+know certain statistics about the distribution such as its mean, then this
+principle tells us that the best distribution to use is the one with the least
+amount of average information (i.e. maximal entropy).  This rule can be thought
+of expressing epistemic modesty, or maximal ignorance, because it makes the least
+strong claim on a distribution beyond being informed by the prior data.
+
+The precisely stated prior data should be in a testable form, which just means
+that given a probability distribution you say whether the statement is true or
+false.  The most common examples are moments of a distribution such as the
+expected value or variance of a distribution, along with its support.
+
+In terms of solving for these maximum entropy distributions, we can usually
+formulate it as maximizing a function (entropy) in the presence of multiple
+constraints.  This is typically solved using `Lagrange multipliers
+<https://en.wikipedia.org/wiki/Lagrange_multiplier>`_ (see my `previous post
+<link://slug/lagrange-multipliers>`_).  Let's take a look at a bunch of
+examples to get a feel for how this works.
+
+
+.. admonition:: Example 2: Discrete Probability distribution with support
+    :math:`\{a, a+1, \ldots, b-1, b\}` (i.e. domain of the distribution)
+    with :math:`b > a` and :math:`a,b \in \mathbb{Z}`.
+
+    First the function we're maximizing:
+
+    .. math::
+
+        H(x) = - \sum_{i=a}^{b} p_i\log(p_i)   \tag{5}
+
+    Next our constraints, which in this case is just our usual rule of probabilities
+    summing to 1:
+
+    .. math::
+
+        \sum_{i=a}^{b} p_i = 1   \tag{6}
+
+    Using Lagrange multipliers, we can solve the Lagrangian by taking its
+    partial derivatives and setting them to zero:
+
+    .. math::
+        
+        \mathcal{L}(p_a, \ldots, p_b, \lambda) &= -\sum_{i=a}^{b} p_i\log(p_i) 
+                - \lambda(\sum_{i=a}^{b} p_i - 1) \tag{7} \\
+
+        \frac{\partial \mathcal{L}(p_a, \ldots, p_b, \lambda)}{\partial p_i} &= 0 \\
+        -\log(p_i) -1 -\lambda &= 0 \tag{8} \\
+        
+        \frac{\partial \mathcal{L}(p_a, \ldots, p_b, \lambda)}{\partial \lambda} &= 0 \\
+        - \sum_{i=a}^{b} p_i + 1 &= 0 \tag{9}
+
+    Solving for :math:`p_i` and :math:`\lambda`:
+
+    .. math::
+
+        p_i &= \frac{1}{b-a+1} \\
+        \lambda &= \lg(b-a+1) -1 \tag{10}
+
+    So given no information about a discrete distribution, the maximal entropy distribution
+    is just a uniform distribution.  This matches with Laplace's `principle of
+    indifference <https://en.wikipedia.org/wiki/Principle_of_indifference>`_ which
+    states that given mutually exclusive and exhaustive indistiguisable
+    possibilities, each possibility should be assigned equal probability of
+    :math:`\frac{1}{n}`.
+
+
+.. admonition:: Example 2: `Jaynes' Dice <https://arxiv.org/abs/1408.6803>`_
+
+        A die has been tossed a very large number N of times, and we are told
+        that the average number of spots per toss was not 3.5, as we might
+        expect from an honest die, but 4.5. Translate this information into
+        a probability assignment :math:`P_n, n = 1, 2, \ldots, 6`, for the 
+        :math:`n`-th face to come up on the next toss.
+
+    This problem is similar to the above except for two changes:
+    our support is :math:`{1,\ldots,6}` and the expectation of the die roll is
+    :math:`4.5`.  We can formulate the problem in a similar way with the following
+    Lagrangian with an added term for the expected value (:math:`B`):
+
+    .. math::
+        
+        \mathcal{L}(p_1, \ldots, p_6, \lambda_0, \lambda_1) = 
+            -\sum_{k=1}^{6} p_k\log(p_k) 
+            - \lambda_0(\sum_{k=1}^{6} p_k - 1) 
+            - \lambda_1(\sum_{k=1}^{6} k p_k - B) 
+            \tag{11}
+
+    Taking the partial derivatives and setting them to zero, we get:
+
+    .. math::
+
+        \log(p_k) = - 1 - \lambda_0 - k\lambda_1 &= 0 \\
+        \log(p_k) &= - 1 - \lambda_0 - k\lambda_1 \\
+        p_k &= e^{- 1 - \lambda_0 - k\lambda_1} \tag{12} \\
+        \sum_{k=1}^{6} p_k &= 1 \tag{13} \\
+        \sum_{k=1}^{6} k p_k &= B \tag{14}
+
+    Define a new quantity :math:`Z(\lambda_1)` by substituting Equation 12 into 13:
+
+    .. math::
+
+        Z(\lambda_1) := e^{-1-\lambda_0} = \frac{1}{\sum_{k=1}^6 e^{-k\lambda_1}} \tag{15}
+
+    Substituting Equation 12, and dividing Equation 14 by 13
+
+    .. math::
+
+        \frac{\sum_{k=1}^{6} k e^{- 1 - \lambda_0 - k\lambda_1}}{\sum_{k=1}^{6} e^{- 1 - \lambda_0 - k\lambda_1}} =& B \\
+        \frac{\sum_{k=1}^{6} k e^{- k\lambda_1}}{\sum_{k=1}^{6} e^{- k\lambda_1}} =& B \tag{16}
+
+    Going back to Equation 12 and defining it in terms of :math:`Z`:
+
+    .. math::
+
+        p_k = \frac{1}{Z(\lambda_1)}e^{- k\lambda_1} \tag{17}
+
+    Unfortunately, now we're at an impass because there is no closed form solution.
+    Interesting to note that the solution is just an exponential-like distirbution
+    with parameter :math:`\lambda_1` and :math:`Z(\lambda_1)` as a
+    normalization constant to make sure the probabilities sum to 1.  Equation 13
+    gives us the desired value of :math:`\lambda_1`.  We can easily find it using any
+    root solver using the following code:
+
+    .. code:: python
+
+        from numpy import exp
+        from scipy.optimize import newton
+        
+        a, b, B = 1, 6, 4.5
+       
+        # Equation 15
+        def z(lamb):
+            return 1. / sum(exp(-k*lamb) for k in range(a, b + 1))
+        
+        # Equation 16
+        def f(lamb, B=B):
+            y = sum(k * exp(-k*lamb) for k in range(a, b + 1))
+            return y * z(lamb) - B
+        
+        # Equation 17
+        def p(k, lamb):
+            return z(lamb) * exp(-k * lamb)
+        
+        lamb = newton(f, x0=0.5)
+        print("Lambda = %.4f" % lamb)
+        for k in range(a, b + 1):
+            print("p_%d = %.4f" % (k, p(k, lamb)))
+
+        # Output:
+        #   Lambda = -0.3710
+        #   p_1 = 0.0544
+        #   p_2 = 0.0788
+        #   p_3 = 0.1142
+        #   p_4 = 0.1654
+        #   p_5 = 0.2398
+        #   p_6 = 0.3475
+
+    The distribution is skewed much more towards :math:`6`.  If you re-run the
+    program with :math:`B=3.5`, you'll get a uniform distribution, which is the
+    maximum entropy distribution with the given information.
+
+
 
 
 |h2| Further Reading |h2e|
