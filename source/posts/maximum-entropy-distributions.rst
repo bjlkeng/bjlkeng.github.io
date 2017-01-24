@@ -266,7 +266,7 @@ examples to get a feel for how this works.
     :math:`\frac{1}{n}`.
 
 
-.. admonition:: Example 2: `Jaynes' Dice <https://arxiv.org/abs/1408.6803>`_
+.. admonition:: Example 3: `Jaynes' Dice <https://arxiv.org/abs/1408.6803>`_
 
         A die has been tossed a very large number N of times, and we are told
         that the average number of spots per toss was not 3.5, as we might
@@ -319,7 +319,7 @@ examples to get a feel for how this works.
     Unfortunately, now we're at an impass because there is no closed form solution.
     Interesting to note that the solution is just an exponential-like distirbution
     with parameter :math:`\lambda_1` and :math:`Z(\lambda_1)` as a
-    normalization constant to make sure the probabilities sum to 1.  Equation 13
+    normalization constant to make sure the probabilities sum to 1.  Equation 16
     gives us the desired value of :math:`\lambda_1`.  We can easily find it using any
     root solver using the following code:
 
@@ -361,12 +361,73 @@ examples to get a feel for how this works.
     program with :math:`B=3.5`, you'll get a uniform distribution, which is the
     maximum entropy distribution with the given information.
 
+.. admonition:: Example 4: Continuous probability distribution with support
+    :math:`[a, b]` with :math:`b > a`.
+
+    This is the continuous analogue to Example 2, so we'll use differential entropy
+    instead instead of the discrete version, and the corresponding probability
+    constraint, where :math:`p(x)` is our density function:
+
+    .. math::
+
+        H(x) = &- \int_{a}^{b} p(x)\log(p(x))dx \tag{18} \\
+        &\int_{a}^{b} p(x) dx = 1   \tag{19}
+
+    Gives us the continuous analogue to the Lagrangian:
+
+    .. math::
+        
+        \mathcal{L}(p(x), \lambda) = -\int_{a}^{b} p(x)\log(p(x)) 
+                - \lambda(\int_{a}^{b} p(x) - 1) \tag{20}
+
+    Notice that the problem is different, we're trying to find *a function* that 
+    maximizes Equation 20, not just a discrete set of values.  To solve this,
+    we have to use the 
+    `calculus of variations <https://en.wikipedia.org/wiki/Calculus_of_variations>`_,
+    which basically is the analogue to the value-maximization mathematics of regular
+    calculus.
+
+    Describing variational calculus is a bit beyond the scope of this post
+    (that's for next time!) but in this specific case, it turns out the equations
+    look almost identical to Example 2.  Taking the partial functional
+    derivatives of Equation 20, we get:
+
+    .. math::
+        
+        \frac{\partial \mathcal{L}(p(x), \lambda)}{\partial p(x)} &= 0 \\
+        \log(p(x)) &= - 1 - \lambda \\
+        p(x) &= e^{- 1 - \lambda} \tag{22} \\
+        
+        \frac{\partial \mathcal{L}(p(x), \lambda)}{\partial \lambda} &= 0 \\
+        \int_{a}^{b} p(x) dx &= 1 \\
+        e^{-1 - \lambda} \int_{a}^{b} dx &= 1 \\
+        p(x) &= e^{-1 - \lambda} = \frac{1}{b-a} \tag{23}
+
+    So no surprises here, we get a uniform distribution on the internval
+    :math:`[a,b]`, analagous to the discrete version.
 
 
+Wikipedia has some common `maximum entropy distributions <https://en.wikipedia.org/wiki/Maximum_entropy_probability_distribution#Other_examples>`_, here are some interesting ones:
+
+* Support :math:`(0, \infty)` with :math:`E(x)=b`: exponential distribution.
+* Support :math:`(-\infty, \infty)` with :math:`E(|x-\mu|)=b`: Laplacian distribution
+* Support :math:`(-\infty, \infty)` with :math:`E(x)=\mu, Var(x)=\sigma^2`: Normal distribution
+
+|h2| Conclusion |h2e|
+
+The maximum entropy distribution is a very nice concept: if you don't know
+anything except for the stated data, assume the least informative distibution.
+Practically, it can be used for Bayesian priors but on a more philosophical
+note the idea has been used by Jaynes to show that thermodynamic entropy (in 
+statistical mechanics) is the same concept as information entropy.  It's kind
+of controversial but it's kind of reassuring to note that nature *may* be
+Bayesian.  I don't know about you but knowing this fact makes me sleep more
+soundly at night :)
 
 |h2| Further Reading |h2e|
 
 * Wikipedia: `Maximum Entropy Probability Distribution <https://en.wikipedia.org/wiki/Maximum_entropy_probability_distribution>`_, `Principle of Maximum Entropy <https://en.wikipedia.org/wiki/Principle_of_maximum_entropy>`_, `Entropy <https://en.wikipedia.org/wiki/Entropy_(information_theory)>`_, `Self-Information <https://en.wikipedia.org/wiki/Self-information#Definition>`
+* "The Brandeis Dice Problem & Statistical Mechanics", Steven J. van Enk., `arxiv 1408.6803 <https://arxiv.org/pdf/1408.6803>`_.
 
 |br|
 
