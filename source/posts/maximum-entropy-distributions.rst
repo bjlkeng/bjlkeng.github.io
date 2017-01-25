@@ -42,7 +42,7 @@ distribution that makes the fewest assumptions (the one with maximal
 information entropy).  As you may have guessed, this is used often in Bayesian
 inference to determine prior distributions and also (at least implicitly) in
 natural language processing applications such as a maximum entropy (MaxEnt)
-classifier (i.e. a multinomial logistic regression).  As usual, I'll go thorugh
+classifier (i.e. a multinomial logistic regression).  As usual, I'll go through
 some background, some intuition, and some math.  Hope you find this topic as
 interesting as I do!
 
@@ -92,7 +92,7 @@ Let's take a look at a couple examples to get a feel for how information works:
    have more information, "E" or "Z"?  Since we know "E" is the most common letter
    in the English language, we can usually guess when the next character is an
    "E".  So we'll be less surprised when it happens, thus it has a relatively
-   low amount of information that is being transmitted.  Conversly, "Z" is an
+   low amount of information that is being transmitted.  Conversely, "Z" is an
    uncommon letter.  So we would probably not guess that it's coming next and be
    surprised when it does, thus "Z" conveys more information than "E" in this
    situation.  This is akin to modelling a probability distribution over the
@@ -109,7 +109,7 @@ generalize this idea to define information as:
     I(p) := \log(1/p) = -\log(p) \tag{1}
 
 The base of the logarithm isn't too important since it will just adjust the
-value by a constant.  A usualy choice is base 2 which we'll usually call a
+value by a constant.  A usually choice is base 2 which we'll usually call a
 "bit", or base :math:`e`, which we'll call a "nat".
 
 .. admonition:: Properties of Information
@@ -123,7 +123,7 @@ value by a constant.  A usualy choice is base 2 which we'll usually call a
        haven't gained much information; or if something very rarely happens
        (e.g. a gigantic earth quake), then you will be surprised and more
        information is gained.
-    2. :math:`I(p_i=0)` is undefined - for infintensimally small probability events,
+    2. :math:`I(p_i=0)` is undefined - for infinitesimally small probability events,
        you have a infinitely large amount of information.
     3. :math:`I(p_i)\geq 0` - information is non-negative.
     4. :math:`I(p_i=1)=0` - sure things don't give you any information.
@@ -261,7 +261,7 @@ examples to get a feel for how this works.
     So given no information about a discrete distribution, the maximal entropy distribution
     is just a uniform distribution.  This matches with Laplace's `principle of
     indifference <https://en.wikipedia.org/wiki/Principle_of_indifference>`_ which
-    states that given mutually exclusive and exhaustive indistiguisable
+    states that given mutually exclusive and exhaustive indistinguishable
     possibilities, each possibility should be assigned equal probability of
     :math:`\frac{1}{n}`.
 
@@ -316,8 +316,8 @@ examples to get a feel for how this works.
 
         p_k = \frac{1}{Z(\lambda_1)}e^{- k\lambda_1} \tag{17}
 
-    Unfortunately, now we're at an impass because there is no closed form solution.
-    Interesting to note that the solution is just an exponential-like distirbution
+    Unfortunately, now we're at an impasse because there is no closed form solution.
+    Interesting to note that the solution is just an exponential-like distribution
     with parameter :math:`\lambda_1` and :math:`Z(\lambda_1)` as a
     normalization constant to make sure the probabilities sum to 1.  Equation 16
     gives us the desired value of :math:`\lambda_1`.  We can easily find it using any
@@ -403,8 +403,8 @@ examples to get a feel for how this works.
         e^{-1 - \lambda} \int_{a}^{b} dx &= 1 \\
         p(x) &= e^{-1 - \lambda} = \frac{1}{b-a} \tag{23}
 
-    So no surprises here, we get a uniform distribution on the internval
-    :math:`[a,b]`, analagous to the discrete version.
+    So no surprises here, we get a uniform distribution on the internal
+    :math:`[a,b]`, analogous to the discrete version.
 
 
 Wikipedia has some common `maximum entropy distributions <https://en.wikipedia.org/wiki/Maximum_entropy_probability_distribution#Other_examples>`_, here are some interesting ones:
@@ -416,7 +416,7 @@ Wikipedia has some common `maximum entropy distributions <https://en.wikipedia.o
 |h2| Conclusion |h2e|
 
 The maximum entropy distribution is a very nice concept: if you don't know
-anything except for the stated data, assume the least informative distibution.
+anything except for the stated data, assume the least informative distribution.
 Practically, it can be used for Bayesian priors but on a more philosophical
 note the idea has been used by Jaynes to show that thermodynamic entropy (in 
 statistical mechanics) is the same concept as information entropy.  It's kind
@@ -431,5 +431,5 @@ soundly at night :)
 
 |br|
 
-.. [1] This isn't exactly right because beyond the letter frequencies, we also can predict what the word is, which will change the information and entropy.  Natural language also has redundencies such as "q must always be followed by u", so this will change our probability distribution.  See `Entropy and Redundancy in English <http://people.seas.harvard.edu/~jones/cscie129/papers/stanford_info_paper/entropy_of_english_9.htm>`_ for more details.
+.. [1] This isn't exactly right because beyond the letter frequencies, we also can predict what the word is, which will change the information and entropy.  Natural language also has redundancies such as "q must always be followed by u", so this will change our probability distribution.  See `Entropy and Redundancy in English <http://people.seas.harvard.edu/~jones/cscie129/papers/stanford_info_paper/entropy_of_english_9.htm>`_ for more details.
 
