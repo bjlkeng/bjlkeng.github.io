@@ -1,6 +1,6 @@
 .. title: Maximum Entropy Distributions
 .. slug: maximum-entropy-distributions
-.. date: 2017-01-06 08:05:00 UTC-05:00
+.. date: 2017-01-27 08:05:00 UTC-05:00
 .. tags: probability, entropy, mathjax
 .. category: 
 .. link: 
@@ -36,9 +36,9 @@
    </center>
 
 This post will talk about a method to find the probability distribution that best
-fits your given state of knowledge about some data.  Using the principle of maximum
+fits your given state of knowledge.  Using the principle of maximum
 entropy and some testable information (e.g. the mean), you can find the
-distribution that makes the fewest assumptions (the one with maximal
+distribution that makes the fewest assumptions about your data (the one with maximal
 information entropy).  As you may have guessed, this is used often in Bayesian
 inference to determine prior distributions and also (at least implicitly) in
 natural language processing applications with maximum entropy (MaxEnt)
@@ -57,7 +57,7 @@ piece together a picture that you can internalize.
 
 Let's first clarify two important points about terminology.  First, information
 entropy is a distinct idea from the physics concept of thermodynamic entropy.
-There are parallels and connections have been made between the two ideas but
+There are parallels, and connections have been made between the two ideas, but
 it's probably best to initially to treat them as separate things.  Second, the
 "information" part refers to information theory, which deals with sending
 messages (or symbols) over a channel.  One crucial point for our explanation is
@@ -151,7 +151,7 @@ love.  Note: When any of the probabilities are :math:`p_i=0`, you replace
 Entropy, then, is the *average* amount of information or surprise for an event
 in a probability distribution.  Going back to our example above, when
 transmitting only "A"s, the information transmitted is 0 (because
-:math:`P("a")=1` and :math:`0` for other letters), so the entropy is naturally
+:math:`P(\text{"A"})=1` and :math:`0` for other letters), so the entropy is naturally
 0.  When transmitting English text, the entropy will be
 the average entropy using `letter frequencies
 <https://en.wikipedia.org/wiki/Letter_frequency#Relative_frequencies_of_letters_in_the_English_language>`_
@@ -272,11 +272,11 @@ examples to get a feel for how this works.
         A die has been tossed a very large number N of times, and we are told
         that the average number of spots per toss was not 3.5, as we might
         expect from an honest die, but 4.5. Translate this information into
-        a probability assignment :math:`P_n, n = 1, 2, \ldots, 6`, for the 
+        a probability assignment :math:`p_n, n = 1, 2, \ldots, 6`, for the 
         :math:`n`-th face to come up on the next toss.
 
     This problem is similar to the above except for two changes:
-    our support is :math:`{1,\ldots,6}` and the expectation of the die roll is
+    our support is :math:`\{1,\ldots,6\}` and the expectation of the die roll is
     :math:`4.5`.  We can formulate the problem in a similar way with the following
     Lagrangian with an added term for the expected value (:math:`B`):
 
@@ -408,11 +408,11 @@ examples to get a feel for how this works.
     :math:`[a,b]`, analogous to the discrete version.
 
 
-Wikipedia has some common `maximum entropy distributions <https://en.wikipedia.org/wiki/Maximum_entropy_probability_distribution#Other_examples>`_, 
-here are some common ones you might encounter:
+Wikipedia has a table of some common `maximum entropy distributions <https://en.wikipedia.org/wiki/Maximum_entropy_probability_distribution#Other_examples>`_, 
+here are few you might encounter:
 
-* Support :math:`{0, 1}` with :math:`E(x)=p`: Bernoulli distribution
-* Support :math:`{1, 2, 3, \ldots}` with :math:`E(x)=\frac{1}{p}`: geometric distribution
+* Support :math:`\{0, 1\}` with :math:`E(x)=p`: Bernoulli distribution
+* Support :math:`\{1, 2, 3, \ldots\}` with :math:`E(x)=\frac{1}{p}`: geometric distribution
 * Support :math:`(0, \infty)` with :math:`E(x)=b`: exponential distribution.
 * Support :math:`(-\infty, \infty)` with :math:`E(|x-\mu|)=b`: Laplacian distribution
 * Support :math:`(-\infty, \infty)` with :math:`E(x)=\mu, Var(x)=\sigma^2`: normal distribution
@@ -426,8 +426,8 @@ Practically, it can be used for Bayesian priors but on a more philosophical
 note the idea has been used by Jaynes to show that thermodynamic entropy (in 
 statistical mechanics) is the same concept as information entropy.  Even though
 it's controversial, it's kind of reassuring to note that nature *may* be
-Bayesian.  I don't know about you but knowing this fact makes me sleep more
-soundly at night :)
+Bayesian.  I don't know about you but this somehow makes me sleep more soundly
+at night :)
 
 |h2| Further Reading |h2e|
 
