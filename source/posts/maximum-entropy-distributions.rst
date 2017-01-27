@@ -37,13 +37,13 @@
 
 This post will talk about a method to find the probability distribution that best
 fits your given state of knowledge about some data.  Using the principle of maximum
-entropy, and some testable information (e.g. the mean), you can find the
+entropy and some testable information (e.g. the mean), you can find the
 distribution that makes the fewest assumptions (the one with maximal
 information entropy).  As you may have guessed, this is used often in Bayesian
 inference to determine prior distributions and also (at least implicitly) in
-natural language processing applications such as a maximum entropy (MaxEnt)
-classifier (i.e. a multinomial logistic regression).  As usual, I'll go through
-some background, some intuition, and some math.  Hope you find this topic as
+natural language processing applications with maximum entropy (MaxEnt)
+classifiers (i.e. a multinomial logistic regression).  As usual, I'll go through
+some intuition, some math, and some examples.  Hope you find this topic as
 interesting as I do!
 
 .. TEASER_END
@@ -61,14 +61,14 @@ There are parallels and connections have been made between the two ideas but
 it's probably best to initially to treat them as separate things.  Second, the
 "information" part refers to information theory, which deals with sending
 messages (or symbols) over a channel.  One crucial point for our explanation is
-that the "information" (or data source) is modelled as a probability
+that the "information" (of a data source) is modelled as a probability
 distribution.  So everything we talk about is with respect to a probabilistic
 model of the data.
 
-Now let's start from the basic idea of `*information* <https://en.wikipedia.org/wiki/Self-information#Definition>`.  Wikipedia has a good
+Now let's start from the basic idea of `information <https://en.wikipedia.org/wiki/Self-information#Definition>`_.  Wikipedia has a good
 article on `Shannon's rationale <https://en.wikipedia.org/wiki/Entropy_(information_theory)#Rationale>`_ 
-when information, check it out for more details.  I'll simplify it a bit to
-try to pick out the main points.
+for information, check it out for more details.  I'll simplify it a bit to
+pick out the main points.
 
 First, *information* was originally defined in the context of sending a message
 between a transmitter and receiver over a (potentially noisy) channel.
@@ -109,13 +109,13 @@ generalize this idea to define information as:
     I(p) := \log(1/p) = -\log(p) \tag{1}
 
 The base of the logarithm isn't too important since it will just adjust the
-value by a constant.  A usually choice is base 2 which we'll usually call a
+value by a constant.  A usual choice is base 2 which we'll usually call a
 "bit", or base :math:`e`, which we'll call a "nat".
 
 .. admonition:: Properties of Information
 
-    The definition of information came about based on certain definitions of
-    how we expect information to behave:
+    The definition of information came about based on certain reasonable
+    properties we ideally have:
     
     1. :math:`I(p_i)` is anti-monotonic - information increases when the probability of an
        event decreases, and vice versa.  If something almost always happens (e.g. the
@@ -174,7 +174,7 @@ the average entropy using `letter frequencies
     So one bit of information is transmitted with every observation of a fair coin toss.
     If we vary the value of :math:`p`, we get a symmetric curve shown in Figure
     1.  The more biased towards H or T, the less entropy (information/surprise)
-    we get.
+    we get (on average).
 
     .. figure:: /images/binary_entropy.png
        :height: 300px
@@ -200,12 +200,13 @@ differential entropy can be negative.
 
 The *principle of maximum entropy* states that given precisely stated prior data,
 the probability distribution that best represents the current state of knowledge
-it the one with the largest (information) entropy.  In other words, if we only
-know certain statistics about the distribution such as its mean, then this
-principle tells us that the best distribution to use is the one with the least
-amount of average information (i.e. maximal entropy).  This rule can be thought
-of expressing epistemic modesty, or maximal ignorance, because it makes the least
-strong claim on a distribution beyond being informed by the prior data.
+is the one with the largest (information) entropy.  In other words, if we only
+know certain statistics about the distribution, such as its mean, then this
+principle tells us that the best distribution to use is the one with the most
+surprise (more surprise, means fewer of your assumptions were satisfied).  This
+rule can be thought of expressing epistemic modesty, or maximal ignorance,
+because it makes the least strong claim on a distribution beyond being informed
+by the prior data.
 
 The precisely stated prior data should be in a testable form, which just means
 that given a probability distribution you say whether the statement is true or
@@ -221,7 +222,7 @@ examples to get a feel for how this works.
 
 
 .. admonition:: Example 2: Discrete Probability distribution with support
-    :math:`\{a, a+1, \ldots, b-1, b\}` (i.e. domain of the distribution)
+    :math:`\{a, a+1, \ldots, b-1, b\}`
     with :math:`b > a` and :math:`a,b \in \mathbb{Z}`.
 
     First the function we're maximizing:
@@ -320,8 +321,8 @@ examples to get a feel for how this works.
     Interesting to note that the solution is just an exponential-like distribution
     with parameter :math:`\lambda_1` and :math:`Z(\lambda_1)` as a
     normalization constant to make sure the probabilities sum to 1.  Equation 16
-    gives us the desired value of :math:`\lambda_1`.  We can easily find it using any
-    root solver using the following code:
+    gives us the desired value of :math:`\lambda_1`.  We can easily find a solution
+    using any root solver, such as the code below:
 
     .. code:: python
 
@@ -358,15 +359,15 @@ examples to get a feel for how this works.
         #   p_6 = 0.3475
 
     The distribution is skewed much more towards :math:`6`.  If you re-run the
-    program with :math:`B=3.5`, you'll get a uniform distribution, which is the
-    maximum entropy distribution with the given information.
+    program with :math:`B=3.5`, you'll get a uniform distribution, which is 
+    what we would expect from a fair die.
 
 .. admonition:: Example 4: Continuous probability distribution with support
     :math:`[a, b]` with :math:`b > a`.
 
     This is the continuous analogue to Example 2, so we'll use differential entropy
-    instead instead of the discrete version, and the corresponding probability
-    constraint, where :math:`p(x)` is our density function:
+    instead of the discrete version along with the corresponding probability
+    constraint of summing to :math:`1` (:math:`p(x)` is our density function):
 
     .. math::
 
@@ -377,12 +378,12 @@ examples to get a feel for how this works.
 
     .. math::
         
-        \mathcal{L}(p(x), \lambda) = -\int_{a}^{b} p(x)\log(p(x)) 
-                - \lambda(\int_{a}^{b} p(x) - 1) \tag{20}
+        \mathcal{L}(p(x), \lambda) = -\int_{a}^{b} p(x)\log(p(x)) dx
+                - \lambda\big(\int_{a}^{b} p(x)dx - 1\big) \tag{20}
 
-    Notice that the problem is different, we're trying to find *a function* that 
-    maximizes Equation 20, not just a discrete set of values.  To solve this,
-    we have to use the 
+    Notice that the problem is different from Example 1: we're trying to find
+    *a function* that maximizes Equation 20, not just a discrete set of values.
+    To solve this, we have to use the 
     `calculus of variations <https://en.wikipedia.org/wiki/Calculus_of_variations>`_,
     which basically is the analogue to the value-maximization mathematics of regular
     calculus.
@@ -390,7 +391,7 @@ examples to get a feel for how this works.
     Describing variational calculus is a bit beyond the scope of this post
     (that's for next time!) but in this specific case, it turns out the equations
     look almost identical to Example 2.  Taking the partial functional
-    derivatives of Equation 20, we get:
+    derivatives of Equation 20 and solving for the function:
 
     .. math::
         
@@ -403,15 +404,19 @@ examples to get a feel for how this works.
         e^{-1 - \lambda} \int_{a}^{b} dx &= 1 \\
         p(x) &= e^{-1 - \lambda} = \frac{1}{b-a} \tag{23}
 
-    So no surprises here, we get a uniform distribution on the internal
+    So no surprises here, we get a uniform distribution on the interval
     :math:`[a,b]`, analogous to the discrete version.
 
 
-Wikipedia has some common `maximum entropy distributions <https://en.wikipedia.org/wiki/Maximum_entropy_probability_distribution#Other_examples>`_, here are some interesting ones:
+Wikipedia has some common `maximum entropy distributions <https://en.wikipedia.org/wiki/Maximum_entropy_probability_distribution#Other_examples>`_, 
+here are some common ones you might encounter:
 
+* Support :math:`{0, 1}` with :math:`E(x)=p`: bernoulli distribution
+* Support :math:`{1, 2, 3, \ldots}` with :math:`E(x)=\frac{1}{p}`: geometric distribution
 * Support :math:`(0, \infty)` with :math:`E(x)=b`: exponential distribution.
 * Support :math:`(-\infty, \infty)` with :math:`E(|x-\mu|)=b`: Laplacian distribution
-* Support :math:`(-\infty, \infty)` with :math:`E(x)=\mu, Var(x)=\sigma^2`: Normal distribution
+* Support :math:`(-\infty, \infty)` with :math:`E(x)=\mu, Var(x)=\sigma^2`: normal distribution
+* Support :math:`(0, \infty)` with :math:`E(\log(x))=\mu, E((\log(x) - \mu)^2)=\sigma^2`: lognormal distribution
 
 |h2| Conclusion |h2e|
 
@@ -419,8 +424,8 @@ The maximum entropy distribution is a very nice concept: if you don't know
 anything except for the stated data, assume the least informative distribution.
 Practically, it can be used for Bayesian priors but on a more philosophical
 note the idea has been used by Jaynes to show that thermodynamic entropy (in 
-statistical mechanics) is the same concept as information entropy.  It's kind
-of controversial but it's kind of reassuring to note that nature *may* be
+statistical mechanics) is the same concept as information entropy.  Even though
+it's controversial, it's kind of reassuring to note that nature *may* be
 Bayesian.  I don't know about you but knowing this fact makes me sleep more
 soundly at night :)
 
