@@ -1,6 +1,6 @@
 .. title: Maximum Entropy Distributions
 .. slug: maximum-entropy-distributions
-.. date: 2017-01-27 08:05:00 UTC-05:00
+.. date: 2017-01-27 09:05:00 UTC-05:00
 .. tags: probability, entropy, mathjax
 .. category: 
 .. link: 
