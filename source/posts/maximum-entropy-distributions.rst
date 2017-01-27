@@ -1,7 +1,7 @@
 .. title: Maximum Entropy Distributions
 .. slug: maximum-entropy-distributions
 .. date: 2017-01-06 08:05:00 UTC-05:00
-.. tags: probabilitiy, entropy, mathjax
+.. tags: probability, entropy, mathjax
 .. category: 
 .. link: 
 .. description: A introduction to maximum entropy distributions.
@@ -411,7 +411,7 @@ examples to get a feel for how this works.
 Wikipedia has some common `maximum entropy distributions <https://en.wikipedia.org/wiki/Maximum_entropy_probability_distribution#Other_examples>`_, 
 here are some common ones you might encounter:
 
-* Support :math:`{0, 1}` with :math:`E(x)=p`: bernoulli distribution
+* Support :math:`{0, 1}` with :math:`E(x)=p`: Bernoulli distribution
 * Support :math:`{1, 2, 3, \ldots}` with :math:`E(x)=\frac{1}{p}`: geometric distribution
 * Support :math:`(0, \infty)` with :math:`E(x)=b`: exponential distribution.
 * Support :math:`(-\infty, \infty)` with :math:`E(|x-\mu|)=b`: Laplacian distribution
