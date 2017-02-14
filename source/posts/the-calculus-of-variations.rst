@@ -79,7 +79,7 @@ of the function is:
 
 .. math::
 
-    dF = \frac{dF}{dy_1}\Big|_{y_1^0} dy_1 + \ldots + \frac{dF}{dy_n}\Big|_{y_n^0}dy_n \tag{2}
+    dF = \frac{\partial F}{\partial y_1}\Big|_{y_1^0} dy_1 + \ldots + \frac{\partial F}{\partial y_n}\Big|_{y_n^0}dy_n \tag{2}
 
 So far we have only touched upon derivatives and differentials of a function
 :math:`F(y_0, y_1, \ldots, y_n)` within independent variables :math:`y_0, y_1,
@@ -95,12 +95,9 @@ as sampling some function :math:`y` on some interval :math:`[a, b]`.  Let's say
 we want to sample :math:`N` points, each :math:`\epsilon` distance apart, 
 i.e. :math:`N\epsilon = b - a`.  The :math:`n^{th}` point will be at 
 :math:`x=a + n\epsilon`, so our sample point becomes
-:math:`y_n = y(x_n) = y(a + n\epsilon)`.
-
-*I hope you can see where we're going with this ...*
-
+:math:`y_n = y(x_n) = y(a + n\epsilon)`.  *(I hope you can see where we're going with this ...)*
 As :math:`N \rightarrow \infty, \epsilon \rightarrow 0`, our sampled points
-:math:`y_n` becomes an increasingly accurate representation of our original
+:math:`y_n` become an increasingly accurate representation of our original
 function :math:`y(x)`.
 
 Now our original "function" :math:`F` can be thought of as a function of a set
@@ -125,36 +122,121 @@ number.  Let's take a look at a few examples to make things concrete.
 
 .. admonition:: Example 1
 
-   The simplest functional just evaluates the input function at a particular value.
+    The simplest functional just evaluates the input function at a particular value.
 
-   Define :math:`F[y] = y(3)`.
-   
-   * :math:`F[y=x] = y(3) = 3`
-   * :math:`F[y=x^2] = (3)^2 = 9`
-   * :math:`F[y=\ln_3(x)] = \ln_3(3) = 1`
- 
+    Define :math:`F[y] = y(3)`.
+    
+    * :math:`F[y=x] = y(3) = 3`
+    * :math:`F[y=x^2] = (3)^2 = 9`
+    * :math:`F[y=\ln_3(x)] = \ln_3(3) = 1`
 
 .. admonition:: Example 2
 
-   Many useful functionals will take a definite integral of the input function
-   as a means to map it to a number.
+    Many useful functionals will take a definite integral of the input function
+    as a means to map it to a number.
+    
+    Define :math:`F[y] = \int_0^1  y(x) dx`.
+
+
+    * :math:`F[y=x] = \int_0^1  x dx = \frac{1}{2}`
+    * :math:`F[y=x^2] = \int_0^1  x^2 dx = \frac{1}{3}`
+    * :math:`F[y=e^x] = \int_0^1 e^x dx = e - 1`
+
+.. admonition:: Example 3
+
+    Since we're dealing with functions as inputs, the functional can also 
+    involve the derivative of an input function.
+    
+    A functional that defines the `arc length of a curve <http://tutorial.math.lamar.edu/Classes/CalcII/ArcLength.aspx>`_: 
+
+    .. math::
+
+         L[y] = \int_a^b \sqrt{1 + (\frac{dy}{dx})^2} dx
+
+    Notice that we're using the derivtive of :math:`y(x)` instead of the
+    function itself.  Solving for :math:`a=0, b=1, y=x`, we get:
    
-   Define :math:`F[y] = \int_0^1  y(x) dx`.
+    .. math::
+
+         L[y=x] &= \int_0^1 \sqrt{1 + (\frac{d(x)}{dx})^2} dx \\
+                &= \sqrt{2} \int_0^1 dx \\
+                &= \sqrt{2}
+
+A common form of functionals that in appear in many contexts such as physics is:
+
+.. math::
+
+    J[y] &= \int_a^b F(x, y(x), y'(x)) dx \\
+    &\text{ for } x=[a,b], \text{   }a\leq b, \text{   }y(a)=\hat{y}_a, \text{   }y(b)=\hat{y}_b \tag{3}
+
+Which is just mostly saying that :math:`y(x)` is well behaved over :math:`x\in [a,b]`.
+In more detail, we want these conditions to be satisfied for any :math:`y(x)` we plug in:
+`y(x)` being a single-valued function, 
+smooth so that :math:`y'(x)` exists as well as the integral defined in Equation 3, 
+and the boundary conditions (:math:`x=[a,b], a\leq b, y(a)=\hat{y}_a, y(b)=\hat{y}_b`) 
+are satisfied.
 
 
-   * :math:`F[y=x] = \int_0^1  x dx = \frac{1}{2}`
-   * :math:`F[y=x^2] = \int_0^1  x^2 dx = \frac{1}{3}`
-   * :math:`F[y=e^x] = \int_0^1 e^x dx = e - 1`
+.. admonition:: Why the name *variational* calculus?
+
+    Put something here...
+
 
 |h2| Functional Derivatives |h2e|
 
+Now it's finally time to get to do something useful with functionals!  As with
+regular calculus whose premier application is finding minima and maxima,
+we also want to do the same thing with functionals.  It turns out we can define
+something analogous to a derivative unsurprisingly called a *functional derivative*.
+Let's see how we can intuitively build it up from the same multivariable
+function from above.
 
+Let's take another look at the total differential in Equation 2 again, but re-write
+it this time as a sum:
+
+
+.. math::
+
+    dF = \sum_{i=1}^N \frac{\partial F}{\partial y_i}\Big|_{y_i^0} dy_i \tag{4}
+
+Again, if you squint hard enough, as :math:`N \rightarrow \infty`,
+:math:`y_i` approximates our :math:`y(x)`, and our sum turns into an integral
+of a continuous function (recall the domain of our function :math:`y(x)` was :math:`x \in [a,b]`).
+
+.. math::
+
+    dF = \int_{a}^b \frac{\partial F}{\partial y(x)}\Big|_{y^0(x)} \delta y(x) dx \tag{5}
+
+The meaning of Equation 5 is the same as Equation 4: a small change in :math:`F` 
+is proportional to a sum of small changes of :math:`\delta y(x)` (step size)
+multiplied by the derivative :math:`\frac{\partial F}{\partial y(x)}` (slope),
+where we can think of :math:`x` as a continuous index (analogous to :math:`i`).
+As a result, the *functional derivative* is defined by:
+
+.. math::
+
+    \frac{\partial F}{\partial y(x)} \tag{6}
+
+which is analogous to the derivative at each of the "indices" :math:`x`,
+in other words a `gradient <https://en.wikipedia.org/wiki/Gradient>`_ of :math:`F`
+at "point" :math:`y(x)`.  Equation 5 then becomes a 
+`directional derivative <https://en.wikipedia.org/wiki/Directional_derivative>`_
+which can be interpreted as the rate of change of :math:`F` moving through point
+:math:`y^0(x)` with velocity :math:`\delta y(x)`.
+
+It turns out we can also view the functional derivative in more general terms
+as a limit where :math:`\eta(x)` is some arbitrary function (taking the place
+of our direction :math:`\delta y(x)`):
+
+.. math::
+
+    \lim_{\epsilon \to \infty} \frac{F[y(x) + \epsilon \eta(x)] - F[y(x)]}{\epsilon} \tag{7}
 
 
 |h2| Further Reading |h2e|
 
 * Wikipedia: `Calculus of Variations <https://en.wikipedia.org/wiki/Calculus_of_variations>`_
 * "`Notes on Functionals <http://julian.tau.ac.il/bqs/functionals/functionals.html>`_", B. Svetitsky
-* "Advanced Variational Methods In Mechanics", `Chapter 1: Variational Calculus Overview <http://www.colorado.edu/engineering/CAS/courses.d/AVMM.d/AVMM.Ch01.d/AVMM.Ch01.pdf>`_, University of Colorado at Boulder.
+* "Advanced Variational Methods In Mechanics", `Chapter 1: Variational Calculus Overview <http://www.colorado.edu/engineering/CAS/courses.d/AVMM.d/AVMM.Ch01.d/AVMM.Ch01.pdf>`_, University of Colorado at Boulder
 
 .. [1] As you have probably guessed, this is the primary reason I'm interested in this area of mathematics.  A lot of popular ML/statistics techniques have the word "variational", which they get becasue they are somehow related to variational calculus.
