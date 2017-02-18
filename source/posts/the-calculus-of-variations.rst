@@ -120,7 +120,7 @@ at all the values of :math:`x` (for that :math:`y`) and maps it to a single
 number.  Let's take a look at a few examples to make things concrete.
 
 
-.. admonition:: Example 1
+.. admonition:: Example 1: A simple functional
 
     The simplest functional just evaluates the input function at a particular value.
 
@@ -130,7 +130,7 @@ number.  Let's take a look at a few examples to make things concrete.
     * :math:`F[y=x^2] = (3)^2 = 9`
     * :math:`F[y=\ln_3(x)] = \ln_3(3) = 1`
 
-.. admonition:: Example 2
+.. admonition:: Example 2: An integral functional
 
     Many useful functionals will take a definite integral of the input function
     as a means to map it to a number.
@@ -142,7 +142,7 @@ number.  Let's take a look at a few examples to make things concrete.
     * :math:`F[y=x^2] = \int_0^1  x^2 dx = \frac{1}{3}`
     * :math:`F[y=e^x] = \int_0^1 e^x dx = e - 1`
 
-.. admonition:: Example 3
+.. admonition:: Example 3: Functionals with derivatives
 
     Since we're dealing with functions as inputs, the functional can also 
     involve the derivative of an input function.
@@ -176,12 +176,6 @@ smooth so that :math:`y'(x)` exists as well as the integral defined in Equation 
 and the boundary conditions (:math:`x=[a,b], a\leq b, y(a)=\hat{y}_a, y(b)=\hat{y}_b`) 
 are satisfied.
 
-
-.. admonition:: Why the name *variational* calculus?
-
-    Put something here...
-
-
 |h2| Functional Derivatives |h2e|
 
 Now it's finally time to get to do something useful with functionals!  As with
@@ -194,7 +188,6 @@ function from above.
 Let's take another look at the total differential in Equation 2 again, but re-write
 it this time as a sum:
 
-
 .. math::
 
     dF = \sum_{i=1}^N \frac{\partial F}{\partial y_i}\Big|_{y_i^0} dy_i \tag{4}
@@ -205,10 +198,10 @@ of a continuous function (recall the domain of our function :math:`y(x)` was :ma
 
 .. math::
 
-    dF = \int_{a}^b \frac{\partial F}{\partial y(x)}\Big|_{y^0(x)} \delta y(x) dx \tag{5}
+    dF = \int_{a}^b \frac{\partial F}{\partial y(x)}\Big|_{y^0(x)} \partial y(x) dx \tag{5}
 
-The meaning of Equation 5 is the same as Equation 4: a small change in :math:`F` 
-is proportional to a sum of small changes of :math:`\delta y(x)` (step size)
+The meaning of Equation 5 is the same as Equation 4: a small change in :math:`F`
+is proportional to a sum of small changes of :math:`\partial y(x)` (step size)
 multiplied by the derivative :math:`\frac{\partial F}{\partial y(x)}` (slope),
 where we can think of :math:`x` as a continuous index (analogous to :math:`i`).
 As a result, the *functional derivative* is defined by:
@@ -217,25 +210,77 @@ As a result, the *functional derivative* is defined by:
 
     \frac{\partial F}{\partial y(x)} \tag{6}
 
-which is analogous to the derivative at each of the "indices" :math:`x`,
-in other words a `gradient <https://en.wikipedia.org/wiki/Gradient>`_ of :math:`F`
-at "point" :math:`y(x)`.  Equation 5 then becomes a 
-`directional derivative <https://en.wikipedia.org/wiki/Directional_derivative>`_
-which can be interpreted as the rate of change of :math:`F` moving through point
-:math:`y^0(x)` with velocity :math:`\delta y(x)`.
+This is analogous to the derivative at each of the "indices" :math:`x`,
+which we can think of as the `gradient <https://en.wikipedia.org/wiki/Gradient>`_
+of the multivariate function :math:`F` (albeit with an infinite number of variables)
+at each of the variables defined by :math:`y(x)`.
 
-It turns out we can also view the functional derivative in more general terms
-as a limit where :math:`\eta(x)` is some arbitrary function (taking the place
-of our direction :math:`\delta y(x)`):
+Equation 5 then becomes a
+`directional derivative <https://en.wikipedia.org/wiki/Directional_derivative>`_,
+where we can interpret as the rate of change of :math:`F` as we are
+moving through "point" :math:`y^0(x)` in the direction of :math:`\partial y(x)`
+(check out this `tutorial <http://tutorial.math.lamar.edu/Classes/CalcIII/DirectionalDeriv.aspx>`_
+on directional derivatives for a good intuitive referesher on the subject).
+
+The above explanation gives a natural extension from gradients to functional derivatives
+but we can also define it in terms of limits.  Using the analogy of directional
+derivatives from above, we have the functional derivative at the multivariate "point" :math:`y(x)`
+moving in the multivariate "direction" of an arbitrary function :math:`\eta(x)`
+then we can formulate the limit as:
 
 .. math::
 
-    \lim_{\epsilon \to \infty} \frac{F[y(x) + \epsilon \eta(x)] - F[y(x)]}{\epsilon} \tag{7}
+    \lim_{\epsilon \to \infty} \frac{F[y(x) + \epsilon \eta(x)] - F[y(x)]}{\epsilon}
+    = \int \frac{\partial F}{\partial y(x)} \eta(x) dx
+    \tag{7}
 
+which, if you think hard enough about, results in the same integral as Equation 5.
+Of course, there's no guarantee that the functional derivative exists.  That's
+where formal definitions and rigorous mathematics comes in, which is beyond
+the scope of this post.  Also important to mention is that we can have higher order
+functional derivatives that can be defined in a very similar way.  For now,
+let's just focus on simple cases where everything plays nicely.
+
+.. admonition:: Why the name *variational* calculus?
+
+    A variation of a functional is the small change in a functional's value
+    due to a small change in the functional argument.  It's the analogous concept
+    to a `differential <https://en.wikipedia.org/wiki/Differential_of_a_function>`_ for
+    regular calculus.
+
+    We've already seen an example of a variation in Equation 5, which is the first
+    variation of the functional :math:`F`:
+
+    .. math::
+
+        \partial F(y, \eta) = \int \frac{\partial F}{\partial y(x)} \eta(x) dx \tag{8}
+
+    The term :math:`\epsilon \eta(x)` is also called a finite variation, which is
+    analogous to the infintesimely small :math:`epsilon` in regular calculus.
+
+    The first variation and higher order variations define the respective
+    functional derivatives and can be derived by taking the coefficients of the
+    Taylor series expansion of the functional.  More details can be found
+    here `Advanced Variational Methods In Mechanics Chapter 1: Variational
+    Calculus Overview
+    <http://www.colorado.edu/engineering/CAS/courses.d/AVMM.d/AVMM.Ch01.d/AVMM.Ch01.pdf>`_.
+
+
+.. admonition:: Example 4: Computing a simple functional derivative
+
+    Let's try to find the functional derivative of a simple functional:
+
+
+    from the definition of 
 
 |h2| Further Reading |h2e|
 
-* Wikipedia: `Calculus of Variations <https://en.wikipedia.org/wiki/Calculus_of_variations>`_
+* Wikipedia: `Calculus of Variations <https://en.wikipedia.org/wiki/Calculus_of_variations>`_,
+  `Functional Derivative <https://en.wikipedia.org/wiki/Functional_derivative>`_,
+  `Directional Derivative <https://en.wikipedia.org/wiki/Directional_derivative>`_,
+  `Differential of a function <https://en.wikipedia.org/wiki/Differential_of_a_function>`_
+* `Directional Derivatives <http://tutorial.math.lamar.edu/Classes/CalcIII/DirectionalDeriv.aspx>`_, Paul Dawkins, Paul's Online Math Notes.
+* `What is the practical difference between a differential and a derivative? <http://math.stackexchange.com/questions/23902/what-is-the-practical-difference-between-a-differential-and-a-derivative>`_, Arturo Magidin, Math.Stack Exchange.
 * "`Notes on Functionals <http://julian.tau.ac.il/bqs/functionals/functionals.html>`_", B. Svetitsky
 * "Advanced Variational Methods In Mechanics", `Chapter 1: Variational Calculus Overview <http://www.colorado.edu/engineering/CAS/courses.d/AVMM.d/AVMM.Ch01.d/AVMM.Ch01.pdf>`_, University of Colorado at Boulder
 
