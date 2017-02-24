@@ -1,7 +1,7 @@
 .. title: The Calculus of Variations
 .. slug: the-calculus-of-variations
-.. date: 2017-01-30 08:08:38 UTC-05:00
-.. tags: variational calculus, mathjax
+.. date: 2017-02-24 08:08:38 UTC-05:00
+.. tags: variational calculus, differentials, lagrange multipliers, entropy, probability, mathjax
 .. category: 
 .. link: 
 .. description: A primer on variational calculus.
@@ -198,17 +198,17 @@ of a continuous function (recall the domain of our function :math:`y(x)` was :ma
 
 .. math::
 
-    dF = \int_{a}^b \frac{\partial F}{\partial y(x)}\Big|_{y^0(x)} \partial y(x) dx \tag{5}
+    dF = \int_{a}^b \frac{\delta F}{\delta y(x)}\Big|_{y^0(x)} \delta y(x) dx \tag{5}
 
 The meaning of Equation 5 is the same as Equation 4: a small change in :math:`F`
-is proportional to a sum of small changes of :math:`\partial y(x)` (step size)
-multiplied by the derivative :math:`\frac{\partial F}{\partial y(x)}` (slope),
+is proportional to a sum of small changes of :math:`\delta y(x)` (step size)
+multiplied by the derivative :math:`\frac{\delta F}{\delta y(x)}` (slope),
 where we can think of :math:`x` as a continuous index (analogous to :math:`i`).
 As a result, the *functional derivative* is defined by:
 
 .. math::
 
-    \frac{\partial F}{\partial y(x)} \tag{6}
+    \frac{\delta F}{\delta y(x)} \tag{6}
 
 This is analogous to the derivative at each of the "indices" :math:`x`,
 which we can think of as the `gradient <https://en.wikipedia.org/wiki/Gradient>`_
@@ -218,23 +218,28 @@ at each of the variables defined by :math:`y(x)`.
 Equation 5 then becomes a
 `directional derivative <https://en.wikipedia.org/wiki/Directional_derivative>`_,
 where we can interpret as the rate of change of :math:`F` as we are
-moving through "point" :math:`y^0(x)` in the direction of :math:`\partial y(x)`
+moving through "point" :math:`y^0(x)` in the direction of :math:`\delta y(x)`
 (check out this `tutorial <http://tutorial.math.lamar.edu/Classes/CalcIII/DirectionalDeriv.aspx>`_
 on directional derivatives for a good intuitive referesher on the subject).
 
 The above explanation gives a natural extension from gradients to functional derivatives
 but we can also define it in terms of limits.  Using the analogy of directional
-derivatives from above, we have the functional derivative at the multivariate "point" :math:`y(x)`
-moving in the multivariate "direction" of an arbitrary function :math:`\eta(x)`
-then we can formulate the limit as:
+derivatives from above, we have the functional derivative at the multivariate
+"point" :math:`y(x)` moving in the multivariate "direction" of an arbitrary
+function :math:`\eta(x)` then we can formulate the limit as:
 
 .. math::
 
     \lim_{\epsilon \to \infty} \frac{F[y(x) + \epsilon \eta(x)] - F[y(x)]}{\epsilon}
-    = \int \frac{\partial F}{\partial y(x)} \eta(x) dx
+    = \int \frac{\delta F}{\delta y(x)} \eta(x) dx
     \tag{7}
 
 which, if you think hard enough about, results in the same integral as Equation 5.
+This also means the functional derivative is a function (natural extension from the
+multivariate point analogy where the number of points is infinite within an interval).
+We also define :math:`\delta y` as :math:`\epsilon \eta(x)` and call it the variation of
+:math:`y`.
+
 Of course, there's no guarantee that the functional derivative exists.  That's
 where formal definitions and rigorous mathematics comes in, which is beyond
 the scope of this post.  Also important to mention is that we can have higher order
@@ -253,10 +258,11 @@ let's just focus on simple cases where everything plays nicely.
 
     .. math::
 
-        \partial F(y, \eta) = \int \frac{\partial F}{\partial y(x)} \eta(x) dx \tag{8}
+        \delta F(y, \eta) = \int \frac{\delta F}{\delta y(x)} \eta(x) dx \tag{8}
 
-    The term :math:`\epsilon \eta(x)` is also called a finite variation, which is
-    analogous to the infintesimely small :math:`epsilon` in regular calculus.
+    As mentioned above the term :math:`\epsilon \eta(x)` is also called a
+    variation of input :math:`y`, which is analogous to the infintesimely small
+    :math:`epsilon` in regular calculus.
 
     The first variation and higher order variations define the respective
     functional derivatives and can be derived by taking the coefficients of the
@@ -270,8 +276,207 @@ let's just focus on simple cases where everything plays nicely.
 
     Let's try to find the functional derivative of a simple functional:
 
+    .. math::
+            
+        F[y(x)] = \int_0^1 y(x)^2 dx \tag{9}
 
-    from the definition of 
+    We can compute this by going back to Equation 5 and calculating 
+    :math:`dF = F[y + \delta y] - F[y]`, start by computing :math:`F[y + \delta y]`:
+
+    .. math::
+            
+        F[y + \delta y] &= \int_0^1 [y(x) + \delta y(x)]^2 dx \\
+         &= \int_0^1 y(x)^2 + 2y(x)\delta y(x) + \delta y(x)^2 dx \\
+         &= \int_0^1 y(x)^2 + 2y(x)\delta y(x) + \delta y(x)^2 dx \\
+         &= F[y] + \int_0^1 2y(x)\delta y(x) dx + \int_0^1 \delta y(x)^2 dx
+        \tag{10}
+            
+    From Equation 10, we know that in the limit :math:`\delta y \rightarrow 0` so
+    we can drop the last term. Finally, computing :math:`dF` we have:
+
+    .. math::
+
+        dF &= F[y + \delta y] - F[y] \\
+        &= F[y] + \int_0^1 2y(x)\delta y(x) dx  - F[y] \\
+        &= \int_0^1 2y(x)\delta y(x) dx
+        \tag{11}
+
+    By inspection, we can see Equation 11 resembles Equation 5, thus our functional
+    derivative is :math:`\frac{\delta F}{\delta y(x)} = 2y(x)`.
+
+|h2| Euler-Lagrange Equation |h2e|
+
+Now armed with the definition of a functional derivative, we can compute it 
+from definition (if it exists).  However, as with regular calculus, computing
+a derivative by definition can get tedious.  Fortunately, there is a result that
+can help us compute the functional derivative called the Euler-Lagrange equation,
+which states (roughly):
+
+    For a given function :math:`y(x)` with a real argument :math:`x`, the
+    functional:
+
+    .. math::
+
+        F[y] = \int_a^b L(x, y(x), y'(x)) dx \tag{12}
+
+    has functional derivative given by:
+
+    .. math::
+    
+        \frac{\delta F}{\delta y(x)} 
+        = \frac{\partial L}{\partial y} - \frac{d}{dx} \frac{\partial L}{\partial y'} \tag{13}
+
+You can derive this equation using the method we used above (and a few extra
+tricks) but I'll leave it as an exercise :)
+For simple functionals like Equation 12, this is a very handy way to compute functional
+derivatives.  Let's take a look at a more complicated examples.
+
+.. admonition:: Example 5: Use the Euler-Lagrange Equation to find the
+    functional derivative of :math:`F[y(x)] = \int_0^1 x^3 e^{-y(x)} dx`
+
+    Notice the second term in Equation 13 involves only :math:`y'`, which we
+    doesn't appear in our functional so we that means it's 0.  Thus, the functional
+    derivative in this case just treats :math:`y` as a variable and the usual rules
+    of differentiation apply:
+
+    .. math::
+
+        \frac{\delta F}{\delta y(x)} = \frac{\partial L}{\partial y} 
+        = \frac{\partial ( x^3 e^{-y(x)})}{\partial y}
+        = -x^3 e^{-y(x)} \tag{14}
+
+.. admonition:: Example 6: Use the Euler-Lagrange Equation to find the
+    functional derivative of :math:`F[y(x)] = \int_0^1 x^2 y^3 y'^4 dx`
+
+    Here we have to use all terms from Equation 13 and treat :math:`y`
+    and :math:`y'` as "independent" variables:
+
+    .. math::
+
+        \frac{\delta F}{\delta y(x)} &= \frac{\partial L}{\partial y} 
+                - \frac{d}{dx} \frac{\partial L}{\partial y'}\\
+        &= 3x^2 y^2 y'^4 - 4\frac{d (x^2y^3y'^3)}{dx} \\
+        &= 3x^2 y^2 y'^4 - 8xy^3y'^3 \tag{15}
+
+|h2| Extrema of Functionals |h2e|
+
+As an exercise this is interesting enough but the real application is when we 
+want to minimize or maximize a functional in the same way we do with regular
+calculus.  In the same way that we can find a point that maximizes a function,
+we can find a function that maximizes a functional.
+
+It turns out that it's pretty much what you would expect: if you set the
+functional derivative to zero, we'll find a
+`stationary point <https://en.wikipedia.org/wiki/Critical_point_(mathematics)>`_
+of the functional where we possibly have a local minimum or maximum (i.e. a
+necessary condition).  In other words, this is a place where the "slope" is
+zero.  Let's take a look at a classic example.
+
+.. admonition:: Example 7: Find the shortest possible curve between
+    the points :math:`(a,c)` and :math:`(b,d)` for which the path length
+    along the curve is defined by :math:`\ell(f) = \int_a^b \sqrt{1 + f'(x)^2} dx`
+
+    First define our integrand function:
+    
+    .. math::
+    
+        L(x,y,y') = \sqrt{1 + f'(x)^2} \tag{16}
+
+    where :math:`(x, y, y') = (x, f(x), f'(x))`.  Pre-computing the partial derivatives
+    of :math:`L`:
+
+    .. math::
+    
+        \frac{\partial L}{\partial y} = 0  \\
+        \frac{\partial L}{\partial y'} = \frac{y'}{\sqrt{1 + y'^2}}  \tag{17}
+
+    Plugging them into Equation 13, we get the differential equation: 
+
+    .. math::
+
+        \frac{d}{dx} \frac{f'(x)}{\sqrt{1 + f'(x)^2}} &= 0 \\
+        \frac{f'(x)}{\sqrt{1 + f'(x)^2}} &= C \\
+        f'(x) &= C\sqrt{1 + f'(x)^2} \\
+        f'(x)^2 &= \frac{C^2}{1 - C^2} \\
+        f'(x) &= \frac{C}{\sqrt{1 - C^2}} := A \\
+        f(x) &= Ax + B \tag{18}
+    
+    where we introduce a constant :math:`C` after integrating, define
+    a new constant :math:`A` to be the result of a constant expression with :math:`C`,
+    and introduce a new constant :math:`B` from the second integration.
+    As you would expect this is just a straight line through the given points.
+
+    We can find the actual values of constants :math:`A` and :math:`B` by using 
+    our initial conditions :math:`(a,c)` and :math:`(b,d)` since we know the function
+    has to pass through our line:
+
+    .. math::
+
+        A = \frac{d-c}{b-a} \\
+        B = \frac{ad-bc}{a-b} \tag{19}
+
+Now that we have a method to solve the general problem of finding extrema for a
+functional, we can add constraints in the mix.  As you may have guessed, we
+can use the concept of 
+`Lagrange multipliers <https://en.wikipedia.org/wiki/Lagrange_multiplier>`_ 
+here (see my `previous post <link://slug/lagrange-multipliers>`_).
+
+Given a functional in the form of Equation 12, we can add different types of constraints.
+The simplest type of constraint we can have a functional constraint of the form:
+
+.. math::
+
+    G(y) = \int_a^b M(x, y, y') dx = C \tag{20}
+
+In this case, the solution resembles the usual method for Lagrange multipliers.
+We can solve this problem by building a new functional in the same vein of a
+Lagrangian:
+
+.. math::
+
+    H(y) = \int_a^b (L(x,y,y') + \lambda M(x, y, y')) dx \tag{21}
+
+Using the Euler-Lagrange equation, we can solve Equation 21 for a admissible
+:math:`L` and :math:`\lambda`, keeping in mind we are given boundary conditions
+at :math:`a` and :math:`b` as well as Equation 20 in order to solve for all the
+constants.
+
+The other type of constraint is just a constraint on the actual function 
+(similar to regular Lagrange multipliers):
+
+.. math::
+
+    g(x, y) = 0 \tag{22}
+
+Here, a Lagrange multiplier *function* needs to be introduced and the Lagrangian
+becomes:
+
+.. math::
+
+    H(y) = \int_a^b (L(x,y,y') + \lambda(x) g(x,y)) dx \tag{23}
+
+Again, we can use the Euler-Lagrange equation to solve Equation 23, except
+we'll get a system of differential equations to solve (you need to take the functional
+derivative with respect to both :math:`y(x)` and :math:`\lambda(x)`).
+
+And at long last, we can finally get to solving some interesting problems in
+probability!  Let's take a look at a couple of examples of finding 
+`maximum entropy distributions <https://en.wikipedia.org/wiki/Maximum_entropy_probability_distribution>`_ 
+under different constraints (check out my previous
+`post <link://slug/maximum-entropy-distributions>`_ on the topic).
+
+.. admonition:: Example 8: Find the continuous maximum entropy distribution
+    with support :math:`[a,b]`.
+
+    This is actually the same example as that appeared in my `post
+    <link://slug/maximum-entropy-distributions>`_, but let's take another look.
+
+.. admonition:: Example 9: Find the continuous maximum entropy distribution
+    with support :math:`[-\infty,\infty]`, :math:`E[x] = \mu` and :math:`E[(x-\mu)^2] = \sigma^2`.
+
+    Okay
+
+
 
 |h2| Further Reading |h2e|
 
@@ -283,5 +488,6 @@ let's just focus on simple cases where everything plays nicely.
 * `What is the practical difference between a differential and a derivative? <http://math.stackexchange.com/questions/23902/what-is-the-practical-difference-between-a-differential-and-a-derivative>`_, Arturo Magidin, Math.Stack Exchange.
 * "`Notes on Functionals <http://julian.tau.ac.il/bqs/functionals/functionals.html>`_", B. Svetitsky
 * "Advanced Variational Methods In Mechanics", `Chapter 1: Variational Calculus Overview <http://www.colorado.edu/engineering/CAS/courses.d/AVMM.d/AVMM.Ch01.d/AVMM.Ch01.pdf>`_, University of Colorado at Boulder
+* `Variational Problems <http://www.vgu.edu.vn/fileadmin/pictures/studies/master/compeng/study_subjects/modules/math/notes/chapter-06.pdf>`_, Vietnamese-German University.
 
 .. [1] As you have probably guessed, this is the primary reason I'm interested in this area of mathematics.  A lot of popular ML/statistics techniques have the word "variational", which they get becasue they are somehow related to variational calculus.
