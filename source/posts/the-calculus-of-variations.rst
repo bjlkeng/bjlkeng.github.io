@@ -45,12 +45,13 @@ minimize or maximize them.  It's used extensively in physics such as finding
 the minimum energy path a particle takes under certain conditions.  As you can
 also imagine, it's also used in machine learning/statistics where you want to
 find the density that optimizes a constraint [1]_.  The explanation I'm going
-to use is heavily based upon Svetitsky's *notes of functionals*, which so far
-is the most intuitive explanation I have read.  I'll try to follow Svetitsky's
-notes to give some intuition of how we arrive at variational calculus from
-regular calculus followed by a few examples so that we can get the hang of it.
-With the right intuition and explanation, it's actually not too difficult,
-enjoy!
+to use (at least the earlier part) is heavily based upon Svetitsky's 
+`Notes on Functionals <http://julian.tau.ac.il/bqs/functionals/functionals.html>`__,
+which so far is the most intuitive explanation I have read.  I'll try to follow
+Svetitsky's notes to give some intuition of how we arrive at variational
+calculus from regular calculus followed by a bunch of examples the last
+of which finally relates back to probability.  With the right intuition and
+explanation, it's actually not too difficult, enjoy!
 
 .. TEASER_END
 
@@ -361,22 +362,24 @@ derivatives.  Let's take a look at a more complicated examples.
 |h2| Extrema of Functionals |h2e|
 
 As an exercise this is interesting enough but the real application is when we 
-want to minimize or maximize a functional in the same way we do with regular
-calculus.  In the same way that we can find a point that maximizes a function,
-we can find a function that maximizes a functional.
+want to minimize or maximize a functional.  In a similar way to how we find a
+point that is an extremum of a function, we can also find a function that
+is an extremum a functional.
 
-It turns out that it's pretty much what you would expect: if you set the
-functional derivative to zero, we'll find a
+It turns out that it's pretty much what you would expect: set the
+functional derivative to zero and we'll find a
 `stationary point <https://en.wikipedia.org/wiki/Critical_point_(mathematics)>`_
 of the functional where we possibly have a local minimum or maximum (i.e. a
-necessary condition).  In other words, this is a place where the "slope" is
-zero.  Let's take a look at a classic example.
+necessary condition for extrema, sometimes we might find a 
+`saddle point <https://en.wikipedia.org/wiki/Saddle_point>`_ though).  In other
+words, this is a place where the "slope" is zero.  Let's take a look at a
+classic example.
 
 .. admonition:: Example 7: Find the shortest possible curve between
     the points :math:`(a,c)` and :math:`(b,d)` for which the path length
     along the curve is defined by :math:`\ell(f) = \int_a^b \sqrt{1 + f'(x)^2} dx`
 
-    First define our integrand function:
+    First define our integrand functional:
     
     .. math::
     
@@ -387,8 +390,8 @@ zero.  Let's take a look at a classic example.
 
     .. math::
     
-        \frac{\partial L}{\partial y} = 0  \\
-        \frac{\partial L}{\partial y'} = \frac{y'}{\sqrt{1 + y'^2}}  \tag{17}
+        \frac{\partial L}{\partial y} &= 0  \\
+        \frac{\partial L}{\partial y'} &= \frac{f'(x)}{\sqrt{1 + f'(x)^2}}  \tag{17}
 
     Plugging them into Equation 13, we get the differential equation: 
 
@@ -404,11 +407,12 @@ zero.  Let's take a look at a classic example.
     where we introduce a constant :math:`C` after integrating, define
     a new constant :math:`A` to be the result of a constant expression with :math:`C`,
     and introduce a new constant :math:`B` from the second integration.
-    As you would expect this is just a straight line through the given points.
+    As you would expect the shortest distance between two points is a straight line
+    (but now you can prove it!).
 
     We can find the actual values of constants :math:`A` and :math:`B` by using 
     our initial conditions :math:`(a,c)` and :math:`(b,d)` since we know the function
-    has to pass through our line:
+    has to pass through our line (which is just the formulas for slope and intercept):
 
     .. math::
 
@@ -418,15 +422,15 @@ zero.  Let's take a look at a classic example.
 Now that we have a method to solve the general problem of finding extrema for a
 functional, we can add constraints in the mix.  As you may have guessed, we
 can use the concept of 
-`Lagrange multipliers <https://en.wikipedia.org/wiki/Lagrange_multiplier>`_ 
-here (see my `previous post <link://slug/lagrange-multipliers>`_).
+`Lagrange multipliers <https://en.wikipedia.org/wiki/Lagrange_multiplier>`__
+here (see my previous post on `Lagrange Multipliers <link://slug/lagrange-multipliers>`__).
 
 Given a functional in the form of Equation 12, we can add different types of constraints.
-The simplest type of constraint we can have a functional constraint of the form:
+The simplest type of constraint we can have is a functional constraint of the form:
 
 .. math::
 
-    G(y) = \int_a^b M(x, y, y') dx = C \tag{20}
+    G[y] = \int_a^b M(x, y, y') dx = C \tag{20}
 
 In this case, the solution resembles the usual method for Lagrange multipliers.
 We can solve this problem by building a new functional in the same vein of a
@@ -434,12 +438,13 @@ Lagrangian:
 
 .. math::
 
-    H(y) = \int_a^b (L(x,y,y') + \lambda M(x, y, y')) dx \tag{21}
+    H[y] = \int_a^b (L(x,y,y') - \lambda M(x, y, y')) dx \tag{21}
 
-Using the Euler-Lagrange equation, we can solve Equation 21 for a admissible
-:math:`L` and :math:`\lambda`, keeping in mind we are given boundary conditions
-at :math:`a` and :math:`b` as well as Equation 20 in order to solve for all the
-constants.
+Using the Euler-Lagrange equation, we can solve Equation 21 for a function
+:math:`y` and constant :math:`\lambda`, keeping in mind we are given boundary
+conditions at :math:`a` and :math:`b` as well as Equation 20 in order to solve
+for all the constants.  This method also naturally extends to multiple
+constraints as you would expect.
 
 The other type of constraint is just a constraint on the actual function 
 (similar to regular Lagrange multipliers):
@@ -453,7 +458,7 @@ becomes:
 
 .. math::
 
-    H(y) = \int_a^b (L(x,y,y') + \lambda(x) g(x,y)) dx \tag{23}
+    H[y] = \int_a^b (L(x,y,y') - \lambda(x) g(x,y)) dx \tag{23}
 
 Again, we can use the Euler-Lagrange equation to solve Equation 23, except
 we'll get a system of differential equations to solve (you need to take the functional
@@ -461,32 +466,157 @@ derivative with respect to both :math:`y(x)` and :math:`\lambda(x)`).
 
 And at long last, we can finally get to solving some interesting problems in
 probability!  Let's take a look at a couple of examples of finding 
-`maximum entropy distributions <https://en.wikipedia.org/wiki/Maximum_entropy_probability_distribution>`_ 
+`maximum entropy distributions <https://en.wikipedia.org/wiki/Maximum_entropy_probability_distribution>`__
 under different constraints (check out my previous
-`post <link://slug/maximum-entropy-distributions>`_ on the topic).
+post on `Maximum Entropy Distributions <link://slug/maximum-entropy-distributions>`_).
 
 .. admonition:: Example 8: Find the continuous maximum entropy distribution
     with support :math:`[a,b]`.
 
-    This is actually the same example as that appeared in my `post
-    <link://slug/maximum-entropy-distributions>`_, but let's take another look.
+    This is actually the same example as that appeared in my post on `Maximum Entropy Distributions <link://slug/maximum-entropy-distributions>`__, but let's take another look.
 
+    First since we're finding the maximum entropy distribution, we define the
+    `differential entropy <https://en.wikipedia.org/wiki/Entropy_(information_theory)#Differential_entropy>`_ 
+    functional (we use :math:`H` here to denote entropy):
+
+    .. math::
+
+        H[f] := -\int_{a}^{b} f(x)\log(f(x)) dx \tag{23}
+
+    Next, we define a functional constraint that our density must sum to 1:
+
+    .. math::
+
+        G[f] := \int_{a}^{b} f(x) dx = 1 \tag{24}
+
+    Now put together the Lagrangian equivalent:
+
+    .. math::
+
+        F[f] &= \int_{a}^{b} L(x, f(x)) dx \\
+             &= \int_{a}^{b} -f(x)\log(f(x)) - \lambda f(x) dx \tag{25}
+
+    Using the Euler-Langrange Equation to find the maximum and noticing we have
+    no derivatives of :math:`f(x)`, we get:
+
+    .. math::
+
+        \frac{\delta L}{\delta f(x)} = -\log(f(x)) - 1 - \lambda &= 0 \\
+        -\log(f(x)) = 1 + \lambda \\
+        f(x) = e^{-\lambda - 1} \tag{26}
+
+    Plugging this into our constraint in Equation 24:
+
+    .. math::
+
+        G[f] = \int_{a}^{b} e^{-\lambda - 1} dx &= 1 \\
+        e^{-\lambda - 1} \int_{a}^{b} dx &= 1 \\
+        e^{-\lambda - 1} &= \frac{1}{b-a} \tag{27}
+
+    Now substituting back into Equation 26, we get:
+
+    .. math::
+
+        f(x) = \frac{1}{b-a} \tag{28}
+
+    This is nothing more than a uniform distribution on the interval
+    :math:`[a,b]`. This means that given no other knowledge of a distribution
+    (except its support), the principle of maximum entropy says we should
+    assume it's a uniform distribution.
+   
 .. admonition:: Example 9: Find the continuous maximum entropy distribution
     with support :math:`[-\infty,\infty]`, :math:`E[x] = \mu` and :math:`E[(x-\mu)^2] = \sigma^2`.
 
-    Okay
+    You may already be able to guess what kind of distribution we should end up with
+    when we have the mean and variance specified, let's see if you're right.
 
+    We'll just transform the variance constraint into the second moment to make 
+    this a bit my symmetric:
+
+    .. math::
+
+        \int_{-\infty}^{\infty} f(x) (x-\mu)^2 dx &= \sigma^2  \\
+        \int_{-\infty}^{\infty} f(x)x^2 dx - \mu^2 &= \sigma^2  \\
+        \int_{-\infty}^{\infty} f(x)x^2 dx &= \sigma^2 + \mu^2 \tag{29}
+
+    Given this objective functional and associated constraints:
+
+    .. math::
+
+        H[f] &:= -\int_{-\infty}^{\infty} f(x)\log(f(x)) dx \\
+        G_0[f] &:= \int_{-\infty}^{\infty} f(x) dx = 1 \\
+        G_1[f] &:= \int_{-\infty}^{\infty} f(x) x  dx = \mu  \\
+        G_2[f] &:= \int_{-\infty}^{\infty} f(x) x^2 dx = \sigma^2 + \mu^2 \tag{30}
+
+    we can put together the Lagrangian functional:
+
+    .. math::
+
+        F[f] &:= -\int_{-\infty}^{\infty} L(x, f(x)) dx \\
+         &= \int_{-\infty}^{\infty} -f(x)\log(f(x))
+        - \lambda_0 f(x)
+        - \lambda_1 f(x) x 
+        - \lambda_2 f(x) x^2 dx \tag{31}
+
+    Using the Euler-Lagrange Equation again and setting it to 0:
+
+    .. math::
+
+        -\log(f(x)) - 1 - \lambda_0 - \lambda_1 x - \lambda_2 x^2 &= 0 \\
+        f(x) &= e^{-(1 + \lambda_0 \lambda_1 x \lambda_2 x^2)} \tag{32}
+
+    Now this is not going work out so nicely in terms of plugging it back into
+    our constraints from Equation 30 because integrals involving :math:`e^{x^2}`
+    usually don't have anti-derivatives.  But one thing to notice is that this is
+    basically the form of a 
+    `Gaussian function <https://en.wikipedia.org/wiki/Gaussian_function>`_
+    (you'll have to do some legwork to complete the square though):
+
+    .. math::
+
+        f(x) &= e^{-(1 + - \lambda_0 - \lambda_1 x - \lambda_2 x^2)} \\
+             &= ae^{-\frac{(x-b)^2}{2c^2}} \tag{33}
+
+    Further, we know from the constraints from Equation 30 that the function
+    is normalized to :math:`1`, making this a normal distribution.
+    Thus we can determine the values of the missing coefficients by just
+    matching them against the definition of a normal distribution:
+
+    .. math::
+
+        a &= \frac{1}{\sqrt{2\pi \sigma^2}} \\
+        b &= \mu \\
+        c &= \sigma^2  \tag{34}
+
+    So by the principle of maximum entropy, if we only know the mean and variance
+    of a distribution with support along the real line, we should assume the distribution
+    is normal.
+
+|h2| Conclusion |h2e|
+
+For those of us who aren't math or physics majors (*cough* computer engineers),
+variational calculus is an important topic that we missed out on.  Not only
+does it have a myriad of applications in physical domains (it's the most common
+type of problem when searching for "variational calculus"), it has many
+applications in statistics and machine learning (you can expect a future post
+using this topic!).  As with most things, once you know enough about the individual
+parts (calculus, Lagrange multipliers etc.) the actual topic (variational calculus)
+isn't too much of a stretch (at least when you're not trying to prove things
+formally!).  I hope this post helps all the non-mathematicians and non-physicists
+out there.
 
 
 |h2| Further Reading |h2e|
 
+* Previous Posts: `Lagrange Multipliers <link://slug/lagrange-multipliers>`__, `Max Entropy Distributions <link://slug/maximum-entropy-distributions>`__
 * Wikipedia: `Calculus of Variations <https://en.wikipedia.org/wiki/Calculus_of_variations>`_,
   `Functional Derivative <https://en.wikipedia.org/wiki/Functional_derivative>`_,
   `Directional Derivative <https://en.wikipedia.org/wiki/Directional_derivative>`_,
-  `Differential of a function <https://en.wikipedia.org/wiki/Differential_of_a_function>`_
+  `Differential of a function <https://en.wikipedia.org/wiki/Differential_of_a_function>`_,
+  `Lagrange multipliers <https://en.wikipedia.org/wiki/Lagrange_multiplier>`__
 * `Directional Derivatives <http://tutorial.math.lamar.edu/Classes/CalcIII/DirectionalDeriv.aspx>`_, Paul Dawkins, Paul's Online Math Notes.
 * `What is the practical difference between a differential and a derivative? <http://math.stackexchange.com/questions/23902/what-is-the-practical-difference-between-a-differential-and-a-derivative>`_, Arturo Magidin, Math.Stack Exchange.
-* "`Notes on Functionals <http://julian.tau.ac.il/bqs/functionals/functionals.html>`_", B. Svetitsky
+* "`Notes on Functionals <http://julian.tau.ac.il/bqs/functionals/functionals.html>`__", B. Svetitsky
 * "Advanced Variational Methods In Mechanics", `Chapter 1: Variational Calculus Overview <http://www.colorado.edu/engineering/CAS/courses.d/AVMM.d/AVMM.Ch01.d/AVMM.Ch01.pdf>`_, University of Colorado at Boulder
 * `Variational Problems <http://www.vgu.edu.vn/fileadmin/pictures/studies/master/compeng/study_subjects/modules/math/notes/chapter-06.pdf>`_, Vietnamese-German University.
 
