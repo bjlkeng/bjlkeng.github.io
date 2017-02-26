@@ -39,7 +39,7 @@
 This post is going to describe a specialized type of calculus called
 variational calculus.  
 Analogous to the usual methods of calculus that we learn in university,
-this one deals with functions *of functions* called *functionals* and how to
+this one deals with functions *of functions* and how to
 minimize or maximize them.  It's used extensively in physics problems such as
 finding the minimum energy path a particle takes under certain conditions.  As
 you can also imagine, it's also used in machine learning/statistics where you
@@ -84,18 +84,19 @@ of the function is:
 
 So far we have only touched upon derivatives and differentials of a function
 :math:`F(y_0, y_1, \ldots, y_n)` with independent variables :math:`y_0, y_1,
-\ldots, y_n`.  If you squint hard enough, you might start to see them
-not as independent variables but collectively as a function :math:`y` that
-takes an input :math:`i` i.e. :math:`y_i = y(i), i \in \mathcal{N}`.  
-In that case, :math:`F` is no longer just a function of independent variables
-but a function of a *function* :math:`y(i)`.
+\ldots, y_n`.  If you squint hard enough, you may already start to see where
+we're going with this: we can view the input to the function not just as
+independent variables, but collectively as a group of variables derived
+from a function :math:`y` (i.e. :math:`y_i = y(i), i \in \mathcal{N}`).  If
+we have an infinite set of these variables, then :math:`F` is no longer just a
+function of independent variables but a function of a *function* :math:`y(i)`.
 
 Of course this is just some intuition and not at all precise but let's keep
 going to see where this can take us.  Our independent points can be seen
 as sampling some function :math:`y` on some interval :math:`[a, b]`.  Let's say
 we want to sample :math:`N` points, each :math:`\epsilon` distance apart, 
 i.e. :math:`N\epsilon = b - a`.  The :math:`n^{th}` point will be at 
-:math:`x=a + n\epsilon`, so our sample point becomes
+:math:`x_n=a + n\epsilon`, so our sample point becomes
 :math:`y_n = y(x_n) = y(a + n\epsilon)`.
 As :math:`N \rightarrow \infty, \epsilon \rightarrow 0`, our sampled points
 :math:`y_n` become an increasingly accurate representation of our original
@@ -203,19 +204,19 @@ of a continuous function (recall the domain of our function :math:`y(x)` was :ma
     dF = \int_{a}^b \frac{\delta F}{\delta y(x)}\Big|_{y^0(x)} \delta y(x) dx \tag{5}
 
 The meaning of Equation 5 is the same as Equation 4: a small change in :math:`F`
-is proportional to a sum of small changes of :math:`\delta y(x)` (step size)
-multiplied by the derivative :math:`\frac{\delta F}{\delta y(x)}` (slope),
-where we can think of :math:`x` as a continuous index (analogous to :math:`i`).
-As a result, the *functional derivative* is defined by:
+is proportional to a sum of small changes in each direction :math:`\delta y(x)`
+(step size) multiplied by the derivative for each direction :math:`\frac{\delta
+F}{\delta y(x)}` (slope), where we can think of :math:`x` as a continuous index
+(analogous to :math:`i`).  As a result, the *functional derivative* is defined
+by:
 
 .. math::
 
     \frac{\delta F}{\delta y(x)} \tag{6}
 
-This is analogous to the derivative at each of the "indices" :math:`x`,
+This is analogous to the derivative at each of the "independent variables" :math:`y(x)`,
 which is the same concept as the `gradient <https://en.wikipedia.org/wiki/Gradient>`_
-of the multivariate function :math:`F` (albeit with an infinite number of variables)
-at each of the variables defined by :math:`y(x)`.
+for multivariate functions.
 
 Equation 5 then becomes a
 `directional derivative <https://en.wikipedia.org/wiki/Directional_derivative>`_,
@@ -224,7 +225,7 @@ moving through "point" :math:`y^0(x)` in the direction of :math:`\delta y(x)`
 (check out this `tutorial <http://tutorial.math.lamar.edu/Classes/CalcIII/DirectionalDeriv.aspx>`_
 on directional derivatives for a good intuitive refresher on the subject).
 
-The above explanation gives a natural extension from gradients to functional derivatives
+This explanation takes us from gradients to functional derivatives
 but we can also define it in terms of limits.  Using the analogy of directional
 derivatives from above, if we have the functional derivative at the multivariate
 "point" :math:`y(x)` moving in the multivariate "direction" of an arbitrary
@@ -251,7 +252,7 @@ let's just focus on simple cases where everything plays nicely.
 .. admonition:: Why the name *variational* calculus?
 
     A variation of a functional is the small change in a functional's value
-    due to a small change in the functional argument.  It's the analogous concept
+    due to a small change in the functional's input.  It's the analogous concept
     to a `differential <https://en.wikipedia.org/wiki/Differential_of_a_function>`_ for
     regular calculus.
 
@@ -308,11 +309,11 @@ let's just focus on simple cases where everything plays nicely.
 
 |h2| Euler-Lagrange Equation |h2e|
 
-Now armed with the definition of a functional derivative, we can compute it 
-from definition (if it exists).  However, as with regular calculus, computing
-a derivative by definition can get tedious.  Fortunately, there is a result that
-can help us compute the functional derivative called the Euler-Lagrange equation,
-which states (roughly):
+Now armed with the definition of a functional derivative, we now know how to
+compute it from first principles.  However, as with regular calculus,
+computing a derivative by definition can get tedious.  Fortunately, there is a
+result that can help us compute the functional derivative called the
+Euler-Lagrange equation, which states (roughly):
 
     For a given function :math:`y(x)` with a real argument :math:`x`, the
     functional:
@@ -337,7 +338,7 @@ derivatives.  Let's take a look at a couple more complicated examples.
     functional derivative of :math:`F[y(x)] = \int_0^1 x^3 e^{-y(x)} dx`
 
     Notice the second term in Equation 13 involves only :math:`y'`, which we
-    doesn't appear in our functional so we that means it's 0.  Thus, the functional
+    doesn't appear in our functional so that means it's 0.  Thus, the functional
     derivative in this case just treats :math:`y` as a variable and the usual rules
     of differentiation apply:
 
@@ -362,7 +363,7 @@ derivatives.  Let's take a look at a couple more complicated examples.
 
 |h2| Extrema of Functionals |h2e|
 
-As an exercise this is interesting enough but the real application is when we 
+As an exercise this is interesting enough, but the real application is when we 
 want to minimize or maximize a functional.  In a similar way to how we find a
 point that is an extremum of a function, we can also find a function that
 is an extremum a functional.
@@ -414,7 +415,7 @@ classic example.
 
     We can find the actual values of constants :math:`A` and :math:`B` by using 
     our initial conditions :math:`(a,c)` and :math:`(b,d)` since we know the function
-    has to pass through our line (which is just the formulas for slope and intercept):
+    has to pass through our points (i.e. compute the slope and intercept of the line):
 
     .. math::
 
@@ -567,7 +568,7 @@ post on `Maximum Entropy Distributions <link://slug/maximum-entropy-distribution
         -\log(f(x)) - 1 - \lambda_0 - \lambda_1 x - \lambda_2 x^2 &= 0 \\
         f(x) &= e^{-(1 + \lambda_0 + \lambda_1 x + \lambda_2 x^2)} \tag{33}
 
-    Now this is not going work out so nicely in terms of plugging it back into
+    Now this is not going to work out so nicely in terms of plugging it back into
     our constraints from Equation 30 because integrals involving :math:`e^{x^2}`
     usually don't have nice anti-derivatives.  But one thing to notice is that this is
     basically the form of a 
