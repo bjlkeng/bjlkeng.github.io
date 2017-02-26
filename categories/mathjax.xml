@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Bounded Rationality (mathjax)</title><link>http://satisficing.briankeng.com/</link><description></description><atom:link type="application/rss+xml" href="http://satisficing.briankeng.com/categories/mathjax.xml" rel="self"></atom:link><language>en</language><lastBuildDate>Thu, 02 Feb 2017 13:59:36 GMT</lastBuildDate><generator>https://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Maximum Entropy Distributions</title><link>http://satisficing.briankeng.com/posts/maximum-entropy-distributions/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post will talk about a method to find the probability distribution that best
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>Bounded Rationality (mathjax)</title><link>http://satisficing.briankeng.com/</link><description></description><atom:link type="application/rss+xml" rel="self" href="http://satisficing.briankeng.com/categories/mathjax.xml"></atom:link><language>en</language><lastBuildDate>Sun, 26 Feb 2017 15:20:10 GMT</lastBuildDate><generator>https://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>The Calculus of Variations</title><link>http://satisficing.briankeng.com/posts/the-calculus-of-variations/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to describe a specialized type of calculus called
+variational calculus.
+Analogous to the usual methods of calculus that we learn in university,
+this one deals with functions &lt;em&gt;of functions&lt;/em&gt; and how to
+minimize or maximize them.  It's used extensively in physics problems such as
+finding the minimum energy path a particle takes under certain conditions.  As
+you can also imagine, it's also used in machine learning/statistics where you
+want to find a density that optimizes an objective &lt;a class="footnote-reference" href="http://satisficing.briankeng.com/posts/the-calculus-of-variations/#id4" id="id1"&gt;[1]&lt;/a&gt;.  The explanation I'm
+going to use (at least for the first part) is heavily based upon Svetitsky's
+&lt;a class="reference external" href="http://julian.tau.ac.il/bqs/functionals/functionals.html"&gt;Notes on Functionals&lt;/a&gt;, which so far is
+the most intuitive explanation I've read.  I'll try to follow Svetitsky's
+notes to give some intuition on how we arrive at variational calculus from
+regular calculus with a bunch of examples along the way.  Eventually we'll
+get to an application that relates back to probability.  I think with the right
+intuition and explanation, it's actually not too difficult, enjoy!&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://satisficing.briankeng.com/posts/the-calculus-of-variations/"&gt;Read more…&lt;/a&gt; (16 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>differentials</category><category>entropy</category><category>lagrange multipliers</category><category>mathjax</category><category>probability</category><category>variational calculus</category><guid>http://satisficing.briankeng.com/posts/the-calculus-of-variations/</guid><pubDate>Sun, 26 Feb 2017 15:08:38 GMT</pubDate></item><item><title>Maximum Entropy Distributions</title><link>http://satisficing.briankeng.com/posts/maximum-entropy-distributions/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post will talk about a method to find the probability distribution that best
 fits your given state of knowledge.  Using the principle of maximum
 entropy and some testable information (e.g. the mean), you can find the
 distribution that makes the fewest assumptions about your data (the one with maximal
@@ -104,11 +119,4 @@ up with pretty much the same mathematical system as Kolmogorov's probability
 theory.&lt;/em&gt;) I'll stay away from any heavy derivations and stick with the
 intuition, which is exactly where I think this view of probability theory is most
 useful.&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://satisficing.briankeng.com/posts/probability-the-logic-of-science/"&gt;Read more…&lt;/a&gt; (14 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Jayne</category><category>logic</category><category>mathjax</category><category>probability</category><guid>http://satisficing.briankeng.com/posts/probability-the-logic-of-science/</guid><pubDate>Thu, 15 Oct 2015 00:30:05 GMT</pubDate></item><item><title>Accessible Satisfiability</title><link>http://satisficing.briankeng.com/posts/accessible-satisfiability/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Even though it was just a scant few years ago, my research in grad school seems
-like it was from another lifetime.  Nowadays I deal with data and most of my
-code revolves around manipulating and extracting interesting insights from it.
-However in my previous life I spent quite a bit of time dealing with
-satisfiability problems.  So before I start writing about data and related
-topics, I thought I'd kick it old school and write about some topics from my
-formative years.&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://satisficing.briankeng.com/posts/accessible-satisfiability/"&gt;Read more…&lt;/a&gt; (17 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Boolean</category><category>formal</category><category>mathjax</category><category>NP-Complete</category><category>SAT</category><category>verification</category><guid>http://satisficing.briankeng.com/posts/accessible-satisfiability/</guid><pubDate>Sun, 04 Oct 2015 00:28:04 GMT</pubDate></item></channel></rss>
+&lt;p&gt;&lt;a href="http://satisficing.briankeng.com/posts/probability-the-logic-of-science/"&gt;Read more…&lt;/a&gt; (14 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Jayne</category><category>logic</category><category>mathjax</category><category>probability</category><guid>http://satisficing.briankeng.com/posts/probability-the-logic-of-science/</guid><pubDate>Thu, 15 Oct 2015 00:30:05 GMT</pubDate></item></channel></rss>
