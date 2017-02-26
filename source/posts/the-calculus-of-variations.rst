@@ -37,28 +37,28 @@
 
 
 This post is going to describe a specialized type of calculus called
-variational calculus, which helps us find the *function* that minimizes or
-maximizes a given condition.
+variational calculus.  
 Analogous to the usual methods of calculus that we learn in university,
 this one deals with functions *of functions* called *functionals* and how to
-minimize or maximize them.  It's used extensively in physics such as finding
-the minimum energy path a particle takes under certain conditions.  As you can
-also imagine, it's also used in machine learning/statistics where you want to
-find the density that optimizes a constraint [1]_.  The explanation I'm going
-to use (at least the earlier part) is heavily based upon Svetitsky's 
-`Notes on Functionals <http://julian.tau.ac.il/bqs/functionals/functionals.html>`__,
-which so far is the most intuitive explanation I have read.  I'll try to follow
-Svetitsky's notes to give some intuition of how we arrive at variational
-calculus from regular calculus followed by a bunch of examples the last
-of which finally relates back to probability.  With the right intuition and
-explanation, it's actually not too difficult, enjoy!
+minimize or maximize them.  It's used extensively in physics problems such as
+finding the minimum energy path a particle takes under certain conditions.  As
+you can also imagine, it's also used in machine learning/statistics where you
+want to find a density that optimizes an objective [1]_.  The explanation I'm
+going to use (at least for the first part) is heavily based upon Svetitsky's
+`Notes on Functionals
+<http://julian.tau.ac.il/bqs/functionals/functionals.html>`__, which so far is
+the most intuitive explanation I've read.  I'll try to follow Svetitsky's
+notes to give some intuition on how we arrive at variational calculus from
+regular calculus with a bunch of examples along the way.  Eventually we'll
+get to an application that relates back to probability.  I think with the right
+intuition and explanation, it's actually not too difficult, enjoy!
 
 .. TEASER_END
 
 |h2| From multivariable functions to functionals |h2e|
 
-Consider a regular scalar function :math:`F(y)`, it maps a single value to a
-single value.  
+Consider a regular scalar function :math:`F(y)`, it maps a single value :math:`y` to a
+single value :math:`F(y)`.  
 You can differentiate it to get :math:`\frac{dF}{dy} = F'(y)`.
 Another way to think about it is starting at :math:`y_0`, move a tiny
 step away, call it :math:`dy`, then :math:`F` will change by its `differential
@@ -83,32 +83,33 @@ of the function is:
     dF = \frac{\partial F}{\partial y_1}\Big|_{y_1^0} dy_1 + \ldots + \frac{\partial F}{\partial y_n}\Big|_{y_n^0}dy_n \tag{2}
 
 So far we have only touched upon derivatives and differentials of a function
-:math:`F(y_0, y_1, \ldots, y_n)` within independent variables :math:`y_0, y_1,
+:math:`F(y_0, y_1, \ldots, y_n)` with independent variables :math:`y_0, y_1,
 \ldots, y_n`.  If you squint hard enough, you might start to see them
 not as independent variables but collectively as a function :math:`y` that
 takes an input :math:`i` i.e. :math:`y_i = y(i), i \in \mathcal{N}`.  
 In that case, :math:`F` is no longer just a function of independent variables
-but a function of a *function* :math:`y(i)`, which is another name for a **functional**!
+but a function of a *function* :math:`y(i)`.
 
 Of course this is just some intuition and not at all precise but let's keep
-going to see if we can get to a derivative.  Our independent points can be seen
+going to see where this can take us.  Our independent points can be seen
 as sampling some function :math:`y` on some interval :math:`[a, b]`.  Let's say
 we want to sample :math:`N` points, each :math:`\epsilon` distance apart, 
 i.e. :math:`N\epsilon = b - a`.  The :math:`n^{th}` point will be at 
 :math:`x=a + n\epsilon`, so our sample point becomes
-:math:`y_n = y(x_n) = y(a + n\epsilon)`.  *(I hope you can see where we're going with this ...)*
+:math:`y_n = y(x_n) = y(a + n\epsilon)`.
 As :math:`N \rightarrow \infty, \epsilon \rightarrow 0`, our sampled points
 :math:`y_n` become an increasingly accurate representation of our original
 function :math:`y(x)`.
 
-Now our original "function" :math:`F` can be thought of as a function of a set
+Our original "function" :math:`F` can now be thought of as a function of a set
 of variables :math:`\{y_n\}` resulting in :math:`F(\{y_n\})`.  As 
 :math:`N \rightarrow \infty`, the original
-function :math:`F` transforms into a function of a function :math:`y(x)`, also
-called a *functional* which we generally write as :math:`F[y]`.  So instead
-of taking a fixed number of independent variables and outputting a value,
-it takes an *infinite* number of variables, defined by :math:`y(x)` on the
-interval :math:`[a,b]`, and outputs a value!
+function :math:`F` transforms into a function of an infinite set of variables,
+or in another way, a function of a *function*.  The mapping is called a
+*functional*, which we generally write with square brackets :math:`F[y]`.  So
+instead of taking a fixed number of independent variables and outputting a
+value, it takes an *infinite* number of variables, defined by :math:`y(x)` on
+the interval :math:`[a,b]`, and outputs a value!
 
 Let's pause for a second and summarize: 
 
@@ -127,7 +128,7 @@ number.  Let's take a look at a few examples to make things concrete.
 
     Define :math:`F[y] = y(3)`.
     
-    * :math:`F[y=x] = y(3) = 3`
+    * :math:`F[y=x] = 3`
     * :math:`F[y=x^2] = (3)^2 = 9`
     * :math:`F[y=\ln_3(x)] = \ln_3(3) = 1`
 
@@ -154,7 +155,7 @@ number.  Let's take a look at a few examples to make things concrete.
 
          L[y] = \int_a^b \sqrt{1 + (\frac{dy}{dx})^2} dx
 
-    Notice that we're using the derivtive of :math:`y(x)` instead of the
+    Notice that we're using the derivative of :math:`y(x)` instead of the
     function itself.  Solving for :math:`a=0, b=1, y=x`, we get:
    
     .. math::
@@ -163,25 +164,25 @@ number.  Let's take a look at a few examples to make things concrete.
                 &= \sqrt{2} \int_0^1 dx \\
                 &= \sqrt{2}
 
-A common form of functionals that in appear in many contexts such as physics is:
+A common form of functionals that in appear in many contexts is:
 
 .. math::
 
     J[y] &= \int_a^b F(x, y(x), y'(x)) dx \\
     &\text{ for } x=[a,b], \text{   }a\leq b, \text{   }y(a)=\hat{y}_a, \text{   }y(b)=\hat{y}_b \tag{3}
 
-Which is just mostly saying that :math:`y(x)` is well behaved over :math:`x\in [a,b]`.
+Which is mostly just saying that :math:`y(x)` is well behaved over :math:`x\in [a,b]`.
 In more detail, we want these conditions to be satisfied for any :math:`y(x)` we plug in:
-`y(x)` being a single-valued function, 
+:math:`y(x)` being a single-valued function, 
 smooth so that :math:`y'(x)` exists as well as the integral defined in Equation 3, 
 and the boundary conditions (:math:`x=[a,b], a\leq b, y(a)=\hat{y}_a, y(b)=\hat{y}_b`) 
 are satisfied.
 
 |h2| Functional Derivatives |h2e|
 
-Now it's finally time to get to do something useful with functionals!  As with
-regular calculus whose premier application is finding minima and maxima,
-we also want to do the same thing with functionals.  It turns out we can define
+Now it's finally time to do something useful with functionals!  As with
+regular calculus, whose premier application is finding minima and maxima,
+we also want to be able to find the extrema of functionals.  It turns out we can define
 something analogous to a derivative unsurprisingly called a *functional derivative*.
 Let's see how we can intuitively build it up from the same multivariable
 function from above.
@@ -212,7 +213,7 @@ As a result, the *functional derivative* is defined by:
     \frac{\delta F}{\delta y(x)} \tag{6}
 
 This is analogous to the derivative at each of the "indices" :math:`x`,
-which we can think of as the `gradient <https://en.wikipedia.org/wiki/Gradient>`_
+which is the same concept as the `gradient <https://en.wikipedia.org/wiki/Gradient>`_
 of the multivariate function :math:`F` (albeit with an infinite number of variables)
 at each of the variables defined by :math:`y(x)`.
 
@@ -221,11 +222,11 @@ Equation 5 then becomes a
 where we can interpret as the rate of change of :math:`F` as we are
 moving through "point" :math:`y^0(x)` in the direction of :math:`\delta y(x)`
 (check out this `tutorial <http://tutorial.math.lamar.edu/Classes/CalcIII/DirectionalDeriv.aspx>`_
-on directional derivatives for a good intuitive referesher on the subject).
+on directional derivatives for a good intuitive refresher on the subject).
 
 The above explanation gives a natural extension from gradients to functional derivatives
 but we can also define it in terms of limits.  Using the analogy of directional
-derivatives from above, we have the functional derivative at the multivariate
+derivatives from above, if we have the functional derivative at the multivariate
 "point" :math:`y(x)` moving in the multivariate "direction" of an arbitrary
 function :math:`\eta(x)` then we can formulate the limit as:
 
@@ -262,8 +263,8 @@ let's just focus on simple cases where everything plays nicely.
         \delta F(y, \eta) = \int \frac{\delta F}{\delta y(x)} \eta(x) dx \tag{8}
 
     As mentioned above the term :math:`\epsilon \eta(x)` is also called a
-    variation of input :math:`y`, which is analogous to the infintesimely small
-    :math:`epsilon` in regular calculus.
+    variation of input :math:`y`, which is analogous to the infinitesimally small
+    :math:`\epsilon` in regular calculus.
 
     The first variation and higher order variations define the respective
     functional derivatives and can be derived by taking the coefficients of the
@@ -281,8 +282,8 @@ let's just focus on simple cases where everything plays nicely.
             
         F[y(x)] = \int_0^1 y(x)^2 dx \tag{9}
 
-    We can compute this by going back to Equation 5 and calculating 
-    :math:`dF = F[y + \delta y] - F[y]`, start by computing :math:`F[y + \delta y]`:
+    We can calculate this by going back to Equation 5 and computing its first variation: 
+    :math:`dF = F[y + \delta y] - F[y]`. Start by computing :math:`F[y + \delta y]`:
 
     .. math::
             
@@ -330,7 +331,7 @@ which states (roughly):
 You can derive this equation using the method we used above (and a few extra
 tricks) but I'll leave it as an exercise :)
 For simple functionals like Equation 12, this is a very handy way to compute functional
-derivatives.  Let's take a look at a more complicated examples.
+derivatives.  Let's take a look at a couple more complicated examples.
 
 .. admonition:: Example 5: Use the Euler-Lagrange Equation to find the
     functional derivative of :math:`F[y(x)] = \int_0^1 x^3 e^{-y(x)} dx`
@@ -366,8 +367,8 @@ want to minimize or maximize a functional.  In a similar way to how we find a
 point that is an extremum of a function, we can also find a function that
 is an extremum a functional.
 
-It turns out that it's pretty much what you would expect: set the
-functional derivative to zero and we'll find a
+It turns out that it's pretty much what you would expect: if we set the
+functional derivative to zero, we'll find a
 `stationary point <https://en.wikipedia.org/wiki/Critical_point_(mathematics)>`_
 of the functional where we possibly have a local minimum or maximum (i.e. a
 necessary condition for extrema, sometimes we might find a 
@@ -393,7 +394,8 @@ classic example.
         \frac{\partial L}{\partial y} &= 0  \\
         \frac{\partial L}{\partial y'} &= \frac{f'(x)}{\sqrt{1 + f'(x)^2}}  \tag{17}
 
-    Plugging them into Equation 13, we get the differential equation: 
+    Plugging them into Equation 13, we can simplify the resulting differential
+    equation:
 
     .. math::
 
@@ -442,7 +444,7 @@ Lagrangian:
 
 Using the Euler-Lagrange equation, we can solve Equation 21 for a function
 :math:`y` and constant :math:`\lambda`, keeping in mind we are given boundary
-conditions at :math:`a` and :math:`b` as well as Equation 20 in order to solve
+conditions at :math:`a` and :math:`b` as well as Equation 20 to help us solve
 for all the constants.  This method also naturally extends to multiple
 constraints as you would expect.
 
@@ -481,43 +483,43 @@ post on `Maximum Entropy Distributions <link://slug/maximum-entropy-distribution
 
     .. math::
 
-        H[f] := -\int_{a}^{b} f(x)\log(f(x)) dx \tag{23}
+        H[f] := -\int_{a}^{b} f(x)\log(f(x)) dx \tag{24}
 
     Next, we define a functional constraint that our density must sum to 1:
 
     .. math::
 
-        G[f] := \int_{a}^{b} f(x) dx = 1 \tag{24}
+        G[f] := \int_{a}^{b} f(x) dx = 1 \tag{25}
 
     Now put together the Lagrangian equivalent:
 
     .. math::
 
         F[f] &= \int_{a}^{b} L(x, f(x)) dx \\
-             &= \int_{a}^{b} -f(x)\log(f(x)) - \lambda f(x) dx \tag{25}
+             &= \int_{a}^{b} -f(x)\log(f(x)) - \lambda f(x) dx \tag{26}
 
-    Using the Euler-Langrange Equation to find the maximum and noticing we have
+    Using the Euler-Lagrange equation to find the maximum and noticing we have
     no derivatives of :math:`f(x)`, we get:
 
     .. math::
 
         \frac{\delta L}{\delta f(x)} = -\log(f(x)) - 1 - \lambda &= 0 \\
         -\log(f(x)) = 1 + \lambda \\
-        f(x) = e^{-\lambda - 1} \tag{26}
+        f(x) = e^{-\lambda - 1} \tag{27}
 
-    Plugging this into our constraint in Equation 24:
+    Plugging this into our constraint in Equation 25:
 
     .. math::
 
         G[f] = \int_{a}^{b} e^{-\lambda - 1} dx &= 1 \\
         e^{-\lambda - 1} \int_{a}^{b} dx &= 1 \\
-        e^{-\lambda - 1} &= \frac{1}{b-a} \tag{27}
+        e^{-\lambda - 1} &= \frac{1}{b-a} \tag{28}
 
-    Now substituting back into Equation 26, we get:
+    Now substituting back into Equation 27, we get:
 
     .. math::
 
-        f(x) = \frac{1}{b-a} \tag{28}
+        f(x) = \frac{1}{b-a} \tag{29}
 
     This is nothing more than a uniform distribution on the interval
     :math:`[a,b]`. This means that given no other knowledge of a distribution
@@ -531,13 +533,13 @@ post on `Maximum Entropy Distributions <link://slug/maximum-entropy-distribution
     when we have the mean and variance specified, let's see if you're right.
 
     We'll just transform the variance constraint into the second moment to make 
-    this a bit my symmetric:
+    this a bit more symmetric:
 
     .. math::
 
         \int_{-\infty}^{\infty} f(x) (x-\mu)^2 dx &= \sigma^2  \\
         \int_{-\infty}^{\infty} f(x)x^2 dx - \mu^2 &= \sigma^2  \\
-        \int_{-\infty}^{\infty} f(x)x^2 dx &= \sigma^2 + \mu^2 \tag{29}
+        \int_{-\infty}^{\infty} f(x)x^2 dx &= \sigma^2 + \mu^2 \tag{30}
 
     Given this objective functional and associated constraints:
 
@@ -546,38 +548,38 @@ post on `Maximum Entropy Distributions <link://slug/maximum-entropy-distribution
         H[f] &:= -\int_{-\infty}^{\infty} f(x)\log(f(x)) dx \\
         G_0[f] &:= \int_{-\infty}^{\infty} f(x) dx = 1 \\
         G_1[f] &:= \int_{-\infty}^{\infty} f(x) x  dx = \mu  \\
-        G_2[f] &:= \int_{-\infty}^{\infty} f(x) x^2 dx = \sigma^2 + \mu^2 \tag{30}
+        G_2[f] &:= \int_{-\infty}^{\infty} f(x) x^2 dx = \sigma^2 + \mu^2 \tag{31}
 
     we can put together the Lagrangian functional:
 
     .. math::
 
-        F[f] &:= -\int_{-\infty}^{\infty} L(x, f(x)) dx \\
+        F[f] &:= \int_{-\infty}^{\infty} L(x, f(x)) dx \\
          &= \int_{-\infty}^{\infty} -f(x)\log(f(x))
         - \lambda_0 f(x)
         - \lambda_1 f(x) x 
-        - \lambda_2 f(x) x^2 dx \tag{31}
+        - \lambda_2 f(x) x^2 dx \tag{32}
 
-    Using the Euler-Lagrange Equation again and setting it to 0:
+    Using the Euler-Lagrange equation again and setting it to 0:
 
     .. math::
 
         -\log(f(x)) - 1 - \lambda_0 - \lambda_1 x - \lambda_2 x^2 &= 0 \\
-        f(x) &= e^{-(1 + \lambda_0 \lambda_1 x \lambda_2 x^2)} \tag{32}
+        f(x) &= e^{-(1 + \lambda_0 + \lambda_1 x + \lambda_2 x^2)} \tag{33}
 
     Now this is not going work out so nicely in terms of plugging it back into
     our constraints from Equation 30 because integrals involving :math:`e^{x^2}`
-    usually don't have anti-derivatives.  But one thing to notice is that this is
+    usually don't have nice anti-derivatives.  But one thing to notice is that this is
     basically the form of a 
     `Gaussian function <https://en.wikipedia.org/wiki/Gaussian_function>`_
     (you'll have to do some legwork to complete the square though):
 
     .. math::
 
-        f(x) &= e^{-(1 + - \lambda_0 - \lambda_1 x - \lambda_2 x^2)} \\
-             &= ae^{-\frac{(x-b)^2}{2c^2}} \tag{33}
+        f(x) &= e^{-(1 + \lambda_0 + \lambda_1 x + \lambda_2 x^2)} \\
+             &= ae^{-\frac{(x-b)^2}{2c^2}} \tag{34}
 
-    Further, we know from the constraints from Equation 30 that the function
+    Further, we know from the constraints in Equation 31 that the function
     is normalized to :math:`1`, making this a normal distribution.
     Thus we can determine the values of the missing coefficients by just
     matching them against the definition of a normal distribution:
@@ -586,7 +588,7 @@ post on `Maximum Entropy Distributions <link://slug/maximum-entropy-distribution
 
         a &= \frac{1}{\sqrt{2\pi \sigma^2}} \\
         b &= \mu \\
-        c &= \sigma^2  \tag{34}
+        c &= \sigma^2  \tag{35}
 
     So by the principle of maximum entropy, if we only know the mean and variance
     of a distribution with support along the real line, we should assume the distribution
@@ -594,13 +596,13 @@ post on `Maximum Entropy Distributions <link://slug/maximum-entropy-distribution
 
 |h2| Conclusion |h2e|
 
-For those of us who aren't math or physics majors (*cough* computer engineers),
+For those of us who aren't math or physics majors (`*` *cough* `*` computer engineers),
 variational calculus is an important topic that we missed out on.  Not only
 does it have a myriad of applications in physical domains (it's the most common
-type of problem when searching for "variational calculus"), it has many
+type of problem when searching for "variational calculus"), it also has many
 applications in statistics and machine learning (you can expect a future post
 using this topic!).  As with most things, once you know enough about the individual
-parts (calculus, Lagrange multipliers etc.) the actual topic (variational calculus)
+parts (multivariable calculus, Lagrange multipliers etc.) the actual topic (variational calculus)
 isn't too much of a stretch (at least when you're not trying to prove things
 formally!).  I hope this post helps all the non-mathematicians and non-physicists
 out there.
@@ -620,4 +622,4 @@ out there.
 * "Advanced Variational Methods In Mechanics", `Chapter 1: Variational Calculus Overview <http://www.colorado.edu/engineering/CAS/courses.d/AVMM.d/AVMM.Ch01.d/AVMM.Ch01.pdf>`_, University of Colorado at Boulder
 * `Variational Problems <http://www.vgu.edu.vn/fileadmin/pictures/studies/master/compeng/study_subjects/modules/math/notes/chapter-06.pdf>`_, Vietnamese-German University.
 
-.. [1] As you have probably guessed, this is the primary reason I'm interested in this area of mathematics.  A lot of popular ML/statistics techniques have the word "variational", which they get becasue they are somehow related to variational calculus.
+.. [1] As you have probably guessed, this is the primary reason I'm interested in this area of mathematics.  A lot of popular ML/statistics techniques have the word "variational", which they get because they are somehow related to variational calculus.
