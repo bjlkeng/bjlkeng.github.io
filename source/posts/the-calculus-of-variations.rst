@@ -1,6 +1,6 @@
 .. title: The Calculus of Variations
 .. slug: the-calculus-of-variations
-.. date: 2017-02-24 08:08:38 UTC-05:00
+.. date: 2017-02-26 10:08:38 UTC-05:00
 .. tags: variational calculus, differentials, lagrange multipliers, entropy, probability, mathjax
 .. category: 
 .. link: 
