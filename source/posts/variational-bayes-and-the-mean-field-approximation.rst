@@ -89,7 +89,8 @@ more concrete.
 
             \mu &\sim \mathcal{N}(\mu_0, (\lambda_0\tau)^{-1}) \\ 
             \tau &\sim \text{Gamma}(a_0, b_0) \\
-            x_i &\sim \mathcal{N}(\mu, \tau^{-1})
+            x_i &\sim \mathcal{N}(\mu, \tau^{-1}) \\
+            \tag{1}
 
        where the hyperparameters :math:`\mu_0, \lambda_0, a_0, b_0` are given.
        In this model, the variables :math:`\mu,\tau` are unobserved, so
@@ -111,7 +112,8 @@ more concrete.
            \sigma^2_{i=1,\ldots,K} &\sim \text{Inverse-Gamma}(\nu, \sigma_0^2) \\
            \phi &\sim \text{Symmetric-Dirichlet}_K(\beta) \\
            z_i &\sim \text{Categorical}(\phi) \\
-           x_i &\sim \mathcal{N}(\mu_{z_i}, \sigma^2_{z_i})
+           x_i &\sim \mathcal{N}(\mu_{z_i}, \sigma^2_{z_i})  \\
+           \tag{2}
 
        In this case, you would want to (ideally) find an approximation to the
        joint distribution posterior (including both parameters and latent variables):
@@ -157,13 +159,83 @@ To summarize, variational Bayes has these ideas:
 
 Now that we have an overview of this process, let's see how it actually works.
 
-|h2| Kullback-Leibeler Divergence and Finding Like Probability Distributions |h2e|
+.. admonition:: Kullback-Leibeler Divergence
 
+  `Kullback-Leibler divergence <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>`__ 
+  (aka information gain) is a non-symmetric measure of the difference between
+  two probability distributions :math:`P` and :math:`Q`.  It is defined for discrete
+  and continuous probability distributions as such:
 
+  .. math::
 
+    D_{KL}(P||Q) &= \sum_i P(i) \log \frac{P(i)}{Q(i)} \\
+    D_{KL}(P||Q) &= \int_{-\infty}^{\infty} p(x) \log \frac{p(x)}{q(x)} dx \\
+    \tag{3}
+
+  where :math:`p` and :math:`q` denote the densities of :math:`P` and :math:`Q`.
+
+  There are several ways to intuitively understand KL-divergence, but let's use
+  information entropy because I think it's a bit more intuitive.
+  (see my previous post on 
+  `Maximum Entropy Distributions <link://slug/maximum-entropy-distributions>`__ 
+  for some intuition on the concept of `information entropy
+  <https://en.wikipedia.org/wiki/Entropy_(information_theory)>`__).
+
+  |h3| KL Divergence as Information Gain |h3e|
+
+  To quickly summarize, entropy is the average amount of information or "surprise"
+  for a probability distribution.  For example, a fair six-sided die has a uniform
+  distribution where you have no idea what number is going to come next, this translates
+  to a lot of surprise or lots of entropy.  On the other hand, if you have a
+  weighted die biased towards six, on average, you will be surprised less
+  because you will expect six to come up more often.  Entropy is defined as for
+  both discrete and continuous distributions:
+
+  .. math::
+
+    H(P) &:= -\sum_{i=1}^n P(i) \log(P(i)) \\
+    H(P) &:= - \int_{-\infty}^{\infty} p(x)\log(p(x)) dx \\
+    \tag{4}
+  
+  Entropy can also be viewed as the expected value of information i.e.
+  :math:`E_P[I_P(X)] = E_P[-\log(P(X))]`.  Another way to look at entropy is
+  the average message length when you encode a message with the theoretically
+  shortest symbols (for a given probability distribution of those symbols).
+  Thus, :math`\log(P(x))` defines the message length for the "ideal" encoding
+  of the symbols for :math:`P` in this intepretation [1]_.
+
+  Of course, we rarely have an ideal encoding. What would our average message length
+  (i.e. entropy) be if we used the ideal symbols from another distribution such as
+  :math:`Q`?  In that case, it would just be :math:`H(P,Q) := E_P[I_Q(X)] = E_P[-\log(Q(X))]`,
+  which is also called the *cross entropy* of :math:`P` and :math:`Q`.
+  Of course, it would be larger than the ideal encoding, thus we would increase the
+  average message length.  In other words, we need more information (or bits)
+  to transmit this unoptimal :math:`Q` coding of the message.
+
+  Thus, KL divergence can be viewed as this average extra-message length we need:
+
+  .. math::
+
+    D_{KL}(P||Q) &= H(P,Q) - H(P)\\
+                 &= -\sum_{i=1}^n P(i) \log(Q(i)) + \sum_{i=1}^n P(i) \log(P(i)) \\
+                 &= \sum_{i=1}^n P(i) \log\frac{P(i)}{Q(i)} \\
+                 \tag{5}
+
+  You can probabily already see how this is a useful objective to try to minimize.  If
+  we have some theoretic minimal distribution :math:`P`, we want to try to find an
+  approximation :math:`Q` that tries to get as close as possible by minimizing
+  the KL divergence.
+
+  |h3| Forward and Reverse KL Divergence |h3e|
+
+ 
 |h2| Further Reading |h2e|
 
-* Previous Posts: `Variational Calculus <link://slug/the-calculus-of-variations>`__, `Expectation-Maximization Algorithm <link://slug/the-expectation-maximization-algorithm>`__, `Normal Approximation to the Posterior <link://slug/the-expectation-maximization-algorithm>`__,
-`Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__
-
+* Previous Posts: `Variational Calculus <link://slug/the-calculus-of-variations>`__, `Expectation-Maximization Algorithm <link://slug/the-expectation-maximization-algorithm>`__, `Normal Approximation to the Posterior <link://slug/the-expectation-maximization-algorithm>`__, `Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__, `Maximum Entropy Distributions <link://slug/maximum-entropy-distributions>`__
 * Wikipedia: `Variational Bayesian methods <https://en.wikipedia.org/wiki/Variational_Bayesian_methods>`__, `Bayesian Inference <https://en.wikipedia.org/wiki/Bayesian_inference>`__, `Kullback-Leibler divergence <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>`__
+* Machine Learning: A Probabilistic Perspective, Kevin P. Murphy
+* `A Beginner's Guide to Variational Methods: Mean-Field Approximation <http://blog.evjang.com/2016/08/variational-bayes.html>`__, Eric Jung.
+
+|br|
+
+.. [1] Another way of stating this is that entropy determines the minimum number of bits (or nats) your channel needs in order to transmit the message across.  This can also be interpreted as the minimum average theoretic size of encoding your message.
