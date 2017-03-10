@@ -147,12 +147,12 @@ where we use all other previously calculated partitions to derive the current on
 
 To summarize, variational Bayes has these ideas:
 
-* Bayesian inference problem is hard and usually can't be solved analytically.
+* The Bayesian inference problem is hard and usually can't be solved analytically.
 * Variational Bayes solves this problem by finding an approximate posterior
   distribution :math:`Q` that approximates the true posterior :math:`P`.
 * It uses KL-divergence as a measure of how well our approximation fits the true posterior.
-* The mean-field approximation partitions the unknown variables and assumes each
-  partition has a well-known easy-to-analyze distribution.
+* The mean-field approximation partitions the unknown variables, and assumes each
+  partition is independent and has a well-known, easy-to-analyze distribution.
 * With some derivation, we can find an algorithm that iteratively computes
   the partitions of :math:`Q` by using the previous values of all the other
   partitions.
@@ -176,43 +176,45 @@ Now that we have an overview of this process, let's see how it actually works.
 
   There are several ways to intuitively understand KL-divergence, but let's use
   information entropy because I think it's a bit more intuitive.
-  (see my previous post on 
-  `Maximum Entropy Distributions <link://slug/maximum-entropy-distributions>`__ 
-  for some intuition on the concept of `information entropy
-  <https://en.wikipedia.org/wiki/Entropy_(information_theory)>`__).
 
   |h3| KL Divergence as Information Gain |h3e|
 
-  To quickly summarize, entropy is the average amount of information or "surprise"
-  for a probability distribution.  For example, a fair six-sided die has a uniform
-  distribution where you have no idea what number is going to come next, this translates
-  to a lot of surprise or lots of entropy.  On the other hand, if you have a
-  weighted die biased towards six, on average, you will be surprised less
-  because you will expect six to come up more often.  Entropy is defined as for
-  both discrete and continuous distributions:
+  To quickly summarize, entropy <https://en.wikipedia.org/wiki/Entropy_(information_theory)>`__)
+  is the average amount of information or "surprise" for a probability
+  distribution [1]_.  Entropy is defined as for both discrete and continuous distributions:
 
   .. math::
 
-    H(P) &:= -\sum_{i=1}^n P(i) \log(P(i)) \\
-    H(P) &:= - \int_{-\infty}^{\infty} p(x)\log(p(x)) dx \\
+    H(P) &:= E_P[I_P(X)] = -\sum_{i=1}^n P(i) \log(P(i)) \\
+    H(P) &:= E_P[I_P(X)] = - \int_{-\infty}^{\infty} p(x)\log(p(x)) dx \\
     \tag{4}
+
+  An intuitive way to think about it is the (theoretical)
+  minimum number of bits you need to encode an event (or symbol) drawn from your
+  probability distribution (see `Shannon's source coding theorem
+  <https://en.wikipedia.org/wiki/Shannon%27s_source_coding_theorem>`_).
+  For example, for a fair eight-sided die, each outcome is equi-probable, so we
+  would need :math:`\sum_1^8 -\frac{1}{8}log_2(\frac{1}{8}) = 3` bits to encode
+  the roll on average.  On the other hand, if we have a weighted eight-sided
+  die where "8" came up 40 times more often than the other numbers, we would
+  theoretically need about 1 bit to encode the roll on average (to get close,
+  we would assign "8" to a single bit `0`, and others to something like `10`,
+  `110`, `111` ... using a `prefix code <https://en.wikipedia.org/wiki/Prefix_code>`_).  
   
-  Entropy can also be viewed as the expected value of information i.e.
-  :math:`E_P[I_P(X)] = E_P[-\log(P(X))]`.  Another way to look at entropy is
-  the average message length when you encode a message with the theoretically
-  shortest symbols (for a given probability distribution of those symbols).
-  Thus, :math`\log(P(x))` defines the message length for the "ideal" encoding
-  of the symbols for :math:`P` in this intepretation [1]_.
+  In this way of viewing entropy, we're using the assumption that our symbols
+  are drawn from probability distribution :math:`P` to get as close as we can
+  to the theoretical minimum code length.  Of course, we rarely have an ideal encoding. 
+  What would our average message length (i.e. entropy) be if we used the ideal
+  symbols from another distribution such as :math:`Q`?  In that case, it would
+  just be :math:`H(P,Q) := E_P[I_Q(X)] = E_P[-\log(Q(X))]`, which is also
+  called the *cross entropy* of :math:`P` and :math:`Q`.  Of course, it would
+  be larger than the ideal encoding, thus we would increase the average message
+  length.  In other words, we need more information (or bits) to transmit this
+  unoptimal :math:`Q` coding of the message.
 
-  Of course, we rarely have an ideal encoding. What would our average message length
-  (i.e. entropy) be if we used the ideal symbols from another distribution such as
-  :math:`Q`?  In that case, it would just be :math:`H(P,Q) := E_P[I_Q(X)] = E_P[-\log(Q(X))]`,
-  which is also called the *cross entropy* of :math:`P` and :math:`Q`.
-  Of course, it would be larger than the ideal encoding, thus we would increase the
-  average message length.  In other words, we need more information (or bits)
-  to transmit this unoptimal :math:`Q` coding of the message.
-
-  Thus, KL divergence can be viewed as this average extra-message length we need:
+  Thus, KL divergence can be viewed as this average extra-message length we need 
+  when we wrongly assume the probability distribution, using :math:`Q` instead of
+  :math:`P`:
 
   .. math::
 
@@ -228,7 +230,41 @@ Now that we have an overview of this process, let's see how it actually works.
 
   |h3| Forward and Reverse KL Divergence |h3e|
 
- 
+  One thing to note aboute KL divergence is that it's not symmetric, that is,
+  :math:`D_{KL}(P||Q) \neq D_{K}(Q||P)`.  The former is called forward KL divergence,
+  while the latter is called reverse KL divergence.  Let's start by looking at
+  forward KL.  Taking a closer look at equation 5, we can see that when :math:`P`
+  is large and :math:`Q \rightarrow 0`, the logarithm blows up.  This implies
+  when choosing our approximate distribution :math:`Q` to minimize forward KL
+  divergence, we want to "cover" all the non-zero parts of :math:`P` as best
+  we can.  Figure 1 shows a good visualization of this.  
+
+  .. figure:: /images/forward-KL.png
+    :height: 300px
+    :alt: Forward KL Divergence (source: `Eric Jang's Blog <http://blog.evjang.com/2016/08/variational-bayes.html>`__)
+    :align: center
+
+    Figure 1: Forward KL Divergence (source: `Eric Jang's Blog <http://blog.evjang.com/2016/08/variational-bayes.html>`__)
+
+  From Figure 1, our original distribution :math:`P` is multimodal, while our
+  approximate one :math:`Q` is bell shaped.  In the top diagram, if we just try
+  to "cover" one of the humps, then the other hump of :math:`P` has a large
+  mass with a near-zero value of :math:`Q`, resulting in a large KL divergence.
+  In the bottom diagram, we can see that if we try to "cover" both humps by placing
+  :math:`Q` somewhere in between, we'll get a smaller forward KL.  Of course,
+  this has other problems like the maximum density (center of :math:`Q`) is now
+  at a point that has low density in the original distribution.
+
+  Now, let's take a look at reverse KL.
+
+  .. figure:: /images/reverse-KL.png
+    :height: 300px
+    :alt: Reverse KL Divergence (source: `Eric Jang's Blog <http://blog.evjang.com/2016/08/variational-bayes.html>`__)
+    :align: center
+
+    Figure 2: Reverse KL Divergence (source: `Eric Jang's Blog <http://blog.evjang.com/2016/08/variational-bayes.html>`__)
+    
+
 |h2| Further Reading |h2e|
 
 * Previous Posts: `Variational Calculus <link://slug/the-calculus-of-variations>`__, `Expectation-Maximization Algorithm <link://slug/the-expectation-maximization-algorithm>`__, `Normal Approximation to the Posterior <link://slug/the-expectation-maximization-algorithm>`__, `Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__, `Maximum Entropy Distributions <link://slug/maximum-entropy-distributions>`__
@@ -238,4 +274,5 @@ Now that we have an overview of this process, let's see how it actually works.
 
 |br|
 
-.. [1] Another way of stating this is that entropy determines the minimum number of bits (or nats) your channel needs in order to transmit the message across.  This can also be interpreted as the minimum average theoretic size of encoding your message.
+.. [1] There are a few different ways to intuitively understand information entropy.  See my previous post on `Maximum Entropy Distributions <link://slug/maximum-entropy-distributions>`__ for a slightly different explanation.
+
