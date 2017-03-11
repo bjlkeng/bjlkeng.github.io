@@ -54,7 +54,7 @@ which I find is the main blocker to understanding this subject.  Enjoy!
 
 .. TEASER_END
 
-|h2| Variational Bayes: An Overview |h2e|
+|h2| Variational Bayesian Inference: An Overview |h2e|
 
 Before we get into the nitty-gritty of it all, let's just go over at a high level
 what we're trying to do.  First, we're trying to perform `Bayesian inference <https://en.wikipedia.org/wiki/Bayesian_inference>`__, which basically means given a model, we're trying
@@ -121,7 +121,7 @@ more concrete.
        which most likely has some independence between these variables leading to
        several independent distributions.
 
-       Note: I'm not sure it variational Bayes is actually used to solve the
+       Note: I'm not sure if variational Bayes is actually used to solve the
        Gaussian mixture model in practice (although theoretically it can be).  It might be
        more appropriate to use `MCMC <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__.
 
@@ -255,15 +255,116 @@ Now that we have an overview of this process, let's see how it actually works.
   this has other problems like the maximum density (center of :math:`Q`) is now
   at a point that has low density in the original distribution.
 
-  Now, let's take a look at reverse KL.
+  Now, let's take a look at reverse KL, where :math:`P` is still our theoretic
+  distribution we're trying to match and :math:`Q` is our approximation:
 
+  .. math::
+
+    D_{KL}(Q||P) = \sum_{i=1}^n Q(i) \log\frac{Q(i)}{P(i)} \\
+    \tag{6}
+
+  From Equation 6, we can see that the opposite situation occurs.  If :math:`P`
+  is small, we want :math:`Q` to be (proportioally) small too or the ratio
+  might blow up.  Additionally, when :math:`P` is large, it doesn't cause us
+  any particular problems because it just means the ratio is close to 0.
+  Figure 2 shows this visually.
+ 
   .. figure:: /images/reverse-KL.png
     :height: 300px
     :alt: Reverse KL Divergence (source: `Eric Jang's Blog <http://blog.evjang.com/2016/08/variational-bayes.html>`__)
     :align: center
 
     Figure 2: Reverse KL Divergence (source: `Eric Jang's Blog <http://blog.evjang.com/2016/08/variational-bayes.html>`__)
-    
+  
+  From Figure 2, we see in the top diagram that if we try to fit our unimodal
+  distribution "in-between" the two maxima of :math:`P`, the tails cause us
+  some problems where :math:`P` drops off much faster than :math:`Q` causing
+  the ratio at those points to blow up.  The bottom diagram shows a better
+  fit according to reverse KL, the tails of :math:`P` and :math:`Q` drop off
+  at a similar rate, not causing any issues.  Additionally, since :math:`Q`
+  matches one of the mode of our :math:`P` distribution well, the logarithm
+  factor will be close to zero, also making for a better reverse KL fit.
+  Reverse KL also has the nice property that the mode of our :math:`Q`
+  distribution matches at least one of the modes of :math:`P`, which
+  is really the best we could hope for with the shape of our approximation.
+
+  In our use of KL divergence, we'll be using reverse KL divergence, not only
+  because of the nice properties above, but for the more practical reason that
+  the math works out nicely :p
+
+|h2| From KL divergence to Optimization |h2e|
+
+Remember what we're trying to accomplish: we have some intractable Bayesian
+inference problem :math:`P(\theta|X)` we're trying to compute, where
+:math:`\theta` are the unobserved variables (parameters or latent variables)
+and :math:`X` are our observed data.  We could try to compute it directly using
+Bayes theorem (continuous version, where :math:`p` is the density of
+distribution :math:`P`):
+
+.. math::
+
+   p(\theta|X) &= \frac{p(X, \theta)}{p(X)} \\
+               &= \frac{p(X|\theta)p(\theta)}{\int_{-\infty}^{\infty} p(X|\theta)p(\theta) d\theta} \\
+               &= \frac{\text{likelihood}\cdot\text{prior}}{\text{marginal likelihood}} \\
+               \tag{7}
+        
+However, this is generally difficult to compute because of the marginal
+likelihood (sometimes called the evidence), but what if we didn't have to
+directly compute the marginal likelihood and instead only needed the likelihood
+(and prior)?  
+
+This idea leads us to both the commonly used methods to solve
+Bayesian inference problems: 
+`MCMC <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__
+and variational inference.  You can check out my previous post on MCMC but in general
+it's quite slow since it involves repeated sampling but your approximation can
+get arbitrarily close to the actual distribution (given enough time).
+Variational inference on the other hand is a strict approximation that is much faster
+because we can find an approximation via an optimizing problem.  It also can quantify
+the lower bound on the marginal likelihood, which can help with model selection.
+
+Now going back to our problem, we want to find an approximate distribution
+:math:`Q` that minimizes (reverse) KL divergence.  Starting from reverse KL
+divergence, let's do some manipulation to get to an equation
+that's easy to interpret (using continuous version here), where our approximate
+density is :math:`q(\theta)` and our theoretic one is :math:`p(\theta|X)`:
+
+.. math::
+
+  D_{KL}(Q||P) &= \int_{-\infty}^{\infty} q(\theta) \log\frac{q(\theta)}{p(\theta|X)} d\theta \\
+               &= \int_{-\infty}^{\infty} q(\theta) \log\frac{q(\theta)}{p(\theta,X)} d\theta + 
+                  \int_{-\infty}^{\infty} q(\theta) \log{p(X)} d\theta \\
+               &= \int_{-\infty}^{\infty} q(\theta) \log\frac{q(\theta)}{p(\theta,X)} d\theta + 
+                  \log{p(X)} \\
+              \tag{8}
+
+Where we're using Bayes theorem on line 2, rearranging we get:
+
+.. math::
+
+  \log{p(X)} &= D_{KL}(Q||P) 
+            - \int_{-\infty}^{\infty} q(\theta) \log\frac{q(\theta)}{p(\theta,X)} d\theta \\
+             &=  D_{KL}(Q||P) + \mathcal{L}(Q)
+              \tag{9}
+
+where :math:`\mathcal{L}` is called the (negative) *variational free energy* [2]_,
+NOT the likelihood (I don't like the choice of symbols either but that's how it's shown
+in most texts).  Recall that the evidence on the LHS is constant (for a given
+model), thus if we maximize the variational free energy :math:`\mathcal{L}`, we
+minimize (reverse) KL divergence as required.
+
+This is the crux of variational inference: we don't need to explicitly compute
+the posterior (or the marginal likelihood), we can solve an optimization
+problem by finding the right distribution :math:`Q` that best fits our
+variational free energy.  Note that we need to find a *function*, not just a
+point, that maximizes :math:`\mathcal{L}`, which means we need to use
+variational calculus (see my `past post <link://slug/the-calculus-of-variations>`__ 
+on the subject), hence the name "variational Bayes".
+
+|h2| The Mean-Field Approximation |h2e|
+
+next section (try to prove the optimal constraint?)
+
 
 |h2| Further Reading |h2e|
 
@@ -276,3 +377,4 @@ Now that we have an overview of this process, let's see how it actually works.
 
 .. [1] There are a few different ways to intuitively understand information entropy.  See my previous post on `Maximum Entropy Distributions <link://slug/maximum-entropy-distributions>`__ for a slightly different explanation.
 
+.. [2] The term variational free energy is from an alternative interpretation from physics.  As with a lot of ML techniques, this has its roots in physics where they make great use of probability to model the physical world. 
