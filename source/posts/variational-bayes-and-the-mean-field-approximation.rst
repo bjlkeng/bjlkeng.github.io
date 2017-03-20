@@ -66,13 +66,13 @@ There are two main avenues to solve this problem.  The first is to just get a
 point-estimate for each of the unobserved variables (either MAP or mean) but
 this is not ideal since we can't quantify the uncertainty of the unknown
 variables (and is kind of against the spirit of Bayesian analysis).  The other
-aims to find a distribution of each unknown variable.  One good but relatively
+aims to find a (joint) distribution of each unknown variable.  One good but relatively
 slow method is to use `MCMC <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__ to iteratively draw samples that eventually give you the shape
 of every unknown variable.  Another is to use variational Bayes helps to find
-an approximation of the distribution of the unknown variables.  With variational
-Bayes, you only get an approximation but it's in the form of a distribution!
-So long as your approximation is pretty good, you can do all the nice Bayesian
-analysis you like.  
+an approximation of the distribution in question.  With variational Bayes, you
+only get an approximation but it's in the form of a distribution!  So long as
+your approximation is pretty good, you can do all the nice Bayesian analysis
+you like, and the best part is it's relatively easy to compute!
 
 The next example shows a couple of Bayesian inference problems to make things
 more concrete.
@@ -95,7 +95,7 @@ more concrete.
        where the hyperparameters :math:`\mu_0, \lambda_0, a_0, b_0` are given.
        In this model, the variables :math:`\mu,\tau` are unobserved, so
        we would use variational Bayes to approximate the posterior
-       distribution :math:`q(\mu, \tau) =p(\mu, \tau | x_1, \ldots, x_N)`
+       distribution :math:`q(\mu, \tau) \approx p(\mu, \tau | x_1, \ldots, x_N)`
        for the parameters :math:`\mu` and :math:`\tau`.
 
     2. **Bayesian Gaussian Mixture Model**:
@@ -121,11 +121,6 @@ more concrete.
        which most likely has some independence between these variables leading to
        several independent distributions.
 
-       Note: I'm not sure if variational Bayes is actually used to solve the
-       Gaussian mixture model in practice (although theoretically it can be).  It might be
-       more appropriate to use `MCMC <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__.
-
-
 Now that we know our problem, next thing we need to is define what it means to
 be a good approximation.  In many of these cases,
 `Kullback-Leibler divergence <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>`__ (KL divergence)
@@ -136,25 +131,28 @@ and :math:`Q` being the approximate distribution.  With a bit of math, we can
 get to an iterative algorithm to find :math:`Q`.
 
 Next, we assume our approximate distribution :math:`Q` takes the form of some
-well-known and easy-to-analyze distributions.  In the mean-field approximation (a common
-type of variational Bayes),
-we assume that the unknown variables can be partitioned so that each partition
-is independent of the others (a simplifying assumption).  Using KL divergence,
-we can derive mutually dependent equations (one for each partition) that define
-the shape of :math:`Q`.  The leads to an easy-to-compute iterative algorithm
+easy-to-analyze form.  In the mean-field approximation (a common type of
+variational Bayes), we assume that the unknown variables can be partitioned so
+that each partition is independent of the others.
+Using KL divergence, we can derive mutually dependent equations (one for each
+partition) that define the shape of :math:`Q`.  The resultant :math:`Q` function
+usually takes on the form of well-known distributions that we can easily
+analyze.  The leads to an easy-to-compute iterative algorithm 
 (similar to the `EM algorithm <link://slug/the-expectation-maximization-algorithm>`__)
 where we use all other previously calculated partitions to derive the current one.
 
 To summarize, variational Bayes has these ideas:
 
-* The Bayesian inference problem is hard and usually can't be solved analytically.
-* Variational Bayes solves this problem by finding an approximate posterior
-  distribution :math:`Q` that approximates the true posterior :math:`P`.
+* The Bayesian inference problem of finding a posterior on the unknown
+  variables (parameters and latent variables) is hard and usually can't be
+  solved analytically.
+* Variational Bayes solves this problem by finding a distribution :math:`Q`
+  that approximates the true posterior :math:`P`.
 * It uses KL-divergence as a measure of how well our approximation fits the true posterior.
-* The mean-field approximation partitions the unknown variables, and assumes each
-  partition is independent and has a well-known, easy-to-analyze distribution.
-* With some derivation, we can find an algorithm that iteratively computes
-  the partitions of :math:`Q` by using the previous values of all the other
+* The mean-field approximation partitions the unknown variables and assumes
+  each partition is independent.
+* With some math, we can find an algorithm that iteratively computes the
+  :math:`Q` distributions by using the previous values of all the other
   partitions.
 
 Now that we have an overview of this process, let's see how it actually works.
@@ -358,12 +356,195 @@ the posterior (or the marginal likelihood), we can solve an optimization
 problem by finding the right distribution :math:`Q` that best fits our
 variational free energy.  Note that we need to find a *function*, not just a
 point, that maximizes :math:`\mathcal{L}`, which means we need to use
-variational calculus (see my `past post <link://slug/the-calculus-of-variations>`__ 
+variational calculus (see my `previous post <link://slug/the-calculus-of-variations>`__ 
 on the subject), hence the name "variational Bayes".
 
 |h2| The Mean-Field Approximation |h2e|
 
-next section (try to prove the optimal constraint?)
+Before we try to derive the functional form of our :math:`Q` functions, let's 
+just explicitly state some of our notation because it's going to get a bit confusing.
+In the previous section, I used :math:`\theta` to represent the unknown variables.
+In general, we can have :math:`N` unknown variables so 
+:math:`\theta = (\theta_1, \ldots, \theta_n)` and Equation 8 and 9 will have
+multiple integrals (or summations for discrete variables), one for each
+:math:`\theta_i`.  I'll use :math:`\theta` to represent 
+:math:`\theta_1, \ldots, \theta_n` where it is clear just to reduce the verbosity
+and explicitly write it out when we want to do something special with it.
+
+Okay, so now that's cleared up, let's move on to the mean-field approximation.
+The approximation is a simplifying assumption for our :math:`Q` distribution,
+which partitions the variables into independent parts (I'm just going to show
+one variable per partition but you can have as many per partition as you want):
+
+.. math::
+
+    q(\theta) = q(\theta_1, \ldots, \theta_n) = \prod_{i=1}^N q_i(\theta_i) \tag{10}
+
+
+|h3| Deriving the Functional Form of :math:`q_j(\theta_j)` |h3e|
+
+From Equation 10, we can plug it back into our variational free energy
+:math:`\mathcal{L}` and try to derive the functional form of :math:`q_j` using
+variational calculus.  Let's start with :math:`\mathcal{L}` and try to 
+re-write it isolating the terms for :math:`q_i(\theta_i)` in hopes of taking
+a functional derivative afterwards to find the optimal form of the function.
+Note that :math:`\mathcal{L}` is a `functional
+<https://en.wikipedia.org/wiki/Functional_(mathematics)>`_ that depends on our
+approximation densities :math:`q_1, \ldots, q_N`.
+
+.. math::
+
+     \mathcal{L[q_1, \ldots, q_N]}
+     &= - \int_{\theta_1, \ldots, \theta_N} 
+        [\prod_{i=1}^N q_i(\theta_i)] \log\frac{[\prod_{k=1}^N q_k(\theta_k)]}{p(\theta,X)} 
+        d\theta_1 \ldots d\theta_n \\
+     &= \int_{\theta_1, \ldots, \theta_N} 
+        [\prod_{i=1}^N q_i(\theta_i)] \big[
+            \log p(\theta,X) - \sum_{i=k}^N \log q_k(\theta_k)
+        \big]
+        d\theta_1 \ldots d\theta_n \\
+     &= \int_{\theta_j} q_j(\theta_j)
+        \int_{\theta_{m | m \neq j}} 
+        [\prod_{i\neq j} q_i(\theta_i)] \big[
+            \log p(\theta,X) - \sum_{i=k}^N \log q_k(\theta_k)
+        \big]
+        d\theta_1 \ldots d\theta_n \\
+     &= \int_{\theta_j} q_j(\theta_j)
+        \int_{\theta_{m | m \neq j}} 
+        [\prod_{i\neq j} q_i(\theta_i)] \log p(\theta,X)
+        d\theta_1 \ldots d\theta_n \\
+        &\phantom{=}-
+        \int_{\theta_j} q_j(\theta_j)
+        \int_{\theta_{m | m \neq j}} 
+        [\prod_{i\neq j} q_i(\theta_i)] \sum_{i=k}^N \log q_k(\theta_k)
+        d\theta_1 \ldots d\theta_n \\
+    \tag{11}
+
+where I'm using a bit of convenience notation in the integral index
+(:math:`\theta_m|m\neq j`) so I don't have to write out the ":math:`...`".
+So far, we've just factored out :math:`q_j(\theta_j)` and multiplied out
+the inner term :math:`\log p(\theta, X) - \sum_{i=k}^N \log q_k(\theta_k)`.
+In anticipation of the next part, we'll define some notation for an expectation
+across all variables except :math:`j` as:
+
+.. math:: 
+    E_{m|m\neq j}[\log p(\theta,X)] = \int_{\theta_{m | m \neq j}} 
+        [\prod_{i\neq j} q_i(\theta_i)] \log p(\theta,X)
+        d\theta_1 \ldots, d\theta_{j-1}, d\theta_{j+1}, \ldots, d\theta_n \\
+    \tag{12}
+
+which you can see is just an expectation across all variables except for
+:math:`j`.  Continuing on from Equation 11 using this expectation notation
+and expanding the second term out:
+
+.. math::
+
+     \mathcal{L}[q_1, \ldots, q_N]
+     &= \int_{\theta_j} q_j(\theta_j) E_{m|m\neq j}[\log p(\theta, X)] d\theta_j 
+     \\
+        &\phantom{=}-
+        \int_{\theta_j} q_j(\theta_j) \log q_j(\theta_j)
+        \int_{\theta_{m | m \neq j}} 
+        [\prod_{i\neq j} q_i(\theta_i)] d\theta_1 \ldots d\theta_n \\
+        &\phantom{=}-
+        \int_{\theta_j} q_j(\theta_j) d\theta_j
+        \int_{\theta_{m | m \neq j}} 
+        [\prod_{i\neq j} q_i(\theta_i)] \sum_{k\neq j} \log q_k(\theta_k)
+        d\theta_1 \ldots, d\theta_{j-1}, d\theta_{j+1}, \ldots, d\theta_n 
+     \\
+     &= \int_{\theta_j} q_j(\theta_j) E_{m|m\neq j}[\log p(\theta, X)] d\theta_j
+        - \int_{\theta_j} q_j(\theta_j) \log q_j(\theta_j) d\theta_j\\
+        &\phantom{=}-
+        \int_{\theta_{m | m \neq j}} 
+        [\prod_{i\neq j} q_i(\theta_i)] \sum_{k\neq j} \log q_k(\theta_k)
+        d\theta_1 \ldots, d\theta_{j-1}, d\theta_{j+1}, \ldots, d\theta_n 
+    \\
+     &= \int_{\theta_j} q_j(\theta_j) \big[E_{m|m\neq j}[\log p(\theta, X)] - \log q_j(\theta_j)\big] d\theta_j \\
+     &\phantom{=}- G[q_1, \ldots, q_{j-1}, q_{j+1}, \ldots, q_{N}]
+     \\
+    \tag{13}
+
+where we're integrating probability density functions over their entire
+support, which simplify to :math:`1`.  It's a bit confusing because of all
+the indices but just take your time to follow which index we're pulling out
+of which summation/integral/product and you should be able to follow (unless I
+made a mistake!).  At the end, we have a functional that consists of a term
+made up only of :math:`q_j(\theta_j)` and :math:`E_{m|m\neq j}[log p(\theta, X)`,
+and another term with all the other :math:`q_i` functions.
+
+Putting together the `Lagrangian <https://en.wikipedia.org/wiki/Lagrange_multiplier>`__ 
+for Equation 13, we get:
+
+.. math::
+
+    \mathcal{L}[q_1, \ldots, q_N] - \sum_{i=1}^N \lambda_i \int_{\theta_i} q_i(\theta_i) d\theta_i = 0 \\
+    \tag{14}
+
+where the terms in the summation is our usual probabilistic constraints that the
+:math:`q_i(\theta_i)` functions must be densities.
+
+Taking the functional derivative of Equation 14 with respect to
+:math:`q_j(\theta_j)` using the 
+`Euler-Lagrange Equation <https://en.wikipedia.org/wiki/Calculus_of_variations#Euler.E2.80.93Lagrange_equation>`__, we get:
+
+.. math::
+
+    \frac{\delta \mathcal{L}[q_1, \ldots, q_N]}{\delta q_j(\theta)}
+        &= \frac{\partial}{\partial q_j}\big[ 
+            q_j(\theta_j) \big[E_{m|m\neq j}[\log p(\theta, X)] - \log q_j(\theta_j)\big]
+        \big] \\
+    &= E_{m|m\neq j}[\log p(\theta, X)] - \log q_j(\theta_j) - 1 - \lambda_i \\
+    \tag{15}
+
+In this case the functional derivative is just the partial derivative with
+respect to :math:`q_j(\theta_j)` of what's "inside" the integral.  Setting to 0 and
+solving for the form of :math:`q_j(\theta_j)`:
+
+.. math::
+
+    \log q_j(\theta_j) &= E_{m|m\neq j}[\log p(\theta, X)] - 1 - \lambda_i \\
+                       &= E_{m|m\neq j}[\log p(\theta, X)] + \text{const} \\
+    q_j(\theta_j) &= \frac{e^{E_{m|m\neq j}[\log p(\theta, X)]}}{Z_j} \\
+    \tag{16}
+
+where :math:`Z_j` is a normalization constant.  The constant isn't too important
+because we know that :math:`q_j(\theta_j)` is a density so usually we can figure
+it out after the fact. 
+
+Equation 16 finally gives us the functional form (actually a template of the
+functional form).  What usually ends up happening is that after plugging in
+:math:`E_{m|m\neq j}[\log p(\theta, X)]`, the form of Equation 16 matches a
+familiar distribution (e.g. Normal, Gamma etc.), and the normalization
+constant :math:`Z` can be derived by inspection.  We'll see this play out in
+the next section.
+
+Taking a step back, let's see how this helps us accomplish our goal.
+Recall, we wanted to maximize our variational free energy :math:`\mathcal{L}`
+(Equation 9), which in turn finds a :math:`q(\theta)` that minimizes KL
+divergence to the true posterior :math:`p(\theta|X)`.
+Using the mean-field approximation, we broke up `q(\theta)` (Equation 10) into
+partitions :math:`q_j(\theta_j)`, each of which is defined by Equation 16.
+
+However, the :math:`q_j(\theta_j)`'s are interdependent when minimizing them.
+That is, to compute the optimal :math:`q_j(\theta_j)`, we need to know the
+values of all the other :math:`q_i(\theta_j)` functions.  This suggests an
+iterative optimization algorithm:
+
+  1. Start with some random values for each of the parameters of the
+     :math:`q_j(\theta_j)` functions.
+  2. Taking one at a time, use Equation 16 to minimize the KL divergence
+     by updating :math:`q_j(\theta_j)`.
+  3. Repeat until convergence.
+
+Notice that in each iteration, we are lowering the KL divergence between our
+:math:`Q` and :math:`P` distributions, so we're guaranteed to be improving each
+time.  Of course in general we won't converge to a global maximum but it's a
+heck of easier to compute than MCMC.
+
+|h3| Mean-Field Approximation for the Univariate Gaussian |h3e|
+
+|h3| Variational Bayes EM for mixtures of Gaussians |h3e|
+
 
 
 |h2| Further Reading |h2e|
