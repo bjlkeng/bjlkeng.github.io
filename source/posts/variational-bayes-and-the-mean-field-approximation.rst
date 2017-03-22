@@ -123,23 +123,23 @@ more concrete.
 
 Now that we know our problem, next thing we need to is define what it means to
 be a good approximation.  In many of these cases,
-`Kullback-Leibler divergence <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>`__ (KL divergence)
-is a non-symmetric measure of the difference between two probability distributions
-:math:`P` and :math:`Q`.  We'll discuss this in a bit more detail below but the way
-we set up the problem will be with :math:`P` being the true posterior distribution,
-and :math:`Q` being the approximate distribution.  With a bit of math, we can
-get to an iterative algorithm to find :math:`Q`.
+the `Kullback-Leibler divergence <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>`__ (KL divergence) 
+is a good choice, which is non-symmetric measure of the difference between two
+probability distributions :math:`P` and :math:`Q`.  We'll discuss this in a bit
+more detail below but the way we set up the problem will be with :math:`P`
+being the true posterior distribution, and :math:`Q` being the approximate
+distribution.  With a bit of math, we can get to an iterative algorithm to find
+:math:`Q`.
 
-Next, we assume our approximate distribution :math:`Q` takes the form of some
-easy-to-analyze form.  In the mean-field approximation (a common type of
-variational Bayes), we assume that the unknown variables can be partitioned so
-that each partition is independent of the others.
-Using KL divergence, we can derive mutually dependent equations (one for each
-partition) that define the shape of :math:`Q`.  The resultant :math:`Q` function
-usually takes on the form of well-known distributions that we can easily
-analyze.  The leads to an easy-to-compute iterative algorithm 
-(similar to the `EM algorithm <link://slug/the-expectation-maximization-algorithm>`__)
-where we use all other previously calculated partitions to derive the current one.
+In the mean-field approximation (a common type of variational
+Bayes), we assume that the unknown variables can be partitioned so that each
+partition is independent of the others.  Using KL divergence, we can derive
+mutually dependent equations (one for each partition) that define the shape of
+:math:`Q`.  The resultant :math:`Q` function usually takes on the form of
+well-known distributions that we can easily analyze.  The leads to an
+easy-to-compute iterative algorithm (similar to the `EM algorithm
+<link://slug/the-expectation-maximization-algorithm>`__) where we use all other
+previously calculated partitions to derive the current one in an iterative fashion.
 
 To summarize, variational Bayes has these ideas:
 
@@ -151,7 +151,7 @@ To summarize, variational Bayes has these ideas:
 * It uses KL-divergence as a measure of how well our approximation fits the true posterior.
 * The mean-field approximation partitions the unknown variables and assumes
   each partition is independent.
-* With some math, we can find an algorithm that iteratively computes the
+* With some (long) derivations, we can find an algorithm that iteratively computes the
   :math:`Q` distributions by using the previous values of all the other
   partitions.
 
@@ -307,7 +307,7 @@ distribution :math:`P`):
                \tag{7}
         
 However, this is generally difficult to compute because of the marginal
-likelihood (sometimes called the evidence), but what if we didn't have to
+likelihood (sometimes called the evidence). But what if we didn't have to
 directly compute the marginal likelihood and instead only needed the likelihood
 (and prior)?  
 
@@ -317,9 +317,9 @@ Bayesian inference problems:
 and variational inference.  You can check out my previous post on MCMC but in general
 it's quite slow since it involves repeated sampling but your approximation can
 get arbitrarily close to the actual distribution (given enough time).
-Variational inference on the other hand is a strict approximation that is much faster
-because we can find an approximation via an optimizing problem.  It also can quantify
-the lower bound on the marginal likelihood, which can help with model selection.
+Variational inference on the other hand is a strict approximation that is much
+faster because it is an optimizing problem.  It also can quantify the lower
+bound on the marginal likelihood, which can help with model selection.
 
 Now going back to our problem, we want to find an approximate distribution
 :math:`Q` that minimizes (reverse) KL divergence.  Starting from reverse KL
@@ -365,10 +365,10 @@ Before we try to derive the functional form of our :math:`Q` functions, let's
 just explicitly state some of our notation because it's going to get a bit confusing.
 In the previous section, I used :math:`\theta` to represent the unknown variables.
 In general, we can have :math:`N` unknown variables so 
-:math:`\theta = (\theta_1, \ldots, \theta_n)` and Equation 8 and 9 will have
+:math:`\theta = (\theta_1, \ldots, \theta_N)` and Equation 8 and 9 will have
 multiple integrals (or summations for discrete variables), one for each
 :math:`\theta_i`.  I'll use :math:`\theta` to represent 
-:math:`\theta_1, \ldots, \theta_n` where it is clear just to reduce the verbosity
+:math:`\theta_1, \ldots, \theta_N` where it is clear just to reduce the verbosity
 and explicitly write it out when we want to do something special with it.
 
 Okay, so now that's cleared up, let's move on to the mean-field approximation.
@@ -386,11 +386,11 @@ one variable per partition but you can have as many per partition as you want):
 From Equation 10, we can plug it back into our variational free energy
 :math:`\mathcal{L}` and try to derive the functional form of :math:`q_j` using
 variational calculus.  Let's start with :math:`\mathcal{L}` and try to 
-re-write it isolating the terms for :math:`q_i(\theta_i)` in hopes of taking
+re-write it isolating the terms for :math:`q_j(\theta_j)` in hopes of taking
 a functional derivative afterwards to find the optimal form of the function.
 Note that :math:`\mathcal{L}` is a `functional
 <https://en.wikipedia.org/wiki/Functional_(mathematics)>`_ that depends on our
-approximation densities :math:`q_1, \ldots, q_N`.
+approximate densities :math:`q_1, \ldots, q_N`.
 
 .. math::
 
@@ -467,7 +467,7 @@ and expanding the second term out:
 where we're integrating probability density functions over their entire
 support, which simplify to :math:`1`.  It's a bit confusing because of all
 the indices but just take your time to follow which index we're pulling out
-of which summation/integral/product and you should be able to follow (unless I
+of which summation/integral/product and you shouldn't have too much trouble (unless I
 made a mistake!).  At the end, we have a functional that consists of a term
 made up only of :math:`q_j(\theta_j)` and :math:`E_{m|m\neq j}[log p(\theta, X)`,
 and another term with all the other :math:`q_i` functions.
@@ -480,7 +480,7 @@ for Equation 13, we get:
     \mathcal{L}[q_1, \ldots, q_N] - \sum_{i=1}^N \lambda_i \int_{\theta_i} q_i(\theta_i) d\theta_i = 0 \\
     \tag{14}
 
-where the terms in the summation is our usual probabilistic constraints that the
+where the terms in the summation are our usual probabilistic constraints that the
 :math:`q_i(\theta_i)` functions must be densities.
 
 Taking the functional derivative of Equation 14 with respect to
@@ -496,7 +496,7 @@ Taking the functional derivative of Equation 14 with respect to
     &= E_{m|m\neq j}[\log p(\theta, X)] - \log q_j(\theta_j) - 1 - \lambda_i \\
     \tag{15}
 
-In this case the functional derivative is just the partial derivative with
+In this case, the functional derivative is just the partial derivative with
 respect to :math:`q_j(\theta_j)` of what's "inside" the integral.  Setting to 0 and
 solving for the form of :math:`q_j(\theta_j)`:
 
@@ -522,26 +522,107 @@ Taking a step back, let's see how this helps us accomplish our goal.
 Recall, we wanted to maximize our variational free energy :math:`\mathcal{L}`
 (Equation 9), which in turn finds a :math:`q(\theta)` that minimizes KL
 divergence to the true posterior :math:`p(\theta|X)`.
-Using the mean-field approximation, we broke up `q(\theta)` (Equation 10) into
+Using the mean-field approximation, we broke up :math:`q(\theta)` (Equation 10) into
 partitions :math:`q_j(\theta_j)`, each of which is defined by Equation 16.
 
 However, the :math:`q_j(\theta_j)`'s are interdependent when minimizing them.
 That is, to compute the optimal :math:`q_j(\theta_j)`, we need to know the
-values of all the other :math:`q_i(\theta_j)` functions.  This suggests an
+values of all the other :math:`q_i(\theta_i)` functions.  This suggests an
 iterative optimization algorithm:
 
-  1. Start with some random values for each of the parameters of the
-     :math:`q_j(\theta_j)` functions.
-  2. Taking one at a time, use Equation 16 to minimize the KL divergence
-     by updating :math:`q_j(\theta_j)`.
-  3. Repeat until convergence.
+1. Start with some random values for each of the parameters of the
+   :math:`q_j(\theta_j)` functions.
+2. For each :math:`q_j`, use Equation 16 to minimize the overall KL divergence
+   by updating :math:`q_j(\theta_j)` (holding all the others constant).
+3. Repeat until convergence.
 
 Notice that in each iteration, we are lowering the KL divergence between our
 :math:`Q` and :math:`P` distributions, so we're guaranteed to be improving each
 time.  Of course in general we won't converge to a global maximum but it's a
 heck of easier to compute than MCMC.
 
-|h3| Mean-Field Approximation for the Univariate Gaussian |h3e|
+|h2| Mean-Field Approximation for the Univariate Gaussian |h2e|
+
+Now that we have a theoretical understanding of how this all works, let's
+see it in action.  Perhaps the simplest case (and I'm using the word "simple"
+in relative terms here) is the univariate Gaussian with a Gaussian prior
+on its mean and a inverse Gamma prior on its variance.  Let's describe
+the setup:
+
+.. math::
+
+   \mu &\sim N(\mu_0, (\kappa_0 \tau)^{-1}) \\
+   \tau &\sim \text{Gamma}(a_0, b_0) \\
+   X={x_1, \ldots, x_N} &\sim N(\mu, \tau^{-1}) \\
+   \tag{17}
+
+where :math:`\tau` is the precision (inverse of variance), and we have
+:math:`N` observations (:math:`{x_1, \ldots, x_N}`).  For this particular
+problem, there is a closed form for the posterior: a 
+`Normal-gamma distribution <https://en.wikipedia.org/wiki/Normal-gamma_distribution>`__.
+This means that it doesn't really make sense to compute a mean-field approximation
+for any reason except pedagogy but that's why we're here right?
+
+
+Continuing on, we really only need the logarithm of the joint probability of
+all the variables, which is:
+
+.. math::
+
+    \log p(X, \mu, \tau) &= \log p(X|\mu, \tau) + \log p(\mu|\tau) + \log p(\tau) \\
+    &= \frac{N}{2} \log \tau - \frac{\tau}{2} \sum_{i=1}^N (x_i - \mu)^2 \\
+    &\phantom{=}
+      + \frac{1}{2}\log(\kappa_0 \tau) - \frac{\kappa_0 \tau}{2}(\mu - \mu_0)^2 \\
+    &\phantom{=}
+      + (a_0 -1) \log \tau - b_0 \tau + \text{const}
+    \tag{18}
+
+I broke out each of the three parts into three lines, so you should be able to
+easily see how we derived each of the expressions (Normal, Normal, Gamma,
+respectively).  We also just absorbed all the constants into the :math:`\text{const}`.
+
+|h3| The Approximation |h3e|
+
+Now onto our mean-field approximation:
+
+.. math::
+
+    p(\mu, \tau | X) \approx q(\mu, \tau) := q_{\mu}(\mu)q_{\tau}(\tau) \\
+    \tag{19}
+
+Continuing on, we can use Equation 16 to find the form of our :math:`q` densities.
+Starting with :math:`q_{\mu}(\mu)`:
+
+.. math::
+
+    q_{\mu}(\mu) &= E_{\tau}[\log p(X|\mu, \tau) + \log p(\mu|\tau)] + \text{const}_1 \\
+      &= E_{\tau}\big[\frac{N}{2} \log \tau - \frac{\tau}{2} \sum_{i=1}^N (x_i - \mu)^2
+      + \frac{1}{2}\log(\kappa_0 \tau) - \frac{\kappa_0 \tau}{2}(\mu - \mu_0)^2 \big]
+      + \text{const}_2 \\
+      &= -\frac{E_{\tau}[\tau]}{2} \big[ \kappa(\mu - \mu_0)^2 + \sum_{i=1}^N (x_i - \mu)^2 \big] + \text{const}_3
+    \tag{20}
+
+where we absorb all terms not involving :math:`\mu` into the "const" terms
+(even :math:`tau` because it doesn't change with respect to :math:`\mu`).
+You'll notice that Equation 20 is a quadratic function in :math:`\mu`, implying
+that it's normally distributed, i.e. :math:`q_{\mu}(\mu) \sim N(\mu|\mu_N, \tau_N^{-1})`.
+By completing the square (or using the formula for the 
+`sum of two normal distributions <https://en.wikipedia.org/wiki/Normal_distribution#Sum_of_two_quadratics>`_), we will find an expression like:
+
+.. math::
+
+    q_{\mu}(\mu) &= -\frac{\kappa_0 + N}{2}E_{\tau}[\tau]
+                  \big( 
+                    \mu - \frac{\kappa_0\mu_0 + \sum_{i=1}^N x_i}{\kappa_0 + N}
+                  \big)^2 + \text{const}_4 \\
+    \mu_N &= \frac{\kappa_0\mu_0 + \sum_{i=1}^N x_i}{\kappa_0 + N} \\
+    \tau_N &= (\kappa_0 + N)E_{\tau} \\
+    \tag{21}
+
+Once we completed the square in Equation 21, we can infer the mean and
+precision without having to compute all those constants!
+
+DO THE SAME WITH GAMMA DISTRIBUTION
 
 |h3| Variational Bayes EM for mixtures of Gaussians |h3e|
 
