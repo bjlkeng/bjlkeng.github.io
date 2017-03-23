@@ -83,16 +83,18 @@ more concrete.
        Given observed data :math:`X=\{x_1,\ldots, x_N\}`, we wish to model this data
        as a normal distribution with parameters :math:`\mu,\sigma^2` with priors
        a normally distributed prior on the mean and an inverse-gamma
-       distributed prior on the variance.  More precisely, our model can be defined as:
+       distributed prior on the variance.  More precisely, our model can be
+       defined as:
 
        .. math::
 
-            \mu &\sim \mathcal{N}(\mu_0, (\lambda_0\tau)^{-1}) \\ 
+            \mu &\sim \mathcal{N}(\mu_0, (\kappa_0\tau)^{-1}) \\ 
             \tau &\sim \text{Gamma}(a_0, b_0) \\
             x_i &\sim \mathcal{N}(\mu, \tau^{-1}) \\
             \tag{1}
 
-       where the hyperparameters :math:`\mu_0, \lambda_0, a_0, b_0` are given.
+       where the hyperparameters :math:`\mu_0, \kappa_0, a_0, b_0` are given
+       and :math:`\tau` is the inverse of the variance known as the precision.
        In this model, the variables :math:`\mu,\tau` are unobserved, so
        we would use variational Bayes to approximate the posterior
        distribution :math:`q(\mu, \tau) \approx p(\mu, \tau | x_1, \ldots, x_N)`
@@ -595,7 +597,7 @@ Starting with :math:`q_{\mu}(\mu)`:
 
 .. math::
 
-    q_{\mu}(\mu) &= E_{\tau}[\log p(X|\mu, \tau) + \log p(\mu|\tau)] + \text{const}_1 \\
+    \log q_{\mu}(\mu) &= E_{\tau}[\log p(X|\mu, \tau) + \log p(\mu|\tau)] + \text{const}_1 \\
       &= E_{\tau}\big[\frac{N}{2} \log \tau - \frac{\tau}{2} \sum_{i=1}^N (x_i - \mu)^2
       + \frac{1}{2}\log(\kappa_0 \tau) - \frac{\kappa_0 \tau}{2}(\mu - \mu_0)^2 \big]
       + \text{const}_2 \\
@@ -603,7 +605,7 @@ Starting with :math:`q_{\mu}(\mu)`:
     \tag{20}
 
 where we absorb all terms not involving :math:`\mu` into the "const" terms
-(even :math:`tau` because it doesn't change with respect to :math:`\mu`).
+(even :math:`\tau` because it doesn't change with respect to :math:`\mu`).
 You'll notice that Equation 20 is a quadratic function in :math:`\mu`, implying
 that it's normally distributed, i.e. :math:`q_{\mu}(\mu) \sim N(\mu|\mu_N, \tau_N^{-1})`.
 By completing the square (or using the formula for the 
@@ -611,18 +613,79 @@ By completing the square (or using the formula for the
 
 .. math::
 
-    q_{\mu}(\mu) &= -\frac{\kappa_0 + N}{2}E_{\tau}[\tau]
+    \log q_{\mu}(\mu) &= -\frac{(\kappa_0 + N)E_{\tau}[\tau]}{2}
                   \big( 
                     \mu - \frac{\kappa_0\mu_0 + \sum_{i=1}^N x_i}{\kappa_0 + N}
                   \big)^2 + \text{const}_4 \\
     \mu_N &= \frac{\kappa_0\mu_0 + \sum_{i=1}^N x_i}{\kappa_0 + N} \\
-    \tau_N &= (\kappa_0 + N)E_{\tau} \\
+    \tau_N &= (\kappa_0 + N)E_{\tau}[\tau] \\
     \tag{21}
 
 Once we completed the square in Equation 21, we can infer the mean and
-precision without having to compute all those constants!
+precision without having to compute all those constants (thank goodness!).
+Next, we can do the same with :math:`\tau`:
 
-DO THE SAME WITH GAMMA DISTRIBUTION
+.. math::
+
+    \log q_{\tau}(\tau) &= E_{\mu}[\log p(X|\tau, \mu) + \log p(\mu|\tau) + \log p(\tau)] + \text{const}_5 \\
+      &= E_{\mu}\big[\frac{N}{2} \log \tau - \frac{\tau}{2} \sum_{i=1}^N (x_i - \mu)^2 \\
+    &\phantom{=}
+      + \frac{1}{2}\log(\kappa_0 \tau) - \frac{\kappa_0 \tau}{2}(\mu - \mu_0)^2 \\
+    &\phantom{=}
+      + (a_0 -1) \log \tau - b_0 \tau\big] + \text{const}_6 \\
+      &= (a_0 - 1)\log \tau - b_0\tau + \frac{1}{2}\log \tau + \frac{N}{2} \log \tau \\
+    &\phantom{=} -\frac{\tau}{2}E_{\mu}\big[\kappa_0(\mu - \mu_0)^2 + \sum_{i=1}^N (x_i - \mu)^2\big] + \text{const}_7 \\
+    \tag{22}
+
+We can recognize this as a Gamma distribution, :math:`\text{Gamma}(\tau|a_N,
+b_N)`  because the log density is only a function of :math:`\log\tau` and
+:math:`\tau`.  By inspection (and some grouping), we can find the 
+parameters of this Gamma distribution (:math:`a_N, b_N`):
+
+.. math::
+
+    \log q_{\tau}(\tau) &= 
+        \big(a_0 + \frac{N + 1}{2} - 1\big)\log\tau \\
+    &\phantom{=} - \big(b_0 + \frac{1}{2}E_{\mu}\big[\kappa_0(\mu - \mu_0)^2 + \sum_{i=1}^N (x_i - \mu)^2\big] \big)\tau + \text{const}_8 \\
+    a_N &= a_0 + \frac{N + 1}{2} \\
+    b_N &= b_0 + \frac{1}{2}E_{\mu}\big[\kappa_0(\mu - \mu_0)^2 + \sum_{i=1}^N (x_i - \mu)^2\big] \\
+    \tag{23}
+
+Again, we don't have to explicitly compute all the constants which is really nice.
+Since we know the form of each distribution, the expectation for each of the 
+distributions, :math:`q(\mu) = N(\mu|\mu_N, \tau_N^{-1})` and 
+:math:`q(\tau) = \text{Gamma}(\tau|a_N, b_N)`, is simple:
+
+.. math::
+    
+    E_{q_{\mu}(\mu)}[\mu] &= \mu_N \\
+    E_{q_{\mu}(\mu)}[\mu^2] &= \frac{1}{\tau_N} + \mu_N^2 \\
+    E_{q_{\tau}(\tau)}[\tau] &= \frac{a_N}{b_N} \\
+    \tag{24}
+
+Expanding out Equations 21 and 23 to get our actual update equations:
+
+.. math::
+
+    \mu_N &= \frac{\kappa_0\mu_0 + \sum_{i=1}^N x_i}{\kappa_0 + N} \\
+    \tau_N &= (\kappa_0 + N)\frac{a_N}{b_N} \\
+    a_N &= a_0 + \frac{N + 1}{2} \\
+    b_N &= b_0 + \frac{\kappa_0}{2}\big(
+        E_{q_{\mu}(\mu)}[\mu^2] + \mu_0^2 - 2E_{q_{\mu}(\mu)}[\mu]\mu_0
+    \big) \\
+    &\phantom{=}
+    + \frac{1}{2} \sum_{i=1}^N \big( x_i^2 + E_{q_{\mu}(\mu)}[\mu^2] - 2E_{q_{\mu}(\mu)}[\mu]x_i \big) \\
+    \tag{25}
+
+where in the :math:`b_N` equations, I didn't substitute some of the values to
+keep it a bit neater.
+
+See the accompanying notebook and graph for how we can simulate this:
+
+- Simulate in PyMC
+- Compute same thing in variational Bayes
+- Plot a graph
+
 
 |h3| Variational Bayes EM for mixtures of Gaussians |h3e|
 
