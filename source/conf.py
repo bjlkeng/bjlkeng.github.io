@@ -216,7 +216,9 @@ PAGES = (
 # One or more folders containing files to be copied as-is into the output.
 # The format is a dictionary of {source: relative destination}.
 # Default is:
-# FILES_FOLDERS = {'files': ''}
+FILES_FOLDERS = {
+    'notebooks': 'notebooks'
+}
 # Which means copy 'files' into 'output'
 
 # One or more folders containing listings to be processed and stored into
@@ -410,6 +412,8 @@ REDIRECTIONS = []
 # in a `nikola deploy` command as you like.
 DEPLOY_COMMANDS = {
     'default': [
+        "rm -rf notebooks/.ipynb_checkpoints",
+        "rm -rf output",
         "nikola clean",
         "nikola build -a",
         "cp README.md CNAME output/",

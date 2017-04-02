@@ -102,26 +102,32 @@ more concrete.
 
     2. **Bayesian Gaussian Mixture Model**:
        Given a 
-       `Bayesian Gaussian mixture model <https://en.wikipedia.org/wiki/Mixture_model#Gaussian_mixture_model>`__ 
+       `Bayesian Gaussian mixture model <https://en.wikipedia.org/wiki/Variational_Bayesian_methods#A_more_complex_example>`__
        with :math:`K` mixture components
-       and :math:`N` observations :math:`\{x_1,\ldots,x_N\}`, latent variables
-       :math:`\{z_1,\ldots,z_N\}`, parameters :math:`\{\mu_i, \sigma^2_i, \phi, \nu\}`
-       and hyperparameters :math:`\{\mu_0, \lambda, \sigma^2_0, \beta\}`:
+       and :math:`N` observations :math:`\{x_1,\ldots,x_N\}`, latent categorical variables
+       :math:`\{z_1,\ldots,z_N\}`, parameters :math:`{\mu_i, \Lambda_i, \pi}`
+       and hyperparameters :math:`{\mu_0, \beta_0, \nu_0, W_0, alpha_0}`:
 
        .. math::
 
-           \mu_{i=1,\ldots,K} &\sim \mathcal{N(\mu_0, \lambda\sigma_i^2)} \\
-           \sigma^2_{i=1,\ldots,K} &\sim \text{Inverse-Gamma}(\nu, \sigma_0^2) \\
-           \phi &\sim \text{Symmetric-Dirichlet}_K(\beta) \\
-           z_i &\sim \text{Categorical}(\phi) \\
-           x_i &\sim \mathcal{N}(\mu_{z_i}, \sigma^2_{z_i})  \\
+
+           \pi &\sim \text{Symmetric-Dirichlet}_K(\alpha_0) \\
+           \Lambda_{i=1,\ldots,K} &\sim \mathcal{W}(W_0, \nu_0) \\
+           \mu_{i=1,\ldots,K} &\sim \mathcal{N}(\mu_0, (\beta_0\Lambda_i)^{-1}) \\
+           z_i &\sim \text{Categorical}(\pi) \\
+           x_i &\sim \mathcal{N}(\mu_{z_i}, \Lambda_{z_i}^{-1})  \\
            \tag{2}
+
+       Notes:
+
+       * :math:`\mathcal{W}` is the `Wishart distribution <https://en.wikipedia.org/wiki/Wishart_distribution>`__, which is the generalization to multiple dimensions of the gamma distribution.  It's also a conjugate prior of the precision matrix for a multivariate normal distribution. 
+       * :math:`\text{Symmetric-Dirichlet}` is a `Dirichlet distribution <https://en.wikipedia.org/wiki/Dirichlet_distribution>`__ which is the conjugate prior of a categorical variable.
 
        In this case, you would want to (ideally) find an approximation to the
        joint distribution posterior (including both parameters and latent variables):
-       :math:`q(\mu_1,\ldots,\mu_K, \sigma^2_1,\ldots, \sigma^2_K, \phi, z_1, \ldots, z_N)`,
-       which most likely has some independence between these variables leading to
-       several independent distributions.
+       :math:`q(\mu_1,\ldots,\mu_K, \Lambda_1,\ldots, \Lambda_K, \pi, z_1, \ldots, z_N)`,
+       which has some independence between these variables leading to several
+       independent distributions.
 
 Now that we know our problem, next thing we need to is define what it means to
 be a good approximation.  In many of these cases,
@@ -548,8 +554,8 @@ heck of easier to compute than MCMC.
 Now that we have a theoretical understanding of how this all works, let's
 see it in action.  Perhaps the simplest case (and I'm using the word "simple"
 in relative terms here) is the univariate Gaussian with a Gaussian prior
-on its mean and a inverse Gamma prior on its variance.  Let's describe
-the setup:
+on its mean and a inverse Gamma prior on its variance (from Example 1).  Let's
+describe the setup:
 
 .. math::
 
@@ -677,19 +683,89 @@ Expanding out Equations 21 and 23 to get our actual update equations:
     + \frac{1}{2} \sum_{i=1}^N \big( x_i^2 + E_{q_{\mu}(\mu)}[\mu^2] - 2E_{q_{\mu}(\mu)}[\mu]x_i \big) \\
     \tag{25}
 
-where in the :math:`b_N` equations, I didn't substitute some of the values to
-keep it a bit neater.
+where in the :math:`b_N` equations, I didn't substitute some of the values 
+from Equation 24 to keep it a bit neater.  From this, we can develop a simple
+algorithm to compute :math:`q(\mu)` and :math:`q(\tau)`:
 
-See the accompanying notebook and graph for how we can simulate this:
+1. Compute values :math:`E_{q_{\mu}(\mu)}[\mu], E_{q_{\mu}(\mu)}[\mu^2], E_{q_{\tau}(\tau)}[\tau]` from Equation 24 as well as :math:`\mu_N, a_N` since they can be computed directly from the data and constants.
+2. Initialize :math:`\lambda_N` to some arbitrary value.
+3. Use current value of :math:`\lambda_N` and values from Step 1 to compute :math:`b_N`.
+4. Use current value of :math:`b_N` and values from Step 1 to compute :math:`\lambda_N`.
+5. Repeat the last two steps until neither value has changed much.
 
-- Simulate in PyMC
-- Compute same thing in variational Bayes
-- Plot a graph
+Once we have the parameters for :math:`q(\mu)` and :math:`q(\tau)`, we can compute
+anything we want such as the mean, variance, 95% credible interval etc.
 
+|h2| Variational Bayes EM for mixtures of Gaussians [3]_ |h2e|
 
-|h3| Variational Bayes EM for mixtures of Gaussians |h3e|
+The simplest case for the univariate Gaussian already seems a bit complex 
+(one of the downsides for VB) so I just want to mention that we can do this
+for the second case in Example 1, the Bayesian Gaussian Mixture Model.
+This application of variational Bayes is very similar to the one from 
+`Expectation-Maximization <link://slug/the-expectation-maximization-algorithm>`__.
+Recall the mixture model has two types of variables: the latent categorical
+variables :math:`z_i` for each data point specifying which Gaussian it came from,
+and the parameters to the Gaussians :math:`\mu_k, \lambda_k`.
+In the variational Bayes, we treat all variables the same (i.e. find a
+distribution for them), while in the EM case we only explicitly model the
+uncertainty of the latent variables (:math:`z_i`) and find point estimates of
+the parameters (:math:`\mu_k, \lambda_k`).
+Although not ideal, the EM algorithm's assumptions are not too bad because
+the parameters use all the data points, which will provide a more robust point estimate,
+while the latent variable :math:`z_i` is informed only by :math:`x_i`. 
 
+In any case, we still want to use variational Bayes for a mixture model situation
+to allow for a more "Bayesian" analysis.  Using variational Bayes on a mixture model
+produces an algorithm that is commonly known as *variational Bayes EM*.
+The main idea it to just apply a mean-field approximation and factorize between
+the latent variables (:math:`{\bf z}`) and parameters (:math:`{\bf \theta}`):
 
+.. math::
+
+    p({\bf \theta}, {\bf z}) = q(\theta) \prod_1^N q(z_i) \tag{26}
+
+Recall that the full likelihood function and prior are:
+
+.. math::
+
+    p({\bf z}, {\bf X} | {\bf \theta}) &= 
+        \prod_i \prod_k \pi^{z_{ik}} \mathcal{N}(x_i | \mu_k, \Lambda_k^{-1})^{z_{ik}} \\
+    p({\bf \theta}) &= 
+        \text{Dir}(\pi | \alpha_0) \prod_k \mathcal{N}(\mu_0, (\beta_0\Lambda_i)^{-1}) \mathcal{W}(\Lambda_k | W_0, \nu_0) \\
+    \tag{27}
+
+We can use the same approach that we took above for both :math:`q(\theta)` and :math:`q(z_i)`
+and get to a posterior of the form:
+
+.. math::
+
+    q({\bf z}, {\bf \theta}) &= q({\bf z})q({\theta}) \\
+    &= \big[ \prod_i \text{Cat}(z_i|r_i) \big]
+        \big[ Dir(\pi|\alpha) \prod_k \mathcal{N}(\mu_k|m_k, (\beta_k \Lambda_k)^{-1}W(\Lambda_k|L_k, \nu_k) \big] \\
+        \tag{28}
+
+where :math:`r_i` is the "responsibility" of a point to the clusters similar to
+the EM algorithm and :math:`m_k, \beta_k, L_k, \nu_k` are computed functions of the data
+and hyperparameters.  I won't go into all the math because this post is getting really long and you
+can just refer to Murphy or 
+`Wikipedia <https://en.wikipedia.org/wiki/Variational_Bayesian_methods#A_more_complex_example>`__ 
+if you really want to dig into it :p
+
+In the end, we'll end up with a two step process EM-like process:
+
+1. A variational "E" step where we compute the values latent variables (or more directly
+   the responsibility) based upon the current parameter estimates of the
+   mixture components.
+2. A variational "M" step where we estimate the parameters of the distributions
+   for each mixture component based upon the values of all the latent variables.
+
+|h2| Conclusion |h2e|
+
+Variational Bayesian inference is one of the most interesting topics that I
+come across so far because it marries the beauty of Bayesian inference
+with the practicality of machine learning.  In future posts, I'll be exploring
+this theme a bit more and start moving into some techniques in the machine
+learning domain but with strong roots in probability.
 
 |h2| Further Reading |h2e|
 
@@ -703,3 +779,5 @@ See the accompanying notebook and graph for how we can simulate this:
 .. [1] There are a few different ways to intuitively understand information entropy.  See my previous post on `Maximum Entropy Distributions <link://slug/maximum-entropy-distributions>`__ for a slightly different explanation.
 
 .. [2] The term variational free energy is from an alternative interpretation from physics.  As with a lot of ML techniques, this has its roots in physics where they make great use of probability to model the physical world. 
+
+.. [3] This section heavily draws upon the treatment from Murphy's Machine Learning: A Probabilistic Perspective.  You should take a look at it for a more thorough treatment.
