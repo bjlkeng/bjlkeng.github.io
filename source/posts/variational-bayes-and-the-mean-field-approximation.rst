@@ -1,6 +1,6 @@
 .. title: Variational Bayes and The Mean-Field Approximation
 .. slug: variational-bayes-and-the-mean-field-approximation
-.. date: 2017-03-02 08:02:46 UTC-05:00
+.. date: 2017-04-04 08:02:46 UTC-05:00
 .. tags: Bayesian, variational calculus, mean-field, Kullback-Leibler, mathjax
 .. category: 
 .. link: 
@@ -68,19 +68,18 @@ point-estimate for each of the unobserved variables (either MAP or MLE) but
 this is not ideal since we can't quantify the uncertainty of the unknown
 variables (and is against the spirit of Bayesian analysis).  The other
 aims to find a (joint) distribution of each unknown variable.  With a proper
-distribution for each variable, we can do all a whole bunch of nice Bayesian
-analysis like the mean, mode, 95% credible interval etc.
+distribution for each variable, we can do a whole bunch of nice Bayesian
+analysis like the mean, variance, 95% credible interval etc.
 
 One good but relatively slow method for finding a distribution is to use `MCMC
 <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__
 (a simulation technique)
-to iteratively draw samples that eventually give you the shape of every unknown
-variable.  Another method is to use variational Bayes helps to find an
-approximation of the distribution in question.  With variational Bayes, you
-only get an analytical (read: easy to compute) approximation but it's in the
-form of a distribution.  So long as your approximation is pretty good, you can
-do all the nice Bayesian analysis you like, and the best part is it's
-relatively easy to compute!
+to iteratively draw samples that eventually give you the shape of the joint distribution 
+of the unknown variables.  Another method is to use variational Bayes, which helps to
+find an approximation of the distribution in question.  With variational Bayes,
+you only get approximation but it's in analytical form (read: easy to compute).  So
+long as your approximation is pretty good, you can do all the nice Bayesian
+analysis you like, and the best part is it's relatively easy to compute!
 
 The next example shows a couple of Bayesian inference problems to make things
 more concrete.
@@ -120,8 +119,8 @@ more concrete.
 
 
            \pi &\sim \text{Symmetric-Dirichlet}_K(\alpha_0) \\
-           \Lambda_{i=1,\ldots,K} &\sim \mathcal{W}(W_0, \nu_0) \\
-           \mu_{i=1,\ldots,K} &\sim \mathcal{N}(\mu_0, (\beta_0\Lambda_i)^{-1}) \\
+           \Lambda_{k=1,\ldots,K} &\sim \mathcal{W}(W_0, \nu_0) \\
+           \mu_{k=1,\ldots,K} &\sim \mathcal{N}(\mu_0, (\beta_0\Lambda_k)^{-1}) \\
            z_i &\sim \text{Categorical}(\pi) \\
            x_i &\sim \mathcal{N}(\mu_{z_i}, \Lambda_{z_i}^{-1})  \\
            \tag{2}
@@ -129,7 +128,7 @@ more concrete.
        Notes:
 
        * :math:`\mathcal{W}` is the `Wishart distribution <https://en.wikipedia.org/wiki/Wishart_distribution>`__, which is the generalization to multiple dimensions of the gamma distribution. It's used for the prior on the covariance matrix for our multivariate normal distribution.  It's also a conjugate prior of the precision matrix (the inverse of the covariance matrix).
-       * :math:`\text{Symmetric-Dirichlet}` is a `Dirichlet distribution <https://en.wikipedia.org/wiki/Dirichlet_distribution>`__ which is the conjugate prior of a categorical variable (or equivalently a multinomial distribution with a single observations).
+       * :math:`\text{Symmetric-Dirichlet}` is a `Dirichlet distribution <https://en.wikipedia.org/wiki/Dirichlet_distribution>`__ which is the conjugate prior of a categorical variable (or equivalently a multinomial distribution with a single observation).
 
        In this case, you would want to (ideally) find an approximation to the
        joint distribution posterior (including both parameters and latent variables):
@@ -149,7 +148,7 @@ In the mean-field approximation (a common type of variational
 Bayes), we assume that the unknown variables can be partitioned so that each
 partition is independent of the others.  Using KL divergence, we can derive
 mutually dependent equations (one for each partition) that define the shape of
-:math:`Q`.  The resultant :math:`Q` function usually takes on the form of
+:math:`Q`.  The resultant :math:`Q` function then usually takes on the form of
 well-known distributions that we can easily analyze.  The leads to an
 easy-to-compute iterative algorithm (similar to the `EM algorithm
 <link://slug/the-expectation-maximization-algorithm>`__) where we use all other
@@ -245,7 +244,7 @@ Now that we have an overview of this process, let's see how it actually works.
   |h3| Forward and Reverse KL Divergence |h3e|
 
   One thing to note about KL divergence is that it's not symmetric, that is,
-  :math:`D_{KL}(P||Q) \neq D_{K}(Q||P)`.  The former is called forward KL divergence,
+  :math:`D_{KL}(P||Q) \neq D_{KL}(Q||P)`.  The former is called forward KL divergence,
   while the latter is called reverse KL divergence.  Let's start by looking at
   forward KL.  Taking a closer look at equation 5, we can see that when :math:`P`
   is large and :math:`Q \rightarrow 0`, the logarithm blows up.  This implies
@@ -352,7 +351,10 @@ density is :math:`q(\theta)` and our theoretic one is :math:`p(\theta|X)`:
                   \log{p(X)} \\
               \tag{8}
 
-Where we're using Bayes theorem on the second line, rearranging we get:
+Where we're using Bayes theorem on the second line and the RHS integral
+simplifies because it's simply integrating over the support of :math:`q(\theta)`
+(:math:`\log p(X)` is not a function of :math:`\theta` so it factors out).
+Rearranging we get:
 
 .. math::
 
@@ -370,7 +372,10 @@ minimize (reverse) KL divergence as required.
 This is the crux of variational inference: we don't need to explicitly compute
 the posterior (or the marginal likelihood), we can solve an optimization
 problem by finding the right distribution :math:`Q` that best fits our
-variational free energy.  Note that we need to find a *function*, not just a
+variational free energy.  Notice that we don't need to compute the marginal
+likelihood either, this is a big win because the likelihood and prior are usually
+easily specified with the marginal likelihood intractable.  
+Note that we need to find a *function*, not just a
 point, that maximizes :math:`\mathcal{L}`, which means we need to use
 variational calculus (see my `previous post <link://slug/the-calculus-of-variations>`__ 
 on the subject), hence the name "variational Bayes".
@@ -394,7 +399,7 @@ one variable per partition but you can have as many per partition as you want):
 
 .. math::
 
-    q(\theta) = q(\theta_1, \ldots, \theta_n) = \prod_{i=1}^N q_i(\theta_i) \tag{10}
+    p(\theta|X) \approx q(\theta) = q(\theta_1, \ldots, \theta_n) = \prod_{i=1}^N q_i(\theta_i) \tag{10}
 
 
 |h3| Deriving the Functional Form of :math:`q_j(\theta_j)` |h3e|
@@ -416,13 +421,13 @@ approximate densities :math:`q_1, \ldots, q_N`.
         d\theta_1 \ldots d\theta_n \\
      &= \int_{\theta_1, \ldots, \theta_N} 
         [\prod_{i=1}^N q_i(\theta_i)] \big[
-            \log p(\theta,X) - \sum_{i=k}^N \log q_k(\theta_k)
+            \log p(\theta,X) - \sum_{k=1}^N \log q_k(\theta_k)
         \big]
         d\theta_1 \ldots d\theta_n \\
      &= \int_{\theta_j} q_j(\theta_j)
         \int_{\theta_{m | m \neq j}} 
         [\prod_{i\neq j} q_i(\theta_i)] \big[
-            \log p(\theta,X) - \sum_{i=k}^N \log q_k(\theta_k)
+            \log p(\theta,X) - \sum_{k=1}^N \log q_k(\theta_k)
         \big]
         d\theta_1 \ldots d\theta_n \\
      &= \int_{\theta_j} q_j(\theta_j)
@@ -432,7 +437,7 @@ approximate densities :math:`q_1, \ldots, q_N`.
         &\phantom{=}-
         \int_{\theta_j} q_j(\theta_j)
         \int_{\theta_{m | m \neq j}} 
-        [\prod_{i\neq j} q_i(\theta_i)] \sum_{i=k}^N \log q_k(\theta_k)
+        [\prod_{i\neq j} q_i(\theta_i)] \sum_{k=1}^N \log q_k(\theta_k)
         d\theta_1 \ldots d\theta_n \\
     \tag{11}
 
@@ -509,7 +514,7 @@ Taking the functional derivative of Equation 14 with respect to
     \frac{\delta \mathcal{L}[q_1, \ldots, q_N]}{\delta q_j(\theta)}
         &= \frac{\partial}{\partial q_j}\big[ 
             q_j(\theta_j) \big[E_{m|m\neq j}[\log p(\theta, X)] - \log q_j(\theta_j)\big]
-            - \lambda_j q_i(\theta_j)
+            - \lambda_j q_j(\theta_j)
         \big] \\
     &= E_{m|m\neq j}[\log p(\theta, X)] - \log q_j(\theta_j) - 1 - \lambda_j \\
     \tag{15}
@@ -520,7 +525,7 @@ solving for the form of :math:`q_j(\theta_j)`:
 
 .. math::
 
-    \log q_j(\theta_j) &= E_{m|m\neq j}[\log p(\theta, X)] - 1 - \lambda_i \\
+    \log q_j(\theta_j) &= E_{m|m\neq j}[\log p(\theta, X)] - 1 - \lambda_j \\
                        &= E_{m|m\neq j}[\log p(\theta, X)] + \text{const} \\
     q_j(\theta_j) &= \frac{e^{E_{m|m\neq j}[\log p(\theta, X)]}}{Z_j} \\
     \tag{16}
@@ -598,7 +603,7 @@ all the variables, which is:
 
 I broke out each of the three parts into three lines, so you should be able to
 easily see how we derived each of the expressions (Normal, Normal, Gamma,
-respectively).  We also just absorbed all the constants into the :math:`\text{const}`.
+respectively).  We also just absorbed all the constants into the :math:`\text{const}` term.
 
 |h3| The Approximation |h3e|
 
@@ -656,8 +661,8 @@ Next, we can do the same with :math:`\tau`:
     &\phantom{=} -\frac{\tau}{2}E_{\mu}\big[\kappa_0(\mu - \mu_0)^2 + \sum_{i=1}^N (x_i - \mu)^2\big] + \text{const}_8 \\
     \tag{22}
 
-We can recognize this as a Gamma distribution, :math:`\text{Gamma}(\tau|a_N,
-b_N)`  because the log density is only a function of :math:`\log\tau` and
+We can recognize this as a :math:`\text{Gamma}(\tau|a_N, b_N)`  
+because the log density is only a function of :math:`\log\tau` and
 :math:`\tau`.  By inspection (and some grouping), we can find the 
 parameters of this Gamma distribution (:math:`a_N, b_N`):
 
@@ -713,11 +718,12 @@ anything we want such as the mean, variance, 95% credible interval etc.
 
 The previous example of a univariate Gaussian already seems a bit complex 
 (one of the downsides for VB) so I just want to mention that we can do this
-for the second case in Example 1, the Bayesian Gaussian Mixture Model.
-This application of variational Bayes takes a very similar form to the one from 
-`Expectation-Maximization <link://slug/the-expectation-maximization-algorithm>`__.
+for the second case in Example 1 too, the Bayesian Gaussian Mixture Model.
+This application of variational Bayes takes a very similar form to the 
+`Expectation-Maximization <link://slug/the-expectation-maximization-algorithm>`__ 
+algorithm.
 
-Recall the mixture model has two types of variables: the latent categorical
+Recall a mixture model has two types of variables: the latent categorical
 variables for each data point specifying which Gaussian it came from (:math:`z_i`),
 and the parameters to the Gaussians (:math:`\mu_k, \lambda_k`).
 In variational Bayes, we treat all variables the same (i.e. find a
@@ -732,8 +738,8 @@ only by :math:`x_i`, so it makes more sense to have a distribution.
 In any case, we still want to use variational Bayes for a mixture model situation
 to allow for a more "Bayesian" analysis.  Using variational Bayes on a mixture model
 produces an algorithm that is commonly known as *variational Bayes EM*.
-The main idea it to just apply a mean-field approximation and factorize between
-the latent variables (:math:`{\bf z}`) and parameters (:math:`{\bf \theta}`):
+The main idea it to just apply a mean-field approximation and factorize all
+latent variables (:math:`{\bf z}`) and parameters (:math:`{\bf \theta}`):
 
 .. math::
 
@@ -764,7 +770,7 @@ the EM algorithm and :math:`m_k, \beta_k, L_k, \nu_k` are computed values of the
 and hyperparameters.  I won't go into all the math because this post is getting really long and you
 can just refer to Murphy or 
 `Wikipedia <https://en.wikipedia.org/wiki/Variational_Bayesian_methods#A_more_complex_example>`__ 
-if you really want to dig into it :p
+if you really want to dig into it.
 
 In the end, we'll end up with a two step iterative process EM-like process:
 
@@ -795,6 +801,6 @@ learning domain but with strong roots in probability.
 
 .. [2] The term variational free energy is from an alternative interpretation from physics.  As with a lot of ML techniques, this one has its roots in physics where they make great use of probability to model the physical world. 
 
-.. [3] This is one of the parts that I struggled with because many text skip over this part (probably because it needs variational calculus).  They very rarely show the derivation of the functional form.
+.. [3] This is one of the parts that I struggled with because many texts skip over this part (probably because it needs variational calculus).  They very rarely show the derivation of the functional form.
 
 .. [4] This section heavily draws upon the treatment from Murphy's Machine Learning: A Probabilistic Perspective.  You should take a look at it for a more thorough treatment.
