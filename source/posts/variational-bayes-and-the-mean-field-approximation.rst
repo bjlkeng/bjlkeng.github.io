@@ -1,6 +1,6 @@
 .. title: Variational Bayes and The Mean-Field Approximation
 .. slug: variational-bayes-and-the-mean-field-approximation
-.. date: 2017-04-04 08:02:46 UTC-05:00
+.. date: 2017-03-04 08:02:46 UTC-05:00
 .. tags: Bayesian, variational calculus, mean-field, Kullback-Leibler, mathjax
 .. category: 
 .. link: 
