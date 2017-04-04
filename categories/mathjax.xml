@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0"><channel><title>Bounded Rationality (mathjax)</title><link>http://satisficing.briankeng.com/</link><description></description><atom:link type="application/rss+xml" rel="self" href="http://satisficing.briankeng.com/categories/mathjax.xml"></atom:link><language>en</language><lastBuildDate>Tue, 04 Apr 2017 12:57:39 GMT</lastBuildDate><generator>https://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>The Calculus of Variations</title><link>http://satisficing.briankeng.com/posts/the-calculus-of-variations/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to describe a specialized type of calculus called
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0"><channel><title>Bounded Rationality (mathjax)</title><link>http://satisficing.briankeng.com/</link><description></description><atom:link type="application/rss+xml" rel="self" href="http://satisficing.briankeng.com/categories/mathjax.xml"></atom:link><language>en</language><lastBuildDate>Tue, 04 Apr 2017 13:00:12 GMT</lastBuildDate><generator>https://getnikola.com/</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Variational Bayes and The Mean-Field Approximation</title><link>http://satisficing.briankeng.com/posts/variational-bayes-and-the-mean-field-approximation/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to cover Variational Bayesian methods and, in particular,
+the most common one, the mean-field approximation.  This is a topic that I've
+been trying to understand for a while now but didn't quite have all the background
+that I needed.  After picking up the main ideas from
+&lt;a class="reference external" href="http://satisficing.briankeng.com/posts/the-calculus-of-variations"&gt;variational calculus&lt;/a&gt; and
+getting more fluent in manipulating probability statements like
+in my &lt;a class="reference external" href="http://satisficing.briankeng.com/posts/the-expectation-maximization-algorithm"&gt;EM&lt;/a&gt; post,
+this variational Bayes stuff seems a lot easier.&lt;/p&gt;
+&lt;p&gt;Variational Bayesian methods are a set of techniques to approximate posterior
+distributions in &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Bayesian_inference"&gt;Bayesian Inference&lt;/a&gt;.
+If this sounds a bit terse, keep reading!  I hope to provide some intuition
+so that the big ideas are easy to understand (which they are), but of course we
+can't do that well unless we have a healthy dose of mathematics.  For some of the
+background concepts, I'll try to refer you to good sources (including my own),
+which I find is the main blocker to understanding this subject (admittedly, the
+math can sometimes be a bit cryptic too).  Enjoy!&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://satisficing.briankeng.com/posts/variational-bayes-and-the-mean-field-approximation/"&gt;Read more…&lt;/a&gt; (24 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Bayesian</category><category>Kullback-Leibler</category><category>mathjax</category><category>mean-field</category><category>variational calculus</category><guid>http://satisficing.briankeng.com/posts/variational-bayes-and-the-mean-field-approximation/</guid><pubDate>Sat, 04 Mar 2017 13:02:46 GMT</pubDate></item><item><title>The Calculus of Variations</title><link>http://satisficing.briankeng.com/posts/the-calculus-of-variations/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to describe a specialized type of calculus called
 variational calculus.
 Analogous to the usual methods of calculus that we learn in university,
 this one deals with functions &lt;em&gt;of functions&lt;/em&gt; and how to
@@ -92,31 +108,4 @@ problem and digging into some of the math.  We'll be looking at it from the
 lens of our simplest probability problem: the coin flip.  A note: I will not be
 covering the part that shows you how to make a fortune -- that's an exercise
 best left to the reader.&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://satisficing.briankeng.com/posts/optimal-betting-and-the-kelly-criterion/"&gt;Read more…&lt;/a&gt; (12 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>betting</category><category>Kelly Criterion</category><category>mathjax</category><category>probability</category><category>Shannon</category><category>Thorp</category><guid>http://satisficing.briankeng.com/posts/optimal-betting-and-the-kelly-criterion/</guid><pubDate>Sun, 15 Nov 2015 21:13:31 GMT</pubDate></item><item><title>Probability as Extended Logic</title><link>http://satisficing.briankeng.com/posts/probability-the-logic-of-science/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Modern probability theory is typically derived from the
-&lt;a class="reference external" href="https://en.wikipedia.org/wiki/Probability_axioms"&gt;Kolmogorov axioms&lt;/a&gt;,
-using measure theory with concepts like events and sample space.
-In one way, it's intuitive to understand how this works as Laplace
-&lt;a class="reference external" href="https://en.wikipedia.org/wiki/Classical_definition_of_probability"&gt;wrote&lt;/a&gt;:&lt;/p&gt;
-&lt;blockquote&gt;
-The probability of an event is the ratio of the number of cases favorable
-to it, to the number of all cases possible, when [the cases are] equally
-possible. ... Probability is thus simply a fraction whose numerator is the
-number of favorable cases and whose denominator is the number of all the
-cases possible.&lt;/blockquote&gt;
-&lt;p&gt;However, the intuition of this view of probability breaks down when we want to
-do more complex reasoning.  After learning probability from the lens of coins,
-dice and urns full of red and white balls, I still didn't feel that I had
-have a strong grasp about how to apply it to other situations -- especially
-ones where it was difficult or too abstract to apply the idea of &lt;em&gt;"a fraction
-whose numerator is the number of favorable cases and whose denominator is the
-number of all the cases possible"&lt;/em&gt;.  And then I read &lt;a class="reference external" href="http://www.cambridge.org/gb/academic/subjects/physics/theoretical-physics-and-mathematical-physics/probability-theory-logic-science"&gt;Probability Theory: The Logic of Science&lt;/a&gt; by E. T. Jayne.&lt;/p&gt;
-&lt;p&gt;Jayne takes a drastically different approach to probability, not with events and
-sample spaces, but rather as an extension of Boolean logic.  Taking this view made
-a great deal of sense to me since I spent a lot of time &lt;a class="reference external" href="http://satisficing.briankeng.com/posts/accessible-satisfiability"&gt;studying and reasoning&lt;/a&gt; in Boolean logic.  The following post
-is my attempt to explain Jayne's view of probability theory, where he derives
-it from "common sense" extensions to Boolean logic.  (&lt;em&gt;Spoiler alert: he ends
-up with pretty much the same mathematical system as Kolmogorov's probability
-theory.&lt;/em&gt;) I'll stay away from any heavy derivations and stick with the
-intuition, which is exactly where I think this view of probability theory is most
-useful.&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://satisficing.briankeng.com/posts/probability-the-logic-of-science/"&gt;Read more…&lt;/a&gt; (14 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Jayne</category><category>logic</category><category>mathjax</category><category>probability</category><guid>http://satisficing.briankeng.com/posts/probability-the-logic-of-science/</guid><pubDate>Thu, 15 Oct 2015 00:30:05 GMT</pubDate></item></channel></rss>
+&lt;p&gt;&lt;a href="http://satisficing.briankeng.com/posts/optimal-betting-and-the-kelly-criterion/"&gt;Read more…&lt;/a&gt; (12 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>betting</category><category>Kelly Criterion</category><category>mathjax</category><category>probability</category><category>Shannon</category><category>Thorp</category><guid>http://satisficing.briankeng.com/posts/optimal-betting-and-the-kelly-criterion/</guid><pubDate>Sun, 15 Nov 2015 21:13:31 GMT</pubDate></item></channel></rss>
