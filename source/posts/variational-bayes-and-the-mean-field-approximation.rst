@@ -1,7 +1,7 @@
 .. title: Variational Bayes and The Mean-Field Approximation
 .. slug: variational-bayes-and-the-mean-field-approximation
 .. date: 2017-03-02 08:02:46 UTC-05:00
-.. tags: Bayesian, variational calculus, mean-field, Kullback-Leibeler, mathjax
+.. tags: Bayesian, variational calculus, mean-field, Kullback-Leibler, mathjax
 .. category: 
 .. link: 
 .. description: A brief introduction to variational Bayes and the mean-field approximation.
@@ -171,7 +171,7 @@ To summarize, variational Bayes has these ideas:
 
 Now that we have an overview of this process, let's see how it actually works.
 
-.. admonition:: Kullback-Leibeler Divergence
+.. admonition:: Kullback-Leibler Divergence
 
   `Kullback-Leibler divergence <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>`__ 
   (aka information gain) is a non-symmetric measure of the difference between
@@ -244,7 +244,7 @@ Now that we have an overview of this process, let's see how it actually works.
 
   |h3| Forward and Reverse KL Divergence |h3e|
 
-  One thing to note aboute KL divergence is that it's not symmetric, that is,
+  One thing to note about KL divergence is that it's not symmetric, that is,
   :math:`D_{KL}(P||Q) \neq D_{K}(Q||P)`.  The former is called forward KL divergence,
   while the latter is called reverse KL divergence.  Let's start by looking at
   forward KL.  Taking a closer look at equation 5, we can see that when :math:`P`
@@ -278,7 +278,7 @@ Now that we have an overview of this process, let's see how it actually works.
     \tag{6}
 
   From Equation 6, we can see that the opposite situation occurs.  If :math:`P`
-  is small, we want :math:`Q` to be (proportioally) small too or the ratio
+  is small, we want :math:`Q` to be (proportionally) small too or the ratio
   might blow up.  Additionally, when :math:`P` is large, it doesn't cause us
   any particular problems because it just means the ratio is close to 0.
   Figure 2 shows this visually.
