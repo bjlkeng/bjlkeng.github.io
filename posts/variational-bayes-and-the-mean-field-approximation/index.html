@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="A brief introduction to variational Bayes and the mean-field approximation.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Variational Bayes and The Mean-Field Approximation | Bounded Rationality</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
+<link rel="canonical" href="http://satisficing.briankeng.com/posts/variational-bayes-and-the-mean-field-approximation/">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="description" itemprop="description" content="A brief introduction to variational Bayes and the mean-field approximation.">
+<meta name="author" content="Brian Keng">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="Variational Bayes and The Mean-Field Approximation">
+<meta property="og:url" content="http://satisficing.briankeng.com/posts/variational-bayes-and-the-mean-field-approximation/">
+<meta property="og:description" content="A brief introduction to variational Bayes and the mean-field approximation.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2017-04-04T08:02:46-05:00">
+<meta property="article:tag" content="Bayesian">
+<meta property="article:tag" content="Kullback-Leibler">
+<meta property="article:tag" content="mathjax">
+<meta property="article:tag" content="mean-field">
+<meta property="article:tag" content="variational calculus">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://satisficing.briankeng.com/">
+
+                <span class="h1" id="blog-title">Bounded Rationality</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
+            <ul class="nav navbar-nav">
+<p class="lead">Understanding data, math, and programming to a satisfactory degree.</p>
+<!--
+                
+                <li><a href="/archive.html">Archive</a>
+                <li><a href="/categories/">Tags</a>
+                <li><a href="/rss.xml">RSS feed</a>
+
+                 
+-->
+            </ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+    <a href="index.rst" id="sourcelink">Source</a>
+    </li>
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            <div class="col-lg-9">
+                
+                
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Variational Bayes and The Mean-Field Approximation</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                    Brian Keng
+            </span></p>
+            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2017-04-04T08:02:46-05:00" itemprop="datePublished" title="2017-04-04 08:02">2017-04-04 08:02</time></a></p>
+            
+        <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
+
+                <meta name="description" itemprop="description" content="A brief introduction to variational Bayes and the mean-field approximation.">
+</div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>This post is going to cover Variational Bayesian methods and, in particular,
+the most common one, the mean-field approximation.  This is a topic that I've
+been trying to understand for a while now but didn't quite have all the background
+that I needed.  After picking up the main ideas from
+<a class="reference external" href="../the-calculus-of-variations">variational calculus</a> and
+getting more fluent in manipulating probability statements like
+in my <a class="reference external" href="../the-expectation-maximization-algorithm">EM</a> post,
+this variational Bayes stuff seems a lot easier.</p>
+<p>Variational Bayesian methods are a set of techniques to approximate posterior
+distributions in <a class="reference external" href="https://en.wikipedia.org/wiki/Bayesian_inference">Bayesian Inference</a>.
+If this sounds a bit terse, keep reading!  I hope to provide some intuition
+so that the big ideas are easy to understand (which they are), but of course we
+can't do that well unless we have a healthy dose of mathematics.  For some of the
+background concepts, I'll try to refer you to good sources (including my own),
+which I find is the main blocker to understanding this subject (admittedly, the
+math can sometimes be a bit cryptic too).  Enjoy!</p>
+<!-- TEASER_END -->
+<p><br></p>
+<h4> Variational Bayesian Inference: An Overview </h4>
+<p>Before we get into the nitty-gritty of it all, let's just go over at a high level
+what we're trying to do.  First, we're trying to perform <a class="reference external" href="https://en.wikipedia.org/wiki/Bayesian_inference">Bayesian inference</a>, which basically means given a model, we're trying
+to find distributions for the unobserved variables (either parameters or latent
+variables since they're treated the same).  This problem usually involves
+hard-to-solve integrals with no analytical solution.</p>
+<p>There are two main avenues to solve this problem.  The first is to just get a
+point-estimate for each of the unobserved variables (either MAP or MLE) but
+this is not ideal since we can't quantify the uncertainty of the unknown
+variables (and is against the spirit of Bayesian analysis).  The other
+aims to find a (joint) distribution of each unknown variable.  With a proper
+distribution for each variable, we can do a whole bunch of nice Bayesian
+analysis like the mean, variance, 95% credible interval etc.</p>
+<p>One good but relatively slow method for finding a distribution is to use <a class="reference external" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm">MCMC</a>
+(a simulation technique)
+to iteratively draw samples that eventually give you the shape of the joint distribution
+of the unknown variables.  Another method is to use variational Bayes, which helps to
+find an approximation of the distribution in question.  With variational Bayes,
+you only get approximation but it's in analytical form (read: easy to compute).  So
+long as your approximation is pretty good, you can do all the nice Bayesian
+analysis you like, and the best part is it's relatively easy to compute!</p>
+<p>The next example shows a couple of Bayesian inference problems to make things
+more concrete.</p>
+<div class="admonition-example-1-bayesian-inference-problems admonition">
+<p class="first admonition-title">Example 1: Bayesian Inference Problems</p>
+<ol class="last arabic">
+<li>
+<p class="first"><strong>Fitting a univariate Gaussian with unknown mean and variance</strong>:
+Given observed data <span class="math">\(X=\{x_1,\ldots, x_N\}\)</span>, we wish to model this data
+as a normal distribution with parameters <span class="math">\(\mu,\sigma^2\)</span> with a
+normally distributed prior on the mean and an inverse-gamma distributed
+prior on the variance.  More precisely, our model can be defined as:</p>
+<div class="math">
+\begin{align*}
+\mu &amp;\sim \mathcal{N}(\mu_0, (\kappa_0\tau)^{-1}) \\
+\tau &amp;\sim \text{Gamma}(a_0, b_0) \\
+x_i &amp;\sim \mathcal{N}(\mu, \tau^{-1}) \\
+\tag{1}
+\end{align*}
+</div>
+<p>where the hyperparameters <span class="math">\(\mu_0, \kappa_0, a_0, b_0\)</span> are given
+and <span class="math">\(\tau\)</span> is the inverse of the variance known as the precision.
+In this model, the parameter variables <span class="math">\(\mu,\tau\)</span> are
+unobserved, so we would use variational Bayes to approximate the
+posterior distribution <span class="math">\(q(\mu, \tau) \approx p(\mu, \tau | x_1,
+\ldots, x_N)\)</span>.</p>
+</li>
+<li>
+<p class="first"><strong>Bayesian Gaussian Mixture Model</strong>:
+A
+<a class="reference external" href="https://en.wikipedia.org/wiki/Variational_Bayesian_methods#A_more_complex_example">Bayesian Gaussian mixture model</a>
+with <span class="math">\(K\)</span> mixture components
+and <span class="math">\(N\)</span> observations <span class="math">\(\{x_1,\ldots,x_N\}\)</span>, latent categorical variables
+<span class="math">\(\{z_1,\ldots,z_N\}\)</span>, parameters <span class="math">\({\mu_i, \Lambda_i, \pi}\)</span>
+and hyperparameters <span class="math">\({\mu_0, \beta_0, \nu_0, W_0, \alpha_0}\)</span>, can
+be described as such:</p>
+<div class="math">
+\begin{align*}
+\pi &amp;\sim \text{Symmetric-Dirichlet}_K(\alpha_0) \\
+\Lambda_{k=1,\ldots,K} &amp;\sim \mathcal{W}(W_0, \nu_0) \\
+\mu_{k=1,\ldots,K} &amp;\sim \mathcal{N}(\mu_0, (\beta_0\Lambda_k)^{-1}) \\
+z_i &amp;\sim \text{Categorical}(\pi) \\
+x_i &amp;\sim \mathcal{N}(\mu_{z_i}, \Lambda_{z_i}^{-1})  \\
+\tag{2}
+\end{align*}
+</div>
+<p>Notes:</p>
+<ul class="simple">
+<li>
+<span class="math">\(\mathcal{W}\)</span> is the <a class="reference external" href="https://en.wikipedia.org/wiki/Wishart_distribution">Wishart distribution</a>, which is the generalization to multiple dimensions of the gamma distribution. It's used for the prior on the covariance matrix for our multivariate normal distribution.  It's also a conjugate prior of the precision matrix (the inverse of the covariance matrix).</li>
+<li>
+<span class="math">\(\text{Symmetric-Dirichlet}\)</span> is a <a class="reference external" href="https://en.wikipedia.org/wiki/Dirichlet_distribution">Dirichlet distribution</a> which is the conjugate prior of a categorical variable (or equivalently a multinomial distribution with a single observation).</li>
+</ul>
+<p>In this case, you would want to (ideally) find an approximation to the
+joint distribution posterior (including both parameters and latent variables):
+<span class="math">\(q(\mu_1,\ldots,\mu_K, \Lambda_1,\ldots, \Lambda_K, \pi, z_1, \ldots, z_N)\)</span>
+that approximates the true posterior in all of these latent variables and parameters.</p>
+</li>
+</ol>
+</div>
+<p>Now that we know our problem, next thing we need to is define what it means to
+be a good approximation.  In many of these cases,
+the <a class="reference external" href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">Kullback-Leibler divergence</a> (KL divergence)
+is a good choice, which is non-symmetric measure of the difference between two
+probability distributions <span class="math">\(P\)</span> and <span class="math">\(Q\)</span>.  We'll discuss this in
+detail in the box below, but the setup will be <span class="math">\(P\)</span> as the true posterior
+distribution, and <span class="math">\(Q\)</span> being the approximate distribution, and with a bit
+of math, we want to find an iterative algorithm to compute <span class="math">\(Q\)</span>.</p>
+<p>In the mean-field approximation (a common type of variational
+Bayes), we assume that the unknown variables can be partitioned so that each
+partition is independent of the others.  Using KL divergence, we can derive
+mutually dependent equations (one for each partition) that define the shape of
+<span class="math">\(Q\)</span>.  The resultant <span class="math">\(Q\)</span> function then usually takes on the form of
+well-known distributions that we can easily analyze.  The leads to an
+easy-to-compute iterative algorithm (similar to the <a class="reference external" href="../the-expectation-maximization-algorithm">EM algorithm</a>) where we use all other
+previously calculated partitions to derive the current one in an iterative fashion.</p>
+<p>To summarize, variational Bayes has these ideas:</p>
+<ul class="simple">
+<li>The Bayesian inference problem of finding a posterior on the unknown
+variables (parameters and latent variables) is hard and usually can't be
+solved analytically.</li>
+<li>Variational Bayes solves this problem by finding a distribution <span class="math">\(Q\)</span>
+that approximates the true posterior <span class="math">\(P\)</span>.</li>
+<li>It uses KL-divergence as a measure of how well our approximation fits the true posterior.</li>
+<li>The mean-field approximation partitions the unknown variables and assumes
+each partition is independent (a simplifying assumption).</li>
+<li>With some (long) derivations, we can find an algorithm that iteratively computes the
+<span class="math">\(Q\)</span> distributions for a given partition by using the previous values of
+all the other partitions.</li>
+</ul>
+<p>Now that we have an overview of this process, let's see how it actually works.</p>
+<div class="admonition-kullback-leibler-divergence admonition">
+<p class="first admonition-title">Kullback-Leibler Divergence</p>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">Kullback-Leibler divergence</a>
+(aka information gain) is a non-symmetric measure of the difference between
+two probability distributions <span class="math">\(P\)</span> and <span class="math">\(Q\)</span>.  It is defined for discrete
+and continuous probability distributions as such:</p>
+<div class="math">
+\begin{align*}
+D_{KL}(P||Q) &amp;= \sum_i P(i) \log \frac{P(i)}{Q(i)} \\
+D_{KL}(P||Q) &amp;= \int_{-\infty}^{\infty} p(x) \log \frac{p(x)}{q(x)} dx \\
+\tag{3}
+\end{align*}
+</div>
+<p>where <span class="math">\(p\)</span> and <span class="math">\(q\)</span> denote the densities of <span class="math">\(P\)</span> and <span class="math">\(Q\)</span>.</p>
+<p>There are several ways to intuitively understand KL-divergence, but let's use
+information entropy because I think it's a bit more intuitive.</p>
+<p></p>
+<h5> KL Divergence as Information Gain </h5>
+<p>To quickly summarize, <a class="reference external" href="https://en.wikipedia.org/wiki/Entropy_(information_theory)">entropy</a>
+is the average amount of information or "surprise" for a probability
+distribution <a class="footnote-reference" href=".#id5" id="id1">[1]</a>.  Entropy is defined as for both discrete and continuous distributions:</p>
+<div class="math">
+\begin{align*}
+H(P) &amp;:= E_P[I_P(X)] = -\sum_{i=1}^n P(i) \log(P(i)) \\
+H(P) &amp;:= E_P[I_P(X)] = - \int_{-\infty}^{\infty} p(x)\log(p(x)) dx \\
+\tag{4}
+\end{align*}
+</div>
+<p>An intuitive way to think about entropy is the (theoretical)
+minimum number of bits you need to encode an event (or symbol) drawn from your
+probability distribution (see <a class="reference external" href="https://en.wikipedia.org/wiki/Shannon%27s_source_coding_theorem">Shannon's source coding theorem</a>).
+For example, for a fair eight-sided die, each outcome is equi-probable, so we
+would need <span class="math">\(\sum_1^8 -\frac{1}{8}log_2(\frac{1}{8}) = 3\)</span> bits to encode
+the roll on average.  On the other hand, if we have a weighted eight-sided
+die where "8" came up 40 times more often than the other numbers, we would
+theoretically need about 1 bit to encode the roll on average (to get close,
+we would assign "8" to a single bit <cite>0</cite>, and others to something like <cite>10</cite>,
+<cite>110</cite>, <cite>111</cite> ... using a <a class="reference external" href="https://en.wikipedia.org/wiki/Prefix_code">prefix code</a>).</p>
+<p>In this way of viewing entropy, we're using the assumption that our symbols
+are drawn from probability distribution <span class="math">\(P\)</span> to get as close as we can
+to the theoretical minimum code length.  Of course, we rarely have an ideal encoding.
+What would our average message length (i.e. entropy) be if we used the ideal
+symbols from another distribution such as <span class="math">\(Q\)</span>?  In that case, it would
+just be <span class="math">\(H(P,Q) := E_P[I_Q(X)] = E_P[-\log(Q(X))]\)</span>, which is also
+called the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Cross_entropy">cross entropy</a>
+of <span class="math">\(P\)</span> and <span class="math">\(Q\)</span>.  Of course, it would
+be larger than the ideal encoding, thus we would increase the average message
+length.  In other words, we need more information (or bits) to transmit a
+message from the <span class="math">\(P\)</span> distribution using <span class="math">\(Q\)</span>'s code.</p>
+<p>Thus, KL divergence can be viewed as this average extra-message length we need
+when we wrongly assume the probability distribution, using <span class="math">\(Q\)</span> instead of
+<span class="math">\(P\)</span>:</p>
+<div class="math">
+\begin{align*}
+D_{KL}(P||Q) &amp;= H(P,Q) - H(P)\\
+             &amp;= -\sum_{i=1}^n P(i) \log(Q(i)) + \sum_{i=1}^n P(i) \log(P(i)) \\
+             &amp;= \sum_{i=1}^n P(i) \log\frac{P(i)}{Q(i)} \\
+             \tag{5}
+\end{align*}
+</div>
+<p>You can probably already see how this is a useful objective to try to minimize.  If
+we have some theoretic minimal distribution <span class="math">\(P\)</span>, we want to try to find an
+approximation <span class="math">\(Q\)</span> that tries to get as close as possible by minimizing
+the KL divergence.</p>
+<p></p>
+<h5> Forward and Reverse KL Divergence </h5>
+<p>One thing to note about KL divergence is that it's not symmetric, that is,
+<span class="math">\(D_{KL}(P||Q) \neq D_{KL}(Q||P)\)</span>.  The former is called forward KL divergence,
+while the latter is called reverse KL divergence.  Let's start by looking at
+forward KL.  Taking a closer look at equation 5, we can see that when <span class="math">\(P\)</span>
+is large and <span class="math">\(Q \rightarrow 0\)</span>, the logarithm blows up.  This implies
+when choosing our approximate distribution <span class="math">\(Q\)</span> to minimize forward KL
+divergence, we want to "cover" all the non-zero parts of <span class="math">\(P\)</span> as best
+we can.  Figure 1 shows a good visualization of this.</p>
+<div class="figure align-center">
+<img alt="Forward KL Divergence (source: `Eric Jang's Blog &lt;http://blog.evjang.com/2016/08/variational-bayes.html&gt;`__)" src="../../images/forward-KL.png" style="height: 300px;"><p class="caption">Figure 1: Forward KL Divergence (source: <a class="reference external" href="http://blog.evjang.com/2016/08/variational-bayes.html">Eric Jang's Blog</a>)</p>
+</div>
+<p>From Figure 1, our original distribution <span class="math">\(P\)</span> is multimodal, while our
+approximate one <span class="math">\(Q\)</span> is bell shaped.  In the top diagram, if we just try
+to "cover" one of the humps, then the other hump of <span class="math">\(P\)</span> has a large
+mass with a near-zero value of <span class="math">\(Q\)</span>, resulting in a large KL divergence.
+In the bottom diagram, we can see that if we try to "cover" both humps by placing
+<span class="math">\(Q\)</span> somewhere in between, we'll get a smaller forward KL.  Of course,
+this has other problems like the maximum density (center of <span class="math">\(Q\)</span>) is now
+at a point that has low density in the original distribution.</p>
+<p>Now, let's take a look at reverse KL, where <span class="math">\(P\)</span> is still our theoretic
+distribution we're trying to match and <span class="math">\(Q\)</span> is our approximation:</p>
+<div class="math">
+\begin{align*}
+D_{KL}(Q||P) = \sum_{i=1}^n Q(i) \log\frac{Q(i)}{P(i)} \\
+\tag{6}
+\end{align*}
+</div>
+<p>From Equation 6, we can see that the opposite situation occurs.  If <span class="math">\(P\)</span>
+is small, we want <span class="math">\(Q\)</span> to be (proportionally) small too or the ratio
+might blow up.  Additionally, when <span class="math">\(P\)</span> is large, it doesn't cause us
+any particular problems because it just means the ratio is close to 0.
+Figure 2 shows this visually.</p>
+<div class="figure align-center">
+<img alt="Reverse KL Divergence (source: `Eric Jang's Blog &lt;http://blog.evjang.com/2016/08/variational-bayes.html&gt;`__)" src="../../images/reverse-KL.png" style="height: 300px;"><p class="caption">Figure 2: Reverse KL Divergence (source: <a class="reference external" href="http://blog.evjang.com/2016/08/variational-bayes.html">Eric Jang's Blog</a>)</p>
+</div>
+<p>From Figure 2, we see in the top diagram that if we try to fit our unimodal
+distribution "in-between" the two maxima of <span class="math">\(P\)</span>, the tails cause us
+some problems where <span class="math">\(P\)</span> drops off much faster than <span class="math">\(Q\)</span> causing
+the ratio at those points to blow up.  The bottom diagram shows a better
+fit according to reverse KL, the tails of <span class="math">\(P\)</span> and <span class="math">\(Q\)</span> drop off
+at a similar rate, not causing any issues.  Additionally, since <span class="math">\(Q\)</span>
+matches one of the mode of our <span class="math">\(P\)</span> distribution well, the logarithm
+factor will be close to zero, also making for a better reverse KL fit.
+Reverse KL also has the nice tendency to make our <span class="math">\(Q\)</span> distribution
+matches at least one of the modes of <span class="math">\(P\)</span>, which is really the best we
+could hope for with the shape of our approximation.</p>
+<p class="last">In our use of KL divergence, we'll be using reverse KL divergence, not only
+because of the nice properties above, but for the more practical reason that
+the math works out nicely :p</p>
+</div>
+<p><br></p>
+<h4> From KL divergence to Optimization </h4>
+<p>Remember what we're trying to accomplish: we have some intractable Bayesian
+inference problem <span class="math">\(P(\theta|X)\)</span> we're trying to compute, where
+<span class="math">\(\theta\)</span> are the unobserved variables (parameters or latent variables)
+and <span class="math">\(X\)</span> are our observed data.  We could try to compute it directly using
+Bayes theorem (continuous version, where <span class="math">\(p\)</span> is the density of
+distribution <span class="math">\(P\)</span>):</p>
+<div class="math">
+\begin{align*}
+p(\theta|X) &amp;= \frac{p(X, \theta)}{p(X)} \\
+            &amp;= \frac{p(X|\theta)p(\theta)}{\int_{-\infty}^{\infty} p(X|\theta)p(\theta) d\theta} \\
+            &amp;= \frac{\text{likelihood}\cdot\text{prior}}{\text{marginal likelihood}} \\
+            \tag{7}
+\end{align*}
+</div>
+<p>However, this is generally difficult to compute because of the marginal
+likelihood (sometimes called the evidence). But what if we didn't have to
+directly compute the marginal likelihood and instead only needed the likelihood
+(and prior)?</p>
+<p>This idea leads us to the two commonly used methods to solve Bayesian inference
+problems: MCMC and variational inference.  You can check out my previous post on
+<a class="reference external" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm">MCMC</a>
+but in general
+it's quite slow since it involves repeated sampling but your approximation can
+get arbitrarily close to the actual distribution (given enough time).
+Variational inference on the other hand is a strict approximation that is much
+faster because it is an optimizing problem.  It also can quantify the lower
+bound on the marginal likelihood, which can help with model selection.</p>
+<p>Now going back to our problem, we want to find an approximate distribution
+<span class="math">\(Q\)</span> that minimizes the (reverse) KL divergence.  Starting from reverse KL
+divergence, let's do some manipulation to get to an equation
+that's easy to interpret (using continuous version here), where our approximate
+density is <span class="math">\(q(\theta)\)</span> and our theoretic one is <span class="math">\(p(\theta|X)\)</span>:</p>
+<div class="math">
+\begin{align*}
+D_{KL}(Q||P) &amp;= \int_{-\infty}^{\infty} q(\theta) \log\frac{q(\theta)}{p(\theta|X)} d\theta \\
+             &amp;= \int_{-\infty}^{\infty} q(\theta) \log\frac{q(\theta)}{p(\theta,X)} d\theta +
+                \int_{-\infty}^{\infty} q(\theta) \log{p(X)} d\theta \\
+             &amp;= \int_{-\infty}^{\infty} q(\theta) \log\frac{q(\theta)}{p(\theta,X)} d\theta +
+                \log{p(X)} \\
+            \tag{8}
+\end{align*}
+</div>
+<p>Where we're using Bayes theorem on the second line and the RHS integral
+simplifies because it's simply integrating over the support of <span class="math">\(q(\theta)\)</span>
+(<span class="math">\(\log p(X)\)</span> is not a function of <span class="math">\(\theta\)</span> so it factors out).
+Rearranging we get:</p>
+<div class="math">
+\begin{align*}
+\log{p(X)} &amp;= D_{KL}(Q||P)
+          - \int_{-\infty}^{\infty} q(\theta) \log\frac{q(\theta)}{p(\theta,X)} d\theta \\
+           &amp;=  D_{KL}(Q||P) + \mathcal{L}(Q)
+            \tag{9}
+\end{align*}
+</div>
+<p>where <span class="math">\(\mathcal{L}\)</span> is called the (negative) <em>variational free energy</em> <a class="footnote-reference" href=".#id6" id="id2">[2]</a>,
+NOT the likelihood (I don't like the choice of symbols either but that's how it's shown
+in most texts).  Recall that the evidence on the LHS is constant (for a given
+model), thus if we maximize the variational free energy <span class="math">\(\mathcal{L}\)</span>, we
+minimize (reverse) KL divergence as required.</p>
+<p>This is the crux of variational inference: we don't need to explicitly compute
+the posterior (or the marginal likelihood), we can solve an optimization
+problem by finding the right distribution <span class="math">\(Q\)</span> that best fits our
+variational free energy.  Notice that we don't need to compute the marginal
+likelihood either, this is a big win because the likelihood and prior are usually
+easily specified with the marginal likelihood intractable.
+Note that we need to find a <em>function</em>, not just a
+point, that maximizes <span class="math">\(\mathcal{L}\)</span>, which means we need to use
+variational calculus (see my <a class="reference external" href="../the-calculus-of-variations">previous post</a>
+on the subject), hence the name "variational Bayes".</p>
+<p><br></p>
+<h4> The Mean-Field Approximation </h4>
+<p>Before we try to derive the functional form of our <span class="math">\(Q\)</span> functions, let's
+just explicitly state some of our notation because it's going to get a bit confusing.
+In the previous section, I used <span class="math">\(\theta\)</span> to represent the unknown variables.
+In general, we can have <span class="math">\(N\)</span> unknown variables so
+<span class="math">\(\theta = (\theta_1, \ldots, \theta_N)\)</span> and Equation 8 and 9 will have
+multiple integrals (or summations for discrete variables), one for each
+<span class="math">\(\theta_i\)</span>.  I'll use <span class="math">\(\theta\)</span> to represent
+<span class="math">\(\theta_1, \ldots, \theta_N\)</span> where it is clear just to reduce the verbosity
+and explicitly write it out when we want to do something special with it.</p>
+<p>Okay, so now that's cleared up, let's move on to the mean-field approximation.
+The approximation is a simplifying assumption for our <span class="math">\(Q\)</span> distribution,
+which partitions the variables into independent parts (I'm just going to show
+one variable per partition but you can have as many per partition as you want):</p>
+<div class="math">
+\begin{equation*}
+p(\theta|X) \approx q(\theta) = q(\theta_1, \ldots, \theta_n) = \prod_{i=1}^N q_i(\theta_i) \tag{10}
+\end{equation*}
+</div>
+<p></p>
+<h5> Deriving the Functional Form of <span class="math">\(q_j(\theta_j)\)</span> </h5>
+<p>From Equation 10, we can plug it back into our variational free energy
+<span class="math">\(\mathcal{L}\)</span> and try to derive the functional form of <span class="math">\(q_j\)</span> using
+variational calculus <a class="footnote-reference" href=".#id7" id="id3">[3]</a>.  Let's start with <span class="math">\(\mathcal{L}\)</span> and try to
+re-write it isolating the terms for <span class="math">\(q_j(\theta_j)\)</span> in hopes of taking
+a functional derivative afterwards to find the optimal form of the function.
+Note that <span class="math">\(\mathcal{L}\)</span> is a <a class="reference external" href="https://en.wikipedia.org/wiki/Functional_(mathematics)">functional</a> that depends on our
+approximate densities <span class="math">\(q_1, \ldots, q_N\)</span>.</p>
+<div class="math">
+\begin{align*}
+ \mathcal{L[q_1, \ldots, q_N]}
+ &amp;= - \int_{\theta_1, \ldots, \theta_N}
+    [\prod_{i=1}^N q_i(\theta_i)] \log\frac{[\prod_{k=1}^N q_k(\theta_k)]}{p(\theta,X)}
+    d\theta_1 \ldots d\theta_n \\
+ &amp;= \int_{\theta_1, \ldots, \theta_N}
+    [\prod_{i=1}^N q_i(\theta_i)] \big[
+        \log p(\theta,X) - \sum_{k=1}^N \log q_k(\theta_k)
+    \big]
+    d\theta_1 \ldots d\theta_n \\
+ &amp;= \int_{\theta_j} q_j(\theta_j)
+    \int_{\theta_{m | m \neq j}}
+    [\prod_{i\neq j} q_i(\theta_i)] \big[
+        \log p(\theta,X) - \sum_{k=1}^N \log q_k(\theta_k)
+    \big]
+    d\theta_1 \ldots d\theta_n \\
+ &amp;= \int_{\theta_j} q_j(\theta_j)
+    \int_{\theta_{m | m \neq j}}
+    [\prod_{i\neq j} q_i(\theta_i)] \log p(\theta,X)
+    d\theta_1 \ldots d\theta_n \\
+    &amp;\phantom{=}-
+    \int_{\theta_j} q_j(\theta_j)
+    \int_{\theta_{m | m \neq j}}
+    [\prod_{i\neq j} q_i(\theta_i)] \sum_{k=1}^N \log q_k(\theta_k)
+    d\theta_1 \ldots d\theta_n \\
+\tag{11}
+\end{align*}
+</div>
+<p>where I'm using a bit of convenience notation in the integral index
+(<span class="math">\(\theta_m|m\neq j\)</span>) so I don't have to write out the "<span class="math">\(...\)</span>".
+So far, we've just factored out <span class="math">\(q_j(\theta_j)\)</span> and multiplied out
+the inner term <span class="math">\(\log p(\theta, X) - \sum_{i=k}^N \log q_k(\theta_k)\)</span>.
+In anticipation of the next part, we'll define some notation for an expectation
+across all variables except <span class="math">\(j\)</span> as:</p>
+<div class="math">
+\begin{align*}
+E_{m|m\neq j}[\log p(\theta,X)] = \int_{\theta_{m | m \neq j}}
+    [\prod_{i\neq j} q_i(\theta_i)] \log p(\theta,X)
+    d\theta_1 \ldots, d\theta_{j-1}, d\theta_{j+1}, \ldots, d\theta_n \\
+\tag{12}
+\end{align*}
+</div>
+<p>which you can see is just an expectation across all variables except for
+<span class="math">\(j\)</span>.  Continuing on from Equation 11 using this expectation notation
+and expanding the second term out:</p>
+<div class="math">
+\begin{align*}
+ \mathcal{L}[q_1, \ldots, q_N]
+ &amp;= \int_{\theta_j} q_j(\theta_j) E_{m|m\neq j}[\log p(\theta, X)] d\theta_j
+ \\
+    &amp;\phantom{=}-
+    \int_{\theta_j} q_j(\theta_j) \log q_j(\theta_j)
+    \int_{\theta_{m | m \neq j}}
+    [\prod_{i\neq j} q_i(\theta_i)] d\theta_1 \ldots d\theta_n \\
+    &amp;\phantom{=}-
+    \int_{\theta_j} q_j(\theta_j) d\theta_j
+    \int_{\theta_{m | m \neq j}}
+    [\prod_{i\neq j} q_i(\theta_i)] \sum_{k\neq j} \log q_k(\theta_k)
+    d\theta_1 \ldots, d\theta_{j-1}, d\theta_{j+1}, \ldots, d\theta_n
+ \\
+ &amp;= \int_{\theta_j} q_j(\theta_j) E_{m|m\neq j}[\log p(\theta, X)] d\theta_j
+    - \int_{\theta_j} q_j(\theta_j) \log q_j(\theta_j) d\theta_j\\
+    &amp;\phantom{=}-
+    \int_{\theta_{m | m \neq j}}
+    [\prod_{i\neq j} q_i(\theta_i)] \sum_{k\neq j} \log q_k(\theta_k)
+    d\theta_1 \ldots, d\theta_{j-1}, d\theta_{j+1}, \ldots, d\theta_n
+\\
+ &amp;= \int_{\theta_j} q_j(\theta_j) \big[E_{m|m\neq j}[\log p(\theta, X)] - \log q_j(\theta_j)\big] d\theta_j \\
+ &amp;\phantom{=}- G[q_1, \ldots, q_{j-1}, q_{j+1}, \ldots, q_{N}]
+ \\
+\tag{13}
+\end{align*}
+</div>
+<p>where we're integrating probability density functions over their entire
+support in a couple of places, which simplifies a few of the expressions to
+<span class="math">\(1\)</span>.  It's a bit confusing because of all the indices but just take your
+time to follow which index we're pulling out of which
+summation/integral/product and you shouldn't have too much trouble (unless I
+made a mistake!).  At the end, we have a functional that consists of a term
+made up only of <span class="math">\(q_j(\theta_j)\)</span> and <span class="math">\(E_{m|m\neq j}[\log p(\theta, X)]\)</span>,
+and another term with all the other <span class="math">\(q_i\)</span> functions.</p>
+<p>Putting together the <a class="reference external" href="https://en.wikipedia.org/wiki/Lagrange_multiplier">Lagrangian</a>
+for Equation 13, we get:</p>
+<div class="math">
+\begin{align*}
+\mathcal{L}[q_1, \ldots, q_N] - \sum_{i=1}^N \lambda_i \int_{\theta_i} q_i(\theta_i) d\theta_i = 0 \\
+\tag{14}
+\end{align*}
+</div>
+<p>where the terms in the summation are our usual probabilistic constraints that the
+<span class="math">\(q_i(\theta_i)\)</span> functions must be probability density functions.</p>
+<p>Taking the functional derivative of Equation 14 with respect to
+<span class="math">\(q_j(\theta_j)\)</span> using the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Calculus_of_variations#Euler.E2.80.93Lagrange_equation">Euler-Lagrange Equation</a>, we get:</p>
+<div class="math">
+\begin{align*}
+\frac{\delta \mathcal{L}[q_1, \ldots, q_N]}{\delta q_j(\theta)}
+    &amp;= \frac{\partial}{\partial q_j}\big[
+        q_j(\theta_j) \big[E_{m|m\neq j}[\log p(\theta, X)] - \log q_j(\theta_j)\big]
+        - \lambda_j q_j(\theta_j)
+    \big] \\
+&amp;= E_{m|m\neq j}[\log p(\theta, X)] - \log q_j(\theta_j) - 1 - \lambda_j \\
+\tag{15}
+\end{align*}
+</div>
+<p>In this case, the functional derivative is just the partial derivative with
+respect to <span class="math">\(q_j(\theta_j)\)</span> of what's "inside" the integral.  Setting to 0 and
+solving for the form of <span class="math">\(q_j(\theta_j)\)</span>:</p>
+<div class="math">
+\begin{align*}
+\log q_j(\theta_j) &amp;= E_{m|m\neq j}[\log p(\theta, X)] - 1 - \lambda_j \\
+                   &amp;= E_{m|m\neq j}[\log p(\theta, X)] + \text{const} \\
+q_j(\theta_j) &amp;= \frac{e^{E_{m|m\neq j}[\log p(\theta, X)]}}{Z_j} \\
+\tag{16}
+\end{align*}
+</div>
+<p>where <span class="math">\(Z_j\)</span> is a normalization constant.  The constant isn't too important
+because we know that <span class="math">\(q_j(\theta_j)\)</span> is a density so usually we can figure
+it out after the fact.</p>
+<p>Equation 16 finally gives us the functional form (actually a template of the
+functional form).  What usually ends up happening is that after plugging in
+<span class="math">\(E_{m|m\neq j}[\log p(\theta, X)]\)</span>, the form of Equation 16 matches a
+familiar distribution (e.g. Normal, Gamma etc.), and the normalization
+constant <span class="math">\(Z\)</span> can be derived by inspection.  We'll see this play out in
+the next section.</p>
+<p>Taking a step back, let's see how this helps us accomplish our goal.
+Recall, we wanted to maximize our variational free energy <span class="math">\(\mathcal{L}\)</span>
+(Equation 9), which in turn finds a <span class="math">\(q(\theta)\)</span> that minimizes KL
+divergence to the true posterior <span class="math">\(p(\theta|X)\)</span>.
+Using the mean-field approximation, we broke up <span class="math">\(q(\theta)\)</span> (Equation 10) into
+partitions <span class="math">\(q_j(\theta_j)\)</span>, each of which is defined by Equation 16.</p>
+<p>However, the <span class="math">\(q_j(\theta_j)\)</span>'s are interdependent when minimizing them.
+That is, to compute the optimal <span class="math">\(q_j(\theta_j)\)</span>, we need to know the
+values of all the other <span class="math">\(q_i(\theta_i)\)</span> functions (because of the
+expectation <span class="math">\(E_{m|m\neq j}[\log p(\theta, X)]\)</span>).  This suggests an
+iterative optimization algorithm:</p>
+<ol class="arabic simple">
+<li>Start with some random values for each of the parameters of the
+<span class="math">\(q_j(\theta_j)\)</span> functions.</li>
+<li>For each <span class="math">\(q_j\)</span>, use Equation 16 to minimize the overall KL divergence
+by updating <span class="math">\(q_j(\theta_j)\)</span> (holding all the others constant).</li>
+<li>Repeat until convergence.</li>
+</ol>
+<p>Notice that in each iteration, we are lowering the KL divergence between our
+<span class="math">\(Q\)</span> and <span class="math">\(P\)</span> distributions, so we're guaranteed to be improving each
+time.  Of course in general we won't converge to a global maximum but it's a
+heck of a lot easier to compute than MCMC.</p>
+<p><br></p>
+<h4> Mean-Field Approximation for the Univariate Gaussian </h4>
+<p>Now that we have a theoretical understanding of how this all works, let's
+see it in action.  Perhaps the simplest case (and I'm using the word "simple"
+in relative terms here) is the univariate Gaussian with a Gaussian prior
+on its mean and a inverse Gamma prior on its variance (from Example 1).  Let's
+describe the setup:</p>
+<div class="math">
+\begin{align*}
+\mu &amp;\sim N(\mu_0, (\kappa_0 \tau)^{-1}) \\
+\tau &amp;\sim \text{Gamma}(a_0, b_0) \\
+X={x_1, \ldots, x_N} &amp;\sim N(\mu, \tau^{-1}) \\
+\tag{17}
+\end{align*}
+</div>
+<p>where <span class="math">\(\tau\)</span> is the precision (inverse of variance), and we have
+<span class="math">\(N\)</span> observations (<span class="math">\({x_1, \ldots, x_N}\)</span>).  For this particular
+problem, there is a closed form for the posterior: a
+<a class="reference external" href="https://en.wikipedia.org/wiki/Normal-gamma_distribution">Normal-gamma distribution</a>.
+This means that it doesn't really make sense to compute a mean-field approximation
+for any reason except pedagogy but that's why we're here right?</p>
+<p>Continuing on, we really only need the logarithm of the joint probability of
+all the variables, which is:</p>
+<div class="math">
+\begin{align*}
+\log p(X, \mu, \tau) &amp;= \log p(X|\mu, \tau) + \log p(\mu|\tau) + \log p(\tau) \\
+&amp;= \frac{N}{2} \log \tau - \frac{\tau}{2} \sum_{i=1}^N (x_i - \mu)^2 \\
+&amp;\phantom{=}
+  + \frac{1}{2}\log(\kappa_0 \tau) - \frac{\kappa_0 \tau}{2}(\mu - \mu_0)^2 \\
+&amp;\phantom{=}
+  + (a_0 -1) \log \tau - b_0 \tau + \text{const}
+\tag{18}
+\end{align*}
+</div>
+<p>I broke out each of the three parts into three lines, so you should be able to
+easily see how we derived each of the expressions (Normal, Normal, Gamma,
+respectively).  We also just absorbed all the constants into the <span class="math">\(\text{const}\)</span> term.</p>
+<p></p>
+<h5> The Approximation </h5>
+<p>Now onto our mean-field approximation:</p>
+<div class="math">
+\begin{align*}
+p(\mu, \tau | X) \approx q(\mu, \tau) := q_{\mu}(\mu)q_{\tau}(\tau) \\
+\tag{19}
+\end{align*}
+</div>
+<p>Continuing on, we can use Equation 16 to find the form of our <span class="math">\(q\)</span> densities.
+Starting with <span class="math">\(q_{\mu}(\mu)\)</span>:</p>
+<div class="math">
+\begin{align*}
+\log q_{\mu}(\mu) &amp;= E_{\tau}[p(X, \mu, \tau)] + \text{const}_1 \\
+  &amp;= E_{\tau}[\log p(X|\mu, \tau) + \log p(\mu|\tau) + \log p(\tau)] + \text{const}_1 \\
+  &amp;= E_{\tau}[\log p(X|\mu, \tau) + \log p(\mu|\tau)] + \text{const}_2 \\
+  &amp;= E_{\tau}\big[\frac{N}{2} \log \tau - \frac{\tau}{2} \sum_{i=1}^N (x_i - \mu)^2
+  + \frac{1}{2}\log(\kappa_0 \tau) - \frac{\kappa_0 \tau}{2}(\mu - \mu_0)^2 \big]
+  + \text{const}_3 \\
+  &amp;= -\frac{E_{\tau}[\tau]}{2} \big[ \kappa(\mu - \mu_0)^2 + \sum_{i=1}^N (x_i - \mu)^2 \big] + \text{const}_4
+\tag{20}
+\end{align*}
+</div>
+<p>where we absorb all terms not involving <span class="math">\(\mu\)</span> into the "const" terms
+(even terms involving only <span class="math">\(\tau\)</span> because it doesn't change with respect to <span class="math">\(\mu\)</span>).
+You'll notice that Equation 20 is a quadratic function in <span class="math">\(\mu\)</span>, implying
+that it's normally distributed, i.e. <span class="math">\(q_{\mu}(\mu) \sim N(\mu|\mu_N, \tau_N^{-1})\)</span>.
+By completing the square (or using the formula for the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Normal_distribution#Sum_of_two_quadratics">sum of two normal distributions</a>), we will find an expression like:</p>
+<div class="math">
+\begin{align*}
+\log q_{\mu}(\mu) &amp;= -\frac{(\kappa_0 + N)E_{\tau}[\tau]}{2}
+              \big(
+                \mu - \frac{\kappa_0\mu_0 + \sum_{i=1}^N x_i}{\kappa_0 + N}
+              \big)^2 + \text{const}_5 \\
+\mu_N &amp;= \frac{\kappa_0\mu_0 + \sum_{i=1}^N x_i}{\kappa_0 + N} \\
+\tau_N &amp;= (\kappa_0 + N)E_{\tau}[\tau] \\
+\tag{21}
+\end{align*}
+</div>
+<p>Once we completed the square in Equation 21, we can infer the mean and
+precision without having to compute all those constants (thank goodness!).
+Next, we can do the same with <span class="math">\(\tau\)</span>:</p>
+<div class="math">
+\begin{align*}
+\log q_{\tau}(\tau) &amp;= E_{\mu}[\log p(X|\tau, \mu) + \log p(\mu|\tau) + \log p(\tau)] + \text{const}_6 \\
+  &amp;= E_{\mu}\big[\frac{N}{2} \log \tau - \frac{\tau}{2} \sum_{i=1}^N (x_i - \mu)^2 \\
+&amp;\phantom{=}
+  + \frac{1}{2}\log(\kappa_0 \tau) - \frac{\kappa_0 \tau}{2}(\mu - \mu_0)^2 \\
+&amp;\phantom{=}
+  + (a_0 -1) \log \tau - b_0 \tau\big] + \text{const}_7 \\
+  &amp;= (a_0 - 1)\log \tau - b_0\tau + \frac{1}{2}\log \tau + \frac{N}{2} \log \tau \\
+&amp;\phantom{=} -\frac{\tau}{2}E_{\mu}\big[\kappa_0(\mu - \mu_0)^2 + \sum_{i=1}^N (x_i - \mu)^2\big] + \text{const}_8 \\
+\tag{22}
+\end{align*}
+</div>
+<p>We can recognize this as a <span class="math">\(\text{Gamma}(\tau|a_N, b_N)\)</span>
+because the log density is only a function of <span class="math">\(\log\tau\)</span> and
+<span class="math">\(\tau\)</span>.  By inspection (and some grouping), we can find the
+parameters of this Gamma distribution (<span class="math">\(a_N, b_N\)</span>):</p>
+<div class="math">
+\begin{align*}
+\log q_{\tau}(\tau) &amp;=
+    \big(a_0 + \frac{N + 1}{2} - 1\big)\log\tau \\
+&amp;\phantom{=} - \big(b_0 + \frac{1}{2}E_{\mu}\big[\kappa_0(\mu - \mu_0)^2 + \sum_{i=1}^N (x_i - \mu)^2\big] \big)\tau + \text{const}_9 \\
+a_N &amp;= a_0 + \frac{N + 1}{2} \\
+b_N &amp;= b_0 + \frac{1}{2}E_{\mu}\big[\kappa_0(\mu - \mu_0)^2 + \sum_{i=1}^N (x_i - \mu)^2\big] \\
+\tag{23}
+\end{align*}
+</div>
+<p>Again, we don't have to explicitly compute all the constants which is really nice.
+Since we know the form of each distribution, the expectation for each of the
+distributions, <span class="math">\(q(\mu) = N(\mu|\mu_N, \tau_N^{-1})\)</span> and
+<span class="math">\(q(\tau) = \text{Gamma}(\tau|a_N, b_N)\)</span>, is simple:</p>
+<div class="math">
+\begin{align*}
+E_{q_{\mu}(\mu)}[\mu] &amp;= \mu_N \\
+E_{q_{\mu}(\mu)}[\mu^2] &amp;= \frac{1}{\tau_N} + \mu_N^2 \\
+E_{q_{\tau}(\tau)}[\tau] &amp;= \frac{a_N}{b_N} \\
+\tag{24}
+\end{align*}
+</div>
+<p>Expanding out Equations 21 and 23 to get our actual update equations:</p>
+<div class="math">
+\begin{align*}
+\mu_N &amp;= \frac{\kappa_0\mu_0 + \sum_{i=1}^N x_i}{\kappa_0 + N} \\
+\tau_N &amp;= (\kappa_0 + N)\frac{a_N}{b_N} \\
+a_N &amp;= a_0 + \frac{N + 1}{2} \\
+b_N &amp;= b_0 + \frac{\kappa_0}{2}\big(
+    E_{q_{\mu}(\mu)}[\mu^2] + \mu_0^2 - 2E_{q_{\mu}(\mu)}[\mu]\mu_0
+\big) \\
+&amp;\phantom{=}
++ \frac{1}{2} \sum_{i=1}^N \big( x_i^2 + E_{q_{\mu}(\mu)}[\mu^2] - 2E_{q_{\mu}(\mu)}[\mu]x_i \big) \\
+\tag{25}
+\end{align*}
+</div>
+<p>where in the <span class="math">\(b_N\)</span> equations, I didn't substitute some of the values
+from Equation 24 to keep it a bit neater.  From this, we can develop a simple
+algorithm to compute <span class="math">\(q(\mu)\)</span> and <span class="math">\(q(\tau)\)</span>:</p>
+<ol class="arabic simple">
+<li>Compute values <span class="math">\(E_{q_{\mu}(\mu)}[\mu], E_{q_{\mu}(\mu)}[\mu^2], E_{q_{\tau}(\tau)}[\tau]\)</span> from Equation 24 as well as <span class="math">\(\mu_N, a_N\)</span> since they can be computed directly from the data and constants.</li>
+<li>Initialize <span class="math">\(\tau_N\)</span> to some arbitrary value.</li>
+<li>Use current value of <span class="math">\(\tau_N\)</span> and values from Step 1 to compute <span class="math">\(b_N\)</span>.</li>
+<li>Use current value of <span class="math">\(b_N\)</span> and values from Step 1 to compute <span class="math">\(\tau_N\)</span>.</li>
+<li>Repeat the last two steps until neither value has changed much.</li>
+</ol>
+<p>Once we have the parameters for <span class="math">\(q(\mu)\)</span> and <span class="math">\(q(\tau)\)</span>, we can compute
+anything we want such as the mean, variance, 95% credible interval etc.</p>
+<p><br></p>
+<h4> Variational Bayes EM for mixtures of Gaussians <a class="footnote-reference" href=".#id8" id="id4">[4]</a> </h4>
+<p>The previous example of a univariate Gaussian already seems a bit complex
+(one of the downsides for VB) so I just want to mention that we can do this
+for the second case in Example 1 too, the Bayesian Gaussian Mixture Model.
+This application of variational Bayes takes a very similar form to the
+<a class="reference external" href="../the-expectation-maximization-algorithm">Expectation-Maximization</a>
+algorithm.</p>
+<p>Recall a mixture model has two types of variables: the latent categorical
+variables for each data point specifying which Gaussian it came from (<span class="math">\(z_i\)</span>),
+and the parameters to the Gaussians (<span class="math">\(\mu_k, \lambda_k\)</span>).
+In variational Bayes, we treat all variables the same (i.e. find a
+distribution for them), while in the EM case we only explicitly model the
+uncertainty of the latent variables (<span class="math">\(z_i\)</span>) and find point estimates of
+the parameters (<span class="math">\(\mu_k, \lambda_k\)</span>).
+Although not ideal, the EM algorithm's assumptions are not too bad because
+the parameter point-estimates use all the data points, which provides a
+more robust estimate, while the latent variables <span class="math">\(z_i\)</span> are informed
+only by <span class="math">\(x_i\)</span>, so it makes more sense to have a distribution.</p>
+<p>In any case, we still want to use variational Bayes for a mixture model situation
+to allow for a more "Bayesian" analysis.  Using variational Bayes on a mixture model
+produces an algorithm that is commonly known as <em>variational Bayes EM</em>.
+The main idea it to just apply a mean-field approximation and factorize all
+latent variables (<span class="math">\({\bf z}\)</span>) and parameters (<span class="math">\({\bf \theta}\)</span>):</p>
+<div class="math">
+\begin{equation*}
+p({\bf \theta}, {\bf z} | X) \approx q(\theta) \prod_1^N q(z_i) \tag{26}
+\end{equation*}
+</div>
+<p>Recall that the full likelihood function and prior are:</p>
+<div class="math">
+\begin{align*}
+p({\bf z}, {\bf X} | {\bf \theta}) &amp;=
+    \prod_i \prod_k \pi_k^{z_{ik}} \mathcal{N}(x_i | \mu_k, \Lambda_k^{-1})^{z_{ik}} \\
+p({\bf \theta}) &amp;=
+    \text{Dir}(\pi | \alpha_0) \prod_k \mathcal{N}(\mu_0, (\beta_0\Lambda_k)^{-1}) \mathcal{W}(\Lambda_k | W_0, \nu_0) \\
+\tag{27}
+\end{align*}
+</div>
+<p>We can use the same approach that we took above for both <span class="math">\(q(\theta)\)</span> and <span class="math">\(q(z_i)\)</span>
+and get to a posterior of the form:</p>
+<div class="math">
+\begin{align*}
+q({\bf z}, {\bf \theta}) &amp;= q({\bf z})q({\theta}) \\
+&amp;= \big[ \prod_i \text{Cat}(z_i|r_i) \big]
+    \big[ \text{Dir}(\pi|\alpha) \prod_k \mathcal{N}(\mu_k|m_k, (\beta_k \Lambda_k)^{-1}W(\Lambda_k|L_k, \nu_k) \big] \\
+    \tag{28}
+\end{align*}
+</div>
+<p>where <span class="math">\(r_i\)</span> is the "responsibility" of a point to the clusters similar to
+the EM algorithm and <span class="math">\(m_k, \beta_k, L_k, \nu_k\)</span> are computed values of the data
+and hyperparameters.  I won't go into all the math because this post is getting really long and you
+can just refer to Murphy or
+<a class="reference external" href="https://en.wikipedia.org/wiki/Variational_Bayesian_methods#A_more_complex_example">Wikipedia</a>
+if you really want to dig into it.</p>
+<p>In the end, we'll end up with a two step iterative process EM-like process:</p>
+<ol class="arabic simple">
+<li>A variational "E" step where we compute the values latent variables (or more directly
+the responsibility) based upon the current parameter estimates of the
+mixture components.</li>
+<li>A variational "M" step where we estimate the parameters of the distributions
+for each mixture component based upon the values of all the latent variables.</li>
+</ol>
+<p><br></p>
+<h4> Conclusion </h4>
+<p>Variational Bayesian inference is one of the most interesting topics that I have
+come across so far because it marries the beauty of Bayesian inference
+with the practicality of machine learning.  In future posts, I'll be exploring
+this theme a bit more and start moving into techniques in the machine
+learning domain but with strong roots in probability.</p>
+<p><br></p>
+<h4> Further Reading </h4>
+<ul class="simple">
+<li>Previous Posts: <a class="reference external" href="../the-calculus-of-variations">Variational Calculus</a>, <a class="reference external" href="../the-expectation-maximization-algorithm">Expectation-Maximization Algorithm</a>, <a class="reference external" href="../the-expectation-maximization-algorithm">Normal Approximation to the Posterior</a>, <a class="reference external" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm">Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm</a>, <a class="reference external" href="../maximum-entropy-distributions">Maximum Entropy Distributions</a>
+</li>
+<li>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Variational_Bayesian_methods">Variational Bayesian methods</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Bayesian_inference">Bayesian Inference</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">Kullback-Leibler divergence</a>
+</li>
+<li>Machine Learning: A Probabilistic Perspective, Kevin P. Murphy</li>
+<li>
+<a class="reference external" href="http://blog.evjang.com/2016/08/variational-bayes.html">A Beginner's Guide to Variational Methods: Mean-Field Approximation</a>, Eric Jung.</li>
+</ul>
+<p><br></p>
+<table class="docutils footnote" frame="void" id="id5" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id1">[1]</a></td>
+<td>There are a few different ways to intuitively understand information entropy.  See my previous post on <a class="reference external" href="../maximum-entropy-distributions">Maximum Entropy Distributions</a> for a slightly different explanation.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id6" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id2">[2]</a></td>
+<td>The term variational free energy is from an alternative interpretation from physics.  As with a lot of ML techniques, this one has its roots in physics where they make great use of probability to model the physical world.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id7" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id3">[3]</a></td>
+<td>This is one of the parts that I struggled with because many texts skip over this part (probably because it needs variational calculus).  They very rarely show the derivation of the functional form.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id8" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href=".#id4">[4]</a></td>
+<td>This section heavily draws upon the treatment from Murphy's Machine Learning: A Probabilistic Perspective.  You should take a look at it for a more thorough treatment.</td>
+</tr></tbody>
+</table>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/bayesian/" rel="tag">Bayesian</a></li>
+            <li><a class="tag p-category" href="../../categories/kullback-leibler/" rel="tag">Kullback-Leibler</a></li>
+            <li><a class="tag p-category" href="../../categories/mean-field/" rel="tag">mean-field</a></li>
+            <li><a class="tag p-category" href="../../categories/variational-calculus/" rel="tag">variational calculus</a></li>
+        </ul></nav></aside><script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+            MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
+            </script></article>
+</div>
+            <div class="col-md-3 well">
+            <p>
+            I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
+            a former academic, current data scientist, engineer, and
+            programmer.  This is
+            <a href="../../">the place</a>
+            where I write
+            about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br><p>
+            <a href="../../archive.html">Archive</a>
+            </p>
+            <p>
+            <a href="../../categories/index.html">Tags</a>
+            </p>
+            <p>
+            <a href="../../rss.xml">RSS feed</a>
+            </p>
+
+<!-- Begin MailChimp Signup Form -->
+<hr>
+<link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+    #mc_embed_signup{clear:left; font:13px Helvetica,Arial,sans-serif; }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+       We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="//briankeng.us10.list-manage.com/subscribe/post?u=cedf72ca8daa891e57f4379a0&amp;id=1f1563094f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <b>Signup for Email Blog Posts</b>
+    <div id="mc_embed_signup_scroll">
+<div>
+    <label for="mce-EMAIL"> Email Address </label>
+    <input type="email" value="" name="EMAIL" class="required email form-control input-sm" id="mce-EMAIL">
+</div>
+    <div id="mce-responses" class="clear">
+        <div class="response" id="mce-error-response" style="display:none"></div>
+        <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_cedf72ca8daa891e57f4379a0_1f1563094f" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn btn-default btn-xs"></div>
+    </div>
+</form>
+</div>
+<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
+</div>
+        </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2017         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+        </footer>
+</div>
+</div>
+
+
+            <script src="../../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-15314898-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>
