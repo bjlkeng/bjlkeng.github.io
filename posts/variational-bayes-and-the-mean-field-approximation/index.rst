@@ -793,7 +793,7 @@ learning domain but with strong roots in probability.
 * Previous Posts: `Variational Calculus <link://slug/the-calculus-of-variations>`__, `Expectation-Maximization Algorithm <link://slug/the-expectation-maximization-algorithm>`__, `Normal Approximation to the Posterior <link://slug/the-expectation-maximization-algorithm>`__, `Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__, `Maximum Entropy Distributions <link://slug/maximum-entropy-distributions>`__
 * Wikipedia: `Variational Bayesian methods <https://en.wikipedia.org/wiki/Variational_Bayesian_methods>`__, `Bayesian Inference <https://en.wikipedia.org/wiki/Bayesian_inference>`__, `Kullback-Leibler divergence <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>`__
 * Machine Learning: A Probabilistic Perspective, Kevin P. Murphy
-* `A Beginner's Guide to Variational Methods: Mean-Field Approximation <http://blog.evjang.com/2016/08/variational-bayes.html>`__, Eric Jung.
+* `A Beginner's Guide to Variational Methods: Mean-Field Approximation <http://blog.evjang.com/2016/08/variational-bayes.html>`__, Eric Jang.
 
 |br|
 
