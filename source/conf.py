@@ -418,7 +418,7 @@ DEPLOY_COMMANDS = {
         "nikola build -a",
         "cp README.md CNAME output/",
         "git checkout master",
-        "rsync -rPv --delete-after --exclude old_blog --exclude .git --exclude .gitignore --exclude cache/ --exclude .doit.db.db output/ ..",
+        "rsync -rPv --delete-after --exclude old_blog --exclude .git --exclude .gitignore --exclude cache/ --exclude .doit.db.* output/ ..",
         "git add -A ..",
         "git commit -a -m 'Updating blog content'",
         "git push",
