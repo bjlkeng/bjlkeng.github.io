@@ -7,6 +7,6 @@ cache/
 *.swo
 *.bak
 _site/
-.doit.db.db
+.doit.db.*
 nikola
 .ipynb_checkpoints/
