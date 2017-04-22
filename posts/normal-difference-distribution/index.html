@@ -79,15 +79,14 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Elementary Statistics for Direct Marketing</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                     Brian Keng
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2016-02-27T20:40:41-05:00" itemprop="datePublished" title="2016-02-27 20:40">2016-02-27 20:40</time></a></p>
             
         <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
 
-                <meta name="description" itemprop="description" content="A primer on some elementary statistics for direct marketing.">
-</div>
+        </div>
         
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
@@ -206,7 +205,7 @@ effectiveness of the offer), a generic offer (measuring the A vs. B
 effectiveness of your offer), or some variation that allows you to compare one
 treatment to another.</p>
 <p>The randomized control group allows us the "control" for confounding variables.
-That is, for hidden biases that might be introduced when running the experiment <a class="footnote-reference" href=".#id9" id="id1">[1]</a>
+That is, for hidden biases that might be introduced when running the experiment <a class="footnote-reference" href="#id9" id="id1">[1]</a>
 such as a holiday or perhaps a competitor's sale.
 It also allows us to make causal statements about the relationship between two
 variables.  Instead of just saying treatment A is correlated or associated with
@@ -214,13 +213,13 @@ a sales increase, we can say treatment A <em>causes</em> a sales increase.
 Randomized control groups are the primary method in which we can verify causality
 between two events.</p>
 <p>A few important points when practically designing an experiment in this
-scenario <a class="footnote-reference" href=".#id10" id="id2">[2]</a>:</p>
+scenario <a class="footnote-reference" href="#id10" id="id2">[2]</a>:</p>
 <ul class="simple">
 <li>A randomly selected control group is needed in order to make a causal statement.</li>
 <li>The samples (i.e. customers) are independent and measured on an individual
 basis (not just the total revenue but the revenue for each customer too).</li>
 <li>Sample size have to be large enough (for both groups) in order to have a
-statistically significant conclusion <a class="footnote-reference" href=".#id11" id="id3">[3]</a>.</li>
+statistically significant conclusion <a class="footnote-reference" href="#id11" id="id3">[3]</a>.</li>
 </ul>
 <p>We'll cover more on these topics below.</p>
 <p><br></p>
@@ -235,7 +234,7 @@ Also denote the binary treatment variable as <span class="math">\(X_i=1\)</span>
 the offer) and <span class="math">\(X_i=0\)</span> as "not treated" (i.e. control group or not given the
 offer) for the <span class="math">\(i^{th}\)</span> customer.
 Note: we'll represent random variables with capital letters  and their corresponding values after they have been observed with
-lower case letters <a class="footnote-reference" href=".#id12" id="id4">[4]</a>.</p>
+lower case letters <a class="footnote-reference" href="#id12" id="id4">[4]</a>.</p>
 <p>To not bury the lead, a good point estimator for measuring campaign
 effectiveness is just using the difference of spend per customer (SPC) or
 <strong>lift</strong>  of the treatment and control group (i.e. difference of population
@@ -256,7 +255,7 @@ per customer between treatment and control.  In some of the more math heavy
 sections below, you'll see why we introduced all this notation.
 First, let's see why our control groups have to be randomized.</p>
 <p></p>
-<h5> Causal Inference <a class="footnote-reference" href=".#id13" id="id5">[5]</a> </h5>
+<h5> Causal Inference <a class="footnote-reference" href="#id13" id="id5">[5]</a> </h5>
 <p>As I mentioned before, we can never simultaneously give a promotional offer
 <em>and</em> not give it at the same time (unless we had access to some kind of parallel universe).
 However, the ideal measurement for campaign effectiveness is exactly this
@@ -294,7 +293,7 @@ A = E[Y|X=1] - E[Y|X=0]  \tag{5}
 </div>
 <p>It's a widely known fact that association does not equal causation.
 Let's take a look at a small example why.</p>
-<div class="admonition-example-1 admonition">
+<div class="admonition admonition-example-1">
 <p class="first admonition-title">Example 1</p>
 <div class="math">
 \begin{equation*}
@@ -337,7 +336,7 @@ while putting the low value ones in the control group.  We want to ensure any
 confounding variables (like whether or not a customer is a high spender) is
 spread out proportionally across both treatment and control.  The next theorem
 states this idea.</p>
-<div class="admonition-theorem admonition">
+<div class="admonition admonition-theorem">
 <p class="first admonition-title"><strong>Theorem</strong></p>
 <p>If we randomly assign subjects to treatment and control such that <span class="math">\(P(X=0) &gt; 0\)</span>
 and <span class="math">\(P(X=1) &gt; 0\)</span>, then <span class="math">\(A=\text{lift}\)</span>.</p>
@@ -505,7 +504,7 @@ estimate it.  In that case, you could use a previously known sample variance
 the range of allowable values usually falls within <span class="math">\(4\sigma\)</span>.
 Both these will provide a decent estimate of the values.
 Let's take a look at an example.</p>
-<div class="admonition-example-2 admonition">
+<div class="admonition admonition-example-2">
 <p class="first admonition-title">Example 2</p>
 <p>From a past experiment, we know that customers usually spend between
 $20 and $80. We can send
@@ -602,7 +601,7 @@ n &amp;\geq \sigma^2_{\text{lift}} \frac{(z_{\alpha/2} + z_{1 - \beta})^2}{\Delt
 \end{align*}
 </div>
 <p>Let's take a look at an example of how this works.</p>
-<div class="admonition-example-3 admonition">
+<div class="admonition admonition-example-3">
 <p class="first admonition-title">Example 3</p>
 <p>Using the numbers from Example 2, how large of a sample size do we require if <span class="math">\(1-\beta=0.80\)</span> and now we
 can send <span class="math">\(30,000\)</span> flyers?</p>
@@ -681,7 +680,7 @@ on both subjects.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id1">[1]</a></td>
+<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
 <td>An interesting story I read about in <a class="reference external" href="https://en.wikipedia.org/wiki/The_Emperor_of_All_Maladies">The Emperor of All Maladies</a> about how several large scale trials testing the effectiveness of mammograms (low-dose x-ray imaging to detect breast cancer) were undone by implicit selection biases.  In one of the Canadian studies, nurses would write down trial patients names in a notebook where the first line corresponded to the treatment group, second control group, third treatment and so forth.  The nurses administering the trial subtlety biased the results by feeding patients who they thought were more in need to the treatment group.  A compassionate gesture but, statistically, a failed experiment.  Without the benefit of a truly randomized trial, they could not longer analyze the effectiveness of the treatment in isolation of confounding variables.</td>
 </tr></tbody>
 </table>
@@ -691,7 +690,7 @@ on both subjects.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id2">[2]</a></td>
+<td class="label"><a class="fn-backref" href="#id2">[2]</a></td>
 <td>The topic of design of <a class="reference external" href="https://en.wikipedia.org/wiki/Randomized_controlled_trial">randomized control trials</a> can actually be quite complex.  In this explanation, we're assuming relatively large population sizes (10s of thousands), which allows us to make a lot of simplifying assumptions.  When dealing with small sample sizes, the variation of the samples can be quite large making it much more important to design your experiment properly.  For larger population sizes, we usually "hide" behind the central limit theorem and normal approximations.</td>
 </tr></tbody>
 </table>
@@ -701,7 +700,7 @@ on both subjects.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id3">[3]</a></td>
+<td class="label"><a class="fn-backref" href="#id3">[3]</a></td>
 <td>Many marketers are tempted to <em>not</em> take a control group.  Their reasoning is something along the lines of "but I'm missing out on sales!", in which you should respond back "how do you know that?"  It's quite possible the offer could have absolutely no meaningful effect on your customers (e.g. targeting wrong product to people who don't want it) and possibly a negative effect (e.g. the discount may be too high with not enough people coming in)!  Just because you're giving people a discount doesn't mean it always increases sales.  Further, even if you have an increase, you don't know <em>how much</em> of an increase it is by i.e. the effect size.  If two different offers boosted sales by 1% vs. 10%, you should know that!  This is how you can test and learn to improve your overall business.</td>
 </tr></tbody>
 </table>
@@ -711,7 +710,7 @@ on both subjects.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id4">[4]</a></td>
+<td class="label"><a class="fn-backref" href="#id4">[4]</a></td>
 <td>For example, <span class="math">\(X\)</span> and <span class="math">\(Y\)</span> represent random variables which we can manipulate and analyze properties from <em>before</em> we have actually observed any values for them.  That means any analysis we apply on them doesn't depend one the actual numbers we observe.  After we observe some samples, we'll have explicit values for them like <span class="math">\(x=1\)</span> and <span class="math">\(y=48\)</span>, where we use lower case to distinguish these realizations of the random variables.</td>
 </tr></tbody>
 </table>
@@ -721,7 +720,7 @@ on both subjects.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id5">[5]</a></td>
+<td class="label"><a class="fn-backref" href="#id5">[5]</a></td>
 <td>This section was primarily based on <em>All of Statistics</em>, Chapter 16.  It has a great explanation of how randomized control groups work.  Check it out if my quick explanation glosses over too many things.</td>
 </tr></tbody>
 </table>
@@ -740,7 +739,7 @@ on both subjects.</p>
             <li class="next">
                 <a href="../the-empirical-distribution-function/" rel="next" title="The Empirical Distribution Function">Next post</a>
             </li>
-        </ul></nav></aside><script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+        </ul></nav></aside><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
             MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
             </script></article>
 </div>

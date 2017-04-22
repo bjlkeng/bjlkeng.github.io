@@ -78,15 +78,14 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">A Probabilistic Interpretation of Regularization</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                     Brian Keng
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2016-08-29T08:52:33-04:00" itemprop="datePublished" title="2016-08-29 08:52">2016-08-29 08:52</time></a></p>
             
         <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
 
-                <meta name="description" itemprop="description" content="A look at regularization through the lens of probability.">
-</div>
+        </div>
         
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
@@ -107,7 +106,7 @@ ill-posed problems or prevent overfitting.  A trivial example is when trying to
 fit a simple linear regression but you only have one point.  In this case, you can't
 estimate both the slope and intercept (you need at least two points) so any MLE
 estimate (which <em>only</em> uses the data) will be ill-formed.  Instead, if you
-provide some "additional information" (i.e. prior information <a class="footnote-reference" href=".#id12" id="id1">[1]</a>), you can
+provide some "additional information" (i.e. prior information <a class="footnote-reference" href="#id12" id="id1">[1]</a>), you can
 get a much more reasonable estimate.</p>
 <p>To make things a bit more concrete, let's talk about things in the context of a
 <a class="reference external" href="https://en.wikipedia.org/wiki/Linear_regression">ordinary linear regression</a>.
@@ -210,11 +209,11 @@ given the data we have observed (<span class="math">\(y\)</span>).  Contrast thi
 which instead try to find the best parameters to maximize likelihood: the
 probability of observing data (<span class="math">\(y\)</span>) given a different values of the
 parameters.  Definitely a subtle difference but I think most would agree the Bayesian
-interpretation is much more natural <a class="footnote-reference" href=".#id13" id="id3">[2]</a>.</p>
+interpretation is much more natural <a class="footnote-reference" href="#id13" id="id3">[2]</a>.</p>
 <p>Looking at Equation 5 in more detail, we already know how to compute the likelihood but
 the two new parts are the prior and the evidence.  This is where proponents of
 frequentist statistics usually have a philosophical dilemma.  The prior is actually
-something we (the modeler) explicitly choose that is <strong>not</strong> based on the data <a class="footnote-reference" href=".#id14" id="id4">[3]</a>
+something we (the modeler) explicitly choose that is <strong>not</strong> based on the data <a class="footnote-reference" href="#id14" id="id4">[3]</a>
 (<span class="math">\(y\)</span>)  *gasp*!</p>
 <p>Without getting into a whole philosophical spiel, adding some additional prior
 information is exactly what we want in certain situations!  For example when
@@ -323,7 +322,7 @@ regularization.  Instead of preventing any of the coefficients from being too
 large (due to the squaring), L1 promotes sparsity.  That is, zeroing out some
 of the coefficients.  This makes some sense if you look at the density of a
 Laplacean prior where there is a sharp increase in the density at its mean.</p>
-<p>Another way to intuitively see this is to compare two solutions <a class="footnote-reference" href=".#id15" id="id5">[4]</a>.  Let's
+<p>Another way to intuitively see this is to compare two solutions <a class="footnote-reference" href="#id15" id="id5">[4]</a>.  Let's
 imagine we are estimating two coefficients in a regression.  In L2
 regularization, the solution <span class="math">\({\bf \beta} = (1, 0)\)</span> has the same weight
 as <span class="math">\({\bf \beta} = (\frac{1}{\sqrt{2}}, \frac{1}{\sqrt{2}})\)</span> so they are
@@ -367,7 +366,7 @@ many more posts on this subject!</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id1">[1]</a></td>
+<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
 <td>One philosophical counterpoint is that we should "let the data speak for itself".  Although superficially satisfying, it is almost always the case where you inject "prior" knowledge into interpreting the data.  For example, selecting a linear regression model already adds some prior knowledge or intuition to the data.  In the same way, if we have some vague idea that the mean of the data should be close to zero, why not add that information into the problem?  If there's enough data and we've coded things right, then the prior isn't that impactful anyways.</td>
 </tr></tbody>
 </table>
@@ -377,7 +376,7 @@ many more posts on this subject!</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id3">[2]</a></td>
+<td class="label"><a class="fn-backref" href="#id3">[2]</a></td>
 <td>As you might have guessed, I'm fall into the Bayesian camp.  Although I would have to say that I'm much more of a pragmatist above all else.  I'll use whatever works, frequentist, Bayesian, no theoretical basis, doesn't really matter as long as I can solve the desired problem in a reasonable manner.  It just so happens Bayesian methods produce reasonable estimates very often.</td>
 </tr></tbody>
 </table>
@@ -387,7 +386,7 @@ many more posts on this subject!</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id4">[3]</a></td>
+<td class="label"><a class="fn-backref" href="#id4">[3]</a></td>
 <td>Well that's not exactly true.  As a modeler, we can pick a prior that does depend on the data, although that's a bit of "double dipping".  These methods are generally known as <a class="reference external" href="https://en.wikipedia.org/wiki/Empirical_Bayes_method">empirical Bayes methods</a>.</td>
 </tr></tbody>
 </table>
@@ -397,7 +396,7 @@ many more posts on this subject!</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id5">[4]</a></td>
+<td class="label"><a class="fn-backref" href="#id5">[4]</a></td>
 <td>I got this example from Machine Learning: A Probabilistic Perspective.  It has great explanations on both L1 and L2 regularization as long as you have some moderate fluency in probability.  I highly recommend this textbook if you want to dig into the meat of ML techniques.  It's very math (probability) heavy but really provides good high level explanations that help with intuition.</td>
 </tr></tbody>
 </table>
@@ -415,7 +414,7 @@ many more posts on this subject!</p>
             <li class="next">
                 <a href="../the-expectation-maximization-algorithm/" rel="next" title="The Expectation-Maximization Algorithm">Next post</a>
             </li>
-        </ul></nav></aside><script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+        </ul></nav></aside><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
             MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
             </script></article>
 </div>

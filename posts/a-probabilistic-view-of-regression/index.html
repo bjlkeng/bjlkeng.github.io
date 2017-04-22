@@ -80,15 +80,14 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">A Probabilistic View of Linear Regression</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                     Brian Keng
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2016-05-14T20:43:05-04:00" itemprop="datePublished" title="2016-05-14 20:43">2016-05-14 20:43</time></a></p>
             
         <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
 
-                <meta name="description" itemprop="description" content="Another look at linear regression through the lens of probability.">
-</div>
+        </div>
         
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
@@ -221,7 +220,7 @@ Here we derive the maximum likelihood estimate for <span class="math">\(\mu\)</s
 \end{align*}
 </div>
 <p>We use a couple of tricks here.  It turns out maximizing the likelihood is the same as
-maximizing the log-likelihood <a class="footnote-reference" href=".#id8" id="id1">[1]</a> and it makes the manipulation much easier.
+maximizing the log-likelihood <a class="footnote-reference" href="#id8" id="id1">[1]</a> and it makes the manipulation much easier.
 Also, we can remove any additive or multiplicative constants where appropriate
 because they do not affect the maximum likelihood value.</p>
 <p>To find the actual value of the optimum point, we can take the partial
@@ -269,13 +268,13 @@ expected value.</p>
 not be equal to its "true" value (if such a thing exists).  Had we sampled our data
 points slightly differently, we would get a slightly different estimate of
 <span class="math">\(\mu\)</span>. <em>This all points to the fact that</em> <span class="math">\(\mu\)</span> <em>is a random variable</em>
-<a class="footnote-reference" href=".#id9" id="id2">[2]</a>.  I won't talk too much more about this point since it's a bit outside
+<a class="footnote-reference" href="#id9" id="id2">[2]</a>.  I won't talk too much more about this point since it's a bit outside
 scope for this post but perhaps I'll discuss it in the future.</p>
 <p><br></p>
 <h4> Modeling Explanatory Variables </h4>
 <p>Now that we have an understanding that <span class="math">\(y\)</span> is a random variable, let's
 add in some explanatory variables.  We can model the expected value of
-<span class="math">\(y\)</span> as a linear function of <span class="math">\(p\)</span> explanatory variables <a class="footnote-reference" href=".#id10" id="id3">[3]</a> similar to
+<span class="math">\(y\)</span> as a linear function of <span class="math">\(p\)</span> explanatory variables <a class="footnote-reference" href="#id10" id="id3">[3]</a> similar to
 Equation 2:</p>
 <div class="math">
 \begin{equation*}
@@ -454,7 +453,7 @@ I hope this post helped you see some of the beauty of this fundamental topic too
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id1">[1]</a></td>
+<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
 <td>Since logarithm is monotonically increasing, it achieves the same maximum as the logarithm of a function at the same point.  It's also much more convenient to work with because many probability distributions have an exponents or are multiplicative.  The logarithm brings down the exponents and changes the multiplications to additions.</td>
 </tr></tbody>
 </table>
@@ -464,7 +463,7 @@ I hope this post helped you see some of the beauty of this fundamental topic too
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id2">[2]</a></td>
+<td class="label"><a class="fn-backref" href="#id2">[2]</a></td>
 <td>This is true at least in a Bayesian interpretation.  In a frequentist interpretation, there is a fixed true value of <span class="math">\(\mu\)</span>, and what is random is the confidence interval we can find that "traps" it.  I've written a bit about it <a class="reference external" href="../hypothesis-testing">here</a>.</td>
 </tr></tbody>
 </table>
@@ -474,7 +473,7 @@ I hope this post helped you see some of the beauty of this fundamental topic too
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id3">[3]</a></td>
+<td class="label"><a class="fn-backref" href="#id3">[3]</a></td>
 <td>We explicitly use the conditional notation here because the value of <span class="math">\(y\)</span> depends on <span class="math">\({\bf x}\)</span>.</td>
 </tr></tbody>
 </table>
@@ -494,7 +493,7 @@ I hope this post helped you see some of the beauty of this fundamental topic too
             <li class="next">
                 <a href="../beyond-collaborative-filtering/" rel="next" title="Beyond Collaborative Filtering">Next post</a>
             </li>
-        </ul></nav></aside><script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+        </ul></nav></aside><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
             MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
             </script></article>
 </div>

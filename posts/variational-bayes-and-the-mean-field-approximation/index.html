@@ -18,7 +18,7 @@
 <meta property="og:url" content="http://satisficing.briankeng.com/posts/variational-bayes-and-the-mean-field-approximation/">
 <meta property="og:description" content="A brief introduction to variational Bayes and the mean-field approximation.">
 <meta property="og:type" content="article">
-<meta property="article:published_time" content="2017-04-03T08:02:46-05:00">
+<meta property="article:published_time" content="2017-03-04T08:02:46-05:00">
 <meta property="article:tag" content="Bayesian">
 <meta property="article:tag" content="Kullback-Leibler">
 <meta property="article:tag" content="mathjax">
@@ -78,15 +78,14 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Variational Bayes and The Mean-Field Approximation</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                     Brian Keng
             </span></p>
-            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2017-04-03T08:02:46-05:00" itemprop="datePublished" title="2017-04-03 08:02">2017-04-03 08:02</time></a></p>
+            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2017-03-04T08:02:46-05:00" itemprop="datePublished" title="2017-03-04 08:02">2017-03-04 08:02</time></a></p>
             
         <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
 
-                <meta name="description" itemprop="description" content="A brief introduction to variational Bayes and the mean-field approximation.">
-</div>
+        </div>
         
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
@@ -132,7 +131,7 @@ long as your approximation is pretty good, you can do all the nice Bayesian
 analysis you like, and the best part is it's relatively easy to compute!</p>
 <p>The next example shows a couple of Bayesian inference problems to make things
 more concrete.</p>
-<div class="admonition-example-1-bayesian-inference-problems admonition">
+<div class="admonition admonition-example-1-bayesian-inference-problems">
 <p class="first admonition-title">Example 1: Bayesian Inference Problems</p>
 <ol class="last arabic">
 <li>
@@ -220,7 +219,7 @@ each partition is independent (a simplifying assumption).</li>
 all the other partitions.</li>
 </ul>
 <p>Now that we have an overview of this process, let's see how it actually works.</p>
-<div class="admonition-kullback-leibler-divergence admonition">
+<div class="admonition admonition-kullback-leibler-divergence">
 <p class="first admonition-title">Kullback-Leibler Divergence</p>
 <p><a class="reference external" href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">Kullback-Leibler divergence</a>
 (aka information gain) is a non-symmetric measure of the difference between
@@ -240,7 +239,7 @@ information entropy because I think it's a bit more intuitive.</p>
 <h5> KL Divergence as Information Gain </h5>
 <p>To quickly summarize, <a class="reference external" href="https://en.wikipedia.org/wiki/Entropy_(information_theory)">entropy</a>
 is the average amount of information or "surprise" for a probability
-distribution <a class="footnote-reference" href=".#id5" id="id1">[1]</a>.  Entropy is defined as for both discrete and continuous distributions:</p>
+distribution <a class="footnote-reference" href="#id5" id="id1">[1]</a>.  Entropy is defined as for both discrete and continuous distributions:</p>
 <div class="math">
 \begin{align*}
 H(P) &amp;:= E_P[I_P(X)] = -\sum_{i=1}^n P(i) \log(P(i)) \\
@@ -393,7 +392,7 @@ Rearranging we get:</p>
             \tag{9}
 \end{align*}
 </div>
-<p>where <span class="math">\(\mathcal{L}\)</span> is called the (negative) <em>variational free energy</em> <a class="footnote-reference" href=".#id6" id="id2">[2]</a>,
+<p>where <span class="math">\(\mathcal{L}\)</span> is called the (negative) <em>variational free energy</em> <a class="footnote-reference" href="#id6" id="id2">[2]</a>,
 NOT the likelihood (I don't like the choice of symbols either but that's how it's shown
 in most texts).  Recall that the evidence on the LHS is constant (for a given
 model), thus if we maximize the variational free energy <span class="math">\(\mathcal{L}\)</span>, we
@@ -432,7 +431,7 @@ p(\theta|X) \approx q(\theta) = q(\theta_1, \ldots, \theta_n) = \prod_{i=1}^N q_
 <h5> Deriving the Functional Form of <span class="math">\(q_j(\theta_j)\)</span> </h5>
 <p>From Equation 10, we can plug it back into our variational free energy
 <span class="math">\(\mathcal{L}\)</span> and try to derive the functional form of <span class="math">\(q_j\)</span> using
-variational calculus <a class="footnote-reference" href=".#id7" id="id3">[3]</a>.  Let's start with <span class="math">\(\mathcal{L}\)</span> and try to
+variational calculus <a class="footnote-reference" href="#id7" id="id3">[3]</a>.  Let's start with <span class="math">\(\mathcal{L}\)</span> and try to
 re-write it isolating the terms for <span class="math">\(q_j(\theta_j)\)</span> in hopes of taking
 a functional derivative afterwards to find the optimal form of the function.
 Note that <span class="math">\(\mathcal{L}\)</span> is a <a class="reference external" href="https://en.wikipedia.org/wiki/Functional_(mathematics)">functional</a> that depends on our
@@ -731,7 +730,7 @@ algorithm to compute <span class="math">\(q(\mu)\)</span> and <span class="math"
 <p>Once we have the parameters for <span class="math">\(q(\mu)\)</span> and <span class="math">\(q(\tau)\)</span>, we can compute
 anything we want such as the mean, variance, 95% credible interval etc.</p>
 <p><br></p>
-<h4> Variational Bayes EM for mixtures of Gaussians <a class="footnote-reference" href=".#id8" id="id4">[4]</a> </h4>
+<h4> Variational Bayes EM for mixtures of Gaussians <a class="footnote-reference" href="#id8" id="id4">[4]</a> </h4>
 <p>The previous example of a univariate Gaussian already seems a bit complex
 (one of the downsides for VB) so I just want to mention that we can do this
 for the second case in Example 1 too, the Bayesian Gaussian Mixture Model.
@@ -818,7 +817,7 @@ learning domain but with strong roots in probability.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id1">[1]</a></td>
+<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
 <td>There are a few different ways to intuitively understand information entropy.  See my previous post on <a class="reference external" href="../maximum-entropy-distributions">Maximum Entropy Distributions</a> for a slightly different explanation.</td>
 </tr></tbody>
 </table>
@@ -828,7 +827,7 @@ learning domain but with strong roots in probability.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id2">[2]</a></td>
+<td class="label"><a class="fn-backref" href="#id2">[2]</a></td>
 <td>The term variational free energy is from an alternative interpretation from physics.  As with a lot of ML techniques, this one has its roots in physics where they make great use of probability to model the physical world.</td>
 </tr></tbody>
 </table>
@@ -838,7 +837,7 @@ learning domain but with strong roots in probability.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id3">[3]</a></td>
+<td class="label"><a class="fn-backref" href="#id3">[3]</a></td>
 <td>This is one of the parts that I struggled with because many texts skip over this part (probably because it needs variational calculus).  They very rarely show the derivation of the functional form.</td>
 </tr></tbody>
 </table>
@@ -848,7 +847,7 @@ learning domain but with strong roots in probability.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id4">[4]</a></td>
+<td class="label"><a class="fn-backref" href="#id4">[4]</a></td>
 <td>This section heavily draws upon the treatment from Murphy's Machine Learning: A Probabilistic Perspective.  You should take a look at it for a more thorough treatment.</td>
 </tr></tbody>
 </table>
@@ -864,7 +863,7 @@ learning domain but with strong roots in probability.</p>
 <li class="previous">
                 <a href="../the-calculus-of-variations/" rel="prev" title="The Calculus of Variations">Previous post</a>
             </li>
-        </ul></nav></aside><script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+        </ul></nav></aside><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
             MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
             </script></article>
 </div>

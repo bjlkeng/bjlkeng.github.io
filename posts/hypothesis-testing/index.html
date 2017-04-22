@@ -80,15 +80,14 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">A Primer on Statistical Inference and Hypothesis Testing</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                     Brian Keng
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2016-01-09T11:22:26-05:00" itemprop="datePublished" title="2016-01-09 11:22">2016-01-09 11:22</time></a></p>
             
         <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
 
-                <meta name="description" itemprop="description" content="A post explaining classical (frequentist) statistical inference and hypothesis in a (hopefully) straight-forward way.">
-</div>
+        </div>
         
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
@@ -110,16 +109,16 @@ is a result of my re-education on these topics.  Enjoy!</p>
 <p>To start from the beginning, there are two big ideas that underlie much of
 classical statistics.
 The first big idea is that <em>all data</em> (or observations as statisticians like to
-say) have a "true" probability distribution <a class="footnote-reference" href=".#id11" id="id1">[1]</a>.  Of course, it is almost never
+say) have a "true" probability distribution <a class="footnote-reference" href="#id11" id="id1">[1]</a>.  Of course, it is almost never
 possible to precisely define it because the real world rarely fits so nicely
 into the distributions we learn in stats class.  However,
 the implications of this idea is that the "true" distribution and its
 parameters are fixed (i.e.  <em>not</em> random) albeit unknown.  The randomness
 comes in when you sample from this "true" distribution from which each datum
 is randomly drawn.</p>
-<p>The second big idea is that <strong>statistical inference</strong> <a class="footnote-reference" href=".#id12" id="id2">[2]</a> (or as computer
-scientists call it "learning" <a class="footnote-reference" href=".#id13" id="id3">[3]</a>) basically boils down to estimating this
-distribution directly by computing the distribution or density function <a class="footnote-reference" href=".#id14" id="id4">[4]</a>,
+<p>The second big idea is that <strong>statistical inference</strong> <a class="footnote-reference" href="#id12" id="id2">[2]</a> (or as computer
+scientists call it "learning" <a class="footnote-reference" href="#id13" id="id3">[3]</a>) basically boils down to estimating this
+distribution directly by computing the distribution or density function <a class="footnote-reference" href="#id14" id="id4">[4]</a>,
 or indirectly by estimating derived metrics such as the mean or median of the
 distribution.  A typical question we might ask is:</p>
 <blockquote>
@@ -139,7 +138,7 @@ densities or regression functions).</blockquote>
 <p>The idea here is that we want to define a subset of all possible distributions
 (or densities or regression functions) that closely approximates the "true"
 distribution (whether or not <span class="math">\(\mathfrak{F}\)</span> actually contains <span class="math">\(F\)</span>
-<a class="footnote-reference" href=".#id15" id="id5">[5]</a>).  One of the first tasks in inferential procedures is selecting the
+<a class="footnote-reference" href="#id15" id="id5">[5]</a>).  One of the first tasks in inferential procedures is selecting the
 correct model.  The model is an <em>assumption</em> about your data, picking the wrong
 one will lead to invalid conclusions.</p>
 <p>By far, the most common type of model is a <strong>parametric model</strong>, which defines
@@ -182,7 +181,7 @@ it will lead you to incorrect conclusions.</p>
 <h5> Types of Statistical Inference 
 </h5>
 <p>For the most part, statistical inference problems can be broken into three
-different types of problems <a class="footnote-reference" href=".#id16" id="id6">[6]</a>: point estimation, confidence
+different types of problems <a class="footnote-reference" href="#id16" id="id6">[6]</a>: point estimation, confidence
 intervals, and hypothesis testing.  I'll briefly describe the former two
 and focus on the latter in the next section.</p>
 <p>Point estimates aim to find the single "best guess" for a particular quantity
@@ -228,7 +227,7 @@ P(\theta \in C_n) \geq 1 - \alpha. \tag{3}
 <span class="math">\(\theta\)</span> with probability <span class="math">\(1 - \alpha\)</span> .  Now the confusing part is
 that this does not say anything directly about the probability of
 <span class="math">\(\theta\)</span> occurring because <span class="math">\(\theta\)</span> is fixed (from the "true"
-distribution) and instead it is <span class="math">\(C_n\)</span> that is the random variable <a class="footnote-reference" href=".#id17" id="id7">[7]</a>.
+distribution) and instead it is <span class="math">\(C_n\)</span> that is the random variable <a class="footnote-reference" href="#id17" id="id7">[7]</a>.
 So this is more a statement about how "right" we were in picking <span class="math">\(C_n\)</span>.</p>
 <p>Another way to think about it is this: suppose we set <span class="math">\(\alpha = 0.05\)</span> (a
 95% confidence interval), for every confidence interval, for every statistical
@@ -280,7 +279,7 @@ you can begin to learn after you have let go of your some of your past
 <p>Statistical hypothesis testing is probably one of the earliest concepts
 learn in a statistics course.  Null hypotheses, Student's t-test, p-values
 these terms get thrown around a lot without explaining their underlying probabilistic
-basis <a class="footnote-reference" href=".#id19" id="id8">[9]</a>.  When I first learned statistics it was definitely more biased towards
+basis <a class="footnote-reference" href="#id19" id="id8">[9]</a>.  When I first learned statistics it was definitely more biased towards
 a mechanical view of hypothesis testing, rather than an intuitive understanding.
 Here's my attempt to explain it a bit more precisely while hopefully adding some
 colour to give some intuition.</p>
@@ -405,7 +404,7 @@ throw another wrench in the mix, we usually refer to the bottom right cell
 as the <strong>power</strong>, which is the probability of correctly rejecting the null
 hypothesis when it is false (i.e. the alternative hypothesis is true).
 The tricky part is that trying to minimize both <span class="math">\(\alpha\)</span> and
-<span class="math">\(\beta\)</span> results in conflicting goals <a class="footnote-reference" href=".#id20" id="id9">[10]</a>, which makes picking a good
+<span class="math">\(\beta\)</span> results in conflicting goals <a class="footnote-reference" href="#id20" id="id9">[10]</a>, which makes picking a good
 rejection region <span class="math">\(R\)</span> highly non-trivial.</p>
 <p></p>
 <h5> Test Statistics 
@@ -518,7 +517,7 @@ just because both mention the word "probability".</p>
 In this way, we can remember the point of hypothesis testing is primarily a
 procedure to help us prove our default or null hypothesis false.  Thinking this
 way helps to remember that the null hypothesis is our default stance and the
-test's aim is prove it false <a class="footnote-reference" href=".#id21" id="id10">[11]</a>.</p>
+test's aim is prove it false <a class="footnote-reference" href="#id21" id="id10">[11]</a>.</p>
 <p><br></p>
 <h4> Conclusion </h4>
 <p>While writing this post, I had to dig through the probabilistic foundations for
@@ -542,7 +541,7 @@ way too.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id1">[1]</a></td>
+<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
 <td>Taking note that no model can truly represent reality leading to the aphorism: <a class="reference external" href="https://en.wikipedia.org/wiki/All_models_are_wrong">All models are wrong</a>.</td>
 </tr></tbody>
 </table>
@@ -552,7 +551,7 @@ way too.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id2">[2]</a></td>
+<td class="label"><a class="fn-backref" href="#id2">[2]</a></td>
 <td>
 <a class="reference external" href="https://en.wikipedia.org/wiki/Statistical_inference">Inferential statistics</a> is in contrast to <a class="reference external" href="https://en.wikipedia.org/wiki/Descriptive_statistics">descriptive statistics</a>, which only tries to describe the sample or observations -- not estimate a probability distribution.  Examples of this are measures of central tendency (like mean or median), or measures of variability (such as standard deviation or min/max values).  Note that although the mean of a sample is a descriptive statistic, it is also an estimate for the expected value of a given distribution, thus used in statistical inference.  Similarly for the other descriptive statistics.</td>
 </tr></tbody>
@@ -563,7 +562,7 @@ way too.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id3">[3]</a></td>
+<td class="label"><a class="fn-backref" href="#id3">[3]</a></td>
 <td>There is a great chart in <em>All of Statistics</em> that shows the difference between statistics and computer science/data mining terminology on page xi of the preface.  It's very illuminating to contrast the two especially since terms like estimation, learning, covariates, hypothesis are thrown around very casually in their respective literature.  I come more from a computer science/data mining and learned most of my stats afterwards so it's great to see all these terms with their definitions in one place.</td>
 </tr></tbody>
 </table>
@@ -573,7 +572,7 @@ way too.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id4">[4]</a></td>
+<td class="label"><a class="fn-backref" href="#id4">[4]</a></td>
 <td>Might be obvious but let's state it explicitly: <em>distribution</em> refers to the cumulative distribution function (CDF), and <em>density</em> refers to the probability density function (PDF).</td>
 </tr></tbody>
 </table>
@@ -583,7 +582,7 @@ way too.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id5">[5]</a></td>
+<td class="label"><a class="fn-backref" href="#id5">[5]</a></td>
 <td>In fact, most of the time <span class="math">\(\mathfrak{F}\)</span> will not contain <span class="math">\(F\)</span> since as we mentioned above, the "true" distribution is probably much more complex than any model we could come up with.</td>
 </tr></tbody>
 </table>
@@ -593,7 +592,7 @@ way too.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id6">[6]</a></td>
+<td class="label"><a class="fn-backref" href="#id6">[6]</a></td>
 <td>This categorization is given in <em>All of Statistics</em>, Section 6.3: Fundamental Concepts in Inference.  I've found it quite a good way to think about statistics from a high level.</td>
 </tr></tbody>
 </table>
@@ -603,7 +602,7 @@ way too.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id7">[7]</a></td>
+<td class="label"><a class="fn-backref" href="#id7">[7]</a></td>
 <td>An important note outlined in <em>All of Statistics</em> about <span class="math">\(\theta\)</span>, point estimators and confidence intervals is that <span class="math">\(\theta\)</span> is fixed.  Recall, that our data is drawn from a "true" distribution that has (theoretically) <em>exact</em> parameters.  So there is a single fixed, albeit unknown, value of <span class="math">\(\theta\)</span>.  The randomness comes in through our observations.  Each observation, <span class="math">\(X_i\)</span>, is drawn (randomly) from the "true" distribution so by definition a random variable.  This means our point estimators <span class="math">\(\widehat{\theta}_n\)</span> and confidence intervals <span class="math">\(C_n\)</span> are also random variables since they are functions of random variables. <br><br> This can all be a little confusing, so here's another way to think about it:  Say we have a "true" distribution, and we're going to draw <span class="math">\(n\)</span> samples from it.  Ahead of time, we don't know what the values of those observations are going to be but we know they will follow the "true" distribution.  Thus, the <span class="math">\(n\)</span> samples are <span class="math">\(n\)</span> random variables, each distributed according to the "true" distribution.  We can then take those <span class="math">\(n\)</span> variables and combine them into a function (e.g. a point estimator like a mean) to get a estimator.  This estimator, before we know the actual values of the <span class="math">\(n\)</span> variables, will also be a random variable.  However, what usually happens is that the values of the <span class="math">\(n\)</span> samples are actually observed, so we plugs these realizations into our point <em>estimator</em> (i.e. the function of the <span class="math">\(n\)</span> observations) to get a point <em>estimate</em> -- a deterministic value.  One reason we make this distinction is so that we can compute properties of our point estimator like bias and variance.  So long story short, the point estimator is a random variable where after having realized values of the observations, we can use it to get a single fixed number called a point estimate.</td>
 </tr></tbody>
 </table>
@@ -623,7 +622,7 @@ way too.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id8">[9]</a></td>
+<td class="label"><a class="fn-backref" href="#id8">[9]</a></td>
 <td>It's probably fair that when learning elementary hypothesis testing that you don't learn about the probabilistic interpretation.  For most students, they will never have to use hypothesis testing beyond rote application of standard tests.  However from an understanding perspective, I find this rather unappealing.  I at least like to have an intuition about how a method works rather than just a mechanical process thus this blog post.</td>
 </tr></tbody>
 </table>
@@ -633,7 +632,7 @@ way too.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id9">[10]</a></td>
+<td class="label"><a class="fn-backref" href="#id9">[10]</a></td>
 <td>Think about a procedure that always rejects the null hypothesis i.e. a rejection consisting of the entire space.  In this case, our <span class="math">\(\alpha = 1\)</span> but <span class="math">\(\beta=0\)</span> because we are always correctly rejecting the null hypothesis when it is false.  Similarly if <span class="math">\(\beta = 1\)</span>.  Of course, this choice of rejection region is absolutely useless so we want to pick something a bit smarter.</td>
 </tr></tbody>
 </table>
@@ -643,7 +642,7 @@ way too.</p>
 <col>
 </colgroup>
 <tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href=".#id10">[11]</a></td>
+<td class="label"><a class="fn-backref" href="#id10">[11]</a></td>
 <td>An important point about hypothesis testing is that it's proving our null hypothesis is false.  For example, our null hypothesis might be that the drug had no effect.  If we correctly reject it, our test or p-value says nothing about the absolute effectiveness of the drug; all it says it that it has some effect.  It could have minimal or negligible effect but still technically have "statistical significance".  We should remember to use the right tool for the right job and not be prone to "man with a hammer"-syndrome.  In our example here, we should be examining the effect size (the difference in the population means), perhaps with confidence intervals along with using our knowledge of the situation to determine if the results we're seeing are useful and practically significant.</td>
 </tr></tbody>
 </table>
@@ -663,7 +662,7 @@ way too.</p>
             <li class="next">
                 <a href="../normal-difference-distribution/" rel="next" title="Elementary Statistics for Direct Marketing">Next post</a>
             </li>
-        </ul></nav></aside><script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+        </ul></nav></aside><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
             MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
             </script></article>
 </div>
