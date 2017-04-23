@@ -35,11 +35,24 @@
 
    </center>
 
-Write your post here.
+This post is going to talk about an incredibly interesting unsupervised
+learning method in machine learning called variational autoencoders.
+It's main claim to fame is in building generative models of complex distributions
+like handwritten digits, faces, image segmentation among others.  The really
+cool thing about this subject is that it has firm roots in probability but uses
+a function approximator (i.e.  neural networks) to approximate an otherwise
+intractable problem.  
+As usual, I'll try to start with some background and motivation,
+include a healthy does of math, and along the way try to convey some of the
+intuition of why it works.  I'll also show a bit of code and point you to some
+examples for you to try yourself.
 
 .. TEASER_END
 
 |h2| Generative Models  |h2e|
+
+
+
 
 - Show equations for generative models, including latent variables.
 - Explain problems with latent variables: have to specify network, often hard
