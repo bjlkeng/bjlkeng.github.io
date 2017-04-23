@@ -1,6 +1,6 @@
 .. title: Variational Autoencoders
 .. slug: variational-autoencoders
-.. date: 2017-04-07 10:19:36 UTC-04:00
+.. date: 2017-05-07 10:19:36 UTC-04:00
 .. tags: variational calculus, autoencoders, Kullback-Leibler, generative models, mathjax
 .. category: 
 .. link: 
@@ -51,18 +51,21 @@ examples for you to try yourself.
 
 |h2| Generative Models  |h2e|
 
-
-
-
 - Show equations for generative models, including latent variables.
 - Explain problems with latent variables: have to specify network, often hard
   to train
+
+Examples:
+- Normal distribution
+- Mixed gaussians
+- Handwritten digits
+
 
 |h2| Variational Autoencoders |h2e|
 
 - Variational autoencoders approximate the generative process
 - Solidly based in probability
-- Not exactly anything to do with traditional auto-encoders
+- Nothing to do with traditional auto-encoders
 
 |h3| An Unusual Approach to Latent Variables |h3e|
 
@@ -83,8 +86,13 @@ Summary:
 
 - 
 
-|h2| Setting up the Variational Autoencoder  |h2e|
+|h2| Deriving the Variational Autoencoder  |h2e|
 
+- Explain why we need posterior P(z|X): help sample more efficiently
+  from z, thus we don't need to integrate across it every time
+- P(z|X) is intractable in general, introduce an approximation => variational inference
+- Show the KL/var. Bayes equation
+- Explain intuition of how instead of doing the full expecation E[log P(X|z)]
 
 
 |h2| Further Reading |h2e|
@@ -94,9 +102,4 @@ Summary:
 * Wikipedia: `Variational Bayesian methods <https://en.wikipedia.org/wiki/Variational_Bayesian_methods>`__, `Generative Models <https://en.wikipedia.org/wiki/Generative_model>`__, `Autoencoders <https://en.wikipedia.org/wiki/Autoencoder>`__, `Kullback-Leibler divergence <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>`__
 * "Tutorial on Variational Autoencoders", Carl Doersch, https://arxiv.org/abs/1606.05908
   
-
-`A Beginner's Guide to Variational Methods: Mean-Field Approximation <http://blog.evjang.com/2016/08/variational-bayes.html>`__, Eric Jung.
-
 |br|
-
-
