@@ -55,7 +55,7 @@ great explanation on this whole topic, so make sure you check that out too.
 The first place on this topic is to discuss the idea of a 
 `generative model <https://en.wikipedia.org/wiki/Generative_model>`__.
 A generative model is a model from which allows you to sample (i.e. randomly
-generate data points) from the a distribution similar to your observed data
+generate data points) from a distribution similar to your observed data
 points.  We can accomplish this by specifying a joint distribution over 
 all the dimensions of the data (including the "y" labels).
 This allows us to generate any number of data points that has similar
@@ -142,6 +142,33 @@ better picture of some other applications.
         
 
 |h2| An Implicit Generative Model |h2e|
+
+Let's continue to use this handwritten digit generative model as our motivation
+for a generative model.  Generating a 28x28 greyscale image that looks like a digit
+is non-trivial, especially if we are trying to model it directly.  The joint
+distribution over 28x28 random variables is going to be complex, for example,
+enforcing that "0"s have empty space near the middle but "1"s don't, is not
+very clear.  Typically in these situations, we'll introduce latent variables
+which encode higher level ideas.  In our example, one of the latent variables
+might correspond to which digit we're using (0-9), another one may be the
+stroke width we use, and so on.  This model is simpler because there are
+usually fewer parameters to estimate, reducing the number of data points
+required for a good fit.  See my post on 
+`the expectation-maximization algorithm <link://slug/the-expectation-maximization-algorithm>`__,
+which has a brief description of latent variable models in the background section.
+
+One downsides of any latent variable model is that you have to specify the 
+model! That is, you have to have some idea of what latent variables you want
+to include, how these variables are related to each other and the observed variables,
+and finally how to fit the model (which depends on the connectivity).
+All of the introduce potential for a misspecification of the model.  For
+example, maybe you forgot to include stroke width and now all your handwritten
+digits are blurry because it averaged over types of stroke widths in your
+training dataset.  Wouldn't it be nice if you *didn't* need to specify
+the latent variables (and associated distributions), nor the relationships
+between them, and had an easy way to fit the model?  Enter variational
+autoencoders.
+
 
 - previous section we explicitly specified latent variables e.g. neighborhoods.
 - this is useful for certain applications
