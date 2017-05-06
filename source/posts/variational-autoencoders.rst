@@ -50,7 +50,7 @@ great explanation on this whole topic, so make sure you check that out too.
 
 .. TEASER_END
 
-|h2| Generative Models  |h2e|
+|h2| 1. Generative Models  |h2e|
 
 The first place on this topic is to discuss the idea of a 
 `generative model <https://en.wikipedia.org/wiki/Generative_model>`__.
@@ -141,7 +141,7 @@ better picture of some other applications.
         trained well, look like a hand written digit.
         
 
-|h2| An Implicit Generative Model |h2e|
+|h2| 2. An Implicit Generative Model (aka the "decoder") |h2e|
 
 Let's continue to use this handwritten digit generative model as our motivation
 for a generative model.  Generating a 28x28 greyscale image that looks like a digit
@@ -169,7 +169,7 @@ specify the latent variables (and associated distributions), nor the
 relationships between them, and on top of all of this had an easy way to fit
 the model?  Enter variational autoencoders.
 
-|h3| From a Standard Normal Distributions to a Complex Latent Variable Model |h3e|
+|h3| 2.1 From a Standard Normal Distributions to a Complex Latent Variable Model |h3e|
 
 There are a couple of big ideas here that allow us to create this implicit model
 without explicitly specifying anything.
@@ -300,7 +300,7 @@ loss/objective function below.
   :alt: Variational Autoencoder Graphical Model
   :align: center
 
-  Figure 2: A graphical model of a typical variational autoencoder (without a "encoder"). We're using a modified plate notation, the circles represent variables/parameters, rectangular boxes with to represent multiple instances of the contained variables, and the little diagram in the middle is a representation of a deterministic neural network (function approximator).
+  Figure 2: A graphical model of a typical variational autoencoder (without a "encoder", just the "decoder"). We're using a modified plate notation: the circles represent variables/parameters, rectangular boxes with a number in the lower right corner to represent multiple instances of the contained variables, and the little diagram in the middle is a representation of a deterministic neural network (function approximator).
 
 |br|
 
@@ -327,13 +327,13 @@ maximize the likelihood over the :math:`\theta` parameters.  Implicitly, we
 will want our output variable to be continuous in :math:`\theta` so we can
 perform gradient descent.
 
-|h3| A hard fit |h3e|
+|h3| 2.2 A hard fit |h3e|
 
 Given the model above, we have all we need to fit the model: observations from
-:math:`X`, well defined parameters for the latent variables, and a function
-approximator :math:`g(\cdot)`, the only thing we need to find is :math:`\theta`.
-This is a classic optimization problem where we could use an MLE (or MAP)
-estimate.  Let's see how this works out.
+:math:`X`, well defined parameters for the latent variables (:math:`Z`), and a
+function approximator :math:`g(\cdot)`, the only thing we need to find is
+:math:`\theta`.  This is a classic optimization problem where we could use an
+MLE (or MAP) estimate.  Let's see how this works out.
 
 First, we need to define the probability of seeing a single example :math:`x`:
 
@@ -344,13 +344,13 @@ First, we need to define the probability of seeing a single example :math:`x`:
     &= \int p_{\mathcal{N}}(x|g(z;\theta);\sigma^2*I)
             p_{\mathcal{N}}(z|0;I) dz \\
     &\approx \frac{1}{M} \sum_{m=1}^M p_{\mathcal{N}}(x|g(z_m;\theta);\sigma^2*I)
-    &&& \text{where } z_m \sim N(0,I) \\
+    &&& \text{where } z_m \sim \mathcal{N}(0,I) \\
     \tag{5}
 
 The probability of a single sample is just the joint probability of our given
 model marginalizing (i.e. integrating) out :math:`Z`.  Since we don't have a 
 analytical form of the density, we approximate the integral by averaging over
-:math:`M` samples from :math:`Z\sim N(0, I)`.
+:math:`M` samples from :math:`Z\sim \mathcal{N}(0, I)`.
 
 Putting together the log-likelihood by logging the density and summing over all
 of our :math:`N` observations:
@@ -376,18 +376,29 @@ number of samples you need to properly approximate the volume of the space.
 For small :math:`K` this might be feasible but any reasonable value will
 intractable.
 
+Looking at it from another point of view, the reason why this is excessively
+slow is that we have to average over a large number (:math:`M`) samples.  But,
+for any given observation :math:`x`, most of the :math:`z_m` will contribute
+very little to the likelihood.
+
+Said another way, the posterior distribution for each sample
+:math:`p(z|X=x_i)` has some distinctive shape that is probably very different
+from the prior :math:`p(z)`.  If we sample any given :math:`z_m\sim Z` (which has
+distribution :math:`p(z)`), then most of those samples will have low
+:math:`p(Z=z_m|X=x_i)` because the distributions have vastly different shapes.
+This implies that, :math:`p(X=x_i|Z=z_m)` (recall Bayes theorem) will also be
+low, which implies little contribution to our likelihood in Equation 6.
+
+Wouldn't it be nice if we could just sample from :math:`p(z|X=x_i)` directly
+thus getting rid the need for the large summation of :math:`M` samples?  
+This is exactly what variational autoencoders proposes!
+
+(Note: Just to be clear, each :math:`x_i` will likely have a *different*
+:math:`p(z|X=x_i)`.  Imagine our hand written digit example, a "1" will
+probably have a very different posterior than a "8".)
 
 
-
-|h2| Variational Autoencoders |h2e|
-
-- Variational autoencoders approximate the generative process
-- Solidly based in probability
-- Nothing to do with traditional auto-encoders
-
- 
-
-|h2| Deriving the Variational Autoencoder  |h2e|
+|h2| 3. Variational Inference for the Posterior (aka the "encoder") |h2e|
 
 - Explain why we need posterior P(z|X): help sample more efficiently
   from z, thus we don't need to integrate across it every time
