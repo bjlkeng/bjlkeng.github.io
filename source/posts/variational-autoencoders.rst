@@ -357,7 +357,7 @@ of our :math:`N` observations:
 
 .. math::
 
-    P(X) = \frac{1}{M} \sum_{i=1}^N 
+    \log P(X) = \frac{1}{M} \sum_{i=1}^N 
            \log(\sum_{m=1}^M p_{\mathcal{N}}(x_i|g(z_m;\theta);\sigma^2*I)) \tag{6}
 
 Two problems here. First, the :math:`\log` can't be pushed inside the
@@ -395,10 +395,95 @@ This is exactly what variational autoencoders proposes!
 
 (Note: Just to be clear, each :math:`x_i` will likely have a *different*
 :math:`p(z|X=x_i)`.  Imagine our hand written digit example, a "1" will
-probably have a very different posterior than a "8".)
+probably have a very different posterior shape than an "8".)
+
+|h3| 2.2 Summary |h3e|
+
+To summarize, this is what we're trying to accomplish:
+
+* Our generative model is an implicit latent variable model with latent
+  variables :math:`Z` as standard multi-variate normal distribution.
+* The :math:`Z` variables are transformed into a arbitrarily complex
+  distribution by a deterministic function approximator (e.g. neural
+  network parameterized by :math:`\theta`) that can model our data.
+* We can fit our generative model via the likelihood by averaging over a huge
+  number of :math:`Z` samples; this becomes intractable for higher dimensions
+  (curse of dimensionality).
+* For any given sample :math:`x_i`, most of the :math:`Z` samples will
+  contribute very little to the likelihood calculation, so we wish to sample
+  only the probable values of :math:`x_i` that do contribute significantly to
+  the likelihood using the posterior distribution :math:`Z|X=x_i`.
+
+From here, we can finally get to the "variational" part of variational
+autoencoders.
+
+|h2| 3. Variational Bayes for the Posterior (aka the "encoder") |h2e|
+
+From our novel idea of an implicit generative model, we come to a new problem:
+how can we estimate the posterior distribution :math:`P(Z|X)`? We have a couple of 
+problems, first, the posterior probably has no closed form analytic solution.
+This is not terrible because this is a typical problem in Bayesian inference
+which we solve via either `Markov Chain Monte Carlo Methods <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__ or 
+`Variational Bayes <link://slug/variational-bayes-and-the-mean-field-approximation>`__.
+Second, we wanted to use the posterior :math:`P(Z|X)` to fit our maximize our
+:math:`P(X|Z;\theta)`, but surely to find :math:`P(Z|X)` we need to know
+:math:`P(X|Z;\theta)` -- a circular dependence.  The solution to this is also
+novel, let's *simultaneously* a) fit our posterior, b) generate samples from it,
+*and* c) maximize our likelihood function!  
+
+First, we'll attempt to solve the first problem of finding the posterior
+:math:`P(Z|X)` and this will lead us to the solution to the second problem
+of fitting our likelihood.  Let's dig into some math to see how this works.
+
+|h3| 3.1 Setting up the Variational Objective |h3e|
+
+Since the posterior is so complex, we won't try to model it directly.  Instead, 
+we'll use variational Bayesian methods (see my 
+`previous post <link://slug/variational-bayes-and-the-mean-field-approximation>`__)
+to approximate it.  We'll denote our approximate distribution as
+:math:`Q(Z|X)` and, as usual, we'll use 
+`KL divergence <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>`__ 
+as our measure of "closeness" to the actual distribution.
+Writing the math down, we get:
+
+.. math::
+
+    \mathcal{D}(Q(z|X) || P(z|X)) &= \int Q(z|X) \log\big[\frac{Q(z|X)}{P(z|X)}\big] dz \\ 
+    &= E_{z\sim Q}[\log Q(z|X) - \log P(z|X)] \\
+    &= E_{z\sim Q}[\log Q(z|X) + \log P(X) - \log P(X|z) - \log P(z)] &&& \text{Bayes rule} \\
+    &= E_{z\sim Q}[\log Q(z|X) - \log P(X|z) - \log P(z)] + \log P(X)
+    \tag{7}
+
+We pulled :math:`P(X)` out of the expectation since it is not dependent on
+:math:`z`.  Rearranging Equation 7:
+
+.. math::
+
+    \log P(X) - \mathcal{D}(Q(z|X) || P(z|X)) = 
+        E_{z\sim Q}[P(X|z)] - \mathcal{D}(Q(z|X) || P(z)) \tag{8}
+
+This is the core objective of variational autoencoders for which we wish to maximize.
+The LHS defines our higher level goal:
+
+* :math:`\log P(X)`: maximize the log-likelihood (Equation 6) 
+* :math:`\mathcal{D}(Q(z|X) || P(z|X))`: Minimize the KL divergence between our
+  approximate posterior :math:`Q(z|X)` to fit :math:`P(z|X)`
+
+The RHS gives us an objective where we know all the pieces, and we can maximize
+via gradient descent (details in the next section):
+
+* :math:`P(X|z)`: original generative model
+* :math:`Q(z|X)`: approximate posterior (we'll define what this looks like below)
+* :math:`P(z)`: latent variables as a standard multivariate normal distribution
+
+Notice, we now have what appears to be an "autoencoder".  :math:`Q(z|X)`
+"encodes" :math:`X` to latent representation :math:`z`, and :math:`P(X|z)`
+"decodes" :math:`z` to reconstruct :math:`X`.  We'll see how these equations
+translate into a model that we can directly optimize.
+
+|h3| 3.2 Defining the Approximate Posterior |h3e|
 
 
-|h2| 3. Variational Inference for the Posterior (aka the "encoder") |h2e|
 
 - Explain why we need posterior P(z|X): help sample more efficiently
   from z, thus we don't need to integrate across it every time
