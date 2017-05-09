@@ -310,7 +310,8 @@ Writing the model out more formally, we have:
 
     X_i &\sim \mathcal{N}(\mu_i, \sigma^2 * I) &&& \text{Observed variable} \\
     \mu_i &\sim g(Z_{1,\ldots,K}; \theta) &&& \text{Implicit latent variable}\\
-    Z_k &\sim \mathcal{N}(0, I)
+    Z_k &\sim \mathcal{N}(0, I) 
+    \tag{5}
 
 where:
 
@@ -345,7 +346,7 @@ First, we need to define the probability of seeing a single example :math:`x`:
             p_{\mathcal{N}}(z|0;I) dz \\
     &\approx \frac{1}{M} \sum_{m=1}^M p_{\mathcal{N}}(x|g(z_m;\theta);\sigma^2*I)
     &&& \text{where } z_m \sim \mathcal{N}(0,I) \\
-    \tag{5}
+    \tag{6}
 
 The probability of a single sample is just the joint probability of our given
 model marginalizing (i.e. integrating) out :math:`Z`.  Since we don't have a 
@@ -358,7 +359,7 @@ of our :math:`N` observations:
 .. math::
 
     \log P(X) = \frac{1}{M} \sum_{i=1}^N 
-           \log(\sum_{m=1}^M p_{\mathcal{N}}(x_i|g(z_m;\theta);\sigma^2*I)) \tag{6}
+           \log(\sum_{m=1}^M p_{\mathcal{N}}(x_i|g(z_m;\theta);\sigma^2*I)) \tag{7}
 
 Two problems here. First, the :math:`\log` can't be pushed inside the
 summation, which actually isn't much a problem because we're not trying to
@@ -387,7 +388,7 @@ from the prior :math:`p(z)`.  If we sample any given :math:`z_m\sim Z` (which ha
 distribution :math:`p(z)`), then most of those samples will have low
 :math:`p(Z=z_m|X=x_i)` because the distributions have vastly different shapes.
 This implies that, :math:`p(X=x_i|Z=z_m)` (recall Bayes theorem) will also be
-low, which implies little contribution to our likelihood in Equation 6.
+low, which implies little contribution to our likelihood in Equation 7.
 
 Wouldn't it be nice if we could just sample from :math:`p(z|X=x_i)` directly
 thus getting rid the need for the large summation of :math:`M` samples?  
@@ -452,20 +453,20 @@ Writing the math down, we get:
     &= E_{z\sim Q}[\log Q(z|X) - \log P(z|X)] \\
     &= E_{z\sim Q}[\log Q(z|X) + \log P(X) - \log P(X|z) - \log P(z)] &&& \text{Bayes rule} \\
     &= E_{z\sim Q}[\log Q(z|X) - \log P(X|z) - \log P(z)] + \log P(X)
-    \tag{7}
+    \tag{8}
 
 We pulled :math:`P(X)` out of the expectation since it is not dependent on
-:math:`z`.  Rearranging Equation 7:
+:math:`z`.  Rearranging Equation 8:
 
 .. math::
 
     \log P(X) - \mathcal{D}(Q(z|X) || P(z|X)) = 
-        E_{z\sim Q}[P(X|z)] - \mathcal{D}(Q(z|X) || P(z)) \tag{8}
+        E_{z\sim Q}[P(X|z)] - \mathcal{D}(Q(z|X) || P(z)) \tag{9}
 
 This is the core objective of variational autoencoders for which we wish to maximize.
 The LHS defines our higher level goal:
 
-* :math:`\log P(X)`: maximize the log-likelihood (Equation 6) 
+* :math:`\log P(X)`: maximize the log-likelihood (Equation 7) 
 * :math:`\mathcal{D}(Q(z|X) || P(z|X))`: Minimize the KL divergence between our
   approximate posterior :math:`Q(z|X)` to fit :math:`P(z|X)`
 
@@ -481,15 +482,105 @@ Notice, we now have what appears to be an "autoencoder".  :math:`Q(z|X)`
 "decodes" :math:`z` to reconstruct :math:`X`.  We'll see how these equations
 translate into a model that we can directly optimize.
 
-|h3| 3.2 Defining the Approximate Posterior |h3e|
+|h3| 3.2 Defining the Variational Autoencoder Model |h3e|
+
+Now that we have a theoretical framework that gives us an objective to optimize,
+we need to explicitly define :math:`Q(z|X)`.  In the same way, we implicitly
+defined the generative model, we'll use the same idea to define the approximate
+posterior.  We'll assume that the `Q(z|X)` is normally distributed with
+mean and co-variance matrix defined by a neural network with parameters
+:math:`\phi`.  The co-variance matrix is usually constrained to be diagonal to
+simplify things a bit.  Formally, we'll have:
+
+.. math::
+
+    z|X &\approx \mathcal{N}(\mu_{z|X}, \Sigma_{z|X}) \\
+    \mu_{z|X}, \Sigma_{z|X} &= g_{z|X}(X; \phi) \\
+    \tag{10}
+
+where:
+
+* :math:`z|X` is our approximated posterior distribution as a multivariate
+  normal distribution
+* :math:`\mu_{z|X}` is a vector of means for our normal distribution
+* :math:`\Sigma_{z|X}` is a diagonal co-variance matrix for our normal distribution
+* :math:`g_{z|X}` is our function approximator (neural network)
+* :math:`\phi` are the parameters to :math:`g_{z|X}`
+
+As a first attempt, we might try to put Equations 5 and 10 to form a model
+as shown in Figure 3.  The red boxes show our variational loss (objective)
+function from Equation 9 (the squared error comes from the :math:`\log`
+of the normal distribution), the input and the sampling of the :math:`z` values
+is shown in blue.  
+
+
+.. figure:: /images/variational_autoencoder2.png
+  :width: 550px
+  :alt: Variational Autoencoder Diagram
+  :align: center
+
+  Figure 3: An initial attempt at a variational autoencoder without
+  the "reparameterization trick".  Objective functions shown in red.
+  We cannot back-propagate through the stochastic sampling operation
+  because it is not a continuous deterministic function.
+  
+Using this model, we can perform a "forward pass":
+
+1. Inputting values of :math:`X=x_i`
+2. Computing :math:`\mu_{z|X}` and :math:`\Sigma_{z|X}` from :math:`g_{z|X}(X;\phi)`
+3. Sample a :math:`z` value from :math:`\mathcal{N}(\mu_{z|X}, \Sigma_{z|X})`
+4. Compute :math:`\mu_{X|z}` from :math:`g_{X|z}(X;\theta)` to produce the
+   (mean of the) reconstructed output.
+
+Remember, our goal is to learn the parameters for our two networks: :math:`\theta`
+and :math:`\phi`.  We can attempt to do this through back-propagation but
+we hit a road-block when we back-propagate the :math:`||X-\mu_{X|z}||^2` error
+through the sampling operation.  Since the sampling operation isn't a
+continuous deterministic function, it has no gradient, thus we can't do any
+form of back-propagation.  Fortunately, we can use the "reparameterization
+trick" to circumvent this sampling problem.  This is shown in Figure 4.
+
+.. figure:: /images/variational_autoencoder3.png
+  :width: 550px
+  :alt: Variational Autoencoder Diagram
+  :align: center
+
+  Figure 4: A variational autoencoder with the "reparameterization trick".
+  Notice that all operations between the inputs and objectives are
+  continuous deterministic functions, allowing back-propagation to occur.
+
+The key insight is that :math:`\mathcal{N}(\mu_{z|X}, \Sigma_{z|X})`
+is equivalent to :math:`\mathcal{N}(0, I) * \Sigma_{z|X} + \mu_{z|X}`.
+That is, we can just sample from a standard normal distribution and then
+scale and shift our sample to transform it to a sample from our desired
+:math:`z|X` distribution.  Shifting the sampling operation to an input
+of our model (for each sample :math:`x_i`, we can sample an arbitrary
+number of :math:`\mathcal{N}(0,I)` samples to pair with it).
+
+With the "reparameterization trick", this new model allows us to 
+take the gradient of the loss function with respect to the target parameters 
+(:math:`\theta` and :math:`\phi`).  In particular, we would want to take 
+these gradients:
+
+.. math::
+
+    &\frac{d}{d\theta}(X-\mu_{X|z})^2 \\
+    &\frac{d}{d\phi}(X-\mu_{X|z})^2 \\
+    &\frac{d}{d\phi} \mathcal{D}(Q(z|X) || P(z)) \\
+    \tag{11}
+
+and iteratively update the weights of our neural network using
+back-propagation.
+
+|h3| 3.3 Training A Variational Autoencoder |h3e|
+
+Go through simplification to stochastic gradient descent.
+
+|h3| 3.4 Generating New Samples |h3e|
 
 
 
-- Explain why we need posterior P(z|X): help sample more efficiently
-  from z, thus we don't need to integrate across it every time
-- P(z|X) is intractable in general, introduce an approximation => variational inference
-- Show the KL/var. Bayes equation
-- Explain intuition of how instead of doing the full expecation E[log P(X|z)]
+|h3| 4. A Basic Example: MNIST Variational Autoencoder |h3e|
 
 
 |h2| Further Reading |h2e|
