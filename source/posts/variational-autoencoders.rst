@@ -461,7 +461,7 @@ We pulled :math:`P(X)` out of the expectation since it is not dependent on
 .. math::
 
     \log P(X) - \mathcal{D}(Q(z|X) || P(z|X)) = 
-        E_{z\sim Q}[P(X|z)] - \mathcal{D}(Q(z|X) || P(z)) \tag{9}
+        E_{z\sim Q}[\log P(X|z)] - \mathcal{D}(Q(z|X) || P(z)) \tag{9}
 
 This is the core objective of variational autoencoders for which we wish to maximize.
 The LHS defines our higher level goal:
@@ -509,9 +509,11 @@ where:
 
 As a first attempt, we might try to put Equations 5 and 10 to form a model
 as shown in Figure 3.  The red boxes show our variational loss (objective)
-function from Equation 9 (the squared error comes from the :math:`\log`
-of the normal distribution), the input and the sampling of the :math:`z` values
-is shown in blue.  
+function from Equation 9 (Note: the squared error comes from the :math:`\log`
+of the normal distribution and `KL divergence between two multivariate normals
+<https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence#Kullback.E2.80.93Leibler_divergence_for_multivariate_normal_distributions>`__
+is well known); the input and the sampling of the :math:`z` values
+is shown in blue. 
 
 
 .. figure:: /images/variational_autoencoder2.png
@@ -570,11 +572,82 @@ these gradients:
     \tag{11}
 
 and iteratively update the weights of our neural network using
-back-propagation.
+back-propagation.  As seen in Figure 4, :math:`Q(z|X) = N(\mu_{z|X},
+\Sigma_{z|X})` is parameterized by :math:`\phi` via :math:`g_{z|X}(X;\phi)`,
+whereas :math:`\mu_{X|z}` is implicitly parameterized by both :math:`\theta`
+through via :math:`g_{X|z}(z;\theta)` and :math:`\phi` through
+:math:`z`/:math:`g_{z|X}(X;\phi)`.
 
 |h3| 3.3 Training A Variational Autoencoder |h3e|
 
-Go through simplification to stochastic gradient descent.
+Now that we have the basic structure of our network and understand the relationship
+between the "encoder" and "decoder", let's figure out how to train this sucker.
+Recall Equation 9 shows us how define our objective in terms of distributions:
+:math:`z, z|X, X|z`.  When we're optimizing, we don't directly work with
+distributions, instead we have samples and a single objective function.
+We can translate Equation 9 into this goal by taking the expectation over
+the relevant variables like so:
+
+.. math::
+
+    E_{X\sim D}[\log P(X) - \mathcal{D}(Q(z|X) || P(z|X))] = 
+        E_{X\sim D}[E_{z\sim Q}[\log P(X|z)] - \mathcal{D}(Q(z|X) || P(z))]  \\
+    \tag{12}
+
+To be a bit pedantic, we still don't have a function we can't optimize directly
+because we don't know how to take the expectation.  Of course, we'll just
+make the usual approximations by replacing the expectation with summations. 
+I'll show it step by step:
+
+.. math::
+
+    &E_{X\sim D}[E_{z\sim Q}[\log P(X|z)] - \mathcal{D}(Q(z|X) || P(z))] \\
+    &= E_{X\sim D}[E_{\epsilon \sim \mathcal{N}(0, I)}[
+        \log P(X|z=\mu_{z|X}(X) + \Sigma_{z|X}^{1/2}(X)*\epsilon)
+    ] - \mathcal{D}(Q(z|X) || P(z))]  \\
+    &\approx \frac{1}{N}\sum_{x_i \in X}
+       E_{\epsilon \sim \mathcal{N}(0, I)}[
+        \log P(x_i|z=\mu_{z|X}(x_i) + \Sigma_{z|X}^{1/2}(x_i)*\epsilon)
+       ] - \mathcal{D}(Q(z|x_i) || P(z))  \\
+    &\approx \frac{1}{N}\sum_{x_i \in X}
+        \log P(x_i|z=\mu_{z|X}(x_i) + \Sigma_{z|X}^{1/2}(x_i)*\epsilon)
+       - \mathcal{D}(Q(z|x_i) || P(z))  \\
+
+    \tag{13}
+
+First, we use our "reparameterization trick" by just sampling from our
+standard normal distribution instead of our prior :math:`z`.
+Next, let's approximate the outer expectation by taking our N observations of
+the :math:`X` values and averaging them.  This is what we implicitly do
+in most learning algorithms when we assume iid. Finally, we'll simplify
+the inner expectation by just using a single sample paired with each
+observation :math:`x_i`.  This requires a bit more explanation.
+
+Each time we train back-propagate a :math:`x_i` through the network, we much
+explicitly sample a *new* value of :math:`\epsilon` from our standard normal
+distribution.  If we're training over many epochs (large loop over all
+:math:`x_i` values), we'll eventually be approximating the 
+:math:`E_{\epsilon \sim \mathcal{N}(0,I)}` over these epochs.
+Using stochastic gradient descent, we can iterate in a different order or
+mini-batches and we should still converge to the same expectation.
+This just simplifies life for us a bit.
+
+As a final note, we can simplify the last line in Equation 13 can simplify to
+something like:
+
+.. math::
+
+    \frac{1}{N} \sum_{x_i \in X} (x_i-\mu_{z|X})^2 - \frac{1}{2}\big(tr(\Sigma_{z|X}(x_i)) + (\mu_{z|X}(x_i))^T(\mu_{z|X}(x_i)) - k - \log \text{det}(\Sigma_{z|X}(x_i))\big)
+
+Each of the two big terms corresponds to :math:`\log P(x_i|z)` and 
+:math:`\mathcal{D}(Q(z|x_i) || P(z)` respectively, where I dropped out some of
+the constants from :math:`\log P(x_i|z)` (since they're not needed in the gradient)
+and used the formula for `KL divergence between two multivariate normals
+<https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence#Kullback.E2.80.93Leibler_divergence_for_multivariate_normal_distributions>`__.
+
+And now that we have a concrete formula for the overall objective, it's straight 
+forward to perform stochastic gradient descent either via by manually working
+the derivatives or using some automatic differentiation.
 
 |h3| 3.4 Generating New Samples |h3e|
 
