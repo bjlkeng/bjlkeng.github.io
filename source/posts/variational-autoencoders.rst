@@ -615,22 +615,27 @@ I'll show it step by step:
 
     \tag{13}
 
-First, we use our "reparameterization trick" by just sampling from our
-standard normal distribution instead of our prior :math:`z`.
+Going line by line: first, we use our "reparameterization trick" by just
+sampling from our standard normal distribution instead of our prior :math:`z`.
 Next, let's approximate the outer expectation by taking our N observations of
-the :math:`X` values and averaging them.  This is what we implicitly do
-in most learning algorithms when we assume iid. Finally, we'll simplify
-the inner expectation by just using a single sample paired with each
-observation :math:`x_i`.  This requires a bit more explanation.
+the :math:`X` values and averaging them.  This is what we implicitly do in most
+learning algorithms when we assume i.i.d. Finally, we'll simplify the inner
+expectation by just using a single sample paired with each observation
+:math:`x_i`.  This requires a bit more explanation.
 
-Each time we train back-propagate a :math:`x_i` through the network, we much
-explicitly sample a *new* value of :math:`\epsilon` from our standard normal
-distribution.  If we're training over many epochs (large loop over all
-:math:`x_i` values), we'll eventually be approximating the 
-:math:`E_{\epsilon \sim \mathcal{N}(0,I)}` over these epochs.
-Using stochastic gradient descent, we can iterate in a different order or
-mini-batches and we should still converge to the same expectation.
-This just simplifies life for us a bit.
+We want to simplify the inner expectation :math:`E_{\epsilon \sim
+\mathcal{N}(0, I)}[]`.  To compute this, each time we evaluate the network, we
+must explicitly sample a *new* value of :math:`\epsilon` from our standard
+normal distribution.  That means we can just pair each observation
+:math:`x_i` with a bunch of samples from :math:`\mathcal{N}(0, I)`
+to make a "full input".  
+
+However, instead of doing that explicitly, let's just pair each :math:`x_i`
+with a single sample from :math:`\mathcal{N}(0, I)`.  If we're training over
+many epochs (large loop over all :math:`x_i` values), it's as if pairing each
+observation with a bunch of new values sampled from :math:`\mathcal{N}(0, I)`.
+According to stochastic gradient descent, these two methods will converge to
+the same value and it simplifies life for us a bit.
 
 As a final note, we can simplify the last line in Equation 13 can simplify to
 something like:
@@ -651,9 +656,76 @@ the derivatives or using some automatic differentiation.
 
 |h3| 3.4 Generating New Samples |h3e|
 
+Finally, we get to an interesting part of our network.  After all that training
+we can finally try to generate some new observations using our implicit
+generative model.  Even though we did all that work with the
+"reparameterization trick" and KL divergence, we still only need our implicit
+generative model from Section 2.1 [1]_.
 
+.. figure:: /images/variational_autoencoder4.png
+  :width: 250px
+  :alt: Variational "Decoder" Diagram
+  :align: center
+
+  Figure 5: The generative model component of a variational autoencoder
+  in test mode.
+
+Figure 5 shows our generative model.  To generate a new observation, all
+we have to do is sample from our standard normal distribution (our prior
+for our latent variables), and then run it through our neural network.
+The network should have learned how to transform our latent variables into
+the mean of what our training data looks like.  
+
+Note, that our network now only outputs the mean of our generative output,
+we can additionally sample from our actual output distribution if we sample a
+normal distribution with this mean.  In most cases, the mean is probably what
+we want though (e.g. when generating an image, the mean values are just the
+values for the pixels).
 
 |h3| 4. A Basic Example: MNIST Variational Autoencoder |h3e|
+
+The nice thing about many of these modern ML techniques is that implementations are
+widely available.  I put together a 
+`notebook <https://github.com/bjlkeng/sandbox/blob/master/notebooks/variational-autoencoder.ipynb>`__ 
+that uses `Keras <https://keras.io/>`__ to build a variational autoencoder [2]_.
+The code is from the Keras convolutional variational autoencoder example and
+I just made some small changes to the parameters.  I also added some annotations
+that make reference to the things we discussed in this post.
+
+Figure 6 shows a sample of the digits I was able to generate with 8 latent
+variables in the above Keras example.
+
+.. figure:: /images/generated_digits.png
+    :height: 350px
+    :alt: MNIST digits generated from a variational autoencoder model
+    :align: center
+
+    Figure 6: MNIST digits generated from a variational autoencoder model.
+
+Not the prettiest hand writing =) We definitely got some decent looking digits
+but also some really weird ones.  Usually the explanation for the weird ones
+are that they're in between two digits or two styles of writing the same digit.
+An example might be second up from the bottom right.  Is it a "3" or a "7"?
+Kind of hard to tell.  
+
+Anyways take a look at the 
+`notebook <https://github.com/bjlkeng/sandbox/blob/master/notebooks/variational-autoencoder.ipynb>`__,
+I find it really interesting to see the connection between theory and
+implementation.  It's often that you see an implementation and it's very
+difficult to reverse-engineer it back to the theory because of all the
+simplifications that have been done.  Hopefully this post and the accompanying
+notebook will help.
+
+|h2| Conclusion |h2e|
+
+Variational autoencoders are such a cool idea: it's a full blown probabilistic
+latent variable model which you don't need explicitly specify!  On top of that,
+it builds on top of modern machine learning techniques, meaning that it's also
+quite scalable to large datasets (if you have a GPU).  I'm a big fan of
+probabilistic models but an even bigger fan of practical things, which is why
+I'm so enamoured with the idea of these variational techniques in ML.  I plan
+on continuing in this direction of exploring more of these techniques in ML
+that have a solid basis in probability.  Look out for future posts!
 
 
 |h2| Further Reading |h2e|
@@ -664,3 +736,11 @@ the derivatives or using some automatic differentiation.
 * "Tutorial on Variational Autoencoders", Carl Doersch, https://arxiv.org/abs/1606.05908
   
 |br|
+
+.. [1] If you find this a bit confusing, here's another explanation.  The only reason we did all the work on the "encoder" part was to generate a good distribution for :math:`z|X`.  That is given an :math:`x_i`, find the likely :math:`z` values.  However, we made sure that when we average over all the :math:`X` observations, our average :math:`z` values would still match our prior :math:`p(z)` standard normal distribution via the KL divergence.  That means, sampling for our standard normal distribution should still give us likely values for :math:`z`.
+
+.. [2] I initially just tried to use this example with just my CPU but it was painfully slow (~ 5+ min/epoch).  So I embarked on a multi-week journey to buy a modern GPU, re-build my computer and dual-boot linux (vs. using a virtual machine).  The speed-up was quite dramatic, now it's around ~15 secs/epoch.
+
+
+
+
