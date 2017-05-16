@@ -38,25 +38,27 @@
 This post is going to talk about an incredibly interesting unsupervised
 learning method in machine learning called variational autoencoders.  It's main
 claim to fame is in building generative models of complex distributions like
-handwritten digits, faces, image segmentation among others.  The really cool
+handwritten digits, faces, and image segments among others.  The really cool
 thing about this topic is that it has firm roots in probability but uses a
 function approximator (i.e.  neural networks) to approximate an otherwise
 intractable problem.  As usual, I'll try to start with some background and
 motivation, include a healthy does of math, and along the way try to convey
-some of the intuition of why it works.  I'll also show a bit of code and point
-you to some examples for you to try yourself.  I based much of this post on
-Carl Doersch's `tutorial <https://arxiv.org/abs/1606.05908>`__, which has a
-great explanation on this whole topic, so make sure you check that out too.
+some of the intuition of why it works.  I've also annotated a 
+`basic example <https://github.com/bjlkeng/sandbox/blob/master/notebooks/variational-autoencoder.ipynb>`__ 
+so you can see how the math relates to an actual implementation.  I based much
+of this post on Carl Doersch's `tutorial <https://arxiv.org/abs/1606.05908>`__,
+which has a great explanation on this whole topic, so make sure you check that
+out too.
 
 .. TEASER_END
 
 |h2| 1. Generative Models  |h2e|
 
-The first place on this topic is to discuss the idea of a 
+The first thing to discuss is the idea of a 
 `generative model <https://en.wikipedia.org/wiki/Generative_model>`__.
-A generative model is a model from which allows you to sample (i.e. randomly
-generate data points) from a distribution similar to your observed data
-points.  We can accomplish this by specifying a joint distribution over 
+A generative model is a model which allows you to sample (i.e. randomly
+generate data points) from a distribution similar to your observed (i.e. training)
+data.  We can accomplish this by specifying a joint distribution over 
 all the dimensions of the data (including the "y" labels).
 This allows us to generate any number of data points that has similar
 characteristics to our observed data.  This is in contrast to a   
@@ -66,13 +68,13 @@ classifier only outputs 0 or 1 "y" labels and cannot generate a data point that
 looks like your "X" features.
 
 Typically, as part of your model you'll want to specify latent variables that
-represent some higher level concept.  For example, when modelling housing
-prices you may want to have a latent variable for the neighborhood.  This
-allows for complex relationships between the latent variables and the observed
-ones.  We'll be focusing on the application of generating new values that look
-like the observation but check out the 
-`Wikipedia <https://en.wikipedia.org/wiki/Generative_model>`__ article for a
-better picture of some other applications.
+represent some higher level concepts.  This allows for intuitive relationships
+between the latent variables and the observed ones, while usually simplifying
+the overall number of parameters (i.e. complexity) of the model.  We'll be
+focusing on the application of generating new values that look like the
+observed data but check out the 
+`Wikipedia <https://en.wikipedia.org/wiki/Generative_model>`__ 
+article for a better picture of some other applications.
 
 .. admonition:: Example 1: Generative Models
 
@@ -108,12 +110,12 @@ better picture of some other applications.
         
         where :math:`z_i` is a categorical variable for a given neighbourhood,
         :math:`x_i|z_i` is a normal distribution for the prices within a given
-        neighborhood :math:`k`, and :math:`x_i` will be a Gaussian mixture of
+        neighborhood :math:`z_i=k`, and :math:`x_i` will be a Gaussian mixture of
         each of the component neighborhoods.
 
         Using this model, we could then generate several different types of 
         observations.  If we wanted to generate a house of a particular
-        neighborhood, we could sample theo normal distribution from
+        neighborhood, we could sample the normal distribution from
         :math:`x_i|z_i`.  If we wanted to sample the "average" house, we could
         sample a price from each neighborhood, and then compute their weighted
         average in proportion to the distribution of the categorical variable
@@ -124,7 +126,7 @@ better picture of some other applications.
         `the expectation-maximization algorithm <link://slug/the-expectation-maximization-algorithm>`__ or something similar such as variational inference.
         
     3. **Handwritten digits**:
-        A more modern application of generative models is for a hand written
+        A more modern application of generative models is for hand written
         digits.  The `MNIST database
         <https://en.wikipedia.org/wiki/MNIST_database>`__ is a large dataset of
         handwritten digits typically used as a benchmark for machine learning
@@ -143,15 +145,15 @@ better picture of some other applications.
 
 |h2| 2. An Implicit Generative Model (aka the "decoder") |h2e|
 
-Let's continue to use this handwritten digit generative model as our motivation
-for a generative model.  Generating a 28x28 greyscale image that looks like a digit
+Let's continue to use this handwritten digit as our motivation
+for generative models.  Generating a 28x28 greyscale image that looks like a digit
 is non-trivial, especially if we are trying to model it directly.  The joint
 distribution over 28x28 random variables is going to be complex, for example,
 enforcing that "0"s have empty space near the middle but "1"s don't, is not
-very clear.  Typically in these situations, we'll introduce latent variables
+an easy thing to do.  Typically in these situations, we'll introduce latent variables
 which encode higher level ideas.  In our example, one of the latent variables
 might correspond to which digit we're using (0-9), another one may be the
-stroke width we use, and so on.  This model is simpler because there are
+stroke width we use, etc.  This model is simpler because there are
 usually fewer parameters to estimate, reducing the number of data points
 required for a good fit.  See my post on 
 `the expectation-maximization algorithm <link://slug/the-expectation-maximization-algorithm>`__,
@@ -161,13 +163,14 @@ One downsides of any latent variable model is that you have to specify the
 model! That is, you have to have some idea of what latent variables you want
 to include, how these variables are related to each other and the observed variables,
 and finally how to fit the model (which depends on the connectivity).
-All of the introduce potential for a misspecification of the model.  For
+All of these issues introduce potential for a misspecification of the model.  For
 example, maybe you forgot to include stroke width and now all your handwritten
 digits are blurry because it averaged over types of stroke widths in your
-training dataset.  Wouldn't it be nice if you *didn't* need to explicitly
+training dataset.  Wouldn't it be nice if you didn't need to explicitly
 specify the latent variables (and associated distributions), nor the
 relationships between them, and on top of all of this had an easy way to fit
-the model?  Enter variational autoencoders.
+the model?  
+Enter variational autoencoders.
 
 |h3| 2.1 From a Standard Normal Distributions to a Complex Latent Variable Model |h3e|
 
@@ -175,20 +178,20 @@ There are a couple of big ideas here that allow us to create this implicit model
 without explicitly specifying anything.
 The first big idea here is that we're not going to explicitly define any
 latent variables, that is, we won't say "this variable is for 0-9 digit", 
-"this variable is for stroke width".  Instead, we'll have our latent variables
+"this variable is for stroke width", etc.  Instead, we'll have our latent variables
 as a simple uninterpretable standard multivariate normal distributions 
 :math:`\mathcal{N}(0, I)` where :math:`I` is the identify matrix.  You may
 be wondering how we can ever model anything complex if we just use a normal
 distribution?  This leads us to the next big idea.
 
 The second big idea is that starting from any random variable :math:`Z`, there
-exists a *deterministic* function :math:`Y=g(Z)` such that :math:`Y` can be any
-target distribution you want (See the box on "Inverse Transform Sampling"
-below).  *The ingenious idea here is that we can learn* :math:`g(\cdot)` *from
-the data*!  Thus, our variational autoencoder can transform our boring, old
-normal distribution into any funky shaped distribution we want. 
-As you may have already guessed, we use a neural network as a function
-approximator to learn :math:`g(\cdot)`.
+exists a *deterministic* function :math:`Y=g(Z)` (under most conditions) such
+that :math:`Y` can be any target distribution you want (See the box on "Inverse
+Transform Sampling" below).  *The ingenious idea here is that we can learn*
+:math:`g(\cdot)` *from the data*!  Thus, our variational autoencoder can
+transform our boring, old normal distribution into any funky shaped
+distribution we want!  As you may have already guessed, we use a neural network
+as a function approximator to learn :math:`g(\cdot)`.
 
 The last little bit in defining our latent variable model is translating our
 latent variable into the final distribution of our observed data.  Here,
@@ -200,13 +203,13 @@ and identity covariance matrix scaled by a hyperparameter :math:`\sigma^2`.
 The reason why we want to put a distribution on the output is that we want
 to say that our output is *like* our observed data -- not exactly equal.
 Remember, we're using a probabilistic interpretation here, so we need to write
-a likelihood function and then maximize it usually by taking its derivative.
+a likelihood function and then maximize it usually by taking its gradient.
 If we didn't have an output distribution, we would implicitly be saying that
 :math:`g(z)` was exactly equal i.e. a Dirac delta function, which would result
-in a discontinuity.  The is important because we will eventually want to use
-gradient descent to learn :math:`g(z)` and this implicitly requires a smooth
-function.  We'll see how this probabilistic interpretation plays into the
-loss/objective function below.
+in a discontinuity.  This is important because we will eventually want to use
+stochastic gradient descent to learn :math:`g(z)` and this implicitly requires
+a smooth function.  We'll see how this probabilistic interpretation plays into
+the loss/objective function below.
 
 .. admonition:: Inverse Transform Sampling
 
@@ -241,7 +244,7 @@ loss/objective function below.
         \tag{3}
 
     Thus, we have shown that :math:`F^{-1}(U)` has the distribution
-    of our target random variable (since the CDF is the same).  
+    of our target random variable (since the CDF :math:`F(x)` is the same).  
     
     It's important to note what we did: we took an easy to sample random
     variable :math:`U`, performed a *deterministic* transformation
@@ -326,7 +329,7 @@ Note: we can put another distribution on :math:`X` like a Bernoulli for binary
 data parameterized by :math:`p=g(z;\theta)`.  The important part is we're able to
 maximize the likelihood over the :math:`\theta` parameters.  Implicitly, we
 will want our output variable to be continuous in :math:`\theta` so we can
-perform gradient descent.
+take its gradient.
 
 |h3| 2.2 A hard fit |h3e|
 
