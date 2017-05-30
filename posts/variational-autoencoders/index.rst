@@ -1,6 +1,6 @@
 .. title: Variational Autoencoders
 .. slug: variational-autoencoders
-.. date: 2017-04-20 10:19:36 UTC-04:00
+.. date: 2017-05-30 8:19:36 UTC-04:00
 .. tags: variational calculus, autoencoders, Kullback-Leibler, generative models, mathjax
 .. category: 
 .. link: 

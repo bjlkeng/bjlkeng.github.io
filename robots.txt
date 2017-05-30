@@ -1,4 +1,4 @@
-Sitemap: http://satisficing.briankeng.com/sitemapindex.xml
+Sitemap: http://bjlkeng.github.io/sitemapindex.xml
 
 User-Agent: *
-Host: satisficing.briankeng.com
+Host: bjlkeng.github.io
