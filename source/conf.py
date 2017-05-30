@@ -26,7 +26,7 @@ SITE_URL = "http://bjlkeng.github.io/"
 # If not set, defaults to SITE_URL
 # BASE_URL = "http://satisficing.briankeng.com/"
 BLOG_EMAIL = "brian@briankeng.com"
-BLOG_DESCRIPTION = "Understanding data, math, and programming to a satisfactory degree."  
+BLOG_DESCRIPTION = "Understanding data, math, and programming to a satisfactory degree."
 
 # (translatable)
 
@@ -416,7 +416,7 @@ DEPLOY_COMMANDS = {
         "rm -rf output",
         "nikola clean",
         "nikola build -a",
-        "cp README.md output/",
+        "cp README.md CNAME output/",
         "git checkout master",
         "rsync -rPv --delete-after --exclude old_blog --exclude .git --exclude .gitignore --exclude cache/ --exclude .doit.db.* output/ ..",
         "git add -A ..",
