@@ -21,7 +21,7 @@ BLOG_AUTHOR = "Brian Keng"  # (translatable)
 BLOG_TITLE = "Bounded Rationality"  # (translatable)
 # This is the main URL for your site. It will be used
 # in a prominent link. Don't forget the protocol (http/https)!
-SITE_URL = "http://satisficing.briankeng.com/"
+SITE_URL = "http://bjlkeng.github.io/"
 # This is the URL where Nikola's output will be deployed.
 # If not set, defaults to SITE_URL
 # BASE_URL = "http://satisficing.briankeng.com/"
