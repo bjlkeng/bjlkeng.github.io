@@ -10,3 +10,4 @@ _site/
 .doit.db.*
 nikola
 .ipynb_checkpoints/
+state_data.json
