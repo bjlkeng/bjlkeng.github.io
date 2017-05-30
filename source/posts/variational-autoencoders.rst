@@ -63,9 +63,9 @@ all the dimensions of the data (including the "y" labels).
 This allows us to generate any number of data points that has similar
 characteristics to our observed data.  This is in contrast to a   
 `discriminative model <https://en.wikipedia.org/wiki/Discriminative_model>`__,
-which only "generates" your target outcome variable.  For example, a binary
-classifier only outputs 0 or 1 "y" labels and cannot generate a data point that
-looks like your "X" features.
+which can only model dependence between the outcome variable (:math:`y`) and
+features (:math:`X`).  For example, a binary classifier only outputs 0 or 1 "y"
+labels and cannot generate a data point that looks like your "X" features.
 
 Typically, as part of your model you'll want to specify latent variables that
 represent some higher level concepts.  This allows for intuitive relationships
@@ -83,7 +83,7 @@ article for a better picture of some other applications.
         of complex latent variable models, technically, a simple probability
         distribution is a also generative model.  In this example, if we have
         the height of different people (:math:`x`) as our 1-dimensional
-        observations, we can have a normal distribution as our generative model:
+        observations, we can use a normal distribution as our generative model:
 
         .. math::
 
@@ -137,7 +137,7 @@ article for a better picture of some other applications.
         <https://en.wikipedia.org/wiki/Generative_adversarial_networks>`__.
 
         In these types of approaches, the generative model is trained on the
-        tens of thousands of examples of 28x28 grey-scale images, each
+        tens of thousands of examples of 28x28 greyscale images, each
         representing a single "0" to "9" digit.  Once trained, the model should
         be able to reproduce random "0" to "9" 28x28 greyscale digits that, if
         trained well, look like a hand written digit.
@@ -177,17 +177,18 @@ Enter variational autoencoders.
 There are a couple of big ideas here that allow us to create this implicit model
 without explicitly specifying anything.
 The first big idea here is that we're not going to explicitly define any
-latent variables, that is, we won't say "this variable is for 0-9 digit", 
-"this variable is for stroke width", etc.  Instead, we'll have our latent variables
-as a simple uninterpretable `isotropic <https://math.stackexchange.com/questions/1991961/gaussian-distribution-is-isotropic>`__ 
-multivariate normal distribution
-:math:`\mathcal{N}(0, I)` where :math:`I` is the identify matrix.  You may
-be wondering how we can ever model anything complex if we just use a normal
-distribution?  This leads us to the next big idea.
+latent variables, that is, we won't say "this variable is for digit 0", "this one for digit 1", 
+...,  "this variable is for stroke width", etc.  Instead, we'll have our latent variables
+as a simple uninterpretable standard `isotropic
+<https://math.stackexchange.com/questions/1991961/gaussian-distribution-is-isotropic>`__
+multivariate normal distribution :math:`\mathcal{N}(0, I)` where :math:`I` is
+the identify matrix.  You may be wondering how we can ever model anything
+complex if we just use a normal distribution?  This leads us to the next big
+idea.
 
 The second big idea is that starting from any random variable :math:`Z`, there
 exists a *deterministic* function :math:`Y=g(Z)` (under most conditions) such
-that :math:`Y` can be any target distribution you want (See the box on "Inverse
+that :math:`Y` can be any complex target distribution you want (see the box on "Inverse
 Transform Sampling" below).  *The ingenious idea here is that we can learn*
 :math:`g(\cdot)` *from the data*!  Thus, our variational autoencoder can
 transform our boring, old normal distribution into any funky shaped
@@ -197,14 +198,14 @@ as a function approximator to learn :math:`g(\cdot)`.
 The last little bit in defining our latent variable model is translating our
 latent variable into the final distribution of our observed data.  Here,
 we'll also use something simple: we'll assume that the observed data
-follows a normal distribution :math:`\mathcal{N}(g(z), \sigma^2 * I)`, with
+follows a isotropic normal distribution :math:`\mathcal{N}(g(z), \sigma^2 * I)`, with
 mean following our learned latent random variable from the output of :math:`g`,
 and identity covariance matrix scaled by a hyperparameter :math:`\sigma^2`.
 
 The reason why we want to put a distribution on the output is that we want
 to say that our output is *like* our observed data -- not exactly equal.
 Remember, we're using a probabilistic interpretation here, so we need to write
-a likelihood function and then maximize it usually by taking its gradient.
+a likelihood function and then maximize it, usually by taking its gradient.
 If we didn't have an output distribution, we would implicitly be saying that
 :math:`g(z)` was exactly equal i.e. a Dirac delta function, which would result
 in a discontinuity.  This is important because we will eventually want to use
@@ -216,8 +217,8 @@ the loss/objective function below.
 
     `Inverse transform sampling <https://en.wikipedia.org/wiki/Inverse_transform_sampling>`__
     is a method for sampling from any distribution given its cumulative
-    distribution function (CDF), :math:`F(x)`.  It works as such for a given
-    distribution with CDF :math:`F(x)`:
+    distribution function (CDF), :math:`F(x)`. 
+    For a given distribution with CDF :math:`F(x)`, it works as such:
 
     1. Sample a value, :math:`u`, between :math:`[0,1]` from a uniform
        distribution.
@@ -259,8 +260,7 @@ the loss/objective function below.
     with CDF of :math:`F(x) = 1 - e^{-\lambda x}` for :math:`x \geq 0`.
     The inverse is defined by :math:`x = F^{-1}(u) = -\frac{1}{\lambda}\log(1-y)`.
     Thus, we can sample from an exponential distribution just by iteratively
-    sampling evaluating this expression with a uniform randomly distributed
-    number.
+    evaluating this expression with a uniform randomly distributed number.
 
     .. figure:: /images/Inverse_transformation_method_for_exponential_distribution.jpg
       :height: 300px
@@ -301,7 +301,7 @@ the loss/objective function below.
 
 
 .. figure:: /images/variational_autoencoder-decoder.png
-  :height: 450px
+  :height: 400px
   :alt: Variational Autoencoder Graphical Model
   :align: center
 
@@ -347,9 +347,9 @@ First, we need to define the probability of seeing a single example :math:`x`:
 
     P(X=x) &= \int p(X=x,Z=z) dz \\
            &= \int p(X=x|z;\theta)p(z) dz \\
-    &= \int p_{\mathcal{N}}(x|g(z;\theta);\sigma^2*I)
-            p_{\mathcal{N}}(z|0;I) dz \\
-    &\approx \frac{1}{M} \sum_{m=1}^M p_{\mathcal{N}}(x|g(z_m;\theta);\sigma^2*I)
+    &= \int p_{\mathcal{N}}(x;g(z;\theta),\sigma^2*I)
+            p_{\mathcal{N}}(z;0,I) dz \\
+    &\approx \frac{1}{M} \sum_{m=1}^M p_{\mathcal{N}}(x;g(z_m;\theta),\sigma^2*I)
     &&& \text{where } z_m \sim \mathcal{N}(0,I) \\
     \tag{6}
 
@@ -364,11 +364,11 @@ of our :math:`N` observations):
 .. math::
 
     \log P(X) = \frac{1}{M} \sum_{i=1}^N 
-           \log(\sum_{m=1}^M p_{\mathcal{N}}(x_i|g(z_m;\theta);\sigma^2*I)) \tag{7}
+           \log(\sum_{m=1}^M p_{\mathcal{N}}(x_i;g(z_m;\theta),\sigma^2*I)) \tag{7}
 
 Two problems here. First, the :math:`\log` can't be pushed inside the
 summation, which actually isn't much a problem because we're not trying to
-derive an analytical expression here, so long as we can use gradient descent
+derive an analytical expression here; so long as we can use gradient descent
 to learn :math:`\theta`, we're good.  In this case, we can easily take derivatives
 since our density is normally distributed.
 
@@ -389,20 +389,12 @@ it's inefficient; for each :math:`x`, we have to average over a large number
 Using the handwritten digit example, if we're trying to generate a "0", most of
 the values of :math:`z_m` sampled from our prior will have a very small
 probability of generating a "0", so we're wasting a lot of computation in
-trying to average over all these samples.
-
-
-Said another way, the posterior distribution for each sample
-:math:`p(z|X=x_i)` has some distinctive shape that is probably very different
-from the prior :math:`p(z)`.  If we sample any given :math:`z_m\sim Z` (which has
-distribution :math:`p(z)`), then most of those samples will have low
-:math:`p(Z=z_m|X=x_i)` because the distributions have vastly different shapes.
-This implies that, :math:`p(X=x_i|Z=z_m)` (recall Bayes theorem) will also be
-low, which implies little contribution to our likelihood in Equation 7.
+trying to average over all these samples [1]_.
 
 Wouldn't it be nice if we could just sample from :math:`p(z|X=x_i)` directly
-thus getting rid the need for the large inefficient summation over :math:`M`
-samples?  This is exactly what variational autoencoders proposes!
+and only pick :math:`z` values that contribute a significant amount to the
+likelihood, thus getting rid the need for the large inefficient summation over
+:math:`M` samples?  This is exactly what variational autoencoders proposes!
 
 (Note: Just to be clear, each :math:`x_i` will likely have a *different*
 :math:`p(z|X=x_i)`.  Imagine our hand written digit example, a "1" will
@@ -413,17 +405,17 @@ probably have a very different posterior shape than an "8".)
 To summarize, this is what we're trying to accomplish:
 
 * Our generative model is an implicit latent variable model with latent
-  variables :math:`Z` as multivariate standard isotropic normal distribution.
+  variables :math:`Z` as standard isotropic multivariate normal distribution.
 * The :math:`Z` variables are transformed into an arbitrarily complex
   distribution by a deterministic function approximator (e.g. neural
   network parameterized by :math:`\theta`) that can model our data.
 * We can fit our generative model via the likelihood by averaging over a huge
   number of :math:`Z` samples; this becomes intractable for higher dimensions
   (curse of dimensionality).
-* For any given sample :math:`x_i`, most of the :math:`Z` samples will
+* For any given sample :math:`x_i`, most of the :math:`z` samples will
   contribute very little to the likelihood calculation, so we wish to sample
   only the probable values of :math:`z_m` that contribute significantly to
-  the likelihood using the posterior distribution :math:`Z|X=x_i`.
+  the likelihood using the posterior distribution :math:`z|X=x_i`.
 
 From here, we can finally get to the "variational" part of variational
 autoencoders.
@@ -431,19 +423,20 @@ autoencoders.
 |h2| 3. Variational Bayes for the Posterior (aka the "encoder") |h2e|
 
 From our novel idea of an implicit generative model, we come to a new problem:
-how can we estimate the posterior distribution :math:`P(Z|X=x_i)`? We have a couple of 
+how can we estimate the posterior distribution :math:`Z|X=x_i`? We have a couple of 
 problems, first, the posterior probably has no closed form analytic solution.
 This is not terrible because this is a typical problem in Bayesian inference
 which we solve via either `Markov Chain Monte Carlo Methods <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__ or 
 `Variational Bayes <link://slug/variational-bayes-and-the-mean-field-approximation>`__.
-Second, we wanted to use the posterior :math:`P(Z|X=x_i)` to maximize our
-:math:`P(X|Z;\theta)`, but surely to find :math:`P(Z|X=x_i)` we need to know
-:math:`P(X|Z;\theta)` -- a circular dependence.  The solution to this is also
-novel, let's *simultaneously*: fit our posterior, generate samples from it,
-*and* maximize our original log-likelihood function!  
+Second, we wanted to use the posterior :math:`Z|X=x_i` to maximize our
+likelihood function :math:`P(X|Z;\theta)`,
+but surely to find :math:`Z|X=x_i` we need to know :math:`X|Z` --
+a circular dependence.  The solution to this is also novel, let's
+*simultaneously*, fit our posterior, generate samples from it, *and* maximize
+our original log-likelihood function!  
 
 First, we'll attempt to solve the first problem of finding the posterior
-:math:`P(Z|X=x_i)` and this will lead us to the solution to the second problem
+:math:`P(z|X=x_i)` and this will lead us to the solution to the second problem
 of fitting our likelihood.  Let's dig into some math to see how this works.
 
 |h3| 3.1 Setting up the Variational Objective |h3e|
@@ -577,9 +570,9 @@ these gradients:
 
 .. math::
 
-    &\frac{d}{d\theta}(X-\mu_{X|z})^2 \\
-    &\frac{d}{d\phi}(X-\mu_{X|z})^2 \\
-    &\frac{d}{d\phi} \mathcal{D}(Q(z|X) || P(z)) \\
+    &\frac{\partial}{\partial\theta}(X-\mu_{X|z})^2 \\
+    &\frac{\partial}{\partial\phi}(X-\mu_{X|z})^2 \\
+    &\frac{\partial}{\partial\phi} \mathcal{D}(Q(z|X) || P(z)) \\
     \tag{11}
 
 and iteratively update the weights of our neural network using
@@ -639,26 +632,26 @@ We want to simplify the inner expectation :math:`E_{\epsilon \sim
 must explicitly sample a *new* value of :math:`\epsilon` from our isotropic
 normal distribution.  That means we can just pair each observation
 :math:`x_i` with a bunch of samples from :math:`\mathcal{N}(0, I)`
-to make a "full input".  
+to make a "full input".
 
 However, instead of doing that explicitly, let's just pair each :math:`x_i`
 with a single sample from :math:`\mathcal{N}(0, I)`.  If we're training over
 many epochs (large loop over all :math:`x_i` values), it's as if we are pairing
 each observation with a bunch of new values sampled from :math:`\mathcal{N}(0,
 I)`.
-According to stochastic gradient descent theory, these two methods will converge to
-the same value and it simplifies life for us a bit.
+According to stochastic gradient descent theory, these two methods should
+converge to the same place and it simplifies life for us a bit.
 
 As a final note, we can simplify the last line in Equation 13 to something
 like:
 
 .. math::
 
-    \frac{1}{N} \sum_{x_i \in X} (x_i-\mu_{z|X})^2 - \frac{1}{2}\big(tr(\Sigma_{z|X}(x_i)) + (\mu_{z|X}(x_i))^T(\mu_{z|X}(x_i)) - k - \log \text{det}(\Sigma_{z|X}(x_i))\big)
+    \frac{1}{N} \sum_{x_i \in X} -\frac{1}{2\sigma^2}(x_i-\mu_{z|X})^2 - \frac{1}{2}\big(tr(\Sigma_{z|X}(x_i)) + (\mu_{z|X}(x_i))^T(\mu_{z|X}(x_i)) - k - \log \text{det}(\Sigma_{z|X}(x_i))\big)
 
 Each of the two big terms corresponds to :math:`\log P(x_i|z)` and 
 :math:`\mathcal{D}(Q(z|x_i) || P(z)` respectively, where I dropped out some of
-the constants from :math:`\log P(x_i|z)` (since they're not needed in the gradient)
+the constants from :math:`\log P(x_i|z)` (since they're not needed in the gradient) 
 and used the formula for `KL divergence between two multivariate normals
 <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence#Kullback.E2.80.93Leibler_divergence_for_multivariate_normal_distributions>`__.
 
@@ -686,7 +679,7 @@ Figure 5 shows our generative model.  To generate a new observation, all
 we have to do is sample from our isotropic normal distribution (our prior
 for our latent variables), and then run it through our neural network.
 The network should have learned how to transform our latent variables into
-the mean of what our training data looks like [1]_.
+the mean of what our training data looks like [2]_.
 
 Note, that our network now only outputs the mean of our generative output,
 we can additionally sample from our actual output distribution if we sample a
@@ -699,7 +692,7 @@ values for the pixels).
 The nice thing about many of these modern ML techniques is that implementations are
 widely available.  I put together a 
 `notebook <https://github.com/bjlkeng/sandbox/blob/master/notebooks/variational-autoencoder.ipynb>`__ 
-that uses `Keras <https://keras.io/>`__ to build a variational autoencoder [2]_.
+that uses `Keras <https://keras.io/>`__ to build a variational autoencoder [3]_.
 The code is from the Keras convolutional variational autoencoder example and
 I just made some small changes to the parameters.  I also added some annotations
 that make reference to the things we discussed in this post.
@@ -716,8 +709,9 @@ variables in the above Keras example.
 
 Not the prettiest hand writing =) We definitely got some decent looking digits
 but also some really weird ones.  Usually the explanation for the weird ones
-are that they're in between two digits or two styles of writing the same digit.
-An example might be the top right digit.  Is it a "3", "5" or "6"?
+are that they're in between two digits or two styles of writing the same digit
+(or maybe I didn't train the network well?).
+An example might be the top left digit.  Is it a "3", "5" or "6"?
 Kind of hard to tell.
 
 Anyways take a look at the 
@@ -749,10 +743,10 @@ that have a solid basis in probability.  Look out for future posts!
   
 |br|
 
-.. [1] If you find this a bit confusing, here's another explanation.  The only reason we did all the work on the "encoder" part was to generate a good distribution for :math:`z|X`.  That is given an :math:`x_i`, find the likely :math:`z` values.  However, we made sure that when we average over all the :math:`X` observations, our average :math:`z` values would still match our prior :math:`p(z)` isotropic normal distribution via the KL divergence.  That means, sampling for our isotropic normal distribution should still give us likely values for :math:`z`.
+.. [1] Said another way, the posterior distribution for each sample :math:`p(z|X=x_i)` has some distinctive shape that is probably very different from the prior :math:`p(z)`.  If we sample any given :math:`z_m\sim Z` (which has distribution :math:`p(z)`), then most of those samples will have low :math:`p(Z=z_m|X=x_i)` because the distributions have vastly different shapes.  This implies that, :math:`p(X=x_i|Z=z_m)` (recall Bayes theorem) will also be low, which implies little contribution to our likelihood in Equation 7.
 
-.. [2] I initially just tried to use this example with just my CPU but it was painfully slow (~ 5+ min/epoch).  So I embarked on a multi-week journey to buy a modern GPU, re-build my computer and dual-boot Linux (vs. using a virtual machine).  The speed-up was quite dramatic, now it's around ~15 secs/epoch.
+.. [2] If you find this a bit confusing, here's another explanation.  The only reason we did all the work on the "encoder" part was to generate a good distribution for :math:`z|X`.  That is given an :math:`x_i`, find the likely :math:`z` values.  However, we made sure that when we average over all the :math:`X` observations, our average :math:`z` values would still match our prior :math:`p(z)` isotropic normal distribution via the KL divergence.  That means, sampling for our isotropic normal distribution should still give us likely values for :math:`z`.
 
-
+.. [3] I initially just tried to use this example with just my CPU but it was painfully slow (~ 5+ min/epoch).  So I embarked on a multi-week journey to buy a modern GPU, re-build my computer and dual-boot Linux (vs. using a virtual machine).  The speed-up was quite dramatic, now it's around ~15 secs/epoch.
 
 
