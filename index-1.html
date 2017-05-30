@@ -60,7 +60,30 @@
                 
 
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/probabilistic-interpretation-of-regularization/" class="u-url">A Probabilistic Interpretation of Regularization</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/the-expectation-maximization-algorithm/" class="u-url">The Expectation-Maximization Algorithm</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/the-expectation-maximization-algorithm/" rel="bookmark"><time class="published dt-published" datetime="2016-10-07T08:47:47-04:00" title="2016-10-07 08:47">2016-10-07 08:47</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>This post is going to talk about a widely used method to find the
+maximum likelihood (MLE) or maximum a posteriori (MAP) estimate of parameters
+in latent variable models called the Expectation-Maximization algorithm.  You
+have probably heard about the most famous variant of this algorithm called the
+k-means algorithm for clustering.
+Even though it's so ubiquitous, whenever I've tried to understand <em>why</em> this
+algorithm works, I never quite got the intuition right.  Now that I've taken
+the time to work through the math, I'm going to <em>attempt</em> to explain the
+algorithm hopefully with a bit more clarity.  We'll start by going back to the
+basics with latent variable models and the likelihood functions, then moving on
+to showing the math with a simple Gaussian mixture model <a class="footnote-reference" href="posts/the-expectation-maximization-algorithm/#id5" id="id1">[1]</a>.</p>
+<p class="more"><a href="posts/the-expectation-maximization-algorithm/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/probabilistic-interpretation-of-regularization/" class="u-url">A Probabilistic Interpretation of Regularization</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Brian Keng
@@ -152,30 +175,6 @@ help explain the "randomness" in linear regression in a more intuitive way.</p>
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>In this post, I'm going to write about how the ever versatile normal distribution can be used to approximate a Bayesian posterior distribution.  Unlike some other normal approximations, this is <em>not</em> a direct application of the central limit theorem.  The result has a straight forward proof using Laplace's Method whose main ideas I will attempt to present.  I'll also simulate a simple scenario to see how it works in practice.</p>
 <p class="more"><a href="posts/normal-approximations-to-the-posterior-distribution/">Read more…</a></p>
-</div>
-</div>
-</div>
-</div>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/the-empirical-distribution-function/" class="u-url">The Empirical Distribution Function</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Brian Keng
-            </span></p>
-            <p class="dateline"><a href="posts/the-empirical-distribution-function/" rel="bookmark"><time class="published dt-published" datetime="2016-03-12T20:08:21-05:00" title="2016-03-12 20:08">2016-03-12 20:08</time></a></p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div tabindex="-1" id="notebook" class="border-box-sizing">
-    <div class="container" id="notebook-container">
-
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>This post is going to look at a useful non-parametric method for estimating the cumulative distribution function (CDF) of a random variable called the <a href="https://en.wikipedia.org/wiki/Empirical_distribution_function">empirical distribution function</a> (sometimes called the empirical CDF).  We'll talk a bit about the mechanics of computing it, some theory about its confidence intervals and also do some simulations to gain some intuition about how it behaves.</p>
-<p class="more"><a href="posts/the-empirical-distribution-function/">Read more…</a></p>
 </div>
 </div>
 </div>
