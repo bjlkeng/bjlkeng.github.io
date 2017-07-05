@@ -1,10 +1,10 @@
-.. title: A Variational Autoencoder on the SVNH dataset
+.. title: A Variational Autoencoder on the SVHN dataset
 .. slug: a-variational-autoencoder-on-the-svnh-dataset
 .. date: 2017-06-27 09:13:03 UTC-04:00
 .. tags: variational calculus, svhn, autoencoders, Kullback-Leibler, generative models, mathjax
 .. category: 
 .. link: 
-.. description: A writeup on using VAEs for the SVNH dataset.
+.. description: A writeup on using VAEs for the SVHN dataset.
 .. type: text
 
 .. |br| raw:: html
@@ -69,7 +69,7 @@ quality.
   :alt: SVHN Format 2 dataset
   :align: center
 
-  Figure 1: SVNH format 2 cropped digits
+  Figure 1: SVHN format 2 cropped digits
 
 Figure 1 shows a sample of the cropped digits from the SVHN website.  You can
 see that you get a huge variety of digits, making the it much harder to train a
@@ -244,16 +244,95 @@ widely [2]_.
 
 |h2| A Digression on Progress |h2e|
 
-Pace is moving so fast that I can state-of-the-art research from just a few
-years ago in my spare time.
+As an aside, I'm still find it quite astounding that I am able to reproduce
+state of the art research from back in 2014 so quickly.  If I had known what I
+was doing at the start, I probably could have put it together in less than an
+hour or so.  The pervasiveness of deep learning frameworks is incredible.  
+Using open source frameworks like `Keras <https://keras.io>`__, you can
+probably train most network architectures that probably took grad students
+months to code just a few years ago.  Not only that, we have incredibly
+powerful GPUs that are an order of magnitude more powerful anything available
+around that time.  Both these things have accelerated the deep learning wave,
+and definitely are huge contributors to its progress.
+
+Now I'm not the type of person who says deep learning is a hammer and every
+problem is a nail (there are *many* situations for which deep learning is not
+appropriate) but you have to admit, the progress we have seen, the problems it
+can solve and the promise of deep learning is pretty incredible.  So anyways,
+with this topic I'm going to start investigating the parts of deep learning
+that I find interesting (especially ones that have a more solid probabilistic
+basis) and see where it takes me.  Back to our regularly scheduled program.
+
 
 |h2| Convolution or Components? |h2e|
 
-Explain why it's hard with CNNs
+One of the first things I tried was just to adapt the 
+`example network <https://github.com/bjlkeng/sandbox/blob/master/notebooks/variational-autoencoder.ipynb>`__ 
+from Keras that I showed in my 
+`previous post <link://slug/variational-autoencoders>`__
+and use it verbatim to train the SVHN dataset.  It didn't work very well.
+The network uses 
+`convolution layers <http://cs231n.github.io/convolutional-networks/#conv>`__
+and 
+`transpose convolution layers <https://datascience.stackexchange.com/questions/6107/what-are-deconvolutional-layers>`__
+for the encoder/decoder networks respectively.
+One of the issues that I kept getting was that the loss would bottom out at a
+poor fit.  All I would get in the end was a bunch of blurry images with
+something that looked like "3" or an "8", nothing too impressive.
 
-* PCA (whitening didn't work)
-* cnns didn't work
-  * Point to reddit post
+I tried and failed for quite a while to get a CNN to fit properly but didn't
+get anywhere with it.  Some of the things I tried:
+
+* Adding more or less convolutional layers (between 3-8) on each encoder/decoder
+* Adding more or less dense layers to encode the latent variables
+* Changing the stride of the convolutional layers higher or lower
+* Using an identical architecture on the decoder to a `generative adversarial network <https://en.wikipedia.org/wiki/Generative_adversarial_networks>`__
+
+Nothing would quite work.  After searching the web for a while, I finally came
+across this 
+`reddit post <https://www.reddit.com/r/MachineLearning/comments/3wp5pc/results_on_svhn_with_vanilla_vae/>`__
+with someone who was trying to solve exactly the same problem.  The advice was
+basically to use the "PCA trick", which was to use 
+`principal component analysis <http://ufldl.stanford.edu/tutorial/unsupervised/PCAWhitening/>`__
+and then fit a non-convolutional variational autoencoder.  Here someone
+mentioned that Kingma's has his code for one of his later papers in which he
+compared his method to a standard variational autoencoder on the SVHN dataset.
+After many iterations of tweaking the model, reading up on PCA, and reading
+Kingma's code (it was written in Theano so not as easy to read as high level
+APIs like Keras), I was finally able to get it to work with the breakthrough
+being the correct modelling of the variance, per dimension, as described in the
+previous section.
+
+As to why PCA seems to work, here's what I gathered:
+
+* PCA transforms the RGB image into the :math:`K \leq N` dimensions, where
+  :math:`N` is the original dimension of the image (e.g. For SVHN: 32x32x3 = 3072).
+  In detail, we're rotating the data that into an orthogonal basis defined
+  by the eigenvectors of its covariance matrix.  The result it that the
+  dimensions defined by the first :math:`K` eigenvectors define most of the
+  covariability of the data (in proportion to their eigenvalues).  In simple
+  terms, we capture most of the signal in the data just by taking the top
+  principal components.
+* Using the same number as Kingma (:math:`K=600`), I was able to reduce
+  dimensionality of the images without much corruption (there were a few
+  occasional patches of image with discoloration but nothing major).  This
+  indicates there is a lot "noise" that we can throw away that is not really
+  relevant to the actual "signal" of the image.
+* The components have large magnitude differences (another reason for
+  per-dimension variances), with the first principal component being the
+  largest.
+* Due to the PCA transformation, the loss function could pay more "attention"
+  to the largest principal component and capture more of the variance because
+  the squared error term from this component would be huge.
+* However, after a while the loss function would also be able to find good
+  weights for even the smallest component by scaling the variance
+  appropriately, making sure we capture the "detail" specified in these smaller
+  components.
+* Note: I couldn't get it to work with PCA whitening, where the PCA components
+  are scaled to have unit variance.  I suspect it's because of this dynamic
+  between different magnitudes, it doesn't "focus" the loss function well on
+  the principal component and treats all components equally (perhaps this would
+  work well with a constant variance?).
 
 |h2| Implementation Notes |h2e|
 
@@ -271,7 +350,7 @@ that I figured
 * Lower learning rate to 0.0001 (from default 0.001, 0.005)
   * (Sometimes) Blow up gradient otherwise
 
-|h2| VAE SVNH Results |h2e|
+|h2| VAE SVHN Results |h2e|
 
 * Fun part: generate images
 * Randomly generated numbers
