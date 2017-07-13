@@ -1,7 +1,7 @@
 .. title: Beyond Collaborative Filtering
 .. slug: beyond-collaborative-filtering
 .. date: 2016-06-11 18:00:34 UTC-04:00
-.. tags: Collaborative Filtering, Machine Learning, Recommendation Systems
+.. tags: Collaborative Filtering, Machine Learning, Recommendation Systems, Rubikloud
 .. category:
 .. link: 
 .. description: A couple of posts I wrote for Rubikloud.
