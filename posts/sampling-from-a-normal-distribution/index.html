@@ -5,7 +5,11 @@
 <meta name="description" content="Looking at a couple of ways to sample a normal distribution.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sampling from a Normal Distribution | Bounded Rationality</title>
-<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -82,7 +86,7 @@
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2015-11-28T21:57:02-05:00" itemprop="datePublished" title="2015-11-28 21:57">2015-11-28 21:57</time></a></p>
             
-        <p class="sourceline"><a href="index.ipynb" id="sourcelink">Source</a></p>
+        <p class="sourceline"><a href="index.ipynb" class="sourcelink">Source</a></p>
 
         </div>
         
@@ -167,7 +171,6 @@ The following figure (from <a href="https://en.wikipedia.org/wiki/Kolmogorov%E2%
 
 <div class="output_area">
 <div class="prompt"></div>
-
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>U(0,1) vs. N(0, 1): KS=0.5000 with p-value = 0.0000.
 N(0,2) vs. N(0, 1): KS=0.1673 with p-value = 0.0000.
@@ -252,7 +255,6 @@ N(0,1) &amp;\approx \frac{\sqrt{n}(S_n - \mu)}{\sigma} \\
 
 <div class="output_area">
 <div class="prompt"></div>
-
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>sample_N(0,1) vs. N(0, 1): KS=0.0114 with p-value = 0.1499.
 </pre>
@@ -263,7 +265,6 @@ N(0,1) &amp;\approx \frac{\sqrt{n}(S_n - \mu)}{\sigma} \\
 <div class="prompt output_prompt">Out[289]:</div>
 
 
-
 <div class="output_text output_subarea output_execute_result">
 <pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7f62c4dd4e80&gt;</pre>
 </div>
@@ -272,7 +273,6 @@ N(0,1) &amp;\approx \frac{\sqrt{n}(S_n - \mu)}{\sigma} \\
 
 <div class="output_area">
 <div class="prompt"></div>
-
 
 
 <div class="output_png output_subarea ">
@@ -418,7 +418,6 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
 
 <div class="output_area">
 <div class="prompt"></div>
-
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>sample_N(0,1) vs. N(0, 1): KS=0.0074 with p-value = 0.6372.
 </pre>
@@ -429,7 +428,6 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
 <div class="prompt output_prompt">Out[288]:</div>
 
 
-
 <div class="output_text output_subarea output_execute_result">
 <pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7f62c509fcc0&gt;</pre>
 </div>
@@ -438,7 +436,6 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
 
 <div class="output_area">
 <div class="prompt"></div>
-
 
 
 <div class="output_png output_subarea ">
@@ -532,8 +529,7 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
             <div class="col-md-3 well">
             <p>
             I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
-            a former academic, current data scientist, engineer, and
-            programmer.  This is
+            a former academic, current data scientist and engineer.  This is
             <a href="../../">the place</a>
             where I write
             about all things technical.
@@ -590,7 +586,7 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
 </div>
 
 
-            <script src="../../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

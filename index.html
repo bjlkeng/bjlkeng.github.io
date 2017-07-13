@@ -5,13 +5,17 @@
 <meta name="description" content="Understanding data, math, and programming to a satisfactory degree.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bounded Rationality | Bounded Rationality</title>
-<link href="assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="assets/css/rst.css" rel="stylesheet" type="text/css">
+<link href="assets/css/code.css" rel="stylesheet" type="text/css">
+<link href="assets/css/colorbox.css" rel="stylesheet" type="text/css">
+<link href="assets/css/theme.css" rel="stylesheet" type="text/css">
 <link href="assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
 <link rel="canonical" href="http://bjlkeng.github.io/">
 <link rel="next" href="index-1.html" type="text/html">
-<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/variational-autoencoders/" type="text/html">
+<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/a-variational-autoencoder-on-the-svnh-dataset/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -59,7 +63,35 @@
                 
 
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/variational-autoencoders/" class="u-url">Variational Autoencoders</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/a-variational-autoencoder-on-the-svnh-dataset/" class="u-url">A Variational Autoencoder on the SVHN dataset</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/a-variational-autoencoder-on-the-svnh-dataset/" rel="bookmark"><time class="published dt-published" datetime="2017-07-13T08:13:03-04:00" title="2017-07-13 08:13">2017-07-13 08:13</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>In this post, I'm going to share some notes on implementing a variational
+autoencoder (VAE) on the
+<a class="reference external" href="http://ufldl.stanford.edu/housenumbers/">Street View House Numbers</a>
+(SVHN) dataset.  My last post on
+<a class="reference external" href="posts/variational-autoencoders">variational autoencoders</a>
+showed a simple example on the MNIST dataset but because it was so simple I
+thought I might have missed some of the subtler points of VAEs -- boy was I
+right!  The fact that I'm not really a computer vision guy nor a deep learning
+guy didn't help either.  Through this exercise, I picked up some of the basics
+in the "craft" of computer vision/deep learning area; there are a lot of subtle
+points that are easy to gloss over if you're just reading someone else's
+tutorial.  I'll share with you some of the details in the math (that I
+initially got wrong) and also some of the implementation notes along with a
+notebook that I used to train the VAE.  Please check out my previous post
+on <a class="reference external" href="posts/variational-autoencoders">variational autoencoders</a> to
+get some background.</p>
+<p class="more"><a href="posts/a-variational-autoencoder-on-the-svnh-dataset/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/variational-autoencoders/" class="u-url">Variational Autoencoders</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Brian Keng
@@ -162,34 +194,6 @@ interesting as I do!</p>
 <p class="more"><a href="posts/maximum-entropy-distributions/">Read more…</a></p>
 </div>
     </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/lagrange-multipliers/" class="u-url">Lagrange Multipliers</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Brian Keng
-            </span></p>
-            <p class="dateline"><a href="posts/lagrange-multipliers/" rel="bookmark"><time class="published dt-published" datetime="2016-12-13T07:48:31-05:00" title="2016-12-13 07:48">2016-12-13 07:48</time></a></p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>This post is going to be about finding the maxima or minima of a function
-subject to some constraints.  This is usually introduced in a multivariate
-calculus course, unfortunately (or fortunately?) I never got the chance to take
-a multivariate calculus course that covered this topic.  In my undergraduate class, computer
-engineers only took three half year engineering calculus courses, and the
-<a class="reference external" href="http://www.ucalendar.uwaterloo.ca/1617/COURSE/course-ECE.html#ECE206">fourth one</a>
-(for electrical engineers) seems to have covered other basic multivariate
-calculus topics such as all the various theorems such as Green's, Gauss', Stokes' (I
-could be wrong though, I never did take that course!).  You know what I always imagined Newton
-saying, "It's never too late to learn multivariate calculus!".</p>
-<p>In that vein, this post will discuss one widely used method for finding optima
-subject to constraints: Lagrange multipliers.  The concepts
-behind it are actually quite intuitive once we come up with the right analogue
-in physical reality, so as usual we'll start there.  We'll work through some
-problems and hopefully by the end of this post, this topic won't seem as
-mysterious anymore <a class="footnote-reference" href="posts/lagrange-multipliers/#id3" id="id1">[1]</a>.</p>
-<p class="more"><a href="posts/lagrange-multipliers/">Read more…</a></p>
-</div>
-    </div>
     </article>
 </div>
 
@@ -204,8 +208,7 @@ mysterious anymore <a class="footnote-reference" href="posts/lagrange-multiplier
             <div class="col-md-3 well">
             <p>
             I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
-            a former academic, current data scientist, engineer, and
-            programmer.  This is
+            a former academic, current data scientist and engineer.  This is
             <a href=".">the place</a>
             where I write
             about all things technical.
@@ -262,7 +265,7 @@ mysterious anymore <a class="footnote-reference" href="posts/lagrange-multiplier
 </div>
 
 
-            <script src="assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+            <script src="assets/js/jquery.min.js"></script><script src="assets/js/bootstrap.min.js"></script><script src="assets/js/moment-with-locales.min.js"></script><script src="assets/js/fancydates.js"></script><script src="assets/js/jquery.colorbox-min.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

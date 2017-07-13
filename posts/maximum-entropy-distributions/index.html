@@ -5,7 +5,11 @@
 <meta name="description" content="A introduction to maximum entropy distributions.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Maximum Entropy Distributions | Bounded Rationality</title>
-<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -82,7 +86,7 @@
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2017-01-27T09:05:00-05:00" itemprop="datePublished" title="2017-01-27 09:05">2017-01-27 09:05</time></a></p>
             
-        <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
+        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
 
         </div>
         
@@ -366,37 +370,37 @@ with parameter <span class="math">\(\lambda_1\)</span> and <span class="math">\(
 normalization constant to make sure the probabilities sum to 1.  Equation 16
 gives us the desired value of <span class="math">\(\lambda_1\)</span>.  We can easily find a solution
 using any root solver, such as the code below:</p>
-<pre class="code python"><a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-1"></a><span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">exp</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-2"></a><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">newton</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-3"></a>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-4"></a><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">B</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mf">4.5</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-5"></a>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-6"></a><span class="c1"># Equation 15</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-7"></a><span class="k">def</span> <span class="nf">z</span><span class="p">(</span><span class="n">lamb</span><span class="p">):</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-8"></a>    <span class="k">return</span> <span class="mf">1.</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">k</span><span class="o">*</span><span class="n">lamb</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-9"></a>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-10"></a><span class="c1"># Equation 16</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-11"></a><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">lamb</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">):</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-12"></a>    <span class="n">y</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">k</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">k</span><span class="o">*</span><span class="n">lamb</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-13"></a>    <span class="k">return</span> <span class="n">y</span> <span class="o">*</span> <span class="n">z</span><span class="p">(</span><span class="n">lamb</span><span class="p">)</span> <span class="o">-</span> <span class="n">B</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-14"></a>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-15"></a><span class="c1"># Equation 17</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-16"></a><span class="k">def</span> <span class="nf">p</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">lamb</span><span class="p">):</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-17"></a>    <span class="k">return</span> <span class="n">z</span><span class="p">(</span><span class="n">lamb</span><span class="p">)</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">k</span> <span class="o">*</span> <span class="n">lamb</span><span class="p">)</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-18"></a>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-19"></a><span class="n">lamb</span> <span class="o">=</span> <span class="n">newton</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-20"></a><span class="k">print</span><span class="p">(</span><span class="s2">"Lambda = </span><span class="si">%.4f</span><span class="s2">"</span> <span class="o">%</span> <span class="n">lamb</span><span class="p">)</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-21"></a><span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-22"></a>    <span class="k">print</span><span class="p">(</span><span class="s2">"p_</span><span class="si">%d</span><span class="s2"> = </span><span class="si">%.4f</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">p</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">lamb</span><span class="p">)))</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-23"></a>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-24"></a><span class="c1"># Output:</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-25"></a><span class="c1">#   Lambda = -0.3710</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-26"></a><span class="c1">#   p_1 = 0.0544</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-27"></a><span class="c1">#   p_2 = 0.0788</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-28"></a><span class="c1">#   p_3 = 0.1142</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-29"></a><span class="c1">#   p_4 = 0.1654</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-30"></a><span class="c1">#   p_5 = 0.2398</span>
-<a name="rest_code_66c4b8df4b6347e19de03be4ba62e971-31"></a><span class="c1">#   p_6 = 0.3475</span>
+<pre class="code python"><a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-1"></a><span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">exp</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-2"></a><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">newton</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-3"></a>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-4"></a><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">B</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mf">4.5</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-5"></a>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-6"></a><span class="c1"># Equation 15</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-7"></a><span class="k">def</span> <span class="nf">z</span><span class="p">(</span><span class="n">lamb</span><span class="p">):</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-8"></a>    <span class="k">return</span> <span class="mf">1.</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">k</span><span class="o">*</span><span class="n">lamb</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-9"></a>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-10"></a><span class="c1"># Equation 16</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-11"></a><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">lamb</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">):</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-12"></a>    <span class="n">y</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">k</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">k</span><span class="o">*</span><span class="n">lamb</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-13"></a>    <span class="k">return</span> <span class="n">y</span> <span class="o">*</span> <span class="n">z</span><span class="p">(</span><span class="n">lamb</span><span class="p">)</span> <span class="o">-</span> <span class="n">B</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-14"></a>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-15"></a><span class="c1"># Equation 17</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-16"></a><span class="k">def</span> <span class="nf">p</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">lamb</span><span class="p">):</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-17"></a>    <span class="k">return</span> <span class="n">z</span><span class="p">(</span><span class="n">lamb</span><span class="p">)</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">k</span> <span class="o">*</span> <span class="n">lamb</span><span class="p">)</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-18"></a>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-19"></a><span class="n">lamb</span> <span class="o">=</span> <span class="n">newton</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-20"></a><span class="k">print</span><span class="p">(</span><span class="s2">"Lambda = </span><span class="si">%.4f</span><span class="s2">"</span> <span class="o">%</span> <span class="n">lamb</span><span class="p">)</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-21"></a><span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-22"></a>    <span class="k">print</span><span class="p">(</span><span class="s2">"p_</span><span class="si">%d</span><span class="s2"> = </span><span class="si">%.4f</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">p</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">lamb</span><span class="p">)))</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-23"></a>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-24"></a><span class="c1"># Output:</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-25"></a><span class="c1">#   Lambda = -0.3710</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-26"></a><span class="c1">#   p_1 = 0.0544</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-27"></a><span class="c1">#   p_2 = 0.0788</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-28"></a><span class="c1">#   p_3 = 0.1142</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-29"></a><span class="c1">#   p_4 = 0.1654</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-30"></a><span class="c1">#   p_5 = 0.2398</span>
+<a name="rest_code_36d5752fef2f48f5b7e505aa0183c3f5-31"></a><span class="c1">#   p_6 = 0.3475</span>
 </pre>
 <p class="last">The distribution is skewed much more towards <span class="math">\(6\)</span>.  If you re-run the
 program with <span class="math">\(B=3.5\)</span>, you'll get a uniform distribution, which is
@@ -507,8 +511,7 @@ at night :)</p>
             <div class="col-md-3 well">
             <p>
             I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
-            a former academic, current data scientist, engineer, and
-            programmer.  This is
+            a former academic, current data scientist and engineer.  This is
             <a href="../../">the place</a>
             where I write
             about all things technical.
@@ -565,7 +568,7 @@ at night :)</p>
 </div>
 
 
-            <script src="../../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

@@ -5,7 +5,11 @@
 <meta name="description" content="A brief introduction into variational autoencoders.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Variational Autoencoders | Bounded Rationality</title>
-<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -13,6 +17,7 @@
 <!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="description" itemprop="description" content="A brief introduction into variational autoencoders.">
 <meta name="author" content="Brian Keng">
 <link rel="prev" href="../variational-bayes-and-the-mean-field-approximation/" title="Variational Bayes and The Mean-Field Approximation" type="text/html">
+<link rel="next" href="../a-variational-autoencoder-on-the-svnh-dataset/" title="A Variational Autoencoder on the SVHN dataset" type="text/html">
 <meta property="og:site_name" content="Bounded Rationality">
 <meta property="og:title" content="Variational Autoencoders">
 <meta property="og:url" content="http://bjlkeng.github.io/posts/variational-autoencoders/">
@@ -83,7 +88,7 @@
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2017-05-30T08:19:36-04:00" itemprop="datePublished" title="2017-05-30 08:19">2017-05-30 08:19</time></a></p>
             
-        <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
+        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
 
         </div>
         
@@ -798,6 +803,9 @@ that have a solid basis in probability.  Look out for future posts!</p>
 <li class="previous">
                 <a href="../variational-bayes-and-the-mean-field-approximation/" rel="prev" title="Variational Bayes and The Mean-Field Approximation">Previous post</a>
             </li>
+            <li class="next">
+                <a href="../a-variational-autoencoder-on-the-svnh-dataset/" rel="next" title="A Variational Autoencoder on the SVHN dataset">Next post</a>
+            </li>
         </ul></nav></aside><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
             MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
             </script></article>
@@ -805,8 +813,7 @@ that have a solid basis in probability.  Look out for future posts!</p>
             <div class="col-md-3 well">
             <p>
             I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
-            a former academic, current data scientist, engineer, and
-            programmer.  This is
+            a former academic, current data scientist and engineer.  This is
             <a href="../../">the place</a>
             where I write
             about all things technical.
@@ -863,7 +870,7 @@ that have a solid basis in probability.  Look out for future posts!</p>
 </div>
 
 
-            <script src="../../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

@@ -5,7 +5,11 @@
 <meta name="description" content="A discussion of common mistakes when analyzing a seemingly simple random event.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Gambler's Fallacy and The Law of Small Numbers | Bounded Rationality</title>
-<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -83,7 +87,7 @@
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2015-11-01T11:08:11-04:00" itemprop="datePublished" title="2015-11-01 11:08">2015-11-01 11:08</time></a></p>
             
-        <p class="sourceline"><a href="index.ipynb" id="sourcelink">Source</a></p>
+        <p class="sourceline"><a href="index.ipynb" class="sourcelink">Source</a></p>
 
         </div>
         
@@ -187,7 +191,6 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 
 <div class="output_area">
 <div class="prompt output_prompt">Out[482]:</div>
-
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -387,7 +390,6 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 <div class="output_area">
 <div class="prompt output_prompt">Out[454]:</div>
 
-
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
 <table border="1" class="dataframe">
@@ -478,7 +480,6 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 <div class="output_area">
 <div class="prompt output_prompt">Out[443]:</div>
 
-
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
 <table border="1" class="dataframe">
@@ -565,7 +566,6 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 
 <div class="output_area">
 <div class="prompt"></div>
-
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Number of flips = 100:
 </pre>
@@ -574,7 +574,6 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 
 <div class="output_area">
 <div class="prompt"></div>
-
 
 <div class="output_html rendered_html output_subarea ">
 <div>
@@ -617,7 +616,6 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 
 <div class="output_area">
 <div class="prompt"></div>
-
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Number of flips = 1000:
 </pre>
@@ -626,7 +624,6 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 
 <div class="output_area">
 <div class="prompt"></div>
-
 
 <div class="output_html rendered_html output_subarea ">
 <div>
@@ -669,7 +666,6 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 
 <div class="output_area">
 <div class="prompt"></div>
-
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Number of flips = 5000:
 </pre>
@@ -678,7 +674,6 @@ $$P(H) = 0.5$$$$P(T) = 0.5$$<p>What about flipping a fair coin N times?  We expe
 
 <div class="output_area">
 <div class="prompt"></div>
-
 
 <div class="output_html rendered_html output_subarea ">
 <div>
@@ -934,8 +929,7 @@ You can see that this analysis matches what our simulation shows, a value close 
             <div class="col-md-3 well">
             <p>
             I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
-            a former academic, current data scientist, engineer, and
-            programmer.  This is
+            a former academic, current data scientist and engineer.  This is
             <a href="../../">the place</a>
             where I write
             about all things technical.
@@ -992,7 +986,7 @@ You can see that this analysis matches what our simulation shows, a value close 
 </div>
 
 
-            <script src="../../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

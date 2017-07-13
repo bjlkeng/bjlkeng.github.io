@@ -5,7 +5,11 @@
 <meta name="description" content="Understanding data, math, and programming to a satisfactory degree.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bounded Rationality (old posts, page 2) | Bounded Rationality</title>
-<link href="assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="assets/css/rst.css" rel="stylesheet" type="text/css">
+<link href="assets/css/code.css" rel="stylesheet" type="text/css">
+<link href="assets/css/colorbox.css" rel="stylesheet" type="text/css">
+<link href="assets/css/theme.css" rel="stylesheet" type="text/css">
 <link href="assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
@@ -60,7 +64,31 @@
                 
 
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/the-empirical-distribution-function/" class="u-url">The Empirical Distribution Function</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/normal-approximations-to-the-posterior-distribution/" class="u-url">Normal Approximation to the Posterior Distribution</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/normal-approximations-to-the-posterior-distribution/" rel="bookmark"><time class="published dt-published" datetime="2016-04-02T15:22:54-04:00" title="2016-04-02 15:22">2016-04-02 15:22</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div tabindex="-1" id="notebook" class="border-box-sizing">
+    <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In this post, I'm going to write about how the ever versatile normal distribution can be used to approximate a Bayesian posterior distribution.  Unlike some other normal approximations, this is <em>not</em> a direct application of the central limit theorem.  The result has a straight forward proof using Laplace's Method whose main ideas I will attempt to present.  I'll also simulate a simple scenario to see how it works in practice.</p>
+<p class="more"><a href="posts/normal-approximations-to-the-posterior-distribution/">Read more…</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/the-empirical-distribution-function/" class="u-url">The Empirical Distribution Function</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Brian Keng
@@ -146,32 +174,6 @@ is a result of my re-education on these topics.  Enjoy!</p>
 </div>
 </div>
     </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/sampling-from-a-normal-distribution/" class="u-url">Sampling from a Normal Distribution</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Brian Keng
-            </span></p>
-            <p class="dateline"><a href="posts/sampling-from-a-normal-distribution/" rel="bookmark"><time class="published dt-published" datetime="2015-11-28T21:57:02-05:00" title="2015-11-28 21:57">2015-11-28 21:57</time></a></p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div tabindex="-1" id="notebook" class="border-box-sizing">
-    <div class="container" id="notebook-container">
-
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>One of the most common probability distributions is the normal (or Gaussian) distribution.  Many natural phenomena can be modeled using a normal distribution.  It's also of great importance due to its relation to the <a href="https://en.wikipedia.org/wiki/Central_limit_theorem">Central Limit Theorem</a>.</p>
-<p>In this post, we'll be reviewing the normal distribution and looking at how to draw samples from it using two methods.  The first method using the central limit theorem, and the second method using the <a href="https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform">Box-Muller transform</a>.  As usual, some brief coverage of the mathematics and code will be included to help drive intuition.
-</p>
-<p class="more"><a href="posts/sampling-from-a-normal-distribution/">Read more…</a></p>
-</div>
-</div>
-</div>
-</div>
-</div>
-    </div>
     </article>
 </div>
 
@@ -189,8 +191,7 @@ is a result of my re-education on these topics.  Enjoy!</p>
             <div class="col-md-3 well">
             <p>
             I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
-            a former academic, current data scientist, engineer, and
-            programmer.  This is
+            a former academic, current data scientist and engineer.  This is
             <a href=".">the place</a>
             where I write
             about all things technical.
@@ -247,7 +248,7 @@ is a result of my re-education on these topics.  Enjoy!</p>
 </div>
 
 
-            <script src="assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+            <script src="assets/js/jquery.min.js"></script><script src="assets/js/bootstrap.min.js"></script><script src="assets/js/moment-with-locales.min.js"></script><script src="assets/js/fancydates.js"></script><script src="assets/js/jquery.colorbox-min.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>
