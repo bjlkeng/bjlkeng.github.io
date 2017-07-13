@@ -1,6 +1,6 @@
 .. title: A Variational Autoencoder on the SVHN dataset
 .. slug: a-variational-autoencoder-on-the-svnh-dataset
-.. date: 2017-07-10 08:13:03 UTC-04:00
+.. date: 2017-07-13 08:13:03 UTC-04:00
 .. tags: variational calculus, svhn, autoencoders, Kullback-Leibler, generative models, mathjax
 .. category: 
 .. link: 
