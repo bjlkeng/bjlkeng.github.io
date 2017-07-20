@@ -1,5 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality</title><link>http://bjlkeng.github.io/</link><description>Understanding data, math, and programming to a satisfactory degree.</description><atom:link href="http://bjlkeng.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Thu, 13 Jul 2017 12:31:34 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>A Variational Autoencoder on the SVHN dataset</title><link>http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;In this post, I'm going to share some notes on implementing a variational
+<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality</title><link>http://bjlkeng.github.io/</link><description>Understanding data, math, and programming to a satisfactory degree.</description><atom:link href="http://bjlkeng.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Thu, 20 Jul 2017 12:18:55 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Building A Table Tennis Ranking Model</title><link>http://bjlkeng.github.io/posts/building-a-table-tennis-ranking-model/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;I wrote a post about building a table tennis ranking model over at Rubikloud:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;&lt;a class="reference external" href="https://rubikloud.com/labs/building-table-tennis-ranking-model/"&gt;Building A Table Tennis Ranking Model&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;It uses
+&lt;a class="reference external" href="https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model"&gt;Bradley-Terry&lt;/a&gt;
+probability model to predict the outcome of pair-wise comparisons (e.g. games
+or matches).  I describe an easy algorithm for fitting the model (via
+MM-algorithms) as well as adding a simple Bayesian prior to handle ill-defined
+cases.  I even have some
+&lt;a class="reference external" href="https://github.com/bjlkeng/Bradley-Terry-Model"&gt;code on Github&lt;/a&gt;
+so you can build your own ranking system using Google sheets.&lt;/p&gt;
+&lt;p&gt;Here's a blurb:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Many of our Rubikrew are big fans of table tennis, in fact, we’ve held an
+annual table tennis tournament for all the employees for three years
+running (and I’m the reigning champion). It’s an incredibly fun event where
+everyone in the company gets involved from the tournament participants to
+the spectators who provide lively play-by-play commentary.&lt;/p&gt;
+&lt;p&gt;Unfortunately, not everyone gets to participate either due to travel and
+scheduling issues, or by the fact that they miss the actual tournament
+period in the case of our interns and co-op students. Another downside is
+that the event is a single-elimination tournament, so while it has a clear
+winner the ranking of the participants is not clear.&lt;/p&gt;
+&lt;p&gt;Being a data scientist, I identified this as a thorny issue for our
+Rubikrew table tennis players. So, I did what any data scientist would do
+and I built a model.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Enjoy!&lt;/p&gt;&lt;/div&gt;</description><category>Bradley-Terry</category><category>ping pong</category><category>ranking</category><category>Rubikloud</category><category>table tennis</category><guid>http://bjlkeng.github.io/posts/building-a-table-tennis-ranking-model/</guid><pubDate>Wed, 19 Jul 2017 12:51:41 GMT</pubDate></item><item><title>A Variational Autoencoder on the SVHN dataset</title><link>http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;In this post, I'm going to share some notes on implementing a variational
 autoencoder (VAE) on the
 &lt;a class="reference external" href="http://ufldl.stanford.edu/housenumbers/"&gt;Street View House Numbers&lt;/a&gt;
 (SVHN) dataset.  My last post on
@@ -124,15 +152,4 @@ retail specific product recommendation system and outline one of the main
 components of our recommendation system: a collaborative filtering algorithm.
 In Part 2, I’ll follow up with several useful applications of collaborative
 filtering and end by highlighting some of its limitations.&lt;/blockquote&gt;
-&lt;p&gt;Hope you like it!&lt;/p&gt;&lt;/div&gt;</description><category>Collaborative Filtering</category><category>Machine Learning</category><category>Recommendation Systems</category><guid>http://bjlkeng.github.io/posts/beyond-collaborative-filtering/</guid><pubDate>Sat, 11 Jun 2016 22:00:34 GMT</pubDate></item><item><title>A Probabilistic View of Linear Regression</title><link>http://bjlkeng.github.io/posts/a-probabilistic-view-of-regression/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;One thing that I always disliked about introductory material to linear
-regression is how randomness is explained.  The explanations always
-seemed unintuitive because, as I have frequently seen it, they appear as an
-after thought rather than the central focus of the model.
-In this post, I'm going to try to
-take another approach to building an ordinary linear regression model starting
-from a probabilistic point of view (which is pretty much just a Bayesian view).
-After the general idea is established, I'll modify the model a bit and end up
-with a Poisson regression using the exact same principles showing how
-generalized linear models aren't any more complicated.  Hopefully, this will
-help explain the "randomness" in linear regression in a more intuitive way.&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/a-probabilistic-view-of-regression/"&gt;Read more…&lt;/a&gt; (12 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Bayesian</category><category>logistic</category><category>mathjax</category><category>Poisson</category><category>probability</category><category>regression</category><guid>http://bjlkeng.github.io/posts/a-probabilistic-view-of-regression/</guid><pubDate>Sun, 15 May 2016 00:43:05 GMT</pubDate></item></channel></rss>
+&lt;p&gt;Hope you like it!&lt;/p&gt;&lt;/div&gt;</description><category>Collaborative Filtering</category><category>Machine Learning</category><category>Recommendation Systems</category><category>Rubikloud</category><guid>http://bjlkeng.github.io/posts/beyond-collaborative-filtering/</guid><pubDate>Sat, 11 Jun 2016 22:00:34 GMT</pubDate></item></channel></rss>

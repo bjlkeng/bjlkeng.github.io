@@ -7,414 +7,438 @@
                         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
  <url>
   <loc>http://bjlkeng.github.io/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/2015/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/2016/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/2017/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/archive.html</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/autoencoders/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/bayesian/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/betting/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/boolean/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://bjlkeng.github.io/categories/bradley-terry/</loc>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/calculus/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/cdf/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/collaborative-filtering/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/common-sense/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/confidence-bands/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/confidence-intervals/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/differentials/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/direct-marketing/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/empirical-distribution-function/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/entropy/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/expectation-maximization/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/first-post/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/formal/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/frequentist-statistics/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/functional-programming/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/functions/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/fundamentals/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/gamblers-fallacy/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/gaussian-mixture-models/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/generative-models/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/github/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/greg-ward/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/hypothesis-testing/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/investing/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/james-hague/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/jayne/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/kelly-criterion/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/kullback-leibler/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/lagrange-multipliers/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/latent-variables/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/law-of-large-numbers/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/law-of-small-numbers/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/logic/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/logistic/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/machine-learning/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/markov-chain/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/mathjax/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/mcmc/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/mean-field/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/metropolis-hastings/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/models/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/monte-carlo/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/nikola/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/normal-distribution/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/normal/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/np-complete/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/p-values/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://bjlkeng.github.io/categories/ping-pong/</loc>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/poisson/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/posterior/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/prior/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/probability/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/procedures/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://bjlkeng.github.io/categories/ranking/</loc>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/recommendation-systems/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/regression/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/regularization/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/rejection-sampling/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://bjlkeng.github.io/categories/rubikloud/</loc>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/sample-size/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/sampling/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/sat/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/satisficing/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/shannon/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/statistical-inference/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/svhn/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://bjlkeng.github.io/categories/table-tennis/</loc>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/thorp/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/variational-calculus/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/categories/verification/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/index-1.html</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/index-2.html</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/index-3.html</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/index-4.html</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/a-first-post/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/a-probabilistic-view-of-regression/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/accessible-satisfiability/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/beyond-collaborative-filtering/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
+ </url>
+ <url>
+  <loc>http://bjlkeng.github.io/posts/building-a-table-tennis-ranking-model/</loc>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/common-sense-and-investing/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/functions-and-procedures/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/gamblers-fallacy-and-the-law-of-small-numbers/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/hypothesis-testing/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/lagrange-multipliers/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/maximum-entropy-distributions/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/normal-approximations-to-the-posterior-distribution/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/normal-difference-distribution/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/optimal-betting-and-the-kelly-criterion/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/probabilistic-interpretation-of-regularization/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/probability-the-logic-of-science/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/sampling-from-a-normal-distribution/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/the-calculus-of-variations/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/the-empirical-distribution-function/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/the-expectation-maximization-algorithm/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/variational-autoencoders/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
  <url>
   <loc>http://bjlkeng.github.io/posts/variational-bayes-and-the-mean-field-approximation/</loc>
-  <lastmod>2017-07-13T12:31:00Z</lastmod>
+  <lastmod>2017-07-20T12:18:00Z</lastmod>
  </url>
 </urlset>
