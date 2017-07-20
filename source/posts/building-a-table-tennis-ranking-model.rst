@@ -1,21 +1,20 @@
 .. title: Building A Table Tennis Ranking Model
 .. slug: building-a-table-tennis-ranking-model
-.. date: 2017-07-18 08:51:41 UTC-04:00
+.. date: 2017-07-19 08:51:41 UTC-04:00
 .. tags: Bradley-Terry, ranking, ping pong, table tennis, Rubikloud
 .. category: 
 .. link: 
 .. description: A post on the Bradley-Terry Model for pair-wise ranking.
 .. type: text
 
-I wrote a couple of posts about building a table tennis ranking model
-over at Rubikloud:
+I wrote a post about building a table tennis ranking model over at Rubikloud:
 
-* `Building A Table Tennis Ranking Model <https://rubikloud.com/labs/building-table-tennis-ranking-model/>`__.  
+* `Building A Table Tennis Ranking Model <https://rubikloud.com/labs/building-table-tennis-ranking-model/>`__
 
 It uses
 `Bradley-Terry <https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model>`__
 probability model to predict the outcome of pair-wise comparisons (e.g. games
-or matches).  I talk about an easy algorithm for fitting the model (via the
+or matches).  I describe an easy algorithm for fitting the model (via
 MM-algorithms) as well as adding a simple Bayesian prior to handle ill-defined
 cases.  I even have some 
 `code on Github <https://github.com/bjlkeng/Bradley-Terry-Model>`__ 
