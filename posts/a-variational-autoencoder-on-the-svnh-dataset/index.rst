@@ -52,6 +52,12 @@ notebook that I used to train the VAE.  Please check out my previous post
 on `variational autoencoders <link://slug/variational-autoencoders>`__ to
 get some background.
 
+*Update 2017-07-09: I actually found a bug in my original code where I was
+only using a small subset of the data!  I fixed it up in the notebooks and
+I've added some inline comments below to say what I've changed.  For the most
+part, things have stayed the same but the generated images are a bit blurry
+because the dataset isn't so easy anymore.*
+
 .. TEASER_END
 
 |h2| The Street View House Numbers (SVHN) Dataset |h2e|
@@ -243,6 +249,14 @@ sure that you're learning rate is small enough to allow your loss function to
 converge because we're still dividing by potentially small values that can vary
 widely [2]_. 
 
+**BK** *: I actually was playing around with Kingma's method and I did get it to not
+blow up by using a combination of the initialization of weights on the variance
+output nodes and putting L2 regularization on it to keep it small.  It's still
+actually a bit tricky because if your learning rate is too small, the weights
+will not deviate that far from your initialization, which might not give you
+a small enough variance.  I didn't try to get it working fully but I may try
+it in my next model.*
+
 |h2| A Digression on Progress |h2e|
 
 As an aside, I'm still find it quite astounding that I am able to reproduce
@@ -320,6 +334,11 @@ previous section.  As to why PCA seems to work, here's what I gathered:
   (there were a few occasional patches of image with discoloration but nothing
   major).  This indicates there is a lot "noise" that we can throw away that is
   not really relevant to the actual "signal" of the image.
+  **BK** *: I actually changed this down to K=500 without much loss in
+  quality to the naked eye. The corruption I was getting was simply due to a bit of
+  precision loss when converting to/from PCA dimension and some pixels were getting
+  an invalid value (e.g. > 255), after clipping to a valid range there was no
+  more visible corruption.*
 * The components have large magnitude differences (another reason for
   per-dimension variances), with the first principal component being the
   largest.
@@ -366,6 +385,8 @@ models.
 * I didn't really tune the dropout, which was set at :math:`0.4` simply because I saw
   it used in someone else's post of variational autoencoders.  I just assumed
   that if my network was big enough, a big dropout wouldn't really matter.
+  **BK** *: Arbitrarily changed it to 0.2 so the loss would converge a bit
+  faster (wouldn't jump around so much in the beginning).*
 * I followed the advice from the `Stanford CNN course
   <http://cs231n.github.io/neural-networks-1/>`__, which says to favour bigger
   networks with regularization instead of using smaller networks to prevent
@@ -381,6 +402,16 @@ models.
   back-propagations in parallel and averages their gradients.  Naturally, if
   `batch_size` is bigger, it will run faster because it works in parallel (so
   as long it fits on your GPU).
+  **BK** *: I actually tried increasing the batch size to 6300 with worse results!
+  See this* `SO answer
+  <https://stats.stackexchange.com/questions/164876/tradeoff-batch-size-vs-number-of-iterations-to-train-a-neural-network>`__.
+  *Basically the reasoning is that since the gradient is an approximation, you
+  don't want to use too big of a batch or else you find local minima that are "sharp",
+  whereas smaller batches converge to "flat" ones.  The "flat" parts of the objective
+  function are probably where you want to be instead of spurious "sharp" ones.
+  In my case, I converged to a loss of around -150 or so with a 6300 batch size but
+  was able to get to around -250 with a batch of 1000.  So bigger is not always better!
+  Definitely some trade-off though because batch size of 1 would converge too slowly.*
 * On a related note, this would basically be impossible without a GPU.  The
   fitting time would be ridiculous, which again is a testament to the
   advancements in computational power.
@@ -394,6 +425,8 @@ models.
   learning, where you use the encoder network to map your input to a latent
   variable space, you probably do want to stop on validation loss.  Interestingly,
   I don't think that is the case here (please let me know if I'm wrong!).
+  **BK** *: Changed this to 2000 epochs but it started learning so slowly after 1000 
+  or so that I probably could've stopped then.*
 * As mentioned above, I lowered learning rate to 0.0001 using the "Adam" optimizer.
   The optimizer choice was arbitrary, I saw it used somewhere else so I also used it.
   The learning rate was key, especially as I lowered the :math:`\epsilon` lower
@@ -452,6 +485,9 @@ compared to GANs).  What's cool is that we get quite a variety of digits,
 styles, colours that are sampled just from our generator network!  It's
 even more surprising that the network was able to learn "complex" images,
 ones where there are multiple digits in the picture.
+**BK** *: The updated images are blurrier than this one, although you can
+definitely make out all the numbers still.  The entire SVHN dataset is much harder!
+Check out the notebook for the updated images.*
 
 Next, let's try some analogies where we run a image from our original dataset
 through the entire VAE network and see some "analogies".  These analogies are
@@ -471,6 +507,9 @@ rows of "1"s, "2"s etc. or even similar colours and styles across the rows.
 Some have similarities (in terms of colour or number), while others seem way
 off. It's kind of hard to tell if we're doing the right thing because we've
 transformed into PCA space, so it's much harder to interpret what's going on.
+**BK** *: After training with the entire dataset, the analogies look a lot better!
+They are actually very close to the given image in terms of colour and
+sometimes number.  Check out the notebook for the updated images.*
 
 Additionally, I suspect the way I've encoded the output variance allows a
 "generous" deviation from the actual source image, perhaps resulting in the
