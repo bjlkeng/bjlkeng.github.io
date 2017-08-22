@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about systems)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/systems.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 22 Aug 2017 12:39:32 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>The Hard Thing about Machine Learning</title><link>http://bjlkeng.github.io/posts/the-hard-thing-about-machine-learning/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;I wrote a post on the hard parts about machine learning over
+at Rubikloud:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;&lt;a class="reference external" href="https://rubikloud.com/labs/data-science/hard-thing-machine-learning/"&gt;The Hard Thing about Machine Learning&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Here's a blurb:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Much of the buzz around machine learning lately has been around novel
+applications of deep learning models. They have captured our imagination by
+anthropomorphizing them, allowing them to dream, play games at superhuman
+levels, and read x-rays better than physicians. While these deep learning
+models are incredibly powerful with incredible ingenuity built into them,
+they are not humans, nor are they much more than “sufficiently large
+parametric models trained with gradient descent on sufficiently many
+examples.” In my experience, this is not the hard part about machine
+learning.&lt;/p&gt;
+&lt;p&gt;Beyond the flashy headlines, the high-level math, and the computation-heavy
+calculations, the whole point of machine learning — as has been with
+computing and software before it — has been its application to real-world
+outcomes. Invariably, this means dealing with the realities of messy data,
+generating robust predictions, and automating decisions.&lt;/p&gt;
+&lt;p&gt;...&lt;/p&gt;
+&lt;p&gt;Just as much of the impact of machine learning is beneath the surface, the
+hard parts of machine learning are not usually sexy. I would argue that the
+hard parts about machine learning fall into two areas: generating robust
+predictions and building machine learning systems.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Enjoy!&lt;/p&gt;&lt;/div&gt;</description><category>Machine Learning</category><category>Rubikloud</category><category>systems</category><guid>http://bjlkeng.github.io/posts/the-hard-thing-about-machine-learning/</guid><pubDate>Tue, 22 Aug 2017 12:32:55 GMT</pubDate></item></channel></rss>
