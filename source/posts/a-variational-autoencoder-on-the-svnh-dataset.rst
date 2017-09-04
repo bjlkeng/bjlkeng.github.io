@@ -52,7 +52,7 @@ notebook that I used to train the VAE.  Please check out my previous post
 on `variational autoencoders <link://slug/variational-autoencoders>`__ to
 get some background.
 
-*Update 2017-07-09: I actually found a bug in my original code where I was
+*Update 2017-08-09: I actually found a bug in my original code where I was
 only using a small subset of the data!  I fixed it up in the notebooks and
 I've added some inline comments below to say what I've changed.  For the most
 part, things have stayed the same but the generated images are a bit blurry
