@@ -175,12 +175,18 @@ part is figuring out how to train it.
 Using the autoencoder analogy, the generative model is the "decoder" since
 you're starting from a latent state and translating it to the observed data.  A
 VAE also has an "encoder" part that is used to help train the decoder.  It goes
-from observed values to a latent state (:math:`z` to :math:`X`).  A keen
+from observed values to a latent state (:math:`X` to :math:`z`).  A keen
 observer will notice that this is actually our variational approximation of the
 posterior (:math:`z|X`), which coincidentally is also a neural network (defined
 by :math:`g_{z|X}`).  This is visualized in Figure 1.
 
-TODO: Use another figure for 1
+.. figure:: /images/vanilla_vae.png
+  :width: 550px
+  :alt: Vanilla Variational Autoencoder
+  :align: center
+
+  Figure 1: Vanilla Variational Autoencoder
+
 
 After our VAE has been fully trained, it's easy to see how we can just use the
 "encoder" to directly help with semi-supervised learning:
@@ -230,7 +236,12 @@ However the genius is that we can train this classifier for both labelled *and*
 unlabelled data by just training this extended VAE.  Figure 2 shows a
 visualization of the network.
 
-TODO: Make another figure for semi-supervised autoencoder Figure 2
+.. figure:: /images/m2_vae.png
+  :width: 550px
+  :alt: M2 Variational Autoencoder for Semi-Supervised Learning
+  :align: center
+
+  Figure 2: M2 Variational Autoencoder for Semi-Supervised Learning
 
 Now the interesting part is that we have two cases: one where we observe the
 :math:`y` labels and one where we don't.  We have to deal with them differently
@@ -339,8 +350,8 @@ silly not to train that part of your VAE (i.e. the classifier part).  So
 Kingma et al. add an extra loss term initially describing it as a fix to this
 problem.  Then, they add an innocent throw-away line that this actually can be
 derived by performing variational inference over :math:`\pi`.  Of course, it's
-actually true but it's not that straightforward to derive!  Well, I worked out
-all the gory the details, so here's my presentation of deriving the variational
+actually true (I think) but it's not that straightforward to derive!  Well, I
+worked out the details, so here's my presentation of deriving the variational
 objective with labelled data.
 
 -----
@@ -394,17 +405,20 @@ single data point :math:`({\bf x},y)`:
         \log p_{\theta}({\bf \pi}|y)
         - \log q_\phi({\bf \pi}|{\bf x})
     \bigg] \\
-    &= -\mathcal{L}(x,y)
+    &= -\mathcal{L}({\bf x},y)
        - KL[q_\phi({\bf \pi}|{\bf x})||p_{\theta}({\bf \pi}|y)] \\
-    &= -\mathcal{L}(x,y) 
-  + \mathcal{H}(q_\phi(y|{\bf x}))   
-  + \alpha \log q_\phi(y|{\bf x}) + K_2
+    &\geq -\mathcal{L}({\bf x},y) + \alpha \log q_\phi(y|{\bf x}) + K_2
     \tag{8}
+
+where :math:`\alpha` is a hyper-parameter that controls the relative weight of how
+strongly you want to train the discriminative classified (:math:`q_\phi(y|{\bf
+x})`).  In the paper, they set it to :math:`\alpha=0.1N`
+
 
 Going line by line, we off with the ELBO, expanding all the priors.  The one
 trick we do is instead of expanding the joint distribution of 
-:math:`y,{\bf \pi}` conditioned on :math:`\pi` (i.e.
-:math:`p_{\theta}(y, {\bf \pi}) = p_{\theta}(y|{\bf \pi})p_{\theta}({\bf \pi})`),
+:math:`y,{\bf \pi}` conditioned on :math:`\pi` 
+(i.e.  :math:`p_{\theta}(y, {\bf \pi}) = p_{\theta}(y|{\bf \pi})p_{\theta}({\bf \pi})`),
 we instead expand using the posterior: :math:`\log p_{\theta}({\bf \pi}|y)`.
 The posterior in this case is again a
 `Dirichlet distribution <https://en.wikipedia.org/wiki/Dirichlet_distribution#Conjugate_to_categorical.2Fmultinomial>`__
@@ -413,26 +427,169 @@ because it's the conjugate prior of :math:`y`'s categorical/multinomial distribu
 Next, we just rearrange and factor :math:`q_\phi`, both in the :math:`\log`
 term as well as the expectation.  We notice that the first part is exactly our
 :math:`\mathcal{L}` loss function from above and the rest is a KL divergence
-between our :math:`\pi` posterior and our approximate posterior.  The
-last simplification of the KL divergence is a bit verbose so I've put it in
-Appendix A.
+between our :math:`\pi` posterior and our approximate posterior.  
+The last simplification of the KL divergence is a bit verbose (and hand-wavy)
+so I've put it in Appendix A.
 
 
-* Show how to dervied additional loss term using Dirichlet prior (maybe appendix)?
-* They also have a "M1" + "M2" model that I didn't try
+|h3| Training the M2 Model |h3e|
+
+Using Equations 6 and 8, we can derive a loss function as such:
+
+.. math::
+
+    \mathcal{J} = 
+    \sum_{{\bf x} \in \mathcal{D}_{unlabelled}} \big[
+        \sum_y q_\phi(y|{\bf x})(\mathcal{L}({\bf x}, y)) - \mathcal{H}(q_\phi(y|{\bf x}))
+    \big]
+    + \sum_{({\bf x},y) \in \mathcal{D}_{labelled}} \big[
+        \mathcal{L}({\bf x},y) - \alpha \log q_\phi(y|{\bf x}) 
+    \big] \\
+    \tag{9}
+
+With this loss function, we just train the network as you would expect.
+Simply grab a mini-batch, compute the needed values in the network
+(i.e. :math:`q(y|{\bf x}), q(z|{\bf x}), p({\bf x}|y, z)`), compute the loss
+function above using the appropriate summation depending on if you have
+labelled or unlabelled data, and finally just take the gradients to update our
+network parameters :math:`\theta, \phi`.  The network is remarkably similar
+to a vanilla VAE with the addition of the posterior on :math:`y`, and the
+additional terms to the loss function.  The tricky part is dealing with
+the two types of data (labelled and unlabelled), which I explain in the
+implementation notes below.
+
+
+|h2| Implementation Notes |h2e|
+
+The notebooks I used are at TODO
+I didn't add as many comments as some of my prevous notebooks but I think the
+code is relatively clean and straight forward.
+
+|h3| Variational Autoencoder Implementations (M1 and M2) |h3e|
+
+The architectures I used for the VAEs were as follows: 
+
+* For :math:`q(y|{\bf x})`, I used the `CNN example <https://github.com/fchollet/keras/blob/master/examples/cifar10_cnn.py>`__ from Keras,
+  which has 3 conv layers, 2 max pool layers, a softmax layer, with dropout and ReLU activation.
+* For :math:`q({\bf z}|{bf x})`, I used 3 conv layers, and 2 fully connected
+  layers with batch normalization, dropout and ReLU activation.
+* For :math:`p({\bf x}|{\bf z})` and :math:`p({\bf x}|y, {\bf z})`, I used a
+  fully connect layer, followed by 4 transposed conv layers (the first 3 with
+  ReLU activiation the last with sigmoid for the output).
+
+The rest of the details should be pretty straight forward if you look at the
+notebook.
+
+The one complication that I had was how to implement the training of the M2
+model because you need to treat :math:`y` simultaneously as an input and an
+output depending if you have labelled or unlabelled data.  I still wanted to
+use Keras and didn't want to go as low level as TensorFlow, so I came up with
+a workaround: train two networks (with shared layers)!
+
+So basically, I have one network for labelled data and one for unlabelled data.
+They both share all the same components (:math:`q(y|{\bf x}), q(z|{\bf x}), p({\bf x}|y, z)`)
+but differ in their input/output as well as loss functions.
+The labelled data has input :math:`({\bf x}, y)` and output `(y', x')`
+corresponding to the predictions from the posterior and decoder respectively.
+The loss function is Equation 8 with :math:`\alpha=0.1N` (not the one I derived
+in Appendix A).  For the unlabelled case, the input is :math:`{\bf x}` and the output
+is the predicted :math:`{\bf x}`.
+
+For the training, I used the `train_on_batch()` API to train the first network 
+on a random batch of labelled data, followed by the second on unlabelled data.
+The batches were sized so that the epochs would finish at the same time.
+This is not strictly the same as the algorithm from the paper but I'm guessing
+it's close enough (also much easier to implement because it's in Keras).
+The one cute thing that I did was use vanilla `tqdm` to mimic the `keras_tqdm`
+so I could get a nice progress bar.  The latter only works with the regular
+`fit` methods so it wasn't very useful.
+
+|h3| Comparison Implementations |h3e|
+
+In the results below I compared a semi-supervised VAE with several other ways
+of dealing with VAE:
+
+* `PCA + SVM`: Here I just ran principal component analysis on the entire image
+  set, and then trained a SVM using a PCA-transformed representation on
+  only the *labelled* data.
+* `CNN`: A vanilla CNN using the Keras `CNN example <https://github.com/fchollet/keras/blob/master/examples/cifar10_cnn.py>`__
+  trained only on *labelled* data.
+* `Inception`: Here I used a pre-trained `Inception network <https://keras.io/applications/>`__ available in Keras.
+  I pretty much just used the example they had which adds a global average
+  pooling layer, a dense layer, followed by a softmax layer.  Trained only on
+  the *labelled* data while freezing all the original pre-trained Inception
+  layers.  I didn't do any fine-tuning of the Inception layers.
 
 |h2| Semi-supervised Results |h2e|
 
-* Talk about comparison methods: PCA + SVM, CNN, Inception + additional layers,
-  M1, M2
-* Mention some other common techniques (didn't try): data augmentation, others?
-* Used CIFAR10
-* Show comparison table
-* Talk about implementation a bit, point to notebooks
+The datasets I used were MNIST and CIFAR10 with stratified sampling to reduce
+the labelled data.  The test sets are the ones included with the data.  Here
+are the results for MNIST:
+
+.. csv-table:: Table 1: MNIST Results
+   :header: "Model", "N=100", "N=500", "N=1000", "N=2000", "N=5000"
+   :widths: 15, 10, 10, 10, 10, 10
+
+   "PCA + SVM", 0.692, 0.871, 0.891, 0.911, 0.929
+   "CNN", 0.262, 0.921, 0.934, 0.955, 0.978
+   "M1", 0.628, 0.885, 0.905, 0.921, 0.933
+   "M2", "-", "-", 0.975, "-", "-"
+
+The M2 model was only run for :math:`N=1000` (mostly because I didn't really
+want to rearrange the code).  From the MNIST results table, we really see the
+the M2 model shine where at a comparable sample size, all the other methods
+have much lower performance.  You need to get to :math:`N=5000` before the CNN
+gets in the same range.  Interestingly at :math:`N=100` the models that make
+use of the unlabelled data do better than a CNN which has so little training
+data it surely is not learning to generalize.
+
+.. csv-table:: Table 2: CIFAR10 Results
+   :header: "Model", "N=1000", "N=2000", "N=5000", "N=10000", "N=25000"
+   :widths: 15, 10, 10, 10, 10, 10
+
+   "CNN", 0.433, 0.4844, 0.610, 0.673, 0.767
+   "Inception", 0.661, 0.684, 0.728, 0.751, 0.773
+   "PCA + SVM", 0.356, 0.384, 0.420, 0.446, 0.482
+   "M1", 0.321, 0.362, 0.375, 0.389, 0.409
+   "M2", "0.420", "-", "-", "-", "-"
+
+Again I only train M2 on :math:`N=1000`.  The CIFAR10 results show another
+story.  Clearly the pre-trained Inception network is doing the best.  It's
+pre-trained on Imagenet which is very similar to CIFAR10.  You have to get to
+relatively large sample sizes before even the CNN starts approaching the
+accuracy.  
+
+The M1/M2 results are quite poor, not even beating out PCA (at least for M1)!
+My reasoning here is that the CIFAR10 dataset is too complex for the VAE model.
+That is, when I look at the images generated from it, it's pretty hard for me
+to figure out what the label should be.  Take a look at some of the randomly generated
+images from my M2 model:
+
+.. figure:: /images/m2_images.png
+  :width: 350px
+  :alt: Images generated from M2 VAE model trained on CIFAR data.
+  :align: center
+
+  Figure 3: Images generated from M2 VAE model trained on CIFAR data.
+
+Other people have had similar `problems <https://github.com/dojoteef/dvae>`__.
+I suspect the :math:`{\bf z}` Gaussian latent variables are not powerful enough
+to encode the complexity of the CIFAR10 dataset.  I've read somewhere that the
+unimodal nature of the latent variables is thought to be quite limiting, and
+here I guess we see that case.  I'm pretty sure more recent research has tried
+to tackle this problem, look out for a post on that in the future!
 
 |h2| Conclusion |h2e|
 
-TODO
+As I've been writing about for the past few posts, I'm a huge fan of scalable
+probabilistic models using deep learning.  I think it's both elegant and
+intuitive because of the probabilistic formulation.  Unfortunately, VAEs using
+Gaussians at the latent variable do have limitations, and obviously they are
+not quite state of the art in generative models (i.e. GANs seem to be the top
+dog).  In any case, there is still a lot more recent research in this area that
+I'm going to follow up on and hopefully I'll have something to post about soon.
+Thanks for reading!
+
 
 |h2| Further Reading |h2e|
 
@@ -453,70 +610,115 @@ Notice that the two distributions in question are both
 .. math::
 
     q_{\phi}({\bf \pi}|{\bf x})  &= Dir(\alpha_q {\bf \pi}_{\phi}({\bf x})) \\
-    p_{\theta}({\bf \pi}|y)  &= Dir(\alpha + {\bf c}_y) \\
+    p_{\theta}({\bf \pi}|y)  &= Dir(\alpha_p + {\bf c}_y) \\
     \tag{A.1}
 
-where :math:`{\bf c}_y` is a vector with 0's and a single 1 representing the
-categorical observation we have.
-In fact, both distributions are just the conjugate prior of a single
-observation of a categorical variable; :math:`y` in one case and 
-:math:`{\bf \pi}_{\phi}({\bf x})` in another.  
+where :math:`\alpha_p, \alpha_q` are scalar constants, and :math:`{\bf c}_y` is
+a vector with 0's and a single 1 representing the categorical observation.
+The former distribution is just the conjugate prior of a single
+observation of a categorical variable :math:`y`, whereas the former
+is basically just something we picked out of convenience (remember it's the
+posterior approximation that we get to choose).
 
 Let's take a look at the formula for 
-`KL divergence between two Symmetric Dirichlets <http://bariskurt.com/kullback-leibler-divergence-between-two-dirichlet-and-beta-distributions/>`__
+`KL divergence between two Dirichlets distributions <http://bariskurt.com/kullback-leibler-divergence-between-two-dirichlet-and-beta-distributions/>`__
 parameterized by vectors :math:`{\bf \alpha}` and :math:`{\bf \beta}`:
 
 .. math::
 
-    KL(p||q) =  \log \Gamma(\alpha_0) - \sum_{k=1}^{K} \log \Gamma(\alpha_k)
+    KL(p||q) &=  \log \Gamma(\alpha_0) - \sum_{k=1}^{K} \log \Gamma(\alpha_k)
              - \log \Gamma(\beta_0) + \sum_{k=1}^{K} \log \Gamma(\beta_k)
              + \sum_{k=1}^K (\alpha_k - \beta_k)E_{p(x)}[\log x_k] \\
+    &=  \log \Gamma(\alpha_0) - \sum_{k=1}^{K} \log \Gamma(\alpha_k)
+             - \log \Gamma(\beta_0) + \sum_{k=1}^{K} \log \Gamma(\beta_k)
+             + \sum_{k=1}^K (\alpha_k - \beta_k)(\psi(\alpha_k) - \psi(\alpha_0)) \\
     \tag{A.2}
 
-where :math:`\alpha_0=\sum_k \alpha_k` and :math:`\beta_0=\sum_k \beta_k`.
+where :math:`\alpha_0=\sum_k \alpha_k` and :math:`\beta_0=\sum_k \beta_k`,
+and :math:`\psi` is the `Digamma function <https://en.wikipedia.org/wiki/Digamma_function>`__.
 
-Our problem simplifies a lot because we have the constant :math:`alpha` in
-common for both sides which makes it a mostly symmetric problem.  Substituting
-Equation A.1 into A.2, we have:
+Substituting Equation A.1 into A.2, we have:
 
 .. math::
 
     KL[q_\phi({\bf \pi}|{\bf x})||p_{\theta}({\bf \pi}|y)] 
             &= \log \Gamma(\alpha_q) 
             - \sum_{k=1}^{K} \log \Gamma(\alpha_q \pi_{\phi,k}({\bf x})) \\
-            &\quad - \log \Gamma(K\alpha + 1)
-                + \sum_{k=1}^{K} \log \Gamma(\alpha + c_{y,k}) \\
-            &\quad + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - \alpha - {\bf c}_{y,k})
-              E_{q_\phi({\bf \pi}|{\bf x})}[\log \pi_k] \\
-    &\leq K_2 + \sum_{k=1}^K (\pi_{\phi,k}({\bf x}) - {\bf c}_{y,k})
-       E_{q_\phi({\bf \pi}|{\bf x})}[\log \pi_k] \\
+            &\quad - \log \Gamma(K\alpha_p + 1)
+                + \sum_{k=1}^{K} \log \Gamma(\alpha_p + c_{y,k}) \\
+            &\quad + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - \alpha_p - {\bf c}_{y,k})
+               (\psi(\alpha_{q,k}\pi_{\phi,k}) - \psi(\alpha_q)) \\
     &= K_2 
-       + E_{q_\phi({\bf \pi}|{\bf x})}[
-        \sum_{k=1}^K \pi_{\phi,k}({\bf x})\log \pi_k
-        - \sum_{k=1}^K {\bf c}_{y,k}\log \pi_k] \\
-    &\approx K_2
-       + \sum_{k=1}^K \pi_{\phi,k}({\bf x})\log \pi_{\phi,k}({\bf x})
-        - \sum_{k=1}^K {\bf c}_{y,k}\log \pi_{\phi,k}({\bf x}) \\
-    &= K_2
-       + \sum_{k=1}^K \pi_{\phi,k}({\bf x})\log \pi_{\phi,k}({\bf x})
-        - \sum_{k=1}^K \log \pi_{\phi,k}({\bf x})^{{\bf c}_{y,k}} \\
-    &= K_2
-       + \mathcal{H}(q_\phi(y|{\bf x})) - \log q_\phi(y|{\bf x}) \\
+        - \sum_{k=1}^{K} \log \Gamma(\alpha_q \pi_{\phi,k}({\bf x}))
+        + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - \alpha_p - {\bf c}_{y,k})
+               (\psi(\alpha_q\pi_{\phi,k}) - \psi(\alpha_q)) \\
     \tag{A.3}
 
-Going line by line, we first fill in all our pseudo-count parameters
-for the Dirichlet.  We can see the first four terms are *almost* constants
-since both :math:`{\bf \pi_\phi}` and :math:`{\bf c}_y` are all upper bounded
-by :math:`1`.  So in the next line, we just absorb them into a constant
-:math:`K_2`.  Next, we rearrange and use the same trick we used for vanilla
-`variational autoencoders <link://slug/variational-autoencoders>`__:
-approximate the expectation the mean, which is :math:`\pi_{\phi,k}({\bf x})` [1]_.
+Here, most of the Gamma functions are just constants so we can absorb them into a constant.
+Okay, here's where it gets a bit hand wavy (it's the only way I could figure out how to simplify
+the equation to what it had in the paper).
+We're going to pick a big :math:`\alpha_q` and a small :math:`\alpha_p`.  Both
+are hyper parameters so we can freely do as we wish.  With this assumption, we're going to
+progressively simplify and approximate Equation A.3:
 
-I mentioned above that 
-:math:`KL[q_\phi({\bf \pi}|{\bf x})||p_{\theta}({\bf \pi}|y)]` 
-can be simplified to :math:`\log q_\phi(y|{\bf x})`
+.. math::
+
+    &KL[q_\phi({\bf \pi}|{\bf x})||p_{\theta}({\bf \pi}|y)] \\
+    &= K_2 
+        - \sum_{k=1}^{K} \log \Gamma(\alpha_q \pi_{\phi,k}({\bf x}))
+        + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - \alpha_p - {\bf c}_{y,k})
+               (\psi(\alpha_q\pi_{\phi,k}) - \psi(\alpha_q)) \\
+    &\leq K_3 
+        + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - \alpha_p - {\bf c}_{y,k})
+               (\psi(\alpha_q\pi_{\phi,k}) - \psi(\alpha_q)) \\
+    &\approx K_3 
+        + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - {\bf c}_{y,k})
+               (\psi(\alpha_q\pi_{\phi,k}) - \psi(\alpha_q)) \\
+    &= K_4 
+        + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - {\bf c}_{y,k})
+               \psi(\alpha_q\pi_{\phi,k}) \\
+    &\approx K_4 
+        + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - {\bf c}_{y,k})
+               \log(\alpha_q\pi_{\phi,k}) \\
+    &\leq K_5 
+        + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - {\bf c}_{y,k})
+               \log(\pi_{\phi,k}) \\
+    &\leq K_5 
+        + \alpha_q \sum_{k=1}^K \pi_{\phi,k}({\bf x})\log(\pi_{\phi,k})
+        - \sum_{k=1}^K {\bf c}_{y,k} \log(\pi_{\phi,k}) \\
+    &= K_5 - \alpha_q H(q)
+        - \sum_{k=1}^K  \log(\pi_{\phi,k}^{{\bf c}_{y,k}}) \\
+    &= K_5 
+        - \alpha_q H(q) - \log(q(y|{\bf x})) \\
+    &\leq K_5 - \log(q(y|{\bf x})) \\
+    \tag{A.4}
+
+This is quite a mouthful to explain since I'm just basically waving my hand
+to get to the final number.  Let's try this: first, we drop the Gamma function
+in the second term and upper bound it by a new constant :math:`K_3` because our
+:math:`\alpha_q` is large, so the inside gamma function is always positive.
+Next, we drop :math:`\alpha_p` since it's small (let's just make it arbitrarily
+small).  We then drop :math:`\psi(\alpha_q)`, a constant, because when we
+expand it out we get a constant (recall :math:`\sum_{k=1}^K \pi_{\phi, k} = 1`).
+
+Now we're getting somewhere!  Since :math:`\alpha_q` is again large the
+`Digamma function <https://en.wikipedia.org/wiki/Digamma_function>`__ 
+is upper bounded by :math:`\log(x)` when :math:`x>0.5`, so we'll just make
+this substitution.  Finally, we get something that looks about right.
+We just rearrange a bit and two non-constant terms involving entropy of
+:math:`q` and the probability of a categorical variable with parameter
+:math:`\pi({\bf x})`.  We just upper bound the expression by dropping
+the :math:`-H(q)` term since entropy is always positive to get us to
+our final term :math:`-\log(q(y|{\bf x}))` that Kingma put in his paper.
+Although, one thing I couldn't quite get to the additional constant :math:`\alpha`
+that is in front of :math:`\log(q(y|{\bf x}))`.
+
+Admittedly, it's not quite precise, but it's the only way I figured out how to
+derive his expression without just arbitrarily adding an extra term to the
+loss function (why work out any math when you're going to arbitrarily add
+things to the loss function?).  Please let me know if you have a better way of
+deriving this equation.
+
 
 
 |br|
-
-.. [1] This is I'm actually a bit unsure about.  If we're using the exact same sampling trick, we should actually be sampling from a Dirichlet
