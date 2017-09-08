@@ -80,9 +80,9 @@ very few examples.
 
 In my post on `variational Bayesian methods <http://bjlkeng.github.io/posts/variational-bayes-and-the-mean-field-approximation/>`__, 
 I discussed how to derive how to derive the variational lower bound but I just
-want to spend a bit more time on it here to explain it on a bit more of a high
-level.  In a lot of ML papers, they take for granted the "maximization of the
-variational lower bound", so I just want to give a bit of intuition behind it.
+want to spend a bit more time on it here to explain it in a different way.  In
+a lot of ML papers, they take for granted the "maximization of the variational
+lower bound", so I just want to give a bit of intuition behind it.
 
 Let's start off with the high level problem.  Recall, we have some data
 :math:`X`, a generative probability model :math:`P(X|\theta)` that shows us how
@@ -103,9 +103,9 @@ distribution of the :math:`\theta` parameters, which sometimes is the end
 goal (e.g. the cluster centers and mixture weights for a gaussian mixture models),
 or we might just want the parameters so we can use :math:`P(X|\theta)` to generate
 some new data points (e.g. use variational autoencoders to generate a new image).
-Unfortunately, this problem is intractable (mostly the denominator) -- for all
-but the simplest problems, we can't solve it nicely using an analytical
-solution.  
+Unfortunately, this problem is intractable (mostly the denominator) for all
+but the simplest problems, that is, we can't solve it nicely using a nice
+analytical solution.  
 
 Our solution?  Approximation! We'll approximate :math:`P(\theta|X)` by another
 function :math:`Q(\theta|X)` (it's usually conditioned on :math:`X` but not
@@ -113,8 +113,8 @@ necessarily).  And (relatively) fast because we can assume a particular shape
 for :math:`Q(\theta|X)` and turn the inference problem into an optimization
 problem.  Of course, it can't be just a random function, we want it to be as
 close as possible to :math:`P(\theta|X)` as possible, which will depend on the
-structural form of :math:`Q(\theta|X)` (how much flexibility it has) as well as
-our technique to find it and our metric of "closeness".
+structural form of :math:`Q(\theta|X)` (how much flexibility it has),
+our technique to find it, and our metric of "closeness".
 
 In terms of "closeness", the standard way of measuring it is to use
 `KL divergence <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>`__,
@@ -127,6 +127,7 @@ which we can neatly write down here:
                   \int_{-\infty}^{\infty} q(\theta|X) \log{p(X)} d\theta \\
                &= \int_{-\infty}^{\infty} q(\theta|X) \log\frac{q(\theta|X)}{p(\theta,X)} d\theta + 
                   \log{p(X)} \\
+               &= E_q\big[\log\frac{q(\theta|X)}{p(\theta,X)}\big] + \log p(X) \\
               \tag{2}
 
 Rearranging, dropping the KL divergence term and putting it in terms of an
@@ -145,18 +146,18 @@ If you have multiple data points, you can just sum over them because we're
 in :math:`\log` space (assuming independence between data points).
 
 In a lot of papers, you'll see that people will go straight to talking about
-optimizing the ELBO whenever talking about variational inference.  And if you
+optimizing the ELBO whenever they are talking about variational inference.  And if you
 look at it in isolation, you can gain some intuition of how it works:
 
 * It's a lower bound on the evidence, that is, it's a lower bound on the
   probability of your data occurring given your model.
 * Maximizing the ELBO is equivalent to minimizing the KL divergence.
 * The first two terms try to maximize the MAP estimate (likelihood + prior).
-* The last term tries to ensure :math:`Q` is diffuse (`maximize information entropy <link://slugmaximum-entropy-distributions>`__).
+* The last term tries to ensure :math:`Q` is diffuse (`maximize information entropy <link://slug/maximum-entropy-distributions>`__).
 
 There's a pretty good presentation on this from NIPS 2016 by Blei et. al which
 I've linked below if you want more details.  You can also check out my previous
-post on `variational inference <link://variational-bayes-and-the-mean-field-approximation>`__,
+post on `variational inference <link://slug/variational-bayes-and-the-mean-field-approximation>`__,
 if you want some more nitty-gritty details of how to derive everything
 (although I don't put it in ELBO terms).
 
@@ -194,7 +195,7 @@ After our VAE has been fully trained, it's easy to see how we can just use the
 1. Transform our observed data (:math:`X`) into the latent space defined by the
    :math:`Z` variables using *all* our data points (labelled and unlabelled).
 2. Solve a standard supervised learning problem on the *labeled* data using 
-   :math:`(Y, Z)` pairs (where :math:`Y` is our label).
+   :math:`(Z, Y)` pairs (where :math:`Y` is our label).
 
 Intuitively, the latent space defined by :math:`z` should capture some useful
 information about our data such that it's easily separable in our supervised
@@ -220,17 +221,18 @@ take a look at the generative model (i.e. the "decoder"):
 
 where:
 
-* :math:`{\bf x}` is a vector of normally distributed observed variables
-* :math:`f({\bf x}; y, {\bf z}, \theta)` is a suitable likelihood function such
-  as a Gaussian or Bernoulli.  We use a deep net to approximate it based on
-  inputs :math:`{\bf z}, y` with network weights defined by :math:`\theta`.
+* :math:`{\bf x}` is a vector of our observed variables
+* :math:`f({\bf x}; y, {\bf z}, \theta)` is a suitable likelihood function to
+  model our output such as a Gaussian or Bernoulli.  We use a deep net to
+  approximate it based on inputs :math:`y, {\bf z}` with network weights
+  defined by :math:`\theta`.
 * :math:`{\bf z}` is a vector latent variables (same as vanilla VAE)
-* :math:`y` is one-hot encoded categorical variable representing our class
+* :math:`y` is a one-hot encoded categorical variable representing our class
   labels, whose relative probabilities are parameterized by :math:`{\bf \pi}`.
 * :math:`\text{SimDir}` is `Symmetric Dirichlet <https://en.wikipedia.org/wiki/Dirichlet_distribution#Special_cases>`__ distribution with hyper-parameter :math:`\alpha` (a conjugate prior for categorical/multinomial variables)
 
 How do we do use this for semi-supervised learning you ask?  The basic gist of
-it is, we will define a approximate posterior function 
+it is: we will define a approximate posterior function 
 :math:`q_\phi(y|{\bf x})` using a deep net that is basically a classifier.
 However the genius is that we can train this classifier for both labelled *and*
 unlabelled data by just training this extended VAE.  Figure 2 shows a
@@ -251,29 +253,26 @@ variational objective.
 |h3| Variational Objective with Unlabelled Data |h3e|
 
 For any variational inference problem, we need to start with our approximate
-posterior.  In this case, we'll treat :math:`{\bf z}, y` as the unknown
+posterior.  In this case, we'll treat :math:`y, {\bf z}` as the unknown
 latent variables, and perform variational inference (i.e. define approximate
 posteriors) over them.  Notice that we excluded :math:`\pi` because we don't
 really care what its posterior is in this case.
 
-We'll assume the approximate posterior :math:`q_{\phi}({\bf z}, y|{\bf x})` has
+We'll assume the approximate posterior :math:`q_{\phi}(y, {\bf z}|{\bf x})` has
 a fully factorized form as such:
 
 .. math::
 
-    q_{\phi}({\bf z}, y|{\bf x}) &= q_{\phi}({\bf z}|{\bf x})q_{\phi}(y|{\bf x}) \\
+    q_{\phi}(y, {\bf z}|{\bf x}) &= q_{\phi}({\bf z}|{\bf x})q_{\phi}(y|{\bf x}) \\
+    q_{\phi}(y|{\bf x}) &= \text{Cat}(y|\pi_{\phi}({\bf x})) \\
     q_{\phi}({\bf z}|{\bf x}) &= 
         \mathcal{N}({\bf z}| {\bf \mu}_{\phi}({\bf x}),
                              diag({\bf \sigma}^2_{\phi}({\bf x}))) \\
-    q_{\phi}(y|{\bf x}) &= \text{Cat}(y|\pi_{\phi}({\bf x})) \\
     \tag{5}
 
 where 
 :math:`{\bf \mu}_{\phi}({\bf x}), {\bf \sigma}^2_{\phi}({\bf x}), \pi_{\phi}({\bf X}`)
-all define neural networks parameterized by :math:`\phi` that we will learn
-(in the actual implementation, 
-:math:`{\bf \mu}_{\phi}({\bf x}), {\bf \sigma}^2_{\phi}({\bf x})` and 
-:math:`\pi_{\phi}({\bf X})` are actually different networks).
+are all defined by neural networks parameterized by :math:`\phi` that we will learn.
 Here, :math:`\pi_{\phi}({\bf X})` should not be confused with our actual
 parameter :math:`{\bf \pi}` above, the former is an estimate coming out of our
 network, the latter is our prior distribution as a symmetric Dirichlet.
@@ -307,7 +306,8 @@ data point:
     &= \sum_y q_\phi(y|{\bf x})(-\mathcal{L}({\bf x}, y)) 
         + q_\phi(y|{\bf x}) \log q_\phi(y|{\bf x}) \\
     &= \sum_y q_\phi(y|{\bf x})(-\mathcal{L}({\bf x}, y)) 
-        + \mathcal{H}(q_\phi(y|{\bf x})) \tag{6}
+        + \mathcal{H}(q_\phi(y|{\bf x})) \\
+          \tag{6}
 
 Going through line by line, we factor our :math:`q_\phi` function
 into the separate :math:`y` and :math:`{\bf z}` parts for both the expectation
@@ -316,10 +316,10 @@ constant because :math:`p(y) = p(y|{\bf \pi})p(\pi)`, a
 `Dirichlet-multinomial <https://en.wikipedia.org/wiki/Dirichlet-multinomial_distribution#Specification>`__
 distribution, and simplifies to a constant (alternatively, our model's assumption is that :math:`y`'s are equally likely to happen).
 
-Next, we group a bunch of terms together, noticing that some form a KL
-distribution between :math:`q_{\phi}({\bf z}|{\bf x})` and
-:math:`p_{\theta}({\bf z})`, and call the group 
-:math:`\mathcal{L}({\bf x}, y)`.  This latter term is essentially the same
+Next, we notice that some terms a KL distribution between :math:`q_{\phi}({\bf
+z}|{\bf x})` and :math:`p_{\theta}({\bf z})`. Then, we group a few terms
+together and name it :math:`\mathcal{L}({\bf x}, y)`.  This
+latter term is essentially the same
 variational objective we used for a vanilla variational autoencoder (sans the 
 reference to :math:`y`).  Finally, we explicitly write out the expectation
 with respect to :math:`y`.  I won't write out all the details for how
@@ -339,20 +339,18 @@ So here's where it gets a bit trickier because this part was glossed over in
 the paper.  In particular, when training with labelled data, you want to make
 sure you train both the :math:`y` *and* the :math:`{\bf z}` networks at the
 same time.  It's actually easy to leave out the :math:`y` network since you
-the observations for :math:`y` are not needed to generate :math:`{\bf x}` on the 
-output, essentially you can just use :math:`\mathcal{L}(x,y)` as your loss
-function (it's very similar to a vanilla VAE except with extra input variables
-defined by :math:`y`).
+have the observations for :math:`y`, allowing you to ignore the classifier
+network.
 
 Now of course the *whole* point of semi-supervised learning is to learn a
 mapping using labelled data from :math:`{\bf x}` to :math:`y` so it's pretty
-silly not to train that part of your VAE (i.e. the classifier part).  So
-Kingma et al. add an extra loss term initially describing it as a fix to this
-problem.  Then, they add an innocent throw-away line that this actually can be
-derived by performing variational inference over :math:`\pi`.  Of course, it's
-actually true (I think) but it's not that straightforward to derive!  Well, I
-worked out the details, so here's my presentation of deriving the variational
-objective with labelled data.
+silly not to train that part of your VAE.  So Kingma et al. add an extra loss
+term initially describing it as a fix to this problem.  Then, they add an
+innocent throw-away line that this actually can be derived by performing
+variational inference over :math:`\pi`.  Of course, it's actually true (I
+think) but it's not that straightforward to derive!  Well, I worked out the
+details, so here's my presentation of deriving the variational objective with
+labelled data.
 
 -----
 
@@ -366,7 +364,7 @@ factorized posterior dependent *only* on :math:`{\bf x}`.
     q({\bf z}, {\bf \pi}) &= q({\bf z}, {\bf \pi}|{\bf x}) \\
               &= q({\bf z}|X) * q({\bf \pi}|{\bf x}) \\
     q({\bf z}|{\bf x})  &= N({\bf \mu}_{\phi}({\bf x}), {\bf \sigma}^2_{\phi}({\bf x})) \\
-    q({\bf \pi}|{\bf x})  &= SymDir(\alpha + {\bf \pi}_{\phi}({\bf x})) 
+    q({\bf \pi}|{\bf x})  &= Dir(\alpha_q{\bf \pi}_{\phi}({\bf x})) 
     \tag{7}
     
 Remember we can define our approximate posteriors however we want, so we
@@ -374,13 +372,6 @@ explicitly choose to have :math:`{\bf \pi}` to depend *only* on :math:`{\bf x}`
 and *not* on our observed :math:`y`.  Why you ask?  It's because we want to make
 sure our :math:`\phi` parameters of our classifier are trained when we have
 labelled data.
-
-The last line of defining :math:`q({\bf \pi}|{\bf x})` as as symmetric Dirichlet
-comes from the fact that the 
-`Dirichlet is the conjugate prior <https://en.wikipedia.org/wiki/Dirichlet_distribution#Conjugate_to_categorical.2Fmultinomial>`__ 
-of a multinomial distribution.  So we treat :math:`{\bf \pi}_{\phi}({\bf x})`
-as a single "observed trial" of a multinomial distribution, which leads to 
-the distribution you see above.
 
 As before, we start with the ELBO to determine our variational objective for a
 single data point :math:`({\bf x},y)`:
@@ -415,7 +406,7 @@ strongly you want to train the discriminative classified (:math:`q_\phi(y|{\bf
 x})`).  In the paper, they set it to :math:`\alpha=0.1N`
 
 
-Going line by line, we off with the ELBO, expanding all the priors.  The one
+Going line by line, we start off with the ELBO, expanding all the priors.  The one
 trick we do is instead of expanding the joint distribution of 
 :math:`y,{\bf \pi}` conditioned on :math:`\pi` 
 (i.e.  :math:`p_{\theta}(y, {\bf \pi}) = p_{\theta}(y|{\bf \pi})p_{\theta}({\bf \pi})`),
@@ -461,9 +452,12 @@ implementation notes below.
 
 |h2| Implementation Notes |h2e|
 
-The notebooks I used are at TODO
-I didn't add as many comments as some of my prevous notebooks but I think the
-code is relatively clean and straight forward.
+The notebooks I used are `here
+<https://github.com/bjlkeng/sandbox/tree/master/notebooks/vae-semi_supervised_learning>`__
+on Github.  I made one notebook for each experiment, so it should be pretty
+easy for you to look around.  I didn't add as many comments as some of my
+previous notebooks but I think the code is relatively clean and straightforward
+so I don't think you'll have much trouble understanding it.
 
 |h3| Variational Autoencoder Implementations (M1 and M2) |h3e|
 
@@ -471,10 +465,10 @@ The architectures I used for the VAEs were as follows:
 
 * For :math:`q(y|{\bf x})`, I used the `CNN example <https://github.com/fchollet/keras/blob/master/examples/cifar10_cnn.py>`__ from Keras,
   which has 3 conv layers, 2 max pool layers, a softmax layer, with dropout and ReLU activation.
-* For :math:`q({\bf z}|{bf x})`, I used 3 conv layers, and 2 fully connected
+* For :math:`q({\bf z}|{\bf x})`, I used 3 conv layers, and 2 fully connected
   layers with batch normalization, dropout and ReLU activation.
 * For :math:`p({\bf x}|{\bf z})` and :math:`p({\bf x}|y, {\bf z})`, I used a
-  fully connect layer, followed by 4 transposed conv layers (the first 3 with
+  fully connected layer, followed by 4 transposed conv layers (the first 3 with
   ReLU activiation the last with sigmoid for the output).
 
 The rest of the details should be pretty straight forward if you look at the
@@ -489,11 +483,12 @@ a workaround: train two networks (with shared layers)!
 So basically, I have one network for labelled data and one for unlabelled data.
 They both share all the same components (:math:`q(y|{\bf x}), q(z|{\bf x}), p({\bf x}|y, z)`)
 but differ in their input/output as well as loss functions.
-The labelled data has input :math:`({\bf x}, y)` and output `(y', x')`
-corresponding to the predictions from the posterior and decoder respectively.
+The labelled data has input :math:`({\bf x}, y)` and output :math:`(y', {\bf x'})`.
+:math:`y'` corresponds to the predictions from the posterior, while
+:math:`{\bf x'}` corresponds to the decoder output.
 The loss function is Equation 8 with :math:`\alpha=0.1N` (not the one I derived
 in Appendix A).  For the unlabelled case, the input is :math:`{\bf x}` and the output
-is the predicted :math:`{\bf x}`.
+is the predicted :math:`{\bf x'}`.
 
 For the training, I used the `train_on_batch()` API to train the first network 
 on a random batch of labelled data, followed by the second on unlabelled data.
@@ -507,7 +502,7 @@ so I could get a nice progress bar.  The latter only works with the regular
 |h3| Comparison Implementations |h3e|
 
 In the results below I compared a semi-supervised VAE with several other ways
-of dealing with VAE:
+of dealing with semi-supervised learning problems:
 
 * `PCA + SVM`: Here I just ran principal component analysis on the entire image
   set, and then trained a SVM using a PCA-transformed representation on
@@ -522,9 +517,9 @@ of dealing with VAE:
 
 |h2| Semi-supervised Results |h2e|
 
-The datasets I used were MNIST and CIFAR10 with stratified sampling to reduce
-the labelled data.  The test sets are the ones included with the data.  Here
-are the results for MNIST:
+The datasets I used were MNIST and CIFAR10 with stratified sampling on the
+training data to create the semi-supervised dataset.  The test sets are the
+ones included with the data.  Here are the results for MNIST:
 
 .. csv-table:: Table 1: MNIST Results
    :header: "Model", "N=100", "N=500", "N=1000", "N=2000", "N=5000"
@@ -556,10 +551,10 @@ data it surely is not learning to generalize.
 Again I only train M2 on :math:`N=1000`.  The CIFAR10 results show another
 story.  Clearly the pre-trained Inception network is doing the best.  It's
 pre-trained on Imagenet which is very similar to CIFAR10.  You have to get to
-relatively large sample sizes before even the CNN starts approaching the
+relatively large sample sizes before even the CNN starts approaching the same
 accuracy.  
 
-The M1/M2 results are quite poor, not even beating out PCA (at least for M1)!
+The M1/M2 results are quite poor, not even beating out PCA in most cases!
 My reasoning here is that the CIFAR10 dataset is too complex for the VAE model.
 That is, when I look at the images generated from it, it's pretty hard for me
 to figure out what the label should be.  Take a look at some of the randomly generated
@@ -576,16 +571,17 @@ Other people have had similar `problems <https://github.com/dojoteef/dvae>`__.
 I suspect the :math:`{\bf z}` Gaussian latent variables are not powerful enough
 to encode the complexity of the CIFAR10 dataset.  I've read somewhere that the
 unimodal nature of the latent variables is thought to be quite limiting, and
-here I guess we see that case.  I'm pretty sure more recent research has tried
-to tackle this problem, look out for a post on that in the future!
+here I guess we see that is the case.  I'm pretty sure more recent research has
+tried to tackle this problem so I'm excited to explore this phenomenon more
+later.
 
 |h2| Conclusion |h2e|
 
 As I've been writing about for the past few posts, I'm a huge fan of scalable
 probabilistic models using deep learning.  I think it's both elegant and
 intuitive because of the probabilistic formulation.  Unfortunately, VAEs using
-Gaussians at the latent variable do have limitations, and obviously they are
-not quite state of the art in generative models (i.e. GANs seem to be the top
+Gaussians as the latent variable do have limitations, and obviously they are
+not quite the state-of-the-art in generative models (i.e. GANs seem to be the top
 dog).  In any case, there is still a lot more recent research in this area that
 I'm going to follow up on and hopefully I'll have something to post about soon.
 Thanks for reading!
@@ -615,7 +611,7 @@ Notice that the two distributions in question are both
 
 where :math:`\alpha_p, \alpha_q` are scalar constants, and :math:`{\bf c}_y` is
 a vector with 0's and a single 1 representing the categorical observation.
-The former distribution is just the conjugate prior of a single
+The latter distribution is just the conjugate prior of a single
 observation of a categorical variable :math:`y`, whereas the former
 is basically just something we picked out of convenience (remember it's the
 posterior approximation that we get to choose).
