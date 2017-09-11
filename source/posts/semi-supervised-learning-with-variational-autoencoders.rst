@@ -1,6 +1,6 @@
 .. title: Semi-supervised Learning with Variational Autoencoders
 .. slug: semi-supervised-learning-with-variational-autoencoders
-.. date: 2017-08-22 08:45:47 UTC-04:00
+.. date: 2017-09-11 08:40:47 UTC-04:00
 .. tags: variational calculus, autoencoders, Kullback-Leibler, generative models, semi-supervised learning, inception, PCA, CNN, CIFAR10, mathjax
 .. category: 
 .. link: 
