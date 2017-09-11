@@ -100,7 +100,7 @@ densities):
 
 Our goal is to find the posterior, :math:`P(\theta|X)`, that tells us the
 distribution of the :math:`\theta` parameters, which sometimes is the end
-goal (e.g. the cluster centers and mixture weights for a gaussian mixture models),
+goal (e.g. the cluster centers and mixture weights for a Gaussian mixture models),
 or we might just want the parameters so we can use :math:`P(X|\theta)` to generate
 some new data points (e.g. use variational autoencoders to generate a new image).
 Unfortunately, this problem is intractable (mostly the denominator) for all
@@ -194,7 +194,7 @@ After our VAE has been fully trained, it's easy to see how we can just use the
 
 1. Transform our observed data (:math:`X`) into the latent space defined by the
    :math:`Z` variables using *all* our data points (labelled and unlabelled).
-2. Solve a standard supervised learning problem on the *labeled* data using 
+2. Solve a standard supervised learning problem on the *labelled* data using 
    :math:`(Z, Y)` pairs (where :math:`Y` is our label).
 
 Intuitively, the latent space defined by :math:`z` should capture some useful
@@ -469,7 +469,7 @@ The architectures I used for the VAEs were as follows:
   layers with batch normalization, dropout and ReLU activation.
 * For :math:`p({\bf x}|{\bf z})` and :math:`p({\bf x}|y, {\bf z})`, I used a
   fully connected layer, followed by 4 transposed conv layers (the first 3 with
-  ReLU activiation the last with sigmoid for the output).
+  ReLU activation the last with sigmoid for the output).
 
 The rest of the details should be pretty straight forward if you look at the
 notebook.
