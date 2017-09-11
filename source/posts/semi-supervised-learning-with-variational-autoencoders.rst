@@ -610,7 +610,7 @@ Notice that the two distributions in question are both
     \tag{A.1}
 
 where :math:`\alpha_p, \alpha_q` are scalar constants, and :math:`{\bf c}_y` is
-a vector with 0's and a single 1 representing the categorical observation.
+a vector with 0's and a single 1 representing the categorical observation of :math:`y`.
 The latter distribution is just the conjugate prior of a single
 observation of a categorical variable :math:`y`, whereas the former
 is basically just something we picked out of convenience (remember it's the
@@ -666,36 +666,36 @@ progressively simplify and approximate Equation A.3:
                (\psi(\alpha_q\pi_{\phi,k}) - \psi(\alpha_q)) \\
     &\leq K_3 
         + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - \alpha_p - {\bf c}_{y,k})
-               (\psi(\alpha_q\pi_{\phi,k}) - \psi(\alpha_q)) \\
+               (\psi(\alpha_q\pi_{\phi,k}({\bf x})) - \psi(\alpha_q)) \\
     &\approx K_3 
         + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - {\bf c}_{y,k})
-               (\psi(\alpha_q\pi_{\phi,k}) - \psi(\alpha_q)) \\
+               (\psi(\alpha_q\pi_{\phi,k}({\bf x})) - \psi(\alpha_q)) \\
     &= K_4 
         + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - {\bf c}_{y,k})
-               \psi(\alpha_q\pi_{\phi,k}) \\
+               \psi(\alpha_q\pi_{\phi,k}({\bf x})) \\
     &\approx K_4 
         + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - {\bf c}_{y,k})
-               \log(\alpha_q\pi_{\phi,k}) \\
+               \log(\alpha_q\pi_{\phi,k}({\bf x})) \\
     &\leq K_5 
         + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - {\bf c}_{y,k})
-               \log(\pi_{\phi,k}) \\
+               \log(\pi_{\phi,k}({\bf x})) \\
     &\leq K_5 
-        + \alpha_q \sum_{k=1}^K \pi_{\phi,k}({\bf x})\log(\pi_{\phi,k})
-        - \sum_{k=1}^K {\bf c}_{y,k} \log(\pi_{\phi,k}) \\
+        + \alpha_q \sum_{k=1}^K \pi_{\phi,k}({\bf x})\log(\pi_{\phi,k}({\bf x}))
+        - \sum_{k=1}^K {\bf c}_{y,k} \log(\pi_{\phi,k}({\bf x})) \\
     &= K_5 - \alpha_q H(q)
-        - \sum_{k=1}^K  \log(\pi_{\phi,k}^{{\bf c}_{y,k}}) \\
+        - \sum_{k=1}^K  \log(\pi_{\phi,k}({\bf x})^{{\bf c}_{y,k}}) \\
     &= K_5 
         - \alpha_q H(q) - \log(q(y|{\bf x})) \\
     &\leq K_5 - \log(q(y|{\bf x})) \\
     \tag{A.4}
 
 This is quite a mouthful to explain since I'm just basically waving my hand
-to get to the final number.  Let's try this: first, we drop the Gamma function
+to get to the final expression.  First, we drop the Gamma function
 in the second term and upper bound it by a new constant :math:`K_3` because our
-:math:`\alpha_q` is large, so the inside gamma function is always positive.
+:math:`\alpha_q` is large, its the gamma function is always positive.
 Next, we drop :math:`\alpha_p` since it's small (let's just make it arbitrarily
 small).  We then drop :math:`\psi(\alpha_q)`, a constant, because when we
-expand it out we get a constant (recall :math:`\sum_{k=1}^K \pi_{\phi, k} = 1`).
+expand it out we get a constant (recall :math:`\sum_{k=1}^K \pi_{\phi, k}({\bf x}) = 1`).
 
 Now we're getting somewhere!  Since :math:`\alpha_q` is again large the
 `Digamma function <https://en.wikipedia.org/wiki/Digamma_function>`__ 
@@ -706,7 +706,7 @@ We just rearrange a bit and two non-constant terms involving entropy of
 :math:`\pi({\bf x})`.  We just upper bound the expression by dropping
 the :math:`-H(q)` term since entropy is always positive to get us to
 our final term :math:`-\log(q(y|{\bf x}))` that Kingma put in his paper.
-Although, one thing I couldn't quite get to the additional constant :math:`\alpha`
+Although, one thing I couldn't quite get to is the additional constant :math:`\alpha`
 that is in front of :math:`\log(q(y|{\bf x}))`.
 
 Admittedly, it's not quite precise, but it's the only way I figured out how to
