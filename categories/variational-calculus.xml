@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about variational calculus)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/variational-calculus.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 22 Aug 2017 12:39:32 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>A Variational Autoencoder on the SVHN dataset</title><link>http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;In this post, I'm going to share some notes on implementing a variational
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about variational calculus)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/variational-calculus.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Mon, 11 Sep 2017 12:55:36 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Semi-supervised Learning with Variational Autoencoders</title><link>http://bjlkeng.github.io/posts/semi-supervised-learning-with-variational-autoencoders/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;In this post, I'll be continuing on this variational autoencoder (VAE) line of
+exploration
+(previous posts: &lt;a class="reference external" href="http://bjlkeng.github.io/posts/variational-autoencoders"&gt;here&lt;/a&gt; and
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset"&gt;here&lt;/a&gt;) by
+writing about how to use variational autoencoders to do semi-supervised
+learning.  In particular, I'll be explaining the technique used in
+"Semi-supervised Learning with Deep Generative Models" by Kingma et al.
+I'll be digging into the math (hopefully being more explicit than the paper),
+giving a bit more background on the variational lower bound, as well as
+my usual attempt at giving some more intuition.
+I've also put some notebooks on Github that compare the VAE methods
+with others such as PCA, CNNs, and pre-trained models.  Enjoy!&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/semi-supervised-learning-with-variational-autoencoders/"&gt;Read more…&lt;/a&gt; (22 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoencoders</category><category>CIFAR10</category><category>CNN</category><category>generative models</category><category>inception</category><category>Kullback-Leibler</category><category>mathjax</category><category>PCA</category><category>semi-supervised learning</category><category>variational calculus</category><guid>http://bjlkeng.github.io/posts/semi-supervised-learning-with-variational-autoencoders/</guid><pubDate>Mon, 11 Sep 2017 12:40:47 GMT</pubDate></item><item><title>A Variational Autoencoder on the SVHN dataset</title><link>http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;In this post, I'm going to share some notes on implementing a variational
 autoencoder (VAE) on the
 &lt;a class="reference external" href="http://ufldl.stanford.edu/housenumbers/"&gt;Street View House Numbers&lt;/a&gt;
 (SVHN) dataset.  My last post on
@@ -15,7 +27,7 @@ initially got wrong) and also some of the implementation notes along with a
 notebook that I used to train the VAE.  Please check out my previous post
 on &lt;a class="reference external" href="http://bjlkeng.github.io/posts/variational-autoencoders"&gt;variational autoencoders&lt;/a&gt; to
 get some background.&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;Update 2017-07-09: I actually found a bug in my original code where I was
+&lt;p&gt;&lt;em&gt;Update 2017-08-09: I actually found a bug in my original code where I was
 only using a small subset of the data!  I fixed it up in the notebooks and
 I've added some inline comments below to say what I've changed.  For the most
 part, things have stayed the same but the generated images are a bit blurry

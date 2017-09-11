@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="A post on semi-supervised learning with variational autoencoders.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Semi-supervised Learning with Variational Autoencoders | Bounded Rationality</title>
+<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
+<link rel="canonical" href="http://bjlkeng.github.io/posts/semi-supervised-learning-with-variational-autoencoders/">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="description" itemprop="description" content="A post on semi-supervised learning with variational autoencoders.">
+<meta name="author" content="Brian Keng">
+<link rel="prev" href="../the-hard-thing-about-machine-learning/" title="The Hard Thing about Machine Learning" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="Semi-supervised Learning with Variational Autoencoders">
+<meta property="og:url" content="http://bjlkeng.github.io/posts/semi-supervised-learning-with-variational-autoencoders/">
+<meta property="og:description" content="A post on semi-supervised learning with variational autoencoders.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2017-09-11T08:40:47-04:00">
+<meta property="article:tag" content="autoencoders">
+<meta property="article:tag" content="CIFAR10">
+<meta property="article:tag" content="CNN">
+<meta property="article:tag" content="generative models">
+<meta property="article:tag" content="inception">
+<meta property="article:tag" content="Kullback-Leibler">
+<meta property="article:tag" content="mathjax">
+<meta property="article:tag" content="PCA">
+<meta property="article:tag" content="semi-supervised learning">
+<meta property="article:tag" content="variational calculus">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://bjlkeng.github.io/">
+
+                <span class="h1" id="blog-title">Bounded Rationality</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
+            <ul class="nav navbar-nav">
+<p class="lead">Understanding data, math, and programming to a satisfactory degree.</p>
+<!--
+                
+                <li><a href="/archive.html">Archive</a>
+                <li><a href="/categories/">Tags</a>
+                <li><a href="/rss.xml">RSS feed</a>
+
+                 
+-->
+            </ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+    <a href="index.rst" id="sourcelink">Source</a>
+    </li>
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            <div class="col-lg-9">
+                
+                
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Semi-supervised Learning with Variational Autoencoders</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                    Brian Keng
+            </span></p>
+            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2017-09-11T08:40:47-04:00" itemprop="datePublished" title="2017-09-11 08:40">2017-09-11 08:40</time></a></p>
+            
+        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>In this post, I'll be continuing on this variational autoencoder (VAE) line of
+exploration
+(previous posts: <a class="reference external" href="../variational-autoencoders">here</a> and
+<a class="reference external" href="../a-variational-autoencoder-on-the-svnh-dataset">here</a>) by
+writing about how to use variational autoencoders to do semi-supervised
+learning.  In particular, I'll be explaining the technique used in
+"Semi-supervised Learning with Deep Generative Models" by Kingma et al.
+I'll be digging into the math (hopefully being more explicit than the paper),
+giving a bit more background on the variational lower bound, as well as
+my usual attempt at giving some more intuition.
+I've also put some notebooks on Github that compare the VAE methods
+with others such as PCA, CNNs, and pre-trained models.  Enjoy!</p>
+<!-- TEASER_END -->
+<p><br></p>
+<h4> Semi-supervised Learning </h4>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Semi-supervised_learning">Semi-supervised learning</a>
+is a set of techniques used to make use of unlabelled data in supervised learning
+problems (e.g. classification and regression).  Semi-supervised learning
+falls in between unsupervised and supervised learning because you make use
+of both labelled and unlabelled data points.</p>
+<p>If you think about the plethora of data out there, most of it is unlabelled.
+Rarely do you have something in a nice benchmark format that tells you exactly
+what you need to do.  As an example, there are billions (trillions?) of
+unlabelled images all over the internet but only a tiny fraction actually have
+any sort of label.  So our goals here is to get the best performance with a
+tiny amount of labelled data.</p>
+<p>Humans somehow are very good at this.  Even for those of us who haven't seen
+one, I can probably show you a handful of
+<a class="reference external" href="http://blog.londolozi.com/2012/08/31/the-pantanal-series-walking-with-a-giant-anteater/">ant eater</a>
+images and you can probably classify them pretty accurately.  We're so good at
+this because our brains have learned common features about what we see that
+allow us to quickly categorize things into buckets like ant eaters.  For machines
+it's no different, somehow we want to allow a machine to learn some additional
+(useful) features in an unsupervised way to help the actual task of which we have
+very few examples.</p>
+<p><br></p>
+<h4> Variational Lower Bound </h4>
+<p>In my post on <a class="reference external" href="http://bjlkeng.github.io/posts/variational-bayes-and-the-mean-field-approximation/">variational Bayesian methods</a>,
+I discussed how to derive how to derive the variational lower bound but I just
+want to spend a bit more time on it here to explain it in a different way.  In
+a lot of ML papers, they take for granted the "maximization of the variational
+lower bound", so I just want to give a bit of intuition behind it.</p>
+<p>Let's start off with the high level problem.  Recall, we have some data
+<span class="math">\(X\)</span>, a generative probability model <span class="math">\(P(X|\theta)\)</span> that shows us how
+to randomly sample (e.g. generate) data points that follow the distribution of
+<span class="math">\(X\)</span>, assuming we know the "magic values" of the <span class="math">\(\theta\)</span>
+parameters.  We can see Bayes theorem in Equation 1 (small <span class="math">\(p\)</span> for
+densities):</p>
+<div class="math">
+\begin{align*}
+p(\theta|X) &amp;= \frac{p(X|\theta)p(\theta)}{p(X)} \\
+            &amp;= \frac{p(X|\theta)p(\theta)}{\int_{-\infty}^{\infty} p(X|\theta)p(\theta) d\theta} \\
+\text{posterior}   &amp;= \frac{\text{likelihood}\cdot\text{prior}}{\text{evidence}} \\
+            \tag{1}
+\end{align*}
+</div>
+<p>Our goal is to find the posterior, <span class="math">\(P(\theta|X)\)</span>, that tells us the
+distribution of the <span class="math">\(\theta\)</span> parameters, which sometimes is the end
+goal (e.g. the cluster centers and mixture weights for a Gaussian mixture models),
+or we might just want the parameters so we can use <span class="math">\(P(X|\theta)\)</span> to generate
+some new data points (e.g. use variational autoencoders to generate a new image).
+Unfortunately, this problem is intractable (mostly the denominator) for all
+but the simplest problems, that is, we can't get a nice closed-form solution.</p>
+<p>Our solution?  Approximation! We'll approximate <span class="math">\(P(\theta|X)\)</span> by another
+function <span class="math">\(Q(\theta|X)\)</span> (it's usually conditioned on <span class="math">\(X\)</span> but not
+necessarily).  And solving for <span class="math">\(Q\)</span> is (relatively) fast because we can
+assume a particular shape for <span class="math">\(Q(\theta|X)\)</span> and turn the inference
+problem (i.e. finding <span class="math">\(P(\theta|X)\)</span>) into an optimization problem (i.e.
+finding <span class="math">\(Q\)</span>).  Of course, it
+can't be just a random function, we want it to be as close as possible to
+<span class="math">\(P(\theta|X)\)</span>, which will depend on the structural form of
+<span class="math">\(Q(\theta|X)\)</span> (how much flexibility it has), our technique to find it,
+and our metric of "closeness".</p>
+<p>In terms of "closeness", the standard way of measuring it is to use
+<a class="reference external" href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">KL divergence</a>,
+which we can neatly write down here:</p>
+<div class="math">
+\begin{align*}
+D_{KL}(Q||P) &amp;= \int_{-\infty}^{\infty} q(\theta|X) \log\frac{q(\theta|X)}{p(\theta|X)} d\theta \\
+             &amp;= \int_{-\infty}^{\infty} q(\theta|X) \log\frac{q(\theta|X)}{p(\theta,X)} d\theta +
+                \int_{-\infty}^{\infty} q(\theta|X) \log{p(X)} d\theta \\
+             &amp;= \int_{-\infty}^{\infty} q(\theta|X) \log\frac{q(\theta|X)}{p(\theta,X)} d\theta +
+                \log{p(X)} \\
+             &amp;= E_q\big[\log\frac{q(\theta|X)}{p(\theta,X)}\big] + \log p(X) \\
+            \tag{2}
+\end{align*}
+</div>
+<p>Rearranging, dropping the KL divergence term and putting it in terms of an
+expectation of <span class="math">\(q(\theta)\)</span>, we get what's called the <em>Evidence Lower
+Bound</em> (ELBO) for a single data point <span class="math">\(X\)</span>:</p>
+<div class="math">
+\begin{align*}
+\log{p(X)} &amp;\geq -E_q\big[\log\frac{q(\theta|X)}{p(\theta,X)}\big]  \\
+           &amp;= E_q\big[\log p(\theta,X) - \log q(\theta|X)\big] \\
+           &amp;= E_q\big[\log p(X|\theta) + \log p(\theta) - \log q(\theta|X)\big] \\
+           &amp;= E_q\big[\text{likelihood} + \text{prior} - \text{approx. posterior} \big] \\
+            \tag{3}
+\end{align*}
+</div>
+<p>If you have multiple data points, you can just sum over them because we're
+in <span class="math">\(\log\)</span> space (assuming independence between data points).</p>
+<p>In a lot of papers, you'll see that people will go straight to optimizing the
+ELBO whenever they are talking about variational inference.  And if you look at
+it in isolation, you can gain some intuition of how it works:</p>
+<ul class="simple">
+<li>It's a lower bound on the evidence, that is, it's a lower bound on the
+probability of your data occurring given your model.</li>
+<li>Maximizing the ELBO is equivalent to minimizing the KL divergence.</li>
+<li>The first two terms try to maximize the MAP estimate (likelihood + prior).</li>
+<li>The last term tries to ensure <span class="math">\(Q\)</span> is diffuse (<a class="reference external" href="../maximum-entropy-distributions">maximize information entropy</a>).</li>
+</ul>
+<p>There's a pretty good presentation on this from NIPS 2016 by Blei et al. which
+I've linked below if you want more details.  You can also check out my previous
+post on <a class="reference external" href="../variational-bayes-and-the-mean-field-approximation">variational inference</a>,
+if you want some more nitty-gritty details of how to derive everything
+(although I don't put it in ELBO terms).</p>
+<p><br></p>
+<h4> A Vanilla VAE for Semi-Supervised Learning (M1 Model) </h4>
+<p>I won't go over all the details of variational autoencoders again, you
+can check out my previous post for that
+(<a class="reference external" href="../variational-autoencoders">variational autoencoders</a>).
+The high level idea is pretty easy to understand though.  A variational
+autoencoder defines a generative model for your data which basically says take
+an isotropic standard normal distribution (<span class="math">\(Z\)</span>), run it through a deep
+net (defined by <span class="math">\(g\)</span>) to produce the observed data (<span class="math">\(X\)</span>).  The hard
+part is figuring out how to train it.</p>
+<p>Using the autoencoder analogy, the generative model is the "decoder" since
+you're starting from a latent state and translating it into the observed data.  A
+VAE also has an "encoder" part that is used to help train the decoder.  It goes
+from observed values to a latent state (<span class="math">\(X\)</span> to <span class="math">\(z\)</span>).  A keen
+observer will notice that this is actually our variational approximation of the
+posterior (<span class="math">\(q(z|X)\)</span>), which coincidentally is also a neural network (defined
+by <span class="math">\(g_{z|X}\)</span>).  This is visualized in Figure 1.</p>
+<div class="figure align-center">
+<img alt="Vanilla Variational Autoencoder" src="../../images/vanilla_vae.png" style="width: 550px;"><p class="caption">Figure 1: Vanilla Variational Autoencoder</p>
+</div>
+<p>After our VAE has been fully trained, it's easy to see how we can just use the
+"encoder" to directly help with semi-supervised learning:</p>
+<ol class="arabic simple">
+<li>Train a VAE using <em>all</em> our data points (labelled and unlabelled), and
+transform our observed data (<span class="math">\(X\)</span>) into the latent space defined by the
+<span class="math">\(Z\)</span> variables.</li>
+<li>Solve a standard supervised learning problem on the <em>labelled</em> data using
+<span class="math">\((Z, Y)\)</span> pairs (where <span class="math">\(Y\)</span> is our label).</li>
+</ol>
+<p>Intuitively, the latent space defined by <span class="math">\(z\)</span> should capture some useful
+information about our data such that it's easily separable in our supervised
+learning problem.  This technique is defined as M1 model in the Kingma paper.
+As you may have noticed though, step 1 doesn't directly involve any of the
+<span class="math">\(y\)</span> labels; the steps are disjoint.  Kingma also introduces another
+model "M2" that attempts to solve this problem.</p>
+<p><br></p>
+<h4> Extending the VAE for Semi-Supervised Learning (M2 Model) </h4>
+<p>In the M1 model, we basically ignored our labelled data in our VAE.
+The M2 model (from the Kingma paper) explicitly takes it into account.  Let's
+take a look at the generative model (i.e. the "decoder"):</p>
+<div class="math">
+\begin{align*}
+p({\bf x}|y,{\bf z}) = f({\bf x}; y, {\bf z}, \theta) \\
+p({\bf z}) = \mathcal{N}({\bf z}|0, I) \\
+p(y|{\bf \pi}) = \text{Cat}(y|{\bf {\bf \pi}}) \\
+p({\bf \pi}) = \text{SymDir}(\alpha) \\
+\tag{4}
+\end{align*}
+</div>
+<p>where:</p>
+<ul class="simple">
+<li>
+<span class="math">\({\bf x}\)</span> is a vector of our observed variables</li>
+<li>
+<span class="math">\(f({\bf x}; y, {\bf z}, \theta)\)</span> is a suitable likelihood function to
+model our output such as a Gaussian or Bernoulli.  We use a deep net to
+approximate it based on inputs <span class="math">\(y, {\bf z}\)</span> with network weights
+defined by <span class="math">\(\theta\)</span>.</li>
+<li>
+<span class="math">\({\bf z}\)</span> is a vector latent variables (same as vanilla VAE)</li>
+<li>
+<span class="math">\(y\)</span> is a one-hot encoded categorical variable representing our class
+labels, whose relative probabilities are parameterized by <span class="math">\({\bf \pi}\)</span>.</li>
+<li>
+<span class="math">\(\text{SimDir}\)</span> is <a class="reference external" href="https://en.wikipedia.org/wiki/Dirichlet_distribution#Special_cases">Symmetric Dirichlet</a> distribution with hyper-parameter <span class="math">\(\alpha\)</span> (a conjugate prior for categorical/multinomial variables)</li>
+</ul>
+<p>How do we do use this for semi-supervised learning you ask?  The basic gist of
+it is: we will define a approximate posterior function
+<span class="math">\(q_\phi(y|{\bf x})\)</span> using a deep net that is basically a classifier.
+However the genius is that we can train this classifier for both labelled <em>and</em>
+unlabelled data by just training this extended VAE.  Figure 2 shows a
+visualization of the network.</p>
+<div class="figure align-center">
+<img alt="M2 Variational Autoencoder for Semi-Supervised Learning" src="../../images/m2_vae.png" style="width: 550px;"><p class="caption">Figure 2: M2 Variational Autoencoder for Semi-Supervised Learning</p>
+</div>
+<p>Now the interesting part is that we have two cases: one where we observe the
+<span class="math">\(y\)</span> labels and one where we don't.  We have to deal with them differently
+when constructing the approximate posterior <span class="math">\(q\)</span> as well as in the
+variational objective.</p>
+<p></p>
+<h5> Variational Objective with Unlabelled Data </h5>
+<p>For any variational inference problem, we need to start with our approximate
+posterior.  In this case, we'll treat <span class="math">\(y, {\bf z}\)</span> as the unknown
+latent variables, and perform variational inference (i.e. define approximate
+posteriors) over them.  Notice that we excluded <span class="math">\(\pi\)</span> because we don't
+really care what its posterior is in this case.</p>
+<p>We'll assume the approximate posterior <span class="math">\(q_{\phi}(y, {\bf z}|{\bf x})\)</span> has
+a fully factorized form as such:</p>
+<div class="math">
+\begin{align*}
+q_{\phi}(y, {\bf z}|{\bf x}) &amp;= q_{\phi}({\bf z}|{\bf x})q_{\phi}(y|{\bf x}) \\
+q_{\phi}(y|{\bf x}) &amp;= \text{Cat}(y|\pi_{\phi}({\bf x})) \\
+q_{\phi}({\bf z}|{\bf x}) &amp;=
+    \mathcal{N}({\bf z}| {\bf \mu}_{\phi}({\bf x}),
+                         diag({\bf \sigma}^2_{\phi}({\bf x}))) \\
+\tag{5}
+\end{align*}
+</div>
+<p>where
+<span class="math">\({\bf \mu}_{\phi}({\bf x}), {\bf \sigma}^2_{\phi}({\bf x}), \pi_{\phi}({\bf X}\)</span>)
+are all defined by neural networks parameterized by <span class="math">\(\phi\)</span> that we will learn.
+Here, <span class="math">\(\pi_{\phi}({\bf X})\)</span> should not be confused with our actual
+parameter <span class="math">\({\bf \pi}\)</span> above, the former is a point-estimate coming out of
+our network, the latter is a random variable as a symmetric Dirichlet.</p>
+<p>From here, we use the ELBO to determine our variational objective for a single
+data point:</p>
+<div class="math">
+\begin{align*}
+\log p_{\theta}({\bf x}) &amp;\geq E_{q_\phi(y, {\bf z}|{\bf x})}\bigg[
+    \log p_{\theta}({\bf x}|y, {\bf z}) + \log p_{\theta}(y)
+      + \log p_{\theta}({\bf z}) - \log q_\phi(y, {\bf z}|{\bf x})
+\bigg] \\
+&amp;= E_{q_\phi(y|{\bf x})}\bigg[
+   E_{q_\phi({\bf z}|{\bf x})}\big[
+    \log p_{\theta}({\bf x}|y, {\bf z}) + K_1
+    + \log p_{\theta}({\bf z})  - \log q_\phi(y|{\bf x}) - \log q_\phi({\bf z}|{\bf x})
+   \big]
+\bigg] \\
+&amp;= E_{q_\phi(y|{\bf x})}\bigg[
+   E_{q_\phi({\bf z}|{\bf x})}\big[
+    \log p_{\theta}({\bf x}|y, {\bf z})
+   \big]
+    + K_1
+    - KL[q_{\phi}({\bf z}|{\bf x})||p_{\theta}({\bf z})]
+    - \log q_{\phi}(y|{\bf x})
+\bigg] \\
+&amp;= E_{q_\phi(y|{\bf x})}\big[ -\mathcal{L({\bf x}, y)}
+    - \log q_{\phi}(y|{\bf x})
+    \big] \\
+&amp;= \sum_y \big[ q_\phi(y|{\bf x})(-\mathcal{L}({\bf x}, y))
+    - q_\phi(y|{\bf x}) \log q_\phi(y|{\bf x}) \big] \\
+&amp;= \sum_y q_\phi(y|{\bf x})(-\mathcal{L}({\bf x}, y))
+    + \mathcal{H}(q_\phi(y|{\bf x})) \\
+      \tag{6}
+\end{align*}
+</div>
+<p>Going through line by line, we factor our <span class="math">\(q_\phi\)</span> function
+into the separate <span class="math">\(y\)</span> and <span class="math">\({\bf z}\)</span> parts for both the expectation
+and the <span class="math">\(\log\)</span>. Notice we also absorb <span class="math">\(\log p_\theta(y)\)</span> into a
+constant because <span class="math">\(p(y) = p(y|{\bf \pi})p(\pi)\)</span>, a
+<a class="reference external" href="https://en.wikipedia.org/wiki/Dirichlet-multinomial_distribution#Specification">Dirichlet-multinomial</a>
+distribution, and simplifies to a constant (alternatively, our model's assumption is that <span class="math">\(y\)</span>'s are equally likely to happen).</p>
+<p>Next, we notice that some terms form a KL distribution between <span class="math">\(q_{\phi}({\bf
+z}|{\bf x})\)</span> and <span class="math">\(p_{\theta}({\bf z})\)</span>. Then, we group a few terms
+together and name it <span class="math">\(\mathcal{L}({\bf x}, y)\)</span>.  This
+latter term is essentially the same
+variational objective we used for a vanilla variational autoencoder (sans the
+reference to <span class="math">\(y\)</span>).  Finally, we explicitly write out the expectation
+with respect to <span class="math">\(y\)</span>.  I won't write out all the details for how
+to compute it, for that you can look at my previous post for
+<span class="math">\(\mathcal{L}({\bf x}, y)\)</span>, and the implementation notebooks for the rest.
+The loss functions are pretty clearly labelled so it shouldn't be too hard to
+map it back to these equations.</p>
+<p>So Equation 6 defines our objective function for our VAE, which will
+simultaneously train both the <span class="math">\(\theta\)</span> parameters of the "decoder" network
+as well as the approximate posterior "encoder" <span class="math">\(\phi\)</span> parameters relating
+to <span class="math">\(y, {\bf z}\)</span>.</p>
+<p></p>
+<h5> Variational Objective with Labelled Data </h5>
+<p>So here's where it gets a bit trickier because this part was glossed over in
+the paper.  In particular, when training with labelled data, you want to make
+sure you train both the <span class="math">\(y\)</span> <em>and</em> the <span class="math">\({\bf z}\)</span> networks at the
+same time.  It's actually easy to leave out the <span class="math">\(y\)</span> network since you
+have the observations for <span class="math">\(y\)</span>, allowing you to ignore the classifier
+network.</p>
+<p>Now of course the <em>whole</em> point of semi-supervised learning is to learn a
+mapping using labelled data from <span class="math">\({\bf x}\)</span> to <span class="math">\(y\)</span> so it's pretty
+silly not to train that part of your VAE using labelled data.  So Kingma et al.
+add an extra loss term initially describing it as a fix to this problem.  Then,
+they add an innocent throw-away line that this actually can be derived by
+performing variational inference over <span class="math">\(\pi\)</span>.  Of course, it's actually
+true (I think) but it's not that straightforward to derive!  Well, I worked out
+the details, so here's my presentation of deriving the variational objective
+with labelled data.</p>
+<hr class="docutils">
+<p>For the case when we have both <span class="math">\((x,y)\)</span> points, we'll treat both <span class="math">\(z\)</span>
+and <span class="math">\({\bf \pi}\)</span> as unknown latent variables and perform variational
+inference for both <span class="math">\(\bf{z}\)</span> and <span class="math">\({\bf \pi}\)</span> using a fully
+factorized posterior dependent <em>only</em> on <span class="math">\({\bf x}\)</span>.</p>
+<div class="math">
+\begin{align*}
+q({\bf z}, {\bf \pi}) &amp;= q({\bf z}, {\bf \pi}|{\bf x}) \\
+          &amp;= q({\bf z}|X) * q({\bf \pi}|{\bf x}) \\
+q({\bf z}|{\bf x})  &amp;= N({\bf \mu}_{\phi}({\bf x}), {\bf \sigma}^2_{\phi}({\bf x})) \\
+q({\bf \pi}|{\bf x})  &amp;= Dir(\alpha_q{\bf \pi}_{\phi}({\bf x}))
+\tag{7}
+\end{align*}
+</div>
+<p>Remember we can define our approximate posteriors however we want, so we
+explicitly choose to have <span class="math">\({\bf \pi}\)</span> to depend <em>only</em> on <span class="math">\({\bf x}\)</span>
+and <em>not</em> on our observed <span class="math">\(y\)</span>.  Why you ask?  It's because we want to make
+sure our <span class="math">\(\phi\)</span> parameters of our classifier are trained when we have
+labelled data.</p>
+<p>As before, we start with the ELBO to determine our variational objective for a
+single data point <span class="math">\(({\bf x},y)\)</span>:</p>
+<div class="math">
+\begin{align*}
+\log p_{\theta}({\bf x}, y) &amp;\geq
+    E_{q_\phi({\bf \pi}, {\bf z}|{\bf x}, y)}\bigg[
+    \log p_{\theta}({\bf x}|y, {\bf z}, {\bf \pi})
+    + \log p_{\theta}({\bf \pi}|y)
+    + \log p_{\theta}(y)
+    + \log p_{\theta}({\bf z})
+    - \log q_\phi({\bf \pi}, {\bf z}|{\bf x}, y)
+\bigg] \\
+&amp;= E_{q_\phi({\bf z}|{\bf x})}\bigg[
+    \log p_{\theta}({\bf x}|y, {\bf z})
+    + \log p_{\theta}(y)
+    + \log p_{\theta}({\bf z})
+    - \log q_\phi({\bf z}|{\bf x})
+\bigg] \\
+&amp;\quad + E_{q_\phi({\bf \pi}|{\bf x})}\bigg[
+    \log p_{\theta}({\bf \pi}|y)
+    - \log q_\phi({\bf \pi}|{\bf x})
+\bigg] \\
+&amp;= -\mathcal{L}({\bf x},y)
+   - KL[q_\phi({\bf \pi}|{\bf x})||p_{\theta}({\bf \pi}|y)] \\
+&amp;\geq -\mathcal{L}({\bf x},y) + \alpha \log q_\phi(y|{\bf x}) + K_2
+\tag{8}
+\end{align*}
+</div>
+<p>where <span class="math">\(\alpha\)</span> is a hyper-parameter that controls the relative weight of how
+strongly you want to train the discriminative classified (<span class="math">\(q_\phi(y|{\bf
+x})\)</span>).  In the paper, they set it to <span class="math">\(\alpha=0.1N\)</span></p>
+<p>Going line by line, we start off with the ELBO, expanding all the priors.  The one
+trick we do is instead of expanding the joint distribution of
+<span class="math">\(y,{\bf \pi}\)</span> conditioned on <span class="math">\(\pi\)</span>
+(i.e.  <span class="math">\(p_{\theta}(y, {\bf \pi}) = p_{\theta}(y|{\bf \pi})p_{\theta}({\bf \pi})\)</span>),
+we instead expand using the posterior: <span class="math">\(p_{\theta}({\bf \pi}|y)\)</span>.
+The posterior in this case is again a
+<a class="reference external" href="https://en.wikipedia.org/wiki/Dirichlet_distribution#Conjugate_to_categorical.2Fmultinomial">Dirichlet distribution</a>
+because it's the conjugate prior of <span class="math">\(y\)</span>'s categorical/multinomial distribution.</p>
+<p>Next, we just rearrange and factor <span class="math">\(q_\phi\)</span>, both in the <span class="math">\(\log\)</span>
+term as well as the expectation.  We notice that the first part is exactly our
+<span class="math">\(\mathcal{L}\)</span> loss function from above and the rest is a KL divergence
+between our <span class="math">\(\pi\)</span> posterior and our approximate posterior.
+The last simplification of the KL divergence is a bit verbose (and hand-wavy)
+so I've put it in Appendix A.</p>
+<p></p>
+<h5> Training the M2 Model </h5>
+<p>Using Equations 6 and 8, we can derive a loss function as such (remember it's
+the negative of the ELBO above):</p>
+<div class="math">
+\begin{align*}
+\mathcal{J} =
+\sum_{{\bf x} \in \mathcal{D}_{unlabelled}} \big[
+    \sum_y q_\phi(y|{\bf x})(\mathcal{L}({\bf x}, y)) - \mathcal{H}(q_\phi(y|{\bf x}))
+\big]
++ \sum_{({\bf x},y) \in \mathcal{D}_{labelled}} \big[
+    \mathcal{L}({\bf x},y) - \alpha \log q_\phi(y|{\bf x})
+\big] \\
+\tag{9}
+\end{align*}
+</div>
+<p>With this loss function, we just train the network as you would expect.
+Simply grab a mini-batch, compute the needed values in the network
+(i.e. <span class="math">\(q(y|{\bf x}), q(z|{\bf x}), p({\bf x}|y, z)\)</span>), compute the loss
+function above using the appropriate summation depending on if you have
+labelled or unlabelled data, and finally just take the gradients to update our
+network parameters <span class="math">\(\theta, \phi\)</span>.  The network is remarkably similar
+to a vanilla VAE with the addition of the posterior on <span class="math">\(y\)</span>, and the
+additional terms to the loss function.  The tricky part is dealing with
+the two types of data (labelled and unlabelled), which I explain in the
+implementation notes below.</p>
+<p><br></p>
+<h4> Implementation Notes </h4>
+<p>The notebooks I used are <a class="reference external" href="https://github.com/bjlkeng/sandbox/tree/master/notebooks/vae-semi_supervised_learning">here</a>
+on Github.  I made one notebook for each experiment, so it should be pretty
+easy for you to look around.  I didn't add as many comments as some of my
+previous notebooks but I think the code is relatively clean and straightforward
+so I don't think you'll have much trouble understanding it.</p>
+<p></p>
+<h5> Variational Autoencoder Implementations (M1 and M2) </h5>
+<p>The architectures I used for the VAEs were as follows:</p>
+<ul class="simple">
+<li>For <span class="math">\(q(y|{\bf x})\)</span>, I used the <a class="reference external" href="https://github.com/fchollet/keras/blob/master/examples/cifar10_cnn.py">CNN example</a> from Keras,
+which has 3 conv layers, 2 max pool layers, a softmax layer, with dropout and ReLU activation.</li>
+<li>For <span class="math">\(q({\bf z}|{\bf x})\)</span>, I used 3 conv layers, and 2 fully connected
+layers with batch normalization, dropout and ReLU activation.</li>
+<li>For <span class="math">\(p({\bf x}|{\bf z})\)</span> and <span class="math">\(p({\bf x}|y, {\bf z})\)</span>, I used a
+fully connected layer, followed by 4 transposed conv layers (the first 3 with
+ReLU activation the last with sigmoid for the output).</li>
+</ul>
+<p>The rest of the details should be pretty straight forward if you look at the
+notebook.</p>
+<p>The one complication that I had was how to implement the training of the M2
+model because you need to treat <span class="math">\(y\)</span> simultaneously as an input and an
+output depending if you have labelled or unlabelled data.  I still wanted to
+use Keras and didn't want to go as low level as TensorFlow, so I came up with
+a workaround: train two networks (with shared layers)!</p>
+<p>So basically, I have one network for labelled data and one for unlabelled data.
+They both share all the same components (<span class="math">\(q(y|{\bf x}), q(z|{\bf x}), p({\bf x}|y, z)\)</span>)
+but differ in their input/output as well as loss functions.
+The labelled data has input <span class="math">\(({\bf x}, y)\)</span> and output <span class="math">\((y', {\bf x'})\)</span>.
+<span class="math">\(y'\)</span> corresponds to the predictions from the posterior, while
+<span class="math">\({\bf x'}\)</span> corresponds to the decoder output.
+The loss function is Equation 8 with <span class="math">\(\alpha=0.1N\)</span> (not the one I derived
+in Appendix A).  For the unlabelled case, the input is <span class="math">\({\bf x}\)</span> and the output
+is the predicted <span class="math">\({\bf x'}\)</span>.</p>
+<p>For the training, I used the <cite>train_on_batch()</cite> API to train the first network
+on a random batch of labelled data, followed by the second on unlabelled data.
+The batches were sized so that the epochs would finish at the same time.
+This is not strictly the same as the algorithm from the paper but I'm guessing
+it's close enough (also much easier to implement because it's in Keras).
+The one cute thing that I did was use vanilla <cite>tqdm</cite> to mimic the <cite>keras_tqdm</cite>
+so I could get a nice progress bar.  The latter only works with the regular
+<cite>fit</cite> methods so it wasn't very useful.</p>
+<p></p>
+<h5> Comparison Implementations </h5>
+<p>In the results below I compared a semi-supervised VAE with several other ways
+of dealing with semi-supervised learning problems:</p>
+<ul class="simple">
+<li>
+<cite>PCA + SVM</cite>: Here I just ran principal component analysis on the entire image
+set, and then trained a SVM using a PCA-transformed representation on
+only the <em>labelled</em> data.</li>
+<li>
+<cite>CNN</cite>: A vanilla CNN using the Keras <a class="reference external" href="https://github.com/fchollet/keras/blob/master/examples/cifar10_cnn.py">CNN example</a>
+trained only on <em>labelled</em> data.</li>
+<li>
+<cite>Inception</cite>: Here I used a pre-trained <a class="reference external" href="https://keras.io/applications/">Inception network</a> available in Keras.
+I pretty much just used the example they had which adds a global average
+pooling layer, a dense layer, followed by a softmax layer.  Trained only on
+the <em>labelled</em> data while freezing all the original pre-trained Inception
+layers.  I didn't do any fine-tuning of the Inception layers.</li>
+</ul>
+<p><br></p>
+<h4> Semi-supervised Results </h4>
+<p>The datasets I used were MNIST and CIFAR10 with stratified sampling on the
+training data to create the semi-supervised dataset.  The test sets are the
+ones included with the data.  Here are the results for MNIST:</p>
+<table border="1" class="colwidths-given docutils">
+<caption>Table 1: MNIST Results</caption>
+<colgroup>
+<col width="23%">
+<col width="15%">
+<col width="15%">
+<col width="15%">
+<col width="15%">
+<col width="15%">
+</colgroup>
+<thead valign="bottom"><tr>
+<th class="head">Model</th>
+<th class="head">N=100</th>
+<th class="head">N=500</th>
+<th class="head">N=1000</th>
+<th class="head">N=2000</th>
+<th class="head">N=5000</th>
+</tr></thead>
+<tbody valign="top">
+<tr>
+<td>PCA + SVM</td>
+<td>0.692</td>
+<td>0.871</td>
+<td>0.891</td>
+<td>0.911</td>
+<td>0.929</td>
+</tr>
+<tr>
+<td>CNN</td>
+<td>0.262</td>
+<td>0.921</td>
+<td>0.934</td>
+<td>0.955</td>
+<td>0.978</td>
+</tr>
+<tr>
+<td>M1</td>
+<td>0.628</td>
+<td>0.885</td>
+<td>0.905</td>
+<td>0.921</td>
+<td>0.933</td>
+</tr>
+<tr>
+<td>M2</td>
+<td><ul class="first last simple"><li>
+</li></ul></td>
+<td><ul class="first last simple"><li>
+</li></ul></td>
+<td>0.975</td>
+<td><ul class="first last simple"><li>
+</li></ul></td>
+<td><ul class="first last simple"><li>
+</li></ul></td>
+</tr>
+</tbody>
+</table>
+<p>The M2 model was only run for <span class="math">\(N=1000\)</span> (mostly because I didn't really
+want to rearrange the code).  From the MNIST results table, we really see the
+the M2 model shine where at a comparable sample size, all the other methods
+have much lower performance.  You need to get to <span class="math">\(N=5000\)</span> before the CNN
+gets in the same range.  Interestingly at <span class="math">\(N=100\)</span> the models that make
+use of the unlabelled data do better than a CNN which has so little training
+data it surely is not learning to generalize.  Next, onto CIFAR 10 results
+shown in Table 2.</p>
+<table border="1" class="colwidths-given docutils">
+<caption>Table 2: CIFAR10 Results</caption>
+<colgroup>
+<col width="23%">
+<col width="15%">
+<col width="15%">
+<col width="15%">
+<col width="15%">
+<col width="15%">
+</colgroup>
+<thead valign="bottom"><tr>
+<th class="head">Model</th>
+<th class="head">N=1000</th>
+<th class="head">N=2000</th>
+<th class="head">N=5000</th>
+<th class="head">N=10000</th>
+<th class="head">N=25000</th>
+</tr></thead>
+<tbody valign="top">
+<tr>
+<td>CNN</td>
+<td>0.433</td>
+<td>0.4844</td>
+<td>0.610</td>
+<td>0.673</td>
+<td>0.767</td>
+</tr>
+<tr>
+<td>Inception</td>
+<td>0.661</td>
+<td>0.684</td>
+<td>0.728</td>
+<td>0.751</td>
+<td>0.773</td>
+</tr>
+<tr>
+<td>PCA + SVM</td>
+<td>0.356</td>
+<td>0.384</td>
+<td>0.420</td>
+<td>0.446</td>
+<td>0.482</td>
+</tr>
+<tr>
+<td>M1</td>
+<td>0.321</td>
+<td>0.362</td>
+<td>0.375</td>
+<td>0.389</td>
+<td>0.409</td>
+</tr>
+<tr>
+<td>M2</td>
+<td>0.420</td>
+<td><ul class="first last simple"><li>
+</li></ul></td>
+<td><ul class="first last simple"><li>
+</li></ul></td>
+<td><ul class="first last simple"><li>
+</li></ul></td>
+<td><ul class="first last simple"><li>
+</li></ul></td>
+</tr>
+</tbody>
+</table>
+<p>Again I only train M2 on <span class="math">\(N=1000\)</span>.  The CIFAR10 results show another
+story.  Clearly the pre-trained Inception network is doing the best.  It's
+pre-trained on Imagenet which is very similar to CIFAR10.  You have to get to
+relatively large sample sizes before even the CNN starts approaching the same
+accuracy.</p>
+<p>The M1/M2 results are quite poor, not even beating out PCA in most cases!
+My reasoning here is that the CIFAR10 dataset is too complex for the VAE model.
+That is, when I look at the images generated from it, it's pretty hard for me
+to figure out what the label should be.  Take a look at some of the randomly generated
+images from my M2 model:</p>
+<div class="figure align-center">
+<img alt="Images generated from M2 VAE model trained on CIFAR data." src="../../images/m2_images.png" style="width: 350px;"><p class="caption">Figure 3: Images generated from M2 VAE model trained on CIFAR data.</p>
+</div>
+<p>Other people have had similar <a class="reference external" href="https://github.com/dojoteef/dvae">problems</a>.
+I suspect the <span class="math">\({\bf z}\)</span> Gaussian latent variables are not powerful enough
+to encode the complexity of the CIFAR10 dataset.  I've read somewhere that the
+unimodal nature of the latent variables is thought to be quite limiting, and
+here I guess we see that is the case.  I'm pretty sure more recent research has
+tried to tackle this problem so I'm excited to explore this phenomenon more
+later.</p>
+<p><br></p>
+<h4> Conclusion </h4>
+<p>As I've been writing about for the past few posts, I'm a huge fan of scalable
+probabilistic models using deep learning.  I think it's both elegant and
+intuitive because of the probabilistic formulation.  Unfortunately, VAEs using
+Gaussians as the latent variable do have limitations, and obviously they are
+not quite the state-of-the-art in generative models (i.e. GANs seem to be the top
+dog).  In any case, there is still a lot more recent research in this area that
+I'm going to follow up on and hopefully I'll have something to post about soon.
+Thanks for reading!</p>
+<p><br></p>
+<h4> Further Reading </h4>
+<ul class="simple">
+<li>Previous Posts: <a class="reference external" href="../variational-autoencoders">Variational Autoencoders</a>, <a class="reference external" href="../a-variational-autoencoder-on-the-svnh-dataset">A Variational Autoencoder on the SVHN dataset</a>, <a class="reference external" href="#">Variational Bayes and The Mean-Field Approximation</a>, <a class="reference external" href="#">Maximum Entropy Distributions</a>
+</li>
+<li>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Semi-supervised_learning">Semi-supervised learning</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Variational_Bayesian_methods">Variational Bayesian methods</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">Kullback-Leibler divergence</a>
+</li>
+<li>"Variational Inference: Foundations and Modern Methods", Blei, Ranganath, Mohamed, <a class="reference external" href="https://media.nips.cc/Conferences/2016/Slides/6199-Slides.pdf">NIPS 2016 Tutorial</a>.</li>
+<li>"Semi-supervised Learning with Deep Generative Models", Kingma, Rezende, Mohamed, Welling, <a class="reference external" href="https://arxiv.org/abs/1406.5298">https://arxiv.org/abs/1406.5298</a>
+</li>
+<li>Github report for "Semi-supervised Learning with Deep Generative Models", <a class="reference external" href="https://github.com/dpkingma/nips14-ssl/">https://github.com/dpkingma/nips14-ssl/</a>
+</li>
+</ul>
+<p><br></p>
+<h4> Appendix A: KL Divergence of
+<span class="math">\(q_\phi({\bf \pi}|{\bf x})||p_{\theta}({\bf \pi}|y)\)</span>
+</h4>
+<p>Notice that the two distributions in question are both
+<a class="reference external" href="https://en.wikipedia.org/wiki/Dirichlet_distribution">Dirichlet distributions</a>:</p>
+<div class="math">
+\begin{align*}
+q_{\phi}({\bf \pi}|{\bf x})  &amp;= Dir(\alpha_q {\bf \pi}_{\phi}({\bf x})) \\
+p_{\theta}({\bf \pi}|y)  &amp;= Dir(\alpha_p + {\bf c}_y) \\
+\tag{A.1}
+\end{align*}
+</div>
+<p>where <span class="math">\(\alpha_p, \alpha_q\)</span> are scalar constants, and <span class="math">\({\bf c}_y\)</span> is
+a vector with 0's and a single 1 representing the categorical observation of <span class="math">\(y\)</span>.
+The latter distribution is just the conjugate prior of a single
+observation of a categorical variable <span class="math">\(y\)</span>, whereas the former
+is basically just something we picked out of convenience (remember it's the
+posterior approximation that we get to choose).</p>
+<p>Let's take a look at the formula for
+<a class="reference external" href="http://bariskurt.com/kullback-leibler-divergence-between-two-dirichlet-and-beta-distributions/">KL divergence between two Dirichlets distributions</a>
+parameterized by vectors <span class="math">\({\bf \alpha}\)</span> and <span class="math">\({\bf \beta}\)</span>:</p>
+<div class="math">
+\begin{align*}
+KL(p||q) &amp;=  \log \Gamma(\alpha_0) - \sum_{k=1}^{K} \log \Gamma(\alpha_k)
+         - \log \Gamma(\beta_0) + \sum_{k=1}^{K} \log \Gamma(\beta_k)
+         + \sum_{k=1}^K (\alpha_k - \beta_k)E_{p(x)}[\log x_k] \\
+&amp;=  \log \Gamma(\alpha_0) - \sum_{k=1}^{K} \log \Gamma(\alpha_k)
+         - \log \Gamma(\beta_0) + \sum_{k=1}^{K} \log \Gamma(\beta_k)
+         + \sum_{k=1}^K (\alpha_k - \beta_k)(\psi(\alpha_k) - \psi(\alpha_0)) \\
+\tag{A.2}
+\end{align*}
+</div>
+<p>where <span class="math">\(\alpha_0=\sum_k \alpha_k\)</span> and <span class="math">\(\beta_0=\sum_k \beta_k\)</span>,
+and <span class="math">\(\psi\)</span> is the <a class="reference external" href="https://en.wikipedia.org/wiki/Digamma_function">Digamma function</a>.</p>
+<p>Substituting Equation A.1 into A.2, we have:</p>
+<div class="math">
+\begin{align*}
+KL[q_\phi({\bf \pi}|{\bf x})||p_{\theta}({\bf \pi}|y)]
+        &amp;= \log \Gamma(\alpha_q)
+        - \sum_{k=1}^{K} \log \Gamma(\alpha_q \pi_{\phi,k}({\bf x})) \\
+        &amp;\quad - \log \Gamma(K\alpha_p + 1)
+            + \sum_{k=1}^{K} \log \Gamma(\alpha_p + c_{y,k}) \\
+        &amp;\quad + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - \alpha_p - {\bf c}_{y,k})
+           (\psi(\alpha_{q,k}\pi_{\phi,k}) - \psi(\alpha_q)) \\
+&amp;= K_2
+    - \sum_{k=1}^{K} \log \Gamma(\alpha_q \pi_{\phi,k}({\bf x}))
+    + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - \alpha_p - {\bf c}_{y,k})
+           (\psi(\alpha_q\pi_{\phi,k}) - \psi(\alpha_q)) \\
+\tag{A.3}
+\end{align*}
+</div>
+<p>Here, most of the Gamma functions are just constants so we can absorb them into a constant.
+Okay, here's where it gets a bit hand wavy (it's the only way I could figure out how to simplify
+the equation to what it had in the paper).
+We're going to pick a big <span class="math">\(\alpha_q\)</span> and a small <span class="math">\(\alpha_p\)</span>.  Both
+are hyper parameters so we can freely do as we wish.  With this assumption, we're going to
+progressively simplify and approximate Equation A.3:</p>
+<div class="math">
+\begin{align*}
+&amp;KL[q_\phi({\bf \pi}|{\bf x})||p_{\theta}({\bf \pi}|y)] \\
+&amp;= K_2
+    - \sum_{k=1}^{K} \log \Gamma(\alpha_q \pi_{\phi,k}({\bf x}))
+    + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - \alpha_p - {\bf c}_{y,k})
+           (\psi(\alpha_q\pi_{\phi,k}) - \psi(\alpha_q)) \\
+&amp;\leq K_3
+    + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - \alpha_p - {\bf c}_{y,k})
+           (\psi(\alpha_q\pi_{\phi,k}({\bf x})) - \psi(\alpha_q)) \\
+&amp;\approx K_3
+    + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - {\bf c}_{y,k})
+           (\psi(\alpha_q\pi_{\phi,k}({\bf x})) - \psi(\alpha_q)) \\
+&amp;= K_4
+    + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - {\bf c}_{y,k})
+           \psi(\alpha_q\pi_{\phi,k}({\bf x})) \\
+&amp;\approx K_4
+    + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - {\bf c}_{y,k})
+           \log(\alpha_q\pi_{\phi,k}({\bf x})) \\
+&amp;\leq K_5
+    + \sum_{k=1}^K (\alpha_q\pi_{\phi,k}({\bf x}) - {\bf c}_{y,k})
+           \log(\pi_{\phi,k}({\bf x})) \\
+&amp;\leq K_5
+    + \alpha_q \sum_{k=1}^K \pi_{\phi,k}({\bf x})\log(\pi_{\phi,k}({\bf x}))
+    - \sum_{k=1}^K {\bf c}_{y,k} \log(\pi_{\phi,k}({\bf x})) \\
+&amp;= K_5 - \alpha_q H(q)
+    - \sum_{k=1}^K  \log(\pi_{\phi,k}({\bf x})^{{\bf c}_{y,k}}) \\
+&amp;= K_5
+    - \alpha_q H(q) - \log(q(y|{\bf x})) \\
+&amp;\leq K_5 - \log(q(y|{\bf x})) \\
+\tag{A.4}
+\end{align*}
+</div>
+<p>This is quite a mouthful to explain since I'm just basically waving my hand
+to get to the final expression.  First, we drop the Gamma function
+in the second term and upper bound it by a new constant <span class="math">\(K_3\)</span> because our
+<span class="math">\(\alpha_q\)</span> is large, its the gamma function is always positive.
+Next, we drop <span class="math">\(\alpha_p\)</span> since it's small (let's just make it arbitrarily
+small).  We then drop <span class="math">\(\psi(\alpha_q)\)</span>, a constant, because when we
+expand it out we get a constant (recall <span class="math">\(\sum_{k=1}^K \pi_{\phi, k}({\bf x}) = 1\)</span>).</p>
+<p>Now we're getting somewhere!  Since <span class="math">\(\alpha_q\)</span> is again large the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Digamma_function">Digamma function</a>
+is upper bounded by <span class="math">\(\log(x)\)</span> when <span class="math">\(x&gt;0.5\)</span>, so we'll just make
+this substitution.  Finally, we get something that looks about right.
+We just rearrange a bit and two non-constant terms involving entropy of
+<span class="math">\(q\)</span> and the probability of a categorical variable with parameter
+<span class="math">\(\pi({\bf x})\)</span>.  We just upper bound the expression by dropping
+the <span class="math">\(-H(q)\)</span> term since entropy is always positive to get us to
+our final term <span class="math">\(-\log(q(y|{\bf x}))\)</span> that Kingma put in his paper.
+Although, one thing I couldn't quite get to is the additional constant <span class="math">\(\alpha\)</span>
+that is in front of <span class="math">\(\log(q(y|{\bf x}))\)</span>.</p>
+<p>Admittedly, it's not quite precise, but it's the only way I figured out how to
+derive his expression without just arbitrarily adding an extra term to the
+loss function (why work out any math when you're going to arbitrarily add
+things to the loss function?).  Please let me know if you have a better way of
+deriving this equation.</p>
+<p><br></p>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/autoencoders/" rel="tag">autoencoders</a></li>
+            <li><a class="tag p-category" href="../../categories/cifar10/" rel="tag">CIFAR10</a></li>
+            <li><a class="tag p-category" href="../../categories/cnn/" rel="tag">CNN</a></li>
+            <li><a class="tag p-category" href="../../categories/generative-models/" rel="tag">generative models</a></li>
+            <li><a class="tag p-category" href="../../categories/inception/" rel="tag">inception</a></li>
+            <li><a class="tag p-category" href="../../categories/kullback-leibler/" rel="tag">Kullback-Leibler</a></li>
+            <li><a class="tag p-category" href="../../categories/pca/" rel="tag">PCA</a></li>
+            <li><a class="tag p-category" href="../../categories/semi-supervised-learning/" rel="tag">semi-supervised learning</a></li>
+            <li><a class="tag p-category" href="../../categories/variational-calculus/" rel="tag">variational calculus</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../the-hard-thing-about-machine-learning/" rel="prev" title="The Hard Thing about Machine Learning">Previous post</a>
+            </li>
+        </ul></nav></aside><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+            MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
+            </script></article>
+</div>
+            <div class="col-md-3 well">
+            <p>
+            I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
+            a former academic, current data scientist and engineer.  This is
+            <a href="../../">the place</a>
+            where I write
+            about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br><p>
+            <a href="../../archive.html">Archive</a>
+            </p>
+            <p>
+            <a href="../../categories/index.html">Tags</a>
+            </p>
+            <p>
+            <a href="../../rss.xml">RSS feed</a>
+            </p>
+
+<!-- Begin MailChimp Signup Form -->
+<hr>
+<link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+    #mc_embed_signup{clear:left; font:13px Helvetica,Arial,sans-serif; }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+       We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="//briankeng.us10.list-manage.com/subscribe/post?u=cedf72ca8daa891e57f4379a0&amp;id=1f1563094f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <b>Signup for Email Blog Posts</b>
+    <div id="mc_embed_signup_scroll">
+<div>
+    <label for="mce-EMAIL"> Email Address </label>
+    <input type="email" value="" name="EMAIL" class="required email form-control input-sm" id="mce-EMAIL">
+</div>
+    <div id="mce-responses" class="clear">
+        <div class="response" id="mce-error-response" style="display:none"></div>
+        <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_cedf72ca8daa891e57f4379a0_1f1563094f" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn btn-default btn-xs"></div>
+    </div>
+</form>
+</div>
+<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
+</div>
+        </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2017         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+        </footer>
+</div>
+</div>
+
+
+            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-15314898-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>

@@ -64,7 +64,35 @@
                 
 
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/the-calculus-of-variations/" class="u-url">The Calculus of Variations</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/variational-bayes-and-the-mean-field-approximation/" class="u-url">Variational Bayes and The Mean-Field Approximation</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/variational-bayes-and-the-mean-field-approximation/" rel="bookmark"><time class="published dt-published" datetime="2017-04-03T08:02:46-05:00" title="2017-04-03 08:02">2017-04-03 08:02</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>This post is going to cover Variational Bayesian methods and, in particular,
+the most common one, the mean-field approximation.  This is a topic that I've
+been trying to understand for a while now but didn't quite have all the background
+that I needed.  After picking up the main ideas from
+<a class="reference external" href="posts/the-calculus-of-variations">variational calculus</a> and
+getting more fluent in manipulating probability statements like
+in my <a class="reference external" href="posts/the-expectation-maximization-algorithm">EM</a> post,
+this variational Bayes stuff seems a lot easier.</p>
+<p>Variational Bayesian methods are a set of techniques to approximate posterior
+distributions in <a class="reference external" href="https://en.wikipedia.org/wiki/Bayesian_inference">Bayesian Inference</a>.
+If this sounds a bit terse, keep reading!  I hope to provide some intuition
+so that the big ideas are easy to understand (which they are), but of course we
+can't do that well unless we have a healthy dose of mathematics.  For some of the
+background concepts, I'll try to refer you to good sources (including my own),
+which I find is the main blocker to understanding this subject (admittedly, the
+math can sometimes be a bit cryptic too).  Enjoy!</p>
+<p class="more"><a href="posts/variational-bayes-and-the-mean-field-approximation/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/the-calculus-of-variations/" class="u-url">The Calculus of Variations</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Brian Keng
@@ -162,25 +190,6 @@ algorithm hopefully with a bit more clarity.  We'll start by going back to the
 basics with latent variable models and the likelihood functions, then moving on
 to showing the math with a simple Gaussian mixture model <a class="footnote-reference" href="posts/the-expectation-maximization-algorithm/#id5" id="id1">[1]</a>.</p>
 <p class="more"><a href="posts/the-expectation-maximization-algorithm/">Read more…</a></p>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/probabilistic-interpretation-of-regularization/" class="u-url">A Probabilistic Interpretation of Regularization</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Brian Keng
-            </span></p>
-            <p class="dateline"><a href="posts/probabilistic-interpretation-of-regularization/" rel="bookmark"><time class="published dt-published" datetime="2016-08-29T08:52:33-04:00" title="2016-08-29 08:52">2016-08-29 08:52</time></a></p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>This post is going to look at a probabilistic (Bayesian) interpretation of
-regularization.  We'll take a look at both L1 and L2 regularization in the
-context of ordinary linear regression.  The discussion will start off
-with a quick introduction to regularization, followed by a back-to-basics
-explanation starting with the maximum likelihood estimate (MLE), then on to the
-maximum a posteriori estimate (MAP), and finally playing around with priors to
-end up with L1 and L2 regularization.</p>
-<p class="more"><a href="posts/probabilistic-interpretation-of-regularization/">Read more…</a></p>
 </div>
     </div>
     </article>
