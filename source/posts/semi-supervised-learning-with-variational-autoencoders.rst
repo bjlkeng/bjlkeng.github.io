@@ -43,8 +43,8 @@ exploration
 writing about how to use variational autoencoders to do semi-supervised
 learning.  In particular, I'll be explaining the technique used in
 "Semi-supervised Learning with Deep Generative Models" by Kingma et al.
-I'll be digging into math (hopefully being more explicit than the paper),
-giving a bit more background on the variational lower bound as well as
+I'll be digging into the math (hopefully being more explicit than the paper),
+giving a bit more background on the variational lower bound, as well as
 my usual attempt at giving some more intuition.
 I've also put some notebooks on Github that compare the VAE methods
 with others such as PCA, CNNs, and pre-trained models.  Enjoy!
@@ -95,7 +95,7 @@ densities):
 
    p(\theta|X) &= \frac{p(X|\theta)p(\theta)}{p(X)} \\
                &= \frac{p(X|\theta)p(\theta)}{\int_{-\infty}^{\infty} p(X|\theta)p(\theta) d\theta} \\
-               &= \frac{\text{likelihood}\cdot\text{prior}}{\text{evidence}} \\
+   \text{posterior}   &= \frac{\text{likelihood}\cdot\text{prior}}{\text{evidence}} \\
                \tag{1}
 
 Our goal is to find the posterior, :math:`P(\theta|X)`, that tells us the
@@ -104,17 +104,18 @@ goal (e.g. the cluster centers and mixture weights for a Gaussian mixture models
 or we might just want the parameters so we can use :math:`P(X|\theta)` to generate
 some new data points (e.g. use variational autoencoders to generate a new image).
 Unfortunately, this problem is intractable (mostly the denominator) for all
-but the simplest problems, that is, we can't solve it nicely using a nice
-analytical solution.  
+but the simplest problems, that is, we can't get a nice closed-form solution.  
 
 Our solution?  Approximation! We'll approximate :math:`P(\theta|X)` by another
 function :math:`Q(\theta|X)` (it's usually conditioned on :math:`X` but not
-necessarily).  And (relatively) fast because we can assume a particular shape
-for :math:`Q(\theta|X)` and turn the inference problem into an optimization
-problem.  Of course, it can't be just a random function, we want it to be as
-close as possible to :math:`P(\theta|X)` as possible, which will depend on the
-structural form of :math:`Q(\theta|X)` (how much flexibility it has),
-our technique to find it, and our metric of "closeness".
+necessarily).  And solving for :math:`Q` is (relatively) fast because we can
+assume a particular shape for :math:`Q(\theta|X)` and turn the inference
+problem (i.e. finding :math:`P(\theta|X)`) into an optimization problem (i.e.
+finding :math:`Q`).  Of course, it
+can't be just a random function, we want it to be as close as possible to
+:math:`P(\theta|X)`, which will depend on the structural form of
+:math:`Q(\theta|X)` (how much flexibility it has), our technique to find it,
+and our metric of "closeness".
 
 In terms of "closeness", the standard way of measuring it is to use
 `KL divergence <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>`__,
@@ -145,9 +146,9 @@ Bound* (ELBO) for a single data point :math:`X`:
 If you have multiple data points, you can just sum over them because we're 
 in :math:`\log` space (assuming independence between data points).
 
-In a lot of papers, you'll see that people will go straight to talking about
-optimizing the ELBO whenever they are talking about variational inference.  And if you
-look at it in isolation, you can gain some intuition of how it works:
+In a lot of papers, you'll see that people will go straight to optimizing the
+ELBO whenever they are talking about variational inference.  And if you look at
+it in isolation, you can gain some intuition of how it works:
 
 * It's a lower bound on the evidence, that is, it's a lower bound on the
   probability of your data occurring given your model.
@@ -155,7 +156,7 @@ look at it in isolation, you can gain some intuition of how it works:
 * The first two terms try to maximize the MAP estimate (likelihood + prior).
 * The last term tries to ensure :math:`Q` is diffuse (`maximize information entropy <link://slug/maximum-entropy-distributions>`__).
 
-There's a pretty good presentation on this from NIPS 2016 by Blei et. al which
+There's a pretty good presentation on this from NIPS 2016 by Blei et al. which
 I've linked below if you want more details.  You can also check out my previous
 post on `variational inference <link://slug/variational-bayes-and-the-mean-field-approximation>`__,
 if you want some more nitty-gritty details of how to derive everything
@@ -169,16 +170,16 @@ can check out my previous post for that
 (`variational autoencoders <link://slug/variational-autoencoders>`__).
 The high level idea is pretty easy to understand though.  A variational
 autoencoder defines a generative model for your data which basically says take
-an isotropic standard normal distribution (:math:`Z`), we run it through a deep
+an isotropic standard normal distribution (:math:`Z`), run it through a deep
 net (defined by :math:`g`) to produce the observed data (:math:`X`).  The hard
 part is figuring out how to train it.
 
 Using the autoencoder analogy, the generative model is the "decoder" since
-you're starting from a latent state and translating it to the observed data.  A
+you're starting from a latent state and translating it into the observed data.  A
 VAE also has an "encoder" part that is used to help train the decoder.  It goes
 from observed values to a latent state (:math:`X` to :math:`z`).  A keen
 observer will notice that this is actually our variational approximation of the
-posterior (:math:`z|X`), which coincidentally is also a neural network (defined
+posterior (:math:`q(z|X)`), which coincidentally is also a neural network (defined
 by :math:`g_{z|X}`).  This is visualized in Figure 1.
 
 .. figure:: /images/vanilla_vae.png
@@ -192,8 +193,9 @@ by :math:`g_{z|X}`).  This is visualized in Figure 1.
 After our VAE has been fully trained, it's easy to see how we can just use the
 "encoder" to directly help with semi-supervised learning:
 
-1. Transform our observed data (:math:`X`) into the latent space defined by the
-   :math:`Z` variables using *all* our data points (labelled and unlabelled).
+1. Train a VAE using *all* our data points (labelled and unlabelled), and
+   transform our observed data (:math:`X`) into the latent space defined by the
+   :math:`Z` variables.
 2. Solve a standard supervised learning problem on the *labelled* data using 
    :math:`(Z, Y)` pairs (where :math:`Y` is our label).
 
@@ -201,7 +203,7 @@ Intuitively, the latent space defined by :math:`z` should capture some useful
 information about our data such that it's easily separable in our supervised
 learning problem.  This technique is defined as M1 model in the Kingma paper.
 As you may have noticed though, step 1 doesn't directly involve any of the
-:math:`y` labels; the two steps are disjoint.  Kingma also introduces another
+:math:`y` labels; the steps are disjoint.  Kingma also introduces another
 model "M2" that attempts to solve this problem.
 
 
@@ -274,8 +276,8 @@ where
 :math:`{\bf \mu}_{\phi}({\bf x}), {\bf \sigma}^2_{\phi}({\bf x}), \pi_{\phi}({\bf X}`)
 are all defined by neural networks parameterized by :math:`\phi` that we will learn.
 Here, :math:`\pi_{\phi}({\bf X})` should not be confused with our actual
-parameter :math:`{\bf \pi}` above, the former is an estimate coming out of our
-network, the latter is our prior distribution as a symmetric Dirichlet.
+parameter :math:`{\bf \pi}` above, the former is a point-estimate coming out of
+our network, the latter is a random variable as a symmetric Dirichlet.
 
 From here, we use the ELBO to determine our variational objective for a single
 data point:
@@ -303,8 +305,8 @@ data point:
     &= E_{q_\phi(y|{\bf x})}\big[ -\mathcal{L({\bf x}, y)} 
         - \log q_{\phi}(y|{\bf x})
         \big] \\   
-    &= \sum_y q_\phi(y|{\bf x})(-\mathcal{L}({\bf x}, y)) 
-        + q_\phi(y|{\bf x}) \log q_\phi(y|{\bf x}) \\
+    &= \sum_y \big[ q_\phi(y|{\bf x})(-\mathcal{L}({\bf x}, y)) 
+        - q_\phi(y|{\bf x}) \log q_\phi(y|{\bf x}) \big] \\
     &= \sum_y q_\phi(y|{\bf x})(-\mathcal{L}({\bf x}, y)) 
         + \mathcal{H}(q_\phi(y|{\bf x})) \\
           \tag{6}
@@ -316,7 +318,7 @@ constant because :math:`p(y) = p(y|{\bf \pi})p(\pi)`, a
 `Dirichlet-multinomial <https://en.wikipedia.org/wiki/Dirichlet-multinomial_distribution#Specification>`__
 distribution, and simplifies to a constant (alternatively, our model's assumption is that :math:`y`'s are equally likely to happen).
 
-Next, we notice that some terms a KL distribution between :math:`q_{\phi}({\bf
+Next, we notice that some terms form a KL distribution between :math:`q_{\phi}({\bf
 z}|{\bf x})` and :math:`p_{\theta}({\bf z})`. Then, we group a few terms
 together and name it :math:`\mathcal{L}({\bf x}, y)`.  This
 latter term is essentially the same
@@ -344,13 +346,13 @@ network.
 
 Now of course the *whole* point of semi-supervised learning is to learn a
 mapping using labelled data from :math:`{\bf x}` to :math:`y` so it's pretty
-silly not to train that part of your VAE.  So Kingma et al. add an extra loss
-term initially describing it as a fix to this problem.  Then, they add an
-innocent throw-away line that this actually can be derived by performing
-variational inference over :math:`\pi`.  Of course, it's actually true (I
-think) but it's not that straightforward to derive!  Well, I worked out the
-details, so here's my presentation of deriving the variational objective with
-labelled data.
+silly not to train that part of your VAE using labelled data.  So Kingma et al.
+add an extra loss term initially describing it as a fix to this problem.  Then,
+they add an innocent throw-away line that this actually can be derived by
+performing variational inference over :math:`\pi`.  Of course, it's actually
+true (I think) but it's not that straightforward to derive!  Well, I worked out
+the details, so here's my presentation of deriving the variational objective
+with labelled data.
 
 -----
 
@@ -380,7 +382,7 @@ single data point :math:`({\bf x},y)`:
 
     \log p_{\theta}({\bf x}, y) &\geq 
         E_{q_\phi({\bf \pi}, {\bf z}|{\bf x}, y)}\bigg[ 
-        \log p_{\theta}({\bf x}|y, {\bf z}) 
+        \log p_{\theta}({\bf x}|y, {\bf z}, {\bf \pi}) 
         + \log p_{\theta}({\bf \pi}|y)
         + \log p_{\theta}(y)
         + \log p_{\theta}({\bf z}) 
@@ -410,7 +412,7 @@ Going line by line, we start off with the ELBO, expanding all the priors.  The o
 trick we do is instead of expanding the joint distribution of 
 :math:`y,{\bf \pi}` conditioned on :math:`\pi` 
 (i.e.  :math:`p_{\theta}(y, {\bf \pi}) = p_{\theta}(y|{\bf \pi})p_{\theta}({\bf \pi})`),
-we instead expand using the posterior: :math:`\log p_{\theta}({\bf \pi}|y)`.
+we instead expand using the posterior: :math:`p_{\theta}({\bf \pi}|y)`.
 The posterior in this case is again a
 `Dirichlet distribution <https://en.wikipedia.org/wiki/Dirichlet_distribution#Conjugate_to_categorical.2Fmultinomial>`__
 because it's the conjugate prior of :math:`y`'s categorical/multinomial distribution.
@@ -425,7 +427,8 @@ so I've put it in Appendix A.
 
 |h3| Training the M2 Model |h3e|
 
-Using Equations 6 and 8, we can derive a loss function as such:
+Using Equations 6 and 8, we can derive a loss function as such (remember it's
+the negative of the ELBO above):
 
 .. math::
 
@@ -536,7 +539,8 @@ the M2 model shine where at a comparable sample size, all the other methods
 have much lower performance.  You need to get to :math:`N=5000` before the CNN
 gets in the same range.  Interestingly at :math:`N=100` the models that make
 use of the unlabelled data do better than a CNN which has so little training
-data it surely is not learning to generalize.
+data it surely is not learning to generalize.  Next, onto CIFAR 10 results 
+shown in Table 2.
 
 .. csv-table:: Table 2: CIFAR10 Results
    :header: "Model", "N=1000", "N=2000", "N=5000", "N=10000", "N=25000"
