@@ -271,6 +271,12 @@ autoencoder, let's figure out how to implement it!
 
 |h2| MADE Implementation |h2e|
 
+.. figure:: /images/mnist-made.png
+  :width: 400px
+  :alt: Generated MNIST images using Autoregressive Autoencoder
+  :align: center
+
+  Figure X: Generated MNIST images using Autoregressive Autoencoder
 
 
 |h3| Implementation Notes |h3e|
@@ -286,6 +292,10 @@ autoencoder, let's figure out how to implement it!
 # - Need to set_learning_phase for dropout
 
 * Doing custom layers in Keras is so much nicer than using lower level tensorflow don't you think?
+
+
+
+
 
 |h2| Conclusion |h2e|
 
