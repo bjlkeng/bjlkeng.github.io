@@ -172,33 +172,98 @@ identify mapping (because your input is not the same as your output anymore).
 
 In both cases, you eventually end up with a pretty good latent representation
 of :math:`x` that can be used in all sorts of applications such as 
-semi-supervised learning.
+`semi-supervised learning <link://slug/semi-supervised-learning-with-variational-autoencoders>`__.
 
 |h3| Proper Probability Distributions |h3e|
 
-Given x_1 and x_2, your autoencoder could theoretically produce 
-P(x_1) =1 and P(x_2) = 1 (memorize both numbers).  If we really
-learned the data distribution, two values could never by both 1 
-at the same time (not normalized properly).
+Although vanilla autoencoders have done pretty well in learning a latent
+representation in an unsupervised manner, they don't have a proper
+probabilistic interpretation.  We put a loss function on the outputs of the
+autoencoder in Equation 1/2 that has a probabilistic interpretation but
+that doesn't mean our autoencoder will generate a proper distribution of the
+data!  Let me explain.
 
+Ideally, we would like the unsupervised autoencoder to learn the distribution
+of the data.  That is, if we have our different :math:`x` values, for each one
+we would be able to generate a probability (or density) :math:`P(x)`.
+Usually this means that as a result we also have a 
+`generative models <https://en.wikipedia.org/wiki/Generative_model>`__
+where we can do nice things like sample from it (e.g. generate new images).
 
-Why can't this happen with autoregressive property?
+Implicitly this means that if we have :math:`x_1, \ldots, x_n`, then
+each one will be assigned a different value :math:`P(x_1),\ldots,P(x_n)`.
+And if we sum over all *possible* :math:`x` values, we should get :math:`1`,
+i.e. :math:`\sum_x P(x) = 1`.  For autoencoders, we can show that this property
+is not guaranteed.  
 
-- Views each data point as independent from others
-- No condition to model the actual data distribution (between points)
+Consider two samples :math:`x_1`, and :math:`x_2`.  Let's say (regardless of
+what type of autoencoder we use), our neural network "memorizes" these two
+samples and is able to reconstruct them perfectly.  That is, pass :math:`x_1`
+in and get *exactly* :math:`x_1`; pass :math:`x_2` in and get *exactly*
+:math:`x_2`.  This implies the loss from Equation 1/2 in both cases is
+:math:`0`.  If we translate take the exponential to translate it to a
+probability this means both :math:`P(x_1)=1` and :math:`P(x_0)=1`, which of
+course is not a valid probability distribution.
 
-
-
-* Image of autoencoder?
-* Explain problem with them: no probabilistic interpretation
-
+For vanilla autoencoders, we started with some neural network and then try to
+apply some sort of probabilistic interpretation and it doesn't quite work.  I
+like it when we start the way around: start with a probabilistic model and then
+figure out how to use neural networks to help you add more capacity and scale
+it.
 
 
 |h2| Autoregressive Autoencoders |h2e|
 
-* Explain AR property, show math
-* Show picture from paper on autoregressive property
+So vanilla autoencoders don't quite get us to a proper probability distribution
+of the data, but is there a way to modify them to get us there?  Let's review
+the `product rule <https://en.wikipedia.org/wiki/Chain_rule_(probability)>`__:
 
+.. math::
+
+    p({\bf x}) = \prod_{i=1}^{D} p(x_i | {\bf x}_{<D})
+
+where :math:`{\bf x}_{<D} = [x_1, \ldots, x_{i-1}]`.  Basically, component
+:math:`i` of :math:`{\bf x}` only depends on the dimensions of :math:`j < i`.
+
+So how does this help us? In vanilla autoencoders, each component :math:`x_i`
+could depend on any of its components :math:`x_1,\ldots,x_n`, this resulted an
+improper probability distribution.  If we start with the product rule, which
+guarantees a proper distribution, we can work backwards to map the autoencoder
+to this model.
+
+For example, let's consider binary data (say a binarized image).  :math:`x_1`
+does not depend on any other components of :math:`{\bf x}`, therefore our
+implementation should just need to estimate a single parameter :math:`p_1` for
+this pixel.  
+How about :math:`x_2` though?  Now we let :math:`x_2` depend *only* on
+:math:`x_1` since we have :math:`p(x_2|x_1)`.  How about we use a non-linear
+function -- say maybe a neural network -- to learn this mapping?  So we'll have
+some neural net that maps :math:`x_1` to the :math:`x_2` output.  Now consider
+the general case of :math:`x_j`,  we can have a neural net that maps 
+:math:`\bf x_{<j}` to the :math:`x_j` output.  Lastly, there's no reason that
+each step needs to be a separate neural network, we can just put it all
+together so long as we follow a couple of rules:
+
+1. Each output of the network :math:`\hat{x}_i` represents the probability
+   distribution :math:`p(x_i|{\bf x_{<i}})`.
+2. Each output can only have connections (recursively) to smaller indexed
+   inputs :math:`\bf x_{<i}` and not any of the other ones.
+
+Said another way, our neural net first learns :math:`p(x_1)` (just a single
+parameter value in the case of binarized data), then iteratively learns the
+function mapping from :math:`{\bf x_{<j}}` to :math:`x_j`.  In this view of the
+autoencoder, we are sequentially predicting (i.e. regressing) each dimension of
+the data using its previous values, hence this property is called the
+*autoregressive property* of autoencoders.
+
+Now that we have a fully probabilistic model that can also be implemented as an
+autoencoder, let's figure out how to implement it!
+
+
+
+|h3| Masks and the Autoregressive Network Structure |h3e|
+
+* Show picture from paper on autoregressive property
 
 |h3| Generating New Samples |h3e|
 
