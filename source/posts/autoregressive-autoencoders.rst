@@ -46,7 +46,7 @@ drawback is that they don't have a solid probabilistic basis (
 (of course there are other variants of autoencoders that do, see previous posts
 `here <link://slug/variational-autoencoders>`__, 
 `here <link://slug/a-variational-autoencoder-on-the-svnh-dataset>`__, and
-`here <link://semi-supervised-learning-with-variational-autoencoders>`__). 
+`here <link://slug/semi-supervised-learning-with-variational-autoencoders>`__). 
 By using what the authors define as the *autoregressive property*, we can
 transform the traditional autoencoder approach into a fully probabilistic model
 with very little modification! As usual, I'll provide some intuition, math and
@@ -143,7 +143,7 @@ respectively (see the box).
     .. math::
 
         -\log p(x) \approx \mathcal{L_{\text{real}}}(x) = (x-\mu)^2
-        \\ \tag{6}
+        \\ \tag{7}
 
     Here our observation is :math:`x` and our model would produce the
     estimate :math:`\mu` i.e. :math:`\hat{x}`.  I have some more details
@@ -220,7 +220,7 @@ the `product rule <https://en.wikipedia.org/wiki/Chain_rule_(probability)>`__:
 
 .. math::
 
-    p({\bf x}) = \prod_{i=1}^{D} p(x_i | {\bf x}_{<D})
+    p({\bf x}) = \prod_{i=1}^{D} p(x_i | {\bf x}_{<D})  \tag{8}
 
 where :math:`{\bf x}_{<D} = [x_1, \ldots, x_{i-1}]`.  Basically, component
 :math:`i` of :math:`{\bf x}` only depends on the dimensions of :math:`j < i`.
@@ -259,11 +259,108 @@ the data using its previous values, hence this property is called the
 Now that we have a fully probabilistic model that can also be implemented as an
 autoencoder, let's figure out how to implement it!
 
-
-
 |h3| Masks and the Autoregressive Network Structure |h3e|
 
-* Show picture from paper on autoregressive property
+The autoregressive autoencoder is referred to as a "Masked Autoencoder for
+Distribution Estimation", or MADE.  The MADE is quite easily to implement 
+with a small modification to our standard feed forward neural networks.  
+
+All we want to do is ensure that we only have connections (recursively) from
+input :math:`i` to output :math:`j` where :math:`i < j`.  One way to accomplish
+this is to not make these connections in the first place but that's a bit
+annoying because we can't use our existing infrastructure for neural networks.
+The main observation here is that a connection with weight :math:`0` is the
+same as no connection at all.  So all we have to do is zero-out the connections
+we don't want.  We can do that easily with a "mask" for each weight matrix
+which says which connections we want and which we don't.
+
+This is a simple modification to our standard neural networks.  Consider a one
+hidden layer autoencoder with input :math:`x`:
+
+.. math::
+
+    {\bf h}({\bf x}) &= {\bf g}({\bf b} + {\bf (W \odot M^W)x}) \\
+    {\hat{\bf x}} &= \text{sigm}({\bf c} + {\bf (V \odot M^V)h(x)})  \tag{9}
+
+where:
+
+* :math:`\odot` is an element wise product
+* :math:`\bf x, \hat{x}` is our vectors of input/output respectively
+* :math:`\bf h(x)` is the hidden layer
+* :math:`\bf g(\cdot)` is the activation function of the hidden layer
+* :math:`\text{sigm}(\cdot)` is the sigmoid activation function of the output layer
+* :math:`\bf b, c` are the constant biases for the hidden/output layer respectively
+* :math:`\bf W, V` are the weight matrices for the hidden/output layer respectively
+* :math:`\bf M^W, M^V` are the weight mask matrices for the hidden/output layer respectively
+
+
+So long as our masks are set such that the autoregressive property is
+satisfied, the network can product a proper probability distribution.
+One subtlety here is that for each hidden unit, we need to define an index that
+says which inputs it can be connected to (which also determines which
+index/output in the next layer it can be connected to).  We'll use the notation
+in the paper of :math:`m^l(k)` to denote the index assigned to hidden node 
+:math:`k` in layer :math:`l`.  Our general rule for our masks is then:
+
+.. math::
+
+    M^{W^l}_{k', k} = \left\{
+                \begin{array}{ll}
+                  1 \text{ if } m^l(k') \geq m^{l-1}(k)  \\
+                  0 \text{ otherwise}
+                \end{array}
+              \right.
+
+Basically, for a given node, only connect it to nodes that have an index less
+than or equal to it's index.  This will guarantee that a given index will
+recursively obey our auto-regressive property.
+
+The output mask has a slightly different rule:
+
+.. math::
+
+    M^{V}_{d, k} = \left\{
+                \begin{array}{ll}
+                  1 \text{ if } d > m^{L}(k)  \\
+                  0 \text{ otherwise}
+                \end{array}
+              \right.
+
+which replaces the less than equal with just an equal.  This is important
+because the first node should not depend on any other ones so it should not
+have any connections (will only have the bias connection), and the last node
+can have connections (recursively) to every other node except its respective
+input.
+
+Finally, one last topic to discuss is how to assign :math:`m^l(k)`.  It doesn't
+really matter too much as long as you have enough connections for each index.
+The paper did a natural thing and just sampled from a uniform distribution
+with range :math:`[1, D-1]`.  Recall, we should never assign index :math:`D` because
+it will never be used (nothing can ever depend on the :math:`D^{\text{th}}` input).
+
+Figure 2 (from the original paper) shows this whole process pictorially.
+
+.. figure:: /images/made_mask.png
+  :width: 450px
+  :alt: MADE Masks
+  :align: center
+
+  Figure 2: MADE Masks (Source: `[1] <https://arxiv.org/pdf/1502.03509.pdf>`__)
+
+A few things to notice:
+
+* Output 1 is not connected to anything.  It will just be estimated with a
+  single constant parameter derived from the bias node.
+* Input 3 is not connected to anything because no node should depend on it
+  (autoregressive property). 
+* :math:`m^l(k)` are more or less assigned randomly.
+* If you trace back from output to input, you will see that the autoregressive
+  property is maintained.
+
+|h3| Ordering Samples and Masks |h3e|
+
+* Order of input/output should be some natural one
+* Can sample masks
 
 |h3| Generating New Samples |h3e|
 
@@ -302,8 +399,8 @@ autoencoder, let's figure out how to implement it!
 
 |h2| Further Reading |h2e|
 
-* Previous posts: `Variational Autoencoders <link://slug/variational-autoencoders>`__, `A Variational Autoencoder on the SVHN dataset <link://slug/a-variational-autoencoder-on-the-svnh-dataset>`__, and `Semi-supervised Learning with Variational Autoencoders <link://semi-supervised-learning-with-variational-autoencoders>`__
-* "MADE: Masked Autoencoder for Distribution Estimation", Germain, Gregor, Murray, Larochelle, `ICML 2015 <https://arxiv.org/pdf/1502.03509.pdf>`_
+* Previous posts: `Variational Autoencoders <link://slug/variational-autoencoders>`__, `A Variational Autoencoder on the SVHN dataset <link://slug/a-variational-autoencoder-on-the-svnh-dataset>`__, and `Semi-supervised Learning with Variational Autoencoders <link://slug/semi-supervised-learning-with-variational-autoencoders>`__
+* [1] "MADE: Masked Autoencoder for Distribution Estimation", Germain, Gregor, Murray, Larochelle, `ICML 2015 <https://arxiv.org/pdf/1502.03509.pdf>`_
 * Wikipedia: `Autoencoder <https://en.wikipedia.org/wiki/Autoencoder>`_
 * Github code for "MADE: Masked Autoencoder for Distribution Estimation", https://github.com/mgermain/MADE
 
