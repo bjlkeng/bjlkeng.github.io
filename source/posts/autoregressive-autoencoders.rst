@@ -60,11 +60,11 @@ The basic `autoencoder <https://en.wikipedia.org/wiki/Autoencoder>`_
 is a pretty simple idea.  Our primary goal is take an input sample
 :math:`x` and transform it to some latent dimension :math:`z` (*encoder*),
 which hopefully is a good representation of the original data.  However, as
-usual, what makes a good representation?  A vanilla autoencoder answer: "*A
-good representation is one where you can reconstruct the original input!*".
-This reconstruction from the latent dimension :math:`z` to the original
-input sample :math:`\hat{x}` is called the *decoder*.  Figure 1 shows a picture
-of what this looks like.
+usual, we need to ask ourselves: what makes a good representation?  A vanilla
+autoencoder's answer: "*A good representation is one where you can reconstruct
+the original input!*".  This reconstruction from the latent dimension :math:`z`
+to the original input sample :math:`\hat{x}` is called the *decoder*.  Figure 1
+shows a picture of what this looks like.
 
 .. figure:: /images/autoencoder_structure.png
   :width: 400px
@@ -242,7 +242,7 @@ some neural net that maps :math:`x_1` to the :math:`x_2` output.  Now consider
 the general case of :math:`x_j`,  we can have a neural net that maps 
 :math:`\bf x_{<j}` to the :math:`x_j` output.  Lastly, there's no reason that
 each step needs to be a separate neural network, we can just put it all
-together so long as we follow a couple of rules:
+together in a single shared neural network so long as we follow a couple of rules:
 
 1. Each output of the network :math:`\hat{x}_i` represents the probability
    distribution :math:`p(x_i|{\bf x_{<i}})`.
@@ -309,7 +309,7 @@ in the paper of :math:`m^l(k)` to denote the index assigned to hidden node
                   1 \text{ if } m^l(k') \geq m^{l-1}(k)  \\
                   0 \text{ otherwise}
                 \end{array}
-              \right.
+              \right. \\ \tag{10}
 
 Basically, for a given node, only connect it to nodes that have an index less
 than or equal to it's index.  This will guarantee that a given index will
@@ -324,7 +324,7 @@ The output mask has a slightly different rule:
                   1 \text{ if } d > m^{L}(k)  \\
                   0 \text{ otherwise}
                 \end{array}
-              \right.
+              \right.  \\ \tag{11}
 
 which replaces the less than equal with just an equal.  This is important
 because the first node should not depend on any other ones so it should not
@@ -337,7 +337,6 @@ really matter too much as long as you have enough connections for each index.
 The paper did a natural thing and just sampled from a uniform distribution
 with range :math:`[1, D-1]`.  Recall, we should never assign index :math:`D` because
 it will never be used (nothing can ever depend on the :math:`D^{\text{th}}` input).
-
 Figure 2 (from the original paper) shows this whole process pictorially.
 
 .. figure:: /images/made_mask.png
@@ -357,49 +356,146 @@ A few things to notice:
 * If you trace back from output to input, you will see that the autoregressive
   property is maintained.
 
-|h3| Ordering Samples and Masks |h3e|
+So then implementing MADE is as simple as providing a weight mask
+and doing an extra element-wise product. Pretty simple, right?
 
-* Order of input/output should be some natural one
-* Can sample masks
+|h3| Ordering Inputs, Masks, and Direct Connections |h3e|
+
+A few other minor topics that can improve the performance of the MADE.  The
+first is the ordering of the inputs.  We've been taking about "Input 1" but
+usually there is one natural ordering of the inputs.  We can arbitrarily pick
+any ordering that we want just by shuffling :math:`{\bf m^0}`, the selection
+layer for the input.  This can even be performed at each mini-batch to get an
+"average" over many different models.
+
+The next idea is also very similar, instead of just resampling the input
+selection, resample all :math:`{\bf m^l}` selections.  In the paper, they
+mention the best results are having a fixed number of configurations for these
+selections (and their corresponding masks) and rotating through them in the
+mini-batch training.
+
+The last idea is just to add a direct connection path from input to output
+like so:
+
+.. math::
+
+    {\hat{\bf x}} = \text{sigm}\big({\bf c} + {\bf (V \odot M^V)h(x)}\big)
+                    + \big({\bf A} \odot {\bf M^A}\big){\bf x}  \tag{12}
+
+where :math:`{\bf A}` is the weight matrix that directly connects input to output,
+and :math:`{\bf M^A}` is the corresponding mask matrix.
 
 |h3| Generating New Samples |h3e|
 
+One final idea that isn't explicitly mentioned in the paper is how to generate
+new samples.  Remember, we now have a fully generative probabilistic model for
+our autoencoder.  It turns out it's quite easy but a bit slow.  The main idea
+(for a binary data):
 
+1. Randomly generate vector :math:`{\bf x}`, set :math:`i=1`.
+2. Feed :math:`{\bf x}` into autoencoder and generate outputs 
+   :math:`\hat{\bf x}` for the network, set :math:`p=x_i`.
+3. Sample from a Bernoulli distribution with parameter :math:`p`, set
+   :math:`x_{i}=\text{Bernoulli}(p)`.
+4. Increment :math:`i` and repeat steps 2-4 until `i > D`. 
+
+Basically, we're iteratively calculating :math:`p(x_i|{\bf x_{1,\ldots,i-1}})`
+by doing a forward pass on the autoencoder each time.  Along the way, we sample
+from the Bernoulli distribution and feed the sampled value back into the
+autoencoder to compute the next parameter for the next bit.
+It's a bit inefficient but it's also a relatively small modification to 
+our vanilla autoencoder.
 
 |h2| MADE Implementation |h2e|
+
+I implemented a MADE layer and did a run through a binarized MNIST dataset like
+they had in the original paper in this 
+`notebook <https://github.com/bjlkeng/sandbox/blob/master/notebooks/masked_autoencoders/made-mnist.ipynb>`__ I put up on Github.
+
+My implementation is a lot simpler than the one used in the paper.  I used
+Keras and created a customer "MADE" layer that took as input the number of layers,
+number of hidden units per layer, whether or not to randomize the input
+selection, as well as standard stuff like dropout and activation function.
+I didn't implement any of the randomized masks for minibatchs because it was
+a bit of a pain.  I did implement the direct connection though.
+
+*(As an aside: I'm really a big fan of higher-level frameworks like Keras, 
+it's quite wonderful.  The main reason is that for most things I have the nice
+Keras frontend, and then occassionally I can dip down into the underlying
+primitives when needed via the Keras "backend".  I suspect when I eventually
+get around to playing with RNNs it's going to not be as wonderful but for now
+I quite like it.)*
+
+I was able to generate some new digits that are not very pretty, shown 
+in Figure 3.
 
 .. figure:: /images/mnist-made.png
   :width: 400px
   :alt: Generated MNIST images using Autoregressive Autoencoder
   :align: center
 
-  Figure X: Generated MNIST images using Autoregressive Autoencoder
+  Figure 3: Generated MNIST images using Autoregressive Autoencoder
 
+It's a bit hard to make out any numbers here.  If you squint hard enough, you
+can make out some "4"s,  "3"s, "6"s, maybe some "9"s?  The ones in the paper look
+a lot better (although still not perfect, there were definitely some that were
+hard to make out).  
+
+The other thing is that I didn't use their exact version of binarized MNIST,
+I just took the one from Keras and did a `round()` on each pixel.  This might
+also explain why I was unable to get as good of a negative log-likelihood as
+them.  In the paper they report values :math:`< 90` (even with a single mask)
+but the lowest I was able to get on my test set was around :math:`99`, and that
+was after a bunch of tries tweaking the batch and learning rate (more typical
+was around :math:`120`).  It could be that their test set was easier, or the
+fact that they did some hyper-parameter tuning for each experiment, whereas I
+just did some trial and error tuning.
 
 |h3| Implementation Notes |h3e|
 
-* Didn't
+Here are some random notes that I came across when building this MADE:
 
-# Notes
-# - Adding a direct (auto-regressive) connection between input/output seemed to make a huge difference (150 vs. < 100 loss)
-# - Actually may have been a bug that caused it?
-# - Got to be careful when coding up layers since getting indexes for selection exactly right is important
-# - Random order didn't really generate any images that were recognizable
-
-# - Need to set_learning_phase for dropout
-
-* Doing custom layers in Keras is so much nicer than using lower level tensorflow don't you think?
-
-
-
-
+* Adding a direct (auto-regressive) connection between inputs and outputs
+  seemed to make a huge difference (150 vs. < 100 loss).  For me, this
+  basically was the make or break piece for implementing MADE.  It's funny that
+  it's just a throw-away paragraph in the actual paper.  Probably because the
+  idea was from an earlier paper in 2000 and not the main contribution of the
+  paper.  For some things, you really have to implement it to understand the
+  important parts, papers don't tell the whole story!
+* I had to be quite careful when coding up layers since getting the indexes for
+  selection exactly right is important.  I had a few false starts because I
+  mixed up the indexes.  When using the high-level Keras API, there's not much
+  of this detailed work, but when implementing your own layers it's important!
+* I tried a random ordering (just a single one for the entire training, not 
+  one per batch) and it didn't really seem to do much.
+* In their actual implementation, they also add dropout to all their layers.  I
+  added it too but didn't play around with it much except to try to tune it to
+  get a lower NLL.  One curious thing I found out was about using the
+  `set_learning_phase() <https://keras.io/backend/>`__ API.  When implementing
+  dropout, I basically just took the code from the dropout layer and inserted
+  into my custom layer.  However, I kept getting an error, it turns out that
+  I had to use `set_learning_phase(1)` during training, and
+  `set_learning_phase(0)` during prediction because the Keras dropout
+  implementation uses `in_train_phase(<train_input>, <test_input>)`, which
+  switches between two behaviors for training/testing.  For some reason when
+  regularly using dropout you don't have to do this but when doing it in a
+  custom layer you do?  I suspect I missed something in my custom layer that
+  happens in the dropout layer.
 
 |h2| Conclusion |h2e|
+
+So yet *another* post on autoencoders, I can't seem to get enough of them!
+Actually I still find them quite fascinating, which is why I'm following this
+line of research all with the same theme: fully probabilistic generative
+models.  There's still at least one or more two papers in this area that I'm
+really excited to dig into (at which point I'll have approached the latest
+published work), so expect more to come!
 
 
 |h2| Further Reading |h2e|
 
 * Previous posts: `Variational Autoencoders <link://slug/variational-autoencoders>`__, `A Variational Autoencoder on the SVHN dataset <link://slug/a-variational-autoencoder-on-the-svnh-dataset>`__, and `Semi-supervised Learning with Variational Autoencoders <link://slug/semi-supervised-learning-with-variational-autoencoders>`__
+* My implementation on Github: `notebook <https://github.com/bjlkeng/sandbox/blob/master/notebooks/masked_autoencoders/made-mnist.ipynb>`__
 * [1] "MADE: Masked Autoencoder for Distribution Estimation", Germain, Gregor, Murray, Larochelle, `ICML 2015 <https://arxiv.org/pdf/1502.03509.pdf>`_
 * Wikipedia: `Autoencoder <https://en.wikipedia.org/wiki/Autoencoder>`_
 * Github code for "MADE: Masked Autoencoder for Distribution Estimation", https://github.com/mgermain/MADE
