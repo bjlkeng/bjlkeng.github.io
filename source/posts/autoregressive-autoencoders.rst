@@ -423,12 +423,12 @@ vanilla autoencoder so you can't ask for too much.
 
 |h2| MADE Implementation |h2e|
 
-I implemented a MADE layer and did a run through a binarized MNIST dataset like
-they had in the original paper in this 
-`notebook <https://github.com/bjlkeng/sandbox/blob/master/notebooks/masked_autoencoders/made-mnist.ipynb>`__ I put up on Github.
+I implemented a MADE layer and built a network using a binarized MNIST dataset
+similar to what they used in the original paper
+(`notebook <https://github.com/bjlkeng/sandbox/blob/master/notebooks/masked_autoencoders/made-mnist.ipynb>`__).
 
 My implementation is a lot simpler than the one used in the paper.  I used
-Keras and created a customer "MADE" layer that took as input the number of layers,
+Keras and created a custom "MADE" layer that took as input the number of layers,
 number of hidden units per layer, whether or not to randomize the input
 selection, as well as standard stuff like dropout and activation function.
 I didn't implement any of the randomized masks for minibatchs because it was
@@ -438,7 +438,7 @@ a bit of a pain.  I did implement the direct connection though.
 it's quite wonderful.  The main reason is that for most things I have the nice
 Keras frontend, and then occassionally I can dip down into the underlying
 primitives when needed via the Keras "backend".  I suspect when I eventually
-get around to playing with RNNs it's going to not be as wonderful but for now
+get around to playing with RNNs it's not going to be as wonderful but for now
 I quite like it.)*
 
 I was able to generate some new digits that are not very pretty, shown 
@@ -472,7 +472,7 @@ Here are some random notes that I came across when building this MADE:
 
 * Adding a direct (auto-regressive) connection between inputs and outputs
   seemed to make a huge difference (150 vs. < 100 loss).  For me, this
-  basically was the make or break piece for implementing MADE.  It's funny that
+  basically was the make-or-break piece for implementing a MADE.  It's funny that
   it's just a throw-away paragraph in the actual paper.  Probably because the
   idea was from an earlier paper in 2000 and not the main contribution of the
   paper.  For some things, you really have to implement it to understand the
@@ -492,24 +492,24 @@ Here are some random notes that I came across when building this MADE:
   I had to use `set_learning_phase(1)` during training, and
   `set_learning_phase(0)` during prediction because the Keras dropout
   implementation uses `in_train_phase(<train_input>, <test_input>)`, which
-  switches between two behaviors for training/testing.  For some reason when
-  regularly using dropout you don't have to do this but when doing it in a
-  custom layer you do?  I suspect I missed something in my custom layer that
-  happens in the dropout layer.
+  switches between two behaviors for training/testing based on the status of
+  this bit.  For some reason when using the regular dropout layer you don't
+  have to do this but when doing it in a custom layer you do?  I suspect I
+  missed something in my custom layer that happens in the dropout layer.
 
 |h2| Conclusion |h2e|
 
 So yet *another* post on autoencoders, I can't seem to get enough of them!
 Actually I still find them quite fascinating, which is why I'm following this
-line of research all with the same theme: fully probabilistic generative
-models.  There's still at least one or more two papers in this area that I'm
-really excited to dig into (at which point I'll have approached the latest
-published work), so expect more to come!
+line of research about fully probabilistic generative models.  There's still at
+least one or two more papers in this area that I'm really excited to dig into
+(at which point I'll have approached the latest published work), so expect more
+to come!
 
 
 |h2| Further Reading |h2e|
 
-* Previous posts: `Variational Autoencoders <link://slug/variational-autoencoders>`__, `A Variational Autoencoder on the SVHN dataset <link://slug/a-variational-autoencoder-on-the-svnh-dataset>`__, and `Semi-supervised Learning with Variational Autoencoders <link://slug/semi-supervised-learning-with-variational-autoencoders>`__
+* Previous posts: `Variational Autoencoders <link://slug/variational-autoencoders>`__, `A Variational Autoencoder on the SVHN dataset <link://slug/a-variational-autoencoder-on-the-svnh-dataset>`__, `Semi-supervised Learning with Variational Autoencoders <link://slug/semi-supervised-learning-with-variational-autoencoders>`__
 * My implementation on Github: `notebook <https://github.com/bjlkeng/sandbox/blob/master/notebooks/masked_autoencoders/made-mnist.ipynb>`__
 * [1] "MADE: Masked Autoencoder for Distribution Estimation", Germain, Gregor, Murray, Larochelle, `ICML 2015 <https://arxiv.org/pdf/1502.03509.pdf>`_
 * Wikipedia: `Autoencoder <https://en.wikipedia.org/wiki/Autoencoder>`_
