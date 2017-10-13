@@ -62,10 +62,11 @@ is a pretty simple idea.  Our primary goal is take an input sample
 which hopefully is a good representation of the original data.  As
 usual, we need to ask ourselves: what makes a good representation?  A vanilla
 autoencoder's answer: "*A good representation is one where you can reconstruct
-the original input!*".  The process of reconstruction from the latent
-dimension :math:`z` back to our reconstruction of the input sample
-:math:`\hat{x}` is called the *decoder*.  Figure 1 shows a picture of what this
-looks like.
+the original input!*".  The process of transforming the latent
+dimension :math:`z` back to a reconstructed version of the input
+:math:`\hat{x}` is called the *decoder*.  It's an "autoencoder" because
+it's using the same value :math:`x` value on the input and output.  Figure 1
+shows a picture of what this looks like.
 
 .. figure:: /images/autoencoder_structure.png
   :width: 400px
@@ -86,7 +87,7 @@ and :math:`\hat{x}` are as close as possible:
 
 Here we assume that our data point :math:`{\bf x}` has :math:`D` dimensions.
 The loss function we use will depend on the form of the data.  For binary data,
-we'll use the cross entropy and for real-valued data we'll use the mean squared
+we'll use cross entropy and for real-valued data we'll use the mean squared
 error.  These correspond to modelling :math:`x` as a Bernoulli and Gaussian
 respectively (see the box).
 
@@ -138,7 +139,7 @@ respectively (see the box).
 
     Now if we assume that the variance is the same fixed value for all our data
     points, then the only parameter we're optimizing for is :math:`\mu`. So 
-    adding and multiplying by a bunch of constants to our main expression
+    adding and multiplying a bunch of constants to our main expression
     doesn't change the optimal (highest probability) point so we can just
     simplify it (when optimizing) and still get the same point solution:
 
@@ -191,22 +192,21 @@ of the data.  That is, for each one of our :math:`\bf x` values, we would like
 to be able to evaluate the probability :math:`P({\bf x})` to see how often we
 would expect to see this data point.  Implicitly this means that if we sum over
 all *possible* :math:`x` values, we should get :math:`1`, 
-i.e. :math:`\sum_x P(x) = 1`.  For autoencoders, we can show that this property
-is not guaranteed.  
+i.e. :math:`\sum_x P(x) = 1`.  For traditional autoencoders, we can show that
+this property is not guaranteed.  
 
 Consider two samples :math:`x_1`, and :math:`x_2`.  Let's say (regardless of
 what type of autoencoder we use), our neural network "memorizes" these two
 samples and is able to reconstruct them perfectly.  That is, 
-pass :math:`x_1` into the autoencoder and get *exactly* :math:`x_1`; 
-pass :math:`x_2` into the autoencoder and get *exactly* :math:`x_2`.  
+pass :math:`x_1` into the autoencoder and get *exactly* :math:`x_1` back; 
+pass :math:`x_2` into the autoencoder and get *exactly* :math:`x_2` back.  
 If this happened, it would be a good thing (as long as we had a bottleneck or a
 denoising autoencoder) because we have a learned a really powerful latent
 representation that can reconstruct the data perfectly!
-However, his implies the loss from Equation 1 (or 2 in the continuous case) is
-:math:`0`.  If we negative take the exponential to translate it to a
+However, this implies the loss from Equation 1 (or 2 in the continuous case) is
+:math:`0`.  If we negate and take the exponential to translate it to a
 probability this means both :math:`P(x_1)=1` and :math:`P(x_0)=1`, which of
 course is not a valid probability distribution.
-
 In contrast, if our model does model the data distribution properly, then we
 end up with a fully 
 `generative model <https://en.wikipedia.org/wiki/Generative_model>`__,
@@ -214,7 +214,7 @@ where you can usually do nice things like sample from it (e.g. generate new
 images).
 
 For vanilla autoencoders, we started with some neural network and then tried to
-apply some sort of probabilistic interpretation that doesn't quite work out.  I
+apply some sort of probabilistic interpretation that didn't quite work out.  I
 like it the other way around: start with a probabilistic model and then figure
 out how to use neural networks to help you add more capacity and scale it.
 
