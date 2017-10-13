@@ -4,7 +4,7 @@
 .. tags: autoencoders, autoregressive, generative models, MADE, MNIST, mathjax
 .. category: 
 .. link: 
-.. description: A writeup on Masked Autoencoder for Distrbution Estimation (MADE).
+.. description: A write up on Masked Autoencoder for Distribution Estimation (MADE).
 .. type: text
 
 .. |br| raw:: html
@@ -347,7 +347,7 @@ input.
 Finally, one last topic to discuss is how to assign :math:`m^l(k)`.  It doesn't
 really matter too much as long as you have enough connections for each index.
 The paper did a natural thing and just sampled from a uniform distribution
-with range :math:`[1, D-1]`.  Why only upto :math:`D-1`?  Recall, we should
+with range :math:`[1, D-1]`.  Why only up to :math:`D-1`?  Recall, we should
 never assign index :math:`D` because it will never be used so there's no use
 in connecting anything to :math:`D` (nothing can ever depend on the
 :math:`D^{\text{th}}` input).  Figure 2 (from the original paper) shows this
@@ -398,7 +398,7 @@ like so:
 
 where :math:`{\bf A}` is the weight matrix that directly connects inputs to outputs,
 and :math:`{\bf M^A}` is the corresponding mask matrix that follows the
-autoregressive propoerty.
+autoregressive property.
 
 |h3| Generating New Samples |h3e|
 
@@ -436,7 +436,7 @@ a bit of a pain.  I did implement the direct connection though.
 
 *(As an aside: I'm really a big fan of higher-level frameworks like Keras, 
 it's quite wonderful.  The main reason is that for most things I have the nice
-Keras frontend, and then occassionally I can dip down into the underlying
+Keras frontend, and then occasionally I can dip down into the underlying
 primitives when needed via the Keras "backend".  I suspect when I eventually
 get around to playing with RNNs it's not going to be as wonderful but for now
 I quite like it.)*
@@ -492,7 +492,7 @@ Here are some random notes that I came across when building this MADE:
   I had to use `set_learning_phase(1)` during training, and
   `set_learning_phase(0)` during prediction because the Keras dropout
   implementation uses `in_train_phase(<train_input>, <test_input>)`, which
-  switches between two behaviors for training/testing based on the status of
+  switches between two behaviours for training/testing based on the status of
   this bit.  For some reason when using the regular dropout layer you don't
   have to do this but when doing it in a custom layer you do?  I suspect I
   missed something in my custom layer that happens in the dropout layer.
