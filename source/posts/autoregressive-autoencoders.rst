@@ -1,6 +1,6 @@
 .. title: Autoregressive Autoencoders
 .. slug: autoregressive-autoencoders
-.. date: 2017-10-05 08:14:15 UTC-04:00
+.. date: 2017-10-14 10:02:15 UTC-04:00
 .. tags: autoencoders, autoregressive, generative models, MADE, MNIST, mathjax
 .. category: 
 .. link: 
@@ -60,7 +60,7 @@ The basic `autoencoder <https://en.wikipedia.org/wiki/Autoencoder>`_
 is a pretty simple idea.  Our primary goal is take an input sample
 :math:`x` and transform it to some latent dimension :math:`z` (*encoder*),
 which hopefully is a good representation of the original data.  As
-usual, we need to ask ourselves: what makes a good representation?  A vanilla
+usual, we need to ask ourselves: what makes a good representation?  An
 autoencoder's answer: "*A good representation is one where you can reconstruct
 the original input!*".  The process of transforming the latent
 dimension :math:`z` back to a reconstructed version of the input
@@ -160,8 +160,10 @@ respectively (see the box).
 Now this is all well and good but an astute observer will notice that unless we
 put some additional constraints, our autoencoder can just set :math:`z=x` (i.e.
 the identity function) and generate a perfect reconstruction.  What better
-representation for a reconstruction than *exactly* the original data?  This is
-generally solved by making it difficult to learn just the identity function.
+representation for a reconstruction than *exactly* the original data?  This
+is not desirable because we originally wanted to find a good latent representation
+for :math:`z`, not just regurgitate :math:`x`!  We can easily solve this though
+by making it difficult to learn just the identity function.
 
 The easiest method is to just make the dimensions of :math:`z` smaller than
 :math:`x`.  For example, if your image has 900 pixels (30 x 30) then make the
@@ -191,27 +193,26 @@ Ideally, we would like the unsupervised autoencoder to learn the distribution
 of the data.  That is, for each one of our :math:`\bf x` values, we would like
 to be able to evaluate the probability :math:`P({\bf x})` to see how often we
 would expect to see this data point.  Implicitly this means that if we sum over
-all *possible* :math:`x` values, we should get :math:`1`, 
-i.e. :math:`\sum_x P(x) = 1`.  For traditional autoencoders, we can show that
+all *possible* :math:`\bf x` values, we should get :math:`1`, 
+i.e. :math:`\sum_{\bf x} P({\bf x}) = 1`.  For traditional autoencoders, we can show that
 this property is not guaranteed.  
 
-Consider two samples :math:`x_1`, and :math:`x_2`.  Let's say (regardless of
-what type of autoencoder we use), our neural network "memorizes" these two
+Consider two samples :math:`\bf x_1`, and :math:`\bf x_2`.  Let's say (regardless of
+what type of autoencoder we use) our neural network "memorizes" these two
 samples and is able to reconstruct them perfectly.  That is, 
-pass :math:`x_1` into the autoencoder and get *exactly* :math:`x_1` back; 
-pass :math:`x_2` into the autoencoder and get *exactly* :math:`x_2` back.  
+pass :math:`\bf x_1` into the autoencoder and get *exactly* :math:`\bf x_1` back; 
+pass :math:`\bf x_2` into the autoencoder and get *exactly* :math:`\bf x_2` back.  
 If this happened, it would be a good thing (as long as we had a bottleneck or a
 denoising autoencoder) because we have a learned a really powerful latent
 representation that can reconstruct the data perfectly!
 However, this implies the loss from Equation 1 (or 2 in the continuous case) is
 :math:`0`.  If we negate and take the exponential to translate it to a
-probability this means both :math:`P(x_1)=1` and :math:`P(x_0)=1`, which of
+probability this means both :math:`P({\bf x_1})=1` and :math:`P({\bf x_2})=1`, which of
 course is not a valid probability distribution.
-In contrast, if our model does model the data distribution properly, then we
+In contrast, if our model did model the data distribution properly, then we would
 end up with a fully 
 `generative model <https://en.wikipedia.org/wiki/Generative_model>`__,
-where you can usually do nice things like sample from it (e.g. generate new
-images).
+where we could do nice things like sample from it (e.g. generate new images).
 
 For vanilla autoencoders, we started with some neural network and then tried to
 apply some sort of probabilistic interpretation that didn't quite work out.  I
@@ -273,7 +274,7 @@ The autoregressive autoencoder is referred to as a "Masked Autoencoder for
 Distribution Estimation", or MADE.  "Masked" as we shall see below and
 "Distribution Estimation" because we now have a fully probabilistic model.
 ("Autoencoder" now is a bit looser because we don't really have a concept of
-encoder and decoder anymore, only the fact that the data is put on the
+encoder and decoder anymore, only the fact that the same data is put on the
 input/output.)
 
 From the autoregressive property, all we want to do is ensure that we only have
