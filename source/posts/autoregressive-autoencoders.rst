@@ -222,39 +222,40 @@ out how to use neural networks to help you add more capacity and scale it.
 |h2| Autoregressive Autoencoders |h2e|
 
 So vanilla autoencoders don't quite get us to a proper probability distribution
-of the data, but is there a way to modify them to get us there?  Let's review
-the `product rule <https://en.wikipedia.org/wiki/Chain_rule_(probability)>`__:
+but is there a way to modify them to get us there?  Let's review the 
+`product rule <https://en.wikipedia.org/wiki/Chain_rule_(probability)>`__:
 
 .. math::
 
-    p({\bf x}) = \prod_{i=1}^{D} p(x_i | {\bf x}_{<D})  \tag{8}
+    p({\bf x}) = \prod_{i=1}^{D} p(x_i | {\bf x}_{<i})  \tag{8}
 
-where :math:`{\bf x}_{<D} = [x_1, \ldots, x_{i-1}]`.  Basically, component
+where :math:`{\bf x}_{<i} = [x_1, \ldots, x_{i-1}]`.  Basically, component
 :math:`i` of :math:`{\bf x}` only depends on the dimensions of :math:`j < i`.
 
-So how does this help us? In vanilla autoencoders, each component :math:`x_i`
-could depend on any of its components :math:`x_1,\ldots,x_n`, this resulted an
-improper probability distribution.  If we start with the product rule, which
-guarantees a proper distribution, we can work backwards to map the autoencoder
-to this model.
+So how does this help us? In vanilla autoencoders, each output :math:`\hat{x_i}`
+could depend on any of the components input :math:`x_1,\ldots,x_n`, as we saw
+before, this resulted in an improper probability distribution.  If we start with
+the product rule, which guarantees a proper distribution, we can work backwards
+to map the autoencoder to this model.
 
-For example, let's consider binary data (say a binarized image).  :math:`x_1`
+For example, let's consider binary data (say a binarized image).  :math:`\hat{x_1}`
 does not depend on any other components of :math:`{\bf x}`, therefore our
 implementation should just need to estimate a single parameter :math:`p_1` for
 this pixel.  
-How about :math:`x_2` though?  Now we let :math:`x_2` depend *only* on
+How about :math:`\hat{x_2}` though?  Now we let :math:`\hat{x_2}` depend *only* on
 :math:`x_1` since we have :math:`p(x_2|x_1)`.  This dependency can be modelled
-using a non-linear function say maybe a neural network? So we'll have
-some neural net that maps :math:`x_1` to the :math:`x_2` output.  Now consider
-the general case of :math:`x_j`,  we can have a neural net that maps 
-:math:`\bf x_{<j}` to the :math:`x_j` output.  Lastly, there's no reason that
-each step needs to be a separate neural network, we can just put it all
-together in a single shared neural network so long as we follow a couple of rules:
+using a non-linear function... say maybe a neural network? So we'll have
+some neural net that maps :math:`x_1` to the :math:`\hat{x_2}` output.
+Now consider the general case of :math:`\hat{x_j}`,  we can have a neural net
+that maps :math:`\bf x_{<j}` to the :math:`\hat{x_j}` output.  Lastly, there's
+no reason that each step needs to be a separate neural network, we can just put
+it all together in a single shared neural network so long as we follow a couple
+of rules:
 
 1. Each output of the network :math:`\hat{x}_i` represents the probability
    distribution :math:`p(x_i|{\bf x_{<i}})`.
-2. Each output can only have connections (recursively) to smaller indexed
-   inputs :math:`\bf x_{<i}` and not any of the other ones.
+2. Each output :math:`\hat{x_i}` can only have connections (recursively) to
+   smaller indexed inputs :math:`\bf x_{<i}` and not any of the other ones.
 
 Said another way, our neural net first learns :math:`p(x_1)` (just a single
 parameter value in the case of binarized data), then iteratively learns the
@@ -276,15 +277,15 @@ encoder and decoder anymore, only the fact that the data is put on the
 input/output.)
 
 From the autoregressive property, all we want to do is ensure that we only have
-connections (recursively) from input :math:`i` to output :math:`j` where
-:math:`i < j`.  One way to accomplish this is to not make these connections in
-the first place, but that's a bit annoying because we can't easily use our
-existing infrastructure for neural networks.  
+connections (recursively) from inputs :math:`i` to output :math:`j` where
+:math:`i < j`.  One way to accomplish this is to not make the unwanted
+connections in the first place, but that's a bit annoying because we can't
+easily use our existing infrastructure for neural networks.  
 
-The main observation here is that a connection with weight :math:`0` is the
-same as no connection at all.  So all we have to do is zero-out the connections
-we don't want.  We can do that easily with a "mask" for each weight matrix
-which says which connections we want and which we don't.
+The main observation here is that a connection with weight zero is the
+same as no connection at all.  So all we have to do is zero-out the weights we
+don't want.  We can do that easily with a "mask" for each weight matrix which
+says which connections we want and which we don't.
 
 This is a simple modification to our standard neural networks.  Consider a one
 hidden layer autoencoder with input :math:`x`:
@@ -323,9 +324,9 @@ in the paper of :math:`m^l(k)` to denote the index assigned to hidden node
                 \end{array}
               \right. \\ \tag{10}
 
-Basically, for a given node, only connect it to nodes that have an index less
-than or equal to it's index.  This will guarantee that a given index will
-recursively obey our auto-regressive property.
+Basically, for a given node, only connect it to nodes in the previous layer
+that have an index less than or equal to its index.  This will guarantee that a
+given index will recursively obey our auto-regressive property.
 
 The output mask has a slightly different rule:
 
@@ -409,12 +410,12 @@ our autoencoder.  It turns out it's quite easy but a bit slow.  The main idea
 
 1. Randomly generate vector :math:`{\bf x}`, set :math:`i=1`.
 2. Feed :math:`{\bf x}` into autoencoder and generate outputs 
-   :math:`\hat{\bf x}` for the network, set :math:`p=x_i`.
+   :math:`\hat{\bf x}` for the network, set :math:`p=\hat{x_i}`.
 3. Sample from a Bernoulli distribution with parameter :math:`p`, set
-   :math:`x_{i}=\text{Bernoulli}(p)`.
+   input :math:`x_{i}=\text{Bernoulli}(p)`.
 4. Increment :math:`i` and repeat steps 2-4 until `i > D`. 
 
-Basically, we're iteratively calculating :math:`p(x_i|{\bf x_{1,\ldots,i-1}})`
+Basically, we're iteratively calculating :math:`p(x_i|{\bf x_{<i}})`
 by doing a forward pass on the autoencoder each time.  Along the way, we sample
 from the Bernoulli distribution and feed the sampled value back into the
 autoencoder to compute the next parameter for the next bit.
