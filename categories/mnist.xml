@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about MNIST)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mnist.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sat, 14 Oct 2017 14:42:51 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Autoregressive Autoencoders</title><link>http://bjlkeng.github.io/posts/autoregressive-autoencoders/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;You might think that I'd be bored with autoencoders by now but I still
+find them extremely interesting!  In this post, I'm going to be explaining
+a cute little idea that I came across in the paper &lt;a class="reference external" href="https://arxiv.org/pdf/1502.03509.pdf"&gt;MADE: Masked Autoencoder
+for Distribution Estimation&lt;/a&gt;.
+Traditional autoencoders are great because they can perform unsupervised
+learning by mapping an input to a latent representation.  However, one
+drawback is that they don't have a solid probabilistic basis
+(of course there are other variants of autoencoders that do, see previous posts
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/variational-autoencoders"&gt;here&lt;/a&gt;,
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset"&gt;here&lt;/a&gt;, and
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/semi-supervised-learning-with-variational-autoencoders"&gt;here&lt;/a&gt;).
+By using what the authors define as the &lt;em&gt;autoregressive property&lt;/em&gt;, we can
+transform the traditional autoencoder approach into a fully probabilistic model
+with very little modification! As usual, I'll provide some intuition, math and
+an implementation.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/autoregressive-autoencoders/"&gt;Read more…&lt;/a&gt; (17 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoencoders</category><category>autoregressive</category><category>generative models</category><category>MADE</category><category>mathjax</category><category>MNIST</category><guid>http://bjlkeng.github.io/posts/autoregressive-autoencoders/</guid><pubDate>Sat, 14 Oct 2017 14:02:15 GMT</pubDate></item></channel></rss>

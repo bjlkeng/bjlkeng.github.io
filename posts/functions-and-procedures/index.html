@@ -53,7 +53,7 @@
 <!-- /.navbar-header -->
         <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
             <ul class="nav navbar-nav">
-<p class="lead">Understanding data, math, and programming to a satisfactory degree.</p>
+<p class="lead">Understanding math, machine learning, and data to a satisfactory degree.</p>
 <!--
                 
                 <li><a href="/archive.html">Archive</a>
@@ -172,15 +172,15 @@ Every [subroutine] should either return a value or have a side effect: never bot
 violating it and have it come back to bite you in the arse.  Greg goes on to give
 a couple of great examples (from actual code reviews he has done).  Here's
 one of his examples where this rule of thumb is violated:</p>
-<pre class="code python"><a name="rest_code_9113ca6da38b4297a08a4a2d7c18ca17-1"></a><span class="k">def</span> <span class="nf">get_foo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">foo</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-<a name="rest_code_9113ca6da38b4297a08a4a2d7c18ca17-2"></a>    <span class="sd">'''Query the server for foo values.</span>
-<a name="rest_code_9113ca6da38b4297a08a4a2d7c18ca17-3"></a><span class="sd">    Return a dict mapping hostname to foo value.</span>
-<a name="rest_code_9113ca6da38b4297a08a4a2d7c18ca17-4"></a>
-<a name="rest_code_9113ca6da38b4297a08a4a2d7c18ca17-5"></a><span class="sd">    foo must be a dict or None; if supplied, the</span>
-<a name="rest_code_9113ca6da38b4297a08a4a2d7c18ca17-6"></a><span class="sd">    foo values will additionally be stored there</span>
-<a name="rest_code_9113ca6da38b4297a08a4a2d7c18ca17-7"></a><span class="sd">    by hostname, and foo will be returned instead</span>
-<a name="rest_code_9113ca6da38b4297a08a4a2d7c18ca17-8"></a><span class="sd">    of a new dict.</span>
-<a name="rest_code_9113ca6da38b4297a08a4a2d7c18ca17-9"></a><span class="sd">    '''</span>
+<pre class="code python"><a name="rest_code_349672332a124e2c93a305ccbed4c328-1"></a><span class="k">def</span> <span class="nf">get_foo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">foo</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<a name="rest_code_349672332a124e2c93a305ccbed4c328-2"></a>    <span class="sd">'''Query the server for foo values.</span>
+<a name="rest_code_349672332a124e2c93a305ccbed4c328-3"></a><span class="sd">    Return a dict mapping hostname to foo value.</span>
+<a name="rest_code_349672332a124e2c93a305ccbed4c328-4"></a>
+<a name="rest_code_349672332a124e2c93a305ccbed4c328-5"></a><span class="sd">    foo must be a dict or None; if supplied, the</span>
+<a name="rest_code_349672332a124e2c93a305ccbed4c328-6"></a><span class="sd">    foo values will additionally be stored there</span>
+<a name="rest_code_349672332a124e2c93a305ccbed4c328-7"></a><span class="sd">    by hostname, and foo will be returned instead</span>
+<a name="rest_code_349672332a124e2c93a305ccbed4c328-8"></a><span class="sd">    of a new dict.</span>
+<a name="rest_code_349672332a124e2c93a305ccbed4c328-9"></a><span class="sd">    '''</span>
 </pre>
 <p>Gee, I'm already confused even after reading the documentation (don't even get
 me started on the mismatch with the function name).  Remember, we want to
@@ -191,23 +191,23 @@ but the fact that we need to think twice about it sure isn't helping the
 complexity.  Imagine if every subroutine you wrote had this issue -- I don't envy
 that code reviewer.</p>
 <p>Greg goes on to give a better way to implement <tt class="docutils literal">get_foo()</tt> as a pure function:</p>
-<pre class="code python"><a name="rest_code_cef53f3e3a8d4607ada92979c691656b-1"></a><span class="k">def</span> <span class="nf">get_foo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<a name="rest_code_cef53f3e3a8d4607ada92979c691656b-2"></a>    <span class="sd">'''Query the server for foo values.</span>
-<a name="rest_code_cef53f3e3a8d4607ada92979c691656b-3"></a><span class="sd">    Return a dict mapping hostname to foo value.</span>
-<a name="rest_code_cef53f3e3a8d4607ada92979c691656b-4"></a><span class="sd">    '''</span>
+<pre class="code python"><a name="rest_code_c4a952ca252a47a3b978e536620591f5-1"></a><span class="k">def</span> <span class="nf">get_foo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a name="rest_code_c4a952ca252a47a3b978e536620591f5-2"></a>    <span class="sd">'''Query the server for foo values.</span>
+<a name="rest_code_c4a952ca252a47a3b978e536620591f5-3"></a><span class="sd">    Return a dict mapping hostname to foo value.</span>
+<a name="rest_code_c4a952ca252a47a3b978e536620591f5-4"></a><span class="sd">    '''</span>
 </pre>
 <p>Much simpler and easy to understand: query the server, get back a <tt class="docutils literal">dict</tt>.
 No extraneous mental overhead with the <tt class="docutils literal">foo</tt> parameter.  It
 may only be a small improvement but when building a large system, these small
 things add up quickly (especially since complexity is likely multiplicative).</p>
 <p>There's also this example involving C:</p>
-<pre class="code c"><a name="rest_code_20ba58d5a19a425da0ac20e6217d4ef6-1"></a><span class="cm">/**</span>
-<a name="rest_code_20ba58d5a19a425da0ac20e6217d4ef6-2"></a><span class="cm"> * Replace all 'e' characters in str with 'E'. Return the number of</span>
-<a name="rest_code_20ba58d5a19a425da0ac20e6217d4ef6-3"></a><span class="cm"> * characters replaced.</span>
-<a name="rest_code_20ba58d5a19a425da0ac20e6217d4ef6-4"></a><span class="cm"> */</span>
-<a name="rest_code_20ba58d5a19a425da0ac20e6217d4ef6-5"></a><span class="kt">int</span> <span class="nf">strmunge_v1</span><span class="p">(</span><span class="n">string</span> <span class="n">str</span><span class="p">)</span> <span class="p">{</span>
-<a name="rest_code_20ba58d5a19a425da0ac20e6217d4ef6-6"></a>    <span class="p">...</span>
-<a name="rest_code_20ba58d5a19a425da0ac20e6217d4ef6-7"></a><span class="p">}</span>
+<pre class="code c"><a name="rest_code_853358d54fb64d8fabf172b61af4981c-1"></a><span class="cm">/**</span>
+<a name="rest_code_853358d54fb64d8fabf172b61af4981c-2"></a><span class="cm"> * Replace all 'e' characters in str with 'E'. Return the number of</span>
+<a name="rest_code_853358d54fb64d8fabf172b61af4981c-3"></a><span class="cm"> * characters replaced.</span>
+<a name="rest_code_853358d54fb64d8fabf172b61af4981c-4"></a><span class="cm"> */</span>
+<a name="rest_code_853358d54fb64d8fabf172b61af4981c-5"></a><span class="kt">int</span> <span class="nf">strmunge_v1</span><span class="p">(</span><span class="n">string</span> <span class="n">str</span><span class="p">)</span> <span class="p">{</span>
+<a name="rest_code_853358d54fb64d8fabf172b61af4981c-6"></a>    <span class="p">...</span>
+<a name="rest_code_853358d54fb64d8fabf172b61af4981c-7"></a><span class="p">}</span>
 </pre>
 <p>He points out that this type of subroutine is pervasive in C and notes that the
 only valid reason for violating this rule is for performance (which is probably
@@ -215,14 +215,14 @@ why you're programming in C in the first place!).  For the rest of us who aren't
 writing performance critical code (come guys, that's most of you), a much
 cleaner solution is not to have the side-effect and convert it to a pure
 function:</p>
-<pre class="code c"><a name="rest_code_a46402be167b432daeb6908601c35cfe-1"></a><span class="cm">/**</span>
-<a name="rest_code_a46402be167b432daeb6908601c35cfe-2"></a><span class="cm"> * Return newstr, a copy of str with all 'e' characters replaced</span>
-<a name="rest_code_a46402be167b432daeb6908601c35cfe-3"></a><span class="cm"> * by 'E', and nreplaced, the number of characters replaced.</span>
-<a name="rest_code_a46402be167b432daeb6908601c35cfe-4"></a><span class="cm"> * (Assume language with multiple return values)</span>
-<a name="rest_code_a46402be167b432daeb6908601c35cfe-5"></a><span class="cm"> */</span>
-<a name="rest_code_a46402be167b432daeb6908601c35cfe-6"></a><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">)</span> <span class="n">strmunge_v2</span><span class="p">(</span><span class="n">string</span> <span class="n">str</span><span class="p">)</span> <span class="p">{</span>
-<a name="rest_code_a46402be167b432daeb6908601c35cfe-7"></a>    <span class="p">...</span>
-<a name="rest_code_a46402be167b432daeb6908601c35cfe-8"></a><span class="p">}</span>
+<pre class="code c"><a name="rest_code_85e91737edc547f791b7e3d649bc68c9-1"></a><span class="cm">/**</span>
+<a name="rest_code_85e91737edc547f791b7e3d649bc68c9-2"></a><span class="cm"> * Return newstr, a copy of str with all 'e' characters replaced</span>
+<a name="rest_code_85e91737edc547f791b7e3d649bc68c9-3"></a><span class="cm"> * by 'E', and nreplaced, the number of characters replaced.</span>
+<a name="rest_code_85e91737edc547f791b7e3d649bc68c9-4"></a><span class="cm"> * (Assume language with multiple return values)</span>
+<a name="rest_code_85e91737edc547f791b7e3d649bc68c9-5"></a><span class="cm"> */</span>
+<a name="rest_code_85e91737edc547f791b7e3d649bc68c9-6"></a><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">)</span> <span class="n">strmunge_v2</span><span class="p">(</span><span class="n">string</span> <span class="n">str</span><span class="p">)</span> <span class="p">{</span>
+<a name="rest_code_85e91737edc547f791b7e3d649bc68c9-7"></a>    <span class="p">...</span>
+<a name="rest_code_85e91737edc547f791b7e3d649bc68c9-8"></a><span class="p">}</span>
 </pre>
 <p>The pure function has many benefits over the side-effect-ridden one (functional
 programmers rejoice!) with the main one that it's easier to reason about: you

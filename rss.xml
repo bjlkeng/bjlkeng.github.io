@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality</title><link>http://bjlkeng.github.io/</link><description>Understanding data, math, and programming to a satisfactory degree.</description><atom:link href="http://bjlkeng.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Mon, 11 Sep 2017 12:55:35 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Semi-supervised Learning with Variational Autoencoders</title><link>http://bjlkeng.github.io/posts/semi-supervised-learning-with-variational-autoencoders/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;In this post, I'll be continuing on this variational autoencoder (VAE) line of
+<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality</title><link>http://bjlkeng.github.io/</link><description>Understanding math, machine learning, and data to a satisfactory degree.</description><atom:link href="http://bjlkeng.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sat, 14 Oct 2017 14:42:52 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Autoregressive Autoencoders</title><link>http://bjlkeng.github.io/posts/autoregressive-autoencoders/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;You might think that I'd be bored with autoencoders by now but I still
+find them extremely interesting!  In this post, I'm going to be explaining
+a cute little idea that I came across in the paper &lt;a class="reference external" href="https://arxiv.org/pdf/1502.03509.pdf"&gt;MADE: Masked Autoencoder
+for Distribution Estimation&lt;/a&gt;.
+Traditional autoencoders are great because they can perform unsupervised
+learning by mapping an input to a latent representation.  However, one
+drawback is that they don't have a solid probabilistic basis
+(of course there are other variants of autoencoders that do, see previous posts
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/variational-autoencoders"&gt;here&lt;/a&gt;,
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset"&gt;here&lt;/a&gt;, and
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/semi-supervised-learning-with-variational-autoencoders"&gt;here&lt;/a&gt;).
+By using what the authors define as the &lt;em&gt;autoregressive property&lt;/em&gt;, we can
+transform the traditional autoencoder approach into a fully probabilistic model
+with very little modification! As usual, I'll provide some intuition, math and
+an implementation.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/autoregressive-autoencoders/"&gt;Read more…&lt;/a&gt; (17 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoencoders</category><category>autoregressive</category><category>generative models</category><category>MADE</category><category>mathjax</category><category>MNIST</category><guid>http://bjlkeng.github.io/posts/autoregressive-autoencoders/</guid><pubDate>Sat, 14 Oct 2017 14:02:15 GMT</pubDate></item><item><title>Semi-supervised Learning with Variational Autoencoders</title><link>http://bjlkeng.github.io/posts/semi-supervised-learning-with-variational-autoencoders/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;In this post, I'll be continuing on this variational autoencoder (VAE) line of
 exploration
 (previous posts: &lt;a class="reference external" href="http://bjlkeng.github.io/posts/variational-autoencoders"&gt;here&lt;/a&gt; and
 &lt;a class="reference external" href="http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset"&gt;here&lt;/a&gt;) by
@@ -158,15 +173,4 @@ behind it are actually quite intuitive once we come up with the right analogue
 in physical reality, so as usual we'll start there.  We'll work through some
 problems and hopefully by the end of this post, this topic won't seem as
 mysterious anymore &lt;a class="footnote-reference" href="http://bjlkeng.github.io/posts/lagrange-multipliers/#id3" id="id1"&gt;[1]&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/lagrange-multipliers/"&gt;Read more…&lt;/a&gt; (11 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>calculus</category><category>lagrange multipliers</category><category>mathjax</category><guid>http://bjlkeng.github.io/posts/lagrange-multipliers/</guid><pubDate>Tue, 13 Dec 2016 12:48:31 GMT</pubDate></item><item><title>The Expectation-Maximization Algorithm</title><link>http://bjlkeng.github.io/posts/the-expectation-maximization-algorithm/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to talk about a widely used method to find the
-maximum likelihood (MLE) or maximum a posteriori (MAP) estimate of parameters
-in latent variable models called the Expectation-Maximization algorithm.  You
-have probably heard about the most famous variant of this algorithm called the
-k-means algorithm for clustering.
-Even though it's so ubiquitous, whenever I've tried to understand &lt;em&gt;why&lt;/em&gt; this
-algorithm works, I never quite got the intuition right.  Now that I've taken
-the time to work through the math, I'm going to &lt;em&gt;attempt&lt;/em&gt; to explain the
-algorithm hopefully with a bit more clarity.  We'll start by going back to the
-basics with latent variable models and the likelihood functions, then moving on
-to showing the math with a simple Gaussian mixture model &lt;a class="footnote-reference" href="http://bjlkeng.github.io/posts/the-expectation-maximization-algorithm/#id5" id="id1"&gt;[1]&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/the-expectation-maximization-algorithm/"&gt;Read more…&lt;/a&gt; (18 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>expectation-maximization</category><category>gaussian mixture models</category><category>latent variables</category><category>mathjax</category><guid>http://bjlkeng.github.io/posts/the-expectation-maximization-algorithm/</guid><pubDate>Fri, 07 Oct 2016 12:47:47 GMT</pubDate></item></channel></rss>
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/lagrange-multipliers/"&gt;Read more…&lt;/a&gt; (11 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>calculus</category><category>lagrange multipliers</category><category>mathjax</category><guid>http://bjlkeng.github.io/posts/lagrange-multipliers/</guid><pubDate>Tue, 13 Dec 2016 12:48:31 GMT</pubDate></item></channel></rss>
