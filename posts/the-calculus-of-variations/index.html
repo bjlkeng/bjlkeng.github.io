@@ -117,11 +117,11 @@ intuition and explanation, it's actually not too difficult, enjoy!</p>
 <p>Consider a regular scalar function <span class="math">\(F(y)\)</span>, it maps a single value <span class="math">\(y\)</span> to a
 single value <span class="math">\(F(y)\)</span>.
 You can differentiate it to get <span class="math">\(\frac{dF}{dy} = F'(y)\)</span>.
-Another way to think about it is starting at <span class="math">\(y_0\)</span>, move a tiny
+Another way to think about it is starting at <span class="math">\(y_1\)</span>, move a tiny
 step away, call it <span class="math">\(dy\)</span>, then <span class="math">\(F\)</span> will change by its <a class="reference external" href="https://en.wikipedia.org/wiki/Differential_of_a_function">differential</a>:</p>
 <div class="math">
 \begin{equation*}
-dF = F(y_0 + dy) - F(y_0) = \frac{dF}{dy}|_{y_0} dy \tag{1}
+dF = F(y_1 + dy) - F(y_1) = \frac{dF}{dy}|_{y_1} dy \tag{1}
 \end{equation*}
 </div>
 <p>Now let's consider the same situation with a multivariable function
@@ -130,16 +130,16 @@ y_n\)</span> to a single value <span class="math">\(F(y_1, y_2, \ldots, y_n)\)</
 You can also differentiate it by taking partial derivatives:
 <span class="math">\(\frac{dF}{dy_1}, \ldots, \frac{dF}{dy_n}\)</span>.  Similarly, if I move
 a tiny step away in each direction <span class="math">\(dy_1, \ldots, dy_n\)</span>, starting from
-points <span class="math">\(y_1^0, \ldots, y_n^0\)</span>, the
+points <span class="math">\(y_1^1, \ldots, y_n^1\)</span>, the
 <a class="reference external" href="https://en.wikipedia.org/wiki/Differential_of_a_function#Differentials_in_several_variables">total differential</a>
 of the function is:</p>
 <div class="math">
 \begin{equation*}
-dF = \frac{\partial F}{\partial y_1}\Big|_{y_1^0} dy_1 + \ldots + \frac{\partial F}{\partial y_n}\Big|_{y_n^0}dy_n \tag{2}
+dF = \frac{\partial F}{\partial y_1}\Big|_{y_1^1} dy_1 + \ldots + \frac{\partial F}{\partial y_n}\Big|_{y_n^1}dy_n \tag{2}
 \end{equation*}
 </div>
 <p>So far we have only touched upon derivatives and differentials of a function
-<span class="math">\(F(y_0, y_1, \ldots, y_n)\)</span> with independent variables <span class="math">\(y_0, y_1,
+<span class="math">\(F(y_1, y_2, \ldots, y_n)\)</span> with independent variables <span class="math">\(y_1, y_2,
 \ldots, y_n\)</span>.  If you squint hard enough, you may already start to see where
 we're going with this: we can view the input to the function not just as
 independent variables, but collectively as a group of variables derived
@@ -242,7 +242,7 @@ function from above.</p>
 it this time as a sum:</p>
 <div class="math">
 \begin{equation*}
-dF = \sum_{i=1}^N \frac{\partial F}{\partial y_i}\Big|_{y_i^0} dy_i \tag{4}
+dF = \sum_{i=1}^N \frac{\partial F}{\partial y_i}\Big|_{y_i^1} dy_i \tag{4}
 \end{equation*}
 </div>
 <p>Again, if you squint hard enough, as <span class="math">\(N \rightarrow \infty\)</span>,
@@ -250,7 +250,7 @@ dF = \sum_{i=1}^N \frac{\partial F}{\partial y_i}\Big|_{y_i^0} dy_i \tag{4}
 of a continuous function (recall the domain of our function <span class="math">\(y(x)\)</span> was <span class="math">\(x \in [a,b]\)</span>).</p>
 <div class="math">
 \begin{equation*}
-dF = \int_{a}^b \frac{\delta F}{\delta y(x)}\Big|_{y^0(x)} \delta y(x) dx \tag{5}
+dF = \int_{a}^b \frac{\delta F}{\delta y(x)}\Big|_{y^1(x)} \delta y(x) dx \tag{5}
 \end{equation*}
 </div>
 <p>The meaning of Equation 5 is the same as Equation 4: a small change in <span class="math">\(F\)</span>
@@ -270,7 +270,7 @@ for multivariate functions.</p>
 <p>Equation 5 then becomes a
 <a class="reference external" href="https://en.wikipedia.org/wiki/Directional_derivative">directional derivative</a>,
 where we can interpret as the rate of change of <span class="math">\(F\)</span> as we are
-moving through "point" <span class="math">\(y^0(x)\)</span> in the direction of <span class="math">\(\delta y(x)\)</span>
+moving through "point" <span class="math">\(y^1(x)\)</span> in the direction of <span class="math">\(\delta y(x)\)</span>
 (check out this <a class="reference external" href="http://tutorial.math.lamar.edu/Classes/CalcIII/DirectionalDeriv.aspx">tutorial</a>
 on directional derivatives for a good intuitive refresher on the subject).</p>
 <p>This explanation takes us from gradients to functional derivatives
@@ -280,7 +280,7 @@ derivatives from above, if we have the functional derivative at the multivariate
 function <span class="math">\(\eta(x)\)</span> then we can formulate the limit as:</p>
 <div class="math">
 \begin{equation*}
-\lim_{\epsilon \to \infty} \frac{F[y(x) + \epsilon \eta(x)] - F[y(x)]}{\epsilon}
+\lim_{\epsilon \to 0} \frac{F[y(x) + \epsilon \eta(x)] - F[y(x)]}{\epsilon}
 = \int \frac{\delta F}{\delta y(x)} \eta(x) dx
 \tag{7}
 \end{equation*}

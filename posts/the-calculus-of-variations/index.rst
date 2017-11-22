@@ -60,13 +60,13 @@ intuition and explanation, it's actually not too difficult, enjoy!
 Consider a regular scalar function :math:`F(y)`, it maps a single value :math:`y` to a
 single value :math:`F(y)`.  
 You can differentiate it to get :math:`\frac{dF}{dy} = F'(y)`.
-Another way to think about it is starting at :math:`y_0`, move a tiny
+Another way to think about it is starting at :math:`y_1`, move a tiny
 step away, call it :math:`dy`, then :math:`F` will change by its `differential
 <https://en.wikipedia.org/wiki/Differential_of_a_function>`_:
 
 .. math::
 
-    dF = F(y_0 + dy) - F(y_0) = \frac{dF}{dy}|_{y_0} dy \tag{1}
+    dF = F(y_1 + dy) - F(y_1) = \frac{dF}{dy}|_{y_1} dy \tag{1}
 
 Now let's consider the same situation with a multivariable function
 :math:`F(y_1, y_2, \ldots, y_n)`.  It maps a set of values :math:`y_1, \ldots,
@@ -74,16 +74,16 @@ y_n` to a single value :math:`F(y_1, y_2, \ldots, y_n)`.
 You can also differentiate it by taking partial derivatives:
 :math:`\frac{dF}{dy_1}, \ldots, \frac{dF}{dy_n}`.  Similarly, if I move
 a tiny step away in each direction :math:`dy_1, \ldots, dy_n`, starting from
-points :math:`y_1^0, \ldots, y_n^0`, the 
+points :math:`y_1^1, \ldots, y_n^1`, the 
 `total differential <https://en.wikipedia.org/wiki/Differential_of_a_function#Differentials_in_several_variables>`_ 
 of the function is: 
 
 .. math::
 
-    dF = \frac{\partial F}{\partial y_1}\Big|_{y_1^0} dy_1 + \ldots + \frac{\partial F}{\partial y_n}\Big|_{y_n^0}dy_n \tag{2}
+    dF = \frac{\partial F}{\partial y_1}\Big|_{y_1^1} dy_1 + \ldots + \frac{\partial F}{\partial y_n}\Big|_{y_n^1}dy_n \tag{2}
 
 So far we have only touched upon derivatives and differentials of a function
-:math:`F(y_0, y_1, \ldots, y_n)` with independent variables :math:`y_0, y_1,
+:math:`F(y_1, y_2, \ldots, y_n)` with independent variables :math:`y_1, y_2,
 \ldots, y_n`.  If you squint hard enough, you may already start to see where
 we're going with this: we can view the input to the function not just as
 independent variables, but collectively as a group of variables derived
@@ -193,7 +193,7 @@ it this time as a sum:
 
 .. math::
 
-    dF = \sum_{i=1}^N \frac{\partial F}{\partial y_i}\Big|_{y_i^0} dy_i \tag{4}
+    dF = \sum_{i=1}^N \frac{\partial F}{\partial y_i}\Big|_{y_i^1} dy_i \tag{4}
 
 Again, if you squint hard enough, as :math:`N \rightarrow \infty`,
 :math:`y_i` approximates our :math:`y(x)`, and our sum turns into an integral
@@ -201,7 +201,7 @@ of a continuous function (recall the domain of our function :math:`y(x)` was :ma
 
 .. math::
 
-    dF = \int_{a}^b \frac{\delta F}{\delta y(x)}\Big|_{y^0(x)} \delta y(x) dx \tag{5}
+    dF = \int_{a}^b \frac{\delta F}{\delta y(x)}\Big|_{y^1(x)} \delta y(x) dx \tag{5}
 
 The meaning of Equation 5 is the same as Equation 4: a small change in :math:`F`
 is proportional to a sum of small changes in each direction :math:`\delta y(x)`
@@ -221,7 +221,7 @@ for multivariate functions.
 Equation 5 then becomes a
 `directional derivative <https://en.wikipedia.org/wiki/Directional_derivative>`_,
 where we can interpret as the rate of change of :math:`F` as we are
-moving through "point" :math:`y^0(x)` in the direction of :math:`\delta y(x)`
+moving through "point" :math:`y^1(x)` in the direction of :math:`\delta y(x)`
 (check out this `tutorial <http://tutorial.math.lamar.edu/Classes/CalcIII/DirectionalDeriv.aspx>`_
 on directional derivatives for a good intuitive refresher on the subject).
 
@@ -233,7 +233,7 @@ function :math:`\eta(x)` then we can formulate the limit as:
 
 .. math::
 
-    \lim_{\epsilon \to \infty} \frac{F[y(x) + \epsilon \eta(x)] - F[y(x)]}{\epsilon}
+    \lim_{\epsilon \to 0} \frac{F[y(x) + \epsilon \eta(x)] - F[y(x)]}{\epsilon}
     = \int \frac{\delta F}{\delta y(x)} \eta(x) dx
     \tag{7}
 
