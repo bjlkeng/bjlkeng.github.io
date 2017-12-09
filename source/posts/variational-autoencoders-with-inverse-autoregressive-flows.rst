@@ -229,6 +229,17 @@ both of these things.
 
 |h2| Inverse Autoregressive Transformations |h2e|
 
+
+
+.. figure:: /images/iaf.png
+  :height: 400px
+  :alt: Autoregressive Transform
+  :align: center
+
+  Figure 3: Autoregressive Transform and Inverse Autoregressive
+  Transform
+
+
 * Autoregressive property: `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__, [2]
 * Autoregressive equations
 * Show derivation of inverse autoregressive equations (the Gaussian form)
