@@ -229,21 +229,96 @@ both of these things.
 
 |h2| Inverse Autoregressive Transformations |h2e|
 
+An autoregressive transform is one where given a sequence of variables 
+:math:`{\bf y} = \{y_i \}_{i=0}^D`, each variable is dependent only on the
+previously indexed variables i.e. :math:`y_i = f_i(y_{0:i-1})`.
 
+Autoregressive autoencoders introduced in [2] 
+(and my `post on it <link://slug/autoregressive-autoencoders>`__)
+take advantage of this property by constructing an extension of vanilla
+autoencoder that can estimate distributions (whereas the regular one doesn't
+have a direct probabilistic interpretation).  The paper introduced the idea in
+terms of binary Bernoulli variables, but we can also formulate it in terms of
+Gaussians too.
+
+When looking at defining the :math:`f_i(\cdot)` function, you only need a
+single function to estimate the parameter :math:`p` for a Bernoulli.  For a
+Gaussian, we'll need two to estimate the mean and variance denoted by
+:math:`[\bf \mu(y), \sigma(y)]`.  However, due to the autoregressive property,
+the individual elements are only functions of the prior indices 
+and thus their derivatives are zero with respect to latter indices:
+
+.. math::
+    \mu_i &= f_i(y_{0:i-1})\\
+    \sigma_i &= g_i(y_{0:i-1}) \\
+    \frac{\partial[\mu_i, \sigma_i]}{\partial y_j} &= [0, 0] &\text{ for } j\geq i \\
+    \tag{6}
+
+Given :math:`[\bf \mu(y), \sigma(y)]`, we can sample from the autoencoder
+by sequentially transforming a noise vector 
+:math:`\epsilon \sim \mathcal{N}(0, {\bf I})` as such:
+
+.. math::
+    y_0 &= \mu_0 + \sigma_0 \odot \epsilon_. \\
+    y_i &= \mu_i({\bf y_{0:i-1}}) + \sigma_i({\bf y_{0:i-1}}) \odot \epsilon_0 & \text{ for } i > 0
+    \tag{7}
+
+where addition is element-wise and :math:`\odot` is element-wise multiplication.
+
+However in our case, we can transform any vector, not just a noise vector.
+This is shown on the left hand side of Figure 3 where we take a :math:`\bf x`
+vector and transform it to a :math:`\bf y` vector.  You'll notice that we have
+to perform :math:`D` sequential computations, thus making it too slow for our
+intended purpose of use in a normalizing flow.  But what about the inverse
+transform?
 
 .. figure:: /images/iaf.png
-  :height: 400px
+  :width: 550px
   :alt: Autoregressive Transform
   :align: center
 
-  Figure 3: Autoregressive Transform and Inverse Autoregressive
-  Transform
+  Figure 3: Gaussian version of Autoregressive Transform and Inverse
+  Autoregressive Transforms
 
+The inverse transform can actually be parallelized (we'll switch to :math:`\bf x` as
+the input variable instead of :math:`\epsilon`) as shown in Equation 8 and
+the right hand side of Figure 3 so long as we have :math:`\sigma_i > 0`.
 
-* Autoregressive property: `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__, [2]
-* Autoregressive equations
-* Show derivation of inverse autoregressive equations (the Gaussian form)
-* Diagram showing forward and backwards
+.. math::
+
+    x_i = \frac{y_i - \mu_i({\bf y_{0:i-1}})}{\sigma_i({\bf y_{0:i-1}})} \tag{8}
+
+where subtraction and division is element-wise.
+
+Now here comes the beauty of this transform.  Recall in normalizing flows
+to properly compute the probability, we have to be able to compute
+the determinant (or log-determinant).  However, Equation 6 shows that
+:math:`\bf \mu, \sigma` have no dependence on the current or latter variables
+in our sequence.  Thus using Equation 8, the Jacobian is lower triangular with a
+simple diagonal:
+
+.. math::
+
+    \frac{d{\bf x}}{d{\bf y}} =
+    \begin{bmatrix}
+    \frac{1}{\sigma_0} & 0 & \dots & 0 \\
+    \frac{\partial x_0}{\partial y_1} & \frac{1}{\sigma_1} & \dots  & 0 \\
+    \vdots & \ddots & \ddots & \vdots \\
+    \frac{\partial x_0}{\partial y_D} & \dots & \frac{\partial x_{D-1}}{\partial y_D} &  \frac{1}{\sigma_D} \\
+    \end{bmatrix}
+    \tag{9}
+
+Knowing that the determinant of a triangular matrix is the product of its
+diagonals, this gives us our final result for the log determinant:
+
+.. math::
+
+    \log \big| det \frac{d{\bf x}}{d{\bf y}} \big|
+    = - \sum_{t=0}^T \log \sigma_i({\bf y_{0:i-1}}) \tag{10}
+    
+In the next section, we'll see how to use this inverse autoregressive transform
+to build a more flexible posterior distribution for our variational
+autoencoder.
 
 |h2| Inverse Autoregressive Flows |h2e|
 
