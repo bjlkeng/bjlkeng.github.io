@@ -376,15 +376,87 @@ where :math:`{\bf s}_t = \frac{1}{{\bf \sigma}_t}` and
 because remember that we are learning these functions through a neural network 
 so it doesn't really matter if invert or negate.
 
+Next, let's introduce a context :math:`\bf h`.  Recall, our posterior is 
+:math:`p({\bf z}|{\bf x})` but this is the same as just saying
+:math:`p({\bf z}|{\bf x}, f({\bf x}))`, where :math:`f(\cdot)` is some
+deterministic function.  So let's just define :math:`{\bf h}:=f({\bf x})`
+and then use it in our IAF transforms because our latent variable is
+still only a function of :math:`{\bf x}`:
 
-    
-where the first subscript is the number of steps we've applied so far in our
-chain of IAF transforms, and the second indexes the vector of latent variables.
+.. math::
+
+    {\bf z}_{t+1}
+        &= {\bf z}_t \odot {\bf s}_t({\bf z}_t, {\bf h}) - {\bf m}_t({\bf z}_t, {\bf h}) \\
+    \tag{13} 
+
+Equation 13 now matches Figure 4 (where we've relabelled :math:`\mu, \sigma` to
+:math:`m, s` for clarity).
+
+The last thing to note is that in the actual implementation, [3] suggests
+a modification to improve numerical stability while fitting.
+Given the outputs of the autoregressive network:
+
+.. math::
+
+    [{\bf m}_t, {\bf s}_t] = \text{AutoregressiveNN}[t]({\bf z}_t, {\bf h}; {\bf \theta})
+    \tag{14}
+
+We construct :math:`{\bf z}_t` as:
+
+.. math::
+
+    {\bf z}_t = \text{sigm}({\bf s}_t)\odot {\bf z}_{t-1} + (1 - \text{sigm}({\bf s}_t))\odot {\bf m}_t
+    \tag{15}
+
+where sigm is the sigmoid function.  This is inspired by an LSTM-style
+updating.  They also suggest to initialize the weights of :math:`{\bf s}_t` to
+mostly saturate the sigmoid so that it's mostly just a pass-through to start.
+During experimentation, I saw that if I didn't use this trick by the third or fourth
+IAF transform, I started getting NaNs really quickly.
 
 
-* Explain stable computation sigma * z + (1-sigma) * m
+|h3| Deriving the IAF Density |h3e|
 
-|h3| Experiments: IAF Implementation |h3e|
+Now that we have Equation 15, we can finally derive the posterior density. 
+Even with the change of variable above, :math:`{\bf s}, {\bf m}`  are still autoregressive
+so Equation 10 applies.  Using this fact, starting from Equation 5:
+
+.. math::
+
+    \log q({\bf z_T} | {\bf x}) &= \log q({\bf z_0}|{\bf x})
+    - \sum_{t=1}^T \log \big| det(\frac{d{\bf z_t}}{d{\bf z_{t-1}}}) \big| \\
+    &= \log q({\bf z_0}|{\bf x}) - \sum_{t=1}^T \big[- \sum_{i=0}^D \log {\bf \sigma}_{t, i}\big] & \text{Equation 10} \\
+    &= \log q({\bf z_0}|{\bf x}) - \sum_{t=1}^T \big[\sum_{i=0}^D \log {\bf s}_{t, i}\big] & \text{Change variable to }{\bf s} \\
+    &= - \sum_{i=0}^D \big[ \frac{1}{2}\epsilon_i^2 + \frac{1}{2}\log(2\pi) + \sum_{t=0}^D \log {\bf s}_{t, i}\big]  \\
+      \tag{16}
+
+where :math:`q({\bf z}_0|{\bf x})` is just an isotropic Gaussian centered at
+:math:`{\bf \mu}_0` with :math:`{\bf \sigma}_0`.  Here we apply Equation 3 and
+just absorb the :math:`{\sigma}_0` into the summation (by changing variable to
+:math:`{\bf s}`).
+
+Lastly, we can write our entire variational objective as:
+
+.. math::
+
+  \log{p({\bf x})} &\geq -E_q\big[\log\frac{q({\bf z}_T|{\bf x})}{p({\bf z}_T,{\bf x})}\big]  \\
+             &= E_q\big[\log p({\bf z}_T,{\bf x}) - \log q({\bf z}_T|{\bf x})\big] \\
+             &= E_q\big[\log p({\bf x}|{\bf z}_T) + \log p({\bf z}_T) - \log q({\bf z}_T|{\bf x})\big] \\
+             &= E_q\big[\log p({\bf x}|{\bf z}_T) + \log p({\bf z}_T) - \log q({\bf z}_T|{\bf x})\big] \\
+    \log q({\bf z_T} | {\bf x})
+    &= - \sum_{i=0}^D \big[ \frac{1}{2}\epsilon_i^2 + \frac{1}{2}\log(2\pi) + \sum_{t=0}^D \log {\bf s}_{t, i}\big]  \\
+    \log p({\bf z_T}) &= - \sum_{i=0}^D \big[ \frac{1}{2}{\bf z}_T^2 + \frac{1}{2}\log(2\pi)\big]  \\
+    \tag{17}
+
+with :math:`\log p({\bf z_T})` as our standard diagonal Gaussian prior and whatever
+distribution you want on your output variable :math:`\log p({\bf x}|{\bf z}_T)` 
+(e.g. Bernoulli, Gaussian, etc.).
+With Equation 17, you can just negate it and use it as your loss function for
+your IAF VAE (the expectation gets estimated with the mini-batches of your
+stochastic gradient descent)!
+
+
+|h2| Experiments: IAF Implementation |h2e|
 
 TODO
 
