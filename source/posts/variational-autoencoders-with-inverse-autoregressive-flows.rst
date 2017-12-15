@@ -452,30 +452,111 @@ with :math:`\log p({\bf z_T})` as our standard diagonal Gaussian prior and whate
 distribution you want on your output variable :math:`\log p({\bf x}|{\bf z}_T)` 
 (e.g. Bernoulli, Gaussian, etc.).
 With Equation 17, you can just negate it and use it as your loss function for
-your IAF VAE (the expectation gets estimated with the mini-batches of your
-stochastic gradient descent)!
-
+your IAF VAE (the expectation gets estimated implicitly with the mini-batches
+of your stochastic gradient descent).
 
 |h2| Experiments: IAF Implementation |h2e|
 
-TODO
+I implemented a VAE with IAF on both a binarized MNIST dataset as well as CIFAR10
+in a set of 
+TODO (`notebook <>`__).
+
+My implementation uses a modification of the MADE autoencoder from [2] (see my previous post on `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__)
+for the IAF layers and I only used the "basic" version from the paper, not the
+extension based on ResNet.
+
+As usual, things were pretty easy to put together using Keras because I
+basically took the code for a VAEs, added the code I had for a MADE, and
+modified the loss function as needed.  Actually, it was a bit harder than that
+because I had to work through a bunch of bugs and misinterpretations of the math, 
+but the number of lines added was quite small.
+
+The networks for the encoder are a few convolution layers, a couple of dense
+layers, and symmetric structure for the decoder except with transposed
+convolutions.  I used 32 latent dimensions for MNIST and 128 for CIFAR10 with
+proportional number of filters and hidden nodes for layers.  For the IAF portion,
+I used separate 2-layer MaskingDense layers from [2] for the :math:`\bf m` and
+:math:`\bf s` variables with 10 times the hidden layers of the latent
+dimensions.  As the paper suggested, I reversed the order of the each
+:math:`\bf z_t`.
+
+.. csv-table:: Table 1: IAF Results
+   :header: "Model", "Training Loss", "Validation Loss", "P(X|Z) Test Loss"
+   :widths: 15, 10, 10, 10
+   :align: center
+
+   "MNIST-VAE", 70.92, 72.33, 40.19
+   "MNIST-VAE+IAF", 66.44, 70.89, 39.99
+   "CIFAR10-VAE", 1815.29, 1820.17, 1781.58
+   "CIFAR10-VAE+IAF", 1815.07, 1823.05, 1786.24
+
+Table 1 shows the results of the experiments on both datasets.  As you can see
+the IAF layers seems to do a bit of improvement on MNIST taking the testing
+loss down from :math:`72.3` to :math:`70.9`, while there's barely an
+improvement on the output loss.  This didn't really have any affect on the
+generated images, which qualitatively showed no difference.  The IAF layers
+improved a bit but it didn't seem to do too much.
+
+The CIFAR10 results seemed to get worse on validation/test sets.  One thing
+that I did notice is that adding more IAF layers requires more training
+(there are many more parameters) and also you need some "tricks" in order
+to properly train it.  This is likely due to the long chain of dense layers
+that make up the IAF transforms, similar to troubles you might have in an LSTM.
+
+My overall conclusion is that IAF didn't seem to have a huge affect on the
+resulting output (at least on its own).  I was hoping that it would help VAEs
+achieve GAN-like results but alas, it's not quite there.  I will note that [3]
+actually had a novel architecture using IAF transforms with a ResNet like
+structure.  This is where they achieved near state-of-the-art results on
+CIFAR10.  Probably this structure is much easier to train (like ResNet) and
+really allows you to take advantage of the IAF layers.
+
 
 |h3| Implementation Notes |h3e|
 
-* The "context" vector is connected to the input of the MADE with additional dense layer (see impl.)
-* I added a 2 * to the stability computation, seems like you will need it or else you can't "expand" the volume
-* Had a lot of trouble with getting things to be stable with made computation, not sure if all of them helped:
-    * Added regularizers on the autoregressive parts
-    * Used 'sigmoid' for activation for all made stuff (instead of 'elu' for others)
-* Had a bunch of confusion with the logqz_x computation, in particular the determinant.  Only after I worked through the math did I actually figure out the sign of the determinant in Eq. X
-* 
+* The "context" vector is connected to the input of the MADE with additional dense layer (see implementation).
+* The trick from Equation 15 was needed.  Even at 4-layers I started getting NaNs pretty quickly.
+* Even beyond Equation 15, I had a lot of trouble with getting things to be
+  stable with made computation, not sure if all of them helped:
+    * Added regularizers on the MADE layers.
+    * Used 'sigmoid' for activation for all made stuff (instead of the 'elu'
+      activation I used for the other layers).
+    * I disabled dropout for all layers.
+* I had a bunch of confusion with the :math:`\log q(z|x)` computation, especially
+  the determinant.  Only after I worked through the math did I actually figure
+  out the sign of the determinant in Equation 17.  The key is really understanding
+  the change of variables in Equation 12.
+* I actually spent a lot of time trying to get IAFs to work on a "toy" example
+  using various synthetic data like mixed Gaussians or weird auto-regressive
+  distributions.  In all these cases, I had a lot of trouble showing that the
+  IAF transforms did anything.  In the cases I tried, it looks to perform pretty
+  much on par with a vanilla autoencoder.  My hypothesis on this is that either
+  the distributions were too simple so the vanilla VAE works really well, or
+  the IAF transforms don't do much.  I suspect the latter is probably most of it.
+* Now I'm wondering if the normalizing flow transforms from [1] will do a better job
+  but I didn't spend any time trying to implement it to see if it made a difference.
+
 
 |h2| Conclusion |h2e|
+
+Well there you have, another autoencoder post!  When I first read about this idea
+I was super excited because conceptually it's so beautiful!  Using the exact same
+VAE that we all know and love, you can improve its performance just by transforming
+the posterior and removing the big perceived limitation: diagonal Gaussians.
+Unfortunately, normalizing flows with IAF transforms is not silver bullet and the
+improvements I saw were pretty mediocre (if you think otherwise please let me know).
+Despite this, I still really like the idea, at least theoretically because I think
+it really shows some creativity to use the *inverse* of an autoregressive flow,
+in addition, the whole concept of a normalizing flow.  Who knew transforming
+probability distributions would be useful?  Anyways, I learned lots of really 
+interesting things working on this and you can expect more in the new year!
+Happy Holidays!
+
 
 |h2| Further Reading |h2e|
 
 * Previous posts: `Variational Autoencoders <link://slug/variational-autoencoders>`__, `A Variational Autoencoder on the SVHN dataset <link://slug/a-variational-autoencoder-on-the-svnh-dataset>`__, `Semi-supervised Learning with Variational Autoencoders <link://slug/semi-supervised-learning-with-variational-autoencoders>`__, `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__
-* My implementation on Github:
+* My implementation on Github: TODO
 * [1] "Variational Inference with Normalizing Flows", Danilo Jimenez Rezende, Shakir Mohamed, `ICML 2015 <https://arxiv.org/abs/1505.05770>`__
 * [2] "MADE: Masked Autoencoder for Distribution Estimation", Germain, Gregor, Murray, Larochelle, `ICML 2015 <https://arxiv.org/pdf/1502.03509.pdf>`__
 * [3] "Improving Variational Inference with Inverse Autoregressive Flow", Diederik P. Kingma, Tim Salimans, Rafal Jozefowicz, Xi Chen, Ilya Sutskever, Max Welling, `NIPS 2016 <https://arxiv.org/abs/1606.04934>`_
