@@ -38,7 +38,7 @@
 In this post, I'm going to be describing a really cool idea about how
 to improve variational autoencoders using inverse autoregressive
 flows.  The main idea is that we can generate more powerful posterior
-distributions compared to the vanilla isotropic Gaussian by applying a
+distributions compared a vanilla isotropic Gaussian by applying a
 series of invertible transformations.  This, in theory, will allow
 your variational autoencoder to fit better by concentrating the
 stochastic samples around a closer approximation to the true
@@ -50,11 +50,11 @@ and have an implementation with few experiments I ran.  Enjoy!
 
 |h2| Motivation |h2e|
 
-Recall in vanilla variational autoencoders (previous `post
+Recall in vanilla variational autoencoders (`previous post
 <link://slug/variational-autoencoders>`__), we have the generative
 network ("the decoder"), the posterior network ("the encoder"), which
 are related to each other through a set of diagonal Gaussian variables
-usually labelled :math:`Z`.
+usually labelled :math:`z`.
 
 In most cases, our primary objective is to train the decoder i.e. the
 generative model.  The structure of the decoder is shown in Figure 1.
@@ -70,60 +70,60 @@ modelling black and which pixels).
 
   Figure 1: The generative model component of a variational autoencoder
 
-The main problem here is that training this network is pretty
+The main problem here is that training this generative model is pretty
 difficult.  The brute force way is to make an input/output dataset by
 taking each output you have (e.g. images) and cross it with a ton of
-random samples from :math:`Z`.  If :math:`Z` has many dimensions, then
+random samples from :math:`z`.  If :math:`z` has many dimensions, then
 to properly cover the space you'll need an exponential number of
 examples.  For example, if your number of dimensions is :math:`D=1`,
 you might need to sample roughly :math:`(10)^1=10` points per image,
 making your dataset 10x.  If :math:`D=10`, you'll probably need
-:math:`(10)^10` points per image, making your dataset too big to
-practically fit.  Not only that, most of these points you sample
-will not contribute much to training your network because they'll be
-in parts of the latent space that are very low probability.
+:math:`(10)^{10}` points per image, making your dataset too big to
+practically fit.  Not only that, most the sampled points will not contribute
+much to training your network because they'll be in parts of the latent space
+that are very low probability, contributing almost nothing to training.
 
 Of course that's exactly why variational autoencoders are so
-brilliant.  Instead of randomly sampling from your :math:`Z` space,
-we'll try to use "directed" sampling that are much more likely to
-occur for a given point :math:`X` using our encoder or posterior
-network.  Given any data point (:math:`X`), the posterior network
-generates likely :math:`Z` points to allow you to train your generator
-network.  The cool thing is that we are actually training both
-networks simultaneously!  To actually accomplish this though,
-we have to use fully factorized diagonal Gaussian variables and a
-"reparameterization trick" in order to properly get the thing to
-actually work (see previous `post
-<link://slug/variational-autoencoders>`__ for details).  The structure
-is shown in Figure 2.
+brilliant.  Instead of randomly sampling from your :math:`z` space,
+we'll use "directed" sampling to a pick point :math:`z` using our encoder (or
+posterior) network such that :math:`x` is much more likely to occur.  
+This allows you to efficiently train your generator network.  The cool thing is
+that we are actually training both networks simultaneously!  To actually
+accomplish this though, we have to use fully factorized diagonal Gaussian
+variables and a "reparameterization trick" in order to properly get the thing
+to actually work (see my `previous post <link://slug/variational-autoencoders>`__
+for details).  The structure is shown in Figure 2.
 
-.. figure:: /images/variational_autoencoder3.png
-  :height: 400px
+.. figure:: /images/autoencoder_reparam_trick.png
+  :height: 300px
   :alt: Variational Autoencoder Diagram
   :align: center
 
-  Figure 2: A variational autoencoder with the "reparameterization trick".
+  Figure 2: Left: A naive implementation of an autoencoder without the
+  reparameterization trick.  RHS: A vanilla variational autoencoder with the
+  "reparameterization trick" (Source: [4])
 
 As you can imagine, the posterior network is an estimate of the true
 posterior (as is the case for variational inference methods).
 Unfortunately our factorized diagonal Gaussians can't model every
 distribution.  In particular, the fact that they're factorized can
 limit the ability to match the true posterior we're trying to model.
-Theoretically, if we are able to more closely approximate the true
-posterior, our generator network should be able to train more easily
+Theoretically if we are able to more closely approximate the true
+posterior, our generator network should be able to train more easily,
 and thus improve our overall result.  
 
 The question is how can we use a more complex distribution?  The
 reason we're stuck with factorized Gaussians is because it is
 (a) computationally efficient to compute and differentiate the
-posterior, and (b) it's easy to sample at every minibatch.  If we
-want to replace it we're going to need to still maintain these to
-desirable properties.
+posterior (just backprop through the :math:`z` mean and variance), and (b) it's
+easy to sample at every minibatch (which is just sampling from independent
+Gaussians because of the reparameterization trick).  If we want to replace it
+we're going to need to still maintain these two desirable properties.
 
 |h2| Normalizing Flows for Variational Inference |h2e|
 
 Normalizing flows in the context of variational inference was
-introduced by Rezende in [1].  At its core, it's just applying an
+introduced by Rezende et al. in [1].  At its core, it's just applying an
 invertible transformation (i.e.
 `a change of variables <https://en.wikipedia.org/wiki/Probability_density_function#Dependent_variables_and_change_of_variables>`__)
 to our fully factorized posterior distribution to make it into
@@ -134,9 +134,9 @@ density functions.
 
 .. admonition:: Transforming Probability Density Functions
 
-    Given a n-dimensional random variables :math:`\bf X` with joint
+    Given a n-dimensional random variable :math:`\bf x` with joint
     density function :math:`f({\bf x})`, we can transform it into
-    another n-dimensional random variable :math:`\bf y` via a
+    another n-dimensional random variable :math:`\bf y` via an
     invertible (i.e. 1-to-1) and differentiable function :math:`H`
     with joint density :math:`g({\bf y})`:
 
@@ -154,9 +154,8 @@ density functions.
                    &= f(H^{-1}({\bf y}))\big|\text{det}(\frac{d{H^{-1}({\bf y})}}{d{\bf y}})\big|
         \tag{2}
 
-    where the second part there is the 
-    `determinant of the Jacobian <https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant#Jacobian_determinant>`__ 
-    of the inverse :math:`H^{-1}` at :math:`{\bf y}`.
+    where the latter part of each line contains a  
+    `determinant of a Jacobian <https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant#Jacobian_determinant>`__.
     In the last line we're making it explicit that the density is a
     function :math:`\bf y`.  Alternatively, we can also write this in
     terms of :math:`{\bf x}` and :math:`H`:
@@ -208,7 +207,7 @@ variable :math:`{\bf z_t}` as such:
 .. math::
 
     \log q({\bf z_T} | {\bf x}) = \log q({\bf z_0}|{\bf x})
-    - \sum_{t=1}^T \log \big| det(\frac{d{\bf z_t}}{d{\bf z_{t-1}}}) \big|
+    - \sum_{t=1}^T \log \big| \text{det}(\frac{d{\bf z_t}}{d{\bf z_{t-1}}}) \big|
       \tag{5}
 
 Equation 5 is simply just a repeated application of Equation 3,
@@ -221,8 +220,8 @@ allowing for things such as multi-modal distributions (something we
 can't do with a basic Gaussian).  Additionally, it allows us to have
 complex relationships between the variables instead of the
 independence we assume with our diagonal Gaussians.
-So then the trick then is to pick a transformation :math:`f_t` that
-gives us the flexibility but, importantly, is easy to compute
+The trick then is to pick a transformation :math:`f_t` that
+gives us the flexibility, but more importantly is easy to compute
 because we want to use this in a VAE setup.  The next section
 describes an elegant and simple to compute transform that accomplishes
 both of these things.
@@ -235,16 +234,16 @@ previously indexed variables i.e. :math:`y_i = f_i(y_{0:i-1})`.
 
 Autoregressive autoencoders introduced in [2] 
 (and my `post on it <link://slug/autoregressive-autoencoders>`__)
-take advantage of this property by constructing an extension of vanilla
-autoencoder that can estimate distributions (whereas the regular one doesn't
+take advantage of this property by constructing an extension of a vanilla
+(non-variational) autoencoder that can estimate distributions (whereas the regular one doesn't
 have a direct probabilistic interpretation).  The paper introduced the idea in
 terms of binary Bernoulli variables, but we can also formulate it in terms of
 Gaussians too.
 
 When looking at defining the :math:`f_i(\cdot)` function, you only need a
 single function to estimate the parameter :math:`p` for a Bernoulli.  For a
-Gaussian, we'll need two to estimate the mean and variance denoted by
-:math:`[\bf \mu(y), \sigma(y)]`.  However, due to the autoregressive property,
+Gaussian, we'll need two functions to estimate the mean and variance denoted by
+:math:`[{\bf \mu}({\bf y}), {\bf \sigma}({\bf y})]`.  However, due to the autoregressive property,
 the individual elements are only functions of the prior indices 
 and thus their derivatives are zero with respect to latter indices:
 
@@ -254,13 +253,13 @@ and thus their derivatives are zero with respect to latter indices:
     \frac{\partial[\mu_i, \sigma_i]}{\partial y_j} &= [0, 0] &\text{ for } j\geq i \\
     \tag{6}
 
-Given :math:`[\bf \mu(y), \sigma(y)]`, we can sample from the autoencoder
-by sequentially transforming a noise vector 
+Given :math:`[{\bf \mu}({\bf y}), {\bf \sigma}({\bf y})]`, we can
+sequentially apply an autoregressive transform on a noise vector 
 :math:`\epsilon \sim \mathcal{N}(0, {\bf I})` as such:
 
 .. math::
-    y_0 &= \mu_0 + \sigma_0 \odot \epsilon_. \\
-    y_i &= \mu_i({\bf y_{0:i-1}}) + \sigma_i({\bf y_{0:i-1}}) \odot \epsilon_0 & \text{ for } i > 0
+    y_0 &= \mu_0 + \sigma_0 \odot \epsilon_0. \\
+    y_i &= \mu_i({\bf y_{0:i-1}}) + \sigma_i({\bf y_{0:i-1}}) \odot \epsilon_i & \text{ for } i > 0
     \tag{7}
 
 where addition is element-wise and :math:`\odot` is element-wise multiplication.
@@ -268,7 +267,7 @@ where addition is element-wise and :math:`\odot` is element-wise multiplication.
 However in our case, we can transform any vector, not just a noise vector.
 This is shown on the left hand side of Figure 3 where we take a :math:`\bf x`
 vector and transform it to a :math:`\bf y` vector.  You'll notice that we have
-to perform :math:`D` sequential computations, thus making it too slow for our
+to perform :math:`\mathcal{O}(D)` sequential computations, thus making it too slow for our
 intended purpose of use in a normalizing flow.  But what about the inverse
 transform?
 
@@ -322,16 +321,16 @@ autoencoder.
 
 |h2| Inverse Autoregressive Flows |h2e|
 
-Adding an inverse autoregressive flow to a variational autoencoder is as
+Adding an inverse autoregressive flow (IAF) to a variational autoencoder is as
 simple as (a) adding a bunch of IAF transforms after the latent variables
 :math:`z` (b) modifying the likelihood to account for the IAF transforms.
 
-Figure 4 from [3] shows a depiction of add IAF transforms to a variational
-encoder.
-Two things to note: a context :math:`h` is additionally generated and the IAF
-step only involves multiplication and addition, not division and subtraction
-like in Equation 8.  I'll explain these two points as we work through the math
-below.
+Figure 4 from [3] shows a depiction of adding several IAF transforms to a
+variational encoder.
+Two things to note: (1) a context :math:`h` is additionally generated, and
+(2) the IAF step only involves multiplication and addition, not division and
+subtraction like in Equation 8.  I'll explain these two points as we work
+through the math below.
 
 .. figure:: /images/iaf2.png
   :alt: Autoregressive Transform
@@ -343,7 +342,7 @@ below.
 
 
 To start off, we generate our basic latent variables as we would in an
-vanilla autoencoder starting from a standard diagonal Gaussian
+vanilla VAE starting from a standard diagonal Gaussian
 :math:`{\bf \epsilon} \sim \mathcal{N}(0, I)`:
 
 .. math::
@@ -356,7 +355,7 @@ So far nothing too exciting.
 Now here's the interesting part, we want to apply Equation 8 as an IAF transform
 to go from :math:`{\bf z}_t` to :math:`{\bf z}_{t+1}` (indices refer to the
 number of transforms applied on the vector :math:`\bf z`, not the index into
-:math:`z`) but there are a few issues we need to resolve first.  Let's start
+:math:`\bf z`) but there are a few issues we need to resolve first.  Let's start
 with reinterpreting Equation 8, rewriting it in terms of :math:`{\bf z}_t` and
 :math:`{\bf z}_{t+1}` (we'll omit the indices into the vector with the
 understanding that :math:`\mu` and :math:`\sigma` are autoregressive):
@@ -374,14 +373,14 @@ understanding that :math:`\mu` and :math:`\sigma` are autoregressive):
 where :math:`{\bf s}_t = \frac{1}{{\bf \sigma}_t}` and 
 :math:`{\bf m}_t = \frac{{\bf \mu}_t}{{\bf \sigma}_t}`.  We can do this re-writing
 because remember that we are learning these functions through a neural network 
-so it doesn't really matter if invert or negate.
+so it doesn't really matter if we invert or negate.
 
 Next, let's introduce a context :math:`\bf h`.  Recall, our posterior is 
 :math:`p({\bf z}|{\bf x})` but this is the same as just saying
 :math:`p({\bf z}|{\bf x}, f({\bf x}))`, where :math:`f(\cdot)` is some
 deterministic function.  So let's just define :math:`{\bf h}:=f({\bf x})`
-and then use it in our IAF transforms because our latent variable is
-still only a function of :math:`{\bf x}`:
+and then use it in our IAF transforms.  This is not a problem because our
+latent variable is still only a function of :math:`{\bf x}`:
 
 .. math::
 
@@ -410,9 +409,9 @@ We construct :math:`{\bf z}_t` as:
 
 where sigm is the sigmoid function.  This is inspired by an LSTM-style
 updating.  They also suggest to initialize the weights of :math:`{\bf s}_t` to
-mostly saturate the sigmoid so that it's mostly just a pass-through to start.
-During experimentation, I saw that if I didn't use this trick by the third or fourth
-IAF transform, I started getting NaNs really quickly.
+saturate the sigmoid so that it's mostly just a pass-through to start.
+During experimentation, I saw that if I didn't use this LSTM-style trick, by the
+third or fourth IAF transform I started getting NaNs really quickly.
 
 
 |h3| Deriving the IAF Density |h3e|
@@ -433,7 +432,7 @@ so Equation 10 applies.  Using this fact, starting from Equation 5:
 where :math:`q({\bf z}_0|{\bf x})` is just an isotropic Gaussian centered at
 :math:`{\bf \mu}_0` with :math:`{\bf \sigma}_0`.  Here we apply Equation 3 and
 just absorb the :math:`{\sigma}_0` into the summation (by changing variable to
-:math:`{\bf s}`).
+:math:`{\bf s}`) to get back to an expression involving :math:`\bf \epsilon`.
 
 Lastly, we can write our entire variational objective as:
 
@@ -459,29 +458,25 @@ of your stochastic gradient descent).
 
 I implemented a VAE with IAF on both a binarized MNIST dataset as well as CIFAR10
 in a set of 
-TODO (`notebook <>`__).
-
+TODO (`notebook <http://www.briankeng.com>`__).
 My implementation uses a modification of the MADE autoencoder from [2] (see my previous post on `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__)
 for the IAF layers and I only used the "basic" version from the paper, not the
 extension based on ResNet.
-
 As usual, things were pretty easy to put together using Keras because I
 basically took the code for a VAEs, added the code I had for a MADE, and
-modified the loss function as needed.  Actually, it was a bit harder than that
-because I had to work through a bunch of bugs and misinterpretations of the math, 
-but the number of lines added was quite small.
+modified the loss function as needed [2]_.
 
-The networks for the encoder are a few convolution layers, a couple of dense
-layers, and symmetric structure for the decoder except with transposed
+The network for the encoder consists of a few convolution layers, a couple of dense
+layers, and a symmetric structure for the decoder except with transposed
 convolutions.  I used 32 latent dimensions for MNIST and 128 for CIFAR10 with
-proportional number of filters and hidden nodes for layers.  For the IAF portion,
-I used separate 2-layer MaskingDense layers from [2] for the :math:`\bf m` and
-:math:`\bf s` variables with 10 times the hidden layers of the latent
-dimensions.  As the paper suggested, I reversed the order of the each
-:math:`\bf z_t`.
+proportional number of filters and hidden nodes for the convolutional and dense
+layers respectively.  For the IAF portion, I used separate MADE layers (with 2
+hidden layers each) for the :math:`\bf m` and :math:`\bf s` variables with 10x
+hidden nodes relative to the latent dimensions.  As the paper suggested, I
+reversed the order of :math:`\bf z_t` after each IAF transform.
 
 .. csv-table:: Table 1: IAF Results
-   :header: "Model", "Training Loss", "Validation Loss", "P(X|Z) Test Loss"
+   :header: "Model", "Training Loss", "Validation Loss", "P(x|z) Test Loss"
    :widths: 15, 10, 10, 10
    :align: center
 
@@ -491,17 +486,19 @@ dimensions.  As the paper suggested, I reversed the order of the each
    "CIFAR10-VAE+IAF", 1815.07, 1823.05, 1786.24
 
 Table 1 shows the results of the experiments on both datasets.  As you can see
-the IAF layers seems to do a bit of improvement on MNIST taking the testing
+the IAF layers seems to do a bit of improvement on MNIST taking the validation
 loss down from :math:`72.3` to :math:`70.9`, while there's barely an
-improvement on the output loss.  This didn't really have any affect on the
+improvement on the test output loss.  This didn't really have any affect on the
 generated images, which qualitatively showed no difference.  The IAF layers
-improved a bit but it didn't seem to do too much.
+seemed improve the MNIST numbers a bit but only marginally.
 
 The CIFAR10 results seemed to get worse on validation/test sets.  One thing
 that I did notice is that adding more IAF layers requires more training
 (there are many more parameters) and also you need some "tricks" in order
 to properly train it.  This is likely due to the long chain of dense layers
 that make up the IAF transforms, similar to troubles you might have in an LSTM.
+So it's quite possible that the IAF layers could be slightly beneficial but
+I just didn't train it quite right.
 
 My overall conclusion is that IAF didn't seem to have a huge affect on the
 resulting output (at least on its own).  I was hoping that it would help VAEs
@@ -514,26 +511,27 @@ really allows you to take advantage of the IAF layers.
 
 |h3| Implementation Notes |h3e|
 
-* The "context" vector is connected to the input of the MADE with additional dense layer (see implementation).
-* The trick from Equation 15 was needed.  Even at 4-layers I started getting NaNs pretty quickly.
-* Even beyond Equation 15, I had a lot of trouble with getting things to be
-  stable with made computation, not sure if all of them helped:
-    * Added regularizers on the MADE layers.
-    * Used 'sigmoid' for activation for all made stuff (instead of the 'elu'
-      activation I used for the other layers).
-    * I disabled dropout for all layers.
-* I had a bunch of confusion with the :math:`\log q(z|x)` computation, especially
+- The "context" vector is connected to the input of the MADE with an additional dense layer (see implementation).
+- The trick from Equation 15 was needed.  Even at 4-layers I started getting NaNs pretty quickly.
+- Even beyond Equation 15, I had a lot of trouble with getting things to be
+  stable with the MADE computations, not sure if all of them helped:
+
+  - Added regularizers on the MADE layers.
+  - Used 'sigmoid' for activation for all made stuff (instead of the 'elu' activation I used for the other layers).
+  - I disabled dropout for all layers.
+
+- I had a bunch of confusion with the :math:`\log q(z|x)` computation, especially
   the determinant.  Only after I worked through the math did I actually figure
   out the sign of the determinant in Equation 17.  The key is really understanding
   the change of variables in Equation 12.
-* I actually spent a lot of time trying to get IAFs to work on a "toy" example
+- I actually spent a lot of time trying to get IAFs to work on a "toy" example
   using various synthetic data like mixed Gaussians or weird auto-regressive
   distributions.  In all these cases, I had a lot of trouble showing that the
-  IAF transforms did anything.  In the cases I tried, it looks to perform pretty
-  much on par with a vanilla autoencoder.  My hypothesis on this is that either
-  the distributions were too simple so the vanilla VAE works really well, or
-  the IAF transforms don't do much.  I suspect the latter is probably most of it.
-* Now I'm wondering if the normalizing flow transforms from [1] will do a better job
+  IAF transforms did anything, it looks to perform pretty much on par with a
+  vanilla VAE.  My hypothesis on this is that either the distributions were too
+  simple so the vanilla VAE works really well, or the IAF transforms don't do
+  much.  I suspect the latter is probably most of it.
+- Now I'm wondering if the normalizing flow transforms from [1] will do a better job
   but I didn't spend any time trying to implement it to see if it made a difference.
 
 
@@ -543,11 +541,11 @@ Well there you have, another autoencoder post!  When I first read about this ide
 I was super excited because conceptually it's so beautiful!  Using the exact same
 VAE that we all know and love, you can improve its performance just by transforming
 the posterior and removing the big perceived limitation: diagonal Gaussians.
-Unfortunately, normalizing flows with IAF transforms is not silver bullet and the
-improvements I saw were pretty mediocre (if you think otherwise please let me know).
-Despite this, I still really like the idea, at least theoretically because I think
-it really shows some creativity to use the *inverse* of an autoregressive flow,
-in addition, the whole concept of a normalizing flow.  Who knew transforming
+Unfortunately, normalizing flows with IAF transforms are no silver bullet and the
+improvements I saw were pretty small (if you know otherwise please let me know!).
+Despite this, I still really like the idea, at least theoretically, because I think
+it really shows some creativity to use the *inverse* of an autoregressive flow
+in addition to the whole concept of a normalizing flow.  Who knew transforming
 probability distributions would be useful?  Anyways, I learned lots of really 
 interesting things working on this and you can expect more in the new year!
 Happy Holidays!
@@ -560,7 +558,12 @@ Happy Holidays!
 * [1] "Variational Inference with Normalizing Flows", Danilo Jimenez Rezende, Shakir Mohamed, `ICML 2015 <https://arxiv.org/abs/1505.05770>`__
 * [2] "MADE: Masked Autoencoder for Distribution Estimation", Germain, Gregor, Murray, Larochelle, `ICML 2015 <https://arxiv.org/pdf/1502.03509.pdf>`__
 * [3] "Improving Variational Inference with Inverse Autoregressive Flow", Diederik P. Kingma, Tim Salimans, Rafal Jozefowicz, Xi Chen, Ilya Sutskever, Max Welling, `NIPS 2016 <https://arxiv.org/abs/1606.04934>`_
+* [4] "Tutorial on Variational Autoencoders", Carl Doersch, `<http://arxiv.org/abs/1606.05908>`__
+
+
+
 * Wikipedia: `Probability Density Function: Dependent variables and change of variables <https://en.wikipedia.org/wiki/Probability_density_function#Dependent_variables_and_change_of_variables>`__
 * Github code for "Improving Variational Inference with Inverse Autoregressive Flow": https://github.com/openai/iaf/
 
-.. [1] At least by my estimate the results are kind of marginal. Improving the posterior on its own doesn't seem to have a significant boost in the likelihood.  The IAF paper [3] actually does have really good results on CIFAR10 but uses a novel architecture combined with IAF transforms.  So by itself, the IAF doesn't do that much.
+.. [1] At least by my estimate the results are kind of marginal. Improving the posterior on its own doesn't seem to have a significant boost in the ELBO or the output variable likelihood.  The IAF paper [3] actually does have really good results on CIFAR10 but uses a novel architecture combined with IAF transforms.  So by itself, the IAF doesn't seem to do that much.
+.. [2] Actually, it was a bit harder than that because I had to work through a bunch of bugs and misinterpretations of the math, but the number of lines added was quite small.
