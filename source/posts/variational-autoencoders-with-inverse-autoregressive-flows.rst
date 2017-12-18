@@ -1,7 +1,7 @@
 .. title: Variational Autoencoders with Inverse Autoregressive Flows
 .. slug: variational-autoencoders-with-inverse-autoregressive-flows
 .. date: 2017-12-04 07:47:38 UTC-05:00
-.. tags: variational calculus, autoencoders, Kullback-Leibler, generative models, MNIST, autoregressive, MADE, mathjax
+.. tags: variational calculus, autoencoders, Kullback-Leibler, generative models, MNIST, autoregressive, MADE, CIFAR10, mathjax
 .. category: 
 .. link: 
 .. description: An introduction to normalizing flows and inverse autoregressive flows for variational inference.
@@ -176,7 +176,7 @@ density functions.
     :math:`H` and :math:`{\bf x}`.  Next, we apply a 
     `property <https://en.wikipedia.org/wiki/Determinant#Multiplicativity_and_matrix_groups>`__ 
     of determinants which says the determinant of an inverse of a
-    matrix is just the reciprocal of the deteminant of the original
+    matrix is just the reciprocal of the determinant of the original
     matrix.
 
     It's a bit strange why we would want to put things back in terms
