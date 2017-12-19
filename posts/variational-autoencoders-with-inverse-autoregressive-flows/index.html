@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="An introduction to normalizing flows and inverse autoregressive flows for variational inference.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Variational Autoencoders with Inverse Autoregressive Flows | Bounded Rationality</title>
+<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
+<link rel="canonical" href="http://bjlkeng.github.io/posts/variational-autoencoders-with-inverse-autoregressive-flows/">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="description" itemprop="description" content="An introduction to normalizing flows and inverse autoregressive flows for variational inference.">
+<meta name="author" content="Brian Keng">
+<link rel="prev" href="../autoregressive-autoencoders/" title="Autoregressive Autoencoders" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="Variational Autoencoders with Inverse Autoregressive Flows">
+<meta property="og:url" content="http://bjlkeng.github.io/posts/variational-autoencoders-with-inverse-autoregressive-flows/">
+<meta property="og:description" content="An introduction to normalizing flows and inverse autoregressive flows for variational inference.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2017-12-04T07:47:38-05:00">
+<meta property="article:tag" content="autoencoders">
+<meta property="article:tag" content="autoregressive">
+<meta property="article:tag" content="CIFAR10">
+<meta property="article:tag" content="generative models">
+<meta property="article:tag" content="Kullback-Leibler">
+<meta property="article:tag" content="MADE">
+<meta property="article:tag" content="mathjax">
+<meta property="article:tag" content="MNIST">
+<meta property="article:tag" content="variational calculus">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://bjlkeng.github.io/">
+
+                <span class="h1" id="blog-title">Bounded Rationality</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
+            <ul class="nav navbar-nav">
+<p class="lead">Understanding math, machine learning, and data to a satisfactory degree.</p>
+<!--
+                
+                <li><a href="/archive.html">Archive</a>
+                <li><a href="/categories/">Tags</a>
+                <li><a href="/rss.xml">RSS feed</a>
+
+                 
+-->
+            </ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+    <a href="index.rst" id="sourcelink">Source</a>
+    </li>
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            <div class="col-lg-9">
+                
+                
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Variational Autoencoders with Inverse Autoregressive Flows</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                    Brian Keng
+            </span></p>
+            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2017-12-04T07:47:38-05:00" itemprop="datePublished" title="2017-12-04 07:47">2017-12-04 07:47</time></a></p>
+            
+        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>In this post, I'm going to be describing a really cool idea about how
+to improve variational autoencoders using inverse autoregressive
+flows.  The main idea is that we can generate more powerful posterior
+distributions compared to a more basic isotropic Gaussian by applying a
+series of invertible transformations.  This, in theory, will allow
+your variational autoencoder to fit better by concentrating the
+stochastic samples around a closer approximation to the true
+posterior.  The math works out so nicely while the results are kind of
+marginal <a class="footnote-reference" href="#id3" id="id1">[1]</a>.  As usual, I'll go through some intuition, some math,
+and have an implementation with few experiments I ran.  Enjoy!</p>
+<!-- TEASER_END -->
+<p><br></p>
+<h4> Motivation </h4>
+<p>Recall in vanilla variational autoencoders (<a class="reference external" href="../variational-autoencoders">previous post</a>), we have the generative
+network ("the decoder"), the posterior network ("the encoder"), which
+are related to each other through a set of diagonal Gaussian variables
+usually labelled <span class="math">\(z\)</span>.</p>
+<p>In most cases, our primary objective is to train the decoder i.e. the
+generative model.  The structure of the decoder is shown in Figure 1.
+We have our latent diagonal Gaussian variables, followed by a
+deterministic high-capacity model (i.e. deep net), which then outputs
+the parameters for our output variables (e.g. Bernoulli's if we're
+modelling black and which pixels).</p>
+<div class="figure align-center">
+<img alt='Variational "Decoder" Diagram' src="../../images/variational_autoencoder4.png" style="height: 300px;"><p class="caption">Figure 1: The generative model component of a variational autoencoder</p>
+</div>
+<p>The main problem here is that training this generative model is pretty
+difficult.  The brute force way is to make an input/output dataset by
+taking each output you have (e.g. images) and cross it with a ton of
+random samples from <span class="math">\(z\)</span>.  If <span class="math">\(z\)</span> has many dimensions, then
+to properly cover the space you'll need an exponential number of
+examples.  For example, if your number of dimensions is <span class="math">\(D=1\)</span>,
+you might need to sample roughly <span class="math">\((10)^1=10\)</span> points per image,
+making your dataset 10x.  If <span class="math">\(D=10\)</span>, you'll probably need
+<span class="math">\((10)^{10}\)</span> points per image, making your dataset too big to
+practically train.  Not only that, most the sampled points will not contribute
+much to training your network because they'll be in parts of the latent space
+that are very low probability (with respect to the current image), contributing
+almost nothing to your network weights.</p>
+<p>Of course that's exactly why variational autoencoders are so
+brilliant.  Instead of randomly sampling from your <span class="math">\(z\)</span> space,
+we'll use "directed" sampling to a pick point <span class="math">\(z\)</span> using our encoder (or
+posterior) network such that <span class="math">\(x\)</span> is much more likely to occur.
+This allows you to efficiently train your generator network.  The cool thing is
+that we are actually training both networks simultaneously!  To actually
+accomplish this though, we have to use fully factorized diagonal Gaussian
+variables and a "reparameterization trick" in order to properly get the thing
+to actually work (see my <a class="reference external" href="../variational-autoencoders">previous post</a>
+for details).  The structure is shown in Figure 2.</p>
+<div class="figure align-center">
+<img alt="Variational Autoencoder Diagram" src="../../images/autoencoder_reparam_trick.png" style="height: 300px;"><p class="caption">Figure 2: Left: A naive implementation of an autoencoder without the
+reparameterization trick.  Right: A vanilla variational autoencoder with the
+"reparameterization trick" (Source: [4])</p>
+</div>
+<p>As you can imagine, the posterior network is an estimate of the true
+posterior (as is the case for variational inference methods).
+Unfortunately our fully factorized diagonal Gaussians can't model every
+distribution.  In particular, the fact that they're fully factorized can
+limit the ability to match the true posterior we're trying to model.
+Theoretically if we are able to more closely approximate the true
+posterior, our generator network should be able to train more easily,
+and thus improve our overall result.</p>
+<p>The question is how can we use a more complex distribution?  The
+reason we're stuck with factorized Gaussians is because it is
+(a) computationally efficient to compute and differentiate the
+posterior (just backprop through the <span class="math">\(z\)</span> mean and variance), and (b) it's
+easy to sample at every minibatch (which is just sampling from independent
+Gaussians because of the reparameterization trick).  If we want to replace it
+we're going to need to still maintain these two desirable properties.</p>
+<p><br></p>
+<h4> Normalizing Flows for Variational Inference </h4>
+<p>Normalizing flows in the context of variational inference was
+introduced by Rezende et al. in [1].  At its core, it's just applying an
+invertible transformation (i.e.
+<a class="reference external" href="https://en.wikipedia.org/wiki/Probability_density_function#Dependent_variables_and_change_of_variables">a change of variables</a>)
+to our fully factorized posterior distribution to make it into
+something more flexible that can match the true posterior.
+It's called a normalizing flow because the density "flows" through
+each transform.  See the box below about transforming probability
+density functions.</p>
+<div class="admonition admonition-transforming-probability-density-functions">
+<p class="first admonition-title">Transforming Probability Density Functions</p>
+<p>Given a n-dimensional random variable <span class="math">\(\bf x\)</span> with joint
+density function <span class="math">\(f({\bf x})\)</span>, we can transform it into
+another n-dimensional random variable <span class="math">\(\bf y\)</span> via an
+invertible (i.e. 1-to-1) and differentiable function <span class="math">\(H\)</span>
+with joint density <span class="math">\(g({\bf y})\)</span>:</p>
+<div class="math">
+\begin{equation*}
+{\bf y} = H({\bf X}) \tag{1}
+\end{equation*}
+</div>
+<p>It turns out the joint density <span class="math">\(g({\bf y})\)</span> can be computed
+as:</p>
+<div class="math">
+\begin{align*}
+g({\bf y}) &amp;= f({\bf x})\big|\text{det}(\frac{d{\bf x}}{d{\bf y}})\big| \\
+           &amp;= f(H^{-1}({\bf y}))\big|\text{det}(\frac{d{H^{-1}({\bf y})}}{d{\bf y}})\big|
+\tag{2}
+\end{align*}
+</div>
+<p>where the latter part of each line contains a
+<a class="reference external" href="https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant#Jacobian_determinant">determinant of a Jacobian</a>.
+In the last line we're making it explicit that the density is a
+function <span class="math">\(\bf y\)</span>.  Alternatively, we can also write this in
+terms of <span class="math">\({\bf x}\)</span> and <span class="math">\(H\)</span>:</p>
+<div class="math">
+\begin{align*}
+g({\bf y}) &amp;= f({\bf x})\big|\text{det}(\frac{d{\bf x}}{d{\bf y}})\big| \\
+           &amp;= f({\bf x})\big|\text{det}(\big[\frac{dH({\bf x})}{d{\bf x}}\big]^{-1})\big| \\
+           &amp;= f({\bf x})\big|\text{det}(\frac{dH({\bf x})}{d{\bf x}})\big|^{-1}
+           \tag{3}
+\end{align*}
+</div>
+<p>It's a bit confusing because of all the variable changing but keep
+in mind that you can change between <span class="math">\({\bf x}\)</span> with <span class="math">\({\bf y}\)</span> without
+much trouble because there is a 1-1 mapping.
+So starting from the original statement, we first apply the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Inverse_function_theorem">inverse function theorem</a>,
+which allows us to re-write the Jacobian matrix in terms of
+<span class="math">\(H\)</span> and <span class="math">\({\bf x}\)</span>.  Next, we apply a
+<a class="reference external" href="https://en.wikipedia.org/wiki/Determinant#Multiplicativity_and_matrix_groups">property</a>
+of determinants which says the determinant of an inverse of a
+matrix is just the reciprocal of the determinant of the original
+matrix.</p>
+<p class="last">It's a bit strange why we would want to put things back in terms
+of <span class="math">\({\bf x}\)</span> and <span class="math">\(H\)</span> but sometimes (like in this post)
+we want to evaluate <span class="math">\(g({\bf y})\)</span> but don't want to
+explicitly compute <span class="math">\(H^{-1}\)</span>. Instead, it's easier to just
+work with <span class="math">\(H\)</span>.</p>
+</div>
+<p>Let's see some math to make this idea a bit more precise.
+Start off with a simple posterior for our initial variable, call it
+<span class="math">\(\bf z_0\)</span>.  In vanilla VAEs we use a fully factorized Gaussian
+e.g.  <span class="math">\(q({\bf z_0}|{\bf x}) \sim \mathcal{N}({\bf \mu(x)}, {\bf \sigma(x)})\)</span>.
+Next, we'll want to apply a series of invertible transforms
+<span class="math">\(f_t(\cdot)\)</span>:</p>
+<div class="math">
+\begin{align*}
+{\bf z_0} &amp;\sim q({\bf z_0}|{\bf x}) \\
+{\bf z_t} &amp;\sim f_t({\bf z_{t-1}}, {\bf x}) &amp; \forall t=1..T
+\tag {4}
+\end{align*}
+</div>
+<p>Remember our posterior distribution (i.e. our encoder) is conditioned
+on <span class="math">\({\bf x}\)</span>, so we can freely use it as part of our transformation here.
+Using Equation 3, we can compute the (log) density of the final variable
+<span class="math">\({\bf z_t}\)</span> as such:</p>
+<div class="math">
+\begin{equation*}
+\log q({\bf z_T} | {\bf x}) = \log q({\bf z_0}|{\bf x})
+- \sum_{t=1}^T \log \big| \text{det}(\frac{d{\bf z_t}}{d{\bf z_{t-1}}}) \big|
+  \tag{5}
+\end{equation*}
+</div>
+<p>Equation 5 is simply just a repeated application of Equation 3,
+noticing that since we're in log space the reciprocal of the
+determinant turns into a negative sign.</p>
+<p>So why does this help at all?  The normalizing flow can be thought of
+as a sequence of expansions or contractions on the initial density,
+allowing for things such as multi-modal distributions (something we
+can't do with a basic Gaussian).  Additionally, it allows us to have
+complex relationships between the variables instead of the
+independence we assume with our diagonal Gaussians.
+The trick then is to pick a transformation <span class="math">\(f_t\)</span> that
+gives us the flexibility, but more importantly is easy to compute
+because we want to use this in a VAE setup.  The next section
+describes an elegant and simple to compute transform that accomplishes
+both of these things.</p>
+<p><br></p>
+<h4> Inverse Autoregressive Transformations </h4>
+<p>An autoregressive transform is one where given a sequence of variables
+<span class="math">\({\bf y} = \{y_i \}_{i=0}^D\)</span>, each variable is dependent only on the
+previously indexed variables i.e. <span class="math">\(y_i = f_i(y_{0:i-1})\)</span>.</p>
+<p>Autoregressive autoencoders introduced in [2]
+(and my <a class="reference external" href="../autoregressive-autoencoders">post on it</a>)
+take advantage of this property by constructing an extension of a vanilla
+(non-variational) autoencoder that can estimate distributions (whereas the regular one doesn't
+have a direct probabilistic interpretation).  The paper introduced the idea in
+terms of binary Bernoulli variables, but we can also formulate it in terms of
+Gaussians too.</p>
+<p>Recall that Bernoulli variables only have a single parameter <span class="math">\(p\)</span> to
+estimate, but for a Gaussian we'll need two functions to estimate the mean and
+variance denoted by <span class="math">\([{\bf \mu}({\bf y}), {\bf \sigma}({\bf y})]\)</span>.
+However, due to the autoregressive property, the individual elements are only
+functions of the prior indices and thus their derivatives are zero with respect
+to latter indices:</p>
+<div class="math">
+\begin{align*}
+\mu_i &amp;= f_i(y_{0:i-1})\\
+\sigma_i &amp;= g_i(y_{0:i-1}) \\
+\frac{\partial[\mu_i, \sigma_i]}{\partial y_j} &amp;= [0, 0] &amp;\text{ for } j\geq i \\
+\tag{6}
+\end{align*}
+</div>
+<p>Given <span class="math">\([{\bf \mu}({\bf y}), {\bf \sigma}({\bf y})]\)</span>, we can
+sequentially apply an autoregressive transform on a noise vector
+<span class="math">\(\epsilon \sim \mathcal{N}(0, {\bf I})\)</span> as such:</p>
+<div class="math">
+\begin{align*}
+y_0 &amp;= \mu_0 + \sigma_0 \odot \epsilon_0. \\
+y_i &amp;= \mu_i({\bf y_{0:i-1}}) + \sigma_i({\bf y_{0:i-1}}) \odot \epsilon_i &amp; \text{ for } i &gt; 0
+\tag{7}
+\end{align*}
+</div>
+<p>where addition is element-wise and <span class="math">\(\odot\)</span> is element-wise multiplication.
+Intuitively, this is a natural way to make Gaussians, you multiply by some
+standard deviation and add some mean.</p>
+<p>However in our case, we can transform any vector, not just a noise vector.
+This is shown on the left hand side of Figure 3 where we take a <span class="math">\(\bf x\)</span>
+vector and transform it to a <span class="math">\(\bf y\)</span> vector.  You'll notice that we have
+to perform <span class="math">\(\mathcal{O}(D)\)</span> sequential computations, thus making it too slow for our
+intended purpose of use in a normalizing flow.  But what about the inverse
+transform?</p>
+<div class="figure align-center">
+<img alt="Autoregressive Transform" src="../../images/iaf.png" style="width: 550px;"><p class="caption">Figure 3: Gaussian version of Autoregressive Transform and Inverse
+Autoregressive Transforms</p>
+</div>
+<p>The inverse transform can actually be parallelized (we'll switch to <span class="math">\(\bf x\)</span> as
+the input variable instead of <span class="math">\(\epsilon\)</span>) as shown in Equation 8 and
+the right hand side of Figure 3 so long as we have <span class="math">\(\sigma_i &gt; 0\)</span>.</p>
+<div class="math">
+\begin{equation*}
+x_i = \frac{y_i - \mu_i({\bf y_{0:i-1}})}{\sigma_i({\bf y_{0:i-1}})} \tag{8}
+\end{equation*}
+</div>
+<p>where subtraction and division is element-wise.</p>
+<p>Now here comes the beauty of this transform.  Recall in normalizing flows
+to properly compute the probability, we have to be able to compute
+the determinant (or log-determinant).  However, Equation 6 shows that
+<span class="math">\(\bf \mu, \sigma\)</span> have no dependence on the current or latter variables
+in our sequence.  Thus from Equation 8, the Jacobian is lower triangular with a
+simple diagonal:</p>
+<div class="math">
+\begin{equation*}
+\frac{d{\bf x}}{d{\bf y}} =
+\begin{bmatrix}
+\frac{1}{\sigma_0} &amp; 0 &amp; \dots &amp; 0 \\
+\frac{\partial x_0}{\partial y_1} &amp; \frac{1}{\sigma_1} &amp; \dots  &amp; 0 \\
+\vdots &amp; \ddots &amp; \ddots &amp; \vdots \\
+\frac{\partial x_0}{\partial y_D} &amp; \dots &amp; \frac{\partial x_{D-1}}{\partial y_D} &amp;  \frac{1}{\sigma_D} \\
+\end{bmatrix}
+\tag{9}
+\end{equation*}
+</div>
+<p>Knowing that the determinant of a triangular matrix is the product of its
+diagonals, this gives us our final result for the log determinant which
+is incredibly simple to compute:</p>
+<div class="math">
+\begin{equation*}
+\log \big| det \frac{d{\bf x}}{d{\bf y}} \big|
+= - \sum_{i=0}^D \log \sigma_i({\bf y}_{0:i-1}) \tag{10}
+\end{equation*}
+</div>
+<p>In the next section, we'll see how to use this inverse autoregressive transform
+to build a more flexible posterior distribution for our variational
+autoencoder.</p>
+<p><br></p>
+<h4> Inverse Autoregressive Flows </h4>
+<p>Adding an inverse autoregressive flow (IAF) to a variational autoencoder is as
+simple as (a) adding a bunch of IAF transforms after the latent variables
+<span class="math">\(z\)</span> (b) modifying the likelihood to account for the IAF transforms.</p>
+<p>Figure 4 from [3] shows a depiction of adding several IAF transforms to a
+variational encoder.
+Two things to note: (1) a context <span class="math">\(h\)</span> is additionally generated, and
+(2) the IAF step only involves multiplication and addition, not division and
+subtraction like in Equation 8.  I'll explain these two points as we work
+through the math below.</p>
+<div class="figure align-center">
+<img alt="Autoregressive Transform" src="../../images/iaf2.png"><p class="caption">Figure 4: (Left) An Inverse Autoregressive Flow (IAF) transforming the basic
+posterior of an variational encoder to a more complex posterior through
+multiple IAF transforms. (Right) A single IAF transform. (Source: [3])</p>
+</div>
+<p>To start off, we generate our basic latent variables as we would in an
+vanilla VAE starting from a standard diagonal Gaussian
+<span class="math">\({\bf \epsilon} \sim \mathcal{N}(0, I)\)</span>:</p>
+<div class="math">
+\begin{equation*}
+{\bf z}_0 = {\bf \mu}_0 + {\bf \sigma}_0\odot {\bf \epsilon} \tag{11}
+\end{equation*}
+</div>
+<p>where <span class="math">\({\bf \mu}_0, {\bf \sigma}_0\)</span> are generated by our encoder network.
+So far nothing too exciting.</p>
+<p>Now here's the interesting part, we want to apply Equation 8 as an IAF transform
+to go from <span class="math">\({\bf z}_t\)</span> to <span class="math">\({\bf z}_{t+1}\)</span> (indices refer to the
+number of transforms applied on the vector <span class="math">\(\bf z\)</span>, not the index into
+<span class="math">\(\bf z\)</span>) but there are a few issues we need to resolve first.  Let's start
+with reinterpreting Equation 8, rewriting it in terms of <span class="math">\({\bf z}_t\)</span> and
+<span class="math">\({\bf z}_{t+1}\)</span> (we'll omit the indices into the vector with the
+understanding that <span class="math">\(\mu\)</span> and <span class="math">\(\sigma\)</span> are autoregressive):</p>
+<div class="math">
+\begin{align*}
+{\bf z}_{t+1}
+    &amp;= \frac{{\bf z}_t - {\bf \mu}_t({\bf z}_t)}{{\bf \sigma}_t({\bf z}_t)} \\
+    &amp;= \frac{{\bf z}_t}{{\bf \sigma}_t({\bf z}_t)} -
+       \frac{{\bf \mu}_t({\bf z}_t)}{{\bf \sigma}_t({\bf z}_t)} \\
+    &amp;= {\bf z}_t \odot {\bf s}_t({\bf z}_t) +
+       {\bf m}_t({\bf z}_t) \\
+\tag{12}
+\end{align*}
+</div>
+<p>where <span class="math">\({\bf s}_t = \frac{1}{{\bf \sigma}_t}\)</span> and
+<span class="math">\({\bf m}_t = -\frac{{\bf \mu}_t}{{\bf \sigma}_t}\)</span>.  We can do this re-writing
+because remember that we are learning these functions through a neural network
+so it doesn't really matter if we invert or negate.</p>
+<p>Next, let's introduce a context <span class="math">\(\bf h\)</span>.  Recall, our posterior is
+<span class="math">\(p({\bf z}|{\bf x})\)</span> but this is the same as just saying
+<span class="math">\(p({\bf z}|{\bf x}, f({\bf x}))\)</span>, where <span class="math">\(f(\cdot)\)</span> is some
+deterministic function.  So let's just define <span class="math">\({\bf h}:=f({\bf x})\)</span>
+and then use it in our IAF transforms.  This is not a problem because our
+latent variable is still only a function of <span class="math">\({\bf x}\)</span>:</p>
+<div class="math">
+\begin{align*}
+{\bf z}_{t+1}
+    &amp;= {\bf z}_t \odot {\bf s}_t({\bf z}_t, {\bf h}) + {\bf m}_t({\bf z}_t, {\bf h}) \\
+\tag{13}
+\end{align*}
+</div>
+<p>Equation 13 now matches Figure 4 (where we've relabelled <span class="math">\(\mu, \sigma\)</span> to
+<span class="math">\(m, s\)</span> for clarity).</p>
+<p>The last thing to note is that in the actual implementation, [3] suggests
+a modification to improve numerical stability while fitting.
+Given the outputs of the autoregressive network:</p>
+<div class="math">
+\begin{equation*}
+[{\bf m}_t, {\bf s}_t] = \text{AutoregressiveNN}[t]({\bf z}_t, {\bf h}; {\bf \theta})
+\tag{14}
+\end{equation*}
+</div>
+<p>We construct <span class="math">\({\bf z}_t\)</span> as:</p>
+<div class="math">
+\begin{equation*}
+{\bf z}_t = \text{sigm}({\bf s}_t)\odot {\bf z}_{t-1} + (1 - \text{sigm}({\bf s}_t))\odot {\bf m}_t
+\tag{15}
+\end{equation*}
+</div>
+<p>where sigm is the sigmoid function.  This is inspired by an LSTM-style
+updating.  They also suggest to initialize the weights of <span class="math">\({\bf s}_t\)</span> to
+saturate the sigmoid so that it's mostly just a pass-through to start.
+During experimentation, I saw that if I didn't use this LSTM-style trick, by the
+third or fourth IAF transform I started getting NaNs really quickly.</p>
+<p></p>
+<h5> Deriving the IAF Density </h5>
+<p>Now that we have Equation 15, we can finally derive the posterior density.
+Even with the change of variable above, <span class="math">\({\bf s}, {\bf m}\)</span>  are still autoregressive
+so Equation 10 applies.  Using this fact, starting from Equation 5:</p>
+<div class="math">
+\begin{align*}
+\log q({\bf z_T} | {\bf x}) &amp;= \log q({\bf z_0}|{\bf x})
+- \sum_{t=1}^T \log \big| det(\frac{d{\bf z_t}}{d{\bf z_{t-1}}}) \big| \\
+&amp;= \log q({\bf z_0}|{\bf x}) - \sum_{t=1}^T \big[- \sum_{i=0}^D \log {\bf \sigma}_{t, i}\big] &amp; \text{Equation 10} \\
+&amp;= \log q({\bf z_0}|{\bf x}) - \sum_{t=1}^T \big[\sum_{i=0}^D \log {\bf s}_{t, i}\big] &amp; \text{Change variable to }{\bf s} \\
+&amp;= - \sum_{i=0}^D \big[ \frac{1}{2}\epsilon_i^2 + \frac{1}{2}\log(2\pi) + \sum_{t=0}^D \log {\bf s}_{t, i}\big]  \\
+  \tag{16}
+\end{align*}
+</div>
+<p>where <span class="math">\(q({\bf z}_0|{\bf x})\)</span> is just an isotropic Gaussian centered at
+<span class="math">\({\bf \mu}_0\)</span> with <span class="math">\({\bf \sigma}_0\)</span>.  Here we apply Equation 3
+to transform back to an expression involving just <span class="math">\(\bf \epsilon\)</span>, and
+absorb the <span class="math">\({\sigma}_0\)</span> into the summation (by changing variable to
+<span class="math">\({\bf s}\)</span>).</p>
+<p>Lastly, we can write our entire variational objective as:</p>
+<div class="math">
+\begin{align*}
+\log{p({\bf x})} &amp;\geq -E_q\big[\log\frac{q({\bf z}_T|{\bf x})}{p({\bf z}_T,{\bf x})}\big]  \\
+           &amp;= E_q\big[\log p({\bf z}_T,{\bf x}) - \log q({\bf z}_T|{\bf x})\big] \\
+           &amp;= E_q\big[\log p({\bf x}|{\bf z}_T) + \log p({\bf z}_T) - \log q({\bf z}_T|{\bf x})\big] \\
+  \log q({\bf z_T} | {\bf x})
+  &amp;= - \sum_{i=0}^D \big[ \frac{1}{2}\epsilon_i^2 + \frac{1}{2}\log(2\pi) + \sum_{t=0}^D \log {\bf s}_{t, i}\big]  \\
+  \log p({\bf z_T}) &amp;= - \sum_{i=0}^D \big[ \frac{1}{2}{\bf z}_T^2 + \frac{1}{2}\log(2\pi)\big]  \\
+  \tag{17}
+\end{align*}
+</div>
+<p>with <span class="math">\(\log p({\bf z_T})\)</span> as our standard diagonal Gaussian prior and whatever
+distribution you want on your output variable <span class="math">\(\log p({\bf x}|{\bf z}_T)\)</span>
+(e.g. Bernoulli, Gaussian, etc.).
+With Equation 17, you can just negate it and use it as your loss function for
+your IAF VAE (the expectation gets estimated implicitly with the mini-batches
+of your stochastic gradient descent).</p>
+<p><br></p>
+<h4> Experiments: IAF Implementation </h4>
+<p>I implemented a VAE with IAF on both a binarized MNIST dataset as well as CIFAR10
+in a set of <a class="reference external" href="https://github.com/bjlkeng/sandbox/tree/master/notebooks/vae-inverse_autoregressive_flows">notebooks</a>.
+My implementation uses a modification of the MADE autoencoder from [2] (see my previous post on <a class="reference external" href="../autoregressive-autoencoders">Autoregressive Autoencoders</a>)
+for the IAF layers.  I only used the "basic" version of the IAF network from
+the paper, not the extension based on ResNet.
+As usual, things were pretty easy to put together using Keras because I
+basically took the code for a VAEs, added the code I had for a MADE, and
+modified the loss function as needed <a class="footnote-reference" href="#id4" id="id2">[2]</a>.</p>
+<p>The network for the encoder consists of a few convolution layers, a couple of dense
+layers, and a symmetric structure for the decoder except with transposed
+convolutions.  I used 32 latent dimensions for MNIST and 128 for CIFAR10 with
+proportional number of filters and hidden nodes for the convolutional and dense
+layers respectively.  For the IAF portion, I used separate MADE layers (with 2
+hidden layers each) for the <span class="math">\(\bf m\)</span> and <span class="math">\(\bf s\)</span> variables with 10x
+hidden nodes relative to the latent dimensions.  As the paper suggested, I
+reversed the order of <span class="math">\(\bf z_t\)</span> after each IAF transform.</p>
+<table border="1" class="colwidths-given docutils align-center">
+<caption>Table 1: IAF Results</caption>
+<colgroup>
+<col width="33%">
+<col width="22%">
+<col width="22%">
+<col width="22%">
+</colgroup>
+<thead valign="bottom"><tr>
+<th class="head">Model</th>
+<th class="head">Training Loss</th>
+<th class="head">Validation Loss</th>
+<th class="head">P(x|z) Test Loss</th>
+</tr></thead>
+<tbody valign="top">
+<tr>
+<td>MNIST-VAE</td>
+<td>70.92</td>
+<td>72.33</td>
+<td>40.19</td>
+</tr>
+<tr>
+<td>MNIST-VAE+IAF</td>
+<td>66.44</td>
+<td>70.89</td>
+<td>39.99</td>
+</tr>
+<tr>
+<td>CIFAR10-VAE</td>
+<td>1815.29</td>
+<td>1820.17</td>
+<td>1781.58</td>
+</tr>
+<tr>
+<td>CIFAR10-VAE+IAF</td>
+<td>1815.07</td>
+<td>1823.05</td>
+<td>1786.24</td>
+</tr>
+</tbody>
+</table>
+<p>Table 1 shows the results of the experiments on both datasets.  As you can see
+the IAF layers seems to do a bit of improvement on MNIST taking the validation
+loss down from <span class="math">\(72.3\)</span> to <span class="math">\(70.9\)</span>, while there's barely an
+improvement on the test output loss.  This didn't really have any affect on the
+generated images, which qualitatively showed no difference.  The IAF layers
+seemed improve the MNIST numbers a bit but only marginally.</p>
+<p>The CIFAR10 results seemed to get worse on validation/test sets.  One thing
+that I did notice is that adding more IAF layers requires more training
+(there are many more parameters) and also you need some "tricks" in order
+to properly train it.  This is likely due to the long chain of dense layers
+that make up the IAF transforms, similar to troubles you might have in an LSTM.
+So it's quite possible that the IAF layers could be slightly beneficial but
+I just didn't train it quite right.</p>
+<p>My overall conclusion is that IAF didn't seem to have a huge affect on the
+resulting output (at least on its own).  I was hoping that it would help VAEs
+achieve GAN-like results but alas, it's not quite there.  I will note that [3]
+actually had a novel architecture using IAF transforms with a ResNet like
+structure.  This is where they achieved near state-of-the-art results on
+CIFAR10.  Probably this structure is much easier to train (like ResNet) and
+really allows you to take advantage of the IAF layers.</p>
+<p></p>
+<h5> Implementation Notes </h5>
+<ul class="simple">
+<li>The "context" vector is connected to the input of the MADE with an additional dense layer (see implementation).</li>
+<li>The trick from Equation 15 was needed.  Even at 4 IAF layers I started getting NaNs pretty quickly.</li>
+<li>Even beyond Equation 15, I had a lot of trouble with getting things to be
+stable with the MADE computations, not sure if all of them helped:<ul>
+<li>Added regularizers on the MADE layers.</li>
+<li>Used 'sigmoid' for activation for all MADE stuff (instead of the 'elu' activation I used for the other layers).</li>
+<li>I disabled dropout for all layers.</li>
+</ul>
+</li>
+<li>I had a bunch of confusion with the <span class="math">\(\log q(z|x)\)</span> computation, especially
+the determinant.  Only after I worked through the math did I actually figure
+out the sign of the determinant in Equation 17.  The key is really understanding
+the change of variables in Equation 12.</li>
+<li>I actually spent a lot of time trying to get IAFs to work on a "toy" example
+using various synthetic data like mixed Gaussians or weird auto-regressive
+distributions.  In all these cases, I had a lot of trouble showing that the
+IAF transforms did anything, it looks to perform pretty much on par with a
+vanilla VAE.  My hypothesis on this is that either the distributions were too
+simple so the vanilla VAE works really well, or the IAF transforms don't do
+much.  I suspect the latter is probably most of it.</li>
+<li>Now I'm wondering if the normalizing flow transforms from [1] will do a better job
+but I didn't spend any time trying to implement it to see if it made a difference.</li>
+</ul>
+<p><br></p>
+<h4> Conclusion </h4>
+<p>Well there you have, another autoencoder post!  When I first read about this idea
+I was super excited because conceptually it's so beautiful!  Using the exact same
+VAE that we all know and love, you can improve its performance just by transforming
+the posterior and removing the big perceived limitation: diagonal Gaussians.
+Unfortunately, normalizing flows with IAF transforms are no silver bullet and the
+improvements I saw were pretty small (if you know otherwise please let me know!).
+Despite this, I still really like the idea, at least theoretically, because I think
+it really shows some creativity to use the <em>inverse</em> of an autoregressive flow
+in addition to the whole concept of a normalizing flow.  Who knew transforming
+probability distributions would be useful?  Anyways, I learned lots of really
+interesting things working on this and you can expect more in the new year!
+Happy Holidays!</p>
+<p><br></p>
+<h4> Further Reading </h4>
+<ul class="simple">
+<li>Previous posts: <a class="reference external" href="../variational-autoencoders">Variational Autoencoders</a>, <a class="reference external" href="../a-variational-autoencoder-on-the-svnh-dataset">A Variational Autoencoder on the SVHN dataset</a>, <a class="reference external" href="../semi-supervised-learning-with-variational-autoencoders">Semi-supervised Learning with Variational Autoencoders</a>, <a class="reference external" href="../autoregressive-autoencoders">Autoregressive Autoencoders</a>
+</li>
+<li>My implementation on Github: <a class="reference external" href="https://github.com/bjlkeng/sandbox/tree/master/notebooks/vae-inverse_autoregressive_flows">notebooks</a>
+</li>
+<li>[1] "Variational Inference with Normalizing Flows", Danilo Jimenez Rezende, Shakir Mohamed, <a class="reference external" href="https://arxiv.org/abs/1505.05770">ICML 2015</a>
+</li>
+<li>[2] "MADE: Masked Autoencoder for Distribution Estimation", Germain, Gregor, Murray, Larochelle, <a class="reference external" href="https://arxiv.org/pdf/1502.03509.pdf">ICML 2015</a>
+</li>
+<li>[3] "Improving Variational Inference with Inverse Autoregressive Flow", Diederik P. Kingma, Tim Salimans, Rafal Jozefowicz, Xi Chen, Ilya Sutskever, Max Welling, <a class="reference external" href="https://arxiv.org/abs/1606.04934">NIPS 2016</a>
+</li>
+<li>[4] "Tutorial on Variational Autoencoders", Carl Doersch, <a class="reference external" href="http://arxiv.org/abs/1606.05908">http://arxiv.org/abs/1606.05908</a>
+</li>
+<li>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Probability_density_function#Dependent_variables_and_change_of_variables">Probability Density Function: Dependent variables and change of variables</a>
+</li>
+<li>Github code for "Improving Variational Inference with Inverse Autoregressive Flow": <a class="reference external" href="https://github.com/openai/iaf/">https://github.com/openai/iaf/</a>
+</li>
+</ul>
+<table class="docutils footnote" frame="void" id="id3" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
+<td>At least by my estimate the results are kind of marginal. Improving the posterior on its own doesn't seem to have a significant boost in the ELBO or the output variable likelihood.  The IAF paper [3] actually does have really good results on CIFAR10 but uses a novel architecture combined with IAF transforms.  But by itself, the IAF doesn't seem to do that much.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id4" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="#id2">[2]</a></td>
+<td>Actually, it was a bit harder than that because I had to work through a bunch of bugs and misinterpretations of the math, but the number of lines added was quite small.</td>
+</tr></tbody>
+</table>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/autoencoders/" rel="tag">autoencoders</a></li>
+            <li><a class="tag p-category" href="../../categories/autoregressive/" rel="tag">autoregressive</a></li>
+            <li><a class="tag p-category" href="../../categories/cifar10/" rel="tag">CIFAR10</a></li>
+            <li><a class="tag p-category" href="../../categories/generative-models/" rel="tag">generative models</a></li>
+            <li><a class="tag p-category" href="../../categories/kullback-leibler/" rel="tag">Kullback-Leibler</a></li>
+            <li><a class="tag p-category" href="../../categories/made/" rel="tag">MADE</a></li>
+            <li><a class="tag p-category" href="../../categories/mnist/" rel="tag">MNIST</a></li>
+            <li><a class="tag p-category" href="../../categories/variational-calculus/" rel="tag">variational calculus</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../autoregressive-autoencoders/" rel="prev" title="Autoregressive Autoencoders">Previous post</a>
+            </li>
+        </ul></nav></aside><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+            MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
+            </script></article>
+</div>
+            <div class="col-md-3 well">
+            <p>
+            I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
+            a former academic, current data scientist and engineer.  This is
+            <a href="../../">the place</a>
+            where I write
+            about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br><p>
+            <a href="../../archive.html">Archive</a>
+            </p>
+            <p>
+            <a href="../../categories/index.html">Tags</a>
+            </p>
+            <p>
+            <a href="../../rss.xml">RSS feed</a>
+            </p>
+
+<!-- Begin MailChimp Signup Form -->
+<hr>
+<link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+    #mc_embed_signup{clear:left; font:13px Helvetica,Arial,sans-serif; }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+       We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="//briankeng.us10.list-manage.com/subscribe/post?u=cedf72ca8daa891e57f4379a0&amp;id=1f1563094f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <b>Signup for Email Blog Posts</b>
+    <div id="mc_embed_signup_scroll">
+<div>
+    <label for="mce-EMAIL"> Email Address </label>
+    <input type="email" value="" name="EMAIL" class="required email form-control input-sm" id="mce-EMAIL">
+</div>
+    <div id="mce-responses" class="clear">
+        <div class="response" id="mce-error-response" style="display:none"></div>
+        <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_cedf72ca8daa891e57f4379a0_1f1563094f" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn btn-default btn-xs"></div>
+    </div>
+</form>
+</div>
+<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
+</div>
+        </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2017         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+        </footer>
+</div>
+</div>
+
+
+            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-15314898-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>
