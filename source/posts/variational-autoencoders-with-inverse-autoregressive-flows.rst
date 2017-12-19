@@ -38,7 +38,7 @@
 In this post, I'm going to be describing a really cool idea about how
 to improve variational autoencoders using inverse autoregressive
 flows.  The main idea is that we can generate more powerful posterior
-distributions compared a vanilla isotropic Gaussian by applying a
+distributions compared to a more basic isotropic Gaussian by applying a
 series of invertible transformations.  This, in theory, will allow
 your variational autoencoder to fit better by concentrating the
 stochastic samples around a closer approximation to the true
@@ -79,9 +79,10 @@ examples.  For example, if your number of dimensions is :math:`D=1`,
 you might need to sample roughly :math:`(10)^1=10` points per image,
 making your dataset 10x.  If :math:`D=10`, you'll probably need
 :math:`(10)^{10}` points per image, making your dataset too big to
-practically fit.  Not only that, most the sampled points will not contribute
+practically train.  Not only that, most the sampled points will not contribute
 much to training your network because they'll be in parts of the latent space
-that are very low probability, contributing almost nothing to training.
+that are very low probability (with respect to the current image), contributing
+almost nothing to your network weights.
 
 Of course that's exactly why variational autoencoders are so
 brilliant.  Instead of randomly sampling from your :math:`z` space,
@@ -100,13 +101,13 @@ for details).  The structure is shown in Figure 2.
   :align: center
 
   Figure 2: Left: A naive implementation of an autoencoder without the
-  reparameterization trick.  RHS: A vanilla variational autoencoder with the
+  reparameterization trick.  Right: A vanilla variational autoencoder with the
   "reparameterization trick" (Source: [4])
 
 As you can imagine, the posterior network is an estimate of the true
 posterior (as is the case for variational inference methods).
-Unfortunately our factorized diagonal Gaussians can't model every
-distribution.  In particular, the fact that they're factorized can
+Unfortunately our fully factorized diagonal Gaussians can't model every
+distribution.  In particular, the fact that they're fully factorized can
 limit the ability to match the true posterior we're trying to model.
 Theoretically if we are able to more closely approximate the true
 posterior, our generator network should be able to train more easily,
@@ -198,11 +199,10 @@ Next, we'll want to apply a series of invertible transforms
     {\bf z_t} &\sim f_t({\bf z_{t-1}}, {\bf x}) & \forall t=1..T
     \tag {4}
 
-Remember :math:`{\bf x}` parameterizes our posterior distribution
-(i.e. our encoder), so we can freely use it as part of our
-transformation here.
-Using Equation 3, we can compute the (log) density of the final
-variable :math:`{\bf z_t}` as such:
+Remember our posterior distribution (i.e. our encoder) is conditioned
+on :math:`{\bf x}`, so we can freely use it as part of our transformation here.
+Using Equation 3, we can compute the (log) density of the final variable
+:math:`{\bf z_t}` as such:
 
 .. math::
 
@@ -240,12 +240,12 @@ have a direct probabilistic interpretation).  The paper introduced the idea in
 terms of binary Bernoulli variables, but we can also formulate it in terms of
 Gaussians too.
 
-When looking at defining the :math:`f_i(\cdot)` function, you only need a
-single function to estimate the parameter :math:`p` for a Bernoulli.  For a
-Gaussian, we'll need two functions to estimate the mean and variance denoted by
-:math:`[{\bf \mu}({\bf y}), {\bf \sigma}({\bf y})]`.  However, due to the autoregressive property,
-the individual elements are only functions of the prior indices 
-and thus their derivatives are zero with respect to latter indices:
+Recall that Bernoulli variables only have a single parameter :math:`p` to
+estimate, but for a Gaussian we'll need two functions to estimate the mean and
+variance denoted by :math:`[{\bf \mu}({\bf y}), {\bf \sigma}({\bf y})]`.
+However, due to the autoregressive property, the individual elements are only
+functions of the prior indices and thus their derivatives are zero with respect
+to latter indices:
 
 .. math::
     \mu_i &= f_i(y_{0:i-1})\\
@@ -263,6 +263,8 @@ sequentially apply an autoregressive transform on a noise vector
     \tag{7}
 
 where addition is element-wise and :math:`\odot` is element-wise multiplication.
+Intuitively, this is a natural way to make Gaussians, you multiply by some
+standard deviation and add some mean.
 
 However in our case, we can transform any vector, not just a noise vector.
 This is shown on the left hand side of Figure 3 where we take a :math:`\bf x`
@@ -308,7 +310,8 @@ simple diagonal:
     \tag{9}
 
 Knowing that the determinant of a triangular matrix is the product of its
-diagonals, this gives us our final result for the log determinant:
+diagonals, this gives us our final result for the log determinant which
+is incredibly simple to compute:
 
 .. math::
 
@@ -366,12 +369,12 @@ understanding that :math:`\mu` and :math:`\sigma` are autoregressive):
         &= \frac{{\bf z}_t - {\bf \mu}_t({\bf z}_t)}{{\bf \sigma}_t({\bf z}_t)} \\
         &= \frac{{\bf z}_t}{{\bf \sigma}_t({\bf z}_t)} -
            \frac{{\bf \mu}_t({\bf z}_t)}{{\bf \sigma}_t({\bf z}_t)} \\
-        &= {\bf z}_t \odot {\bf s}_t({\bf z}_t) -
+        &= {\bf z}_t \odot {\bf s}_t({\bf z}_t) +
            {\bf m}_t({\bf z}_t) \\
     \tag{12}
 
 where :math:`{\bf s}_t = \frac{1}{{\bf \sigma}_t}` and 
-:math:`{\bf m}_t = \frac{{\bf \mu}_t}{{\bf \sigma}_t}`.  We can do this re-writing
+:math:`{\bf m}_t = -\frac{{\bf \mu}_t}{{\bf \sigma}_t}`.  We can do this re-writing
 because remember that we are learning these functions through a neural network 
 so it doesn't really matter if we invert or negate.
 
@@ -385,7 +388,7 @@ latent variable is still only a function of :math:`{\bf x}`:
 .. math::
 
     {\bf z}_{t+1}
-        &= {\bf z}_t \odot {\bf s}_t({\bf z}_t, {\bf h}) - {\bf m}_t({\bf z}_t, {\bf h}) \\
+        &= {\bf z}_t \odot {\bf s}_t({\bf z}_t, {\bf h}) + {\bf m}_t({\bf z}_t, {\bf h}) \\
     \tag{13} 
 
 Equation 13 now matches Figure 4 (where we've relabelled :math:`\mu, \sigma` to
@@ -430,9 +433,10 @@ so Equation 10 applies.  Using this fact, starting from Equation 5:
       \tag{16}
 
 where :math:`q({\bf z}_0|{\bf x})` is just an isotropic Gaussian centered at
-:math:`{\bf \mu}_0` with :math:`{\bf \sigma}_0`.  Here we apply Equation 3 and
-just absorb the :math:`{\sigma}_0` into the summation (by changing variable to
-:math:`{\bf s}`) to get back to an expression involving :math:`\bf \epsilon`.
+:math:`{\bf \mu}_0` with :math:`{\bf \sigma}_0`.  Here we apply Equation 3 
+to transform back to an expression involving just :math:`\bf \epsilon`, and
+absorb the :math:`{\sigma}_0` into the summation (by changing variable to
+:math:`{\bf s}`).
 
 Lastly, we can write our entire variational objective as:
 
@@ -440,7 +444,6 @@ Lastly, we can write our entire variational objective as:
 
   \log{p({\bf x})} &\geq -E_q\big[\log\frac{q({\bf z}_T|{\bf x})}{p({\bf z}_T,{\bf x})}\big]  \\
              &= E_q\big[\log p({\bf z}_T,{\bf x}) - \log q({\bf z}_T|{\bf x})\big] \\
-             &= E_q\big[\log p({\bf x}|{\bf z}_T) + \log p({\bf z}_T) - \log q({\bf z}_T|{\bf x})\big] \\
              &= E_q\big[\log p({\bf x}|{\bf z}_T) + \log p({\bf z}_T) - \log q({\bf z}_T|{\bf x})\big] \\
     \log q({\bf z_T} | {\bf x})
     &= - \sum_{i=0}^D \big[ \frac{1}{2}\epsilon_i^2 + \frac{1}{2}\log(2\pi) + \sum_{t=0}^D \log {\bf s}_{t, i}\big]  \\
@@ -457,11 +460,10 @@ of your stochastic gradient descent).
 |h2| Experiments: IAF Implementation |h2e|
 
 I implemented a VAE with IAF on both a binarized MNIST dataset as well as CIFAR10
-in a set of 
-TODO (`notebook <http://www.briankeng.com>`__).
+in a set of `notebooks <https://github.com/bjlkeng/sandbox/tree/master/notebooks/vae-inverse_autoregressive_flows>`__.
 My implementation uses a modification of the MADE autoencoder from [2] (see my previous post on `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__)
-for the IAF layers and I only used the "basic" version from the paper, not the
-extension based on ResNet.
+for the IAF layers.  I only used the "basic" version of the IAF network from
+the paper, not the extension based on ResNet.
 As usual, things were pretty easy to put together using Keras because I
 basically took the code for a VAEs, added the code I had for a MADE, and
 modified the loss function as needed [2]_.
@@ -512,12 +514,12 @@ really allows you to take advantage of the IAF layers.
 |h3| Implementation Notes |h3e|
 
 - The "context" vector is connected to the input of the MADE with an additional dense layer (see implementation).
-- The trick from Equation 15 was needed.  Even at 4-layers I started getting NaNs pretty quickly.
+- The trick from Equation 15 was needed.  Even at 4 IAF layers I started getting NaNs pretty quickly.
 - Even beyond Equation 15, I had a lot of trouble with getting things to be
   stable with the MADE computations, not sure if all of them helped:
 
   - Added regularizers on the MADE layers.
-  - Used 'sigmoid' for activation for all made stuff (instead of the 'elu' activation I used for the other layers).
+  - Used 'sigmoid' for activation for all MADE stuff (instead of the 'elu' activation I used for the other layers).
   - I disabled dropout for all layers.
 
 - I had a bunch of confusion with the :math:`\log q(z|x)` computation, especially
@@ -554,7 +556,7 @@ Happy Holidays!
 |h2| Further Reading |h2e|
 
 * Previous posts: `Variational Autoencoders <link://slug/variational-autoencoders>`__, `A Variational Autoencoder on the SVHN dataset <link://slug/a-variational-autoencoder-on-the-svnh-dataset>`__, `Semi-supervised Learning with Variational Autoencoders <link://slug/semi-supervised-learning-with-variational-autoencoders>`__, `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__
-* My implementation on Github: TODO
+* My implementation on Github: `notebooks <https://github.com/bjlkeng/sandbox/tree/master/notebooks/vae-inverse_autoregressive_flows>`__
 * [1] "Variational Inference with Normalizing Flows", Danilo Jimenez Rezende, Shakir Mohamed, `ICML 2015 <https://arxiv.org/abs/1505.05770>`__
 * [2] "MADE: Masked Autoencoder for Distribution Estimation", Germain, Gregor, Murray, Larochelle, `ICML 2015 <https://arxiv.org/pdf/1502.03509.pdf>`__
 * [3] "Improving Variational Inference with Inverse Autoregressive Flow", Diederik P. Kingma, Tim Salimans, Rafal Jozefowicz, Xi Chen, Ilya Sutskever, Max Welling, `NIPS 2016 <https://arxiv.org/abs/1606.04934>`_
@@ -565,5 +567,5 @@ Happy Holidays!
 * Wikipedia: `Probability Density Function: Dependent variables and change of variables <https://en.wikipedia.org/wiki/Probability_density_function#Dependent_variables_and_change_of_variables>`__
 * Github code for "Improving Variational Inference with Inverse Autoregressive Flow": https://github.com/openai/iaf/
 
-.. [1] At least by my estimate the results are kind of marginal. Improving the posterior on its own doesn't seem to have a significant boost in the ELBO or the output variable likelihood.  The IAF paper [3] actually does have really good results on CIFAR10 but uses a novel architecture combined with IAF transforms.  So by itself, the IAF doesn't seem to do that much.
+.. [1] At least by my estimate the results are kind of marginal. Improving the posterior on its own doesn't seem to have a significant boost in the ELBO or the output variable likelihood.  The IAF paper [3] actually does have really good results on CIFAR10 but uses a novel architecture combined with IAF transforms.  But by itself, the IAF doesn't seem to do that much.
 .. [2] Actually, it was a bit harder than that because I had to work through a bunch of bugs and misinterpretations of the math, but the number of lines added was quite small.
