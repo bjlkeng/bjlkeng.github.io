@@ -1,6 +1,6 @@
 .. title: Variational Autoencoders with Inverse Autoregressive Flows
 .. slug: variational-autoencoders-with-inverse-autoregressive-flows
-.. date: 2017-12-04 07:47:38 UTC-05:00
+.. date: 2017-12-19 08:47:38 UTC-05:00
 .. tags: variational calculus, autoencoders, Kullback-Leibler, generative models, MNIST, autoregressive, MADE, CIFAR10, mathjax
 .. category: 
 .. link: 
