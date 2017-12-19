@@ -536,7 +536,6 @@ really allows you to take advantage of the IAF layers.
 - Now I'm wondering if the normalizing flow transforms from [1] will do a better job
   but I didn't spend any time trying to implement it to see if it made a difference.
 
-
 |h2| Conclusion |h2e|
 
 Well there you have, another autoencoder post!  When I first read about this idea
@@ -552,7 +551,6 @@ probability distributions would be useful?  Anyways, I learned lots of really
 interesting things working on this and you can expect more in the new year!
 Happy Holidays!
 
-
 |h2| Further Reading |h2e|
 
 * Previous posts: `Variational Autoencoders <link://slug/variational-autoencoders>`__, `A Variational Autoencoder on the SVHN dataset <link://slug/a-variational-autoencoder-on-the-svnh-dataset>`__, `Semi-supervised Learning with Variational Autoencoders <link://slug/semi-supervised-learning-with-variational-autoencoders>`__, `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__
@@ -561,8 +559,6 @@ Happy Holidays!
 * [2] "MADE: Masked Autoencoder for Distribution Estimation", Germain, Gregor, Murray, Larochelle, `ICML 2015 <https://arxiv.org/pdf/1502.03509.pdf>`__
 * [3] "Improving Variational Inference with Inverse Autoregressive Flow", Diederik P. Kingma, Tim Salimans, Rafal Jozefowicz, Xi Chen, Ilya Sutskever, Max Welling, `NIPS 2016 <https://arxiv.org/abs/1606.04934>`_
 * [4] "Tutorial on Variational Autoencoders", Carl Doersch, `<http://arxiv.org/abs/1606.05908>`__
-
-
 
 * Wikipedia: `Probability Density Function: Dependent variables and change of variables <https://en.wikipedia.org/wiki/Probability_density_function#Dependent_variables_and_change_of_variables>`__
 * Github code for "Improving Variational Inference with Inverse Autoregressive Flow": https://github.com/openai/iaf/
