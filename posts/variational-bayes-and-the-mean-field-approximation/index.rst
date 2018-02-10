@@ -619,7 +619,7 @@ Starting with :math:`q_{\mu}(\mu)`:
 
 .. math::
 
-    \log q_{\mu}(\mu) &= E_{\tau}[p(X, \mu, \tau)] + \text{const}_1 \\
+    \log q_{\mu}(\mu) &= E_{\tau}[\log p(X, \mu, \tau)] + \text{const}_1 \\
       &= E_{\tau}[\log p(X|\mu, \tau) + \log p(\mu|\tau) + \log p(\tau)] + \text{const}_1 \\
       &= E_{\tau}[\log p(X|\mu, \tau) + \log p(\mu|\tau)] + \text{const}_2 \\
       &= E_{\tau}\big[\frac{N}{2} \log \tau - \frac{\tau}{2} \sum_{i=1}^N (x_i - \mu)^2
