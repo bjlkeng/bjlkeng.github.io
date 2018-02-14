@@ -38,15 +38,14 @@
 
 Taking a small break from some of the heavier math, I thought I'd write a post
 (aka learn more about) a very popular neural network architecture called
-Residual Networks aka ResNet.  This architecture is being widely used as the
-standard architecture nowadays (as far as I know at least) because it's so
-simple yet so powerful at the same time.  The improved performance comes in the
-ability to add hundreds of layers (talk about deep learning!) without degrading
-performance or adding difficulty to training.  I really like these types of
-robust advances where it doesn't require fiddling with all sorts of
-hyper-parameters to make it work.  Anyways, I'll introduce the idea and show an
-implementation of ResNet on a few runs of a variational autoencoder that I put
-together on CIFAR10.
+Residual Networks aka ResNet.  This architecture is being very widely used
+because it's so simple yet so powerful at the same time.  The architecture's
+performance is due its ability to add hundreds of layers (talk about deep
+learning!) without degrading performance or adding difficulty to training.  I
+really like these types of robust advances where it doesn't require fiddling
+with all sorts of hyper-parameters to make it work.  Anyways, I'll introduce
+the idea and show an implementation of ResNet on a few runs of a variational
+autoencoder that I put together on the CIFAR10 dataset.
 
 .. TEASER_END
 
@@ -54,9 +53,11 @@ together on CIFAR10.
 
 In the early days, a 4+ layer network was considered deep, and rightly so!  It
 just wasn't possible to train mostly because of problems such as
-vanishing/exploding gradients with the sigmoid of tanh activation functions.
+vanishing/exploding gradients caused in part by the sigmoid or tanh activation
+functions.
 Of course, nowadays there are things like weight initialization, batch
-normalization, and various improved activation functions e.g. ReLU, ELU etc.
+normalization, and various improved activation functions (e.g. ReLU, ELU, etc.)
+that have more or less overcome many of these issues
 (see original paper [1] for a bunch of the relevant references).
 
 However, once we started to be able to train more layers, it seemed that
@@ -69,8 +70,8 @@ sense why adding more layers would cause problems.
 
 Theoretically, if there was some magical optimal number of layers, you would
 intuitively just expect any additional layers to just learn the identity
-mapping learning a "null-op".  Empirically, however, this is not what is
-observed where solutions are usually worse.  This insight leads to the
+mapping, essentially learning a "null-op".  However, empirically this is not
+what is observed where performance is usually worse.  This insight leads to the
 idea of residual networks.
 
 |h2| Residual Learning |h2e|
@@ -94,20 +95,20 @@ The name "residual networks" comes from the fact, we're actually learning
 of what's left over when you subtract input from output.
 
 As with many of these architectures, there's no mathematical proof of why things
-work but there are a few thoughts on why it works.  First, it's pretty
+work but there are a few hypotheses.  First, it's pretty
 intuitive that if a neural net can learn :math:`\mathcal{H}({\bf x})`, it can
 surely learn the residual :math:`\mathcal{F}({\bf x}) - x`.  Second, even
 though theoretically they are solving the same problem, the residual may be an
-easier function to practically fit, which is what we actually see in practice.
+easier function to fit, which is what we actually see in practice.
 Third, more layers can potentially help model more complex functions with the
-assumption being that you are able to train the deep network in the first place.
+assumption being that you are able to train the deeper network in the first place.
 
 One really nice thing about these shortcuts is that we don't add any new
 parameters!  We simply add an extra addition operation in the computational
 graph allowing the network to be trained in *exactly* the same way as the
 non-ResNet graph.  It also has the added benefit of being relatively easy to
 train even though this identity connection architecture is most likely not
-optimal for any given problem.
+the theoretical optimal point for any given problem.
 
 One thing to note is that the dimensions of :math:`\bf x` and
 :math:`\mathcal{F}({\bf x})` have to match, otherwise we can do a linear
@@ -124,9 +125,10 @@ reproduced in Figure 2.  The left block is a simple translation of Figure 1
 except with convolutional layers.  The right block uses a *bottleneck* design
 using three successive convolutional layers.  Each layer has stride one, meaning
 the input and output pixel dimensions are the same, the main difference is the
-filter dimensions which are 64, 64, 256 respectively in the diagram.  So from a
-256 dimension filter, we reduce it down to 64 in the first 1x1 and 3x3 layers,
-and the scale it back up to 256, hence the term bottleneck.
+filter dimensions which are 64, 64, 256 respectively in the diagram (these are
+just examples of numbers).  So from a 256 dimension filter, we reduce it down to 64
+in the first 1x1 and 3x3 layers, and the scale it back up to 256, hence the
+term bottleneck.
 
 .. figure:: /images/resnet2.png
   :height: 150px
@@ -135,15 +137,13 @@ and the scale it back up to 256, hence the term bottleneck.
 
   Figure 2: Two Types of Convolutional ResNet building blocks (source: [1])
 
-Once you have these building blocks, all you do it just stack them sequentially!
+Once you have these building blocks, all you do is just stack them sequentially!
 You can stack dozens of them without much problems in training.
 There are also a few additional details when building a full ResNet
 implementation.
 The one I will mention is that every few blocks, you'll want to scale down (or
-up in the case of a decoder) the image dimension.  Here you just use a stride=1
-on the first convolutional layer, and add an additional convolutional layer
-with stride=2 in the shortcut connection.  Take a look at the implementation
-I used (which is from Keras) and it should make more sense.
+up in the case of a decoder) the image dimension.  Take a look at the
+implementation I used (which is originally from Keras) and it should make more sense.
 
 |h2| Experiments |h2e|
 
@@ -159,20 +159,19 @@ decided to see ResNet would help at all.  Using a vanilla autoencoder
 (diagonal Gaussian latent variables) on the CIFAR10 dataset didn't produce
 very good results from some previous experience 
 (see post on `Semi-supervised Learning with Variational Autoencoders <link://slug/semi-supervised-learning-with-variational-autoencoders>`__).
-I was wondering if adding a high capacity encoder/decoder network would benefit
-it. 
+One thing I was wondering is if adding a high capacity encoder/decoder network
+like ResNet would benefit the model performance. 
 
 You can find my implementation here **TODO**...
 
 |h3| CIFAR10 VAE Results |h3e|
 
-For these experiments, I used the implementation from 
+For these experiments, I basically used the ResNet implementation from 
 `Keras
-<https://github.com/keras-team/keras/blob/master/keras/applications/resnet50.py>`__.
-It has a template for how to generate a 50 layer ResNet.  I made some
-modifications to also support transposed convolutions for the decoder, it
-should be pretty staright forward to see in the code if you're curious.
-The results for the different depths of ResNet are in Table 1.
+<https://github.com/keras-team/keras/blob/master/keras/applications/resnet50.py>`__
+with a few modifications such as supporting transposed convolutions for the
+decoder.  It should be pretty straight forward to see in the code if you're
+curious.  The results for the different depths of ResNet are in Table 1.
 
 .. csv-table:: Table 1: CIFAR10 VAE Results
    :header: "Depth", "Training Time (hrs)", "Training Loss", "Validation Loss"
@@ -184,20 +183,20 @@ The results for the different depths of ResNet are in Table 1.
    "70", 80.0, 1784.8, 1799.0
    "100", TODO, TODO, TODO
 
-As you can see not much has changed between the different depths but look at
-that depth!  The training loss seems to improve a bit but the validation loss
-seems to get slightly worse.  But of course the different is so small you can't
-really make any conclusions.  All I really conclude from this is that this
-vanilla VAE setup isn't powerful enough to represent the CIFAR10 dataset [1]_.
-Another thing to note is that visually, the generated images from each of the runs
-all look super blurry.
+As you can see not much has changed in terms of model performance between the
+different runs but look at that depth!  The training loss seems to improve a
+bit but the validation loss seems to get slightly worse.  But of course the
+difference is so small you can't really make any conclusions.  All I really
+conclude from this is that this vanilla VAE setup isn't powerful enough to
+represent the CIFAR10 dataset [1]_.  Another thing to note is that visually,
+the generated images from each of the runs all look super blurry.
 
 I used an early stopping condition for each run where it would stop if the
 validation loss hadn't improved for 50 runs.  Interestingly when looking at
 runtime on my meager GTX1070, it seems that even deeper nets can "converge"
 faster.  What we can conclude from this is that the making the net significantly
 deeper didn't really hurt performance at all.  We didn't have any problems
-training, not did it really increase the run-time all that much in this
+training, nor did it really increase the run-time all that much in this
 instance.  We didn't get the big benefits of using deeper nets in this case
 (probably a limitation of the VAE), but ResNet is really robust!
 
@@ -221,10 +220,10 @@ Here are some implementation notes:
 |h2| Conclusion |h2e|
 
 So there you have it, a quick introduction to ResNet in all its glory.  I don't
-know about you but although ResNet really didn't improve performance much, it
-really gives me an adrenaline rush training a 100 layer deep neural network! So
-cool!  Of course, I also enjoy learning differential geometry on my latest
-vacation (future post), so I guess I have a *special* personality.  
+know about you but it really gives me an adrenaline rush training a 100 layer
+deep neural network! So cool!  Of course, I also enjoy learning about
+differential geometry on my vacation (future post), so I guess I have a
+*special* personality.  
 
 This post definitely has much less math that my recent stuff but rest assured
 that I have much more math heavy posts coming up.  I have at least four topics
