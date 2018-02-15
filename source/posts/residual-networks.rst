@@ -86,7 +86,7 @@ the network figure out what to use?  Figure 1 shows this a bit more clearly.
 
   Figure 1: The basic ResNet building block (source: [1])
 
-The basic idea is simply to add a identify connection every few layers
+The basic idea is simply to add an identify connection every few layers
 that adds the source of the block, :math:`\bf x`, to the output of the block
 :math:`\mathcal{F}({\bf x})`, resulting in the final output of 
 :math:`\mathcal{H}({\bf x}) := \mathcal{F}({\bf x}) + {\bf x}`.
@@ -116,7 +116,7 @@ projection of :math:`{\bf x}` onto the dimension like so:
 
 .. math::
 
-    {\bf y} = \mathcal{F}({\bf x}) + W_s{\bf x} \tag{1}
+    \mathcal{H}({\bf x}) := \mathcal{F}({\bf x}) + W_s{\bf x} \tag{1}
 
 where :math:`W_x` is a weight matrix that can be learned.
 
@@ -126,7 +126,7 @@ except with convolutional layers.  The right block uses a *bottleneck* design
 using three successive convolutional layers.  Each layer has stride one, meaning
 the input and output pixel dimensions are the same, the main difference is the
 filter dimensions which are 64, 64, 256 respectively in the diagram (these are
-just examples of numbers).  So from a 256 dimension filter, we reduce it down to 64
+just examples of numbers).  So from a 256 dimension filter input, we reduce it down to 64
 in the first 1x1 and 3x3 layers, and the scale it back up to 256, hence the
 term bottleneck.
 
@@ -138,7 +138,7 @@ term bottleneck.
   Figure 2: Two Types of Convolutional ResNet building blocks (source: [1])
 
 Once you have these building blocks, all you do is just stack them sequentially!
-You can stack dozens of them without much problems in training.
+You can stack dozens of them without much problem.
 There are also a few additional details when building a full ResNet
 implementation.
 The one I will mention is that every few blocks, you'll want to scale down (or
@@ -184,17 +184,17 @@ curious.  The results for the different depths of ResNet are in Table 1.
    "100", TODO, TODO, TODO
 
 As you can see not much has changed in terms of model performance between the
-different runs but look at that depth!  The training loss seems to improve a
-bit but the validation loss seems to get slightly worse.  But of course the
+different runs but look at those depths!  The training loss seems to improve a
+bit but the validation loss seems to get slightly worse.  Of course the
 difference is so small you can't really make any conclusions.  All I really
 conclude from this is that this vanilla VAE setup isn't powerful enough to
-represent the CIFAR10 dataset [1]_.  Another thing to note is that visually,
-the generated images from each of the runs all look super blurry.
+represent the CIFAR10 dataset [1]_.  Another thing to note is that visually
+the generated images from each of the runs all look similarly blurry.
 
 I used an early stopping condition for each run where it would stop if the
 validation loss hadn't improved for 50 runs.  Interestingly when looking at
 runtime on my meager GTX1070, it seems that even deeper nets can "converge"
-faster.  What we can conclude from this is that the making the net significantly
+faster.  What we can conclude from this is that making the net significantly
 deeper didn't really hurt performance at all.  We didn't have any problems
 training, nor did it really increase the run-time all that much in this
 instance.  We didn't get the big benefits of using deeper nets in this case
@@ -210,10 +210,10 @@ Here are some implementation notes:
 - The other "smarter" thing that I did was I wrote a script to run the notebook through command line.  This is great because when I'm just messing around I want to be able to see things in a UI but I also want to be able to batch run things (I only have 1 GPU after all).  This really allowed me to have the best of both worlds.  I'll just mention a few specific tricks I used:
 
   - Any variables I wanted to be able to modify from command-line I had to add
-    something like :code:`os.environ.get('LATENT_DIM', 256)`.
-  - In my run script, I had to define a `CMDLINE` var to not run certain UI
-    specific code such as :code:`TQDMNotebookCallback()`, which is a delight to have 
-    in the UI but causes issues when running command line.
+    something like :code:`os.environ.get('LATENT_DIM', 256)`, which allows you to read command-line environment variables.
+  - In my run script, I had to define a `CMDLINE` var to not run certain
+    UI-specific code such as :code:`TQDMNotebookCallback()`, which is a delight
+    to have in the UI but causes issues when running from the command line.
   - In my run script, I used the Jupyter functionality to `run from command line <http://nbconvert.readthedocs.io/en/latest/execute_api.html>`__.  The main thing to add is :code:`--ExecutePreprocessor.timeout=-1` so that it will not timeout when you're doing the actual fitting (it has a default of something like 10 mins if a cell takes too long).
   
 
@@ -232,6 +232,7 @@ them.  Expect the usual slow trickle instead of a flood.  See you next time!
 
 |h2| Further Reading |h2e|
 
+* **TODO**: `Implementation on Github <>`
 * Previous posts: `Variational Autoencoders <link://slug/variational-autoencoders>`__, `A Variational Autoencoder on the SVHN dataset <link://slug/a-variational-autoencoder-on-the-svnh-dataset>`__, `Semi-supervised Learning with Variational Autoencoders <link://slug/semi-supervised-learning-with-variational-autoencoders>`__
 * [1] "Deep Residual Learning for Image Recognition", Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun, `CVPR 2016 <https://arxiv.org/abs/1512.03385>`__
 
