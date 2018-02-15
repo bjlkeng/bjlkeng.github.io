@@ -1,7 +1,7 @@
 .. title: Residual Networks
 .. slug: residual-networks
 .. date: 2018-02-10 13:55:13 UTC-05:00
-.. tags: resnet, residual networks, CIFAR10, autoencoders, mathjax
+.. tags: ResNet, residual networks, CIFAR10, autoencoders, mathjax
 .. category: 
 .. link: 
 .. description: A brief post on residual networks with some experiments on variational autoencoders.
