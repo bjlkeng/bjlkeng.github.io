@@ -68,15 +68,15 @@ However, tensors as multidimensional arrays is just one very narrow "view" of a
 tensor, tensors (mathematically speaking) are much more than that!
 Let's start at the beginning.
 
-|h3| Physical Vectors as Tensors |h3e|
+|h3| Geometric Vectors as Tensors |h3e|
 
-We'll start with a concept we're all familiar with: vectors.
-Now there are many different variants of vectors but we want to talk
-about the physical vectors that has a magnitude and direction.  
-In particular, we're *not* talking specifically about an ordered pair of
-numbers (e.g. :math:`[1, 2]` in 2 dimensions).
+We'll start with a concept we're all familiar with: `geometric vectors <https://en.wikipedia.org/wiki/Euclidean_vector>`__.
+Now there are many different variants of vectors but we want to talk specifically
+about the geometric vectors that have a magnitude and direction.  
+In particular, we're *not* talking about just an ordered pair of numbers (e.g.
+:math:`[1, 2]` in 2 dimensions).
 
-Of course, we're all familiar with representing vectors as ordered pair
+Of course, we're all familiar with representing vectors as ordered pairs
 but recall that's probably because we're just *assuming* that we're working in
 Euclidean space where each of the indices represent the component of the basis
 vector (e.g. :math:`[1, 0]` and :math:`[0, 1]` in 2 dimensions).
@@ -95,12 +95,14 @@ Figure 1 shows a visualization.
   :alt: A Physical Vector
   :align: center
 
-  Figure 1: The physical vector A (in red) is the same regardless of what basis
+  Figure 1: The geometric vector A (in red) is the same regardless of what basis
   you use (source: Wikipedia).
 
 You can see in Figure 1 that we have a vector :math:`A` (in red) that can
-be represented in two different basis: :math:`e^1, e^2` (blue) and :math:`e_1, e_2` (yellow) [1]_.  You can see it's the same old vector, it's just that the way we're describing it changed.  In the former case, we can describe it by :math:`[a_1, a_2]`,
-while in the latter by :math:`[a^1, a^2]` (note: the super/subscripts represent
+be represented in two different basis: :math:`e^1, e^2` (blue) and :math:`e_1, e_2` (yellow) [1]_.  You can see it's the same old vector, it's just that the way we're describing it changed.  In the former case, we can describe it 
+as a `coordinate vector <https://en.wikipedia.org/wiki/Coordinate_vector>`__
+by :math:`[a_1, a_2]`,
+while in the latter by the coordinate vector :math:`[a^1, a^2]` (note: the super/subscripts represent
 different values, which we'll get to, and you can ignore all the other stuff in
 the diagram).
 
@@ -167,8 +169,8 @@ in a particular basis.
     .. math::
 
         \text{rotation matrix} 
-        = \begin{bmatrix} cos(\frac{pi}{2}) & -sin(\frac{pi}{2}) \\ 
-                        sin(\frac{pi}{2}) & cos(\frac{pi}{2}) \end{bmatrix}
+        = \begin{bmatrix} cos(\frac{\pi}{2}) & -sin(\frac{\pi}{2}) \\ 
+                        sin(\frac{\pi}{2}) & cos(\frac{\pi}{2}) \end{bmatrix}
         = \begin{bmatrix} \frac{1}{\sqrt{2}} & -\frac{1}{\sqrt{2}} \\ 
                           \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}}  \end{bmatrix} \\
         \tag{5}
@@ -216,32 +218,36 @@ in a particular basis.
 So Example 1 shows us how a vector represents the same thing regardless of 
 what basis you happen to be working in.  As you might have guessed,
 these physical vectors are tensors!  Since it has one physical axis,
-it is said to be a *rank=1* or *order=1* tensor.
-
-In physics and other domains, one may want to work in a non-Euclidean basis
-because it's more convenient, but the objects
+it is said to be a *rank=1* tensor.  A scalar is said to be a *rank=0* tensor,
+which is just pretty much just a degenerate case.
 
 
-- can be represented by a 1-d array but it's *not* the 1-d array
-- (height, width, length) as an example of non-tensor
-- different coordinate system, yields different 
-- examples, pictures
-- transformation independent, transform *against* basis transform
+In physics and other domains, you may want to work in a non-Euclidean basis
+because it's more convenient, but still want to talk about the same objects
+regardless if we're in Euclidean basis or not.
+
+So geometric vectors are our first step in understanding tensors.  To summarize
+some of the main points:
+
+* Tensors can be viewed as an ordered list of numbers with respect to a basis
+  but that isn't the tensor itself.
+* They are independent of a change in basis (i.e. their representation changes
+  but what they represent does not)
+* The *rank* (or *degree* or *order*) of a tensor specifies how many axis you
+  need to specify it (careful this is different than the dimensional space
+  we're working in)
+
+Just to drive the first point home, Example 2 shows an example of a tuple
+that might look like it represents a tensor but is not.
 
 .. admonition:: Example 2: Non-Tensors
 
-    Using our definition of a vector with magnitude length, we get
-    the idea that that tensors represent some kind of object that is invariant
-    to a basis change.  Every tensor can be represented as a 
-    `coordinate vector <https://en.wikipedia.org/wiki/Coordinate_vector>`__
-    in particular basis but every tuple of 3 numbers is *not* a tensor.
-
-    For example, we can represent the height, width and length of a box as an
-    ordered list of numbers: :math:`[10, 20, 15]`.  However, this is not a
-    tensor because if we change our coordinate system, the height, width and length
-    of the box don't change, they stay the same.  Therefore, this tuple
-    is not a tensor.
-
+    We can represent the height, width and length of a box as an ordered list
+    of numbers: :math:`[10, 20, 15]`.  However, this is not a tensor because if
+    we change our coordinate system, the height, width and length of the box
+    don't change, they stay the same.  Tensors, however, have specific rules
+    of how to change their representation when the basis changes.
+    Therefore, this tuple is not a tensor.
 
 
 |h3| Covariant vs. Contravariant Tensors |h3e|
