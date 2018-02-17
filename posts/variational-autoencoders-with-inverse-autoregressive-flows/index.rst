@@ -144,7 +144,7 @@ density functions.
 
     .. math::
 
-        {\bf y} = H({\bf X}) \tag{1}
+        {\bf y} = H({\bf x}) \tag{1}
 
     It turns out the joint density :math:`g({\bf y})` can be computed
     as:
@@ -429,7 +429,7 @@ so Equation 10 applies.  Using this fact, starting from Equation 5:
     - \sum_{t=1}^T \log \big| det(\frac{d{\bf z_t}}{d{\bf z_{t-1}}}) \big| \\
     &= \log q({\bf z_0}|{\bf x}) - \sum_{t=1}^T \big[- \sum_{i=0}^D \log {\bf \sigma}_{t, i}\big] & \text{Equation 10} \\
     &= \log q({\bf z_0}|{\bf x}) - \sum_{t=1}^T \big[\sum_{i=0}^D \log {\bf s}_{t, i}\big] & \text{Change variable to }{\bf s} \\
-    &= - \sum_{i=0}^D \big[ \frac{1}{2}\epsilon_i^2 + \frac{1}{2}\log(2\pi) + \sum_{t=0}^D \log {\bf s}_{t, i}\big]  \\
+    &= - \sum_{i=0}^D \big[ \frac{1}{2}\epsilon_i^2 + \frac{1}{2}\log(2\pi) + \sum_{t=0}^T \log {\bf s}_{t, i}\big]  \\
       \tag{16}
 
 where :math:`q({\bf z}_0|{\bf x})` is just an isotropic Gaussian centered at
