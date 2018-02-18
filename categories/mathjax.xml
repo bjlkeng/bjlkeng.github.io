@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sat, 17 Feb 2018 20:21:12 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Variational Autoencoders with Inverse Autoregressive Flows</title><link>http://bjlkeng.github.io/posts/variational-autoencoders-with-inverse-autoregressive-flows/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;In this post, I'm going to be describing a really cool idea about how
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sun, 18 Feb 2018 21:31:54 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Residual Networks</title><link>http://bjlkeng.github.io/posts/residual-networks/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Taking a small break from some of the heavier math, I thought I'd write a post
+(aka learn more about) a very popular neural network architecture called
+Residual Networks aka ResNet.  This architecture is being very widely used
+because it's so simple yet so powerful at the same time.  The architecture's
+performance is due its ability to add hundreds of layers (talk about deep
+learning!) without degrading performance or adding difficulty to training.  I
+really like these types of robust advances where it doesn't require fiddling
+with all sorts of hyper-parameters to make it work.  Anyways, I'll introduce
+the idea and show an implementation of ResNet on a few runs of a variational
+autoencoder that I put together on the CIFAR10 dataset.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/residual-networks/"&gt;Read more…&lt;/a&gt; (9 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoencoders</category><category>CIFAR10</category><category>mathjax</category><category>residual networks</category><category>ResNet</category><guid>http://bjlkeng.github.io/posts/residual-networks/</guid><pubDate>Sat, 10 Feb 2018 18:55:13 GMT</pubDate></item><item><title>Variational Autoencoders with Inverse Autoregressive Flows</title><link>http://bjlkeng.github.io/posts/variational-autoencoders-with-inverse-autoregressive-flows/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;In this post, I'm going to be describing a really cool idea about how
 to improve variational autoencoders using inverse autoregressive
 flows.  The main idea is that we can generate more powerful posterior
 distributions compared to a more basic isotropic Gaussian by applying a
@@ -128,15 +138,4 @@ behind it are actually quite intuitive once we come up with the right analogue
 in physical reality, so as usual we'll start there.  We'll work through some
 problems and hopefully by the end of this post, this topic won't seem as
 mysterious anymore &lt;a class="footnote-reference" href="http://bjlkeng.github.io/posts/lagrange-multipliers/#id3" id="id1"&gt;[1]&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/lagrange-multipliers/"&gt;Read more…&lt;/a&gt; (11 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>calculus</category><category>lagrange multipliers</category><category>mathjax</category><guid>http://bjlkeng.github.io/posts/lagrange-multipliers/</guid><pubDate>Tue, 13 Dec 2016 12:48:31 GMT</pubDate></item><item><title>The Expectation-Maximization Algorithm</title><link>http://bjlkeng.github.io/posts/the-expectation-maximization-algorithm/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to talk about a widely used method to find the
-maximum likelihood (MLE) or maximum a posteriori (MAP) estimate of parameters
-in latent variable models called the Expectation-Maximization algorithm.  You
-have probably heard about the most famous variant of this algorithm called the
-k-means algorithm for clustering.
-Even though it's so ubiquitous, whenever I've tried to understand &lt;em&gt;why&lt;/em&gt; this
-algorithm works, I never quite got the intuition right.  Now that I've taken
-the time to work through the math, I'm going to &lt;em&gt;attempt&lt;/em&gt; to explain the
-algorithm hopefully with a bit more clarity.  We'll start by going back to the
-basics with latent variable models and the likelihood functions, then moving on
-to showing the math with a simple Gaussian mixture model &lt;a class="footnote-reference" href="http://bjlkeng.github.io/posts/the-expectation-maximization-algorithm/#id5" id="id1"&gt;[1]&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/the-expectation-maximization-algorithm/"&gt;Read more…&lt;/a&gt; (18 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>expectation-maximization</category><category>gaussian mixture models</category><category>latent variables</category><category>mathjax</category><guid>http://bjlkeng.github.io/posts/the-expectation-maximization-algorithm/</guid><pubDate>Fri, 07 Oct 2016 12:47:47 GMT</pubDate></item></channel></rss>
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/lagrange-multipliers/"&gt;Read more…&lt;/a&gt; (11 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>calculus</category><category>lagrange multipliers</category><category>mathjax</category><guid>http://bjlkeng.github.io/posts/lagrange-multipliers/</guid><pubDate>Tue, 13 Dec 2016 12:48:31 GMT</pubDate></item></channel></rss>
