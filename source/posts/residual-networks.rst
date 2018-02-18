@@ -162,7 +162,7 @@ very good results from some previous experience
 One thing I was wondering is if adding a high capacity encoder/decoder network
 like ResNet would benefit the model performance. 
 
-You can find my implementation here **TODO**...
+You can find my implementation `here on Github <https://github.com/bjlkeng/sandbox/tree/master/notebooks/vae-resnet>`__.
 
 |h3| CIFAR10 VAE Results |h3e|
 
@@ -181,7 +181,7 @@ curious.  The results for the different depths of ResNet are in Table 1.
    "28", 79.2, 1790.4, 1794.7
    "40", 61.9, 1787.5, 1795.7
    "70", 80.0, 1784.8, 1799.0
-   "100", TODO, TODO, TODO
+   "100", 164.7, 1782.3, 1804.0
 
 As you can see not much has changed in terms of model performance between the
 different runs but look at those depths!  The training loss seems to improve a
@@ -196,9 +196,9 @@ validation loss hadn't improved for 50 runs.  Interestingly when looking at
 runtime on my meager GTX1070, it seems that even deeper nets can "converge"
 faster.  What we can conclude from this is that making the net significantly
 deeper didn't really hurt performance at all.  We didn't have any problems
-training, nor did it really increase the run-time all that much in this
-instance.  We didn't get the big benefits of using deeper nets in this case
-(probably a limitation of the VAE), but ResNet is really robust!
+training, nor did it really increase the run-time all that much except when we
+went much deeper.  We didn't get the big benefits of using deeper nets in this
+case (probably a limitation of the VAE), but ResNet is really robust!
 
 
 |h3| Implementation Notes |h3e|
@@ -232,7 +232,7 @@ them.  Expect the usual slow trickle instead of a flood.  See you next time!
 
 |h2| Further Reading |h2e|
 
-* **TODO**: `Implementation on Github <>`
+* `Implementation on Github <https://github.com/bjlkeng/sandbox/tree/master/notebooks/vae-resnet>`__
 * Previous posts: `Variational Autoencoders <link://slug/variational-autoencoders>`__, `A Variational Autoencoder on the SVHN dataset <link://slug/a-variational-autoencoder-on-the-svnh-dataset>`__, `Semi-supervised Learning with Variational Autoencoders <link://slug/semi-supervised-learning-with-variational-autoencoders>`__
 * [1] "Deep Residual Learning for Image Recognition", Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun, `CVPR 2016 <https://arxiv.org/abs/1512.03385>`__
 
