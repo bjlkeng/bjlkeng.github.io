@@ -70,7 +70,7 @@ Let's start at the beginning.
 
 |h3| Geometric Vectors as Tensors |h3e|
 
-We'll start with a concept we're all familiar with: `geometric vectors <https://en.wikipedia.org/wiki/Euclidean_vector>`__.
+We'll start with a concept we're all familiar with: `geometric vectors <https://en.wikipedia.org/wiki/Euclidean_vector>`__ (also called Euclidean vectors).
 Now there are many different variants of vectors but we want to talk specifically
 about the geometric vectors that have a magnitude and direction.  
 In particular, we're *not* talking about just an ordered pair of numbers (e.g.
@@ -392,35 +392,63 @@ The last expression uses the **Einstein summation convention**: if the
 same "loop variable" appear once in both a lower and upper index, it means to
 implicitly sum over that variable.  This is standard notation in physics
 textbooks and makes the tedious step of writing out summations much easier.
-It's also more important when we deal with tensors of higher rank.
+Also note that covectors have a subscript and contravariant vectors have a
+superscript.  This becomes more important as we deal with higher order tensors.
 
-.. admonition:: Covector Basis
+One last notational point is that we now know of two types of rank 1 tensors:
+contravariant vectors (e.g. geometric vector) and covectors (or linear
+functional).  Since they're both rank 1, we need to be a bit more precise.
+We'll usually write of a :math:`(n, m)`-tensor where :math:`n` is the 
+contravariant component and :math:`m` is the covariant component.  The rank
+is the sum of :math:`m+n`.  Therefore a contravariant vector is a
+:math:`(1, 0)`-tensor and a covector is a :math:`(0, 1)`-tensor.
 
 
-
-
-|h3| Einstein Notation for Tensors |h3e|
-
-- Just some convenience notation
-- Explain "up" and "down"
-- Explain "missing indices" etc.
-
-|h3| Examples of Common Tensors |h3e|
+|h3| Linear Transformations as Tensors |h3e|
 
 - Vector, 
 - Covector, linear functional
 - Dot Product
 - Linear transformation
 
+|h3| Bilinear Forms and the Metric Tensor |h3e|
+
+- Vector, 
+- Covector, linear functional
+- Dot Product
+- Linear transformation
+- Metric tensor: defines length and angle independent of basis
+
+
+.. admonition:: Covector Basis
+    
+    When first learning linear algebra, there really didn't seem to be a
+    difference between row vectors and columns vectors.  There basically
+    looked like the same thing just flipped around.
+
+    Well it turns out with the metric tensor, they basically have this
+    "flipped" around relationship.
+
+    Any geometric vector can be represented in its regular basis, but also in a
+    covector basis.  :math:`\alpha(w) = g(v, w)`
+    `see here <https://en.wikipedia.org/wiki/Covariance_and_contravariance_of_vectors#Covariant_transformation>`__
 
 |h3| Summary: A Tensor is a Tensor |h3e|
 
 - Summarize high-level point of tensors
+- Table of all the tensors we've looke dat
 
+|h2| Metric Tensors |h2e|
+
+- definition of metric as distance
 
 |h2| Manifolds |h2e|
 
-|h2| Metric Spaces |h2e|
+- R^2 as manifold
+- lines and circles
+- Riemannian manifold: tangent space at each point with the inner product
+- Defines arc length, thus distance
+
 
 |h2| Conclusion |h2e|
 
