@@ -102,9 +102,9 @@ You can see in Figure 1 that we have a vector :math:`A` (in red) that can
 be represented in two different basis: :math:`e^1, e^2` (blue) and :math:`e_1, e_2` (yellow) [1]_.  You can see it's the same old vector, it's just that the way we're describing it changed.  In the former case, we can describe it 
 as a `coordinate vector <https://en.wikipedia.org/wiki/Coordinate_vector>`__
 by :math:`[a_1, a_2]`,
-while in the latter by the coordinate vector :math:`[a^1, a^2]` (note: the super/subscripts represent
-different values, which we'll get to, and you can ignore all the other stuff in
-the diagram).
+while in the latter by the coordinate vector :math:`[a^1, a^2]` (note: the
+super/subscripts represent different values, which we'll get to, and you can
+ignore all the other stuff in the diagram).
 
 So then a vector is the geometric object, *not* specifically its representation
 in a particular basis.
@@ -183,10 +183,10 @@ in a particular basis.
         \begin{bmatrix} \frac{1}{\sqrt{2}} & -\frac{1}{\sqrt{2}} \\ 
                         \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}}  \end{bmatrix}^{-1}
         = \frac{1}{(\frac{1}{\sqrt{2}})(\frac{1}{\sqrt{2}}) - (-\frac{1}{\sqrt{2}})(\frac{1}{\sqrt{2}})}
-           \begin{bmatrix} \frac{1}{\sqrt{2}} & -\frac{1}{\sqrt{2}} \\ 
-                        \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}}  \end{bmatrix} 
-        = \begin{bmatrix} \frac{1}{\sqrt{2}} & -\frac{1}{\sqrt{2}} \\ 
-                        \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}}  \end{bmatrix} 
+           \begin{bmatrix} \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}} \\ 
+                        -\frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}}  \end{bmatrix} 
+        = \begin{bmatrix} \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}} \\ 
+                        -\frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}}  \end{bmatrix} 
         \tag{6}
         
     Therefore our vector :math:`v` can be represented in this basis 
@@ -195,8 +195,8 @@ in a particular basis.
 
     .. math::
 
-        = \begin{bmatrix} \frac{1}{\sqrt{2}} & -\frac{1}{\sqrt{2}} \\ 
-                          \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}}  \end{bmatrix} 
+        \begin{bmatrix} \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}} \\ 
+                          -\frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}}  \end{bmatrix} 
         \begin{bmatrix} a \\ b  \end{bmatrix} 
         = \begin{bmatrix} \frac{a}{\sqrt{2}} + \frac{b}{\sqrt{2}} \\ 
                           \frac{-a}{\sqrt{2}} + \frac{b}{\sqrt{2}}  \end{bmatrix} \\
@@ -252,8 +252,152 @@ that might look like it represents a tensor but is not.
 
 |h3| Covariant vs. Contravariant Tensors |h3e|
 
-- some vectors transform *with* and some against
-- gradient (velocity) vs. physical vectors
+In the last section, we saw how geometric vectors as tensors are invariant to
+basis transformations and how you have to multiply the inverse of the basis
+transformation matrix with the coordinates in order to maintain that invariance
+(Example 1).  Well it turns out depending on the type of tensor, how you
+"maintain" the invariance can mean different things.
+
+A geometric vector is an example a **contravariant** vector because when
+changing basis, the components of the vector transform with the inverse of the
+basis transformation matrix (Example 1).  It's easy to remember it as
+"contrary" to the basis matrix.  As convention, we will usually label
+contravariant vectors with a superscript and write them as column vectors:
+
+.. math::
+
+    
+    v^\alpha = \begin{bmatrix} v^0 \\ v_1 \\ v_2 \end{bmatrix}  \tag{9}
+
+In Equation 9, :math:`\alpha` is *not* an exponent, instead we should think
+of it as a "loop counter", e.g. :math:`\text{for } \alpha \text{ in } 0 .. 2`.
+Similarly, the superscripts inside the vector correspond to each of the
+components in a particular basis, indexing the particular component.
+We'll see a bit later why this notation is convenient.
+
+As you might have guessed, the other type of vector is a **covariant** vector
+(or **covector** for short) because when changing basis, the components of the
+vector transform with the *same* basis transformation matrix.  
+You can remember this one because it "co-varies" with the basis transformation.
+As with contravariant vectors, a covector is a tensor of rank 1.
+As convention, we will usually label covectors with a subscript and write them
+as a row vectors:
+
+.. math::
+
+    u_\alpha = [ v_0, v_1, v_2 ]   \tag{10}
+
+Now covectors are a little bit harder to explain than contravariant vectors
+because the examples of them are more abstract than geometric vectors [2]_.
+Firstly, they do *not* represent geometric vectors (or else they'd be
+contravariant).  Instead, we should think of them as a linear function that
+takes a vector as input (in a particular basis) and maps it to a scalar, i.e.:
+
+.. math::
+
+    f({\bf x}) = v_0 x_0 + v_1 x_1 + v_2 x_2 \tag{11}
+
+This is an important idea: a contravariant vector is an object that has an
+input (vector) and produces an output (scalar), independent of the basis you
+are in.  This is a common theme we'll see in tensors: input, output, and
+independent of basis.  Let's take a look an example of how they arise.
+
+
+.. admonition:: Example 3: A differential as a Covariant Vector
+
+    Let's define a function and its differential in :math:`\mathbb{R}^2` in the
+    standard Euclidean basis:
+    
+    .. math::
+
+        f(x,y) &= x^2 + y^2 \\
+        df &= 2x dx + 2y dy \tag{12}
+
+    If we are given a fixed point :math:`(x_0,y_0) = (1,2)`, then the differential
+    evaluated at this point is:
+
+    .. math::
+
+        df_{(x_0,y_0)} &= 2(1) dx + 2(2) dy \\
+                    &= 2dx + 4dy  \\
+        g(x, y) &:= 2x + 4y  \\ \tag{13}
+
+    where in the last equation, I just relabelled things in terms of :math:`g,
+    x, \text{ and } y`, which looks exactly like a linear functional!
+
+    As we would expect with a tensor, the "behavior" of this covector shouldn't
+    really change even if we change basis.  If we evaluate this functional
+    at a geometric vector :math:`v=(a, b)`, then of course we get
+    :math:`g(a,b)=2a + 4b`, a scalar.  If this truly is a tensor, this scalar
+    should not change even if we change our basis.
+
+    Let's rotate the axis 45 degrees.  From example 1, we know the rotation matrix
+    and the inverse of it:
+
+    .. math::
+
+        R := \begin{bmatrix} \frac{1}{\sqrt{2}} & -\frac{1}{\sqrt{2}} \\ 
+                          \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}}  \end{bmatrix},
+        \text{ }
+        R^{-1} = \begin{bmatrix} \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}} \\ 
+                        \frac{-1}{\sqrt{2}} & \frac{1}{\sqrt{2}}  \end{bmatrix} \\
+        \tag{14}
+
+    To rotate our original point :math:`(a,b)`, we multiply the inverse matrix
+    by the column vector as in Equation 7 to get :math:`v` in our new basis,
+    which we'll denote by :math:`v_{R}`:
+
+    .. math::
+
+        v_{R} = \begin{bmatrix} \frac{a}{\sqrt{2}} + \frac{b}{\sqrt{2}} \\ 
+                        \frac{-a}{\sqrt{2}} + \frac{b}{\sqrt{2}}  \end{bmatrix} \\
+        \tag{15}
+
+    If you believe what I said before about covectors varying with the basis
+    change, then we should just need to multiple our covector, call it
+    :math:`u` (as a column vector in the standard Euclidean basis) by our
+    transformation matrix:
+
+    .. math::
+
+        u_{R} = u * R &= [2, 4] \begin{bmatrix} \frac{1}{\sqrt{2}} & -\frac{1}{\sqrt{2}} \\ 
+                        \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}}  \end{bmatrix} \\
+            &= [3\sqrt{2}, \sqrt{2}] \\
+            \tag{16}
+
+    Evaluating v_R at u_r:
+
+    .. math::
+
+        u_R (v_R) &= 3\sqrt{2} (\frac{a}{\sqrt{2}} + \frac{b}{\sqrt{2}})
+                   + \sqrt{2} (\frac{-a}{\sqrt{2}} + \frac{b}{\sqrt{2}}) \\
+                  &= 3a + 3b - a + b \\
+                  &= 2a + 4b
+
+    which is precisely the scalar that we got in the Euclidean basis. 
+
+Before we move on, I want to introduce some more notation to simply our lives.
+From Equation 11, using some new notation, we can re-write it covector
+:math:`u_\alpha` with input geometric vector :math:`v^\alpha` (specified by
+their coordinates in the same basis) as:
+
+.. math::
+
+    <u_\alpha, v^\alpha> = \sum_{\alpha=0}^2 u_\alpha v^\alpha
+    = u_0 v^0 + u_1 v^1 + u_2 v^2 = u_\alpha v^\alpha \tag{12}
+
+Note as before the superscripts are *not* exponentials but rather denote
+an index.
+The last expression uses the **Einstein summation convention**: if the
+same "loop variable" appear once in both a lower and upper index, it means to
+implicitly sum over that variable.  This is standard notation in physics
+textbooks and makes the tedious step of writing out summations much easier.
+It's also more important when we deal with tensors of higher rank.
+
+.. admonition:: Covector Basis
+
+
+
 
 |h3| Einstein Notation for Tensors |h3e|
 
@@ -288,5 +432,10 @@ that might look like it represents a tensor but is not.
   `Metric Space <https://en.wikipedia.org/wiki/Metric_space>`__,
   `Covariance and contravariance of vectors <https://en.wikipedia.org/wiki/Covariance_and_contravariance_of_vectors>`__,
   `Vector <https://en.wikipedia.org/wiki/Vector_(mathematics_and_physics)>`__
+* `Tensors for Laypeople <http://www.markushanke.net/tensors-for-laypeople/>`__, Markus Hanke
+* `Tensors for Beginners (YouTube playlist) <https://www.youtube.com/playlist?list=PLJHszsWbB6hrkmmq57lX8BV-o-YIOFsiG>`__, eigenchris
+
 
 .. [1] This is not exactly the best example because it's showing a vector in both contravariant and tangent covector space, which is not exactly the point I'm trying to make here.  But the idea is basically the same: the vector is the same object regardless of what basis you use.
+
+.. [2] There is a `geometric interpretation of covectors <https://en.wikipedia.org/wiki/Linear_form#Visualizing_linear_functionals>`__ are parallel surfaces and the contravariant vectors "piercing" these surfaces.  I don't really like this interpretation because it's kind of artificial and doesn't have any physical analogue that I can think of.
