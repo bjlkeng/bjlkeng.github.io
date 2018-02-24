@@ -55,9 +55,9 @@ Hope you like it!
 
 .. TEASER_END
 
-|h2| Tensors |h2e|
+|h2| 1. Tensors |h2e|
 
-|h3| A Tensor by Any Other Name |h3e|
+|h3| 1.1 A Tensor by Any Other Name |h3e|
 
 For newcomers to ML, tensor have to be one of the top ten confusing things
 to come across.  Not only because the term is new, but also because it's used
@@ -68,7 +68,11 @@ However, tensors as multidimensional arrays is just one very narrow "view" of a
 tensor, tensors (mathematically speaking) are much more than that!
 Let's start at the beginning.
 
-|h3| Geometric Vectors as Tensors |h3e|
+(By the way, you should checkout [1], which is a great series of videos
+explaining tensors from the beginning.  It definitely helped clarify a lot
+of ideas for me.)
+
+|h3| 1.2 Geometric Vectors as Tensors |h3e|
 
 We'll start with a concept we're all familiar with: `geometric vectors <https://en.wikipedia.org/wiki/Euclidean_vector>`__ (also called Euclidean vectors).
 Now there are many different variants of vectors but we want to talk specifically
@@ -219,8 +223,8 @@ So Example 1 shows us how a vector represents the same thing regardless of
 what basis you happen to be working in.  As you might have guessed,
 these physical vectors are tensors!  Since it has one physical axis,
 it is said to be a *rank=1* tensor.  A scalar is said to be a *rank=0* tensor,
-which is just pretty much just a degenerate case.
-
+which is just pretty much just a degenerate case.  Note: rank is different
+than dimension.
 
 In physics and other domains, you may want to work in a non-Euclidean basis
 because it's more convenient, but still want to talk about the same objects
@@ -250,7 +254,7 @@ that might look like it represents a tensor but is not.
     Therefore, this tuple is not a tensor.
 
 
-|h3| Covariant vs. Contravariant Tensors |h3e|
+|h3| 1.3 Covariant vs. Contravariant Tensors |h3e|
 
 In the last section, we saw how geometric vectors as tensors are invariant to
 basis transformations and how you have to multiply the inverse of the basis
@@ -377,14 +381,14 @@ independent of basis.  Let's take a look an example of how they arise.
     which is precisely the scalar that we got in the Euclidean basis. 
 
 Before we move on, I want to introduce some more notation to simply our lives.
-From Equation 11, using some new notation, we can re-write it covector
+From Equation 11, using some new notation, we can re-write covector
 :math:`u_\alpha` with input geometric vector :math:`v^\alpha` (specified by
 their coordinates in the same basis) as:
 
 .. math::
 
     <u_\alpha, v^\alpha> = \sum_{\alpha=0}^2 u_\alpha v^\alpha
-    = u_0 v^0 + u_1 v^1 + u_2 v^2 = u_\alpha v^\alpha \tag{12}
+    = u_0 v^0 + u_1 v^1 + u_2 v^2 = u_\alpha v^\alpha \tag{17}
 
 Note as before the superscripts are *not* exponentials but rather denote
 an index.
@@ -404,14 +408,139 @@ is the sum of :math:`m+n`.  Therefore a contravariant vector is a
 :math:`(1, 0)`-tensor and a covector is a :math:`(0, 1)`-tensor.
 
 
-|h3| Linear Transformations as Tensors |h3e|
+|h3| 1.4 Linear Transformations as Tensors |h3e|
 
-- Vector, 
-- Covector, linear functional
-- Dot Product
-- Linear transformation
+Another familiar transformation that we see is a 
+`linear transformation <https://en.wikipedia.org/wiki/Linear_map>`__
+(also called a linear map).  Linear transformations are just
+like we remember from linear algebra, we can view them as matrices.
+*But* a linear transformation is still the same linear transformation
+when we change basis so it is also a tensor (with a matrix view being one view
+of it)!
 
-|h3| Bilinear Forms and the Metric Tensor |h3e|
+Let's review a linear transformation:
+
+    A function :math:`L:u \rightarrow v` is a linear map if for any two vectors
+    :math:`\bf u, v` and any scalar `c`, the following two conditions are
+    satisfied (linearity):
+
+    .. math::
+        f({\bf u} + {\bf v}) &= f({\bf u}) + f({\bf v}) \\
+        f(c{\bf u}) &= cf({\bf u})
+        \tag{18}
+
+One key idea here is that a linear transformation takes a vector :math:`\bf v`
+to another vector :math:`L(\bf v)` *in the same basis*.  The linear transformation
+itself has nothing to do with the basis (we of course can apply it to a basis).
+Even though the "output" is a vector, it's analogous to the covectors (or linear functionals)
+we saw above: an object that acts on a vector and returns something,
+independent of basis.
+
+Okay, so what kind of tensor is this?  Let's try to derive it!
+Let's suppose we have a geometric vector :math:`\bf v` and its transformed
+output :math:`w = L{\bf v}` in an original basis, where :math:`L` is our linear
+transformation (we'll use matrix notation here).
+After some change in basis via a transform :math:`T`,
+we'll end up with the same vector in the new basis :math:`\bf \tilde{v}` 
+and the corresponding transformed version :math:`\tilde{w} = \tilde{L}{\bf \tilde{v}}`.
+Note that since we're in a new basis, we have to use a new view of :math:`L`,
+which we label as :math:`\tilde{L}`.
+
+.. math::
+
+    \tilde{L}{\bf \tilde{v}} &= \tilde{w} \\
+    &= T^{-1}w  && \text{w is contravariant} \\ 
+    &= T^{-1}L{\bf v}  && \text{definition of }w \\ 
+    &= T^{-1}LT\tilde{\bf v}  && \text{since } {\bf v} = T\tilde{\bf v} \\ 
+    \therefore \tilde{L}& = T^{-1}LT \\
+    \tag{19}
+
+The second last line comes from the fact that we're going from the new basis to the old
+basis so we use the inverse of the inverse -- the original basis transform.
+
+Equation 19 tells us something interesting, we're not just multiplying by the 
+inverse transform (contravariant), nor just the forward transform (covariant),
+we're doing both, which hints that this is a (1,1)-tensor!  Indeed, this is
+our first example of a rank 2 tensor, which usually is represented as a matrix
+(e.g. 2 axis).
+
+
+.. admonition:: Example 4: A Linear Transformation as a (1,1)-Tensor
+
+    Let's start with a simple linear transformation in our standard
+    Euclidean basis:
+
+    .. math::
+
+        L = \begin{bmatrix} \frac{1}{2} & 0 \\ 0 & 2 \end{bmatrix}
+        \tag{20}
+
+    Next, let's use the same 45 degree rotation for our basis as Example 1 and 2
+    (which also happens to be a linear transformation):
+
+    .. math::
+
+        R := \begin{bmatrix} \frac{1}{\sqrt{2}} & -\frac{1}{\sqrt{2}} \\ 
+                          \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}}  \end{bmatrix},
+        \text{ }
+        R^{-1} = \begin{bmatrix} \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}} \\ 
+                        \frac{-1}{\sqrt{2}} & \frac{1}{\sqrt{2}}  \end{bmatrix} \\
+        \tag{21}
+
+    Suppose we're applying :math:`L` to a vector :math:`{\bf v}=(a, b)`, and then changing
+    it into our new basis.  Recall, we would first apply :math:`L`, then apply
+    a contravariant (inverse matrix) transform to get to our new basis:
+
+    .. math::
+
+        R^{-1}(L{\bf v}) &= \begin{bmatrix} \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}} \\ 
+                        \frac{-1}{\sqrt{2}} & \frac{1}{\sqrt{2}}  \end{bmatrix}
+        \Big(\begin{bmatrix} \frac{1}{2} & 0 \\ 0 & 2 \end{bmatrix}
+         \begin{bmatrix} a \\ b \end{bmatrix}\Big) \\
+        &=\begin{bmatrix} \frac{a}{2\sqrt{2}} + \sqrt{2}b \\ -\frac{a}{2\sqrt{2}} + \sqrt{2}b \end{bmatrix}
+        \tag{22}
+        
+    Equation 7 tells use what :math:`\tilde{\bf v} = R^{-1}{\bf v}` is in our new basis:
+
+    .. math:: 
+        \tilde{\bf v} = \begin{bmatrix} \frac{a}{\sqrt{2}} + \frac{b}{\sqrt{2}} \\ 
+                        \frac{-a}{\sqrt{2}} + \frac{b}{\sqrt{2}}  \end{bmatrix}  \tag{23}
+
+    Applying Equation 19 to :math:`L` gives us:
+
+    .. math::
+
+        \tilde{L} &= R^{-1}LR \\ 
+        &= 
+        \begin{bmatrix} \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}} \\ 
+                        \frac{-1}{\sqrt{2}} & \frac{1}{\sqrt{2}}  \end{bmatrix} 
+        \begin{bmatrix} \frac{1}{2} & 0 \\ 0 & 2 \end{bmatrix}
+        \begin{bmatrix} \frac{1}{\sqrt{2}} & -\frac{1}{\sqrt{2}} \\ 
+                        \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}}  \end{bmatrix} \\
+        &= \begin{bmatrix} \frac{5}{4} & \frac{3}{4} \\ 
+                        \frac{3}{4} & \frac{5}{5}  \end{bmatrix}\\
+        \tag{24}
+
+    Applying :math:`\tilde{L}` to  :math:`\tilde{\bf v}`:
+
+    .. math::
+        \tilde{L}\tilde{\bf v} &=
+        \begin{bmatrix} \frac{5}{4} & \frac{3}{4} \\ 
+                        \frac{3}{4} & \frac{5}{5}  \end{bmatrix}
+        \begin{bmatrix} \frac{a}{\sqrt{2}} + \frac{b}{\sqrt{2}} \\ 
+                        \frac{-a}{\sqrt{2}} + \frac{b}{\sqrt{2}}  \end{bmatrix} \\
+        &= \begin{bmatrix} \frac{5a}{4\sqrt{2}} + \frac{5b}{4\sqrt{2}} 
+                          - \frac{3a}{4\sqrt{2}} + \frac{3b}{4\sqrt{2}} \\
+                            \frac{3a}{4\sqrt{2}} + \frac{3b}{4\sqrt{2}} 
+                          - \frac{5a}{4\sqrt{2}} + \frac{5b}{4\sqrt{2}} 
+         \end{bmatrix} \\
+        &=\begin{bmatrix} \frac{a}{2\sqrt{2}} + \sqrt{2}b \\ -\frac{a}{2\sqrt{2}} + \sqrt{2}b \end{bmatrix} \\
+        \tag{25}
+
+    which we can see is the same as Equation 22.
+
+
+|h3| 1.5 Bilinear Forms and the Metric Tensor |h3e|
 
 - Vector, 
 - Covector, linear functional
@@ -438,7 +567,7 @@ is the sum of :math:`m+n`.  Therefore a contravariant vector is a
 - Summarize high-level point of tensors
 - Table of all the tensors we've looke dat
 
-|h2| Metric Tensors |h2e|
+|h2| Metric Space |h2e|
 
 - definition of metric as distance
 
@@ -460,7 +589,7 @@ is the sum of :math:`m+n`.  Therefore a contravariant vector is a
   `Metric Space <https://en.wikipedia.org/wiki/Metric_space>`__,
   `Covariance and contravariance of vectors <https://en.wikipedia.org/wiki/Covariance_and_contravariance_of_vectors>`__,
   `Vector <https://en.wikipedia.org/wiki/Vector_(mathematics_and_physics)>`__
-* `Tensors for Laypeople <http://www.markushanke.net/tensors-for-laypeople/>`__, Markus Hanke
+* [1] `Tensors for Laypeople <http://www.markushanke.net/tensors-for-laypeople/>`__, Markus Hanke
 * `Tensors for Beginners (YouTube playlist) <https://www.youtube.com/playlist?list=PLJHszsWbB6hrkmmq57lX8BV-o-YIOFsiG>`__, eigenchris
 
 
