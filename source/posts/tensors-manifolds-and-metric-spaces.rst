@@ -1,6 +1,6 @@
 .. title: Tensors, Manifolds and Metric Spaces
 .. slug: tensors-manifolds-and-metric-spaces
-.. date: 2018-02-15 07:24:57 UTC-05:00
+.. date: 2018-02-24 07:24:57 UTC-05:00
 .. tags: tensors, manifolds, metric spaces, metrics, mathjax
 .. category: 
 .. link: 
@@ -69,8 +69,8 @@ tensor, tensors (mathematically speaking) are much more than that!
 Let's start at the beginning.
 
 (By the way, you should checkout [1], which is a great series of videos
-explaining tensors from the beginning.  It definitely helped clarify a lot
-of ideas for me.)
+explaining tensors from the beginning.  It definitely helped clarify a lot of
+ideas for me and a lot of this section is based on his presentation.)
 
 |h3| 1.2 Geometric Vectors as Tensors |h3e|
 
@@ -420,21 +420,20 @@ of it)!
 
 Let's review a linear transformation:
 
-    A function :math:`L:u \rightarrow v` is a linear map if for any two vectors
+    A function :math:`L:{\bf u} \rightarrow {\bf v}` is a linear map if for any two vectors
     :math:`\bf u, v` and any scalar `c`, the following two conditions are
     satisfied (linearity):
 
     .. math::
-        f({\bf u} + {\bf v}) &= f({\bf u}) + f({\bf v}) \\
-        f(c{\bf u}) &= cf({\bf u})
+        L({\bf u} + {\bf v}) &= L({\bf u}) + L({\bf v}) \\
+        L(c{\bf u}) &= cL({\bf u})
         \tag{18}
 
 One key idea here is that a linear transformation takes a vector :math:`\bf v`
 to another vector :math:`L(\bf v)` *in the same basis*.  The linear transformation
 itself has nothing to do with the basis (we of course can apply it to a basis).
 Even though the "output" is a vector, it's analogous to the covectors (or linear functionals)
-we saw above: an object that acts on a vector and returns something,
-independent of basis.
+we saw above: an object that acts on a vector and returns something, independent of basis.
 
 Okay, so what kind of tensor is this?  Let's try to derive it!
 Let's suppose we have a geometric vector :math:`\bf v` and its transformed
@@ -540,27 +539,91 @@ our first example of a rank 2 tensor, which usually is represented as a matrix
     which we can see is the same as Equation 22.
 
 
-|h3| 1.5 Bilinear Forms and the Metric Tensor |h3e|
+|h3| 1.5 Bilinear Forms |h3e|
 
-- Vector, 
-- Covector, linear functional
-- Dot Product
-- Linear transformation
-- Metric tensor: defines length and angle independent of basis
+We'll start off by introducing a non-so-familiar idea (at least by name)
+called the *bilinear form*.  Let's take a look at the definition with
+respect to vector spaces:
+
+    A function :math:`B:{\bf u, v} \rightarrow \mathbb{R}` is a bilinear form for two
+    input vectors :math:`\bf u, v`, if for any other vector :math:`\bf w` and
+    scalar `\lambda`, the following conditions are satisfied (linearity):
+
+    .. math::
+        B({\bf u} + {\bf w}, {\bf v}) &= B({\bf u}, {\bf v}) + B({\bf w}, {\bf v}) \\
+        B(\lambda{\bf u}, {\bf v}) &= \lambda B({\bf u}, {\bf v})\\
+        B({\bf u}, {\bf v} + {\bf w}) &= B({\bf u}, {\bf v}) + B({\bf u}, {\bf w}) \\
+        B({\bf u}, \lambda{\bf v}) &= \lambda B({\bf u}, {\bf v})\\
+        \tag{26}
+
+All this is really saying is that we have a function that maps two geometric
+vectors to the real numbers, and that it's "linear" in both its
+inputs (separately, not at the same time) , hence the name "bilinear".  So
+again, we see this pattern: a tensor takes some input and maps it to output
+that in independent of a change in basis.
+
+Similar to linear transformations, we can represent bilinear forms as a matrix
+:math:`A`:
+
+.. math::
+
+    B({\bf u}, {\bf v}) = {\bf u^T}A{\bf v} = \sum_{i,j=1}^n a_{i,j}u_i v_j = A_{i,j}u^iv^j \tag{27}
+
+where in the last expression I'm using Einstein notation to indicate that :math:`A`
+is a rank (0, 2)-tensor, :math:`{\bf u, v}` are both (1, 0)-tensors (contravariant).
+
+So let's see how we can show that this is actually a (0, 2)-tensor (two
+covector components).  We should expect that when changing basis we'll need to
+multiply by the basis transform twice ("with the basis"), along the same lines
+as the linear transformation in the previous section, except with two covector
+components now.
+We'll use Einstein notation here, but you can check out Appendix A for the equivalent
+matrix multiplication operation.
+
+Let :math:`B` be our bilinear, :math:`u, v` geometric vectors, :math:`T` our basis
+transform, and :math:`\tilde{B}, \tilde{u}, \tilde{v}` our post-transformed
+bilinear and vectors, respectively.  Here's how we can show that the bilinear
+transforms like a (0,2)-tensor:
+
+.. math::
+
+    \tilde{B}_{ij}\tilde{u}^i\tilde{v}^j &= B_{ij}u^iv^j && \text{output scalar same in any basis} \\
+    &= B_{ij}T_k^i \tilde{u}^i T^j_l \tilde{v}^j && u^i=T^i_k \tilde{u}^k \\
+    &= B_{ij}T_k^i T^j_l \tilde{u}^i \tilde{v}^j && \text{re-arrange summations}\\
+    \therefore \tilde{B}_{ij}& = B_{ij}T_k^i T^j_l \\
+   \tag{28} 
+
+As you can see we transform "with" the change in basis, so we get a (0, 2)-tensor.
+Einstein notation is also quite convenient (once you get used to it)!
+
+|h3| The Metric Tensor |h3e|
+
+Before we end off on the tensor section, I want to introduce you to one of the
+most important tensors around: `Metric Tensor <https://en.wikipedia.org/wiki/Metric_tensor>`__.
+In fact, it's probably one of the top reasons people start to learn about tensors.
+
+The definition is a lot simpler because it's just a special kind of bilinear:
+
+    A metric tensor at a point :math:`p` is a function :math:`g_p({\bf x}_p, {\bf y}_p)`
+    which takes a pair of (tangent) vectors :math:`{\bf x}_p, {\bf y}_p` at :math:`p`
+    and produces a real number such that:
+
+    * :math:`g_p` is bilinear (see previous definition)
+    * :math:`g_p` is symmetric: :math:`g_p({\bf x}_p, {\bf y}_p) = g_p({\bf y}_p, {\bf x}_p)`
+    * :math:`g_p` is nondegenerate.  For every :math:`{\bf x_p} \neq 0` there exists
+      :math:`{\bf y_p}` such that :math:`g_p({\bf x_p}, {\bf y_p}) \neq 0`
+
+- introduce metric tensor as as special bilinear form
+- relate it to distance and angle
+- mention that there is more we can do with it (see Manifolds)
+
+- Example where we only rotate one axis to see (use example from video)
+- Show that we get the wrong result if we just blindly apply Pythagoras
 
 
-.. admonition:: Covector Basis
+
     
-    When first learning linear algebra, there really didn't seem to be a
-    difference between row vectors and columns vectors.  There basically
-    looked like the same thing just flipped around.
-
-    Well it turns out with the metric tensor, they basically have this
-    "flipped" around relationship.
-
-    Any geometric vector can be represented in its regular basis, but also in a
-    covector basis.  :math:`\alpha(w) = g(v, w)`
-    `see here <https://en.wikipedia.org/wiki/Covariance_and_contravariance_of_vectors#Covariant_transformation>`__
+    
 
 |h3| Summary: A Tensor is a Tensor |h3e|
 
@@ -579,6 +642,21 @@ our first example of a rank 2 tensor, which usually is represented as a matrix
 - Defines arc length, thus distance
 
 
+|h3| Covector Basic |h3|
+
+When first learning linear algebra, there really didn't seem to be a
+difference between row vectors and columns vectors.  There basically
+looked like the same thing just flipped around.
+
+Well it turns out with the metric tensor, they basically have this
+"flipped" around relationship.
+
+Any geometric vector can be represented in its regular basis, but also in a
+covector basis.  :math:`\alpha(w) = g(v, w)`
+`see here <https://en.wikipedia.org/wiki/Covariance_and_contravariance_of_vectors#Covariant_transformation>`__
+
+
+
 |h2| Conclusion |h2e|
 
 |h2| Further Reading |h2e|
@@ -586,6 +664,7 @@ our first example of a rank 2 tensor, which usually is represented as a matrix
 
 * Wikipedia: `Tensors <https://en.wikipedia.org/wiki/Tensor_(disambiguation)>`__,
   `Manifold <https://en.wikipedia.org/wiki/Manifold>`__,
+  `Metric Tensor <https://en.wikipedia.org/wiki/Metric_tensor>`__,
   `Metric Space <https://en.wikipedia.org/wiki/Metric_space>`__,
   `Covariance and contravariance of vectors <https://en.wikipedia.org/wiki/Covariance_and_contravariance_of_vectors>`__,
   `Vector <https://en.wikipedia.org/wiki/Vector_(mathematics_and_physics)>`__
@@ -596,3 +675,24 @@ our first example of a rank 2 tensor, which usually is represented as a matrix
 .. [1] This is not exactly the best example because it's showing a vector in both contravariant and tangent covector space, which is not exactly the point I'm trying to make here.  But the idea is basically the same: the vector is the same object regardless of what basis you use.
 
 .. [2] There is a `geometric interpretation of covectors <https://en.wikipedia.org/wiki/Linear_form#Visualizing_linear_functionals>`__ are parallel surfaces and the contravariant vectors "piercing" these surfaces.  I don't really like this interpretation because it's kind of artificial and doesn't have any physical analogue that I can think of.
+
+
+|h2| Appendix A: Showing a Bilinear is a (0,2)-Tensor using Matrix Notation |h2e|
+
+Let :math:`B` be our bilinear, :math:`u, v` geometric vectors,
+:math:`R` our basis transform, and :math:`\tilde{B}, \tilde{u}, \tilde{v}` our
+post-transformed bilinear and vectors, respectively.  Here's how we can show
+that the bilinear transforms like a (0,2)-tensor using matrix notation:
+
+.. math::
+
+    \tilde{\bf u}^T \tilde{B} \tilde{\bf v} &= {\bf u}^T B {\bf v} && \text{output scalar same in any basis} \\
+    &= (R\tilde{\bf u})^T B R\tilde{\bf v} && {\bf u}=R\tilde{\bf u}\\
+    &= \tilde{\bf u}^TR^T B R\tilde{\bf v}  \\
+    &= \tilde{\bf u}^T (R^T B R)\tilde{\bf v}  \\
+    \therefore \tilde{B} & = R^T B R \\
+   \tag{A.1} 
+
+Note: that we can only write out the matrix representation because we're still
+using rank 2 tensors. When working with higher order tensors, we can't fall back
+on our linear algebra anymore.
