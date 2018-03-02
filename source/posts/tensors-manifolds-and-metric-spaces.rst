@@ -596,7 +596,7 @@ transforms like a (0,2)-tensor:
 As you can see we transform "with" the change in basis, so we get a (0, 2)-tensor.
 Einstein notation is also quite convenient (once you get used to it)!
 
-|h3| The Metric Tensor |h3e|
+|h3| 1.6 The Metric Tensor |h3e|
 
 Before we end off on the tensor section, I want to introduce you to one of the
 most important tensors around: `Metric Tensor <https://en.wikipedia.org/wiki/Metric_tensor>`__.
@@ -613,28 +613,104 @@ The definition is a lot simpler because it's just a special kind of bilinear:
     * :math:`g_p` is nondegenerate.  For every :math:`{\bf x_p} \neq 0` there exists
       :math:`{\bf y_p}` such that :math:`g_p({\bf x_p}, {\bf y_p}) \neq 0`
 
-- introduce metric tensor as as special bilinear form
-- relate it to distance and angle
-- mention that there is more we can do with it (see Manifolds)
+Don't worry so much about the "tangent" part, we'll get to that when we discuss manifolds below.
 
-- Example where we only rotate one axis to see (use example from video)
-- Show that we get the wrong result if we just blindly apply Pythagoras
+The metric tensor is important because it helps us (among other things) define
+distance and angle between two vectors in a basis independent manner.  In the
+simplest case, it's exactly our good old dot product operation for Euclidean
+space.  But of course, we want to generalize this concept a little bit so we still
+have the same "operation" under a change of basis -- that the resultant scalar
+we produce should be the same.  Let's take a look.
+
+In Euclidean space, the dot product for two vectors :math:`{\bf u}, {\bf v}` is
+defined as:
+
+.. math::
+
+    {\bf u}\cdot{\bf v} = \sum_{i=1}^n u_i v_i \tag{29}
+
+However, this can we re-written as for metric tensor :math:`g`:
+
+.. math::
+
+    {\bf u}\cdot{\bf v} = g({\bf u},{\bf v}) = g_{ij}u^iv^j 
+        = [u^1 u^2] 
+        \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} 
+        \begin{bmatrix} v^1 v^0 \end{bmatrix} \tag{30}
+
+where in the last expression I substituted the metric tensor in standard Euclidean space.
+
+So now that we have a dot-product-like operation, we can define our
+basis-independent definition of length of a vector and angle between two
+vectors:
+
+.. math::
+
+    ||{\bf u}|| = \sqrt{g_{ij} u^i v^j} \\
+    cos(\theta) = \frac{g_{ij} u^i v^j}{||{\bf u}|| ||{\bf v}||} \\
+    \tag{31}
+
+The distance between two vectors is just computed by taking the length of the
+difference between two vectors e.g. :math:`||{\bf u} - {\bf v}||`.
+
+The next example shows that the distance and angle are truly invariant between
+a change in basis if we use our new metric tensor definition.
 
 
+.. admonition:: Example 5: Computing Distance and Angle with the Metric Tensor
 
-    
-    
+    Let's begin by defining two vectors in our standard Euclidean basis:
 
-|h3| Summary: A Tensor is a Tensor |h3e|
+    .. math::
+
+        {\bf u} = \begin{bmatrix} 1 \\ 1 \end{bmatrix}, 
+        {\bf v} = \begin{bmatrix} 2 \\ 0 \end{bmatrix} \tag{32}
+
+    Using our standard method for computing distance and angle:
+
+    .. math::
+
+        ||{\bf u} - {\bf v}|| &= \sqrt{({\bf u - v})({\bf u - v})} = \sqrt{(2 - 1)^2 + (0 - 1)^2}  = \sqrt{2} \\
+        cos(\theta) &= \frac{{\bf u}\cdot {\bf v}}{||{\bf u}|| ||{\bf v}||} = \frac{2(1) + 1(0)}{(\sqrt{1^2 + 1^2})(\sqrt{2^2 + 0^2})} = \frac{1}{\sqrt{2}}  \\
+        \theta &= 45^{\circ}
+        \tag{33}
+
+    Now, let's try to change our basis.  To show something a bit more
+    interesting than rotating the axis, let's try to change to a basis
+    of :math:`(2, 1)` and :math:`(-\frac{1}{2}, \frac{1}{4})`.  To  
+    change basis (from a standard Euclidean basis), the transform we need to
+    apply is:
+
+    .. math::
+
+        T = \begin{bmatrix} 2 & 1 \\ -\frac{1}{2} & \frac{1}{4} \end{bmatrix}, 
+        T^{-1} = \begin{bmatrix} \frac{1}{4} & -1 \\ \frac{1}{2} & 2 \end{bmatrix}
+        \tag{34}
+
+    As you can see, it's just stacking the row vectors of our new basis in this
+    case (when transforming from a Euclidean space).  Anyways, we can transform
+    our :math:`{\bf u}, {\bf v}` as shown:
+
+    TODO finish example here...
+
+    - Example where we only rotate one axis to see (use example from video)
+    - Show that we get the wrong result if we just blindly apply Pythagoras
+
+   
+- We'll see more about the metric tensor in the next two sections. 
+- Encourage you to watch [1], it has some really great explanations on tensors
+  and goes a bit more in depth with derivations in an easy to understand manner.
+
+|h3| 1.7 Summary: A Tensor is a Tensor |h3e|
 
 - Summarize high-level point of tensors
 - Table of all the tensors we've looke dat
 
-|h2| Metric Space |h2e|
+|h2| 2. Metric Space |h2e|
 
 - definition of metric as distance
 
-|h2| Manifolds |h2e|
+|h2| 3. Manifolds |h2e|
 
 - R^2 as manifold
 - lines and circles
@@ -642,7 +718,7 @@ The definition is a lot simpler because it's just a special kind of bilinear:
 - Defines arc length, thus distance
 
 
-|h3| Covector Basic |h3|
+|h3| 3.1 Covector Basic |h3|
 
 When first learning linear algebra, there really didn't seem to be a
 difference between row vectors and columns vectors.  There basically
@@ -657,9 +733,9 @@ covector basis.  :math:`\alpha(w) = g(v, w)`
 
 
 
-|h2| Conclusion |h2e|
+|h2| 4. Conclusion |h2e|
 
-|h2| Further Reading |h2e|
+|h2| 5. Further Reading |h2e|
 
 
 * Wikipedia: `Tensors <https://en.wikipedia.org/wiki/Tensor_(disambiguation)>`__,
@@ -670,12 +746,7 @@ covector basis.  :math:`\alpha(w) = g(v, w)`
   `Vector <https://en.wikipedia.org/wiki/Vector_(mathematics_and_physics)>`__
 * [1] `Tensors for Laypeople <http://www.markushanke.net/tensors-for-laypeople/>`__, Markus Hanke
 * `Tensors for Beginners (YouTube playlist) <https://www.youtube.com/playlist?list=PLJHszsWbB6hrkmmq57lX8BV-o-YIOFsiG>`__, eigenchris
-
-
-.. [1] This is not exactly the best example because it's showing a vector in both contravariant and tangent covector space, which is not exactly the point I'm trying to make here.  But the idea is basically the same: the vector is the same object regardless of what basis you use.
-
-.. [2] There is a `geometric interpretation of covectors <https://en.wikipedia.org/wiki/Linear_form#Visualizing_linear_functionals>`__ are parallel surfaces and the contravariant vectors "piercing" these surfaces.  I don't really like this interpretation because it's kind of artificial and doesn't have any physical analogue that I can think of.
-
+* `An Introduction for Tensors for Students of Physics and Engineering <https://www.grc.nasa.gov/www/k-12/Numbers/Math/documents/Tensors_TM2002211716.pdf>`__
 
 |h2| Appendix A: Showing a Bilinear is a (0,2)-Tensor using Matrix Notation |h2e|
 
@@ -696,3 +767,11 @@ that the bilinear transforms like a (0,2)-tensor using matrix notation:
 Note: that we can only write out the matrix representation because we're still
 using rank 2 tensors. When working with higher order tensors, we can't fall back
 on our linear algebra anymore.
+
+
+.. [1] This is not exactly the best example because it's showing a vector in both contravariant and tangent covector space, which is not exactly the point I'm trying to make here.  But the idea is basically the same: the vector is the same object regardless of what basis you use.
+
+.. [2] There is a `geometric interpretation of covectors <https://en.wikipedia.org/wiki/Linear_form#Visualizing_linear_functionals>`__ are parallel surfaces and the contravariant vectors "piercing" these surfaces.  I don't really like this interpretation because it's kind of artificial and doesn't have any physical analogue that I can think of.
+
+
+
