@@ -639,19 +639,23 @@ However, this can we re-written as for metric tensor :math:`g`:
         \begin{bmatrix} v^1 v^0 \end{bmatrix} \tag{30}
 
 where in the last expression I substituted the metric tensor in standard Euclidean space.
-
-So now that we have a dot-product-like operation, we can define our
-basis-independent definition of length of a vector and angle between two
-vectors:
+That is, the metric tensor in the standard Euclidean basis is just the identity
+matrix:
 
 .. math::
 
-    ||{\bf u}|| = \sqrt{g_{ij} u^i v^j} \\
-    cos(\theta) = \frac{g_{ij} u^i v^j}{||{\bf u}|| ||{\bf v}||} \\
-    \tag{31}
+    g_{ij} = I_n \tag{31}
 
-The distance between two vectors is just computed by taking the length of the
-difference between two vectors e.g. :math:`||{\bf u} - {\bf v}||`.
+So now that we have a dot-product-like operation, we can define our
+basis-independent definition of length of a vector, distance between two
+vectors and angle between two vectors:
+
+.. math::
+
+    ||u|| = \sqrt{g_{ij} u^i u^j} \\
+    d(u, v) = \sqrt{g_{ij} u^i v^j} \\
+    cos(\theta) = \frac{g_{ij} u^i v^j}{||{\bf u}|| ||{\bf v}||} \\
+    \tag{32}
 
 The next example shows that the distance and angle are truly invariant between
 a change in basis if we use our new metric tensor definition.
@@ -664,16 +668,16 @@ a change in basis if we use our new metric tensor definition.
     .. math::
 
         {\bf u} = \begin{bmatrix} 1 \\ 1 \end{bmatrix}, 
-        {\bf v} = \begin{bmatrix} 2 \\ 0 \end{bmatrix} \tag{32}
+        {\bf v} = \begin{bmatrix} 2 \\ 0 \end{bmatrix} \tag{33}
 
     Using our standard method for computing distance and angle:
 
     .. math::
 
-        ||{\bf u} - {\bf v}|| &= \sqrt{({\bf u - v})({\bf u - v})} = \sqrt{(2 - 1)^2 + (0 - 1)^2}  = \sqrt{2} \\
+        d({\bf u}, {\bf v}) &= \sqrt{({\bf u - v})({\bf u - v})} = \sqrt{(2 - 1)^2 + (0 - 1)^2}  = \sqrt{2} \\
         cos(\theta) &= \frac{{\bf u}\cdot {\bf v}}{||{\bf u}|| ||{\bf v}||} = \frac{2(1) + 1(0)}{(\sqrt{1^2 + 1^2})(\sqrt{2^2 + 0^2})} = \frac{1}{\sqrt{2}}  \\
         \theta &= 45^{\circ}
-        \tag{33}
+        \tag{34}
 
     Now, let's try to change our basis.  To show something a bit more
     interesting than rotating the axis, let's try to change to a basis
@@ -683,18 +687,89 @@ a change in basis if we use our new metric tensor definition.
 
     .. math::
 
-        T = \begin{bmatrix} 2 & 1 \\ -\frac{1}{2} & \frac{1}{4} \end{bmatrix}, 
-        T^{-1} = \begin{bmatrix} \frac{1}{4} & -1 \\ \frac{1}{2} & 2 \end{bmatrix}
-        \tag{34}
+        T = \begin{bmatrix} 2 & -\frac{1}{2} \\ 1 & \frac{1}{4} \end{bmatrix}, 
+        T^{-1} = \begin{bmatrix} \frac{1}{4} & \frac{1}{2} \\ -1 & 2 \end{bmatrix}
+        \tag{35}
 
-    As you can see, it's just stacking the row vectors of our new basis in this
-    case (when transforming from a Euclidean space).  Anyways, we can transform
-    our :math:`{\bf u}, {\bf v}` as shown:
+    As you can see, it's just stacking the column vectors of our new basis
+    side-by-side in this case (when transforming from a Euclidean space).  With
+    these vectors, we can transform our :math:`{\bf u}, {\bf v}` to the new
+    basis vectors :math:`\tilde{\bf u}, \tilde{\bf v}` as shown:
 
-    TODO finish example here...
+    .. math::
 
-    - Example where we only rotate one axis to see (use example from video)
-    - Show that we get the wrong result if we just blindly apply Pythagoras
+        \tilde{\bf u} &= T^{-1} {\bf u} = 
+                \begin{bmatrix} \frac{1}{4} & \frac{1}{2} \\ -1 & 2 \end{bmatrix}
+                \begin{bmatrix} 1 \\ 1 \end{bmatrix}
+            = \begin{bmatrix} \frac{3}{4} \\ 1 \end{bmatrix} \\
+        \tilde{\bf v} &= T^{-1} {\bf v} = 
+                \begin{bmatrix} \frac{1}{4} & \frac{1}{2} \\ -1 & 2 \end{bmatrix}
+                \begin{bmatrix} 2 \\ 0 \end{bmatrix}
+            = \begin{bmatrix} \frac{1}{2} \\ -2 \end{bmatrix}
+        \tag{36}
+
+    Before we move on, let's see if using our standard Euclidean distance function 
+    will work in this new basis:
+
+    .. math::
+
+        \sqrt{({\bf \tilde{u} - \tilde{v}})({\bf \tilde{u} - \tilde{v}})} 
+        = \sqrt{(\frac{3}{4} - \frac{1}{2})^2 + (1 - (-2))^2} 
+        = \sqrt{\frac{145}{16}} \approx 3.01 \tag{37}
+
+    As we can see, the Pythagorean method only works in the standard Euclidean
+    basis (because it's orthonormal), once we change basis we have to account
+    for the distortion.
+
+
+    Now back to our metric tensor, we can transform our metric tensor
+    (:math:`g`) to the new basis (:math:`\tilde{g}`) using the forward "with
+    basis" transform (switching to Einstein notation):
+
+    .. math::
+
+        \tilde{\bf g}_{ij} = T^k_l T^l_j g_{kl} =
+                \begin{bmatrix} 2 & 1 \\ -\frac{1}{2} & \frac{1}{4} \end{bmatrix}
+                \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}
+                \begin{bmatrix} 2 &  -\frac{1}{2} \\ 1 & \frac{1}{4} \end{bmatrix}
+        = \begin{bmatrix} 5 & -\frac{3}{4} \\ -\frac{3}{4} & \frac{5}{16} \end{bmatrix}
+        \tag{38}
+
+    Calculating the angle and distance using Equation 32:
+
+    .. math::
+
+        d(\tilde{\bf u}, \tilde{\bf v})
+        &= \sqrt{\tilde{g_{ij}} \tilde{u}^i \tilde{v}^j }
+        = \sqrt{
+                \begin{bmatrix} \frac{3}{4} & 1 \end{bmatrix}
+                \begin{bmatrix} 5 & -\frac{3}{4} \\ -\frac{3}{4} & \frac{5}{16} \end{bmatrix}
+                \begin{bmatrix} \frac{1}{2} \\ -2 \end{bmatrix}
+            }
+        = \sqrt{2} \\
+        ||\tilde{\bf u}||
+        &= \sqrt{\tilde{g_{ij}} \tilde{u}^i \tilde{u}^j }
+        = \sqrt{
+                \begin{bmatrix} \frac{3}{4} & 1 \end{bmatrix}
+                \begin{bmatrix} 5 & -\frac{3}{4} \\ -\frac{3}{4} & \frac{5}{16} \end{bmatrix}
+                \begin{bmatrix} \frac{3}{4} \\ 1 \end{bmatrix}
+            }
+        = \sqrt{2} \\
+        ||\tilde{\bf v}||
+        &= \sqrt{\tilde{g_{ij}} \tilde{v}^i \tilde{v}^j }
+        = \sqrt{
+                \begin{bmatrix} \frac{1}{2} & -2 \end{bmatrix}
+                \begin{bmatrix} 5 & -\frac{3}{4} \\ -\frac{3}{4} & \frac{5}{16} \end{bmatrix}
+                \begin{bmatrix} \frac{1}{2} \\ -2 \end{bmatrix}
+            }
+        = 2 \\
+        cos(\theta) &= \frac{\tilde{g_{ij}} \tilde{u}^i \tilde{v}^j}{||\tilde{\bf u}||||\tilde{\bf v}||}
+        = \frac{2}{(\sqrt{2})(2)} = \frac{1}{\sqrt{2}} \\
+        \theta &= 45^{\circ} \\
+        \tag{39}
+
+    which line up with the calculations we did in our original basis.
+
 
    
 - We'll see more about the metric tensor in the next two sections. 
