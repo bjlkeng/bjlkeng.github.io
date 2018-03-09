@@ -68,7 +68,7 @@ However, tensors as multidimensional arrays is just one very narrow "view" of a
 tensor, tensors (mathematically speaking) are much more than that!
 Let's start at the beginning.
 
-(By the way, you should checkout [1], which is a great series of videos
+(By the way, you should checkout [2], which is a great series of videos
 explaining tensors from the beginning.  It definitely helped clarify a lot of
 ideas for me and a lot of this section is based on his presentation.)
 
@@ -599,7 +599,7 @@ Einstein notation is also quite convenient (once you get used to it)!
 |h3| 1.6 The Metric Tensor |h3e|
 
 Before we end off on the tensor section, I want to introduce you to one of the
-most important tensors around: `Metric Tensor <https://en.wikipedia.org/wiki/Metric_tensor>`__.
+most important tensors around: the `Metric Tensor <https://en.wikipedia.org/wiki/Metric_tensor>`__.
 In fact, it's probably one of the top reasons people start to learn about tensors.
 
 The definition is a lot simpler because it's just a special kind of bilinear:
@@ -622,8 +622,9 @@ space.  But of course, we want to generalize this concept a little bit so we sti
 have the same "operation" under a change of basis -- that the resultant scalar
 we produce should be the same.  Let's take a look.
 
-In Euclidean space, the dot product for two vectors :math:`{\bf u}, {\bf v}` is
-defined as:
+In Euclidean space, the dot product (whose generalization is called the 
+`inner product <https://en.wikipedia.org/wiki/Inner_product_space>`__) 
+for two vectors :math:`{\bf u}, {\bf v}` is defined as:
 
 .. math::
 
@@ -770,48 +771,115 @@ a change in basis if we use our new metric tensor definition.
 
     which line up with the calculations we did in our original basis.
 
-
-   
-- We'll see more about the metric tensor in the next two sections. 
-- Encourage you to watch [1], it has some really great explanations on tensors
-  and goes a bit more in depth with derivations in an easy to understand manner.
+We'll see the metric tensor come up again in a more general settings below.
+Again, I'd encourage you to check out the videos in [2].  He's got a dozen or
+so videos with some great derivations and intuition on the subject.  It goes 
+in a bit more depth than me but still easily understandable. 
 
 |h3| 1.7 Summary: A Tensor is a Tensor |h3e|
 
-- Summarize high-level point of tensors
-- Table of all the tensors we've looke dat
+So, let's review a bit about tensors:
+
+* A **tensor** is an object that is *invariant* under a change of basis,
+  and whose coordinates change in a *special, predictable* way when changing a basis.
+* A tensor can have **contravariant** and **covariant** components corresponding
+  to the components of the tensor transforming *against* or *with* the change of basis.
+* The **rank** (or degree or order) of a tensor is the number of "axis" or
+  components it has (not to be confused with the dimension of each "axis").
+* A :math:`(n, m)`-tensor has :math:`n` contravariant components and :math:`m`
+  covariant components with rank :math:`n+m`.
+
+
+We've looked at four different types of tensors:
+
+.. csv-table::
+   :header: "Tensor", "Type", "Example"
+   :widths: 15, 5, 15
+
+   "Contravariant Vectors (vectors)", "(1, 0)", "Geometric (Euclidean) vectors"
+   "Covariant Vectors", "(0, 1)", "Linear Functionals"
+   "Linear map", "(1,1)", "Linear Transformations"
+   "Bilinear form", "(0, 2)", "Metric Tensor"
+
 
 |h2| 2. Metric Space |h2e|
 
-- definition of metric as distance
+In this section, I just want to quickly review the definition of a metric space
+because we'll see that it comes up below.
+
+    A metric space for a set :math:`M` and 
+    metric :math:`d: M x M \rightarrow \mathcal{R}` such that for any 
+    :math:`x,y,z \in M`, the following holds:
+
+    1. :math:`d(x, y) \geq 0`
+    2. :math:`d(x,y)=0 \leftrightarrow x=y`
+    3. :math:`d(x,y)=d(y,x)`
+    4. :math:`d(x,z)\leq d(x,y) + d(y,z)`
+
+The basic idea is just some space with a distance defined.  The conditions on
+your distance function are probably pretty intuitive, although you might
+not have explicitly thought about them (the last condition is the triangle
+inequality).  Be careful with the definition of "metric", sometimes it's used
+for the distance function here, and sometimes it's used for the metric tensor.
+
+Some example of common distance functions:
+
+* :math:`\mathcal{R}^n` with the usual Euclidean distance function
+* A `normed vector space <https://en.wikipedia.org/wiki/Normed_vector_space>`__
+  using :math:`d(x,y) = ||y-x||` as your metric.  Examples of a norm can be
+  the Euclidean distance or Manhattan distance.
+* The edit distance between two strings is a metric.
+
+The main thing that I want to emphasize here is that to get a metric space, all
+you need is a proper distance function.  We saw in the last section that
+we could use the Metric tensor to define an inner product operation, which
+allowed us to compute distances.  This idea will come up again below to help
+us compute distances on manifolds.
+
 
 |h2| 3. Manifolds |h2e|
 
-- R^2 as manifold
-- lines and circles
+Now we're getting into something interesting: manifolds!  The first place
+most ML hear about it is in the 
+`manifold hypothesis <https://www.quora.com/What-is-the-Manifold-Hypothesis-in-Deep-Learning>`__:
+
+    The manifold hypothesis is that real-world high dimensional data (such as
+    images) lie on low-dimensional manifolds embedded in the high-dimensional
+    space.
+
+The main idea here is that even though our real-world data is high-dimensional,
+there is actually some lower-dimensional representation.  For example, all "cat
+images" might lie on a lower-dimensional manifold compared to say their
+original 256x256x3 image dimensions.  Intuitively, makes sense that this
+lower dimensional representation might be more easily learnable than an
+arbitrary 256x256x3 function.
+
+Okay, that's all well and good, but *what is a manifold?*  The abstract
+definition from topology is well... abstract.  So I won't go into all the
+technical details (also because I'm not super qualified to do so), but we'll
+see that the Riemannian manifold is surprisingly intuitive once you get the
+hang (or should I say twist) of things.
+
+|h3| 3.1 Circles and Spheres as Manifolds |h3e|
+
+- Show diagrams from wiki
+- Explain idea behind local Euclidean
+- Simple manifolds R^n
+- Explain non-manifolds (figure 8)
+
+|h3| 3.2 "Smooth" Riemannian Manifolds |h3e|
+
+- tangent space
+- inner product (metric tensor!)
 - Riemannian manifold: tangent space at each point with the inner product
-- Defines arc length, thus distance
-
-
-|h3| 3.1 Covector Basic |h3|
-
-When first learning linear algebra, there really didn't seem to be a
-difference between row vectors and columns vectors.  There basically
-looked like the same thing just flipped around.
-
-Well it turns out with the metric tensor, they basically have this
-"flipped" around relationship.
-
-Any geometric vector can be represented in its regular basis, but also in a
-covector basis.  :math:`\alpha(w) = g(v, w)`
-`see here <https://en.wikipedia.org/wiki/Covariance_and_contravariance_of_vectors#Covariant_transformation>`__
-
+- Defines arc length, thus distance using differential geometry, inner product
+- Example of computing arc length of a circle with the metric tensor,
+  show it in another basis (polar coordinates?)
 
 
 |h2| 4. Conclusion |h2e|
 
 |h2| 5. Further Reading |h2e|
-
 
 * Wikipedia: `Tensors <https://en.wikipedia.org/wiki/Tensor_(disambiguation)>`__,
   `Manifold <https://en.wikipedia.org/wiki/Manifold>`__,
@@ -820,7 +888,7 @@ covector basis.  :math:`\alpha(w) = g(v, w)`
   `Covariance and contravariance of vectors <https://en.wikipedia.org/wiki/Covariance_and_contravariance_of_vectors>`__,
   `Vector <https://en.wikipedia.org/wiki/Vector_(mathematics_and_physics)>`__
 * [1] `Tensors for Laypeople <http://www.markushanke.net/tensors-for-laypeople/>`__, Markus Hanke
-* `Tensors for Beginners (YouTube playlist) <https://www.youtube.com/playlist?list=PLJHszsWbB6hrkmmq57lX8BV-o-YIOFsiG>`__, eigenchris
+* [2] `Tensors for Beginners (YouTube playlist) <https://www.youtube.com/playlist?list=PLJHszsWbB6hrkmmq57lX8BV-o-YIOFsiG>`__, eigenchris
 * `An Introduction for Tensors for Students of Physics and Engineering <https://www.grc.nasa.gov/www/k-12/Numbers/Math/documents/Tensors_TM2002211716.pdf>`__
 
 |h2| Appendix A: Showing a Bilinear is a (0,2)-Tensor using Matrix Notation |h2e|
