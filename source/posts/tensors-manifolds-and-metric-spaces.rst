@@ -862,22 +862,138 @@ hang (or should I say twist) of things.
 
 |h3| 3.1 Circles and Spheres as Manifolds |h3e|
 
-- Show diagrams from wiki
-- Explain idea behind local Euclidean
-- Simple manifolds R^n
-- Explain non-manifolds (figure 8)
+A **manifold** is topological space that "locally" resembles Euclidean space.
+This obviously doesn't mean much unless you've studied topology.  
+An intuitive (but not exactly correct) way to think about it is taking
+a geometric object from :math:`\mathbb{R}^k` and trying to "fit" it into
+:math:`\mathbb{R}^n, n>k`.  Let's take a first example, a line segment, which
+is obviously one dimensional. 
+
+One way to embed a line in two dimensions is to "wrap" it around into a circle,
+shown in Figure 2.  Each arc of the circle locally looks closer to a line
+segment, and if you take an infinitesimal arc, it will "locally" resemble a
+one dimensional line segment.  
+
+.. figure:: /images/manifold_circle.png
+  :height: 250px
+  :alt: A Circle is a Manifold
+  :align: center
+
+  Figure 2: A circle is a manifold in two dimensions where each arc of the
+  circle is locally resembles a line (source: Wikipedia).
+
+Of course, there is a much more 
+`precise definition <https://en.wikipedia.org/wiki/Topological_manifold#Formal_definition>`__ 
+from topology in which a manifold is defined as a set that is 
+`homeomorphic <https://en.wikipedia.org/wiki/Homeomorphism>`__ 
+to a Euclidean space.  A homeomorphism is a special kind of continuous one-to-one 
+mapping that preserves topological properties.  The definition is quite
+abstract because the definition says a manifold is just a special kind of set
+without any explicit reference of how it can be viewed as a geometric object.
+I'll leave it to you if you want to go deeper into the abstract formalism of
+topology, but for now let's keep it at a much more intuitive level.
+
+Actually any "closed" loop in one dimension is a manifold because you can
+imagine "wrapping" it around into the right shape.  Another way to think about
+it (from the formal definition) is that from a line (segment), you can find a
+continuous one-to-one mapping to a closed loop.  An interesting point is that
+figure "8" is not a manifold because the crossing point does not locally
+resemble a line segment.
+
+These closed loop manifolds are the easiest 1D manifolds to think about but
+there are other weird cases too shown in Figure 3.  As you can see, we can have
+a variety of different shapes.  The big idea is that we can also have "open
+ended" curves that extend out to infinity, which are natural mappings from
+a one dimensional line.
+
+.. figure:: /images/manifold_1d_other.png
+  :height: 250px
+  :alt: Other 1D Manifolds
+  :align: center
+
+  Figure 3: Circles, parabolas, hyperbolas and 
+  `cubic curves <https://en.wikipedia.org/wiki/Cubic_curve>`__ 
+  are all 1D Manifolds.  Note: the four different colours are all on separate
+  axes and extend out to infinity if it has an open end (source: Wikipedia).
+
+Let's now move onto 2D manifolds. The simplest one is a sphere.  You can
+imagine each infinitesimal patch of the sphere locally resembles a 2D Euclidean
+plane.  Similarly, any 2D surface (including a plane) that doesn't
+self-intersect is also a 2D manifold.  Figure 4 shows some examples.
+
+.. figure:: /images/manifold_2d.gif
+  :height: 350px
+  :alt: 1D Manifolds
+  :align: center
+
+  Figure 4: Non-intersecting closed surfaces in :math:`\mathbb{R}^3` are 
+  examples of 2D manifolds such as a sphere, torus, double torus, cross
+  surfaces and Klein bottle (source: Wolfram).
+
+For these examples, you can imagine that at each point on these manifolds it
+locally resembles a 2D plane.  This best analogy is Earth.  We know that the
+Earth is round but when we stand in a field it looks flat.  We can of course
+have higher dimension manifolds embedded in even larger dimension Euclidean
+spaces but you can't really visualize them.  Abstract math is rarely easy to
+visualize in higher dimension.
+
+Hopefully after seeing all these examples, you've developed some intuition
+around manifolds.  In the next section, we'll head back to the math with some
+differential geometry.
 
 |h3| 3.2 "Smooth" Riemannian Manifolds |h3e|
 
-- tangent space
-- inner product (metric tensor!)
-- Riemannian manifold: tangent space at each point with the inner product
+The examples in the last section all had some nice properties: they were
+"smooth" (and not just because they were good talkers)!  We want to turn our
+investigation of manifolds to "well-behaved" ones where we can do all the nice
+calculus-related operations such as differentiation or integration in order to
+do nice things like calculate distance or area/volume.  
+
+The types of manifolds we want to study are called `smooth manifolds
+<https://en.wikipedia.org/wiki/Differentiable_manifold#Definition>`__.  The
+actual definition involves going deep into the topological definitions but the
+main idea is that the manifold is that each "patch" of Euclidean space on the
+manifold transitions to adjacent "patches" in a smooth way.  This allows us
+to do nice calculus-like things analogous to `smooth functions
+<https://en.wikipedia.org/wiki/Smoothness>`__.
+
+To actually calculate things like distance on a manifold, we have to 
+introduce a few concepts.  The first is a **tangent space** :math:`T_x M`
+
+- **tangent vector**, directional derivative (recall)
+
+
+.. figure:: /images/tangent_space.png
+  :height: 250px
+  :alt: Tangent Space
+  :align: center
+
+  Figure 5: A tangent space at a point on a 2D manifold (a sphere) (source:
+  Wikipedia).
+
+.. figure:: /images/tangent_space_vector.png
+  :height: 250px
+  :alt: Tangent Vector
+  :align: center
+
+  Figure 6: A tangent space :math:`T_x M` for manifold :math:`M` with tangent
+  vector :math:`v \in T_x M`, along a curve travelling through :math:`x \in M`
+  (source: Wikipedia).
+
+- **Riemannian metric tensor** 
+- **Riemannian manifold** 
+
+|h3| 3.3 Computing Arc Length |h3e|
+
 - Defines arc length, thus distance using differential geometry, inner product
+- Explain how to change coordinates 
 - Example of computing arc length of a circle with the metric tensor,
   show it in another basis (polar coordinates?)
-
+- Example for unit sphere???
 
 |h2| 4. Conclusion |h2e|
+
+
 
 |h2| 5. Further Reading |h2e|
 
