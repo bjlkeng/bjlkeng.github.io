@@ -944,7 +944,7 @@ differential geometry.
 |h3| 3.2 "Smooth" Riemannian Manifolds |h3e|
 
 The examples in the last section all had some nice properties: they were
-"smooth" (and not just because they were good talkers)!  We want to turn our
+"smooth" (and not just because they are good talkers)!  We want to turn our
 investigation of manifolds to "well-behaved" ones where we can do all the nice
 calculus-related operations such as differentiation or integration in order to
 do nice things like calculate distance or area/volume.  
@@ -959,9 +959,13 @@ to do nice calculus-like things analogous to `smooth functions
 
 To actually calculate things like distance on a manifold, we have to 
 introduce a few concepts.  The first is a **tangent space** :math:`T_x M`
-
-- **tangent vector**, directional derivative (recall)
-
+of a manifold :math:`M` at a point :math:`x`.  It's pretty much exactly
+as it sounds: imagine you are passing through the point :math:`x` on a smooth
+manifold, as you pass though you implicitly have a **tangent vector** along the
+direction of travel, which can be thought of as your velocity through point :math:`x`.
+The tangent vectors made in this way from each possible path passing through
+:math:`x` make up the tangent space.  In two dimensions, this would be a plan.
+Figure 5 shows an example of this on a sphere.
 
 .. figure:: /images/tangent_space.png
   :height: 250px
@@ -971,14 +975,52 @@ introduce a few concepts.  The first is a **tangent space** :math:`T_x M`
   Figure 5: A tangent space at a point on a 2D manifold (a sphere) (source:
   Wikipedia).
 
+In more detail, let's define the curve as for a manifold embedded in
+:math:`\mathbb{R}^n` space with start and end points :math:`t \in [a, b]` as:
+
+.. math::
+
+    {\gamma}(t) := [x^1(t), \ldots, x^n(t)] \tag{40}
+
+where :math:`x^i(t)` are single output functions of :math:`t` for component
+:math:`i` (not exponents.  In this case the `tangent vector
+<https://en.wikipedia.org/wiki/Tangent_vector>`__ :math:`\bf v` at :math:`x` is
+just given by the derivative of :math:`\gamma(t)` with respect to :math:`t`:
+
+.. math::
+
+    {\bf v} := \frac{d\gamma(t)}{dt}\Big|_{t=t_x} = \Big[\frac{dx^1(t_x)}{dt}\Big|_{t=t_x}, \ldots, \frac{x^n(t)}{dt}\Big|_{t=t}\Big] \tag{41}
+    
+where :math:`\gamma(t_x) = x`.  Figure 6 shows another visualization of this
+idea with curve :math:`{\bf \gamma}(t)` on the manifold :math:`M`. 
+
 .. figure:: /images/tangent_space_vector.png
   :height: 250px
   :alt: Tangent Vector
   :align: center
 
   Figure 6: A tangent space :math:`T_x M` for manifold :math:`M` with tangent
-  vector :math:`v \in T_x M`, along a curve travelling through :math:`x \in M`
+  vector :math:`{\bf v} \in T_x M`, along a curve travelling through :math:`x \in M`
   (source: Wikipedia).
+
+
+You'll be happy to know that tangent vectors are actually *contravariant*
+(we didn't waste all that time talking about tensors for nothing)!  We
+can easily show that for a given change of coordinates (potentially non-linear
+but one-to-one)
+given by the function :math:`T`
+to :math:`u^i = T^i(x^1, \ldots, x^n), 1\leq i\leq n`.
+Starting with the tangent vector :math:`\tilde{\bf v} = \tilde{v}^i` 
+(switching to Einstein notation) in the :math:`u^i`-coordinate system:
+
+.. math::
+
+    \tilde{v}^i
+    = \frac{dT}{dt} 
+    = \frac{\partial T^i}{\partial x^s} \frac{dx^s}{dt}
+    = v^i \frac{\partial T^i}{\partial x^s}
+
+
 
 - **Riemannian metric tensor** 
 - **Riemannian manifold** 
