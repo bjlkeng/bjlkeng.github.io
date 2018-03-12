@@ -1005,7 +1005,41 @@ idea with curve :math:`{\bf \gamma}(t)` on the manifold :math:`M`.
 
 
 You'll be happy to know that tangent vectors are actually *contravariant*
-(we didn't waste all that time talking about tensors for nothing)!  We
+(we didn't waste all that time talking about tensors for nothing)!  We'll
+show this fact a bit later.
+
+Back to this smooth manifold we've been talking about, we'll want to define
+another tensor, you guess it, the metric tensor!  In particular, the
+**Riemannian metric (tensor)** is a family of inner products:
+
+.. math::
+
+    g_p: T_pM \times T_pM \rightarrow \mathbb{R}, p \in M \tag{42}
+
+such that :math:`p \rightarrow g_p(X(p), Y(p))` for any two tangent vectors
+(derived from the vector fields :math:`X, Y`) is a smooth function of
+:math:`p`.  The implications of this is that even though each adjacent tangent space
+can be different (the manifold curves therefore the tangent space changes),
+the inner product varies smoothly between adjacent points.  A real, smooth
+manifold with a Riemannian metric (tensor) is called a **Riemannian manifold**.
+
+|h3| 3.3 Local Coordinate Systems and Change of Coordinate Systems |h3e|
+
+Everything's still been quite abstract because we haven't really done any
+examples yet.  In this section, we'll actually try to work with a simple
+manifold to get things going.  Before we do that, we'll have to introduce
+this idea of a **local coordinate system**.
+
+In most of our standard linear algebra in :math:`\mathbb{R}^n`, we used a
+single coordinate system that works for the whole space.  However, when dealing
+with manifolds (that map to lower dimensional spaces), this doesn't quite work.
+
+.. admonition:: Example 6: Local coordinate systems
+
+
+
+
+We
 can easily show that for a given change of coordinates (potentially non-linear
 but one-to-one)
 given by the function :math:`T`
@@ -1048,6 +1082,7 @@ Starting with the tangent vector :math:`\tilde{\bf v} = \tilde{v}^i`
 * [1] `Tensors for Laypeople <http://www.markushanke.net/tensors-for-laypeople/>`__, Markus Hanke
 * [2] `Tensors for Beginners (YouTube playlist) <https://www.youtube.com/playlist?list=PLJHszsWbB6hrkmmq57lX8BV-o-YIOFsiG>`__, eigenchris
 * `An Introduction for Tensors for Students of Physics and Engineering <https://www.grc.nasa.gov/www/k-12/Numbers/Math/documents/Tensors_TM2002211716.pdf>`__
+* [3] `Differentiable manifolds and smooth maps <http://www.maths.manchester.ac.uk/~tv/Teaching/Differentiable%20Manifolds/2010-2011/1-manifolds.pdf>`__, Theodore Voronov.
 
 |h2| Appendix A: Showing a Bilinear is a (0,2)-Tensor using Matrix Notation |h2e|
 
