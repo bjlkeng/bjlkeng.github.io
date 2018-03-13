@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality</title><link>http://bjlkeng.github.io/</link><description>Understanding math, machine learning, and data to a satisfactory degree.</description><atom:link href="http://bjlkeng.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sun, 18 Feb 2018 21:34:00 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Residual Networks</title><link>http://bjlkeng.github.io/posts/residual-networks/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Taking a small break from some of the heavier math, I thought I'd write a post
+<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality</title><link>http://bjlkeng.github.io/</link><description>Understanding math, machine learning, and data to a satisfactory degree.</description><atom:link href="http://bjlkeng.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 13 Mar 2018 13:40:22 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Tensors, Tensors, Tensors</title><link>http://bjlkeng.github.io/posts/tensors-tensors-tensors/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to take a step back from some of the machine learning
+topics that I've been writing about recently and go back to some basics: math!
+In particular, tensors.  This is a topic that is casually mentioned in machine
+learning papers but for those of us who weren't physics or math majors
+(*cough* computer engineers), it's a bit murky trying to understand what's going on.
+So on my most recent vacation, I started reading a variety of sources on the
+interweb trying to piece together a picture of what tensors were all
+about.  As usual, I'll skip the heavy formalities (partly because I probably
+couldn't do them justice) and instead try to explain the intuition using my
+usual approach of examples and more basic maths.  I'll sprinkle in a bunch of
+examples and also try to relate it back to ML where possible.  Hope you like
+it!&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/tensors-tensors-tensors/"&gt;Read more…&lt;/a&gt; (23 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>bilinear</category><category>contravariance</category><category>covariance</category><category>covectors</category><category>geometric vectors</category><category>linear transformations</category><category>mathjax</category><category>metric tensor</category><category>tensors</category><guid>http://bjlkeng.github.io/posts/tensors-tensors-tensors/</guid><pubDate>Tue, 13 Mar 2018 13:24:57 GMT</pubDate></item><item><title>Residual Networks</title><link>http://bjlkeng.github.io/posts/residual-networks/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Taking a small break from some of the heavier math, I thought I'd write a post
 (aka learn more about) a very popular neural network architecture called
 Residual Networks aka ResNet.  This architecture is being very widely used
 because it's so simple yet so powerful at the same time.  The architecture's
@@ -152,19 +164,4 @@ can't do that well unless we have a healthy dose of mathematics.  For some of th
 background concepts, I'll try to refer you to good sources (including my own),
 which I find is the main blocker to understanding this subject (admittedly, the
 math can sometimes be a bit cryptic too).  Enjoy!&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/variational-bayes-and-the-mean-field-approximation/"&gt;Read more…&lt;/a&gt; (24 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Bayesian</category><category>Kullback-Leibler</category><category>mathjax</category><category>mean-field</category><category>variational calculus</category><guid>http://bjlkeng.github.io/posts/variational-bayes-and-the-mean-field-approximation/</guid><pubDate>Mon, 03 Apr 2017 13:02:46 GMT</pubDate></item><item><title>The Calculus of Variations</title><link>http://bjlkeng.github.io/posts/the-calculus-of-variations/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to describe a specialized type of calculus called
-variational calculus.
-Analogous to the usual methods of calculus that we learn in university,
-this one deals with functions &lt;em&gt;of functions&lt;/em&gt; and how to
-minimize or maximize them.  It's used extensively in physics problems such as
-finding the minimum energy path a particle takes under certain conditions.  As
-you can also imagine, it's also used in machine learning/statistics where you
-want to find a density that optimizes an objective &lt;a class="footnote-reference" href="http://bjlkeng.github.io/posts/the-calculus-of-variations/#id4" id="id1"&gt;[1]&lt;/a&gt;.  The explanation I'm
-going to use (at least for the first part) is heavily based upon Svetitsky's
-&lt;a class="reference external" href="http://julian.tau.ac.il/bqs/functionals/functionals.html"&gt;Notes on Functionals&lt;/a&gt;, which so far is
-the most intuitive explanation I've read.  I'll try to follow Svetitsky's
-notes to give some intuition on how we arrive at variational calculus from
-regular calculus with a bunch of examples along the way.  Eventually we'll
-get to an application that relates back to probability.  I think with the right
-intuition and explanation, it's actually not too difficult, enjoy!&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/the-calculus-of-variations/"&gt;Read more…&lt;/a&gt; (16 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>differentials</category><category>entropy</category><category>lagrange multipliers</category><category>mathjax</category><category>probability</category><category>variational calculus</category><guid>http://bjlkeng.github.io/posts/the-calculus-of-variations/</guid><pubDate>Sun, 26 Feb 2017 15:08:38 GMT</pubDate></item></channel></rss>
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/variational-bayes-and-the-mean-field-approximation/"&gt;Read more…&lt;/a&gt; (24 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Bayesian</category><category>Kullback-Leibler</category><category>mathjax</category><category>mean-field</category><category>variational calculus</category><guid>http://bjlkeng.github.io/posts/variational-bayes-and-the-mean-field-approximation/</guid><pubDate>Mon, 03 Apr 2017 13:02:46 GMT</pubDate></item></channel></rss>

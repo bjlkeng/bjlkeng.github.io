@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about tensors)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/tensors.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 13 Mar 2018 13:40:23 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Tensors, Tensors, Tensors</title><link>http://bjlkeng.github.io/posts/tensors-tensors-tensors/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to take a step back from some of the machine learning
+topics that I've been writing about recently and go back to some basics: math!
+In particular, tensors.  This is a topic that is casually mentioned in machine
+learning papers but for those of us who weren't physics or math majors
+(*cough* computer engineers), it's a bit murky trying to understand what's going on.
+So on my most recent vacation, I started reading a variety of sources on the
+interweb trying to piece together a picture of what tensors were all
+about.  As usual, I'll skip the heavy formalities (partly because I probably
+couldn't do them justice) and instead try to explain the intuition using my
+usual approach of examples and more basic maths.  I'll sprinkle in a bunch of
+examples and also try to relate it back to ML where possible.  Hope you like
+it!&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/tensors-tensors-tensors/"&gt;Read more…&lt;/a&gt; (23 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>bilinear</category><category>contravariance</category><category>covariance</category><category>covectors</category><category>geometric vectors</category><category>linear transformations</category><category>mathjax</category><category>metric tensor</category><category>tensors</category><guid>http://bjlkeng.github.io/posts/tensors-tensors-tensors/</guid><pubDate>Tue, 13 Mar 2018 13:24:57 GMT</pubDate></item></channel></rss>

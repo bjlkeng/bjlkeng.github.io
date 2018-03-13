@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sun, 18 Feb 2018 21:34:00 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Residual Networks</title><link>http://bjlkeng.github.io/posts/residual-networks/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Taking a small break from some of the heavier math, I thought I'd write a post
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 13 Mar 2018 13:40:23 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Tensors, Tensors, Tensors</title><link>http://bjlkeng.github.io/posts/tensors-tensors-tensors/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to take a step back from some of the machine learning
+topics that I've been writing about recently and go back to some basics: math!
+In particular, tensors.  This is a topic that is casually mentioned in machine
+learning papers but for those of us who weren't physics or math majors
+(*cough* computer engineers), it's a bit murky trying to understand what's going on.
+So on my most recent vacation, I started reading a variety of sources on the
+interweb trying to piece together a picture of what tensors were all
+about.  As usual, I'll skip the heavy formalities (partly because I probably
+couldn't do them justice) and instead try to explain the intuition using my
+usual approach of examples and more basic maths.  I'll sprinkle in a bunch of
+examples and also try to relate it back to ML where possible.  Hope you like
+it!&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/tensors-tensors-tensors/"&gt;Read more…&lt;/a&gt; (23 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>bilinear</category><category>contravariance</category><category>covariance</category><category>covectors</category><category>geometric vectors</category><category>linear transformations</category><category>mathjax</category><category>metric tensor</category><category>tensors</category><guid>http://bjlkeng.github.io/posts/tensors-tensors-tensors/</guid><pubDate>Tue, 13 Mar 2018 13:24:57 GMT</pubDate></item><item><title>Residual Networks</title><link>http://bjlkeng.github.io/posts/residual-networks/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Taking a small break from some of the heavier math, I thought I'd write a post
 (aka learn more about) a very popular neural network architecture called
 Residual Networks aka ResNet.  This architecture is being very widely used
 because it's so simple yet so powerful at the same time.  The architecture's
@@ -122,20 +134,4 @@ natural language processing applications with maximum entropy (MaxEnt)
 classifiers (i.e. a multinomial logistic regression).  As usual, I'll go through
 some intuition, some math, and some examples.  Hope you find this topic as
 interesting as I do!&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/maximum-entropy-distributions/"&gt;Read more…&lt;/a&gt; (11 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>entropy</category><category>mathjax</category><category>probability</category><guid>http://bjlkeng.github.io/posts/maximum-entropy-distributions/</guid><pubDate>Fri, 27 Jan 2017 14:05:00 GMT</pubDate></item><item><title>Lagrange Multipliers</title><link>http://bjlkeng.github.io/posts/lagrange-multipliers/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to be about finding the maxima or minima of a function
-subject to some constraints.  This is usually introduced in a multivariate
-calculus course, unfortunately (or fortunately?) I never got the chance to take
-a multivariate calculus course that covered this topic.  In my undergraduate class, computer
-engineers only took three half year engineering calculus courses, and the
-&lt;a class="reference external" href="http://www.ucalendar.uwaterloo.ca/1617/COURSE/course-ECE.html#ECE206"&gt;fourth one&lt;/a&gt;
-(for electrical engineers) seems to have covered other basic multivariate
-calculus topics such as all the various theorems such as Green's, Gauss', Stokes' (I
-could be wrong though, I never did take that course!).  You know what I always imagined Newton
-saying, "It's never too late to learn multivariate calculus!".&lt;/p&gt;
-&lt;p&gt;In that vein, this post will discuss one widely used method for finding optima
-subject to constraints: Lagrange multipliers.  The concepts
-behind it are actually quite intuitive once we come up with the right analogue
-in physical reality, so as usual we'll start there.  We'll work through some
-problems and hopefully by the end of this post, this topic won't seem as
-mysterious anymore &lt;a class="footnote-reference" href="http://bjlkeng.github.io/posts/lagrange-multipliers/#id3" id="id1"&gt;[1]&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/lagrange-multipliers/"&gt;Read more…&lt;/a&gt; (11 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>calculus</category><category>lagrange multipliers</category><category>mathjax</category><guid>http://bjlkeng.github.io/posts/lagrange-multipliers/</guid><pubDate>Tue, 13 Dec 2016 12:48:31 GMT</pubDate></item></channel></rss>
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/maximum-entropy-distributions/"&gt;Read more…&lt;/a&gt; (11 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>entropy</category><category>mathjax</category><category>probability</category><guid>http://bjlkeng.github.io/posts/maximum-entropy-distributions/</guid><pubDate>Fri, 27 Jan 2017 14:05:00 GMT</pubDate></item></channel></rss>

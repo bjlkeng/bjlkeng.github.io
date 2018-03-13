@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="A quick introduction to tensors for the uninitiated.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tensors, Tensors, Tensors | Bounded Rationality</title>
+<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
+<link rel="canonical" href="http://bjlkeng.github.io/posts/tensors-tensors-tensors/">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="description" itemprop="description" content="A quick introduction to tensors for the uninitiated.">
+<meta name="author" content="Brian Keng">
+<link rel="prev" href="../residual-networks/" title="Residual Networks" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="Tensors, Tensors, Tensors">
+<meta property="og:url" content="http://bjlkeng.github.io/posts/tensors-tensors-tensors/">
+<meta property="og:description" content="A quick introduction to tensors for the uninitiated.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2018-03-13T08:24:57-05:00">
+<meta property="article:tag" content="bilinear">
+<meta property="article:tag" content="contravariance">
+<meta property="article:tag" content="covariance">
+<meta property="article:tag" content="covectors">
+<meta property="article:tag" content="geometric vectors">
+<meta property="article:tag" content="linear transformations">
+<meta property="article:tag" content="mathjax">
+<meta property="article:tag" content="metric tensor">
+<meta property="article:tag" content="tensors">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://bjlkeng.github.io/">
+
+                <span class="h1" id="blog-title">Bounded Rationality</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
+            <ul class="nav navbar-nav">
+<p class="lead">Understanding math, machine learning, and data to a satisfactory degree.</p>
+<!--
+                
+                <li><a href="/archive.html">Archive</a>
+                <li><a href="/categories/">Tags</a>
+                <li><a href="/rss.xml">RSS feed</a>
+
+                 
+-->
+            </ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+    <a href="index.rst" id="sourcelink">Source</a>
+    </li>
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            <div class="col-lg-9">
+                
+                
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Tensors, Tensors, Tensors</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                    Brian Keng
+            </span></p>
+            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2018-03-13T08:24:57-05:00" itemprop="datePublished" title="2018-03-13 08:24">2018-03-13 08:24</time></a></p>
+            
+        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>This post is going to take a step back from some of the machine learning
+topics that I've been writing about recently and go back to some basics: math!
+In particular, tensors.  This is a topic that is casually mentioned in machine
+learning papers but for those of us who weren't physics or math majors
+(*cough* computer engineers), it's a bit murky trying to understand what's going on.
+So on my most recent vacation, I started reading a variety of sources on the
+interweb trying to piece together a picture of what tensors were all
+about.  As usual, I'll skip the heavy formalities (partly because I probably
+couldn't do them justice) and instead try to explain the intuition using my
+usual approach of examples and more basic maths.  I'll sprinkle in a bunch of
+examples and also try to relate it back to ML where possible.  Hope you like
+it!</p>
+<!-- TEASER_END -->
+<p><br></p>
+<h4> A Tensor by Any Other Name </h4>
+<p>For newcomers to ML, the term "tensor" has to be one of the top ten confusing
+terms.  Not only because the term is new, but also because it's used
+ambiguously with other branches of mathematics and physics!  In ML, it's
+colloquially used interchangeably with a multidimensional array.  That's
+what people usually mean when they talk about "tensors" in the context of
+things like TensorFlow.  However, tensors as multidimensional arrays is just
+one very narrow "view" of a tensor, tensors (mathematically speaking) are much
+more than that!  Let's start at the beginning.</p>
+<p>(By the way, you should checkout [1], which is a great series of videos
+explaining tensors from the beginning.  It definitely helped clarify a lot of
+ideas for me and a lot of this post is based on his presentation.)</p>
+<p><br></p>
+<h4> Geometric Vectors as Tensors </h4>
+<p>We'll start with a concept we're all familiar with:
+<a class="reference external" href="https://en.wikipedia.org/wiki/Euclidean_vector">geometric vectors</a>
+(also called Euclidean vectors).
+Now there are many different variants of "vectors" but we want to talk specifically
+about the geometric vectors that have a magnitude and direction.
+In particular, we're <em>not</em> talking about just an ordered pair of numbers
+(e.g.  <span class="math">\([1, 2]\)</span> in 2 dimensions).</p>
+<p>Of course, we're all familiar with representing geometric vectors as ordered
+pairs but that's probably because we're just <em>assuming</em> that we're working in
+Euclidean space where each of the indices represent the component of the basis
+vectors (e.g. <span class="math">\([1, 0]\)</span> and <span class="math">\([0, 1]\)</span> in 2 dimensions).  If we change
+basis to some other
+<a class="reference external" href="https://en.wikipedia.org/wiki/Linear_independence">linearly independent</a>
+basis, the components will change, but will the magnitude and direction change?
+<em>No!</em>  It's still the same old vector with the same magnitude and direction.
+When changing basis, we're just describing or "viewing" the vector in a
+different way but fundamentally it's still the same old vector.  Figure 1 shows
+a visualization.</p>
+<div class="figure align-center">
+<img alt="A Physical Vector" src="../../images/vector_tensor.png" style="height: 250px;"><p class="caption">Figure 1: The geometric vector A (in red) is the same regardless of what basis
+you use (source: Wikipedia).</p>
+</div>
+<p>You can see in Figure 1 that we have a vector <span class="math">\(A\)</span> (in red) that can
+be represented in two different bases: <span class="math">\(e^1, e^2\)</span> (blue) and <span class="math">\(e_1,
+e_2\)</span> (yellow) <a class="footnote-reference" href="#id4" id="id1">[1]</a>.  You can see it's the same old vector, it's just that the
+way we're describing it has changed.  In the former case, we can describe it
+as a <a class="reference external" href="https://en.wikipedia.org/wiki/Coordinate_vector">coordinate vector</a>
+by <span class="math">\([a_1, a_2]\)</span>,
+while in the latter by the coordinate vector <span class="math">\([a^1, a^2]\)</span> (note: the
+super/subscripts represent different values, not exponents, which we'll get to
+later, and you can ignore all the other stuff in the diagram).</p>
+<p>So then a geometric vector is the geometric object, <em>not</em> specifically its
+representation in a particular basis.</p>
+<div class="admonition admonition-example-1-a-geometric-vector-in-a-different-basis">
+<p class="first admonition-title">Example 1: A geometric vector in a different basis.</p>
+<p>Let's take the vector <span class="math">\(v\)</span> as <span class="math">\([a, b]\)</span> in the standard Euclidean
+basis: <span class="math">\([1, 0]\)</span> and <span class="math">\([0, 1]\)</span>.  Another way to write this is as:</p>
+<div class="math">
+\begin{equation*}
+v = a \begin{bmatrix} 1 \\ 0 \end{bmatrix}
+  + b \begin{bmatrix} 0 \\ 1 \end{bmatrix}
+\tag{1}
+\end{equation*}
+</div>
+<p>Now what happens if we <a class="reference external" href="https://en.wikipedia.org/wiki/Scaling_(geometry)">scale</a>
+our basis by <span class="math">\(2\)</span>?  This can be represented by multiplying our basis matrix
+(where each column is one of our basis vectors) by a transformation matrix:</p>
+<div class="math">
+\begin{equation*}
+\text{original basis} * \text{scaling matrix}
+=
+\begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix}
+\begin{bmatrix} 2 &amp; 0 \\ 0 &amp; 2 \end{bmatrix}
+= \begin{bmatrix} 2 &amp; 0 \\ 0 &amp; 2 \end{bmatrix}
+\tag{2}
+\end{equation*}
+</div>
+<p>So our new basis is <span class="math">\([2, 0]\)</span> and <span class="math">\([0, 2]\)</span>.  But how does our
+original vector <span class="math">\(v\)</span> get transformed?  We actually have to multiply
+by the inverse scaling matrix:</p>
+<div class="math">
+\begin{equation*}
+v =
+\begin{bmatrix} 2 &amp; 0 \\ 0 &amp; 2 \end{bmatrix}^{-1}
+\begin{bmatrix} a \\ b \end{bmatrix}
+=
+\begin{bmatrix} \frac{1}{2} &amp; 0 \\ 0 &amp; \frac{1}{2} \end{bmatrix}
+\begin{bmatrix} a \\ b \end{bmatrix}
+= \begin{bmatrix} \frac{a}{2} \\ \frac{b}{2} \end{bmatrix}
+\tag{3}
+\end{equation*}
+</div>
+<p>So our vector is represented as <span class="math">\([\frac{a}{2}, \frac{b}{2}]\)</span> in our
+new basis. We can see that this results in the exact same vector regardless of
+what basis we're talking about:</p>
+<div class="math">
+\begin{equation*}
+v = a \begin{bmatrix} 1 \\ 0 \end{bmatrix}
+  + b \begin{bmatrix} 0 \\ 1 \end{bmatrix}
+  = \frac{a}{2} \begin{bmatrix} 2 \\ 0 \end{bmatrix}
+  + \frac{b}{2} \begin{bmatrix} 0 \\ 2 \end{bmatrix}
+\tag{4}
+\end{equation*}
+</div>
+<p></p>
+<hr>
+<p>Now let's do a more complicated transform on our Euclidean basis.  Let's
+<a class="reference external" href="https://en.wikipedia.org/wiki/Rotation_matrix">rotate</a>
+the axis by 45 degrees, the transformation matrix is this:</p>
+<div class="math">
+\begin{align*}
+\text{rotation matrix}
+= \begin{bmatrix} cos(\frac{\pi}{2}) &amp; -sin(\frac{\pi}{2}) \\
+                sin(\frac{\pi}{2}) &amp; cos(\frac{\pi}{2}) \end{bmatrix}
+= \begin{bmatrix} \frac{1}{\sqrt{2}} &amp; -\frac{1}{\sqrt{2}} \\
+                  \frac{1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}}  \end{bmatrix} \\
+\tag{5}
+\end{align*}
+</div>
+<p>The <a class="reference external" href="https://en.wikipedia.org/wiki/Invertible_matrix#Inversion_of_2_%C3%97_2_matrices">inverse</a>
+of our rotation matrix is:</p>
+<div class="math">
+\begin{equation*}
+\begin{bmatrix} \frac{1}{\sqrt{2}} &amp; -\frac{1}{\sqrt{2}} \\
+                \frac{1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}}  \end{bmatrix}^{-1}
+= \frac{1}{(\frac{1}{\sqrt{2}})(\frac{1}{\sqrt{2}}) - (-\frac{1}{\sqrt{2}})(\frac{1}{\sqrt{2}})}
+   \begin{bmatrix} \frac{1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}} \\
+                -\frac{1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}}  \end{bmatrix}
+= \begin{bmatrix} \frac{1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}} \\
+                -\frac{1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}}  \end{bmatrix}
+\tag{6}
+\end{equation*}
+</div>
+<p>Therefore our vector <span class="math">\(v\)</span> can be represented in this basis
+(<span class="math">\([\frac{1}{\sqrt{2}}, \frac{1}{\sqrt{2}}], [-\frac{1}{\sqrt{2}}, \frac{1}{\sqrt{2}}]\)</span>)
+as:</p>
+<div class="math">
+\begin{align*}
+\begin{bmatrix} \frac{1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}} \\
+                  -\frac{1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}}  \end{bmatrix}
+\begin{bmatrix} a \\ b  \end{bmatrix}
+= \begin{bmatrix} \frac{a}{\sqrt{2}} + \frac{b}{\sqrt{2}} \\
+                  \frac{-a}{\sqrt{2}} + \frac{b}{\sqrt{2}}  \end{bmatrix} \\
+\tag{7}
+\end{align*}
+</div>
+<p>Which we can see is exactly the same vector as before:</p>
+<div class="last math">
+\begin{equation*}
+v = a \begin{bmatrix} 1 \\ 0 \end{bmatrix}
+  + b \begin{bmatrix} 0 \\ 1 \end{bmatrix}
+  = (\frac{a}{\sqrt{2}} + \frac{b}{\sqrt{2}})
+    \begin{bmatrix} \frac{1}{\sqrt{2}} \\ \frac{1}{\sqrt{2}} \end{bmatrix}
+  + (\frac{-a}{\sqrt{2}} + \frac{b}{\sqrt{2}})
+    \begin{bmatrix} \frac{-1}{\sqrt{2}} \\ \frac{1}{\sqrt{2}} \end{bmatrix}
+\tag{8}
+\end{equation*}
+</div>
+</div>
+<p>So Example 1 shows us how a vector represents the same thing regardless of
+what basis you happen to be working in.  As you might have guessed,
+these geometric vectors are tensors!  Since it has one physical axis,
+it is said to be a <em>rank=1</em> tensor.  A scalar is said to be a <em>rank=0</em> tensor,
+which is pretty much just a degenerate case.  Note: rank is different
+than dimension.</p>
+<p>In physics and other domains, you may want to work in a non-standard Euclidean
+basis because it's more convenient, but still want to talk about the same
+objects regardless if we're in a standard basis or not.</p>
+<p>So geometric vectors are our first step in understanding tensors.  To summarize
+some of the main points:</p>
+<ul class="simple">
+<li>Tensors can be viewed as an ordered list of numbers with respect to a basis
+but that isn't the tensor itself.</li>
+<li>They are independent of a change in basis (i.e. their representation changes
+but what they represent does not).</li>
+<li>The <em>rank</em> (or <em>degree</em> or <em>order</em>) of a tensor specifies how many axes you
+need to specify it (careful this is different than the dimensional space
+we're working in).</li>
+</ul>
+<p>Just to drive the first point home, Example 2 shows an example of a tuple
+that might look like it represents a tensor but does not.</p>
+<div class="admonition admonition-example-2-non-tensors">
+<p class="first admonition-title">Example 2: Non-Tensors</p>
+<p class="last">We can represent the height, width and length of a box as an ordered list
+of numbers: <span class="math">\([10, 20, 15]\)</span>.  However, this is not a tensor because if
+we change our basis, the height, width and length of the box don't change,
+they stay the same.  Tensors, however, have specific rules of how to change
+their representation when the basis changes.  Therefore, this tuple is not
+a tensor.</p>
+</div>
+<p><br></p>
+<h4> Covariant vs. Contravariant Tensors </h4>
+<p>In the last section, we saw how geometric vectors as tensors are invariant to
+basis transformations and how you have to multiply the inverse of the basis
+transformation matrix with the coordinates in order to maintain that invariance
+(Example 1).  Well it turns out depending on the type of tensor, how you
+"maintain" the invariance can mean different things.</p>
+<p>A geometric vector is an example of a <strong>contravariant</strong> vector because when
+changing basis, the components of the vector transform with the inverse of the
+basis transformation matrix (Example 1).  It's easy to remember it as
+"contrary" to the basis matrix.  As convention, we will usually label
+contravariant vectors with a superscript and write them as column vectors:</p>
+<div class="math">
+\begin{equation*}
+v^\alpha = \begin{bmatrix} v^0 \\ v^1 \\ v^2 \end{bmatrix}  \tag{9}
+\end{equation*}
+</div>
+<p>In Equation 9, <span class="math">\(\alpha\)</span> is <em>not</em> an exponent, instead we should think
+of it as a "loop counter", e.g. <span class="math">\(\text{for } \alpha \text{ in } 0 .. 2\)</span>.
+Similarly, the superscripts inside the vector correspond to each of the
+components in a particular basis, indexing the particular component.
+We'll see a bit later why this notation is convenient.</p>
+<p>As you might have guessed, the other type of vector is a <strong>covariant</strong> vector
+(or <strong>covector</strong> for short) because when changing basis, the components of the
+vector transform with the <em>same</em> basis transformation matrix.
+You can remember this one because it "co-varies" with the basis transformation.
+As with contravariant vectors, a covector is a tensor of rank 1.
+As convention, we will usually label covectors with a subscript and write them
+as a row vectors:</p>
+<div class="math">
+\begin{equation*}
+u_\alpha = [ v_0, v_1, v_2 ]   \tag{10}
+\end{equation*}
+</div>
+<p>Now covectors are a little bit harder to explain than contravariant vectors
+because the examples of them are more abstract than geometric vectors <a class="footnote-reference" href="#id5" id="id2">[2]</a>.
+First, they do <em>not</em> represent geometric vectors (or else they'd be
+contravariant).  Instead, we should think of them as a linear function that
+takes a vector as input (in a particular basis) and maps it to a scalar, i.e.:</p>
+<div class="math">
+\begin{equation*}
+f({\bf x}) = v_0 x_0 + v_1 x_1 + v_2 x_2 \tag{11}
+\end{equation*}
+</div>
+<p>This is an important idea: a covariant vector is an object that has an
+input (vector) and produces an output (scalar), independent of the basis you
+are in.  In contrast, a contravariant vector like a geometric vector, takes no
+input and produces an output, which is just itself (the geometric vector).
+This is a common theme we'll see in tensors: input, output, and independent of
+basis.  Let's take a look at an example of how covectors arise.</p>
+<div class="admonition admonition-example-3-a-differential-as-a-covariant-vector">
+<p class="first admonition-title">Example 3: A differential as a Covariant Vector</p>
+<p>Let's define a function and its differential in <span class="math">\(\mathbb{R}^2\)</span> in the
+standard Euclidean basis:</p>
+<div class="math">
+\begin{align*}
+f(x,y) &amp;= x^2 + y^2 \\
+df &amp;= 2x dx + 2y dy \tag{12}
+\end{align*}
+</div>
+<p>If we are given a fixed point <span class="math">\((x_0,y_0) = (1,2)\)</span>, then the differential
+evaluated at this point is:</p>
+<div class="math">
+\begin{align*}
+df_{(x_0,y_0)} &amp;= 2(1) dx + 2(2) dy \\
+            &amp;= 2dx + 4dy  \\
+g(x, y) &amp;:= 2x + 4y  &amp;&amp; \text{rename vars}\\ \tag{13}
+\end{align*}
+</div>
+<p>where in the last equation, I just relabelled things in terms of <span class="math">\(g,
+x, \text{ and } y\)</span> respectively, which makes it look exactly like a linear
+functional!</p>
+<p>As we would expect with a tensor, the "behaviour" of this covector shouldn't
+really change even if we change basis.  If we evaluate this functional
+at a geometric vector <span class="math">\(v=(a, b)\)</span> in the standard Euclidean basis,
+then of course we get <span class="math">\(g(a,b)=2a + 4b\)</span>, a scalar.  If this truly is a
+tensor, this scalar should not change even if we change our basis.</p>
+<p>Let's rotate the axis 45 degrees.  From example 1, we know the rotation matrix
+and the inverse of it:</p>
+<div class="math">
+\begin{align*}
+R := \begin{bmatrix} \frac{1}{\sqrt{2}} &amp; -\frac{1}{\sqrt{2}} \\
+                  \frac{1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}}  \end{bmatrix},
+\text{ }
+R^{-1} = \begin{bmatrix} \frac{1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}} \\
+                \frac{-1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}}  \end{bmatrix} \\
+\tag{14}
+\end{align*}
+</div>
+<p>To rotate our original point <span class="math">\((a,b)\)</span>, we multiply the inverse matrix
+by the column vector as in Equation 7 to get <span class="math">\(v\)</span> in our new basis,
+which we'll denote by <span class="math">\(v_{R}\)</span>:</p>
+<div class="math">
+\begin{align*}
+v_{R} = \begin{bmatrix} \frac{a}{\sqrt{2}} + \frac{b}{\sqrt{2}} \\
+                \frac{-a}{\sqrt{2}} + \frac{b}{\sqrt{2}}  \end{bmatrix} \\
+\tag{15}
+\end{align*}
+</div>
+<p>If you believe what I said before about covectors varying with the basis
+change, then we should just need to multiply our covector, call it
+<span class="math">\(u = [2, 4]\)</span> (as a row vector in the standard Euclidean basis) by our
+transformation matrix:</p>
+<div class="math">
+\begin{align*}
+u_{R} = u * R &amp;= [2, 4] \begin{bmatrix} \frac{1}{\sqrt{2}} &amp; -\frac{1}{\sqrt{2}} \\
+                \frac{1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}}  \end{bmatrix} \\
+    &amp;= [3\sqrt{2}, \sqrt{2}] \\
+    \tag{16}
+\end{align*}
+</div>
+<p>Evaluating <span class="math">\(v_R\)</span> at <span class="math">\(u_R\)</span>:</p>
+<div class="math">
+\begin{align*}
+u_R (v_R) &amp;= 3\sqrt{2} (\frac{a}{\sqrt{2}} + \frac{b}{\sqrt{2}})
+           + \sqrt{2} (\frac{-a}{\sqrt{2}} + \frac{b}{\sqrt{2}}) \\
+          &amp;= 3a + 3b - a + b \\
+          &amp;= 2a + 4b \\ \tag{17}
+\end{align*}
+</div>
+<p class="last">which is precisely the scalar that we got in the Euclidean basis.</p>
+</div>
+<p>Before we move on, I want to introduce some more notation to simply our lives.
+From Equation 11, using some new notation, we can re-write covector
+<span class="math">\(u_\alpha\)</span> with input geometric vector <span class="math">\(v^\alpha\)</span> (specified by
+their coordinates in the same basis) as:</p>
+<div class="math">
+\begin{equation*}
+&lt;u_\alpha, v^\alpha&gt; = \sum_{\alpha=0}^2 u_\alpha v^\alpha
+= u_0 v^0 + u_1 v^1 + u_2 v^2 = u_\alpha v^\alpha \tag{18}
+\end{equation*}
+</div>
+<p>Note as before the superscripts are <em>not</em> exponentials but rather denote
+an index.
+The last expression uses the <strong>Einstein summation convention</strong>: if the
+same "loop variable" appears once in both a lower and upper index, it means to
+implicitly sum over that variable.  This is standard notation in physics
+textbooks and makes the tedious step of writing out summations much easier.
+Also note that covectors have a subscript and contravariant vectors have a
+superscript, which allows them to "cancel out" via summation.  This becomes
+more important as we deal with higher order tensors.</p>
+<p>One last notational point is that we now know of two types of rank 1 tensors:
+contravariant vectors (e.g. geometric vectors) and covectors (or linear
+functionals).  Since they're both rank 1, we need to be a bit more precise.
+We'll usually write of a <span class="math">\((n, m)\)</span>-tensor where <span class="math">\(n\)</span> is the
+number of contravariant components and <span class="math">\(m\)</span> is the number of covariant
+components.  The rank is then the sum of <span class="math">\(m+n\)</span>.  Therefore a
+contravariant vector is a <span class="math">\((1, 0)\)</span>-tensor and a covector is a
+<span class="math">\((0, 1)\)</span>-tensor.</p>
+<p><br></p>
+<h4> Linear Transformations as Tensors </h4>
+<p>Another familiar transformation that we see is a
+<a class="reference external" href="https://en.wikipedia.org/wiki/Linear_map">linear transformation</a>
+(also called a linear map).  Linear transformations are just
+like we remember from linear algebra, basically matrices.
+<em>But</em> a linear transformation is still the same linear transformation
+when we change basis so it is also a tensor (with a matrix view being one view).</p>
+<p>Let's review a linear transformation:</p>
+<blockquote>
+<p>A function <span class="math">\(L:{\bf u} \rightarrow {\bf v}\)</span> is a linear map if for any
+two vectors <span class="math">\(\bf u, v\)</span> and any scalar <cite>c</cite>, the following two
+conditions are satisfied (linearity):</p>
+<div class="math">
+\begin{align*}
+L({\bf u} + {\bf v}) &amp;= L({\bf u}) + L({\bf v}) \\
+L(c{\bf u}) &amp;= cL({\bf u})
+\tag{19}
+\end{align*}
+</div>
+</blockquote>
+<p>One key idea here is that a linear transformation takes a vector <span class="math">\(\bf v\)</span>
+to another vector <span class="math">\(L(\bf v)\)</span> <em>in the same basis</em>.  The linear transformation
+itself has nothing to do with the basis (we of course can apply it to a basis too).
+Even though the "output" is a vector, it's analogous to the tensors we saw
+above: an object that acts on a vector and returns something, independent of
+the basis.</p>
+<p>Okay, so what kind of tensor is this?  Let's try to derive it!
+Let's suppose we have a geometric vector <span class="math">\(\bf v\)</span> and its transformed
+output <span class="math">\({\bf w} = L{\bf v}\)</span> in an original basis, where <span class="math">\(L\)</span> is our linear
+transformation (we'll use matrix notation here).
+After some change in basis via a transform <span class="math">\(T\)</span>,
+we'll end up with the same vector in the new basis <span class="math">\(\bf \tilde{v}\)</span>
+and the corresponding transformed version <span class="math">\(\tilde{\bf w} = \tilde{L}{\bf \tilde{v}}\)</span>.
+Note that since we're in a new basis, we have to use a new view of <span class="math">\(L\)</span>,
+which we label as <span class="math">\(\tilde{L}\)</span>.</p>
+<div class="math">
+\begin{align*}
+\tilde{L}{\bf \tilde{v}} &amp;= \tilde{\bf w} \\
+&amp;= T^{-1}{\bf w}  &amp;&amp; {\bf w}\text{ is contravariant} \\
+&amp;= T^{-1}L{\bf v}  &amp;&amp; \text{definition of }{\bf w} \\
+&amp;= T^{-1}LT\tilde{\bf v}  &amp;&amp; \text{since } {\bf v} = T\tilde{\bf v} \\
+\therefore \tilde{L}&amp; = T^{-1}LT \\
+\tag{20}
+\end{align*}
+</div>
+<p>The second last line comes from the fact that we're going from the new basis to the old
+basis so we use the inverse of the inverse -- the original basis transform.</p>
+<p>Equation 20 tells us something interesting, we're not just multiplying by the
+inverse transform (contravariant), nor just the forward transform (covariant),
+we're doing both, which hints that this is a (1,1)-tensor!  Indeed, this is
+our first example of a rank 2 tensor, which usually is represented as a matrix
+(e.g. 2 axes).</p>
+<div class="admonition admonition-example-4-a-linear-transformation-as-a-1-1-tensor">
+<p class="first admonition-title">Example 4: A Linear Transformation as a (1,1)-Tensor</p>
+<p>Let's start with a simple linear transformation in our standard
+Euclidean basis:</p>
+<div class="math">
+\begin{equation*}
+L = \begin{bmatrix} \frac{1}{2} &amp; 0 \\ 0 &amp; 2 \end{bmatrix}
+\tag{21}
+\end{equation*}
+</div>
+<p>Next, let's use the same 45 degree rotation for our basis as Example 1 and 2
+(which also happens to be a linear transformation):</p>
+<div class="math">
+\begin{align*}
+R := \begin{bmatrix} \frac{1}{\sqrt{2}} &amp; -\frac{1}{\sqrt{2}} \\
+                  \frac{1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}}  \end{bmatrix},
+\text{ }
+R^{-1} = \begin{bmatrix} \frac{1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}} \\
+                \frac{-1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}}  \end{bmatrix} \\
+\tag{22}
+\end{align*}
+</div>
+<p>Suppose we're applying <span class="math">\(L\)</span> to a vector <span class="math">\({\bf v}=(a, b)\)</span>, and
+then changing it into our new basis.  Recall, we would first apply
+<span class="math">\(L\)</span>, then apply a contravariant (inverse matrix) transform to get to
+our new basis:</p>
+<div class="math">
+\begin{align*}
+R^{-1}(L{\bf v}) &amp;= \begin{bmatrix} \frac{1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}} \\
+                \frac{-1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}}  \end{bmatrix}
+\Big(\begin{bmatrix} \frac{1}{2} &amp; 0 \\ 0 &amp; 2 \end{bmatrix}
+ \begin{bmatrix} a \\ b \end{bmatrix}\Big) \\
+&amp;=\begin{bmatrix} \frac{a}{2\sqrt{2}} + \sqrt{2}b \\ -\frac{a}{2\sqrt{2}} + \sqrt{2}b \end{bmatrix}
+\tag{23}
+\end{align*}
+</div>
+<p>Equation 7 tells us what <span class="math">\(\tilde{\bf v} = R^{-1}{\bf v}\)</span> is in our new basis:</p>
+<div class="math">
+\begin{equation*}
+\tilde{\bf v} = \begin{bmatrix} \frac{a}{\sqrt{2}} + \frac{b}{\sqrt{2}} \\
+                \frac{-a}{\sqrt{2}} + \frac{b}{\sqrt{2}}  \end{bmatrix}  \tag{24}
+\end{equation*}
+</div>
+<p>Applying Equation 20 to <span class="math">\(L\)</span> gives us:</p>
+<div class="math">
+\begin{align*}
+\tilde{L} &amp;= R^{-1}LR \\
+&amp;=
+\begin{bmatrix} \frac{1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}} \\
+                \frac{-1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}}  \end{bmatrix}
+\begin{bmatrix} \frac{1}{2} &amp; 0 \\ 0 &amp; 2 \end{bmatrix}
+\begin{bmatrix} \frac{1}{\sqrt{2}} &amp; -\frac{1}{\sqrt{2}} \\
+                \frac{1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}}  \end{bmatrix} \\
+&amp;= \begin{bmatrix} \frac{5}{4} &amp; \frac{3}{4} \\
+                \frac{3}{4} &amp; \frac{5}{4}  \end{bmatrix}\\
+\tag{25}
+\end{align*}
+</div>
+<p>Applying <span class="math">\(\tilde{L}\)</span> to  <span class="math">\(\tilde{\bf v}\)</span>:</p>
+<div class="math">
+\begin{align*}
+\tilde{L}\tilde{\bf v} &amp;=
+\begin{bmatrix} \frac{5}{4} &amp; \frac{3}{4} \\
+                \frac{3}{4} &amp; \frac{5}{4}  \end{bmatrix}
+\begin{bmatrix} \frac{a}{\sqrt{2}} + \frac{b}{\sqrt{2}} \\
+                \frac{-a}{\sqrt{2}} + \frac{b}{\sqrt{2}}  \end{bmatrix} \\
+&amp;= \begin{bmatrix} \frac{5a}{4\sqrt{2}} + \frac{5b}{4\sqrt{2}}
+                  - \frac{3a}{4\sqrt{2}} + \frac{3b}{4\sqrt{2}} \\
+                    \frac{3a}{4\sqrt{2}} + \frac{3b}{4\sqrt{2}}
+                  - \frac{5a}{4\sqrt{2}} + \frac{5b}{4\sqrt{2}}
+ \end{bmatrix} \\
+&amp;=\begin{bmatrix} \frac{a}{2\sqrt{2}} + \sqrt{2}b \\ -\frac{a}{2\sqrt{2}} + \sqrt{2}b \end{bmatrix} \\
+\tag{26}
+\end{align*}
+</div>
+<p class="last">which we can see is the same as Equation 23.</p>
+</div>
+<p><br></p>
+<h4> Bilinear Forms </h4>
+<p>We'll start off by introducing a not-so-familiar idea (at least by name)
+called the <a class="reference external" href="https://en.wikipedia.org/wiki/Bilinear_form">bilinear form</a>.
+Let's take a look at the definition with respect to vector spaces:</p>
+<blockquote>
+<p>A function <span class="math">\(B:{\bf u, v} \rightarrow \mathbb{R}\)</span> is a bilinear form for two
+input vectors <span class="math">\(\bf u, v\)</span>, if for any other vector <span class="math">\(\bf w\)</span> and
+scalar <span class="math">\(\lambda\)</span>, the following conditions are satisfied (linearity):</p>
+<div class="math">
+\begin{align*}
+B({\bf u} + {\bf w}, {\bf v}) &amp;= B({\bf u}, {\bf v}) + B({\bf w}, {\bf v}) \\
+B(\lambda{\bf u}, {\bf v}) &amp;= \lambda B({\bf u}, {\bf v})\\
+B({\bf u}, {\bf v} + {\bf w}) &amp;= B({\bf u}, {\bf v}) + B({\bf u}, {\bf w}) \\
+B({\bf u}, \lambda{\bf v}) &amp;= \lambda B({\bf u}, {\bf v})\\
+\tag{27}
+\end{align*}
+</div>
+</blockquote>
+<p>All this is really saying is that we have a function that maps two geometric
+vectors to the real numbers, and that it's "linear" in both its
+inputs (separately, not at the same time) , hence the name "bilinear".  So
+again, we see this pattern: a tensor takes some input and maps it to some
+output that is independent of a change in basis.</p>
+<p>Similar to linear transformations, we can represent bilinear forms as a matrix
+<span class="math">\(A\)</span>:</p>
+<div class="math">
+\begin{equation*}
+B({\bf u}, {\bf v}) = {\bf u^T}A{\bf v} = \sum_{i,j=1}^n a_{i,j}u_i v_j = A_{i,j}u^iv^j \tag{28}
+\end{equation*}
+</div>
+<p>where in the last expression I'm using Einstein notation to indicate that <span class="math">\(A\)</span>
+is a rank (0, 2)-tensor, and <span class="math">\({\bf u, v}\)</span> are both (1, 0)-tensors (contravariant).</p>
+<p>So let's see how we can show that this is actually a (0, 2)-tensor (two
+covector components).  We should expect that when changing basis we'll need to
+multiply by the basis transform twice ("with the basis"), along the same lines
+as the linear transformation in the previous section, except with two covector
+components now.
+We'll use Einstein notation here, but you can check out Appendix A for the equivalent
+matrix multiplication operation.</p>
+<p>Let <span class="math">\(B\)</span> be our bilinear, <span class="math">\(\bf u, v\)</span> geometric vectors, <span class="math">\(T\)</span> our basis
+transform, and <span class="math">\(\tilde{B}, \tilde{\bf u}, \tilde{\bf v}\)</span> our post-transformed
+bilinear form and vectors, respectively.  Here's how we can show that the
+bilinear transforms like a (0,2)-tensor:</p>
+<div class="math">
+\begin{align*}
+ \tilde{B}_{ij}\tilde{u}^i\tilde{v}^j &amp;= B_{ij}u^iv^j &amp;&amp; \text{output scalar same in any basis} \\
+ &amp;= B_{ij}T_k^i \tilde{u}^i T^j_l \tilde{v}^j &amp;&amp; u^i=T^i_k \tilde{u}^k \\
+ &amp;= B_{ij}T_k^i T^j_l \tilde{u}^i \tilde{v}^j &amp;&amp; \text{re-arrange summations}\\
+ \therefore \tilde{B}_{ij}&amp; = B_{ij}T_k^i T^j_l \\
+\tag{29}
+\end{align*}
+</div>
+<p>As you can see we transform "with" the change in basis, so we get a (0, 2)-tensor.
+Einstein notation is also quite convenient (once you get used to it)!</p>
+<p><br></p>
+<h4> The Metric Tensor </h4>
+<p>Before we finish talking about tensors, I need to introduce to you one of the
+most important tensors around: the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Metric_tensor">Metric Tensor</a>.
+In fact, it's probably one of the top reasons people start to learn about tensors
+(and the main motivation for this post).</p>
+<p>The definition is a lot simpler because it's just a special kind of bilinear <a class="footnote-reference" href="#id6" id="id3">[3]</a>:</p>
+<blockquote>
+<p>A metric tensor at a point <span class="math">\(p\)</span> is a function <span class="math">\(g_p({\bf x}_p, {\bf y}_p)\)</span>
+which takes a pair of (tangent) vectors <span class="math">\({\bf x}_p, {\bf y}_p\)</span> at <span class="math">\(p\)</span>
+and produces a real number such that:</p>
+<ul class="simple">
+<li>
+<span class="math">\(g_p\)</span> is bilinear (see previous definition)</li>
+<li>
+<span class="math">\(g_p\)</span> is symmetric: <span class="math">\(g_p({\bf x}_p, {\bf y}_p) = g_p({\bf y}_p, {\bf x}_p)\)</span>
+</li>
+<li>
+<span class="math">\(g_p\)</span> is nondegenerate.  For every <span class="math">\({\bf x_p} \neq 0\)</span> there exists
+<span class="math">\({\bf y_p}\)</span> such that <span class="math">\(g_p({\bf x_p}, {\bf y_p}) \neq 0\)</span>
+</li>
+</ul>
+</blockquote>
+<p>Don't worry so much about the "tangent" part, I'm glossing over parts of it
+which aren't directly relevant to this tensor discussion.</p>
+<p>The metric tensor is important because it helps us (among other things) define
+distance and angle between two vectors in a basis independent manner.  In the
+simplest case, it's exactly our good old dot product operation from standard
+Euclidean space.  But of course, we want to generalize this concept a little
+bit so we still have the same "operation" under a change of basis i.e. the
+resultant scalar we produce should be the same.  Let's take a look.</p>
+<p>In Euclidean space, the dot product (whose generalization is called the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Inner_product_space">inner product</a>)
+for two vectors <span class="math">\({\bf u}, {\bf v}\)</span> is defined as:</p>
+<div class="math">
+\begin{equation*}
+{\bf u}\cdot{\bf v} = \sum_{i=1}^n u_i v_i \tag{30}
+\end{equation*}
+</div>
+<p>However, for the metric tensor <span class="math">\(g\)</span> this can we re-written as:</p>
+<div class="math">
+\begin{equation*}
+{\bf u}\cdot{\bf v} = g({\bf u},{\bf v}) = g_{ij}u^iv^j
+    = [u^1, u^2]
+    \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix}
+    \begin{bmatrix} v^1 \\ v^0 \end{bmatrix} \tag{31}
+\end{equation*}
+</div>
+<p>where in the last expression I substituted the metric tensor in standard
+Euclidean space.  That is, the metric tensor in the standard Euclidean basis is
+just the identity matrix:</p>
+<div class="math">
+\begin{equation*}
+g_{ij} = I_n \tag{32}
+\end{equation*}
+</div>
+<p>So now that we have a dot-product-like operation, we can define our
+basis-independent definition of length of a vector, distance between two
+vectors and angle between two vectors:</p>
+<div class="math">
+\begin{align*}
+||u|| = \sqrt{g_{ij} u^i u^j} \\
+d(u, v) = \sqrt{g_{ij} u^i v^j} \\
+cos(\theta) = \frac{g_{ij} u^i v^j}{||{\bf u}|| ||{\bf v}||} \\
+\tag{33}
+\end{align*}
+</div>
+<p>The next example shows that the distance and angle are truly invariant between
+a change in basis if we use our new metric tensor definition.</p>
+<div class="admonition admonition-example-5-computing-distance-and-angle-with-the-metric-tensor">
+<p class="first admonition-title">Example 5: Computing Distance and Angle with the Metric Tensor</p>
+<p>Let's begin by defining two vectors in our standard Euclidean basis:</p>
+<div class="math">
+\begin{equation*}
+{\bf u} = \begin{bmatrix} 1 \\ 1 \end{bmatrix},
+{\bf v} = \begin{bmatrix} 2 \\ 0 \end{bmatrix} \tag{34}
+\end{equation*}
+</div>
+<p>Using our standard (non-metric tensor) method for computing distance and
+angle:</p>
+<div class="math">
+\begin{align*}
+d({\bf u}, {\bf v}) &amp;= \sqrt{({\bf u - v})({\bf u - v})} = \sqrt{(2 - 1)^2 + (0 - 1)^2}  = \sqrt{2} \\
+cos(\theta) &amp;= \frac{{\bf u}\cdot {\bf v}}{||{\bf u}|| ||{\bf v}||} = \frac{2(1) + 1(0)}{(\sqrt{1^2 + 1^2})(\sqrt{2^2 + 0^2})} = \frac{1}{\sqrt{2}}  \\
+\theta &amp;= 45^{\circ}
+\tag{35}
+\end{align*}
+</div>
+<p>Now, let's try to change our basis.  To show something a bit more
+interesting than rotating the axis, let's try to change to a basis
+of <span class="math">\([2, 1]\)</span> and <span class="math">\([-\frac{1}{2}, \frac{1}{4}]\)</span>.  To
+change basis (from a standard Euclidean basis), the transform we need to
+apply is:</p>
+<div class="math">
+\begin{equation*}
+T = \begin{bmatrix} 2 &amp; -\frac{1}{2} \\ 1 &amp; \frac{1}{4} \end{bmatrix},
+T^{-1} = \begin{bmatrix} \frac{1}{4} &amp; \frac{1}{2} \\ -1 &amp; 2 \end{bmatrix}
+\tag{36}
+\end{equation*}
+</div>
+<p>As you can see, it's just concatenating the column vectors of our new basis
+side-by-side in this case (when transforming from a standard Euclidean
+space).  With these vectors, we can transform our <span class="math">\({\bf u}, {\bf v}\)</span>
+to the new basis vectors <span class="math">\(\tilde{\bf u}, \tilde{\bf v}\)</span> as shown:</p>
+<div class="math">
+\begin{align*}
+\tilde{\bf u} &amp;= T^{-1} {\bf u} =
+        \begin{bmatrix} \frac{1}{4} &amp; \frac{1}{2} \\ -1 &amp; 2 \end{bmatrix}
+        \begin{bmatrix} 1 \\ 1 \end{bmatrix}
+    = \begin{bmatrix} \frac{3}{4} \\ 1 \end{bmatrix} \\
+\tilde{\bf v} &amp;= T^{-1} {\bf v} =
+        \begin{bmatrix} \frac{1}{4} &amp; \frac{1}{2} \\ -1 &amp; 2 \end{bmatrix}
+        \begin{bmatrix} 2 \\ 0 \end{bmatrix}
+    = \begin{bmatrix} \frac{1}{2} \\ -2 \end{bmatrix}
+\tag{37}
+\end{align*}
+</div>
+<p>Before we move on, let's see if using our standard Euclidean distance function
+will work in this new basis:</p>
+<div class="math">
+\begin{equation*}
+\sqrt{({\bf \tilde{u} - \tilde{v}})({\bf \tilde{u} - \tilde{v}})}
+= \sqrt{(\frac{3}{4} - \frac{1}{2})^2 + (1 - (-2))^2}
+= \sqrt{\frac{145}{16}} \approx 3.01 \tag{38}
+\end{equation*}
+</div>
+<p>As we can see, the Pythagorean method only works in the standard Euclidean
+basis (because it's orthonormal), once we change basis we have to account
+for the distortion of the transform.</p>
+<p>Now back to our metric tensor, we can transform our metric tensor
+(<span class="math">\(g\)</span>) to the new basis (<span class="math">\(\tilde{g}\)</span>) using the forward "with
+basis" transform (switching to Einstein notation):</p>
+<div class="math">
+\begin{equation*}
+\tilde{\bf g}_{ij} = T^k_i T^l_j g_{kl} =
+        \begin{bmatrix} 2 &amp; 1 \\ -\frac{1}{2} &amp; \frac{1}{4} \end{bmatrix}
+        \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix}
+        \begin{bmatrix} 2 &amp;  -\frac{1}{2} \\ 1 &amp; \frac{1}{4} \end{bmatrix}
+= \begin{bmatrix} 5 &amp; -\frac{3}{4} \\ -\frac{3}{4} &amp; \frac{5}{16} \end{bmatrix}
+\tag{39}
+\end{equation*}
+</div>
+<p>Calculating the angle and distance using Equation 33:</p>
+<div class="math">
+\begin{align*}
+d(\tilde{\bf u}, \tilde{\bf v})
+&amp;= \sqrt{\tilde{g_{ij}} \tilde{u}^i \tilde{v}^j }
+= \sqrt{
+        \begin{bmatrix} \frac{3}{4} &amp; 1 \end{bmatrix}
+        \begin{bmatrix} 5 &amp; -\frac{3}{4} \\ -\frac{3}{4} &amp; \frac{5}{16} \end{bmatrix}
+        \begin{bmatrix} \frac{1}{2} \\ -2 \end{bmatrix}
+    }
+= \sqrt{2} \\
+||\tilde{\bf u}||
+&amp;= \sqrt{\tilde{g_{ij}} \tilde{u}^i \tilde{u}^j }
+= \sqrt{
+        \begin{bmatrix} \frac{3}{4} &amp; 1 \end{bmatrix}
+        \begin{bmatrix} 5 &amp; -\frac{3}{4} \\ -\frac{3}{4} &amp; \frac{5}{16} \end{bmatrix}
+        \begin{bmatrix} \frac{3}{4} \\ 1 \end{bmatrix}
+    }
+= \sqrt{2} \\
+||\tilde{\bf v}||
+&amp;= \sqrt{\tilde{g_{ij}} \tilde{v}^i \tilde{v}^j }
+= \sqrt{
+        \begin{bmatrix} \frac{1}{2} &amp; -2 \end{bmatrix}
+        \begin{bmatrix} 5 &amp; -\frac{3}{4} \\ -\frac{3}{4} &amp; \frac{5}{16} \end{bmatrix}
+        \begin{bmatrix} \frac{1}{2} \\ -2 \end{bmatrix}
+    }
+= 2 \\
+cos(\theta) &amp;= \frac{\tilde{g_{ij}} \tilde{u}^i \tilde{v}^j}{||\tilde{\bf u}||||\tilde{\bf v}||}
+= \frac{2}{(\sqrt{2})(2)} = \frac{1}{\sqrt{2}} \\
+\theta &amp;= 45^{\circ} \\
+\tag{40}
+\end{align*}
+</div>
+<p class="last">which line up with the calculations we did in our original basis.</p>
+</div>
+<p>The metric tensor comes up a lot in many different contexts (look out for
+future posts) because it helps define what we mean by "distance" and "angle".
+Again, I'd encourage you to check out the videos in [1].  He's got a dozen or
+so videos with some great derivations and intuition on the subject.  It goes in
+a bit more depth than this post but still in a very clear manner.</p>
+<p><br></p>
+<h4> Summary: A Tensor is a Tensor </h4>
+<p>So, let's review a bit about tensors:</p>
+<ul class="simple">
+<li>A <strong>tensor</strong> is an object that takes an input tensor (or none at all in the
+case of geometric vectors) and produces an output tensor that is <em>invariant</em>
+under a change of basis, and whose coordinates change in a <em>special,
+predictable</em> way when changing basis.</li>
+<li>A tensor can have <strong>contravariant</strong> and <strong>covariant</strong> components corresponding
+to the components of the tensor transforming <em>against</em> or <em>with</em> the change of basis.</li>
+<li>The <strong>rank</strong> (or degree or order) of a tensor is the number of "axes" or
+components it has (not to be confused with the dimension of each "axis").</li>
+<li>A <span class="math">\((n, m)\)</span>-tensor has <span class="math">\(n\)</span> contravariant components and <span class="math">\(m\)</span>
+covariant components with rank <span class="math">\(n+m\)</span>.</li>
+</ul>
+<p>We've looked at four different types of tensors:</p>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="43%">
+<col width="14%">
+<col width="43%">
+</colgroup>
+<thead valign="bottom"><tr>
+<th class="head">Tensor</th>
+<th class="head">Type</th>
+<th class="head">Example</th>
+</tr></thead>
+<tbody valign="top">
+<tr>
+<td>Contravariant Vectors (vectors)</td>
+<td>(1, 0)</td>
+<td>Geometric (Euclidean) vectors</td>
+</tr>
+<tr>
+<td>Covariant Vectors</td>
+<td>(0, 1)</td>
+<td>Linear Functionals</td>
+</tr>
+<tr>
+<td>Linear Map</td>
+<td>(1, 1)</td>
+<td>Linear Transformations</td>
+</tr>
+<tr>
+<td>Bilinear Form</td>
+<td>(0, 2)</td>
+<td>Metric Tensor</td>
+</tr>
+</tbody>
+</table>
+<p>And that's all I have to say about tensors!  Like most things in mathematics,
+the idea is actually quite intuitive but the math causes a lot of confusion, as
+does its ambiguous use.  TensorFlow is such a cool name but doesn't exactly do
+tensors justice.  Anyways, in the next post, I'll be continuing to diverge from
+the typical ML topics and write about some adjacent math-y topics that pop up
+in ML.</p>
+<p><br></p>
+<h4> 5. Further Reading </h4>
+<ul class="simple">
+<li>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Tensor_(disambiguation)">Tensors</a>,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Metric_tensor">Metric Tensor</a>,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Covariance_and_contravariance_of_vectors">Covariance and contravariance of vectors</a>,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Vector_(mathematics_and_physics)">Vector</a>
+</li>
+<li>[1] <a class="reference external" href="https://www.youtube.com/playlist?list=PLJHszsWbB6hrkmmq57lX8BV-o-YIOFsiG">Tensors for Beginners (YouTube playlist)</a>, eigenchris</li>
+<li>[2] <a class="reference external" href="http://www.markushanke.net/tensors-for-laypeople/">Tensors for Laypeople</a>, Markus Hanke</li>
+<li>[3] <a class="reference external" href="https://www.grc.nasa.gov/www/k-12/Numbers/Math/documents/Tensors_TM2002211716.pdf">An Introduction for Tensors for Students of Physics and Engineering</a>
+</li>
+</ul>
+<p><br></p>
+<h4> Appendix A: Showing a Bilinear is a (0,2)-Tensor using Matrix Notation </h4>
+<p>Let <span class="math">\(B\)</span> be our bilinear, <span class="math">\(\bf u, v\)</span> geometric vectors,
+<span class="math">\(R\)</span> our basis transform, and <span class="math">\(\tilde{B}, \tilde{\bf u}, \tilde{\bf v}\)</span> our
+post-transformed bilinear and vectors, respectively.  Here's how we can show
+that the bilinear transforms like a (0,2)-tensor using matrix notation:</p>
+<div class="math">
+\begin{align*}
+ \tilde{\bf u}^T \tilde{B} \tilde{\bf v} &amp;= {\bf u}^T B {\bf v} &amp;&amp; \text{output scalar same in any basis} \\
+ &amp;= (R\tilde{\bf u})^T B R\tilde{\bf v} &amp;&amp; {\bf u}=R\tilde{\bf u}\\
+ &amp;= \tilde{\bf u}^TR^T B R\tilde{\bf v}  \\
+ &amp;= \tilde{\bf u}^T (R^T B R)\tilde{\bf v}  \\
+ \therefore \tilde{B} &amp; = R^T B R \\
+\tag{A.1}
+\end{align*}
+</div>
+<p>Note: that we can only write out the matrix representation because we're still
+using rank 2 tensors. When working with higher order tensors, we can't fall back
+on our matrix algebra anymore.</p>
+<table class="docutils footnote" frame="void" id="id4" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
+<td>This is not exactly the best example because it's showing a vector in both contravariant and tangent covector space, which is not exactly the point I'm trying to make here.  But the idea is basically the same: the vector is the same object regardless of what basis you use.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id5" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="#id2">[2]</a></td>
+<td>There is a <a class="reference external" href="https://en.wikipedia.org/wiki/Linear_form#Visualizing_linear_functionals">geometric interpretation of covectors</a> are parallel surfaces and the contravariant vectors "piercing" these surfaces.  I don't really like this interpretation because it's kind of artificial and doesn't have any physical analogue that I can think of.</td>
+</tr></tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id6" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="#id3">[3]</a></td>
+<td>Actually the metric tensor is usually defined more generally in terms of manifolds but I've simplified it here because I haven't quite got to that topic yet!</td>
+</tr></tbody>
+</table>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/bilinear/" rel="tag">bilinear</a></li>
+            <li><a class="tag p-category" href="../../categories/contravariance/" rel="tag">contravariance</a></li>
+            <li><a class="tag p-category" href="../../categories/covariance/" rel="tag">covariance</a></li>
+            <li><a class="tag p-category" href="../../categories/covectors/" rel="tag">covectors</a></li>
+            <li><a class="tag p-category" href="../../categories/geometric-vectors/" rel="tag">geometric vectors</a></li>
+            <li><a class="tag p-category" href="../../categories/linear-transformations/" rel="tag">linear transformations</a></li>
+            <li><a class="tag p-category" href="../../categories/metric-tensor/" rel="tag">metric tensor</a></li>
+            <li><a class="tag p-category" href="../../categories/tensors/" rel="tag">tensors</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../residual-networks/" rel="prev" title="Residual Networks">Previous post</a>
+            </li>
+        </ul></nav></aside><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+            MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
+            </script></article>
+</div>
+            <div class="col-md-3 well">
+            <p>
+            I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
+            a former academic, current data scientist and engineer.  This is
+            <a href="../../">the place</a>
+            where I write
+            about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br><p>
+            <a href="../../archive.html">Archive</a>
+            </p>
+            <p>
+            <a href="../../categories/index.html">Tags</a>
+            </p>
+            <p>
+            <a href="../../rss.xml">RSS feed</a>
+            </p>
+
+<!-- Begin MailChimp Signup Form -->
+<hr>
+<link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+    #mc_embed_signup{clear:left; font:13px Helvetica,Arial,sans-serif; }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+       We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="//briankeng.us10.list-manage.com/subscribe/post?u=cedf72ca8daa891e57f4379a0&amp;id=1f1563094f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <b>Signup for Email Blog Posts</b>
+    <div id="mc_embed_signup_scroll">
+<div>
+    <label for="mce-EMAIL"> Email Address </label>
+    <input type="email" value="" name="EMAIL" class="required email form-control input-sm" id="mce-EMAIL">
+</div>
+    <div id="mce-responses" class="clear">
+        <div class="response" id="mce-error-response" style="display:none"></div>
+        <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_cedf72ca8daa891e57f4379a0_1f1563094f" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn btn-default btn-xs"></div>
+    </div>
+</form>
+</div>
+<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
+</div>
+        </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2018         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+        </footer>
+</div>
+</div>
+
+
+            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-15314898-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>
