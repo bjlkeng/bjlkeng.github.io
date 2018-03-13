@@ -1,7 +1,7 @@
 .. title: Tensors, Tensors, Tensors
 .. slug: tensors-tensors-tensors
-.. date: 2018-03-12 07:24:57 UTC-05:00
-.. tags: tensors, mathjax
+.. date: 2018-03-13 08:24:57 UTC-05:00
+.. tags: tensors, metric tensor, bilinear, linear transformations, geometric vectors, covectors, covariance, contravariance, mathjax
 .. category: 
 .. link: 
 .. description: A quick introduction to tensors for the uninitiated.
@@ -48,9 +48,10 @@ learning papers but for those of us who weren't physics or math majors
 So on my most recent vacation, I started reading a variety of sources on the
 interweb trying to piece together a picture of what tensors were all
 about.  As usual, I'll skip the heavy formalities (partly because I probably
-couldn't do them justice) and try to explain the intuition instead using more
-basic maths.  I'll sprinkle in a bunch of examples and also try to relate it
-back to ML where possible.  Hope you like it!
+couldn't do them justice) and instead try to explain the intuition using my
+usual approach of examples and more basic maths.  I'll sprinkle in a bunch of
+examples and also try to relate it back to ML where possible.  Hope you like
+it!
 
 .. TEASER_END
 
@@ -58,9 +59,9 @@ back to ML where possible.  Hope you like it!
 |h2| A Tensor by Any Other Name |h2e|
 
 For newcomers to ML, the term "tensor" has to be one of the top ten confusing
-terms in ML.  Not only because the term is new, but also because it's used
+terms.  Not only because the term is new, but also because it's used
 ambiguously with other branches of mathematics and physics!  In ML, it's
-often colloquially used interchangeably with a multidimensional array.  That's
+colloquially used interchangeably with a multidimensional array.  That's
 what people usually mean when they talk about "tensors" in the context of
 things like TensorFlow.  However, tensors as multidimensional arrays is just
 one very narrow "view" of a tensor, tensors (mathematically speaking) are much
@@ -80,11 +81,11 @@ about the geometric vectors that have a magnitude and direction.
 In particular, we're *not* talking about just an ordered pair of numbers 
 (e.g.  :math:`[1, 2]` in 2 dimensions).
 
-Of course, we're all familiar with representing vectors as ordered pairs
-but that's probably because we're just *assuming* that we're working in
+Of course, we're all familiar with representing geometric vectors as ordered
+pairs but that's probably because we're just *assuming* that we're working in
 Euclidean space where each of the indices represent the component of the basis
-vectors (e.g. :math:`[1, 0]` and :math:`[0, 1]` in 2 dimensions).
-If we change basis to some other 
+vectors (e.g. :math:`[1, 0]` and :math:`[0, 1]` in 2 dimensions).  If we change
+basis to some other 
 `linearly independent <https://en.wikipedia.org/wiki/Linear_independence>`__
 basis, the components will change, but will the magnitude and direction change?
 *No!*  It's still the same old vector with the same magnitude and direction.
@@ -108,8 +109,8 @@ way we're describing it has changed.  In the former case, we can describe it
 as a `coordinate vector <https://en.wikipedia.org/wiki/Coordinate_vector>`__
 by :math:`[a_1, a_2]`,
 while in the latter by the coordinate vector :math:`[a^1, a^2]` (note: the
-super/subscripts represent different values, which we'll get to, and you can
-ignore all the other stuff in the diagram).
+super/subscripts represent different values, not exponents, which we'll get to
+later, and you can ignore all the other stuff in the diagram).
 
 So then a geometric vector is the geometric object, *not* specifically its
 representation in a particular basis.
@@ -263,7 +264,7 @@ transformation matrix with the coordinates in order to maintain that invariance
 (Example 1).  Well it turns out depending on the type of tensor, how you
 "maintain" the invariance can mean different things.
 
-A geometric vector is an example a **contravariant** vector because when
+A geometric vector is an example of a **contravariant** vector because when
 changing basis, the components of the vector transform with the inverse of the
 basis transformation matrix (Example 1).  It's easy to remember it as
 "contrary" to the basis matrix.  As convention, we will usually label
@@ -271,7 +272,7 @@ contravariant vectors with a superscript and write them as column vectors:
 
 .. math::
     
-    v^\alpha = \begin{bmatrix} v^0 \\ v_1 \\ v_2 \end{bmatrix}  \tag{9}
+    v^\alpha = \begin{bmatrix} v^0 \\ v^1 \\ v^2 \end{bmatrix}  \tag{9}
 
 In Equation 9, :math:`\alpha` is *not* an exponent, instead we should think
 of it as a "loop counter", e.g. :math:`\text{for } \alpha \text{ in } 0 .. 2`.
@@ -361,8 +362,8 @@ basis.  Let's take a look at an example of how covectors arise.
         \tag{15}
 
     If you believe what I said before about covectors varying with the basis
-    change, then we should just need to multiple our covector, call it
-    :math:`u` (as a column vector in the standard Euclidean basis) by our
+    change, then we should just need to multiply our covector, call it
+    :math:`u = [2, 4]` (as a row vector in the standard Euclidean basis) by our
     transformation matrix:
 
     .. math::
@@ -418,7 +419,7 @@ contravariant vector is a :math:`(1, 0)`-tensor and a covector is a
 Another familiar transformation that we see is a 
 `linear transformation <https://en.wikipedia.org/wiki/Linear_map>`__
 (also called a linear map).  Linear transformations are just
-like we remember from linear algebra: as matrices.
+like we remember from linear algebra, basically matrices.
 *But* a linear transformation is still the same linear transformation
 when we change basis so it is also a tensor (with a matrix view being one view).
 
@@ -436,9 +437,9 @@ Let's review a linear transformation:
 One key idea here is that a linear transformation takes a vector :math:`\bf v`
 to another vector :math:`L(\bf v)` *in the same basis*.  The linear transformation
 itself has nothing to do with the basis (we of course can apply it to a basis too).
-Even though the "output" is a vector, it's analogous to covectors (or
-linear functionals) we saw above: an object that acts on a vector and returns
-something, independent of the basis.
+Even though the "output" is a vector, it's analogous to the tensors we saw
+above: an object that acts on a vector and returns something, independent of
+the basis.
 
 Okay, so what kind of tensor is this?  Let's try to derive it!
 Let's suppose we have a geometric vector :math:`\bf v` and its transformed
@@ -505,7 +506,7 @@ our first example of a rank 2 tensor, which usually is represented as a matrix
         &=\begin{bmatrix} \frac{a}{2\sqrt{2}} + \sqrt{2}b \\ -\frac{a}{2\sqrt{2}} + \sqrt{2}b \end{bmatrix}
         \tag{23}
         
-    Equation 7 tells use what :math:`\tilde{\bf v} = R^{-1}{\bf v}` is in our new basis:
+    Equation 7 tells us what :math:`\tilde{\bf v} = R^{-1}{\bf v}` is in our new basis:
 
     .. math:: 
         \tilde{\bf v} = \begin{bmatrix} \frac{a}{\sqrt{2}} + \frac{b}{\sqrt{2}} \\ 
@@ -548,12 +549,12 @@ our first example of a rank 2 tensor, which usually is represented as a matrix
 |h2| Bilinear Forms |h2e|
 
 We'll start off by introducing a not-so-familiar idea (at least by name)
-called the *bilinear form*.  Let's take a look at the definition with
-respect to vector spaces:
+called the `bilinear form <https://en.wikipedia.org/wiki/Bilinear_form>`__.
+Let's take a look at the definition with respect to vector spaces:
 
     A function :math:`B:{\bf u, v} \rightarrow \mathbb{R}` is a bilinear form for two
     input vectors :math:`\bf u, v`, if for any other vector :math:`\bf w` and
-    scalar `\lambda`, the following conditions are satisfied (linearity):
+    scalar :math:`\lambda`, the following conditions are satisfied (linearity):
 
     .. math::
         B({\bf u} + {\bf w}, {\bf v}) &= B({\bf u}, {\bf v}) + B({\bf w}, {\bf v}) \\
@@ -576,7 +577,7 @@ Similar to linear transformations, we can represent bilinear forms as a matrix
     B({\bf u}, {\bf v}) = {\bf u^T}A{\bf v} = \sum_{i,j=1}^n a_{i,j}u_i v_j = A_{i,j}u^iv^j \tag{28}
 
 where in the last expression I'm using Einstein notation to indicate that :math:`A`
-is a rank (0, 2)-tensor, :math:`{\bf u, v}` are both (1, 0)-tensors (contravariant).
+is a rank (0, 2)-tensor, and :math:`{\bf u, v}` are both (1, 0)-tensors (contravariant).
 
 So let's see how we can show that this is actually a (0, 2)-tensor (two
 covector components).  We should expect that when changing basis we'll need to
@@ -644,9 +645,9 @@ However, for the metric tensor :math:`g` this can we re-written as:
 .. math::
 
     {\bf u}\cdot{\bf v} = g({\bf u},{\bf v}) = g_{ij}u^iv^j 
-        = [u^1 u^2] 
+        = [u^1, u^2] 
         \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} 
-        \begin{bmatrix} v^1 v^0 \end{bmatrix} \tag{31}
+        \begin{bmatrix} v^1 \\ v^0 \end{bmatrix} \tag{31}
 
 where in the last expression I substituted the metric tensor in standard
 Euclidean space.  That is, the metric tensor in the standard Euclidean basis is
@@ -691,7 +692,7 @@ a change in basis if we use our new metric tensor definition.
 
     Now, let's try to change our basis.  To show something a bit more
     interesting than rotating the axis, let's try to change to a basis
-    of :math:`(2, 1)` and :math:`(-\frac{1}{2}, \frac{1}{4})`.  To  
+    of :math:`[2, 1]` and :math:`[-\frac{1}{2}, \frac{1}{4}]`.  To  
     change basis (from a standard Euclidean basis), the transform we need to
     apply is:
 
@@ -780,7 +781,7 @@ a change in basis if we use our new metric tensor definition.
     which line up with the calculations we did in our original basis.
 
 The metric tensor comes up a lot in many different contexts (look out for
-future posts) because it helps define what we mean by "distance" and "angle.
+future posts) because it helps define what we mean by "distance" and "angle".
 Again, I'd encourage you to check out the videos in [1].  He's got a dozen or
 so videos with some great derivations and intuition on the subject.  It goes in
 a bit more depth than this post but still in a very clear manner. 
