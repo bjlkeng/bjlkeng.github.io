@@ -55,7 +55,7 @@ mani-like it!
 .. TEASER_END
 
 
-|h2| Manifold Intuition |h2e|
+|h2| Manifold Motivation |h2e|
 
 The first place most ML people hear about this term is in the 
 `manifold hypothesis <https://www.quora.com/What-is-the-Manifold-Hypothesis-in-Deep-Learning>`__:
@@ -78,6 +78,7 @@ all the technical details (also because I'm not very qualified to do so), but
 we'll see that the differential and Riemannian manifolds are surprisingly
 intuitive (in low dimensions at least) once you get the hang (or should I say
 twist) of things.
+
 
 |h3| Circles and Spheres as Manifolds |h3e|
 
@@ -181,70 +182,144 @@ which I took from [1]:
     * A set of charts, :math:`\{\varphi_\alpha | \alpha \in \mathbb{N}\}`, with domains :math:`U_\alpha`
       is called the **atlas** of M, if :math:`\bigcup\limits_{\alpha \in \mathbb{N}} U_\alpha = M`.
    
-This is hard to understand especially because a Hausdorff space is never
-defined.  That's not too important because we're not going to go into the
+This definition is hard to understand especially because a Hausdorff space is
+never defined.  That's not too important because we're not going to go into the
 topological formalities, the most important parts are the new terminology,
-which thankfully have an intuitive interpretation.
-
+which thankfully have an intuitive interpretation.  Let's take a look at Figure 4,
+which should clear up some of the ideas.
 
 .. figure:: /images/coordinate_chart_manifold.png
   :height: 250px
   :alt: Charts on a Manifold 
   :align: center
 
-  Figure 4: Two intersecting patches (green and purple) on a manifold with
-  different charts (continuous 1-1 mappings) to 2D Euclidean space.  Notice
-  that the intersection of the patches have a smooth 1-1 mapping in 2D
-  Euclidean space, making it a differential manifold.
+  Figure 4: Two intersecting patches (green and purple with cyan/teal as the
+  intersection) on a manifold with different charts (continuous 1-1 mappings)
+  to 2D Euclidean space.  Notice that the intersection of the patches have a
+  smooth 1-1 mapping in 2D Euclidean space, making it a differential manifold
+  (source: Wikipedia).
 
 
-Everything's still been quite abstract because we haven't really done any
-examples yet.  In this section, we'll actually try to work with a simple
-manifold to get things going.  Before we do that, we'll have to introduce
-this idea of a **local coordinate system**.
+First of all our manifold in this case is :math:`X`, which we can imagine is
+embedded in some high dimension :math:`n+k`.
+We have two different "patches" or *domains* (or *local coordinate neighbourhoods*)
+defined by :math:`U_\alpha` (green) and :math:`U_\beta` (purple) in :math:`X`.
+Since it's a manifold, we know that each point locally has a
+mapping to a lower dimensional Euclidean space (say :math:`\mathbb{R}^n`) via
+:math:`\varphi`, our *chart* or *coordinate system*.  If we take a point
+:math:`P` in our domain, and map it into the lower dimensional Euclidean space,
+the mapped point is called the *coordinate* of :math:`P` in our chart.
+Finally, if we have a bunch of charts whose domains exactly spans the entire
+manifold, then this is called an *atlas*.
 
-In most of our standard linear algebra in :math:`\mathbb{R}^n`, we used a
-single coordinate system that works for the whole space.  However, when dealing
-with manifolds (that map to lower dimensional spaces), this doesn't quite work.
+The best analogy for all of this is really just geography.  I've never really
+studied geography beyond grade school but I'm guessing you have similar terminology
+such as charts, coordinate systems, and atlases.  The ideas are, on the
+surface, similar.  However, I'd probably still stick with Figure 4, which
+is much more accurate.
 
-.. admonition:: Example 6: Local coordinate systems
+Figure 4 also has another mapping between the intersecting parts of
+:math:`U_\alpha` and :math:`U_\beta` in their respective chart coordinates
+called a **transition map**, given by 
+:math:`\varphi_{\alpha\beta} = \varphi_\beta \circ \varphi_\alpha^{-1}` and 
+:math:`\phi_{\beta\alpha}=\varphi_\alpha \circ \varphi_\beta^{-1}` 
+(their domain is restricted to either :math:`\varphi_\alpha(U_\alpha \cap U_\beta)`
+or :math:`\varphi_\beta(U_\alpha \cap U_\beta)`, respectively).
+
+These transition functions are important because depending on their
+differentiability, they define a new class of 
+`differentiable manifolds <https://en.wikipedia.org/wiki/Differentiable_manifold>`__
+(denoted by :math:`C^k` if they are k-times continuously differentiable).
+The most important one for our conversation being transition maps that are
+infinitely differentiable, which we call 
+`smooth manifolds <https://en.wikipedia.org/wiki/Differentiable_manifold#Definition>`__.
+
+The motivation here is that once we have smooth manifolds, we can do a bunch of
+nice things like calculus.  Remember, once we have smooth mappings to lower
+dimensional Euclidean space, things are a lot easier to analyze.  Performing
+analysis on a manifold embedded in a high dimensional space could be a major
+pain in the butt, but analysis in a lower-dimensional Euclidean space is easy
+(relatively)!
+
+
+.. admonition:: Example 1: A 1D Manifold with Multiple Charts
+
+  Let's take pretty much the simplest example we can think of: a circle.
+
+  If we use `polar coordinates <https://en.wikipedia.org/wiki/Polar_coordinate_system#Conventions>`__,
+  the unit circle can be parameterized with :math:`r=1` and :math:`\theta`.
+
+  The unit circle is a 1D manifold :math:`M`, so it should be able to map to
+  :math:`\mathbb{R}`.  We might be tempted to just have a simple chart mapping
+  such as :math:`\varphi(r, \theta) = \theta` but because :math:`\theta` is a
+  multi-valued we need to restrict the domain.  Further, we'll need more than
+  one chart mapping because a chart can only work on an open set 
+  (the analogue to an open interval, i.e. we can't use :math:`[0, 2\pi)`).
+  
+  We can create four charts (or mappings) as in Figure 1, that have the form
+  :math:`M \rightarrow \mathbb{R}`:
+
+  .. math::
+
+    \varphi_1(r, \theta) &= \theta  && \theta \in (-\frac{\pi}{3}, \frac{\pi}{3}) \\
+    \varphi_2(r, \theta) &= \theta  && \theta \in (\frac{\pi}{6}, \frac{5\pi}{6}) \\
+    \varphi_3(r, \theta) &= \theta  && \theta \in (\frac{2\pi}{3}, \frac{4\pi}{3}) \\
+    \varphi_4(r, \theta) &= \theta  && \theta \in (\frac{7\pi}{6}, \frac{11\pi}{6}] \\
+    \tag{1}
+
+  Notice that there is overlap in :math:`\theta` between the charts where each
+  one has an open set (i.e. the domain) on the original circle.
+  :math:`{\varphi_1, \varphi_2, \varphi_3, \varphi_4}` together form an atlas
+  for :math:`M` because their domains span the entirety of the manifold.
+
+  |hr|
+
+  We can also find other charts to map the unit circle.  Let's take a look at
+  another construction using standard Euclidean coordinates.
+
+  .. figure:: /images/circle_manifold_projection.png
+    :height: 350px
+    :alt: Circle Manifold with Charts
+    :align: center
+  
+    Figure 5: A construction of charts on a 1D circle manifold.
+
+  We can define a chart by taking the "north" or "south" pole of the circle
+  and projecting onto a line overlayed on the x-axis.
+
+  Using the "north" pole point, for any other given point :math:`P=(x,y)` on
+  the circle, we can find where it intersects the x-axis via similar triangles
+  (the radius of the circle is 1):
+
+  .. math::
+
+    u_1 := \varphi_1(P) = \frac{\varphi_1(P)}{1} = \frac{x_p}{1 - y_p} \tag{2}
+    
+  This defines a mapping for every point on the circle except the "north" pole.
+  Similarly, we can define the same mapping for the "south" pole for any 
+  point on the circle :math:`Q` (except thes "south" pole):
+
+  .. math::
+  
+     u_2 := \varphi_2(Q) = \frac{\varphi_2(Q)}{1} = \frac{x_q}{1 - y_q} \tag{3}
+  
+  Together, :math:`{\varphi_1, \varphi_2}` make up an atlas for :math:`M`.
+  We can find the inverse mapping between the two as well (using the fact that
+  :math:`x^2 + y^2=1`):
+
+  .. math::
+
+     x_p &= \frac{2u}{x^2+1}, &y_p = \frac{u^2-1}{x^2+1} \\
+     x_q &= \frac{2u}{x^2+1}, &y_q = \frac{1-u^2}{x^2+1} \\
+     \tag{4}
+
+ 
+
+|h3| Tangent Spaces |h3e|
 
 
 
-
-We
-can easily show that for a given change of coordinates (potentially non-linear
-but one-to-one)
-given by the function :math:`T`
-to :math:`u^i = T^i(x^1, \ldots, x^n), 1\leq i\leq n`.
-Starting with the tangent vector :math:`\tilde{\bf v} = \tilde{v}^i` 
-(switching to Einstein notation) in the :math:`u^i`-coordinate system:
-
-.. math::
-
-    \tilde{v}^i
-    = \frac{dT}{dt} 
-    = \frac{\partial T^i}{\partial x^s} \frac{dx^s}{dt}
-    = v^i \frac{\partial T^i}{\partial x^s}
-
-
-
-
-|h3| "Smooth" Riemannian Manifolds |h3e|
-
-The examples in the last section all had some nice properties: they were
-"smooth" (and not just because they are good talkers)!  We want to turn our
-investigation of manifolds to "well-behaved" ones where we can do all the nice
-calculus-related operations such as differentiation or integration in order to
-do nice things like calculate distance or area/volume.  
-
-The types of manifolds we want to study are called `smooth manifolds
-<https://en.wikipedia.org/wiki/Differentiable_manifold#Definition>`__.  The
-actual definition involves going deep into the topological definitions but the
-main idea is that the manifold is that each "patch" of Euclidean space on the
-manifold transitions to adjacent "patches" in a smooth way.  This allows us
-to do nice calculus-like things analogous to `smooth functions
-<https://en.wikipedia.org/wiki/Smoothness>`__.
+|h3| Riemannian Manifolds |h3e|
 
 To actually calculate things like distance on a manifold, we have to 
 introduce a few concepts.  The first is a **tangent space** :math:`T_x M`
@@ -371,4 +446,4 @@ us compute distances on manifolds.
   `Metric Space <https://en.wikipedia.org/wiki/Metric_space>`__,
 * `Differentiable manifolds and smooth maps <http://www.maths.manchester.ac.uk/~tv/Teaching/Differentiable%20Manifolds/2010-2011/1-manifolds.pdf>`__, Theodore Voronov.
 * [1] `"Manifolds (playlist)" <https://www.youtube.com/playlist?list=PLeFwDGOexoe8cjplxwQFMvGLSxbOTUyLv>`__, Robert Davie (YouTube)
-
+* [2] `"What is a Manifold?" <https://www.youtube.com/playlist?list=PLRlVmXqzHjUQHEx63ZFxV-0Ortgf-rpJo>`__, XylyXylyX (YouTube)
