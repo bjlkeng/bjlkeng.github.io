@@ -241,8 +241,12 @@ analysis on a manifold embedded in a high dimensional space could be a major
 pain in the butt, but analysis in a lower-dimensional Euclidean space is easy
 (relatively)!
 
+.. admonition:: Example 1: Euclidean Space is a Manifold
 
-.. admonition:: Example 1: A 1D Manifold with Multiple Charts
+  This is an example
+
+
+.. admonition:: Example 2: A 1D Manifold with Multiple Charts
 
   Let's take pretty much the simplest example we can think of: a circle.
 
@@ -275,7 +279,9 @@ pain in the butt, but analysis in a lower-dimensional Euclidean space is easy
   |hr|
 
   We can also find other charts to map the unit circle.  Let's take a look at
-  another construction using standard Euclidean coordinates.
+  another construction using standard Euclidean coordinates and a 
+  `stereographic projection <https://en.wikipedia.org/wiki/Stereographic_projection>`__.
+  Figure 5 shows a picture of this construction.
 
   .. figure:: /images/circle_manifold_projection.png
     :height: 350px
@@ -284,12 +290,17 @@ pain in the butt, but analysis in a lower-dimensional Euclidean space is easy
   
     Figure 5: A construction of charts on a 1D circle manifold.
 
-  We can define a chart by taking the "north" or "south" pole of the circle
-  and projecting onto a line overlayed on the x-axis.
+  We can define two charts by taking either the "north" or "south" pole of the
+  circle, finding any *other* point on the circle and projecting the line
+  segment onto onto the x-axis.  This provides the mapping from a point on the
+  manifold to :math:`\mathbb{R}^1`.  The "north" pole point is visualized in blue,
+  while the "south" pole point is visualized in burgundy.  Note: the local
+  coordinates for the charts are *different*.  The same two points on the circle
+  for the two charts, do not map to the same point in :math:`\mathbb{R}^1`.
 
   Using the "north" pole point, for any other given point :math:`P=(x,y)` on
   the circle, we can find where it intersects the x-axis via similar triangles
-  (the radius of the circle is 1):
+  (the radius of the circle is 1, :math:`\frac{\text{adjacent}}{\text{opposite}}`):
 
   .. math::
 
@@ -297,23 +308,40 @@ pain in the butt, but analysis in a lower-dimensional Euclidean space is easy
     
   This defines a mapping for every point on the circle except the "north" pole.
   Similarly, we can define the same mapping for the "south" pole for any 
-  point on the circle :math:`Q` (except thes "south" pole):
+  point on the circle :math:`Q` (except the "south" pole):
 
   .. math::
   
-     u_2 := \varphi_2(Q) = \frac{\varphi_2(Q)}{1} = \frac{x_q}{1 - y_q} \tag{3}
+     u_2 := \varphi_2(Q) = \frac{\varphi_2(Q)}{1} = \frac{x_q}{1 + y_q} \tag{3}
   
   Together, :math:`{\varphi_1, \varphi_2}` make up an atlas for :math:`M`.
-  We can find the inverse mapping between the two as well (using the fact that
-  :math:`x^2 + y^2=1`):
+  Since charts are 1-1, we can find the inverse mapping between the manifold
+  and local coordinates as well (using the fact that :math:`x^2 + y^2=1`):
 
   .. math::
 
-     x_p &= \frac{2u}{x^2+1}, &y_p = \frac{u^2-1}{x^2+1} \\
-     x_q &= \frac{2u}{x^2+1}, &y_q = \frac{1-u^2}{x^2+1} \\
+     x_p &= \frac{2u_1}{u_1^2+1}, &y_p = \frac{u_1^2-1}{u_1^2+1} \\
+     x_q &= \frac{2u_2}{u_2^2+1}, &y_q = \frac{1-u_2^2}{u_2^2+1} \\
      \tag{4}
 
+  Finally, we can find the transition map :math:`\varphi_{\alpha\beta}` as:
+
+  .. math::
+
+    u_2 &= \varphi_{\alpha\beta}(u_1) \\
+    &= \varphi_2 \circ \varphi_1^{-1}(u_1) \\
+    &= \varphi_2(\varphi_1^{-1}(u_1)) \\
+    &= \varphi_2\big((\frac{2u_1}{u_1^2+1}, \frac{u_1^2-1}{u_1^2+1})\big) \\
+    &= \frac{\frac{2u_1}{u_1^2+1}}{1 + \frac{u_1^2-1}{u_1^2+1}} \\
+    &= \frac{1}{u_1} \\
+    \tag{5}
+
+  which is only defined for the points in the intersection (i.e. all points
+  on the circle except the "north" and "south" pole).
  
+.. admonition:: Example 3: Stereographic Projections for a Sphere
+
+  This is an example
 
 |h3| Tangent Spaces |h3e|
 
