@@ -55,7 +55,7 @@ mani-like it!
 .. TEASER_END
 
 
-|h2| Manifold Motivation |h2e|
+|h2| Manifolds |h2e|
 
 The first place most ML people hear about this term is in the 
 `manifold hypothesis <https://www.quora.com/What-is-the-Manifold-Hypothesis-in-Deep-Learning>`__:
@@ -78,6 +78,10 @@ all the technical details (also because I'm not very qualified to do so), but
 we'll see that the differential and Riemannian manifolds are surprisingly
 intuitive (in low dimensions at least) once you get the hang (or should I say
 twist) of things.
+
+*(Note: You should check out [1] and [2], which are great YouTube playlists
+for understanding these topics.  [2] especially is just as good (or better)
+than a lecture at a university.)*
 
 
 |h3| Circles and Spheres as Manifolds |h3e|
@@ -170,15 +174,15 @@ which I took from [1]:
 
     An n-dimensional **topological manifold** :math:`M` is a topological Hausdorff
     space with a countable base with is locally homeomorphic to :math:`\mathbb{R}^n`.
-    This means that for every point :math:`P` in :math:`M` there is an open
-    neighbourhood :math:`U` of :math:`P` and a homeomorphism :math:`\varphi: U \rightarrow V`
+    This means that for every point :math:`p` in :math:`M` there is an open
+    neighbourhood :math:`U` of :math:`p` and a homeomorphism :math:`\varphi: U \rightarrow V`
     which maps the set :math:`U` onto an open set :math:`V \subset \mathbb{R}^n`.
     Additionally:
 
     * The mapping :math:`\varphi: U \rightarrow V` is called a **chart** or **coordinate system**.  
     * The set :math:`U` is the **domain** or **local coordinate neighbourhood** of the chart.  
-    * The image of the point :math:`P \in U`, denoted by :math:`\varphi(P) \in \mathbb{R}^n`,
-      is called the **coordinates** of :math:`P` in the chart.  
+    * The image of the point :math:`p \in U`, denoted by :math:`\varphi(p) \in \mathbb{R}^n`,
+      is called the **coordinates** of :math:`p` in the chart.  
     * A set of charts, :math:`\{\varphi_\alpha | \alpha \in \mathbb{N}\}`, with domains :math:`U_\alpha`
       is called the **atlas** of M, if :math:`\bigcup\limits_{\alpha \in \mathbb{N}} U_\alpha = M`.
    
@@ -207,8 +211,8 @@ defined by :math:`U_\alpha` (green) and :math:`U_\beta` (purple) in :math:`X`.
 Since it's a manifold, we know that each point locally has a
 mapping to a lower dimensional Euclidean space (say :math:`\mathbb{R}^n`) via
 :math:`\varphi`, our *chart* or *coordinate system*.  If we take a point
-:math:`P` in our domain, and map it into the lower dimensional Euclidean space,
-the mapped point is called the *coordinate* of :math:`P` in our chart.
+:math:`p` in our domain, and map it into the lower dimensional Euclidean space,
+the mapped point is called the *coordinate* of :math:`p` in our chart.
 Finally, if we have a bunch of charts whose domains exactly spans the entire
 manifold, then this is called an *atlas*.
 
@@ -217,6 +221,22 @@ studied geography beyond grade school but I'm guessing you have similar terminol
 such as charts, coordinate systems, and atlases.  The ideas are, on the
 surface, similar.  However, I'd probably still stick with Figure 4, which
 is much more accurate.
+
+.. admonition:: Manifolds: All About Mapping
+
+  Wrapping your head around manifolds can be sometimes be hard because of all
+  the symbols.  The key thing to remember is that **manifolds it's all about mappings**.
+  Mapping from the manifold to a local coordinate system in Euclidean space
+  using a chart; mapping from one local coordinate system to another
+  coordinate system; and later on we'll also see mapping a curve or function on
+  a manifold to a local coordinate too.  Sometime we'll do "hop" once (e.g. manifold
+  to local coordanates), or multiple "hops" (parameter of a curve to location on
+  a manifold to local coordanates).  And since most of our mappings are 1-1
+  we can "hop" back and forth as we please to get the mapping we want.
+  So make sure you are comfortable
+  with how to do these "hops" which are nothing more than simple `functions
+  compositions <https://en.wikipedia.org/wiki/Function_composition>`__.
+
 
 Figure 4 also has another mapping between the intersecting parts of
 :math:`U_\alpha` and :math:`U_\beta` in their respective chart coordinates
@@ -243,7 +263,11 @@ pain in the butt, but analysis in a lower-dimensional Euclidean space is easy
 
 .. admonition:: Example 1: Euclidean Space is a Manifold
 
-  This is an example
+  Standard Euclidean space in :math:`\mathbb{R}^n` is, of course, a manifold
+  itself. It requires a single chart that it just the identity function,
+  which also makes up its Atlas.  We'll see below that many of concepts
+  we've been learned in Euclidean space have analogues when discussing
+  manifolds.
 
 
 .. admonition:: Example 2: A 1D Manifold with Multiple Charts
@@ -298,13 +322,13 @@ pain in the butt, but analysis in a lower-dimensional Euclidean space is easy
   coordinates for the charts are *different*.  The same two points on the circle
   for the two charts, do not map to the same point in :math:`\mathbb{R}^1`.
 
-  Using the "north" pole point, for any other given point :math:`P=(x,y)` on
+  Using the "north" pole point, for any other given point :math:`p=(x,y)` on
   the circle, we can find where it intersects the x-axis via similar triangles
   (the radius of the circle is 1, :math:`\frac{\text{adjacent}}{\text{opposite}}`):
 
   .. math::
 
-    u_1 := \varphi_1(P) = \frac{\varphi_1(P)}{1} = \frac{x_p}{1 - y_p} \tag{2}
+    u_1 := \varphi_1(p) = \frac{\varphi_1(p)}{1} = \frac{x_p}{1 - y_p} \tag{2}
     
   This defines a mapping for every point on the circle except the "north" pole.
   Similarly, we can define the same mapping for the "south" pole for any 
@@ -339,66 +363,282 @@ pain in the butt, but analysis in a lower-dimensional Euclidean space is easy
   which is only defined for the points in the intersection (i.e. all points
   on the circle except the "north" and "south" pole).
  
-.. admonition:: Example 3: Stereographic Projections for a Sphere
+.. admonition:: Example 3: Stereographic Projections for :math:`S^n`
 
-  This is an example
+  As you might have guessed, we can perform the same 
+  `stereographic projection <https://en.wikipedia.org/wiki/Stereographic_projection>`__
+  for :math:`S^2` as well.  Figure 6 shows a visualization (nevermind the
+  different notation, I used a drawing from Wikipedia instead of trying to make my own :p).
 
-|h3| Tangent Spaces |h3e|
+  .. figure:: /images/manifold_sphere.png
+    :height: 350px
+    :alt: Spherical Manifold
+    :align: center
+  
+    Figure 6: A construction of charts on a 2D sphere (source: Wikipedia).
+
+  In a similar way, we can pick a point, draw a line that intersects any other point on
+  the sphere, and project it out to the :math:`z=0` (2D) plane.  This chart can cover
+  every point except the starting point.  Using two charts each with a point
+  (e.g. "north" and "south" pole), we can create an Atlas that covers every point
+  on the sphere.
+
+  In general an `n-dimensional sphere <https://en.wikipedia.org/wiki/N-sphere>`__ 
+  is a manifold of :math:`n` dimensions and is given the name :math:`S^n`.
+  So a circle is a 1-dimensional sphere, a "normal" sphere is a 2-dimensional sphere,
+  and a n-dimensional sphere can be embedded in (n+1)-dimensional Euclidean space
+  where each point is equidistant to the origin.  
+
+  This projection can generalized for :math:`S^n` using the same method: 
+  
+  1. Pick an arbitrary focal point on the sphere (not on the hyperplane you are
+     projecting to) e.g. the "north" pole :math:`p_N = (0, \ldots, 0,1)`.
+  2. Project a line from the focal point to any other point on the hypersphere.
+  3. Pick a plane that intersects at the "equator" relative to the focal point.
+     e.g. For the "north" pole focal point, the plane given by the first
+     :math:`n` coordinates (remember the :math:`S^n` has n+1 coordinates because
+     it's embedded in :math:`\mathbb{R}^{n+1}`.
+
+  From this, we can derive similar formulas (using the same similar triangle
+  argument) as the previous example.  Using the north pole, as an example, to any
+  point :math:`p =({\bf x}, z) \in S^n` on the hypersphere, and the hyperplane
+  given by :math:`z=0`, we can get the projected point :math:`({\bf u_N}, 0)`
+  using the following equations:
+
+  .. math::
+
+    {\bf u_N} := \varphi_N(p) = \frac{\bf x}{1 - z} \\
+    {\bf x} = \frac{2{\bf u_N}}{|{\bf u_N}|^2 + 1} \\
+    z = \frac{|{\bf u_N}|^2 - 1}{|{\bf u_N}|^2 + 1} \\
+    \tag{6}
+
+  for vectors :math:`{\bf u_N, x} \in \mathbb{R}^{n}`.  The symmetric equations
+  can also be performed for the "south" pole.
 
 
-
-|h3| Riemannian Manifolds |h3e|
+|h2| Tangent Spaces |h2e|
 
 To actually calculate things like distance on a manifold, we have to 
 introduce a few concepts.  The first is a **tangent space** :math:`T_x M`
-of a manifold :math:`M` at a point :math:`x`.  It's pretty much exactly
-as it sounds: imagine you are passing through the point :math:`x` on a smooth
-manifold, as you pass though you implicitly have a **tangent vector** along the
-direction of travel, which can be thought of as your velocity through point :math:`x`.
-The tangent vectors made in this way from each possible path passing through
-:math:`x` make up the tangent space.  In two dimensions, this would be a plan.
-Figure 4 shows an example of this on a sphere.
-
-.. figure:: /images/tangent_space.png
-  :height: 250px
-  :alt: Tangent Space
-  :align: center
-
-  Figure 4: A tangent space at a point on a 2D manifold (a sphere) (source:
-  Wikipedia).
-
-In more detail, let's define the curve as for a manifold embedded in
-:math:`\mathbb{R}^n` space with start and end points :math:`t \in [a, b]` as:
-
-.. math::
-
-    {\gamma}(t) := [x^1(t), \ldots, x^n(t)] \tag{1}
-
-where :math:`x^i(t)` are single output functions of :math:`t` for component
-:math:`i` (not exponents.  In this case the `tangent vector
-<https://en.wikipedia.org/wiki/Tangent_vector>`__ :math:`\bf v` at :math:`x` is
-just given by the derivative of :math:`\gamma(t)` with respect to :math:`t`:
-
-.. math::
-
-    {\bf v} := \frac{d\gamma(t)}{dt}\Big|_{t=t_x} = \Big[\frac{dx^1(t_x)}{dt}\Big|_{t=t_x}, \ldots, \frac{x^n(t)}{dt}\Big|_{t=t}\Big] \tag{2}
-    
-where :math:`\gamma(t_x) = x`.  Figure 5 shows another visualization of this
-idea with curve :math:`{\bf \gamma}(t)` on the manifold :math:`M`. 
+of a manifold :math:`M` at a point :math:`{\bf x}`.  It's pretty much exactly
+as it sounds: imagine you are walking along a curve on a smooth manifold,
+as you pass through the point :math:`{\bf x}` you implicitly have velocity
+(magnitude and direction) that is tangent to the manifold or another name
+is a  **tangent vector**.  The tangent vectors made in this way from each
+possible curve passing through point :math:`{\bf x}` make up the tangent space at
+:math:`x`.  In two dimensions, this would be a plan.  Figure 7 shows a
+visualization of this on a manifold.
 
 .. figure:: /images/tangent_space_vector.png
   :height: 250px
   :alt: Tangent Vector
   :align: center
 
-  Figure 5: A tangent space :math:`T_x M` for manifold :math:`M` with tangent
+  Figure 7: A tangent space :math:`T_x M` for manifold :math:`M` with tangent
   vector :math:`{\bf v} \in T_x M`, along a curve travelling through :math:`x \in M`
   (source: Wikipedia).
 
+I should note that Figure 7 is a bit misleading because the tangent space/vector
+doesn't necessarily look literally like a plane tangent to the manifold 
+which is embedded in a higher dimension space for visualization purposes 
+(e.g. 2D manifold as a surface shown in 3D with a plane tangent to the surface
+representing the "tangent space").  Manifolds don't need to even be embedded
+in a higher dimensional space (recall that they are defined just as special
+sets with a mapping to Euclidean space) so we should be careful with some of
+these visualizations.  However, let's try to formalize this idea in two steps:
+the first a bit more intuitive, the second a deeper look to allow us to perform
+more operations.
 
-You'll be happy to know that tangent vectors are actually *contravariant*
-(we didn't waste all that time talking about tensors for nothing)!  We'll
-show this fact a bit later.
+|h3| Tangent Spaces as the Velocity of Curves |h3e|
+
+Suppose we have our good old smooth manifold :math:`M` and a point on that
+curve :math:`p \in M`.  For a given coordinate chart 
+:math:`\varphi: U \rightarrow \mathbb{R}^n` where :math:`U` is an open subset of 
+:math:`M` containing :math:`p`.  So far so good, this is just repeating what we
+had in Figure 4.
+
+Now let's define a smooth parametric curve :math:`\gamma: t \rightarrow M` that
+maps a parameter :math:`t \in [a,b]` to :math:`M` that passes through
+:math:`p`.  Now we want to imagine we're walking along this curve *in the local
+coordinates* i.e. after applying our chart (this is where Figure 7 might be
+misleading), this will give us: :math:`\varphi \circ \gamma: t \rightarrow
+\mathbb{R}^n` (from :math:`t` to :math:`M` to :math:`\mathbb{R}^n` in the local
+coordinates).
+
+Let's label our local coordinates as :math:`{\bf u} = \varphi \circ \gamma(t)`,
+which is nothing more than a vector valued function of a single parameter which
+can be interpreted as your "position" vector on the manifold (in local
+coordinates) as a function of time (:math:`t`).  Thus, the velocity is just the
+instantaneous rate of change of our position vector with respect to time.  So
+at time :math:`t=t_0` when we're at the point :math:`p`, we have:
+
+.. math::
+
+    \text{"velocity" at } p = \frac{d \varphi \circ \gamma(t)}{dt}\Big|_{t=t_0}
+                          = \Big[\frac{dx^1(t)}{dt}, \ldots, \frac{dx^n(t)}{dt}\Big]\Big|_{t=t_0} \tag{7}
+
+where :math:`x^i(t)` is the :math:`i^{th}` component of our curve in local coordinates (not an exponent).
+In this case the `tangent vector <https://en.wikipedia.org/wiki/Tangent_vector>`__ :math:`\bf v` 
+is nothing more than the "velocity" at :math:`p`.
+If we then take every possible velocity at :math:`p` (by specifying different
+parametric curves) then these velocity vectors make a `tangent space
+<https://en.wikipedia.org/wiki/Tangent_space>`__, denoted by :math:`T_pM`
+(careful, our point on the manifold is now :math:`p` and the local coordinate
+is :math:`x`).
+Now that we have our tangent (vector) space represented in
+:math:`\mathbb{R}^n`, we can perform our usual Euclidean vector-space
+operations.  (We'll get to it in the next section).
+
+|h3| Basis of the Tangent Space |h3e|
+
+Tangent vectors as velocities only tells half the story though because we have
+a tangent vector specified in a local coordinate system but what is its basis?
+Recall a `vector <https://en.wikipedia.org/wiki/Coordinate_vector>`__ has its
+coordinates (an ordered list of scalars) that correspond to particular basis
+vectors.  This is important because we want to be able to do analysis on the
+manifold *between* points, not just at a single point.  So understanding how
+the tangent spaces between different points (and potentially charts) on a
+manifold is important.
+
+To understand how to construct the tangent space basis, let's first define
+an arbitrary function :math:`f: M \rightarrow \mathbb{R}` and assume we still
+have our good old smooth parametric curve :math:`\gamma: t \rightarrow M`.
+Now we want to look at a new definition of "velocity" relative to this test
+function: :math:`\frac{df \circ \gamma(t)}{dt}\Big|_{t=t_0}` at our point on the manifold
+:math:`p`.  Basically the rate of change of our function as we walk along this
+curve.
+
+However, we can do a "trick" by introducing a chart (:math:`\varphi`) and its
+inverse (:math:`\varphi^{-1}`) into this measure of "velocity":
+
+.. math::
+
+    \frac{df \circ \gamma(t)}{dt}\Big|_{t=t_0} 
+    &= \frac{d(f \circ \varphi^{-1} \circ \varphi \circ \gamma)(t)}{dt}\Big|_{t=t_0}  \\
+    &= \frac{d((f \circ \varphi^{-1}) \circ (\varphi \circ \gamma))(t)}{dt}\Big|_{t=t_0}  \\
+    &= \sum_i \frac{\partial (f \circ \varphi^{-1})(x)}{\partial x_i}\Big|_{x=\varphi \circ \gamma(t_0)}
+       \frac{d(\varphi \circ \gamma)^i(t)}{dt}\Big|_{t=t_0} && \text{chain rule} \\
+    &= \sum_i \frac{\partial (f \circ \varphi^{-1})(x)}{\partial x_i}\Big|_{x=\varphi(p)}
+       \frac{d(\varphi \circ \gamma)^i(t)}{dt}\Big|_{t=t_0} && \text{since }\varphi(p) = \gamma(t_0) \\
+    &= \sum_i (\text{basis for component }i)(\text{"velocity" of component i wrt to } \varphi) \\
+    \tag{8}
+
+Note the introduction of partial derivatives and summations in the third line,
+which is just an application of the multi-variable calculus chain rule.
+We can see that by introducing this test function and doing our little trick we
+get the same velocity as Equation 7 but with its corresponding basis vectors.
+
+Okay the next part is going to be a bit strange but bear with me.  We're going
+to take the basis and re-write like so:
+
+.. math::
+
+    \Big(\frac{\partial}{\partial x^i}\Big)_p (f) := \frac{\partial (f \circ \varphi^{-1})(\varphi(p))}{\partial x_i} \\
+    \tag{9}
+
+which simply defines some new notation for the basis.  Importantly the LHS now
+has no mention of :math:`\varphi` anymore, but why?  Well there is a convention
+that :math:`\varphi` is implicitly specified by :math:`x^i`.  So if you have
+some other chart, say, :math:`\vartheta`, then you label its local coordinates
+with :math:`y^i`.  But it's important to remember that when we're using this
+notation, implicitly there is a chart behind it.
+
+Okay, so now that we've cleared up that, there's another thing we need to look at:
+what is :math:`f`?  We know it's some test function that we used, but it was 
+arbitrary.  And in fact, it's so arbitrary we're going to get rid of it!  So
+we're just going to define the basis in terms of the *operator* that acts of
+:math:`f` and not the actual resultant vector!  So every tangent vector
+:math:`v \in T_pM`, we have:
+
+.. math::
+
+    {\bf v} &= \sum_{i=1}^n v(x^i) \cdot \Big(\frac{\partial}{\partial x^i}\Big)_p \\
+      &= \sum_{i=1}^n \frac{d(\varphi \circ \gamma)^i(t)}{dt}\Big|_{t=t_0}  \cdot
+        \Big(\frac{\partial}{\partial x^i}\Big)_p \\
+        \tag{10}
+
+It turns out the basis is actually a set of *differential operators* (not the
+actual vectors on the test function :math:`f`), which make up a `vector space
+<https://en.wikipedia.org/wiki/Vector_space#Definition>`__ (with respect to
+chart :math:`\varphi`)!  A bit mind bending if you're not used to these
+abstract definitions (vector spaces don't have anything strictly to do with
+Euclidean vectors, it's just that we first learn about them through Euclidean
+vectors)
+
+|h3| Change of Basis for Tangent Vectors |h3e|
+
+Now that we have a basis for our tangent vectors, we want to understand how to
+change basis between them.  Let's just setup/recap a big of notation first.
+Let's define two charts for our :math:`d`-dimensional manifold :math:`M`:
+
+.. math::
+
+    \varphi(p) = (x^1(p), \ldots, x^d(p)) \\
+    \vartheta(p) = (y^1(p), \ldots, y^d(p)) \\
+    \tag{11}
+
+where :math:`x^i(p)` and :math:`y^i(p)` are coordinate functions to find the
+specific index of the local coordinates from a point on our manifold :math:`p
+\in M`.  Assume that :math:`p` is in the overlap of the domains in the two
+charts.  Now we want to look at how we can convert from a tangent space in one
+chart to another.
+
+(We're going to switch to a more convenient 
+`partial derivative notation <https://en.wikipedia.org/wiki/Partial_derivative>`__
+here: :math:`\partial_x f := \frac{\partial f}{\partial x}`, which is just a
+bit more concise.)
+
+So starting from our summation in Equation 10 (and using `Einstein summation
+notation <https://en.wikipedia.org/wiki/Einstein_notation>`__, see also previous
+my post on `Tensors <link://slug/tensors-tensors-tensors>`__)
+acting on our test function :math:`f`:
+
+.. math::
+
+    {\bf v} f &= v(x^i) \cdot \Big(\frac{\partial}{\partial x^i}\Big)_p f \\
+      &= v(x^i) \cdot \partial_{x^i} (f \circ \varphi^{-1})(\varphi(p)) && \text{by definition} \\ 
+      &= v(x^i) \cdot \partial_{x^i} (f \circ \vartheta^{-1} \circ \vartheta \circ \varphi^{-1})(\varphi(p)) && \text{introduce } \vartheta \text{ with identity trick}\\ 
+      &= v(x^i) \cdot \partial_{x^i} ((f \circ \vartheta^{-1}) \circ (\vartheta \circ \varphi^{-1}))(\varphi(p)) \\ 
+      &= v(x^i) \cdot 
+        \partial_{x^i} (\vartheta \circ \varphi^{-1})^j(\varphi(p))
+        \cdot
+        \partial_{y^j} (f \circ \vartheta^{-1})(\vartheta \circ \varphi^{-1}(\varphi(p)))
+        && \text{chain rule} \\
+      &= v(x^i) \cdot 
+        \partial_{x^i} (\vartheta \circ \varphi^{-1})^j(\varphi(p))
+        \cdot
+        \partial_{y^j} (f \circ \vartheta^{-1})(\vartheta(p))
+        && \text{simplifying} \\
+      &= v(x^i) \cdot 
+        \partial_{x^i} (\vartheta \circ \varphi^{-1})^j(\varphi(p))
+        \cdot
+        \Big(\frac{\partial}{\partial y^i}\Big)_p f
+        && \text{by definition} \\
+      &= v(x^i) \cdot 
+        \frac{\partial y^j}{\partial x^i}\big|_{x=\varphi(p)}
+        \cdot
+        \Big(\frac{\partial}{\partial y^i}\Big)_p f
+        && \text{since }y^j(x) = y^j(\varphi(p)) \\
+      &= v(y^i) \cdot \Big(\frac{\partial}{\partial y^j}\Big)_p f \\
+    \tag{12}
+    
+After some wrangling with the notation, we can see the change of basis
+is basically just an application of the chain rule.  If you squint hard
+enough, you'll see the change of basis matrix is simply the Jacobian
+:math:`J` of :math:`\vartheta(x) = (y^1(x), \ldots, y^d(x))` written with
+respect to the original chart coordinates :math:`x^i` (instead of the manifiold
+point :math:`p`).
+
+So after all that manipulation, let's take a look at an example on our
+sphere to make things a bit more concrete.
+
+.. admonition:: Example 4: Tangent Vectors on a Sphere
+
+  Test 
+
+
+
+|h2| Riemannian Manifolds |h2e|
 
 Back to this smooth manifold we've been talking about, we'll want to define
 another tensor, you guess it, the metric tensor!  In particular, the
@@ -418,6 +658,7 @@ manifold with a Riemannian metric (tensor) is called a **Riemannian manifold**.
 
 - **Riemannian metric tensor** 
 - **Riemannian manifold** 
+
 
 |h3| Computing Arc Length |h3e|
 
@@ -469,6 +710,7 @@ us compute distances on manifolds.
 
 |h2| Further Reading |h2e|
 
+* Previous posts: `Tensors, Tensors, Tensors <link://slug/tensors-tensors-tensors>`__
 * Wikipedia: `Manifold <https://en.wikipedia.org/wiki/Manifold>`__,
   `Metric Tensor <https://en.wikipedia.org/wiki/Metric_tensor>`__,
   `Metric Space <https://en.wikipedia.org/wiki/Metric_space>`__,
