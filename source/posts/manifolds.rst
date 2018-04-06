@@ -439,15 +439,16 @@ visualization of this on a manifold.
   (source: Wikipedia).
 
 I should note that Figure 7 is a bit misleading because the tangent space/vector
-doesn't necessarily look literally like a plane tangent to the manifold 
-which is embedded in a higher dimension space for visualization purposes 
+doesn't necessarily look literally like a plane tangent to the manifold. 
+It *can* however look like this when it is embedded in a higher dimension space
+like it is here for visualization purposes 
 (e.g. 2D manifold as a surface shown in 3D with a plane tangent to the surface
 representing the "tangent space").  Manifolds don't need to even be embedded
 in a higher dimensional space (recall that they are defined just as special
 sets with a mapping to Euclidean space) so we should be careful with some of
-these visualizations.  However, let's try to formalize this idea in two steps:
-the first a bit more intuitive, the second a deeper look to allow us to perform
-more operations.
+these visualizations.  However, it's always good to have an intuition.  Let's
+try to formalize this idea in two steps: the first a bit more intuitive, the
+second a deeper look to allow us to perform more operations.
 
 |h3| Tangent Spaces as the Velocity of Curves |h3e|
 
@@ -634,8 +635,56 @@ sphere to make things a bit more concrete.
 
 .. admonition:: Example 4: Tangent Vectors on a Sphere
 
-  Test 
+  On our unit sphere, let's try to find the tangent vector at point
+  :math:`p = (x,y,z) = (1, 0, 0)` on the equator of the sphere.  We'll
+  use our "north" pole chart and a curve that is orbiting the equator.
+  Let's setup the problem.
 
+  First, following Equation 6, our chart :math:`\varphi` (and its inverse) look
+  like (I'm not going to use the superscript notation here for the local
+  coordinates but you should know it's pretty common):
+
+  .. math::
+
+    u_1(x, y, z) &= \frac{x}{1-z} \\
+    u_2(x, y, z) &= \frac{y}{1-z} \\
+    x &= \frac{2u_1}{\sqrt{x^2 + y^2} + 1} \\
+    y &= \frac{2u_2}{\sqrt{x^2 + y^2} + 1} \\
+    z &= \frac{\sqrt{x^2 + y^2}- 1}{\sqrt{x^2 + y^2} + 1} \\
+    \tag{13}
+
+  Next, let's define our curve: :math:`\gamma(t) = (\cos\pi t, \sin\pi t, 0), t\in[-1, 1]`,
+  which we can see is on the equator, outlining a circle on the :math:`z=0`
+  plane.  We can also see at :math:`t_0=0`, :math:`\gamma(t=0) = (1, 0, 0) = p`.
+
+  To find the coordinates in our tangent space, we use Equation 7:
+
+  .. math::
+  
+      \frac{d \varphi \circ \gamma(t)}{dt}\Big|_{t=t_0}
+      &= \Big[
+      \frac{d u_1(\cos\pi t, \sin\pi t, 0)}{dt},  
+      \frac{d u_2(\cos\pi t, \sin\pi t, 0)}{dt}  
+      \Big]\Big|_{t=t_0}  \\
+      &= \Big[
+      \frac{d \cos\pi t}{dt},
+      \frac{d \sin\pi t}{dt}
+      \Big]\Big|_{t=t_0}  \\      
+      \tag{14}
+      &= \Big[ -\sin\pi t, \cos\pi t \Big]\Big|_{t=t_0}  \\      
+      &= (0, 1)
+      \tag{14}
+
+  Combining with out differential operators as our basis, our tangent vector
+  becomes:
+
+  .. math::
+
+    v = 0 \cdot \big(\frac{\partial}{\partial u_1} \big)_p +
+        1 \cdot \big(\frac{\partial}{\partial u_2} \big)_p \tag{15}
+
+  keeping in mind that the basis is actually in terms of the chart :math:`\varphi`
+  (implied by the variable :math:`u_i`).
 
 
 |h2| Riemannian Manifolds |h2e|
