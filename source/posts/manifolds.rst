@@ -613,14 +613,14 @@ acting on our test function :math:`f`:
       &= v(x^i) \cdot 
         \partial_{x^i} (\vartheta \circ \varphi^{-1})^j(\varphi(p))
         \cdot
-        \Big(\frac{\partial}{\partial y^i}\Big)_p f
+        \Big(\frac{\partial}{\partial y^j}\Big)_p f
         && \text{by definition} \\
       &= v(x^i) \cdot 
         \frac{\partial y^j}{\partial x^i}\big|_{x=\varphi(p)}
         \cdot
-        \Big(\frac{\partial}{\partial y^i}\Big)_p f
-        && \text{since }y^j(x) = y^j(\varphi(p)) \\
-      &= v(y^i) \cdot \Big(\frac{\partial}{\partial y^j}\Big)_p f \\
+        \Big(\frac{\partial}{\partial y^j}\Big)_p f
+        && \text{since }y^j(x) = y^j(\varphi^{-1}(x)) \\
+      &= v(y^j) \cdot \Big(\frac{\partial}{\partial y^j}\Big)_p f \\
     \tag{12}
     
 After some wrangling with the notation, we can see the change of basis
@@ -628,17 +628,64 @@ is basically just an application of the chain rule.  If you squint hard
 enough, you'll see the change of basis matrix is simply the Jacobian
 :math:`J` of :math:`\vartheta(x) = (y^1(x), \ldots, y^d(x))` written with
 respect to the original chart coordinates :math:`x^i` (instead of the manifiold
-point :math:`p`).
+point :math:`p`).  In matrix notation, we would get something like:
+
+.. math::
+
+    
+    {\bf v(y)}
+    = \begin{bmatrix} v(y^1) \\ \ldots \\ v(y^d) \end{bmatrix}
+    = {\bf J_y} {\bf v(x)} 
+    = \begin{bmatrix} 
+        \frac{\partial y^1}{\partial x^1}\big|_{x=\varphi(p)} 
+          & \cdots 
+          & \frac{\partial y^1}{\partial x^d}\big|_{x=\varphi(p)} \\
+        \vdots & \ddots & \vdots \\
+        \frac{\partial y^d}{\partial x^1}\big|_{x=\varphi(p)} 
+          & \cdots 
+          & \frac{\partial y^d}{\partial x^d}\big|_{x=\varphi(p)}
+      \end{bmatrix}
+      \begin{bmatrix} v(x^1) \\ \ldots \\ v(x^d) \end{bmatrix}\\
+    \tag{13}
+
+For those of you who understand tensors (if not read my previous post `Tensors, Tensors, Tensors <link://slug/tensors-tensors-tensors>`__), the tangent vector
+transforms *contravariantly* with the change of coordinates (charts),
+that is, it transforms "against" the transformation of change of coordinates.
+A "with" change of coordinates transformation would be multiplying by the
+inverse of the Jacobian, which we'll see below with the metric tensor.
+            
 
 So after all that manipulation, let's take a look at an example on our
 sphere to make things a bit more concrete.
 
 .. admonition:: Example 4: Tangent Vectors on a Sphere
 
-  On our unit sphere, let's try to find the tangent vector at point
-  :math:`p = (x,y,z) = (1, 0, 0)` on the equator of the sphere.  We'll
-  use our "north" pole chart and a curve that is orbiting the equator.
-  Let's setup the problem.
+  Let us take the unit sphere, and define a curve :math:`\gamma(t)` parallel to
+  the equator at a 45 degree angle from the equator.  Figure 8 shows a picture
+  where :math:`\theta=\frac{\pi}{4}`.
+  
+  .. figure:: /images/spherical_cap.png
+   :height: 250px
+   :alt: Curve along a sphere
+   :align: center
+  
+   Figure 8: A circle parallel to the equador with angle :math:`\theta`
+   (source: Wikipedia).
+  
+  We can define this parametric curve by:
+
+  .. math::
+
+    \gamma(t) = 
+        (\cos \frac{\pi}{4}\cos\pi t,
+         \cos \frac{\pi}{4}\sin\pi t,
+         \sin \frac{\pi}{4}), \text{    }t \in [-1, 1]
+    \tag{14}
+
+  Notice that the sum of squares of the components of :math:`\gamma(t)` equals
+  to :math:`1` using the trigonometric identity :math:`\cos^2 \theta + \sin^2
+  \theta = 1`.  Let's try to find the tangent vector at the point 
+  :math:`\gamma(t_0 = 0) = (\frac{1}{\sqrt{2}}, 0, \frac{1}{\sqrt{2}})`.
 
   First, following Equation 6, our chart :math:`\varphi` (and its inverse) look
   like (I'm not going to use the superscript notation here for the local
@@ -648,14 +695,13 @@ sphere to make things a bit more concrete.
 
     u_1(x, y, z) &= \frac{x}{1-z} \\
     u_2(x, y, z) &= \frac{y}{1-z} \\
-    x &= \frac{2u_1}{\sqrt{x^2 + y^2} + 1} \\
-    y &= \frac{2u_2}{\sqrt{x^2 + y^2} + 1} \\
-    z &= \frac{\sqrt{x^2 + y^2}- 1}{\sqrt{x^2 + y^2} + 1} \\
-    \tag{13}
+    x &= \frac{2u_1}{u_1^2 + u_2^2 + 1} \\
+    y &= \frac{2u_2}{u_1^2 + u_2^2 + 1} \\
+    z &= \frac{u_1^2 + u_2^2 - 1}{u_1^2 + u_2^2 + 1} \\
+    \tag{15}
 
-  Next, let's define our curve: :math:`\gamma(t) = (\cos\pi t, \sin\pi t, 0), t\in[-1, 1]`,
-  which we can see is on the equator, outlining a circle on the :math:`z=0`
-  plane.  We can also see at :math:`t_0=0`, :math:`\gamma(t=0) = (1, 0, 0) = p`.
+  Plugging in our point at :math:`p=\gamma(t_0=0)`, we get 
+  :math:`\varphi(p) = (\sqrt{2} + 1, 0)`.
 
   To find the coordinates in our tangent space, we use Equation 7:
 
@@ -663,98 +709,247 @@ sphere to make things a bit more concrete.
   
       \frac{d \varphi \circ \gamma(t)}{dt}\Big|_{t=t_0}
       &= \Big[
-      \frac{d u_1(\cos\pi t, \sin\pi t, 0)}{dt},  
-      \frac{d u_2(\cos\pi t, \sin\pi t, 0)}{dt}  
+      \frac{d u_1(\cos \frac{\pi}{4}\cos\pi t,
+                  \cos \frac{\pi}{4}\sin\pi t,
+                  \sin \frac{\pi}{4})}{dt},  
+      \frac{d u_2(\cos \frac{\pi}{4}\cos\pi t,
+                  \cos \frac{\pi}{4}\sin\pi t,
+                  \sin \frac{\pi}{4})}{dt},
       \Big]\Big|_{t=t_0}  \\
       &= \Big[
-      \frac{d \cos\pi t}{dt},
-      \frac{d \sin\pi t}{dt}
-      \Big]\Big|_{t=t_0}  \\      
-      \tag{14}
-      &= \Big[ -\sin\pi t, \cos\pi t \Big]\Big|_{t=t_0}  \\      
-      &= (0, 1)
-      \tag{14}
+      \frac{d \big((\sqrt{2} + 1)\cos\pi t\big)}{dt},
+      \frac{d \big((\sqrt{2} + 1)\sin\pi t\big)}{dt}
+      \Big]\Big|_{t=t_0}  \\
+      &= \Big[ (\sqrt{2}+1)(-\sin\pi t), (\sqrt{2}+1)\cos\pi t \Big]\Big|_{t=t_0}  \\      
+      &= (0, \sqrt{2}+1)
+      \tag{16}
 
   Combining with out differential operators as our basis, our tangent vector
   becomes:
 
   .. math::
 
-    v = 0 \cdot \big(\frac{\partial}{\partial u_1} \big)_p +
-        1 \cdot \big(\frac{\partial}{\partial u_2} \big)_p \tag{15}
+    {\bf T_{\gamma}} = 0 \cdot \big(\frac{\partial}{\partial u_1} \big)_p +
+            (\sqrt{2} + 1) \cdot \big(\frac{\partial}{\partial u_2} \big)_p \tag{17}
 
   keeping in mind that the basis is actually in terms of the chart :math:`\varphi`
   (implied by the variable :math:`u_i`).
 
+  |hr|
+
+  Next, let's convert these tangent vectors to our other chart,
+  :math:`\vartheta`, defined by the south pole (we'll denote the local
+  coordinates with :math:`w_i`):
+
+  .. math::
+
+    w_1(x, y, z) &= \frac{x}{1+z} \\
+    w_2(x, y, z) &= \frac{y}{1+z} \\
+    x &= \frac{2w_1}{w_1^2 + w_2^2 + 1} \\
+    y &= \frac{2w_2}{w_1^2 + w_2^2 + 1} \\
+    z &= \frac{1 - w_1^2 + w_2^2}{w_1^2 + w_2^2 + 1} \\
+    \tag{18}
+
+  Going through the same exercise as above, we can find the tangent vectors
+  with respect to :math:`\vartheta` at point :math:`p`:
+
+  .. math::
+
+    {\bf T_{\theta}} = 0 \cdot \big(\frac{\partial}{\partial w_1} \big)_p +
+              (\sqrt{2} - 1) \cdot \big(\frac{\partial}{\partial w_2} \big)_p \tag{19}
+
+  We should also be able to find :math:`{\bf T_{\theta}}` directly by using
+  Equation 13 and the Jacobian of :math:`\vartheta`.  To do this, we need to
+  find :math:`w_i` in terms of :math:`u_j`:
+
+  .. math::
+
+    w_i(u_1, u_2) &= w_i \circ \varphi^{-1}(u_1, u_2) \\
+                  &= w_i\Big(\frac{2u_1}{u_1^2 + u_2^2 + 1},
+                         \frac{2u_2}{u_1^2 + u_2^2 + 1},
+                         \frac{u_1^2 + u_2^2 - 1}{u_1^2 + u_2^2 + 1}
+                     \Big)\\
+                  &= \frac{u_i}{u_1^2 + u_2^2}
+    \tag{20}
+
+  Now we should be able to plug the value into Equation 13 to find the same
+  tangent vector by directly converting from our old chart, remembering that
+  :math:`\varphi(p) = (u_1, u_2) = (\sqrt{2} + 1, 0)`.
+
+  .. math::
+
+    {\bf v(w) }
+    &= {\bf J_u} {\bf v(u)} \\
+    &= \begin{bmatrix} 
+        \frac{\partial w_1}{\partial u_1}\big|_{u=\varphi(p)} 
+          & \frac{\partial w_1}{\partial u_2}\big|_{u=\varphi(p)} \\
+        \frac{\partial w_2}{\partial u_1}\big|_{u=\varphi(p)} 
+          & \frac{\partial w_2}{\partial u_2}\big|_{u=\varphi(p)}
+      \end{bmatrix}
+      \begin{bmatrix} 0 \\ \sqrt{2} + 1 \end{bmatrix}\\
+    &= \begin{bmatrix} 
+          \frac{u_2^2 - u_1^2}{(u_1^2+u_2^2)^2}\big|_{u=\varphi(p)}
+        & -\frac{2u_1u_2}{(u_1^2+u_2^2)^2}\big|_{u=\varphi(p)} \\
+          -\frac{2u_1u_2}{(u_1^2+u_2^2)^2}\big|_{u=\varphi(p)} 
+        & \frac{u_1^2 - u_2^2}{(u_1^2+u_2^2)^2}\big|_{u=\varphi(p)} 
+      \end{bmatrix}
+      \begin{bmatrix} 0 \\ \sqrt{2} + 1 \end{bmatrix}\\    
+    &= \begin{bmatrix} 
+          \frac{- (\sqrt{2} + 1)^2}{(\sqrt{2} + 1)^4}
+        & 0 \\
+          0
+        & \frac{(\sqrt{2} + 1)^2}{(\sqrt{2} + 1)^4}
+      \end{bmatrix}
+      \begin{bmatrix} 0 \\ \sqrt{2} + 1 \end{bmatrix}\\    
+    &= \begin{bmatrix} 0 \\ \sqrt{2} - 1 \end{bmatrix}\\        
+    \tag{21}
+
+  which lines up exactly with our coordinates from Equation 19 above.
+
 
 |h2| Riemannian Manifolds |h2e|
 
-Back to this smooth manifold we've been talking about, we'll want to define
-another tensor, you guess it, the metric tensor!  In particular, the
-**Riemannian metric (tensor)** is a family of inner products:
+So we now know how to find tangent vectors at each point on a smooth manifold
+but we still can't do anything interesting yet!  To do that we'll have to
+introduce another tensor, you guess it, the metric tensor!  In particular, the
+**Riemannian metric (tensor)** [1]_ is a family of inner products:
 
 .. math::
 
-    g_p: T_pM \times T_pM \rightarrow \mathbb{R}, p \in M \tag{3}
+    g_p: T_pM \times T_pM \rightarrow \mathbb{R}, p \in M \tag{22}
 
-such that :math:`p \rightarrow g_p(X(p), Y(p))` for any two tangent vectors
-(derived from the vector fields :math:`X, Y`) is a smooth function of
-:math:`p`.  The implications of this is that even though each adjacent tangent space
-can be different (the manifold curves therefore the tangent space changes),
-the inner product varies smoothly between adjacent points.  A real, smooth
-manifold with a Riemannian metric (tensor) is called a **Riemannian manifold**.
+such that :math:`p \rightarrow g_p(X(p), Y(p))` for any two tangent vectors is
+a smooth function of :math:`p`.  
+
+The implications of this is that even though each adjacent tangent space can be
+different (the manifold curves therefore the tangent space changes), the inner
+product varies smoothly between adjacent points.  A real, smooth manifold with
+a Riemannian metric (tensor) is called a **Riemannian manifold**.
+Intuitively, Riemannian manifolds have all the nice "smoothness" properties we
+would want and makes our lives a lot easier.
+
+|h3| Induced Metric Tensors |h3e|
+
+A natural way to define the metric tensor is to take our :math:`n` manifold 
+:math:`M` embedded in :math:`n+k` dimensional Euclidean space, and use the
+standard Euclidean metric tensor in :math:`n+k` space but transformed to
+a local coordinate system on :math:`M`.  That is, we're going to define
+our Riemannian metric for our manifold using the metric tensor from the
+embedded Euclidean space.  This guarantees that we'll have the nice smoothness
+property because we're using the standard Euclidean metric.
+
+To start, let's figure out how to translate a tangent vector from :math:`n`
+dimensions back into our :math:`n+k` embedding space.  Let's use Einstein
+notation and :math:`x` for our embedded space and :math:`y` for the local
+coordinate system with :math:`y^i(p)` maps coordinate :math:`i` from
+the embedded space to the local coordinate system, and :math:`x^i(\varphi(p))`
+the reverse mapping.  Starting from Equation 10
 
 
-- **Riemannian metric tensor** 
-- **Riemannian manifold** 
+.. math::
 
+    {\bf v} &= v(y^i) \cdot \Big(\frac{\partial}{\partial y^i}\Big)_p \\
+            &= v(y^i) \cdot 
+                \frac{\partial (□ \circ \varphi^{-1})}{\partial y_i}\Big|_{y=\varphi(p)} \\
+            &= v(y^i) \cdot 
+                \frac{\partial x^j}{\partial y^i}\Big|_{y=\varphi(p)}
+                \frac{\partial □}{\partial x^j}\Big|_{x=p} \\
+            &= v(y^i) \cdot 
+                \frac{\partial x^j}{\partial y^i}\Big|_{y=\varphi(p)}
+                \Big(\frac{\partial}{\partial x^j}\Big)_p \\
+            &= \frac{d \gamma^j(t)}{dt} \cdot {\bf e^j}
+            \tag{23}
 
-|h3| Computing Arc Length |h3e|
+I added the "box" symbol there as a placeholder for our arbitrary function
+:math:`f`.  So here, we're simply playing around with the chain rules to
+get the final result.  The basis is in our embedded space using a similar
+notation to our local coordinate tangent basis.  In fact, we could derive
+the Equation 23 in the same way as Equation 8 using the "velocity" idea.
 
-- Defines arc length, thus distance using differential geometry, inner product
-- Explain how to change coordinates 
-- Example of computing arc length of a circle with the metric tensor,
-  show it in another basis (polar coordinates?)
-- Example for unit sphere???
+Whether in our local tangent space or in the embedded space, they're the same
+vector (i.e. a tensor).  So we could go directly to the velocity 
+:math:`\frac{d \gamma(t)}{dt}` instead of doing this back and forth.  
+Additionally, :math:`\Big(\frac{\partial}{\partial x^j}\Big)_p` is
+one-to-one with :math:`\mathbb{R}^{n+k}` of our embedded space, so we can
+also write it in terms of our Euclidean basis vectors :math:`{\bf e}^j`.
 
-|h2| Metric Space |h2e|
+Now that we know how to convert between the tangent spaces, we can calculate 
+what our Euclidean metric tensor (i.e. the identity matrix) would be in
+the local tangent space at point :math:`p`.  Suppose :math:`{\bf v_M}, {\bf
+w_M}` are tangent vectors represented in our embedded Euclidean space and
+:math:`{\bf v_U}, {\bf w_U}` are the same vectors represented in our local
+coordinate system:
 
-In this section, I just want to quickly review the definition of a metric space
-because we'll see that it comes up below.
+.. math::
 
-    A metric space for a set :math:`M` and 
-    metric :math:`d: M x M \rightarrow \mathcal{R}` such that for any 
-    :math:`x,y,z \in M`, the following holds:
+    g_M({\bf v_M},{\bf w_M}) &= {\bf v_M} \cdot {\bf v_M} && \text{Euclidean inner product}\\
+    &= \begin{bmatrix} 
+          \sum_{i=1}^d v(y^i) \cdot \frac{\partial x^1}{\partial y^i}\Big|_{y=\varphi(p)}
+        & \ldots
+        & \sum_{i=1}^d v(y^i) \cdot \frac{\partial x^n}{\partial y^i}\Big|_{y=\varphi(p)}
+    \end{bmatrix}
+    \begin{bmatrix} 
+          \sum_{i=1}^d w(y^i) \cdot \frac{\partial x^1}{\partial y^i}\Big|_{y=\varphi(p)} \\
+        \ldots \\
+        \sum_{i=1}^d w(y^i) \cdot \frac{\partial x^n}{\partial y^i}\Big|_{y=\varphi(p)}
+    \end{bmatrix} && \text{Subbing in Equation 23} \\ 
+    &=  \begin{bmatrix} v(y^1) & \ldots & v(y^d) \end{bmatrix}
+        \begin{bmatrix} 
+            \frac{\partial x^1}{\partial y^1}\Big|_{y=\varphi(p)}
+            & \ldots
+            & \frac{\partial x^n}{\partial y^1}\Big|_{y=\varphi(p)} \\
+            \cdots
+            & \ddots
+            & \cdots \\
+            \frac{\partial x^1}{\partial y^d}\Big|_{y=\varphi(p)}
+            & \ldots
+            & \frac{\partial x^n}{\partial y^d}\Big|_{y=\varphi(p)} \\
+        \end{bmatrix}
+        \begin{bmatrix} 
+            \frac{\partial x^1}{\partial y^1}\Big|_{y=\varphi(p)}
+            & \ldots
+            & \frac{\partial x^1}{\partial y^d}\Big|_{y=\varphi(p)} \\
+            \cdots
+            & \ddots
+            & \cdots \\
+            \frac{\partial x^n}{\partial y^1}\Big|_{y=\varphi(p)}
+            & \ldots
+            & \frac{\partial x^n}{\partial y^d}\Big|_{y=\varphi(p)} \\
+        \end{bmatrix}
+       \begin{bmatrix} w(y^1) \\ \ldots \\ w(y^d) \end{bmatrix} \\
+    \tag{24}
+    &= {\bf v_U}^T{\bf J_{x}}^T{\bf J_{x}}{\bf w_U} \\
+    &= g({\bf v_U}, {\bf w_U}) \\
+    g_U = {\bf J_{x}}^T{\bf J_{x}}
 
-    1. :math:`d(x, y) \geq 0`
-    2. :math:`d(x,y)=0 \leftrightarrow x=y`
-    3. :math:`d(x,y)=d(y,x)`
-    4. :math:`d(x,z)\leq d(x,y) + d(y,z)`
+So we can see that the induced inner product is nothing more than the matrix
+product with itself of the Jacobian of the mapping from the local coordinate
+system to the embedded space.  Notice that this multiplication by this Jacobian
+is actually a "with" basis transformation, thus matching the fact that the 
+metric tensor is a (0, 2) covariant tensor.  This transformation is opposite
+of the one we did for tangent vectors in Equation 13, which we can see
+via the `inverse function theorem <https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant#Inverse>`__: :math:`{\bf J_x \circ \varphi} = {\bf J_{y{^-1}}}`
+(:math:`x = \varphi^{-1} = (\varphi^{-1})^{-1} = y^{-1}`).
 
-The basic idea is just some space with a distance defined.  The conditions on
-your distance function are probably pretty intuitive, although you might
-not have explicitly thought about them (the last condition is the triangle
-inequality).  Be careful with the definition of "metric", sometimes it's used
-for the distance function here, and sometimes it's used for the metric tensor.
-
-Some example of common distance functions:
-
-* :math:`\mathcal{R}^n` with the usual Euclidean distance function
-* A `normed vector space <https://en.wikipedia.org/wiki/Normed_vector_space>`__
-  using :math:`d(x,y) = ||y-x||` as your metric.  Examples of a norm can be
-  the Euclidean distance or Manhattan distance.
-* The edit distance between two strings is a metric.
-
-The main thing that I want to emphasize here is that to get a metric space, all
-you need is a proper distance function.  We saw in the last section that
-we could use the Metric tensor to define an inner product operation, which
-allowed us to compute distances.  This idea will come up again below to help
-us compute distances on manifolds.
+Now with the metric tensor, you can compute all kinds of good stuff like
+the `length and angle <https://en.wikipedia.org/wiki/Metric_tensor#Length_and_angle>`__
+or `area <https://en.wikipedia.org/wiki/Metric_tensor#Area>`__.
+I won't go into all the details of how that works because this post is getting
+super long.  It's very similar to the examples above as long as you can keep
+track of which coordinates you are working in.
 
 
 
 |h2| Conclusion |h2e|
 
+- This post was a lot longer than I expected.  When I first looked at this
+  topic from a far, it all seemed so simple but now it's so deep.  
+- This is recurring theme in most areas (ML) 
+- Just scratched the surface, differential geometry is a huge topic with
+  particularly interesting applications in special and general relativity
+  (the main reason why people study it).
+- Next post will *start* to get back to more ML related stuff but probably
+  still have a lot of math (since it's so interesting)!
 
 
 |h2| Further Reading |h2e|
@@ -766,3 +961,6 @@ us compute distances on manifolds.
 * `Differentiable manifolds and smooth maps <http://www.maths.manchester.ac.uk/~tv/Teaching/Differentiable%20Manifolds/2010-2011/1-manifolds.pdf>`__, Theodore Voronov.
 * [1] `"Manifolds (playlist)" <https://www.youtube.com/playlist?list=PLeFwDGOexoe8cjplxwQFMvGLSxbOTUyLv>`__, Robert Davie (YouTube)
 * [2] `"What is a Manifold?" <https://www.youtube.com/playlist?list=PLRlVmXqzHjUQHEx63ZFxV-0Ortgf-rpJo>`__, XylyXylyX (YouTube)
+
+
+.. [1] The word "metric" is ambiguous here.  Sometimes it refers to the metric tensor (as we're using it), and sometimes it refers to a distance function as in metric spaces.  The confusing part is that a metric tensor can be used to define a metric (distance function)!
