@@ -42,14 +42,14 @@
 
 Following up on the math-y stuff from my `last post <link://slug/tensors-tensors-tensors>`__, 
 I'm going to be taking a look at another concept that pops up in ML: manifolds.
-It's probably most well-known use in ML is the 
+It is most well-known in ML for its use in the
 `manifold hypothesis <https://www.quora.com/What-is-the-Manifold-Hypothesis-in-Deep-Learning>`__.
 Manifolds belong to the branch of mathematics called topology and differential
 geometry.  I'll be focusing more on the study of manifolds from the latter
-category, which fortunately is a bit less abstract and more intuitive than the
-former.  As usual, I'll go through some intuition, definitions, and examples to
-help clarify the ideas without going too much into formalities.  I hope you
-mani-like it!
+category, which fortunately is a bit less abstract, more well behaved, and more
+intuitive than the former.  As usual, I'll go through some intuition,
+definitions, and examples to help clarify the ideas without going into too much
+depth or formalities.  I hope you mani-like it!
 
 
 .. TEASER_END
@@ -72,7 +72,7 @@ empirically able to the learn these things in a capacity limited neural
 network.  Otherwise, otherwise learning an arbitrary 256x256x3 function would
 be intractable.
 
-Okay, that's all well and good, but that still answer the question: *what is a manifold?*
+Okay, that's all well and good, but that still doesn't answer the question: *what is a manifold?*
 The abstract definition from topology is well... abstract.  So I won't go into
 all the technical details (also because I'm not very qualified to do so), but
 we'll see that the differential and Riemannian manifolds are surprisingly
@@ -81,7 +81,8 @@ twist) of things.
 
 *(Note: You should check out [1] and [2], which are great YouTube playlists
 for understanding these topics.  [2] especially is just as good (or better)
-than a lecture at a university.)*
+than a lecture at a university.  I used both of these playlists extensively to
+write this post.)*
 
 
 |h3| Circles and Spheres as Manifolds |h3e|
@@ -165,7 +166,7 @@ Hopefully after seeing all these examples, you've developed some intuition
 around manifolds.  In the next section, we'll head back to the math with some
 differential geometry.
 
-|h3| A (slighly) More Formal Look at Manifolds |h3e|
+|h3| A (slightly) More Formal Look at Manifolds |h3e|
 
 Now that we have some intuition, let's a first look at the formal definition of
 `(topological) manifolds <https://en.wikipedia.org/wiki/Topological_manifold#Formal_definition>`__, 
@@ -182,7 +183,7 @@ which I took from [1]:
     * The mapping :math:`\varphi: U \rightarrow V` is called a **chart** or **coordinate system**.  
     * The set :math:`U` is the **domain** or **local coordinate neighbourhood** of the chart.  
     * The image of the point :math:`p \in U`, denoted by :math:`\varphi(p) \in \mathbb{R}^n`,
-      is called the **coordinates** of :math:`p` in the chart.  
+      is called the **coordinates** or **local coordinates** of :math:`p` in the chart.  
     * A set of charts, :math:`\{\varphi_\alpha | \alpha \in \mathbb{N}\}`, with domains :math:`U_\alpha`
       is called the **atlas** of M, if :math:`\bigcup\limits_{\alpha \in \mathbb{N}} U_\alpha = M`.
    
@@ -212,7 +213,7 @@ Since it's a manifold, we know that each point locally has a
 mapping to a lower dimensional Euclidean space (say :math:`\mathbb{R}^n`) via
 :math:`\varphi`, our *chart* or *coordinate system*.  If we take a point
 :math:`p` in our domain, and map it into the lower dimensional Euclidean space,
-the mapped point is called the *coordinate* of :math:`p` in our chart.
+the mapped point is called the *coordinate* or *local coordinate* of :math:`p` in our chart.
 Finally, if we have a bunch of charts whose domains exactly spans the entire
 manifold, then this is called an *atlas*.
 
@@ -225,13 +226,13 @@ is much more accurate.
 .. admonition:: Manifolds: All About Mapping
 
   Wrapping your head around manifolds can be sometimes be hard because of all
-  the symbols.  The key thing to remember is that **manifolds it's all about mappings**.
+  the symbols.  The key thing to remember is that **manifolds are all about mappings**.
   Mapping from the manifold to a local coordinate system in Euclidean space
   using a chart; mapping from one local coordinate system to another
   coordinate system; and later on we'll also see mapping a curve or function on
-  a manifold to a local coordinate too.  Sometime we'll do "hop" once (e.g. manifold
-  to local coordanates), or multiple "hops" (parameter of a curve to location on
-  a manifold to local coordanates).  And since most of our mappings are 1-1
+  a manifold to a local coordinate too.  Sometimes we'll do one "hop" (e.g. manifold
+  to local coordinates), or multiple "hops" (parameter of a curve to location on
+  a manifold to local coordinates).  And since most of our mappings are 1-1
   we can "hop" back and forth as we please to get the mapping we want.
   So make sure you are comfortable
   with how to do these "hops" which are nothing more than simple `functions
@@ -265,7 +266,7 @@ pain in the butt, but analysis in a lower-dimensional Euclidean space is easy
 
   Standard Euclidean space in :math:`\mathbb{R}^n` is, of course, a manifold
   itself. It requires a single chart that it just the identity function,
-  which also makes up its Atlas.  We'll see below that many of concepts
+  which also makes up its atlas.  We'll see below that many of concepts
   we've been learned in Euclidean space have analogues when discussing
   manifolds.
 
@@ -367,7 +368,7 @@ pain in the butt, but analysis in a lower-dimensional Euclidean space is easy
 
   As you might have guessed, we can perform the same 
   `stereographic projection <https://en.wikipedia.org/wiki/Stereographic_projection>`__
-  for :math:`S^2` as well.  Figure 6 shows a visualization (nevermind the
+  for :math:`S^2` as well.  Figure 6 shows a visualization (never mind the
   different notation, I used a drawing from Wikipedia instead of trying to make my own :p).
 
   .. figure:: /images/manifold_sphere.png
@@ -380,7 +381,7 @@ pain in the butt, but analysis in a lower-dimensional Euclidean space is easy
   In a similar way, we can pick a point, draw a line that intersects any other point on
   the sphere, and project it out to the :math:`z=0` (2D) plane.  This chart can cover
   every point except the starting point.  Using two charts each with a point
-  (e.g. "north" and "south" pole), we can create an Atlas that covers every point
+  (e.g. "north" and "south" pole), we can create an atlas that covers every point
   on the sphere.
 
   In general an `n-dimensional sphere <https://en.wikipedia.org/wiki/N-sphere>`__ 
@@ -397,7 +398,7 @@ pain in the butt, but analysis in a lower-dimensional Euclidean space is easy
   3. Pick a plane that intersects at the "equator" relative to the focal point.
      e.g. For the "north" pole focal point, the plane given by the first
      :math:`n` coordinates (remember the :math:`S^n` has n+1 coordinates because
-     it's embedded in :math:`\mathbb{R}^{n+1}`.
+     it's embedded in :math:`\mathbb{R}^{n+1}`).
 
   From this, we can derive similar formulas (using the same similar triangle
   argument) as the previous example.  Using the north pole, as an example, to any
@@ -423,10 +424,10 @@ introduce a few concepts.  The first is a **tangent space** :math:`T_x M`
 of a manifold :math:`M` at a point :math:`{\bf x}`.  It's pretty much exactly
 as it sounds: imagine you are walking along a curve on a smooth manifold,
 as you pass through the point :math:`{\bf x}` you implicitly have velocity
-(magnitude and direction) that is tangent to the manifold or another name
-is a  **tangent vector**.  The tangent vectors made in this way from each
+(magnitude and direction) that is tangent to the manifold, in other words: 
+a  **tangent vector**.  The tangent vectors made in this way from each
 possible curve passing through point :math:`{\bf x}` make up the tangent space at
-:math:`x`.  In two dimensions, this would be a plan.  Figure 7 shows a
+:math:`x`.  In two dimensions, this would be a plane.  Figure 7 shows a
 visualization of this on a manifold.
 
 .. figure:: /images/tangent_space_vector.png
@@ -447,16 +448,17 @@ representing the "tangent space").  Manifolds don't need to even be embedded
 in a higher dimensional space (recall that they are defined just as special
 sets with a mapping to Euclidean space) so we should be careful with some of
 these visualizations.  However, it's always good to have an intuition.  Let's
-try to formalize this idea in two steps: the first a bit more intuitive, the
-second a deeper look to allow us to perform more operations.
+try to formalize this idea in two steps: the first step is a bit more
+intuitive, the second step is a deeper look to allow us to perform more operations.
 
 |h3| Tangent Spaces as the Velocity of Curves |h3e|
 
 Suppose we have our good old smooth manifold :math:`M` and a point on that
-curve :math:`p \in M`.  For a given coordinate chart 
-:math:`\varphi: U \rightarrow \mathbb{R}^n` where :math:`U` is an open subset of 
-:math:`M` containing :math:`p`.  So far so good, this is just repeating what we
-had in Figure 4.
+curve :math:`p \in M` (we switch to the variable :math:`p` for our point
+instead of :math:`x` because we'll use :math:`x` for something else).
+Recall we have a coordinate chart :math:`\varphi: U \rightarrow \mathbb{R}^n`
+where :math:`U` is an open subset of :math:`M` containing :math:`p`.  So far so
+good, this is just repeating what we had in Figure 4.
 
 Now let's define a smooth parametric curve :math:`\gamma: t \rightarrow M` that
 maps a parameter :math:`t \in [a,b]` to :math:`M` that passes through
@@ -488,26 +490,26 @@ parametric curves) then these velocity vectors make a `tangent space
 is :math:`x`).
 Now that we have our tangent (vector) space represented in
 :math:`\mathbb{R}^n`, we can perform our usual Euclidean vector-space
-operations.  (We'll get to it in the next section).
+operations.
 
 |h3| Basis of the Tangent Space |h3e|
 
-Tangent vectors as velocities only tells half the story though because we have
+Tangent vectors as velocities only tell half the story though because we have
 a tangent vector specified in a local coordinate system but what is its basis?
 Recall a `vector <https://en.wikipedia.org/wiki/Coordinate_vector>`__ has its
 coordinates (an ordered list of scalars) that correspond to particular basis
 vectors.  This is important because we want to be able to do analysis on the
 manifold *between* points, not just at a single point.  So understanding how
-the tangent spaces between different points (and potentially charts) on a
-manifold is important.
+the tangent spaces relate between different points (and potentially charts) on
+a manifold is important.
 
 To understand how to construct the tangent space basis, let's first define
 an arbitrary function :math:`f: M \rightarrow \mathbb{R}` and assume we still
 have our good old smooth parametric curve :math:`\gamma: t \rightarrow M`.
 Now we want to look at a new definition of "velocity" relative to this test
 function: :math:`\frac{df \circ \gamma(t)}{dt}\Big|_{t=t_0}` at our point on the manifold
-:math:`p`.  Basically the rate of change of our function as we walk along this
-curve.
+:math:`p`.  Basically the rate of change of our function :math:`f` as we walk
+along this curve.
 
 However, we can do a "trick" by introducing a chart (:math:`\varphi`) and its
 inverse (:math:`\varphi^{-1}`) into this measure of "velocity":
@@ -530,7 +532,7 @@ We can see that by introducing this test function and doing our little trick we
 get the same velocity as Equation 7 but with its corresponding basis vectors.
 
 Okay the next part is going to be a bit strange but bear with me.  We're going
-to take the basis and re-write like so:
+to take the basis and re-write it like so:
 
 .. math::
 
@@ -569,7 +571,7 @@ vectors)
 |h3| Change of Basis for Tangent Vectors |h3e|
 
 Now that we have a basis for our tangent vectors, we want to understand how to
-change basis between them.  Let's just setup/recap a big of notation first.
+change basis between them.  Let's just setup/recap a bit of notation first.
 Let's define two charts for our :math:`d`-dimensional manifold :math:`M`:
 
 .. math::
@@ -627,7 +629,7 @@ After some wrangling with the notation, we can see the change of basis
 is basically just an application of the chain rule.  If you squint hard
 enough, you'll see the change of basis matrix is simply the Jacobian
 :math:`J` of :math:`\vartheta(x) = (y^1(x), \ldots, y^d(x))` written with
-respect to the original chart coordinates :math:`x^i` (instead of the manifiold
+respect to the original chart coordinates :math:`x^i` (instead of the manifold
 point :math:`p`).  In matrix notation, we would get something like:
 
 .. math::
@@ -669,7 +671,7 @@ sphere to make things a bit more concrete.
    :alt: Curve along a sphere
    :align: center
   
-   Figure 8: A circle parallel to the equador with angle :math:`\theta`
+   Figure 8: A circle parallel to the equator with angle :math:`\theta`
    (source: Wikipedia).
   
   We can define this parametric curve by:
@@ -685,10 +687,10 @@ sphere to make things a bit more concrete.
   Notice that the sum of squares of the components of :math:`\gamma(t)` equals
   to :math:`1` using the trigonometric identity :math:`\cos^2 \theta + \sin^2
   \theta = 1`.  Let's try to find the tangent vector at the point 
-  :math:`\gamma(t_0 = 0) = (\frac{1}{\sqrt{2}}, 0, \frac{1}{\sqrt{2}})`.
+  :math:`\gamma(t_0 = 0) = (x, y, z) = (\frac{1}{\sqrt{2}}, 0, \frac{1}{\sqrt{2}})`.
 
-  First, following Equation 6, our chart :math:`\varphi` (and its inverse) look
-  like (I'm not going to use the superscript notation here for the local
+  First, following Equation 6, let's write down our chart :math:`\varphi` and
+  its inverse (I'm not going to use the superscript notation here for the local
   coordinates but you should know it's pretty common):
 
   .. math::
@@ -701,7 +703,7 @@ sphere to make things a bit more concrete.
     \tag{15}
 
   Plugging in our point at :math:`p=\gamma(t_0=0)`, we get 
-  :math:`\varphi(p) = (\sqrt{2} + 1, 0)`.
+  :math:`\varphi(p) = (u_1, u_2) = (\sqrt{2} + 1, 0)`.
 
   To find the coordinates in our tangent space, we use Equation 7:
 
@@ -755,10 +757,10 @@ sphere to make things a bit more concrete.
 
   .. math::
 
-    {\bf T_{\theta}} = 0 \cdot \big(\frac{\partial}{\partial w_1} \big)_p +
+    {\bf T_{\vartheta}} = 0 \cdot \big(\frac{\partial}{\partial w_1} \big)_p +
               (\sqrt{2} - 1) \cdot \big(\frac{\partial}{\partial w_2} \big)_p \tag{19}
 
-  We should also be able to find :math:`{\bf T_{\theta}}` directly by using
+  We should also be able to find :math:`{\bf T_{\vartheta}}` directly by using
   Equation 13 and the Jacobian of :math:`\vartheta`.  To do this, we need to
   find :math:`w_i` in terms of :math:`u_j`:
 
@@ -809,17 +811,17 @@ sphere to make things a bit more concrete.
 
 |h2| Riemannian Manifolds |h2e|
 
-So we now know how to find tangent vectors at each point on a smooth manifold
-but we still can't do anything interesting yet!  To do that we'll have to
-introduce another tensor, you guess it, the metric tensor!  In particular, the
+Even though we now know how to find tangent vectors at each point on a smooth
+manifold, we still can't do anything interesting yet!  To do that we'll have to
+introduce another special tensor called -- you guess it -- the metric tensor!  In particular, the
 **Riemannian metric (tensor)** [1]_ is a family of inner products:
 
 .. math::
 
     g_p: T_pM \times T_pM \rightarrow \mathbb{R}, p \in M \tag{22}
 
-such that :math:`p \rightarrow g_p(X(p), Y(p))` for any two tangent vectors is
-a smooth function of :math:`p`.  
+such that :math:`p \rightarrow g_p(X(p), Y(p))` for any two tangent vectors
+:math:`X(p), Y(p)` is a smooth function of :math:`p`.  
 
 The implications of this is that even though each adjacent tangent space can be
 different (the manifold curves therefore the tangent space changes), the inner
@@ -835,15 +837,16 @@ A natural way to define the metric tensor is to take our :math:`n` manifold
 standard Euclidean metric tensor in :math:`n+k` space but transformed to
 a local coordinate system on :math:`M`.  That is, we're going to define
 our Riemannian metric for our manifold using the metric tensor from the
-embedded Euclidean space.  This guarantees that we'll have the nice smoothness
-property because we're using the standard Euclidean metric.
+embedded Euclidean space.  This guarantees that we'll have this nice smoothness
+property because we're inducing it from the standard Euclidean metric in the
+embedded space.
 
 To start, let's figure out how to translate a tangent vector from :math:`n`
 dimensions back into our :math:`n+k` embedding space.  Let's use Einstein
-notation and :math:`x` for our embedded space and :math:`y` for the local
+notation, :math:`x` for our embedded space and :math:`y` for the local
 coordinate system with :math:`y^i(p)` maps coordinate :math:`i` from
 the embedded space to the local coordinate system, and :math:`x^i(\varphi(p))`
-the reverse mapping.  Starting from Equation 10
+the reverse mapping.  Starting from Equation 10:
 
 
 .. math::
@@ -857,11 +860,11 @@ the reverse mapping.  Starting from Equation 10
             &= v(y^i) \cdot 
                 \frac{\partial x^j}{\partial y^i}\Big|_{y=\varphi(p)}
                 \Big(\frac{\partial}{\partial x^j}\Big)_p \\
-            &= \frac{d \gamma^j(t)}{dt} \cdot {\bf e^j}
+            &= \frac{d \gamma^j(t)}{dt} \cdot {\bf e^j} \\
             \tag{23}
 
 I added the "box" symbol there as a placeholder for our arbitrary function
-:math:`f`.  So here, we're simply playing around with the chain rules to
+:math:`f`.  So here, we're simply playing around with the chain rule to
 get the final result.  The basis is in our embedded space using a similar
 notation to our local coordinate tangent basis.  In fact, we could derive
 the Equation 23 in the same way as Equation 8 using the "velocity" idea.
@@ -871,7 +874,8 @@ vector (i.e. a tensor).  So we could go directly to the velocity
 :math:`\frac{d \gamma(t)}{dt}` instead of doing this back and forth.  
 Additionally, :math:`\Big(\frac{\partial}{\partial x^j}\Big)_p` is
 one-to-one with :math:`\mathbb{R}^{n+k}` of our embedded space, so we can
-also write it in terms of our Euclidean basis vectors :math:`{\bf e}^j`.
+also write it in terms of our standard Euclidean basis vectors :math:`{\bf
+e}^j` just as well.
 
 Now that we know how to convert between the tangent spaces, we can calculate 
 what our Euclidean metric tensor (i.e. the identity matrix) would be in
@@ -923,33 +927,39 @@ coordinate system:
     g_U = {\bf J_{x}}^T{\bf J_{x}}
 
 So we can see that the induced inner product is nothing more than the matrix
-product with itself of the Jacobian of the mapping from the local coordinate
+product of the Jacobian with itself of the mapping from the local coordinate
 system to the embedded space.  Notice that this multiplication by this Jacobian
 is actually a "with" basis transformation, thus matching the fact that the 
 metric tensor is a (0, 2) covariant tensor.  This transformation is opposite
 of the one we did for tangent vectors in Equation 13, which we can see
-via the `inverse function theorem <https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant#Inverse>`__: :math:`{\bf J_x \circ \varphi} = {\bf J_{y{^-1}}}`
-(:math:`x = \varphi^{-1} = (\varphi^{-1})^{-1} = y^{-1}`).
+via the `inverse function theorem <https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant#Inverse>`__:
+:math:`{\bf J_x \circ \varphi} = {\bf (J_y)^{-1}}`.
 
 Now with the metric tensor, you can compute all kinds of good stuff like
-the `length and angle <https://en.wikipedia.org/wiki/Metric_tensor#Length_and_angle>`__
+the `length or angle <https://en.wikipedia.org/wiki/Metric_tensor#Length_and_angle>`__
 or `area <https://en.wikipedia.org/wiki/Metric_tensor#Area>`__.
 I won't go into all the details of how that works because this post is getting
 super long.  It's very similar to the examples above as long as you can keep
-track of which coordinates you are working in.
+track of which coordinate system you are working in.
 
 
 
 |h2| Conclusion |h2e|
 
-- This post was a lot longer than I expected.  When I first looked at this
-  topic from a far, it all seemed so simple but now it's so deep.  
-- This is recurring theme in most areas (ML) 
-- Just scratched the surface, differential geometry is a huge topic with
-  particularly interesting applications in special and general relativity
-  (the main reason why people study it).
-- Next post will *start* to get back to more ML related stuff but probably
-  still have a lot of math (since it's so interesting)!
+Whew!  This post was a lot longer than I expected.  In fact, for some
+reason I thought I could write a single post on tensors *and* manifolds,
+how naive!  And the funny part is that I've barely scratched the surface
+of both topics.  This seems to be a common theme on technical topics: you only
+really see the tip of the iceberg but underneath there is a huge mass of
+(interesting) details.
+Differential geometry itself is a much bigger topic than what I presented here
+and its premier application in special and general relativity.  If you search online
+you'll see that there are some great resources (many of which I used in this post).
+
+In the next post, I'll start getting back to more ML related stuff though
+(hopefully).  These last two mathematics heavy posts were just a detour
+for me to pick up a greater understanding of some of the math behind a lot
+of ML.  See you next time!
 
 
 |h2| Further Reading |h2e|
