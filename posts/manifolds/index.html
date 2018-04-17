@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="A quick introduction to manifolds.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manifolds: A Gentle Introduction | Bounded Rationality</title>
+<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
+<link rel="canonical" href="http://bjlkeng.github.io/posts/manifolds/">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="description" itemprop="description" content="A quick introduction to manifolds.">
+<meta name="author" content="Brian Keng">
+<link rel="prev" href="../tensors-tensors-tensors/" title="Tensors, Tensors, Tensors" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="Manifolds: A Gentle Introduction">
+<meta property="og:url" content="http://bjlkeng.github.io/posts/manifolds/">
+<meta property="og:description" content="A quick introduction to manifolds.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2018-03-13T16:24:57-05:00">
+<meta property="article:tag" content="manifolds">
+<meta property="article:tag" content="mathjax">
+<meta property="article:tag" content="metric tensor">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://bjlkeng.github.io/">
+
+                <span class="h1" id="blog-title">Bounded Rationality</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
+            <ul class="nav navbar-nav">
+<p class="lead">Understanding math, machine learning, and data to a satisfactory degree.</p>
+<!--
+                
+                <li><a href="/archive.html">Archive</a>
+                <li><a href="/categories/">Tags</a>
+                <li><a href="/rss.xml">RSS feed</a>
+
+                 
+-->
+            </ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+    <a href="index.rst" id="sourcelink">Source</a>
+    </li>
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            <div class="col-lg-9">
+                
+                
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Manifolds: A Gentle Introduction</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                    Brian Keng
+            </span></p>
+            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2018-03-13T16:24:57-05:00" itemprop="datePublished" title="2018-03-13 16:24">2018-03-13 16:24</time></a></p>
+            
+        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>Following up on the math-y stuff from my <a class="reference external" href="../tensors-tensors-tensors">last post</a>,
+I'm going to be taking a look at another concept that pops up in ML: manifolds.
+It is most well-known in ML for its use in the
+<a class="reference external" href="https://www.quora.com/What-is-the-Manifold-Hypothesis-in-Deep-Learning">manifold hypothesis</a>.
+Manifolds belong to the branches of mathematics of topology and differential
+geometry.  I'll be focusing more on the study of manifolds from the latter
+category, which fortunately is a bit less abstract, more well behaved, and more
+intuitive than the former.  As usual, I'll go through some intuition,
+definitions, and examples to help clarify the ideas without going into too much
+depth or formalities.  I hope you mani-like it!</p>
+<!-- TEASER_END -->
+<p><br></p>
+<h4> Manifolds </h4>
+<p>The first place most ML people hear about this term is in the
+<a class="reference external" href="https://www.quora.com/What-is-the-Manifold-Hypothesis-in-Deep-Learning">manifold hypothesis</a>:</p>
+<blockquote>
+The manifold hypothesis is that real-world high dimensional data (such as
+images) lie on low-dimensional manifolds embedded in the high-dimensional
+space.</blockquote>
+<p>The main idea here is that even though our real-world data is high-dimensional,
+there is actually some lower-dimensional representation.  For example, all "cat
+images" might lie on a lower-dimensional manifold compared to say their
+original 256x256x3 image dimensions.  This makes sense because we are
+empirically able to the learn these things in a capacity limited neural
+network.  Otherwise learning an arbitrary 256x256x3 function would
+be intractable.</p>
+<p>Okay, that's all well and good, but that still doesn't answer the question: <em>what is a manifold?</em>
+The abstract definition from topology is well... abstract.  So I won't go into
+all the technical details (also because I'm not very qualified to do so), but
+we'll see that the differential and Riemannian manifolds are surprisingly
+intuitive (in low dimensions at least) once you get the hang (or should I say
+twist) of it.</p>
+<p><em>(Note: You should check out [1] and [2], which are great YouTube playlists
+for understanding these topics.  [2] especially is just as good (or better)
+than a lecture at a university.  I used both of these playlists extensively to
+write this post.)</em></p>
+<p></p>
+<h5> Circles and Spheres as Manifolds </h5>
+<p>A <strong>manifold</strong> is a topological space that "locally" resembles Euclidean space.
+This obviously doesn't mean much unless you've studied topology.
+An intuitive (but not exactly correct) way to think about it is taking
+a geometric object from <span class="math">\(\mathbb{R}^k\)</span> and trying to "fit" it into
+<span class="math">\(\mathbb{R}^n, n&gt;k\)</span>.  Let's take a first example, a line segment, which
+is obviously one dimensional.</p>
+<p>One way to embed a line in two dimensions is to "wrap" it around into a circle,
+shown in Figure 1.  Each arc of the circle locally looks closer to a line
+segment, and if you take an infinitesimal arc, it will "locally" resemble a
+one dimensional line segment.</p>
+<div class="figure align-center">
+<img alt="A Circle is a Manifold" src="../../images/manifold_circle.png" style="height: 250px;"><p class="caption">Figure 1: A circle is a one-dimensional manifold embedded in two dimensions
+where each arc of the circle is locally resembles a line segment (source: Wikipedia).</p>
+</div>
+<p>Of course, there is a much more
+<a class="reference external" href="https://en.wikipedia.org/wiki/Topological_manifold#Formal_definition">precise definition</a>
+from topology in which a manifold is defined as a set that is
+<a class="reference external" href="https://en.wikipedia.org/wiki/Homeomorphism">homeomorphic</a>
+to Euclidean space.  A homeomorphism is a special kind of continuous one-to-one
+mapping that preserves topological properties.  The definition is quite
+abstract because the definition says a (topological) manifold is just a special
+kind of set without any explicit reference of how it can be viewed as a
+geometric object.  We'll take a closer look at this a bit below, but for now,
+let's focus on the big idea.</p>
+<p>Actually any "closed" loop in one dimension is a manifold because you can
+imagine "wrapping" it around into the right shape.  Another way to think about
+it (from the formal definition) is that from a line (segment), you can find a
+continuous one-to-one mapping to a closed loop.  An interesting point is that
+figure "8" is not a manifold because the crossing point does not locally
+resemble a line segment.</p>
+<p>These closed loop manifolds are the easiest 1D manifolds to think about but
+there are other weird cases too shown in Figure 2.  As you can see, we can have
+a variety of different shapes.  The big idea is that we can also have "open
+ended" curves that extend out to infinity, which are natural mappings to
+a one dimensional line.</p>
+<div class="figure align-center">
+<img alt="Other 1D Manifolds" src="../../images/manifold_1d_other.png" style="height: 250px;"><p class="caption">Figure 2: Circles, parabolas, hyperbolas and
+<a class="reference external" href="https://en.wikipedia.org/wiki/Cubic_curve">cubic curves</a>
+are all 1D Manifolds.  Note: the four different colours are all on separate
+axes and extend out to infinity if it has an open end (source: Wikipedia).</p>
+</div>
+<p>Let's now move onto 2D manifolds. The simplest one is a sphere.  You can
+imagine each infinitesimal patch of the sphere locally resembles a 2D Euclidean
+plane.  Similarly, any 2D surface (including a plane) that doesn't
+self-intersect is also a 2D manifold.  Figure 3 shows some examples.</p>
+<div class="figure align-center">
+<img alt="1D Manifolds" src="../../images/manifold_2d.gif" style="height: 350px;"><p class="caption">Figure 3: Non-intersecting closed surfaces in <span class="math">\(\mathbb{R}^3\)</span> are
+examples of 2D manifolds such as a sphere, torus, double torus, cross
+surfaces and Klein bottle (source: Wolfram).</p>
+</div>
+<p>For these examples, you can imagine that each point on these manifolds
+locally resembles a 2D plane.  This best analogy is Earth.  We know that the
+Earth is round but when we stand in a field it looks flat.  We can of course
+have higher dimension manifolds embedded in even larger dimension Euclidean
+spaces but you can't really visualize them.  Abstract math is rarely easy to
+reason about in higher dimensions.</p>
+<p>Hopefully after seeing all these examples, you've developed some intuition
+around manifolds.  In the next section, we'll head back to the math with some
+differential geometry.</p>
+<p></p>
+<h5> A (slightly) More Formal Look at Manifolds </h5>
+<p>Now that we have some intuition, let's take a first look at the formal definition of
+<a class="reference external" href="https://en.wikipedia.org/wiki/Topological_manifold#Formal_definition">(topological) manifolds</a>,
+which I took from [1]:</p>
+<blockquote>
+<p>An n-dimensional <strong>topological manifold</strong> <span class="math">\(M\)</span> is a topological Hausdorff
+space with a countable base which is locally homeomorphic to <span class="math">\(\mathbb{R}^n\)</span>.
+This means that for every point <span class="math">\(p\)</span> in <span class="math">\(M\)</span> there is an open
+neighbourhood <span class="math">\(U\)</span> of <span class="math">\(p\)</span> and a homeomorphism <span class="math">\(\varphi: U \rightarrow V\)</span>
+which maps the set <span class="math">\(U\)</span> onto an open set <span class="math">\(V \subset \mathbb{R}^n\)</span>.
+Additionally:</p>
+<ul class="simple">
+<li>The mapping <span class="math">\(\varphi: U \rightarrow V\)</span> is called a <strong>chart</strong> or <strong>coordinate system</strong>.</li>
+<li>The set <span class="math">\(U\)</span> is the <strong>domain</strong> or <strong>local coordinate neighbourhood</strong> of the chart.</li>
+<li>The image of the point <span class="math">\(p \in U\)</span>, denoted by <span class="math">\(\varphi(p) \in \mathbb{R}^n\)</span>,
+is called the <strong>coordinates</strong> or <strong>local coordinates</strong> of <span class="math">\(p\)</span> in the chart.</li>
+<li>A set of charts, <span class="math">\(\{\varphi_\alpha | \alpha \in \mathbb{N}\}\)</span>, with domains <span class="math">\(U_\alpha\)</span>
+is called the <strong>atlas</strong> of M, if <span class="math">\(\bigcup\limits_{\alpha \in \mathbb{N}} U_\alpha = M\)</span>.</li>
+</ul>
+</blockquote>
+<p>This definition is hard to understand especially because a Hausdorff space is
+never defined.  That's not too important because we're not going to go into the
+topological formalities, the most important parts are the new terminology,
+which thankfully have an intuitive interpretation.  Let's take a look at Figure 4,
+which should clear up some of the ideas.</p>
+<div class="figure align-center">
+<img alt="Charts on a Manifold" src="../../images/coordinate_chart_manifold.png" style="height: 250px;"><p class="caption">Figure 4: Two intersecting patches (green and purple with cyan/teal as the
+intersection) on a manifold with different charts (continuous 1-1 mappings)
+to <span class="math">\(\mathbb{R}^n\)</span> Euclidean space.  Notice that the intersection of the patches have a
+smooth 1-1 mapping in <span class="math">\(\mathbb{R}^n\)</span> Euclidean space, making it a differential manifold
+(source: Wikipedia).</p>
+</div>
+<p>First of all our manifold in this case is <span class="math">\(X\)</span>, which we can imagine is
+embedded in some high dimension <span class="math">\(n+k\)</span>.
+We have two different "patches" or <em>domains</em> (or <em>local coordinate neighbourhoods</em>)
+defined by <span class="math">\(U_\alpha\)</span> (green) and <span class="math">\(U_\beta\)</span> (purple) in <span class="math">\(X\)</span>.
+Since it's a manifold, we know that each point locally has a
+mapping to a lower dimensional Euclidean space (say <span class="math">\(\mathbb{R}^n\)</span>) via
+<span class="math">\(\varphi\)</span>, our <em>chart</em> or <em>coordinate system</em>.  If we take a point
+<span class="math">\(p\)</span> in our domain, and map it into the lower dimensional Euclidean space,
+the mapped point is called the <em>coordinate</em> or <em>local coordinate</em> of <span class="math">\(p\)</span> in our chart.
+Finally, if we have a bunch of charts whose domains exactly spans the entire
+manifold, then this is called an <em>atlas</em>.</p>
+<p>The best analogy for all of this is really just geography.  I've never really
+studied geography beyond grade school but I'm guessing you have similar terminology
+such as charts, coordinate systems, and atlases.  The ideas are, on the
+surface, similar.  However, I'd probably still stick with Figure 4, which
+is much more accurate.</p>
+<div class="admonition admonition-manifolds-all-about-mapping">
+<p class="first admonition-title">Manifolds: All About Mapping</p>
+<p class="last">Wrapping your head around manifolds can be sometimes be hard because of all
+the symbols.  The key thing to remember is that <strong>manifolds are all about mappings</strong>.
+Mapping from the manifold to a local coordinate system in Euclidean space
+using a chart; mapping from one local coordinate system to another
+coordinate system; and later on we'll also see mapping a curve or function on
+a manifold to a local coordinate too.  Sometimes we'll do one "hop" (e.g. manifold
+to local coordinates), or multiple "hops" (parameter of a curve to location on
+a manifold to local coordinates).  And since most of our mappings are 1-1
+we can "hop" back and forth as we please to get the mapping we want.
+So make sure you are comfortable
+with how to do these "hops" which are nothing more than simple <a class="reference external" href="https://en.wikipedia.org/wiki/Function_composition">function
+compositions</a>.</p>
+</div>
+<p>Figure 4 also has another mapping between the intersecting parts of
+<span class="math">\(U_\alpha\)</span> and <span class="math">\(U_\beta\)</span> in their respective chart coordinates
+called a <strong>transition map</strong>, given by
+<span class="math">\(\varphi_{\alpha\beta} = \varphi_\beta \circ \varphi_\alpha^{-1}\)</span> and
+<span class="math">\(\phi_{\beta\alpha}=\varphi_\alpha \circ \varphi_\beta^{-1}\)</span>
+(their domain is restricted to either <span class="math">\(\varphi_\alpha(U_\alpha \cap U_\beta)\)</span>
+or <span class="math">\(\varphi_\beta(U_\alpha \cap U_\beta)\)</span>, respectively).</p>
+<p>These transition functions are important because depending on their
+differentiability, they define a new class of
+<a class="reference external" href="https://en.wikipedia.org/wiki/Differentiable_manifold">differentiable manifolds</a>
+(denoted by <span class="math">\(C^k\)</span> if they are k-times continuously differentiable).
+The most important one for our conversation being transition maps that are
+infinitely differentiable, which we call
+<a class="reference external" href="https://en.wikipedia.org/wiki/Differentiable_manifold#Definition">smooth manifolds</a>.</p>
+<p>The motivation here is that once we have smooth manifolds, we can do a bunch of
+nice things like calculus.  Remember, once we have smooth mappings to lower
+dimensional Euclidean space, things are a lot easier to analyze.  Performing
+analysis on a manifold embedded in a high dimensional space could be a major
+pain in the butt, but analysis in a lower-dimensional Euclidean space is easy
+(relatively)!</p>
+<div class="admonition admonition-example-1-euclidean-space-is-a-manifold">
+<p class="first admonition-title">Example 1: Euclidean Space is a Manifold</p>
+<p class="last">Standard Euclidean space in <span class="math">\(\mathbb{R}^n\)</span> is, of course, a manifold
+itself. It requires a single chart that it just the identity function,
+which also makes up its atlas.  We'll see below that many of concepts
+we've been learned in Euclidean space have analogues when discussing
+manifolds.</p>
+</div>
+<div class="admonition admonition-example-2-a-1d-manifold-with-multiple-charts">
+<p class="first admonition-title">Example 2: A 1D Manifold with Multiple Charts</p>
+<p>Let's take pretty much the simplest example we can think of: a circle.</p>
+<p>If we use <a class="reference external" href="https://en.wikipedia.org/wiki/Polar_coordinate_system#Conventions">polar coordinates</a>,
+the unit circle can be parameterized with <span class="math">\(r=1\)</span> and <span class="math">\(\theta\)</span>.</p>
+<p>The unit circle is a 1D manifold <span class="math">\(M\)</span>, so it should be able to map to
+<span class="math">\(\mathbb{R}\)</span>.  We might be tempted to just have a simple chart mapping
+such as <span class="math">\(\varphi(r, \theta) = \theta\)</span> but because <span class="math">\(\theta\)</span> is a
+multi-valued we need to restrict the domain.  Further, we'll need more than
+one chart mapping because a chart can only work on an open set
+(the analogue to an open interval, i.e. we can't use <span class="math">\([0, 2\pi)\)</span>).</p>
+<p>We can create four charts (or mappings) as in Figure 1, that have the form
+<span class="math">\(M \rightarrow \mathbb{R}\)</span>:</p>
+<div class="math">
+\begin{align*}
+\varphi_1(r, \theta) &amp;= \theta  &amp;&amp; \theta \in (-\frac{\pi}{3}, \frac{\pi}{3}) \\
+\varphi_2(r, \theta) &amp;= \theta  &amp;&amp; \theta \in (\frac{\pi}{6}, \frac{5\pi}{6}) \\
+\varphi_3(r, \theta) &amp;= \theta  &amp;&amp; \theta \in (\frac{2\pi}{3}, \frac{4\pi}{3}) \\
+\varphi_4(r, \theta) &amp;= \theta  &amp;&amp; \theta \in (\frac{7\pi}{6}, \frac{11\pi}{6}) \\
+\tag{1}
+\end{align*}
+</div>
+<p>Notice that there is overlap in <span class="math">\(\theta\)</span> between the charts where each
+one has an open set (i.e. the domain) on the original circle.
+<span class="math">\({\varphi_1, \varphi_2, \varphi_3, \varphi_4}\)</span> together form an atlas
+for <span class="math">\(M\)</span> because their domains span the entirety of the manifold.</p>
+<p></p>
+<hr>
+<p>We can also find other charts to map the unit circle.  Let's take a look at
+another construction using standard Euclidean coordinates and a
+<a class="reference external" href="https://en.wikipedia.org/wiki/Stereographic_projection">stereographic projection</a>.
+Figure 5 shows a picture of this construction.</p>
+<div class="figure align-center">
+<img alt="Circle Manifold with Charts" src="../../images/circle_manifold_projection.png" style="height: 350px;"><p class="caption">Figure 5: A construction of charts on a 1D circle manifold.</p>
+</div>
+<p>We can define two charts by taking either the "north" or "south" pole of the
+circle, finding any <em>other</em> point on the circle and projecting the line
+segment onto the x-axis.  This provides the mapping from a point on the
+manifold to <span class="math">\(\mathbb{R}^1\)</span>.  The "north" pole point is visualized in blue,
+while the "south" pole point is visualized in burgundy.  Note: the local
+coordinates for the charts are <em>different</em>.  The same point on the circle
+mapped via the two charts do not map to the same point in <span class="math">\(\mathbb{R}^1\)</span>.</p>
+<p>Using the "north" pole point, for any other given point <span class="math">\(p=(x,y)\)</span> on
+the circle, we can find where it intersects the x-axis via similar triangles
+(the radius of the circle is 1, <span class="math">\(\frac{\text{adjacent}}{\text{opposite}}\)</span>):</p>
+<div class="math">
+\begin{equation*}
+u_1 := \varphi_1(p) = \frac{\varphi_1(p)}{1} = \frac{x_p}{1 - y_p} \tag{2}
+\end{equation*}
+</div>
+<p>This defines a mapping for every point on the circle except the "north" pole.
+Similarly, we can define the same mapping for the "south" pole for any
+point on the circle <span class="math">\(q\)</span> (except the "south" pole):</p>
+<div class="math">
+\begin{equation*}
+u_2 := \varphi_2(q) = \frac{\varphi_2(q)}{1} = \frac{x_q}{1 + y_q} \tag{3}
+\end{equation*}
+</div>
+<p>Together, <span class="math">\({\varphi_1, \varphi_2}\)</span> make up an atlas for <span class="math">\(M\)</span>.
+Since charts are 1-1, we can find the inverse mapping between the manifold
+and local coordinates as well (using the fact that <span class="math">\(x^2 + y^2=1\)</span>):</p>
+<div class="math">
+\begin{align*}
+x_p &amp;= \frac{2u_1}{u_1^2+1}, &amp;y_p = \frac{u_1^2-1}{u_1^2+1} \\
+x_q &amp;= \frac{2u_2}{u_2^2+1}, &amp;y_q = \frac{1-u_2^2}{u_2^2+1} \\
+\tag{4}
+\end{align*}
+</div>
+<p>Finally, we can find the transition map <span class="math">\(\varphi_{\alpha\beta}\)</span> as:</p>
+<div class="math">
+\begin{align*}
+u_2 &amp;= \varphi_{\alpha\beta}(u_1) \\
+&amp;= \varphi_2 \circ \varphi_1^{-1}(u_1) \\
+&amp;= \varphi_2(\varphi_1^{-1}(u_1)) \\
+&amp;= \varphi_2\big((\frac{2u_1}{u_1^2+1}, \frac{u_1^2-1}{u_1^2+1})\big) \\
+&amp;= \frac{\frac{2u_1}{u_1^2+1}}{1 + \frac{u_1^2-1}{u_1^2+1}} \\
+&amp;= \frac{1}{u_1} \\
+\tag{5}
+\end{align*}
+</div>
+<p class="last">which is only defined for the points in the intersection (i.e. all points
+on the circle except the "north" and "south" pole).</p>
+</div>
+<div class="admonition admonition-example-3-stereographic-projections-for-math-s-n">
+<p class="first admonition-title">Example 3: Stereographic Projections for <span class="math">\(S^n\)</span></p>
+<p>As you might have guessed, we can perform the same
+<a class="reference external" href="https://en.wikipedia.org/wiki/Stereographic_projection">stereographic projection</a>
+for <span class="math">\(S^2\)</span> as well.  Figure 6 shows a visualization (never mind the
+different notation, I used a drawing from Wikipedia instead of trying to make my own :p).</p>
+<div class="figure align-center">
+<img alt="Spherical Manifold" src="../../images/manifold_sphere.png" style="height: 350px;"><p class="caption">Figure 6: A construction of charts on a 2D sphere (source: Wikipedia).</p>
+</div>
+<p>In a similar way, we can pick a point, draw a line that intersects any other point on
+the sphere, and project it out to the <span class="math">\(z=0\)</span> (2D) plane.  This chart can cover
+every point except the starting point.  Using two charts each with a point
+(e.g. "north" and "south" pole), we can create an atlas that covers every point
+on the sphere.</p>
+<p>In general an <a class="reference external" href="https://en.wikipedia.org/wiki/N-sphere">n-dimensional sphere</a>
+is a manifold of <span class="math">\(n\)</span> dimensions and is given the name <span class="math">\(S^n\)</span>.
+So a circle is a 1-dimensional sphere, a "normal" sphere is a 2-dimensional sphere,
+and a n-dimensional sphere can be embedded in (n+1)-dimensional Euclidean space
+where each point is equidistant to the origin.</p>
+<p>This projection can generalized for <span class="math">\(S^n\)</span> using the same method:</p>
+<ol class="arabic simple">
+<li>Pick an arbitrary focal point on the sphere (not on the hyperplane you are
+projecting to) e.g. the "north" pole <span class="math">\(p_N = (0, \ldots, 0,1)\)</span>.</li>
+<li>Project a line from the focal point to any other point on the hypersphere.</li>
+<li>Pick a plane that intersects at the "equator" relative to the focal point.
+e.g. For the "north" pole focal point, the plane given by the first
+<span class="math">\(n\)</span> coordinates (remember the <span class="math">\(S^n\)</span> has n+1 coordinates because
+it's embedded in <span class="math">\(\mathbb{R}^{n+1}\)</span>).</li>
+</ol>
+<p>From this, we can derive similar formulas (using the same similar triangle
+argument) as the previous example.  Using the north pole as an example to any
+point <span class="math">\(p =({\bf x}, z) \in S^n\)</span> on the hypersphere, and the hyperplane
+given by <span class="math">\(z=0\)</span>, we can get the projected point <span class="math">\(({\bf u_N}, 0)\)</span>
+using the following equations:</p>
+<div class="math">
+\begin{align*}
+{\bf u_N} := \varphi_N(p) = \frac{\bf x}{1 - z} \\
+{\bf x} = \frac{2{\bf u_N}}{|{\bf u_N}|^2 + 1} \\
+z = \frac{|{\bf u_N}|^2 - 1}{|{\bf u_N}|^2 + 1} \\
+\tag{6}
+\end{align*}
+</div>
+<p class="last">for vectors <span class="math">\({\bf u_N, x} \in \mathbb{R}^{n}\)</span>.  The symmetric equations
+can also be found for the "south" pole.</p>
+</div>
+<p><br></p>
+<h4> Tangent Spaces </h4>
+<p>To actually calculate things like distance on a manifold, we have to
+introduce a few concepts.  The first is a <strong>tangent space</strong> <span class="math">\(T_x M\)</span>
+of a manifold <span class="math">\(M\)</span> at a point <span class="math">\({\bf x}\)</span>.  It's pretty much exactly
+as it sounds: imagine you are walking along a curve on a smooth manifold,
+as you pass through the point <span class="math">\({\bf x}\)</span> you implicitly have velocity
+(magnitude and direction) that is tangent to the manifold, in other words:
+a  <strong>tangent vector</strong>.  The tangent vectors made in this way from each
+possible curve passing through point <span class="math">\({\bf x}\)</span> make up the tangent space at
+<span class="math">\(x\)</span>.  For a 2D manifold (embedded in 3D), this would be a plane.  Figure 7 shows a
+visualization of this on a manifold.</p>
+<div class="figure align-center">
+<img alt="Tangent Vector" src="../../images/tangent_space_vector.png" style="height: 250px;"><p class="caption">Figure 7: A tangent space <span class="math">\(T_x M\)</span> for manifold <span class="math">\(M\)</span> with tangent
+vector <span class="math">\({\bf v} \in T_x M\)</span>, along a curve travelling through <span class="math">\(x \in M\)</span>
+(source: Wikipedia).</p>
+</div>
+<p>I should note that Figure 7 is a bit misleading because the tangent space/vector
+doesn't necessarily look literally like a plane tangent to the manifold.
+It <em>can</em> however look like this when it is embedded in a higher dimension space
+like it is here for visualization purposes
+(e.g. 2D manifold as a surface shown in 3D with a plane tangent to the surface
+representing the "tangent space").  Manifolds don't need to even be embedded
+in a higher dimensional space (recall that they are defined just as special
+sets with a mapping to Euclidean space) so we should be careful with some of
+these visualizations.  However, it's always good to have an intuition.  Let's
+try to formalize this idea in two steps: the first step is a bit more
+intuitive, the second step is a deeper look to allow us to perform more operations.</p>
+<p></p>
+<h5> Tangent Spaces as the Velocity of Curves </h5>
+<p>Suppose we have our good old smooth manifold <span class="math">\(M\)</span> and a point on that
+curve <span class="math">\(p \in M\)</span> (we switch to the variable <span class="math">\(p\)</span> for our point
+instead of <span class="math">\(x\)</span> because we'll use <span class="math">\(x\)</span> for something else).
+Recall we have a coordinate chart <span class="math">\(\varphi: U \rightarrow \mathbb{R}^n\)</span>
+where <span class="math">\(U\)</span> is an open subset of <span class="math">\(M\)</span> containing <span class="math">\(p\)</span>.  So far so
+good, this is just repeating what we had in Figure 4.</p>
+<p>Now let's define a smooth parametric curve <span class="math">\(\gamma: t \rightarrow M\)</span> that
+maps a parameter <span class="math">\(t \in [a,b]\)</span> to <span class="math">\(M\)</span> that passes through
+<span class="math">\(p\)</span>.  Basically, this just defines a curve that runs along our manifold.
+Now we want to imagine we're walking along this curve <em>in the local
+coordinates</em> i.e. after applying our chart (this is where Figure 7 might be
+misleading), this will give us: <span class="math">\(\varphi \circ \gamma: t \rightarrow
+\mathbb{R}^n\)</span> (from <span class="math">\(t\)</span> to <span class="math">\(M\)</span> to <span class="math">\(\mathbb{R}^n\)</span> in the local
+coordinates).</p>
+<p>Let's label our local coordinates as <span class="math">\({\bf x} = \varphi \circ \gamma(t)\)</span>,
+which is nothing more than a vector valued function of a single parameter which
+can be interpreted as your "position" vector on the manifold (in local
+coordinates) as a function of time <span class="math">\(t\)</span>.  Thus, the velocity is just the
+instantaneous rate of change of our position vector with respect to time.  So
+at time <span class="math">\(t=t_0\)</span> when we're at the point <span class="math">\(p\)</span>, we have:</p>
+<div class="math">
+\begin{equation*}
+\text{"velocity" at } p = \frac{d \varphi \circ \gamma(t)}{dt}\Big|_{t=t_0}
+                      = \Big[\frac{dx^1(t)}{dt}, \ldots, \frac{dx^n(t)}{dt}\Big]\Big|_{t=t_0} \tag{7}
+\end{equation*}
+</div>
+<p>where <span class="math">\(x^i(t)\)</span> is the <span class="math">\(i^{th}\)</span> component of our curve in local coordinates (not an exponent).
+In this case the <a class="reference external" href="https://en.wikipedia.org/wiki/Tangent_vector">tangent vector</a> <span class="math">\(\bf v\)</span>
+is nothing more than the "velocity" at <span class="math">\(p\)</span>.
+If we then take every possible velocity at <span class="math">\(p\)</span> (by specifying different
+parametric curves) then these velocity vectors make a <a class="reference external" href="https://en.wikipedia.org/wiki/Tangent_space">tangent space</a>, denoted by <span class="math">\(T_pM\)</span>
+(careful, our point on the manifold is now <span class="math">\(p\)</span> and the local coordinate
+is <span class="math">\(x\)</span>).
+Now that we have our tangent (vector) space represented in
+<span class="math">\(\mathbb{R}^n\)</span>, we can perform our usual Euclidean vector-space
+operations.</p>
+<p></p>
+<h5> Basis of the Tangent Space </h5>
+<p>Tangent vectors as velocities only tell half the story though because we have
+a tangent vector specified in a local coordinate system but what is its basis?
+Recall a <a class="reference external" href="https://en.wikipedia.org/wiki/Coordinate_vector">vector</a> has its
+coordinates (an ordered list of scalars) that correspond to particular basis
+vectors.  This is important because we want to be able to do analysis on the
+manifold <em>between</em> points and charts, not just at a single point/chart.  So
+understanding how the tangent spaces relate between different points (and
+potentially charts) on a manifold is important.</p>
+<p>To understand how to construct the tangent space basis, let's first define
+an arbitrary function <span class="math">\(f: M \rightarrow \mathbb{R}\)</span> and assume we still
+have our good old smooth parametric curve <span class="math">\(\gamma: t \rightarrow M\)</span>.
+Now we want to look at a new definition of "velocity" relative to this test
+function: <span class="math">\(\frac{df \circ \gamma(t)}{dt}\Big|_{t=t_0}\)</span> at our point on the manifold
+<span class="math">\(p\)</span>.  Basically the rate of change of our function <span class="math">\(f\)</span> as we walk
+along this curve.</p>
+<p>However, we can do a "trick" by introducing a chart (<span class="math">\(\varphi\)</span>) and its
+inverse (<span class="math">\(\varphi^{-1}\)</span>) into this measure of "velocity":</p>
+<div class="math">
+\begin{align*}
+\frac{df \circ \gamma(t)}{dt}\Big|_{t=t_0}
+&amp;= \frac{d(f \circ \varphi^{-1} \circ \varphi \circ \gamma)(t)}{dt}\Big|_{t=t_0}  \\
+&amp;= \frac{d((f \circ \varphi^{-1}) \circ (\varphi \circ \gamma))(t)}{dt}\Big|_{t=t_0}  \\
+&amp;= \sum_i \frac{\partial (f \circ \varphi^{-1})(x)}{\partial x_i}\Big|_{x=\varphi \circ \gamma(t_0)}
+   \frac{d(\varphi \circ \gamma)^i(t)}{dt}\Big|_{t=t_0} &amp;&amp; \text{chain rule} \\
+&amp;= \sum_i \frac{\partial (f \circ \varphi^{-1})(x)}{\partial x_i}\Big|_{x=\varphi(p)}
+   \frac{d(\varphi \circ \gamma)^i(t)}{dt}\Big|_{t=t_0} &amp;&amp; \text{since }\varphi(p) = \gamma(t_0) \\
+&amp;= \sum_i (\text{basis for component }i)(\text{"velocity" of component i wrt to } \varphi) \\
+\tag{8}
+\end{align*}
+</div>
+<p>Note the introduction of partial derivatives and summations in the third line,
+which is just an application of the multi-variable calculus chain rule.
+We can see that by introducing this test function and doing our little trick we
+get the same velocity as Equation 7 but with its corresponding basis vectors.</p>
+<p>Okay the next part is going to be a bit strange but bear with me.  We're going
+to take the basis and re-write it like so:</p>
+<div class="math">
+\begin{align*}
+\Big(\frac{\partial}{\partial x^i}\Big)_p (f) := \frac{\partial (f \circ \varphi^{-1})(\varphi(p))}{\partial x_i} \\
+\tag{9}
+\end{align*}
+</div>
+<p>which simply defines some new notation for the basis.  Importantly the LHS now
+has no mention of <span class="math">\(\varphi\)</span> anymore, but why?  Well there is a convention
+that <span class="math">\(\varphi\)</span> is implicitly specified by <span class="math">\(x^i\)</span>.  So if you have
+some other chart, say, <span class="math">\(\vartheta\)</span>, then you label its local coordinates
+with <span class="math">\(y^i\)</span>.  But it's important to remember that when we're using this
+notation, implicitly there is a chart behind it.</p>
+<p>Okay, so now that we've cleared up that, there's another thing we need to look at:
+what is <span class="math">\(f\)</span>?  We know it's some test function that we used, but it was
+arbitrary.  And in fact, it's so arbitrary we're going to get rid of it!  So
+we're just going to define the basis in terms of the <em>operator</em> that acts of
+<span class="math">\(f\)</span> and not the actual resultant vector!  So every tangent vector
+<span class="math">\(v \in T_pM\)</span>, we have:</p>
+<div class="math">
+\begin{align*}
+{\bf v} &amp;= \sum_{i=1}^n v(x^i) \cdot \Big(\frac{\partial}{\partial x^i}\Big)_p \\
+  &amp;= \sum_{i=1}^n \frac{d(\varphi \circ \gamma)^i(t)}{dt}\Big|_{t=t_0}  \cdot
+    \Big(\frac{\partial}{\partial x^i}\Big)_p \\
+    \tag{10}
+\end{align*}
+</div>
+<p>It turns out the basis is actually a set of <em>differential operators</em>, not the
+actual vectors on the test function <span class="math">\(f\)</span>, which make up a <a class="reference external" href="https://en.wikipedia.org/wiki/Vector_space#Definition">vector space</a>!  Remember,
+a vector space doesn't need to be our usual Euclidean vectors, they can be anything
+that satisfy the vector space properties, including differential operators!
+A bit mind bending if you're not used to these abstract definitions.</p>
+<p></p>
+<h5> Change of Basis for Tangent Vectors </h5>
+<p>Now that we have a basis for our tangent vectors, we want to understand how to
+change basis between them.  Let's just setup/recap a bit of notation first.
+Let's define two charts for our <span class="math">\(d\)</span>-dimensional manifold <span class="math">\(M\)</span>:</p>
+<div class="math">
+\begin{align*}
+\varphi(p) = (x^1(p), \ldots, x^d(p)) \\
+\vartheta(p) = (y^1(p), \ldots, y^d(p)) \\
+\tag{11}
+\end{align*}
+</div>
+<p>where <span class="math">\(x^i(p)\)</span> and <span class="math">\(y^i(p)\)</span> are coordinate functions to find the
+specific index of the local coordinates from a point on our manifold <span class="math">\(p
+\in M\)</span>.  Assume that <span class="math">\(p\)</span> is in the overlap of the domains in the two
+charts.  Now we want to look at how we can convert from a tangent space in one
+chart to another.</p>
+<p>(We're going to switch to a more convenient
+<a class="reference external" href="https://en.wikipedia.org/wiki/Partial_derivative">partial derivative notation</a>
+here: <span class="math">\(\partial_x f := \frac{\partial f}{\partial x}\)</span>, which is just a
+bit more concise.)</p>
+<p>So starting from our summation in Equation 10 (and using <a class="reference external" href="https://en.wikipedia.org/wiki/Einstein_notation">Einstein summation
+notation</a>, see also previous
+my post on <a class="reference external" href="../tensors-tensors-tensors">Tensors</a>)
+acting on our test function <span class="math">\(f\)</span>:</p>
+<div class="math">
+\begin{align*}
+{\bf v} f &amp;= v(x^i) \cdot \Big(\frac{\partial}{\partial x^i}\Big)_p f \\
+  &amp;= v(x^i) \cdot \partial_{x^i} (f \circ \varphi^{-1})(\varphi(p)) &amp;&amp; \text{by definition} \\
+  &amp;= v(x^i) \cdot \partial_{x^i} (f \circ \vartheta^{-1} \circ \vartheta \circ \varphi^{-1})(\varphi(p)) &amp;&amp; \text{introduce } \vartheta \text{ with identity trick}\\
+  &amp;= v(x^i) \cdot \partial_{x^i} ((f \circ \vartheta^{-1}) \circ (\vartheta \circ \varphi^{-1}))(\varphi(p)) \\
+  &amp;= v(x^i) \cdot
+    \partial_{x^i} (\vartheta \circ \varphi^{-1})^j(\varphi(p))
+    \cdot
+    \partial_{y^j} (f \circ \vartheta^{-1})(\vartheta \circ \varphi^{-1}(\varphi(p)))
+    &amp;&amp; \text{chain rule} \\
+  &amp;= v(x^i) \cdot
+    \partial_{x^i} (\vartheta \circ \varphi^{-1})^j(\varphi(p))
+    \cdot
+    \partial_{y^j} (f \circ \vartheta^{-1})(\vartheta(p))
+    &amp;&amp; \text{simplifying} \\
+  &amp;= v(x^i) \cdot
+    \partial_{x^i} (\vartheta \circ \varphi^{-1})^j(\varphi(p))
+    \cdot
+    \Big(\frac{\partial}{\partial y^j}\Big)_p f
+    &amp;&amp; \text{by definition} \\
+  &amp;= v(x^i) \cdot
+    \frac{\partial y^j}{\partial x^i}\big|_{x=\varphi(p)}
+    \cdot
+    \Big(\frac{\partial}{\partial y^j}\Big)_p f
+    &amp;&amp; \text{since }y^j(x) = y^j(\varphi^{-1}(\varphi(x))) \\
+  &amp;= v(y^j) \cdot \Big(\frac{\partial}{\partial y^j}\Big)_p f \\
+\tag{12}
+\end{align*}
+</div>
+<p>After some wrangling with the notation, we can see the change of basis
+is basically just an application of the chain rule.  If you squint hard
+enough, you'll see the change of basis matrix is simply the Jacobian
+<span class="math">\(J\)</span> of <span class="math">\(\vartheta(x) = (y^1(x), \ldots, y^d(x))\)</span> written with
+respect to the original chart coordinates <span class="math">\(x^i\)</span> (instead of the manifold
+point <span class="math">\(p\)</span>).  In matrix notation, we would get something like:</p>
+<div class="math">
+\begin{align*}
+{\bf v(y)}
+= \begin{bmatrix} v(y^1) \\ \ldots \\ v(y^d) \end{bmatrix}
+= {\bf J_y} {\bf v(x)}
+= \begin{bmatrix}
+    \frac{\partial y^1}{\partial x^1}\big|_{x=\varphi(p)}
+      &amp; \cdots
+      &amp; \frac{\partial y^1}{\partial x^d}\big|_{x=\varphi(p)} \\
+    \vdots &amp; \ddots &amp; \vdots \\
+    \frac{\partial y^d}{\partial x^1}\big|_{x=\varphi(p)}
+      &amp; \cdots
+      &amp; \frac{\partial y^d}{\partial x^d}\big|_{x=\varphi(p)}
+  \end{bmatrix}
+  \begin{bmatrix} v(x^1) \\ \ldots \\ v(x^d) \end{bmatrix}\\
+\tag{13}
+\end{align*}
+</div>
+<p>For those of you who understand tensors (if not read my previous post <a class="reference external" href="../tensors-tensors-tensors">Tensors, Tensors, Tensors</a>), the tangent vector
+transforms <em>contravariantly</em> with the change of coordinates (charts),
+that is, it transforms "against" the transformation of change of coordinates.
+A "with" change of coordinates transformation would be multiplying by the
+inverse of the Jacobian, which we'll see below with the metric tensor.</p>
+<p>So after all that manipulation, let's take a look at an example on our
+sphere to make things a bit more concrete.</p>
+<div class="admonition admonition-example-4-tangent-vectors-on-a-sphere">
+<p class="first admonition-title">Example 4: Tangent Vectors on a Sphere</p>
+<p>Let us take the unit sphere, and define a curve <span class="math">\(\gamma(t)\)</span> parallel to
+the equator at a 45 degree angle from the equator.  Figure 8 shows a picture
+where <span class="math">\(\theta=\frac{\pi}{4}\)</span>.</p>
+<div class="figure align-center">
+<img alt="Curve along a sphere" src="../../images/spherical_cap.png" style="height: 250px;"><p class="caption">Figure 8: A circle parallel to the equator with angle <span class="math">\(\theta\)</span>
+(source: Wikipedia).</p>
+</div>
+<p>We can define this parametric curve by:</p>
+<div class="math">
+\begin{equation*}
+\gamma(t) =
+    (\cos \frac{\pi}{4}\cos\pi t,
+     \cos \frac{\pi}{4}\sin\pi t,
+     \sin \frac{\pi}{4}), \text{    }t \in [-1, 1]
+\tag{14}
+\end{equation*}
+</div>
+<p>Notice that the sum of squares of the components of <span class="math">\(\gamma(t)\)</span> equals
+to <span class="math">\(1\)</span> using the trigonometric identity <span class="math">\(\cos^2 \theta + \sin^2
+\theta = 1\)</span>.  Let's try to find the tangent vector at the point
+<span class="math">\(p = \gamma(t_0 = 0) = (x, y, z) = (\frac{1}{\sqrt{2}}, 0, \frac{1}{\sqrt{2}})\)</span>.</p>
+<p>First, following Equation 6, let's write down our chart <span class="math">\(\varphi\)</span> and
+its inverse (I'm not going to use the superscript notation here for the local
+coordinates but you should know it's pretty common):</p>
+<div class="math">
+\begin{align*}
+u_1(x, y, z) &amp;= \frac{x}{1-z} \\
+u_2(x, y, z) &amp;= \frac{y}{1-z} \\
+x &amp;= \frac{2u_1}{u_1^2 + u_2^2 + 1} \\
+y &amp;= \frac{2u_2}{u_1^2 + u_2^2 + 1} \\
+z &amp;= \frac{u_1^2 + u_2^2 - 1}{u_1^2 + u_2^2 + 1} \\
+\tag{15}
+\end{align*}
+</div>
+<p>Plugging in our point at <span class="math">\(p=\gamma(t_0=0)\)</span>, we get
+<span class="math">\(\varphi(p) = (u_1, u_2) = (\sqrt{2} + 1, 0)\)</span>.</p>
+<p>To find the coordinates in our tangent space, we use Equation 7:</p>
+<div class="math">
+\begin{align*}
+\frac{d \varphi \circ \gamma(t)}{dt}\Big|_{t=t_0}
+&amp;= \Big[
+\frac{d u_1(\cos \frac{\pi}{4}\cos\pi t,
+            \cos \frac{\pi}{4}\sin\pi t,
+            \sin \frac{\pi}{4})}{dt},
+\frac{d u_2(\cos \frac{\pi}{4}\cos\pi t,
+            \cos \frac{\pi}{4}\sin\pi t,
+            \sin \frac{\pi}{4})}{dt},
+\Big]\Big|_{t=t_0}  \\
+&amp;= \Big[
+\frac{d \big((\sqrt{2} + 1)\cos\pi t\big)}{dt},
+\frac{d \big((\sqrt{2} + 1)\sin\pi t\big)}{dt}
+\Big]\Big|_{t=t_0}  \\
+&amp;= \Big[ (\sqrt{2}+1)(-\sin\pi t), (\sqrt{2}+1)\cos\pi t \Big]\Big|_{t=t_0}  \\
+&amp;= (0, \sqrt{2}+1)
+\tag{16}
+\end{align*}
+</div>
+<p>Combining with our differential operators as our basis, our tangent vector
+becomes:</p>
+<div class="math">
+\begin{equation*}
+{\bf T_{\varphi}} = 0 \cdot \big(\frac{\partial}{\partial u_1} \big)_p +
+        (\sqrt{2} + 1) \cdot \big(\frac{\partial}{\partial u_2} \big)_p \tag{17}
+\end{equation*}
+</div>
+<p>keeping in mind that the basis is actually in terms of the chart <span class="math">\(\varphi\)</span>
+(implied by the variable <span class="math">\(u_i\)</span>).</p>
+<p></p>
+<hr>
+<p>Next, let's convert these tangent vectors to our other chart,
+<span class="math">\(\vartheta\)</span>, defined by the south pole (we'll denote the local
+coordinates with <span class="math">\(w_i\)</span>):</p>
+<div class="math">
+\begin{align*}
+w_1(x, y, z) &amp;= \frac{x}{1+z} \\
+w_2(x, y, z) &amp;= \frac{y}{1+z} \\
+x &amp;= \frac{2w_1}{w_1^2 + w_2^2 + 1} \\
+y &amp;= \frac{2w_2}{w_1^2 + w_2^2 + 1} \\
+z &amp;= \frac{1 - w_1^2 + w_2^2}{w_1^2 + w_2^2 + 1} \\
+\tag{18}
+\end{align*}
+</div>
+<p>Going through the same exercise as above, we can find the tangent vectors
+with respect to <span class="math">\(\vartheta\)</span> at point <span class="math">\(p\)</span>:</p>
+<div class="math">
+\begin{equation*}
+{\bf T_{\vartheta}} = 0 \cdot \big(\frac{\partial}{\partial w_1} \big)_p +
+          (\sqrt{2} - 1) \cdot \big(\frac{\partial}{\partial w_2} \big)_p \tag{19}
+\end{equation*}
+</div>
+<p>We should also be able to find <span class="math">\({\bf T_{\vartheta}}\)</span> directly by using
+Equation 13 and the Jacobian of <span class="math">\(\vartheta\)</span>.  To do this, we need to
+find <span class="math">\(w_i\)</span> in terms of <span class="math">\(u_j\)</span>:</p>
+<div class="math">
+\begin{align*}
+w_i(u_1, u_2) &amp;= w_i \circ \varphi^{-1}(u_1, u_2) \\
+              &amp;= w_i\Big(\frac{2u_1}{u_1^2 + u_2^2 + 1},
+                     \frac{2u_2}{u_1^2 + u_2^2 + 1},
+                     \frac{u_1^2 + u_2^2 - 1}{u_1^2 + u_2^2 + 1}
+                 \Big)\\
+              &amp;= \frac{u_i}{u_1^2 + u_2^2}
+\tag{20}
+\end{align*}
+</div>
+<p>Now we should be able to plug the value into Equation 13 to find the same
+tangent vector by directly converting from our old chart, remembering that
+<span class="math">\(\varphi(p) = (u_1, u_2) = (\sqrt{2} + 1, 0)\)</span>.</p>
+<div class="math">
+\begin{align*}
+{\bf v(w) }
+&amp;= {\bf J_u} {\bf v(u)} \\
+&amp;= \begin{bmatrix}
+    \frac{\partial w_1}{\partial u_1}\big|_{u=\varphi(p)}
+      &amp; \frac{\partial w_1}{\partial u_2}\big|_{u=\varphi(p)} \\
+    \frac{\partial w_2}{\partial u_1}\big|_{u=\varphi(p)}
+      &amp; \frac{\partial w_2}{\partial u_2}\big|_{u=\varphi(p)}
+  \end{bmatrix}
+  \begin{bmatrix} 0 \\ \sqrt{2} + 1 \end{bmatrix}\\
+&amp;= \begin{bmatrix}
+      \frac{u_2^2 - u_1^2}{(u_1^2+u_2^2)^2}\big|_{u=\varphi(p)}
+    &amp; -\frac{2u_1u_2}{(u_1^2+u_2^2)^2}\big|_{u=\varphi(p)} \\
+      -\frac{2u_1u_2}{(u_1^2+u_2^2)^2}\big|_{u=\varphi(p)}
+    &amp; \frac{u_1^2 - u_2^2}{(u_1^2+u_2^2)^2}\big|_{u=\varphi(p)}
+  \end{bmatrix}
+  \begin{bmatrix} 0 \\ \sqrt{2} + 1 \end{bmatrix}\\
+&amp;= \begin{bmatrix}
+      \frac{- (\sqrt{2} + 1)^2}{(\sqrt{2} + 1)^4}
+    &amp; 0 \\
+      0
+    &amp; \frac{(\sqrt{2} + 1)^2}{(\sqrt{2} + 1)^4}
+  \end{bmatrix}
+  \begin{bmatrix} 0 \\ \sqrt{2} + 1 \end{bmatrix}\\
+&amp;= \begin{bmatrix} 0 \\ \sqrt{2} - 1 \end{bmatrix}\\
+\tag{21}
+\end{align*}
+</div>
+<p class="last">which lines up exactly with our coordinates from Equation 19 above.</p>
+</div>
+<p><br></p>
+<h4> Riemannian Manifolds </h4>
+<p>Even though we now know how to find tangent vectors at each point on a smooth
+manifold, we still can't do anything interesting yet!  To do that we'll have to
+introduce another special tensor called -- you guess it -- the metric tensor!  In particular, the
+<strong>Riemannian metric (tensor)</strong> <a class="footnote-reference" href="#id2" id="id1">[1]</a> is a family of inner products:</p>
+<div class="math">
+\begin{equation*}
+g_p: T_pM \times T_pM \rightarrow \mathbb{R}, p \in M \tag{22}
+\end{equation*}
+</div>
+<p>such that <span class="math">\(p \rightarrow g_p(X(p), Y(p))\)</span> for any two tangent vectors
+<span class="math">\(X(p), Y(p)\)</span> is a smooth function of <span class="math">\(p\)</span>.  Note that this
+is a <em>family</em> of metric tensors, that is, we have a different tensor for
+<em>every</em> point on the manifold.</p>
+<p>The implications of this is that even though each adjacent tangent space can be
+different (the manifold curves therefore the tangent space changes), the inner
+product varies smoothly between adjacent points.  A real, smooth manifold with
+a Riemannian metric (tensor) is called a <strong>Riemannian manifold</strong>.
+Intuitively, Riemannian manifolds have all the nice "smoothness" properties we
+would want and makes our lives a lot easier.</p>
+<p></p>
+<h5> Induced Metric Tensors </h5>
+<p>A natural way to define the metric tensor is to take our <span class="math">\(n\)</span> dimensional manifold
+<span class="math">\(M\)</span> embedded in <span class="math">\(n+k\)</span> dimensional Euclidean space, and use the
+standard Euclidean metric tensor in <span class="math">\(n+k\)</span> space but transformed to
+a local coordinate system on <span class="math">\(M\)</span>.  That is, we're going to define
+our family of Riemannian metric tensors using the metric tensor from the
+embedded Euclidean space.  This guarantees that we'll have this nice smoothness
+property because we're inducing it from the standard Euclidean metric in the
+embedded space.</p>
+<p>To start, let's figure out how to translate a tangent vector in <span class="math">\(n\)</span>
+dimensional local coordinates back into our <span class="math">\(n+k\)</span> embedding space.  Let's use Einstein
+notation, <span class="math">\(x\)</span> for our embedded space and <span class="math">\(y\)</span> for the local
+coordinate system with <span class="math">\(y^i(p)\)</span> maps coordinate <span class="math">\(i\)</span> from
+the embedded space to the local coordinate system, and <span class="math">\(x^i(\varphi(p))\)</span>
+the reverse mapping.  Starting from Equation 10:</p>
+<div class="math">
+\begin{align*}
+{\bf v} &amp;= v(y^i) \cdot \Big(\frac{\partial}{\partial y^i}\Big)_p \\
+        &amp;= v(y^i) \cdot
+            \frac{\partial (□ \circ \varphi^{-1})}{\partial y_i}\Big|_{y=\varphi(p)} \\
+        &amp;= v(y^i) \cdot
+            \frac{\partial x^j}{\partial y^i}\Big|_{y=\varphi(p)}
+            \frac{\partial □}{\partial x^j}\Big|_{x=p} \\
+        &amp;= v(y^i) \cdot
+            \frac{\partial x^j}{\partial y^i}\Big|_{y=\varphi(p)}
+            \Big(\frac{\partial}{\partial x^j}\Big)_p \\
+        &amp;= \frac{d \gamma^j(t)}{dt} \cdot {\bf e^j} \\
+        \tag{23}
+\end{align*}
+</div>
+<p>I added the "box" symbol there as a placeholder for our arbitrary function
+<span class="math">\(f\)</span>.  So here, we're simply playing around with the chain rule to
+get the final result.  The basis is in our embedded space using a similar
+notation to our local coordinate tangent basis.  In fact, we could derive
+the Equation 23 in the same way as Equation 8 using the "velocity" idea.</p>
+<p>Whether in our local tangent space or in the embedded space, they're the same
+vector (i.e. a tensor).  So we could go directly to the velocity
+<span class="math">\(\frac{d \gamma(t)}{dt}\)</span> instead of doing this back and forth.
+Additionally, <span class="math">\(\Big(\frac{\partial}{\partial x^j}\Big)_p\)</span> is
+one-to-one with <span class="math">\(\mathbb{R}^{n+k}\)</span> of our embedded space, so we can
+also write it in terms of our standard Euclidean basis vectors <span class="math">\({\bf
+e}^j\)</span> just as well.</p>
+<p>Now that we know how to convert between the tangent spaces, we can calculate
+what our Euclidean metric tensor (i.e. the identity matrix) would be in
+the local tangent space at point <span class="math">\(p\)</span>.  Suppose <span class="math">\({\bf v_M}, {\bf
+w_M}\)</span> are tangent vectors represented in our embedded Euclidean space and
+<span class="math">\({\bf v_U}, {\bf w_U}\)</span> are the same vectors represented in our local
+coordinate system:</p>
+<div class="math">
+\begin{align*}
+g_M({\bf v_M},{\bf w_M}) &amp;= {\bf v_M} \cdot {\bf v_M} &amp;&amp; \text{Euclidean inner product}\\
+&amp;= \begin{bmatrix}
+      \sum_{i=1}^d v(y^i) \cdot \frac{\partial x^1}{\partial y^i}\Big|_{y=\varphi(p)}
+    &amp; \ldots
+    &amp; \sum_{i=1}^d v(y^i) \cdot \frac{\partial x^n}{\partial y^i}\Big|_{y=\varphi(p)}
+\end{bmatrix}
+\begin{bmatrix}
+      \sum_{i=1}^d w(y^i) \cdot \frac{\partial x^1}{\partial y^i}\Big|_{y=\varphi(p)} \\
+    \ldots \\
+    \sum_{i=1}^d w(y^i) \cdot \frac{\partial x^n}{\partial y^i}\Big|_{y=\varphi(p)}
+\end{bmatrix} &amp;&amp; \text{Subbing in Equation 23} \\
+&amp;=  \begin{bmatrix} v(y^1) &amp; \ldots &amp; v(y^d) \end{bmatrix}
+    \begin{bmatrix}
+        \frac{\partial x^1}{\partial y^1}\Big|_{y=\varphi(p)}
+        &amp; \ldots
+        &amp; \frac{\partial x^n}{\partial y^1}\Big|_{y=\varphi(p)} \\
+        \cdots
+        &amp; \ddots
+        &amp; \cdots \\
+        \frac{\partial x^1}{\partial y^d}\Big|_{y=\varphi(p)}
+        &amp; \ldots
+        &amp; \frac{\partial x^n}{\partial y^d}\Big|_{y=\varphi(p)} \\
+    \end{bmatrix}
+    \begin{bmatrix}
+        \frac{\partial x^1}{\partial y^1}\Big|_{y=\varphi(p)}
+        &amp; \ldots
+        &amp; \frac{\partial x^1}{\partial y^d}\Big|_{y=\varphi(p)} \\
+        \cdots
+        &amp; \ddots
+        &amp; \cdots \\
+        \frac{\partial x^n}{\partial y^1}\Big|_{y=\varphi(p)}
+        &amp; \ldots
+        &amp; \frac{\partial x^n}{\partial y^d}\Big|_{y=\varphi(p)} \\
+    \end{bmatrix}
+   \begin{bmatrix} w(y^1) \\ \ldots \\ w(y^d) \end{bmatrix} \\
+\tag{24}
+&amp;= {\bf v_U}^T{\bf J_{x}}^T{\bf J_{x}}{\bf w_U} \\
+&amp;= g({\bf v_U}, {\bf w_U}) \\
+g_U = {\bf J_{x}}^T{\bf J_{x}}
+\end{align*}
+</div>
+<p>So we can see that the induced inner product is nothing more than the matrix
+product of the Jacobian with itself of the mapping from the local coordinate
+system to the embedded space.  Notice that this multiplication by this Jacobian
+is actually a "with" basis transformation, thus matching the fact that the
+metric tensor is a (0, 2) covariant tensor.  This transformation is opposite
+of the one we did for tangent vectors in Equation 13, which we can see
+via the <a class="reference external" href="https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant#Inverse">inverse function theorem</a>:
+<span class="math">\({\bf J_x \circ \varphi} = {\bf (J_y)^{-1}}\)</span>.</p>
+<p>Now with the metric tensor, you can compute all kinds of good stuff like
+the <a class="reference external" href="https://en.wikipedia.org/wiki/Metric_tensor#Length_and_angle">length or angle</a>
+or <a class="reference external" href="https://en.wikipedia.org/wiki/Metric_tensor#Area">area</a>.
+I won't go into all the details of how that works because this post is getting
+super long.  It's very similar to the examples above as long as you can keep
+track of which coordinate system you are working in.</p>
+<p><br></p>
+<h4> Conclusion </h4>
+<p>Whew!  This post was a lot longer than I expected.  In fact, for some
+reason I thought I could write a single post on tensors <em>and</em> manifolds,
+how naive!  And the funny part is that I've barely scratched the surface
+of both topics.  This seems to be a common theme on technical topics: you only
+really see the tip of the iceberg but underneath there is a huge mass of
+(interesting) details.
+Differential geometry itself is a much bigger topic than what I presented here
+and its premier application in special and general relativity.  If you search online
+you'll see that there are some great resources (many of which I used in this post).</p>
+<p>In the next post, I'll start getting back to more ML related stuff though.
+These last two mathematics heavy posts were just a detour for me to pick up a
+greater understanding of some of the math behind a lot of ML.  See you next
+time!</p>
+<p><br></p>
+<h4> Further Reading </h4>
+<ul class="simple">
+<li>Previous posts: <a class="reference external" href="../tensors-tensors-tensors">Tensors, Tensors, Tensors</a>
+</li>
+<li>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Manifold">Manifold</a>,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Metric_tensor">Metric Tensor</a>,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Metric_space">Metric Space</a>,</li>
+<li>
+<a class="reference external" href="http://www.maths.manchester.ac.uk/~tv/Teaching/Differentiable%20Manifolds/2010-2011/1-manifolds.pdf">Differentiable manifolds and smooth maps</a>, Theodore Voronov.</li>
+<li>[1] <a class="reference external" href="https://www.youtube.com/playlist?list=PLeFwDGOexoe8cjplxwQFMvGLSxbOTUyLv">"Manifolds (playlist)"</a>, Robert Davie (YouTube)</li>
+<li>[2] <a class="reference external" href="https://www.youtube.com/playlist?list=PLRlVmXqzHjUQHEx63ZFxV-0Ortgf-rpJo">"What is a Manifold?"</a>, XylyXylyX (YouTube)</li>
+</ul>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
+<td>The word "metric" is ambiguous here.  Sometimes it refers to the metric tensor (as we're using it), and sometimes it refers to a distance function as in metric spaces.  The confusing part is that a metric tensor can be used to define a metric (distance function)!</td>
+</tr></tbody>
+</table>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/manifolds/" rel="tag">manifolds</a></li>
+            <li><a class="tag p-category" href="../../categories/metric-tensor/" rel="tag">metric tensor</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../tensors-tensors-tensors/" rel="prev" title="Tensors, Tensors, Tensors">Previous post</a>
+            </li>
+        </ul></nav></aside><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+            MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
+            </script></article>
+</div>
+            <div class="col-md-3 well">
+            <p>
+            I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
+            a former academic, current data scientist and engineer.  This is
+            <a href="../../">the place</a>
+            where I write
+            about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br><p>
+            <a href="../../archive.html">Archive</a>
+            </p>
+            <p>
+            <a href="../../categories/index.html">Tags</a>
+            </p>
+            <p>
+            <a href="../../rss.xml">RSS feed</a>
+            </p>
+
+<!-- Begin MailChimp Signup Form -->
+<hr>
+<link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+    #mc_embed_signup{clear:left; font:13px Helvetica,Arial,sans-serif; }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+       We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="//briankeng.us10.list-manage.com/subscribe/post?u=cedf72ca8daa891e57f4379a0&amp;id=1f1563094f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <b>Signup for Email Blog Posts</b>
+    <div id="mc_embed_signup_scroll">
+<div>
+    <label for="mce-EMAIL"> Email Address </label>
+    <input type="email" value="" name="EMAIL" class="required email form-control input-sm" id="mce-EMAIL">
+</div>
+    <div id="mce-responses" class="clear">
+        <div class="response" id="mce-error-response" style="display:none"></div>
+        <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_cedf72ca8daa891e57f4379a0_1f1563094f" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn btn-default btn-xs"></div>
+    </div>
+</form>
+</div>
+<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
+</div>
+        </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2018         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+        </footer>
+</div>
+</div>
+
+
+            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-15314898-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>
