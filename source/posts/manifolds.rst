@@ -1,6 +1,6 @@
 .. title: Manifolds: A Gentle Introduction
 .. slug: manifolds
-.. date: 2018-03-13 16:24:57 UTC-05:00
+.. date: 2018-04-17 06:24:57 UTC-05:00
 .. tags: manifolds, metric tensor, mathjax
 .. category:
 .. link:
