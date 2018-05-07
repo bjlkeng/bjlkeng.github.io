@@ -57,6 +57,11 @@ more.  Don't worry, this time I'll try much harder not going to go down the
 rabbit hole of trying to explain all math, rather I'll just stick with a more
 intuitive explanation with a sprinkle of math.
 
+(Note: If you're unfamiliar with tensors or manifolds, I suggest getting a quick
+overview with my two previous posts: 
+`Tensors, Tensors, Tensors <link://slug/tensors-tensors-tensors>`__ and 
+`Manifolds: A Gentle Introduction <link://slug/manifolds>`__)
+
 .. TEASER_END
 
 
@@ -137,12 +142,82 @@ higher dimensions in the next subsection.
 
 
 
-|h3| Parallel Transport and Sectional Curvature |h3e|
+|h3| Parallel Transport, Riemannian Curvature Tensor and Sectional Curvature |h3e|
 
+The first idea we need to get an intuition on is the concept of 
+`parallel transport <https://en.wikipedia.org/wiki/Parallel_transport>`__.
+The main idea is that we can move tangent vectors along the surface of smooth
+manifolds to see if our surface is curved.  
 
-* sectional curvature
-* transport vector
-* gaussian curvature (saddle, sphere)
+To illustrate, imagine yourself in a tennis court.  First stand in one corner
+of the tennis court perpendicularly facing the net with your racket parallel to
+the ground pointing forward (the racket represents the tangent vector).
+While keeping your racket facing the same direction at all times, walk around the
+outside tennis court.  When you get back to your starting position, the racket
+is in the same direction.  This is an example of a flat (or zero curvature)
+manifold because the vector has not deviated from its original position. 
+
+Now consider another example shown in Figure 4.
+
+.. figure:: /images/parallel_transport.png
+  :height: 270px
+  :alt: Transporting a tangent vector along the surface of a curved manifold
+  :align: center
+
+  Figure 4: Transporting a tangent vector along the surface of a curved
+  manifold.  Notice how the direction of the vector changes when traveling from
+  A to N to B back to A (source: Wikipedia).
+
+From Figure 4, imagine now that we're on the surface of the earth at point A
+facing north with our racket, still parallel to the ground, facing forward i.e.
+our tangent vector.  We walk straight all the way up to the north pole at N,
+then without changing the direction of our racket, we move towards point B from
+the north pole.  Again, without changing our racket direction, we walk back to
+point A.  This time though, our racket is pointing in a different direction?!
+This is an example of a curved surface, when we parallel transported the vector,
+it changed directions.
+
+We can measure this deviation of parallel transport using the 
+`Riemannian Curvature Tensor <https://en.wikipedia.org/wiki/Riemann_curvature_tensor>`__.
+Starting from a point and moving a vector around a loop, this tensor directly
+measures the failure of the vector to point in the initial direction.
+For each point on a smooth manifold, it provides a (1, 3)-tensor, which can be
+represented as a 4-axis multi-dimensional array.  Another way to look at it is,
+that for any two vectors on a tangent space, it returns a linear transformation
+that describes how the parallel transport deviates a vector.
+Note: Since we have different tensor for each point, the curvature is a *local*
+phenomenon.
+
+The math for curvature is quite involved because we're not in flat space
+anymore. This means we need to setup a lot of additional structures to deal
+with the fact that we're moving tangent vectors with different tangent spaces.
+Basically, I'm going to gloss over these details which are beyond the scope
+of this post (and not to mention my current understanding) :p
+
+Once we have this curvature tensor, we can come up with a measure of curvature
+called the `sectional curvature <https://en.wikipedia.org/wiki/Sectional_curvature>`__
+at a point :math:`P` denoted by :math:`K(u, v)`:
+
+.. math::
+
+   K(u, v) = \frac{\langle R(u, v)v, U\rangle }{\langle u, u\rangle \langle v, v\rangle  - \langle u, v\rangle ^2} \tag{1}
+
+where :math:`u, v` are linearly independent vectors in the tangent space of
+point :math:`P` and the angle brackets are the inner product.
+
+|h3| Manifolds with Constant Sectional Curvature |h3e|
+
+Riemannian manifolds with constant curvature at every point are special cases.
+They come in three forms, constant:
+
+* Constant Positive Curvature: Elliptic geometry
+* Constant Zero Curvature: Euclidean geometry
+* Constant Negative Curvature: hyperbolic geometry
+
+The first two we are more familiar with: The manifold model for Euclidean
+geometry is just any Euclidean space.  The manifold model for elliptic geometry
+is simply just a sphere.  The model for hyperbolic geometry is a bit more complicated
+and we'll spend some more time with it in the next section.
 
 |h2| Hyperbolic Space |h2e|
 
@@ -181,7 +256,7 @@ higher dimensions in the next subsection.
 
 |h2| Further Reading |h2e|
 
-* Previous posts: `Manifolds: A Gentle Introduction <link://slug/manifolds>`__
-* Wikipedia: `Riemannian Manifold <https://en.wikipedia.org/wiki/Riemannian_manifold>`__, `Hyperbolic Space <https://en.wikipedia.org/wiki/Hyperbolic_space>`__, `Sectional Curvature <https://en.wikipedia.org/wiki/Sectional_curvature>`__, `Gaussian Curvature <https://en.wikipedia.org/wiki/Gaussian_curvature>`__
+* Previous posts: `Tensors, Tensors, Tensors <link://slug/tensors-tensors-tensors>`__, `Manifolds: A Gentle Introduction <link://slug/manifolds>`__
+* Wikipedia: `Riemannian Manifold <https://en.wikipedia.org/wiki/Riemannian_manifold>`__, `Hyperbolic Space <https://en.wikipedia.org/wiki/Hyperbolic_space>`__, `Sectional Curvature <https://en.wikipedia.org/wiki/Sectional_curvature>`__, `Gaussian Curvature <https://en.wikipedia.org/wiki/Gaussian_curvature>`__, `parallel transport <https://en.wikipedia.org/wiki/Parallel_transport>`__
 * [1] `Poincaré Embeddings for Learning Hierarchical Representations <https://arxiv.org/abs/1705.08039>`__, Maximilian Nickel, Douwe Kiela
 * [2] `Implementing Poincaré Embeddings <https://rare-technologies.com/implementing-poincare-embeddings/>`__, Jayant Jain
