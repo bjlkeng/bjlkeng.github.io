@@ -212,12 +212,104 @@ They come in three forms, constant:
 
 * Constant Positive Curvature: Elliptic geometry
 * Constant Zero Curvature: Euclidean geometry
-* Constant Negative Curvature: hyperbolic geometry
+* Constant Negative Curvature: Hyperbolic geometry
 
 The first two we are more familiar with: The manifold model for Euclidean
 geometry is just any Euclidean space.  The manifold model for elliptic geometry
 is simply just a sphere.  The model for hyperbolic geometry is a bit more complicated
 and we'll spend some more time with it in the next section.
+
+
+.. admonition:: Euclidean and Non-Euclidean Geometries
+
+  We saw above about how constant sectional curvature can be used to induce
+  different types of geometries.  But what does this mean?  Let's dig in a bit.
+
+  If we go way back to Euclid in his seminal work *Elements*, he gives `five
+  postulates <https://en.wikipedia.org/wiki/Euclidean_geometry#Axioms>`__ (or axioms):
+
+  1. A straight line segment can be drawn joining any two points.
+  2. Any straight line segment can be extended indefinitely in a straight line.
+  3. Given any straight line segment, a circle can be drawn having the segment as radius and one endpoint as center.
+  4. All right angles are congruent.
+  5. If two lines are drawn which intersect a third in such a way that the sum of the inner angles on one side is less than two right angles, then the two lines inevitably must intersect each other on that side if extended far enough. (aka the `parallel postulate <https://en.wikipedia.org/wiki/Parallel_postulate>`__ shown in Figure 5)
+
+  .. figure:: /images/parallel_postulate.png
+    :height: 200px
+    :alt: Euclid's Parallel Postulate
+    :align: center
+
+    Figure 5: Euclid's Parallel Postulate: If two lines are placed over a third such that the sum of angles (:math:`\alpha+\beta`) are less than two right angles, then they must intersect at some point (source: Wikipedia).
+
+  These postulates define Euclidean geometry which is a `axiomatic system
+  <https://en.wikipedia.org/wiki/Axiomatic_system>`__.  An axiomatic system is
+  one in which every theorem can be logically derived from it.  This is all
+  jargon relating to logic. So the the standard geometry we learn in grade
+  school with lines, cirles, angles, etc. is Euclidean geometry.
+
+  However, this is not exactly the same thing as the analytical geometry 
+  we study when we first learn about with Euclidean plane (i.e.  :math:`\mathbb{R}^2`).
+  The Euclidean plane (and by extension Euclidean space) is a 
+  `model <https://en.wikipedia.org/wiki/Axiomatic_system#Models>`__ of 
+  Euclidean geometry:
+
+      A model for an axiomatic system is a well-defined set, which assigns meaning for the undefined terms presented in the system, in a manner that is correct with the relations defined in the system.
+
+  For example, Euclidean geometry defines a point but there is no concrete
+  meaning to it.  In the Euclidean plane, we could define a point as a pair of
+  real numbers :math:`(x,y)` with :math:`x,y \in \mathbb{R}`.  You could do the
+  same with a line, circle and even an angle (in terms of the 
+  `metric tensor <https://en.wikipedia.org/wiki/Metric_tensor#Length_and_angle>`__).
+  Once we concretely define all these abstract things in Euclidean geometry,
+  we have a **model** of Euclidean geometry.
+  Non-Euclidean geometries can be defined by similar postulates.
+  In particular, by modifying the parallel postulate, we can derive other types
+  of geometries.  
+  
+  |h3| Elliptic Geometry |h3e|
+
+  In Elliptic geometry, we change the parallel postulate to:
+
+     Two lines perpendicular to a given line must intersect.
+
+  where a visualization in shown in Figure 6.
+
+  .. figure:: /images/elliptic_geometry.jpg
+    :height: 300px
+    :alt: Elliptic Geometry Postulate
+    :align: center
+
+    Figure 6: Two lines perpendicular to another line in Elliptic geometry, must intersect at some point (`source <http://www.math.cornell.edu/~mec/mircea.html>`__).
+
+  A model of Elliptic geometry is manifold defined by the surface of a sphere
+  (say with radius=1 and the appropriately induced metric tensor).  We can see that the
+  Elliptic postulate holds, and it also yields different theorems than standard
+  Euclidean geometry, such as the sum of angles in a triangle is greater than
+  180 degrees.
+
+  |h3| Hyperbolic Geometry |h3e|
+
+  In Hyperbolic geometry, we change the parallel postulate to:
+
+     For any given line R and point P not on R, in the plane containing both
+     line R and point P there are at least two distinct lines through P that do
+     not intersect R.
+
+  where a visualization in shown in Figure 7.
+
+  .. figure:: /images/hyperbolic_geometry.png
+    :height: 200px
+    :alt: Hyperbolic Geometry Postulate
+    :align: center
+
+    Figure 7: Lines :math:`x` and :math:`y` intersecting at :math:`P` never pass through line :math:`R`, although it is possible that they can asymptoptically approach it (`source <http://www.math.cornell.edu/~mec/mircea.html>`__).
+
+  This figure is not a great visualization because, as we'll mention below, you
+  can't really represent 2D hyperbolic geometry in 3D Euclidean space.  This makes
+  it hard to visualize, and results in a more complex model than the other two
+  geometries.  Further down, we'll describe a couple of models of hyperbolic
+  geometry because there is no one "standard" model as we'll see below.
+
 
 |h2| Hyperbolic Space |h2e|
 
