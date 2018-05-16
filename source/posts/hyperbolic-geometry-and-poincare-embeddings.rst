@@ -313,10 +313,65 @@ and we'll spend some more time with it in the next section.
 
 |h2| Hyperbolic Space |h2e|
 
-* Hyperbolic geometry
-* Hyperbolic space -- Definition (wiki)
+`Hyperbolic space <https://en.wikipedia.org/wiki/Hyperbolic_space>`__
+is a type of manifold with constant negative (sectional) curvature.
+Formally:
 
-|h3| Minkowski Space and the Hyperboloid Model |h3e|
+  Hyperbolic n-space (usually denoted :math:`\bf H^n`), is a maximally symmetric,
+  simply connected, n-dimensional Riemannian manifold with constant negative
+  sectional curvature.
+
+Hyperbolic space analogous to the n-dimensional sphere (which has constant
+positive curvature).
+This is very hard thing to visualize though because we're used to only 
+imagining objects in Euclidean space -- not curved space.
+One to think about it is that when embedded into Euclidean space, every point
+is a `saddle point <https://en.wikipedia.org/wiki/Saddle_point>`__, still kind of
+hard to imagine.
+The real tough part is that even for the 2D hyperplane, we cannot embed it in
+3D Euclidean space (`Hilbert's theorem <https://en.wikipedia.org/wiki/Hilbert%27s_theorem_(differential_geometry)>`__),
+so something's got to give.
+
+Fortunately, we can embed models of 2D hyperbolic geometry into a
+pseudo-Euclidean space called Minkowski space.  Interestingly, Minkowski space
+and curved space in general has applications in special relativity and general
+relativity, respectively.  Let's see how this works.
+
+|h3| Minkowski Space |h3e|
+
+Before we get to the model of hyperbolic geometry, we have to set a few things up.
+First, let's define a (generalized) `Minkowski space <https://en.wikipedia.org/wiki/Minkowski_space>`__
+(a type of `pseudo-Riemannian manifold <https://en.wikipedia.org/wiki/Pseudo-Riemannian_manifold>`__):
+
+    For :math:`n>=2`, a :math:`n`-dimensional Minkowski space is a real vector space
+    of real dimension :math:`n` which there is a constant Minkowski metric of
+    signature (n-1, 1) or (1, n-1).
+
+Even though it's defined as a vector space, we can regard it as basically having
+:math:`n` real dimensions (just like :math:`\mathbb{R}^n`) but with a special
+type of metric tensor (generalization of dot product): the 
+`Minkowski metric <https://en.wikipedia.org/wiki/Minkowski_space#Minkowski_metric>`__.
+This is where it gets a bit "mind-bending".
+
+The Minkowski metric is similar to the standard Euclidean metric tensor, for two
+vectors :math:`{\bf u}=(u_1, \ldots, u_n)` and :math:`{\bf v} = (v, \ldots, v_n)`,
+we can contrast them:
+
+* Euclidean metric tensor: :math:`g_E({\bf u, v}) = u_1 v_1 + u_2 v_2 + \ldots + u_n v_n`
+* Minkowski metric tensor: :math:`g_M({\bf u, v}) = \pm [u_1 v_1 - u_2 v_2 - \ldots - u_n v_n]` [1]_
+  
+
+Notice that dimension 1 is treated differently (alternatively dimension 2 to n
+are different).  In special relativity, dimension 1 is the "time"-like
+dimension while the others are "space"-like dimensions.  But don't think too
+hard about it like this because I still don't think it helps intuition all that
+much.  For now, we just need to know that one of the dimensions is treated
+differently (time-like), while the others are very similar to regular our
+Euclidean space.
+
+|h3| Hyperboloid Model of Hyperbolic Geometry |h3e|
+
+
 
 * 2 sheet hyperboloid
 * With Minkowski flat space metric
@@ -352,3 +407,5 @@ and we'll spend some more time with it in the next section.
 * Wikipedia: `Riemannian Manifold <https://en.wikipedia.org/wiki/Riemannian_manifold>`__, `Hyperbolic Space <https://en.wikipedia.org/wiki/Hyperbolic_space>`__, `Sectional Curvature <https://en.wikipedia.org/wiki/Sectional_curvature>`__, `Gaussian Curvature <https://en.wikipedia.org/wiki/Gaussian_curvature>`__, `parallel transport <https://en.wikipedia.org/wiki/Parallel_transport>`__
 * [1] `Poincaré Embeddings for Learning Hierarchical Representations <https://arxiv.org/abs/1705.08039>`__, Maximilian Nickel, Douwe Kiela
 * [2] `Implementing Poincaré Embeddings <https://rare-technologies.com/implementing-poincare-embeddings/>`__, Jayant Jain
+
+.. [1] Both :math:`+` and :math:`-` make the math work out.  It's by convention you pick one or the other.  We'll be using a leading positive sign in this post.
