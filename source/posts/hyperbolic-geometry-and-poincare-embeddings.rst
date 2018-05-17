@@ -353,32 +353,152 @@ type of metric tensor (generalization of dot product): the
 `Minkowski metric <https://en.wikipedia.org/wiki/Minkowski_space#Minkowski_metric>`__.
 This is where it gets a bit "mind-bending".
 
-The Minkowski metric is similar to the standard Euclidean metric tensor, for two
-vectors :math:`{\bf u}=(u_1, \ldots, u_n)` and :math:`{\bf v} = (v, \ldots, v_n)`,
-we can contrast them:
+The Minkowski metric is not too different from the standard Euclidean metric
+tensor.  For two vectors :math:`{\bf u}=(u_1, \ldots, u_n)` and :math:`{\bf v} = (v, \ldots, v_n)`, 
+we have:
 
-* Euclidean metric tensor: :math:`g_E({\bf u, v}) = u_1 v_1 + u_2 v_2 + \ldots + u_n v_n`
-* Minkowski metric tensor: :math:`g_M({\bf u, v}) = \pm [u_1 v_1 - u_2 v_2 - \ldots - u_n v_n]` [1]_
+.. math::
+
+    g_E({\bf u, v}) &= u_1 v_1 + u_2 v_2 + \ldots + u_n v_n && \text{Euclidean Metric} \\
+    g_M({\bf u, v}) &= \pm [u_1 v_1 - u_2 v_2 - \ldots - u_n v_n] && \text{Minkowski Metric} \\ \tag{2}
   
+Notice that dimension 1 is treated differently [1]_ (alternatively dimension 2 to n
+are different).  In `special relativity <https://en.wikipedia.org/wiki/Special_relativity>`__,
+dimension 1 is considered the "time"-like dimension while the others are
+"space"-like dimensions.  But I don't think this helps with the intuition all
+that much.  For now, we just need to know that one of the dimensions is treated
+differently, while the others are very similar to regular our Euclidean space.
 
-Notice that dimension 1 is treated differently (alternatively dimension 2 to n
-are different).  In special relativity, dimension 1 is the "time"-like
-dimension while the others are "space"-like dimensions.  But don't think too
-hard about it like this because I still don't think it helps intuition all that
-much.  For now, we just need to know that one of the dimensions is treated
-differently (time-like), while the others are very similar to regular our
-Euclidean space.
+|h3| Hyperboloid |h3e|
 
-|h3| Hyperboloid Model of Hyperbolic Geometry |h3e|
+Before we get to the model, we need to cover the 
+`hyperboloid <https://en.wikipedia.org/wiki/Hyperboloid>`__.
+A hyperboloid is a
+generalization of a hyperbola in two dimensions.  If you take a hyperbola and
+spin it around its principal axes (or add certain types of affine
+transformations), you get a hyperboloid.  There are a few other types of
+hyperboloids but we'll only be talking about the two sheet version.  
+Figure 8 shows an example of a two sheet hyperboloid.  
+
+.. figure:: /images/hyperboloid.png
+  :height: 300px
+  :alt: Two Sheet Hyperboloid
+  :align: center
+
+  Figure 8: Example of two sheet hyperboloid (source: Wikipedia).
+
+
+The two sheet hyperboloid (in three dimensions) has the following equation:
+
+.. math::
+
+    \frac{x^2}{a^2} + \frac{y^2}{b^2} - \frac{z^2}{c^2} = -1 \tag{3}
+
+where with :math:`z > 0` defines the forward sheet.  You can see how
+this can easily extend to multiple dimensions: you just add more positive
+quadratic terms in front, with your "special" negative dimension (in this case
+:math:`z`) in the back.
+
+A common parametric representation with parameter :math:`v` of the two sheet
+hyperboloid is:
+
+.. math::
+
+    x &= a\sinh v \cos\theta \\
+    y &= b\sinh v \sin\theta \\
+    z &= \pm c\cosh v \\
+    \tag{4}
+
+Notice that we're using the 
+`hyperbolic functions <https://en.wikipedia.org/wiki/Hyperbolic_function>`__
+here, which are very much related to hyperbolas (as expected).  Also notice
+that we use :math:`\cos\theta` and :math:`\sin\theta` for :math:`x` and
+:math:`y`, which reminds us of the parameterization of a circle.  Indeed, x and
+y are the "normal" Euclidean dimensions and for a given constant :math:`z`,
+they define a circle.
+
+
+|h3| The Hyperboloid Model of Hyperbolic Geometry |h3e|
+
+Finally we get to our first model of hyperbolic geometry!
+Having introduced the two above concepts, our first model
+known as the `hyperboloid model <https://en.wikipedia.org/wiki/Hyperboloid_model>`__
+(aka Minkowski model or Lorentz model) is a model of n-dimensional
+hyperbolic geometry in which points are represented on the forward sheet of a
+two-sheeted hyperboloid of (n+1)-dimensional Minkowski space.
+The points on this sheet are defined by:
+
+.. math::
+
+    x^2 + y^2 - z^2 = -1 \tag{5}
+
+where :math:`z>0`.  Simple right?  Well in case it's not, let's try to add some
+intuition.
+
+So we know 2D Elliptic geometry (constant positive curvature) can be mapped to
+a sphere in 3D Euclidean space.  So we can re-create any of our usual geometric
+concepts and have them map to the sphere, for example, points lines, angles,
+triangles etc.  In a similar way for hyperbolic geometry, we can have the same
+concepts but mapped to the surface of the forward sheet of the hyperboloid,
+*except* now we're in Minkowski space which makes your intuition about what
+should happen all screwy.
+
+For example, how does a straight line get defined? For example, on a sphere
+there are many paths you could take from point A to B.
+It turns out on a curved manifold it's typically defined to be the 
+`geodesic <https://en.wikipedia.org/wiki/Geodesic>`__,
+which is the generalization of a straight line to curved space, defined to be a
+curve where you can parallel transport a tangent vector without deformation.
+For example, on a sphere the geodesic is the path you take between two points
+when slicing through the center of the sphere 
+(i.e. a `great circle <https://en.wikipedia.org/wiki/Great_circle>`__).
+The shortest path also happens to be a geodesic in this case.
+
+In our hyperboloid model, the geodesic (or our hyperbolic line) is defined to
+be the curve created by intersecting two points and the origin with the
+hyperboloid.  So you end up having to go "down" first then back up to reach a
+point, never just directly towards it using the shortest path in Euclidean
+space.  Figure 9 shows a visualization of this curve (ignore the bottom circle for
+now, we'll come back to this later).
+
+.. figure:: /images/hyperboloid_projection.png
+  :height: 250px
+  :alt: Two Sheet Hyperboloid
+  :align: center
+
+  Figure 9: Hyperboloid Projection (source: Wikipedia).
+
+The distance between two points is thus defined
+
+For two
+points :math:`\bf u` and :math:`\bf v`, the hyperbolic distance is defined by:
+
+.. math::
+
+    d({\bf u, v}) = \arcosh(g_M({\bf u, v})) \tag{6}
+
+where we're using the inverse (or arc) hyperbolic cosine function and the
+Minkowski metric defined above.  
+
+
+In fact, this distance is 
 
 
 
-* 2 sheet hyperboloid
+
+is the distance
+along the line between the two points, 
+
+
+
+
 * With Minkowski flat space metric
 * picture
 * intuition
 * math
 * explain lines, distances, circles
+
+
 
 |h3| Poincare Ball Model |h3e|
 
