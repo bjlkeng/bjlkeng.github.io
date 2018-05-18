@@ -399,14 +399,14 @@ this can easily extend to multiple dimensions: you just add more positive
 quadratic terms in front, with your "special" negative dimension (in this case
 :math:`z`) in the back.
 
-A common parametric representation with parameter :math:`v` of the two sheet
+A common parametric representation with parameter :math:`t` of the two sheet
 hyperboloid is:
 
 .. math::
 
-    x &= a\sinh v \cos\theta \\
-    y &= b\sinh v \sin\theta \\
-    z &= \pm c\cosh v \\
+    x &= a\sinh t \cos\theta \\
+    y &= b\sinh t \sin\theta \\
+    z &= \pm c\cosh t \\
     \tag{4}
 
 Notice that we're using the 
@@ -443,60 +443,94 @@ concepts but mapped to the surface of the forward sheet of the hyperboloid,
 *except* now we're in Minkowski space which makes your intuition about what
 should happen all screwy.
 
-For example, how does a straight line get defined? For example, on a sphere
-there are many paths you could take from point A to B.
-It turns out on a curved manifold it's typically defined to be the 
-`geodesic <https://en.wikipedia.org/wiki/Geodesic>`__,
-which is the generalization of a straight line to curved space, defined to be a
-curve where you can parallel transport a tangent vector without deformation.
-For example, on a sphere the geodesic is the path you take between two points
-when slicing through the center of the sphere 
+For example, how does a straight line get defined? On a sphere
+there are many paths you could take from point A to B, but the shortest path
+"line" between two points is called a geodesic: the path you take between two
+points when slicing through the center of the sphere  
 (i.e. a `great circle <https://en.wikipedia.org/wiki/Great_circle>`__).
-The shortest path also happens to be a geodesic in this case.
+A `geodesic <https://en.wikipedia.org/wiki/Geodesic>`__ is the generalization
+of a straight line to curved space, defined to be a curve where you can
+parallel transport a tangent vector without deformation.
 
 In our hyperboloid model, the geodesic (or our hyperbolic line) is defined to
 be the curve created by intersecting two points and the origin with the
 hyperboloid.  So you end up having to go "down" first then back up to reach a
-point, never just directly towards it using the shortest path in Euclidean
-space.  Figure 9 shows a visualization of this curve (ignore the bottom circle for
-now, we'll come back to this later).
+point, never just directly towards it using the shortest path (on the surface)
+in Euclidean space.  Figure 9 shows a visualization of this curve (ignore the
+bottom circle for now, we'll come back to this later).
 
 .. figure:: /images/hyperboloid_projection.png
   :height: 250px
   :alt: Two Sheet Hyperboloid
   :align: center
 
-  Figure 9: Hyperboloid Projection (source: Wikipedia).
+  Figure 9: Hyperboloid Stereoscopic Projection (source: Wikipedia).
 
-The distance between two points is thus defined
-
-For two
-points :math:`\bf u` and :math:`\bf v`, the hyperbolic distance is defined by:
+Once we have the concept of a line, we can define it as the distance 
+between two points.  This can be calculated using the 
+`arc length <https://en.wikipedia.org/wiki/Arc_length>`__ of the tangent
+vectors with the Minkowski metric.  This lends itself well to a closed form
+for the hyperbolic distance between two points :math:`\bf u` and :math:`\bf v`:
 
 .. math::
 
-    d({\bf u, v}) = \arcosh(g_M({\bf u, v})) \tag{6}
+    d({\bf u, v}) = arcosh(g_M({\bf u, v})) \tag{6}
 
 where we're using the inverse (or arc) hyperbolic cosine function and the
-Minkowski metric defined above.  
+Minkowski metric defined above.
 
 
-In fact, this distance is 
+.. admonition:: Example: Calculating the Arc Length of a Geodesic In Hyperbolic Space
+
+    To illustate a few of the above ideas and to gain some intuition, let's
+    calculate the arc length of two points on the hyperbolic plane embedded in
+    3D Minkowski space.  First, let's define a curve from A to B parameterized
+    by :math:`t=[t_a, t_b]`, this is just a variation on Equation 4 where we set
+    :math:`\theta=0`:
+
+    .. math::
+
+        x &= \sinh t  \\
+        y &= 0  \\
+        z &= \cosh t \\
+        \tag{7}
+   
+    Computing the `arc length <https://en.wikipedia.org/wiki/Arc_length#Generalization_to_(pseudo-)Riemannian_manifolds>`__
+    on a manifold, we have:
+
+    .. math::
+
+        d(A, B) &= \int_{t_a}^{t_b} \sqrt{
+            g_M\big(  (\frac{dx(t)}{dt}, \frac{dy(t)}{dt}, \frac{dz(t)}{dt}),
+                    (\frac{dx(t)}{dt}, \frac{dy(t)}{dt}, \frac{dz(t)}{dt})
+            \big)} dt \\
+        &= \int_{t_a}^{t_b} \sqrt{
+               \big(\frac{dz(t)}{dt}\big)^2 - \big(\frac{dx(t)}{dt}\big)^2 - \big(\frac{dy(t)}{dt}\big)^2
+            } dt \\
+        &= \int_{t_a}^{t_b} \sqrt{ \big(\frac{d \cosh t}{dt}\big)^2 - \big(\frac{d \sinh t}{dt}\big)^2 } dt \\
+        &= \int_{t_a}^{t_b} \sqrt{ \sinh^2 t -\cosh^2 t } dt \\
+        &= \int_{t_a}^{t_b} \sqrt{ 1 } dt \\
+        &= t_b - t_a \\
+        \tag{8}
+
+    This should match up to Equtaion 8.  Let's see what happens:
+
+    .. math::
+
+        d(A, B) &= arcosh\Big(g_M\big( 
+            (\sinh t_a, 0, \cosh t_a),
+            (\sinh t_b, 0, \cosh t_b),
+        \big)  \Big) \\
+        &= arcosh(\cosh t_a \cosh t_b - \sinh t_a \sinh t_b) \\
+        &= arcosh(cosh(t_b - t_a)) && \text{hyperbolic identity} \\
+        &= t_b - t_a \\
+        \tag{9}
+
+    As expected, the Equation 6 properly calculates the arc length with the
+    Minkowski metric in this case.
 
 
-
-
-is the distance
-along the line between the two points, 
-
-
-
-
-* With Minkowski flat space metric
-* picture
-* intuition
-* math
-* explain lines, distances, circles
+* explain circles
 
 
 
