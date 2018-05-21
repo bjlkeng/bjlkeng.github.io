@@ -513,7 +513,7 @@ Minkowski metric defined above.
         &= t_b - t_a \\
         \tag{8}
 
-    This should match up to Equtaion 8.  Let's see what happens:
+    This should match up to Equation 6.  Let's see what happens:
 
     .. math::
 
@@ -530,11 +530,87 @@ Minkowski metric defined above.
     Minkowski metric in this case.
 
 
-* explain circles
+The hyperboloid model also has the concept of circles.  The simplest circle
+is with center at the bottom most point :math:`(0, 0, 1)`.  The circles created
+with this center look like regular circles in Euclidean space of a plane parallel
+to the x-y plane intersecting the hyperboloid.  This is a constant hyperbolic
+distance away from this bottom point all go "up" an equidistant.
+
+However, if we move to points centered at different locations, we get arbitrary
+"slices" of the hyperboloid as shown in Figure 10 as an ellipse.  The non-Euclidean nature of
+the distance makes it so that the center of this hyperbolic circle is somewhere
+on the hyperboloid (not a point floating in the middle as you would intuitively
+expect in Euclidean geometry).  This point should be equi-hyperbolic distance
+from the ellipse created from the "slice".
+
+.. figure:: /images/hyperboloid_circle.png
+  :height: 150px
+  :alt: Hyperboloid Circle
+  :align: center
+
+  Figure 10: Visualization of a hyperboloid circle as a "slice" of the forward
+  sheet of a hyperboloid (source: Wikipedia).
+
+So that's a quick overview of our first model of hyperbolic geometry.
+Although "easy" to understand because it's an extension of some concepts we're
+familiar with, we want to actually just use this as a stepping stone to get to
+our next model of hyperbolic geometry: the Poincaré ball model.
+
+|h3| Poincaré Ball Model |h3e|
+
+The `Poincaré ball model
+<https://en.wikipedia.org/wiki/Poincar%C3%A9_disk_model>`__ is a model of
+n-dimensional hyperbolic geometry in which all points are embedded in an
+n-dimensional sphere (or in a circle in the 2D case which is called the
+Poincaré disk model).
+This is being presented second because it is much less intuitive and it follows
+directly from the hyperboloid model.
+
+*A digression: You might be wondering how we can "fit" an entire geometry in a
+circle.  We know flat 2D geometry fits in the Euclidean plane, 2D elliptic
+geometry (constant positive curvature) fits on the surface of a sphere, and now
+we're saying 2D hyperbolic geometry fits inside a circle?  The biggest thing to
+realize is, first, there are an infinite number of points within the circle --
+infinities are hard to reason about.  Second, we need to throw away our
+Euclidean sensibilities and intuition.  For example, we'll see below that the
+"distance" between points grows exponentially as we move towards the outside of
+the Poincaré disk.  We need to use a combination of the math and throwing away
+our old intuition in order to understand these non-flat models of geometry.*
+
+The Poincaré model can be derived using a 
+`stereoscopic projection <https://en.wikipedia.org/wiki/Stereographic_projection>`__
+of the hyperboloid model onto the unit circle of the :math:`z=0` plane.  Figure
+11 shows a visualization.
+
+.. figure:: /images/poincare_projection.png
+  :height: 300px
+  :alt: Stereoscopic projection to derive the Poincaré Disk Model
+  :align: center
+
+  Figure 11: Stereoscopic projection to derive the Poincaré Disk Model
+  (source: `inspirehep.net <http://inspirehep.net/record/1355197/plots>`__).
+
+The basic idea of this stereoscopic projection (in 3D but this idea generalizes)
+is:
+
+1. Start with a point :math:`P` on the hyperboloid we wish to map.
+2. Extend :math:`P` out to a focal point :math:`N=(0, 0, -1)` to form a line.
+3. Project that line onto the :math:`z=0 plane` to find our point :math:`Q` in the Poincaré model.
+
+If you do the `algebra <https://math.stackexchange.com/questions/35857/two-point-line-form-in-3d>`__,
+you'll find the following `equations <https://en.wikipedia.org/wiki/Poincar%C3%A9_disk_model>`__ 
+for point :math:`P=(x_1, \ldots, x_n, z)` on the hyperboloid and :math:`Q=(y_1, \ldots, y_n)`
+in the unit circle:
+
+.. math::
+
+    y_i &= \frac{x_i}{z + 1} \\
+    (t, x_i) &= \frac{(1 + \sum y_i^2, 2y_i)}{1 - \sum y_i^2} \\
+    \tag{10}
 
 
 
-|h3| Poincare Ball Model |h3e|
+
 
 * Project hyperboloid using stereographic projection to unit circle
 * Show metric, distance, etc.
