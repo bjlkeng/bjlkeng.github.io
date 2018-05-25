@@ -579,8 +579,9 @@ our old intuition in order to understand these non-flat models of geometry.*
 
 The Poincaré model can be derived using a 
 `stereoscopic projection <https://en.wikipedia.org/wiki/Stereographic_projection>`__
-of the hyperboloid model onto the unit circle of the :math:`z=0` plane.  Figure
-11 shows a visualization.
+of the hyperboloid model onto the unit circle of the :math:`z=0` plane.  
+We'll stick with the 2D case but the same ideas can be extended into higher dimensions.
+Figure 11 shows a visualization.
 
 .. figure:: /images/poincare_projection.png
   :height: 300px
@@ -595,12 +596,12 @@ is:
 
 1. Start with a point :math:`P` on the hyperboloid we wish to map.
 2. Extend :math:`P` out to a focal point :math:`N=(0, 0, -1)` to form a line.
-3. Project that line onto the :math:`z=0 plane` to find our point :math:`Q` in the Poincaré model.
+3. Project that line onto the :math:`z=0` plane to find our point :math:`Q` in the Poincaré model.
 
 If you do the `algebra <https://math.stackexchange.com/questions/35857/two-point-line-form-in-3d>`__,
 you'll find the following `equations <https://en.wikipedia.org/wiki/Poincar%C3%A9_disk_model>`__ 
 for point :math:`P=(x_1, \ldots, x_n, z)` on the hyperboloid and :math:`Q=(y_1, \ldots, y_n)`
-in the unit circle:
+in the unit circle of the :math:`z=0` plane:
 
 .. math::
 
@@ -608,11 +609,108 @@ in the unit circle:
     (t, x_i) &= \frac{(1 + \sum y_i^2, 2y_i)}{1 - \sum y_i^2} \\
     \tag{10}
 
+As with our other hyperbolic model, we can represent common geometric concepts
+by points on the unit circle.  Starting with a line, if we project the geodesic
+line from the hyperboloid to the unit circle, we get an arcs along the unit circle
+as shown in Figure 12.
 
+.. figure:: /images/poincare_disk_lines.png
+  :height: 300px
+  :alt: Examples of Poincaré lines.
+  :align: center
 
+  Figure 12: Examples of Poincaré lines as arcs on the unit circle with each
+  one approaching the the circumference at a 90 degree angle. (source: Wikipedia)
 
+A few notable points:
 
-* Project hyperboloid using stereographic projection to unit circle
+1. The arcs never reach the circumference of the circle.  This is analagous to
+   the geodesic on the hyperboloid extending out the infinity, that is, as the
+   arc approaches the circumference it's approaching the "infinity" of the
+   plane.
+2. Each arc approaches the circumference at a 90 degree angle, this is just
+   works out as a result of the math of the hyperboloid and the projection.
+   The straight line in this case is a point that passes through the "bottom"
+   of the hyperboloid :math:`(0, 0, 1)`.
+3. In this case, we can see 3 lines that are parallel and actually diverge from
+   each other (also known as "ultra parallel").  This is a consequence of changing
+   Euclid's fifth postulate regarding parallel lines (see the box above).  A
+   more clear example is Figure 13.  Here we see that we can have an infinite number
+   of lines (black) intersecting at a single point and still be parallel to
+   another line (blue).
+
+.. figure:: /images/poincare_disk_parallel_lines.png 
+  :height: 300px
+  :alt: Hyperbolic parallel lines that do not intersect on the Poincaré disk.
+  :align: center
+
+  Figure 13: Hyperbolic parallel lines that do not intersect on the Poincaré
+  disk. (source: Wikipedia)
+
+The distance the two points can be computed in the same way as the hyperboloid,
+namely, taking the integral over the arc of line element (defined by the
+associated metric tensor).  If we remember our differential geometry,
+we can actually derive the Poincaré disk metric tensor from the hyperboloid
+model using our transformations from Equation 10.  I'll show a partial
+derivation here (you can work out all the algebra as an exercise :p).
+Starting with the `line element <https://en.wikipedia.org/wiki/Line_element>`__
+calling our hyperboloid variables :math:`x,y,z` and our Poincaré disk
+variables :math:`u, v`:
+TODO REPLACE x,y,z with x_1, x_2, x_3, and replace u, v with y_1, y_2
+
+.. math::
+
+    ds^2 &= 
+    \begin{bmatrix} 
+    dx & dy & dz
+    \end{bmatrix}
+    \begin{bmatrix} 
+        1 & 0 & 0 \\
+        0 & 1 & 0 \\
+        0 & 0 & -1 \\
+    \end{bmatrix}
+    \begin{bmatrix}
+        dx \\ dy \\ dz
+    \end{bmatrix} 
+    && \text{Minkowski metric} \\
+    &=
+    \begin{bmatrix} 
+    du & dv
+    \end{bmatrix}
+    \begin{bmatrix} 
+        \frac{\partial x}{\partial u} & \frac{\partial y}{\partial u} & \frac{\partial z}{\partial u} \\ 
+        \frac{\partial x}{\partial v} & \frac{\partial y}{\partial v} & \frac{\partial z}{\partial v} 
+    \end{bmatrix} 
+    \begin{bmatrix} 
+        1 & 0 & 0 \\
+        0 & 1 & 0 \\
+        0 & 0 & -1 \\
+    \end{bmatrix}
+    \begin{bmatrix} 
+        \frac{\partial x}{\partial u} & \frac{\partial x}{\partial v} \\
+        \frac{\partial y}{\partial u} & \frac{\partial y}{\partial v} \\ 
+        \frac{\partial z}{\partial y} & \frac{\partial z}{\partial v}
+    \end{bmatrix} 
+    \begin{bmatrix}
+        du \\ dv
+    \end{bmatrix} 
+    && \text{total differential}\\
+    &= \ldots && \text{sub in Equation 10} \\
+    &= 
+    \begin{bmatrix} 
+    du & dv
+    \end{bmatrix}
+    \begin{bmatrix} 
+        \frac{4}{1 - y_1^2 - y_2^2} & 0 \\
+        0 & \frac{4}{1 - y_1^2 - y_2^2}
+    \end{bmatrix} 
+    \begin{bmatrix}
+        du \\ dv
+    \end{bmatrix} 
+    \\
+    \tag{11}  
+
+ 
 * Show metric, distance, etc.
 
 * Include D3 visualization
