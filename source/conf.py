@@ -217,7 +217,8 @@ PAGES = (
 # The format is a dictionary of {source: relative destination}.
 # Default is:
 FILES_FOLDERS = {
-    'notebooks': 'notebooks'
+    'notebooks': 'notebooks',
+    'js': 'js'
 }
 # Which means copy 'files' into 'output'
 

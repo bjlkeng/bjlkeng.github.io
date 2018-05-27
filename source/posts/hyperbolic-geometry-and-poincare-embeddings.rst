@@ -654,15 +654,14 @@ we can actually derive the Poincaré disk metric tensor from the hyperboloid
 model using our transformations from Equation 10.  I'll show a partial
 derivation here (you can work out all the algebra as an exercise :p).
 Starting with the `line element <https://en.wikipedia.org/wiki/Line_element>`__
-calling our hyperboloid variables :math:`x,y,z` and our Poincaré disk
-variables :math:`u, v`:
-TODO REPLACE x,y,z with x_1, x_2, x_3, and replace u, v with y_1, y_2
+calling our hyperboloid variables :math:`x_1,x_2,z` and our Poincaré disk
+variables :math:`y_1, y_2`:
 
 .. math::
 
     ds^2 &= 
     \begin{bmatrix} 
-    dx & dy & dz
+    dx_1 & dx_2 & dz
     \end{bmatrix}
     \begin{bmatrix} 
         1 & 0 & 0 \\
@@ -670,16 +669,16 @@ TODO REPLACE x,y,z with x_1, x_2, x_3, and replace u, v with y_1, y_2
         0 & 0 & -1 \\
     \end{bmatrix}
     \begin{bmatrix}
-        dx \\ dy \\ dz
+        dx_1 \\ dx_2 \\ dz
     \end{bmatrix} 
     && \text{Minkowski metric} \\
     &=
     \begin{bmatrix} 
-    du & dv
+    dy_1 & dy_2
     \end{bmatrix}
     \begin{bmatrix} 
-        \frac{\partial x}{\partial u} & \frac{\partial y}{\partial u} & \frac{\partial z}{\partial u} \\ 
-        \frac{\partial x}{\partial v} & \frac{\partial y}{\partial v} & \frac{\partial z}{\partial v} 
+        \frac{\partial x_1}{\partial y_1} & \frac{\partial x_2}{\partial y_1} & \frac{\partial z}{\partial y_1} \\ 
+        \frac{\partial x_1}{\partial y_2} & \frac{\partial x_2}{\partial y_2} & \frac{\partial z}{\partial y_2} 
     \end{bmatrix} 
     \begin{bmatrix} 
         1 & 0 & 0 \\
@@ -687,28 +686,47 @@ TODO REPLACE x,y,z with x_1, x_2, x_3, and replace u, v with y_1, y_2
         0 & 0 & -1 \\
     \end{bmatrix}
     \begin{bmatrix} 
-        \frac{\partial x}{\partial u} & \frac{\partial x}{\partial v} \\
-        \frac{\partial y}{\partial u} & \frac{\partial y}{\partial v} \\ 
-        \frac{\partial z}{\partial y} & \frac{\partial z}{\partial v}
+        \frac{\partial x_1}{\partial y_1} & \frac{\partial x_1}{\partial y_2} \\
+        \frac{\partial x_2}{\partial y_1} & \frac{\partial x_2}{\partial y_2} \\ 
+        \frac{\partial z}{\partial x_2} & \frac{\partial z}{\partial y_2}
     \end{bmatrix} 
     \begin{bmatrix}
-        du \\ dv
+        dy_1 \\ dy_2
     \end{bmatrix} 
     && \text{total differential}\\
     &= \ldots && \text{sub in Equation 10} \\
     &= 
     \begin{bmatrix} 
-    du & dv
+    dy_1 & dy_2
     \end{bmatrix}
     \begin{bmatrix} 
         \frac{4}{1 - y_1^2 - y_2^2} & 0 \\
-        0 & \frac{4}{1 - y_1^2 - y_2^2}
+        0 & \frac{4}{(1 - y_1^2 - y_2^2)^2}
     \end{bmatrix} 
     \begin{bmatrix}
-        du \\ dv
-    \end{bmatrix} 
+        dy_1 \\ dy_2
+    \end{bmatrix} \\
+    &= \frac{4 \lVert{\bf dy}^2\rVert}{(1-\lVert{\bf y}^2\rVert)^2}
     \\
     \tag{11}  
+
+If you go through the exercise of finding the arc-length using this metric,
+we'll find the distance between two points :math:`u,v` on the Poincaré is given by:
+
+.. math::
+
+    d(u,v) = arcosh(1 + 2\frac{\lVert u-v \rVert^2}{(1-\lVert u\rVert^2)(1-\lVert v\rVert^2)} \\ 
+    \tag{12}
+
+Equation 12 is a bit more complicated than on the hyperboloid but nothing
+that's not easily computable using standard functions.
+
+A hyperbolic circle, a set of points at a constant radius from from a center
+point, is in general any Euclidean circle completely contained within the unit
+circle.  However, the unintuitive part is that the center point is not 
+in general the normal Euclidean center, but rather something asymmetrical.
+The only time it is the actual Euclidean center is if it's at point (0,0).
+
 
  
 * Show metric, distance, etc.
