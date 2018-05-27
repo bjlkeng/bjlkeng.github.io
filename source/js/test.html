@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Poincaré Disk</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+</head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://d3js.org/d3-selection.v1.min.js"></script>
+<script src="https://d3js.org/d3-selection-multi.v1.min.js"></script>
+<script src="https://d3js.org/d3-dispatch.v1.min.js"></script>
+<script src="https://d3js.org/d3-transition.v1.min.js"></script>
+
+<body> 
+    <div class="display-1 text-center">
+        <h1>Poincaré Disk Explorer</h1>
+    </div>
+    <div class="container">
+        <div class="row" style="height: 600px">
+            <div class="col-sm-2">
+            </div>
+            <div class="col col-sm-6 h-100" style="height:600px">
+                <div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default active line-button">Line</button>
+                        <button type="button" class="btn btn-default circle-button">Circle</button>
+                    </div> 
+                </div>
+                <div class="mainbox">
+                </div>
+            </div>
+            <div class="col-sm-2" style="height:600px">
+                <div class="well well-sm">
+                    <p>
+                    <strong>Coordinates</strong>
+                    <div class="coordinates" style="height:10px"></div>
+                    </p>
+                </div>
+                <div class="well well-sm" style="height:500px">
+                    <strong>Elements</strong>
+                    <div class="elements"></div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+            </div>
+        </div>
+    </div> 
+</body> 
+</html>
+
+<script type="text/javascript">
+var w = window.innerWidth,
+    h = window.innerHeight;
+
+// Create main window and poincare disk
+var svg = d3.select(".mainbox").append("svg").attrs({
+    width: w,
+    height: h
+})
+
+var cx = 250,
+    cy = 250,
+    r = 200
+
+var unitCircle = svg.append("circle")
+                    .attrs({
+                        cx: cx,
+                        cy: cy,
+                        r: r,
+                        stroke: "black",
+                        strokewidth: "2",
+                        fill: "white",
+                        opacity: "1.0"
+                    })
+
+
+// Handle line/circle buttons
+var drawType = "line"
+d3.select(".line-button")
+  .classed("active", true)
+  .on("click", function(d, i) { 
+      drawType = "line"
+      d3.select(".line-button")
+        .classed("active", true)
+      d3.select(".circle-button")
+        .classed("active", false)
+  });
+d3.select(".circle-button")
+  .classed("active", false)
+  .on("click", function(d, i) { 
+      drawType = "circle"
+      d3.select(".circle-button")
+        .classed("active", true);
+      d3.select(".line-button")
+        .classed("active", false);
+  });
+
+
+// Handle Coordinate Box 
+function canvasToDisk(coord) {
+    x = Math.round(coord.x - cx) / r
+    y = Math.round(coord.y - cy) / r
+
+    if (x*x + y*y < 1.0) {
+        return {x: x, y: y}
+    } else {
+        return null
+    }
+}
+
+function diskToCanvas(coord) {
+    if (coord.x * coord.x + coord.y * coord.y < 1.0) {
+        x = coord.x * r + cx
+        y = coord.y * r + cy
+        return {x: x, y: y}
+    } else {
+        return null
+    }
+}
+
+
+var coordbox = d3.select(".coordinates");
+var isMouseDown = false;
+var data = []
+function mousemove() {
+    canvasCoord = {x: d3.mouse(this)[0], y: d3.mouse(this)[1]}
+    coord = canvasToDisk(canvasCoord)
+    if (coord) {
+        coordbox.text("[" + coord.x.toFixed(3) + ", " + coord.y.toFixed(3) + "] - " + isMouseDown)
+
+        if (isMouseDown) {
+            data = [data[0], canvasCoord]
+            sel = g.selectAll(".myclass")
+                   .data(data);
+
+            sel.exit()
+               .attr("r", 0)
+               .remove();
+
+            sel.attr("class", "myclass")
+               .attr("r", 5)
+               .attr("cx", function(d) {console.log(d); return d.x;})
+               .attr("cy", function(d) {return d.y;})
+               .style("fill", "black");
+
+            sel.enter()
+               .append("circle")
+               .attr("class", "myclass")
+               .attr("cx", function(d) {console.log(d); return d.x;})
+               .attr("cy", function(d) {return d.y;})
+               .style("fill", "black")
+               .attr("r", 5);
+        }
+    } else {
+        coordbox.text("")
+        isMouseDown = false
+    }
+}
+
+// Handle drawing of lines
+function mousedown() {
+    d3.event.preventDefault(); // disable text dragging
+
+    canvasCoord = {x: d3.mouse(this)[0], y: d3.mouse(this)[1]}
+    diskCoord = canvasToDisk(canvasCoord)
+    if (!diskCoord)
+        return
+
+    isMouseDown = true;
+    data = [canvasCoord]
+
+    if (drawType == "line") {
+        console.log("line")
+        sel = g.selectAll(".myclass")
+               .data(data);
+
+        sel.exit()
+           .transition()
+           .attr("r", 0)
+           .remove();
+
+        sel.transition()
+           .attr("class", "myclass")
+           .attr("r", 5)
+           .attr("cx", function(d) {console.log(d); return d.x;})
+           .attr("cy", function(d) {return d.y;})
+           .style("fill", "black");
+
+        sel.enter()
+           .append("circle")
+           .attr("class", "myclass")
+           .attr("r", 0)
+           .attr("cx", function(d) {console.log(d); return d.x;})
+           .attr("cy", function(d) {return d.y;})
+           .style("fill", "black")
+           .transition()
+           .attr("r", 5);
+    } else if (drawType == "circle") {
+        console.log("circle")
+    }
+
+
+
+}
+
+svg.on("mousedown", mousedown)
+   .on("mouseup", function () {isMouseDown = false})
+   .on("mousemove", mousemove)
+
+var g = svg.append("g");
+
+
+console.log("4")
+
+</script>
+
+
+<!--
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://d3js.org/d3-color.v1.min.js"></script>
+<script src="https://d3js.org/d3-ease.v1.min.js"></script>
+<script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+<script src="https://d3js.org/d3-timer.v1.min.js"></script>
+-->
+

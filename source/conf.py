@@ -218,7 +218,8 @@ PAGES = (
 # Default is:
 FILES_FOLDERS = {
     'notebooks': 'notebooks',
-    'js': 'js'
+    'js': 'js',
+    'css': 'css'
 }
 # Which means copy 'files' into 'output'
 
