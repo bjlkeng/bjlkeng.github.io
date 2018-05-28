@@ -20,7 +20,7 @@
     </div>
     <div class="container">
         <div class="row" style="height: 600px">
-            <div class="col-sm-2">
+            <div class="col-sm-1">
             </div>
             <div class="col col-sm-6 h-100" style="height:600px">
                 <div>
@@ -32,7 +32,7 @@
                 <div class="mainbox">
                 </div>
             </div>
-            <div class="col-sm-2" style="height:600px">
+            <div class="col-sm-3" style="height:600px">
                 <div class="well well-sm">
                     <p>
                     <strong>Coordinates</strong>
@@ -99,7 +99,7 @@ d3.select(".circle-button")
   });
 
 
-// Handle Coordinate Box 
+// Coordinate Transformations 
 function canvasToDisk(coord) {
     x = Math.round(coord.x - cx) / r
     y = Math.round(coord.y - cy) / r
@@ -121,46 +121,79 @@ function diskToCanvas(coord) {
     }
 }
 
-
+// Globals
 var coordbox = d3.select(".coordinates");
+var elements = d3.select(".elements");
+var lineObjects = [];
+var circleObjects = [];
+var allObjects = [];
 var isMouseDown = false;
-var data = []
-function mousemove() {
-    canvasCoord = {x: d3.mouse(this)[0], y: d3.mouse(this)[1]}
-    coord = canvasToDisk(canvasCoord)
-    if (coord) {
-        coordbox.text("[" + coord.x.toFixed(3) + ", " + coord.y.toFixed(3) + "] - " + isMouseDown)
+var tmpObject = [];
 
-        if (isMouseDown) {
-            data = [data[0], canvasCoord]
-            sel = g.selectAll(".myclass")
-                   .data(data);
+function drawObjects(label, drawType) {
+    if (drawType == "line") {
+        sel = g.selectAll("." + label)
+               .data(lineObjects.concat(tmpObject));
 
-            sel.exit()
-               .attr("r", 0)
-               .remove();
+        sel.exit()
+           .remove();
+        
+        sel.attr("class", label)
+           .attr("r", 5)
+           .attr("cx", function(d) { return d.x; })
+           .attr("cy", function(d) { return d.y; })
+           .style("fill", "black");
+        
+        sel.enter()
+           .append("circle")
+           .attr("class", label)
+           .attr("cx", function(d) { console.log(d); return d.x; })
+           .attr("cy", function(d) { console.log(d); return d.y; })
+           .style("fill", "black")
+           .attr("r", 5);
 
-            sel.attr("class", "myclass")
-               .attr("r", 5)
-               .attr("cx", function(d) {console.log(d); return d.x;})
-               .attr("cy", function(d) {return d.y;})
-               .style("fill", "black");
-
-            sel.enter()
-               .append("circle")
-               .attr("class", "myclass")
-               .attr("cx", function(d) {console.log(d); return d.x;})
-               .attr("cy", function(d) {return d.y;})
-               .style("fill", "black")
-               .attr("r", 5);
+        function computeArc(d) {
+            return "M";
         }
-    } else {
-        coordbox.text("")
-        isMouseDown = false
+
+        sel.enter()
+           .append("path")
+           .attr("d", computeArc())
+           .style("stroke", "black");
     }
 }
 
-// Handle drawing of lines
+function drawElementsBox() {
+    sel = elements.selectAll(".elementitem")
+                  .data(allObjects)
+
+    if (drawType == "line") {
+        function lineToText(d) {
+            if (drawType == "line") {
+                p = canvasToDisk(d.p)
+                q = canvasToDisk(d.q)
+                return d.id + ": " +
+                    "P: (" + p.x + ", " + p.y + "), " +
+                    "Q: (" + q.x + ", " + q.y + ")";
+            }
+        }
+
+        sel.exit()
+           .remove();
+
+        sel.text(function(d) { return lineToText(d) });
+        
+        sel.enter()
+           .append("div")
+           .attr("class", "elementitem")
+           .text(function(d) { 
+               //console.log(d); 
+               return lineToText(d)
+        });
+    }
+}
+
+
 function mousedown() {
     d3.event.preventDefault(); // disable text dragging
 
@@ -170,50 +203,63 @@ function mousedown() {
         return
 
     isMouseDown = true;
-    data = [canvasCoord]
+    tmpObject = getTmpObject(canvasCoord, canvasCoord)
 
-    if (drawType == "line") {
-        console.log("line")
-        sel = g.selectAll(".myclass")
-               .data(data);
+    objects = drawType == "line" ? lineObjects : circleObjects;
+    label = drawType + "-" + (objects.length + 1).toString();
+    drawObjects(label, drawType)
+}
 
-        sel.exit()
-           .transition()
-           .attr("r", 0)
-           .remove();
 
-        sel.transition()
-           .attr("class", "myclass")
-           .attr("r", 5)
-           .attr("cx", function(d) {console.log(d); return d.x;})
-           .attr("cy", function(d) {return d.y;})
-           .style("fill", "black");
+function mousemove() {
+    canvasCoord = {x: d3.mouse(this)[0], y: d3.mouse(this)[1]}
+    coord = canvasToDisk(canvasCoord)
+    if (coord) {
+        coordbox.text("[" + coord.x.toFixed(3) + ", " + coord.y.toFixed(3) + "] - " + isMouseDown)
 
-        sel.enter()
-           .append("circle")
-           .attr("class", "myclass")
-           .attr("r", 0)
-           .attr("cx", function(d) {console.log(d); return d.x;})
-           .attr("cy", function(d) {return d.y;})
-           .style("fill", "black")
-           .transition()
-           .attr("r", 5);
-    } else if (drawType == "circle") {
-        console.log("circle")
+        if (isMouseDown) {
+            tmpObject = getTmpObject(tmpObject.p, canvasCoord)
+
+            objects = drawType == "line" ? lineObjects : circleObjects;
+            label = drawType + "-" + (objects.length + 1).toString();
+            drawObjects(label, drawType)
+        }
+    } else {
+        coordbox.text("")
+        isMouseDown = false
     }
+}
 
 
+function getTmpObject(p, q) {
+    objects = drawType == "line" ? lineObjects : circleObjects;
+    label = drawType + "-" + (objects.length + 1).toString();
+    return {"id": label, "p": p, "q": q}
+}
 
+
+function mouseup() {
+    isMouseDown = false
+
+    canvasCoord = {x: d3.mouse(this)[0], y: d3.mouse(this)[1]}
+    coord = canvasToDisk(canvasCoord)
+
+    if (coord) {
+        obj = (drawType == "line") ? lineObjects : circleObjects;
+        obj.push(tmpObject)
+        allObjects.push(tmpObject)
+
+        drawElementsBox()
+    } else {
+        tmpObject = []
+    }
 }
 
 svg.on("mousedown", mousedown)
-   .on("mouseup", function () {isMouseDown = false})
+   .on("mouseup", mouseup)
    .on("mousemove", mousemove)
 
 var g = svg.append("g");
-
-
-console.log("4")
 
 </script>
 

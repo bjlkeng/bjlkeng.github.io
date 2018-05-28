@@ -715,7 +715,7 @@ we'll find the distance between two points :math:`u,v` on the Poincaré is given
 
 .. math::
 
-    d(u,v) = arcosh(1 + 2\frac{\lVert u-v \rVert^2}{(1-\lVert u\rVert^2)(1-\lVert v\rVert^2)} \\ 
+    d(u,v) = arcosh\big(1 + 2\frac{\lVert u-v \rVert^2}{(1-\lVert u\rVert^2)(1-\lVert v\rVert^2)}\big) \\ 
     \tag{12}
 
 Equation 12 is a bit more complicated than on the hyperboloid but nothing
