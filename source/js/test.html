@@ -13,6 +13,7 @@
 <script src="https://d3js.org/d3-selection-multi.v1.min.js"></script>
 <script src="https://d3js.org/d3-dispatch.v1.min.js"></script>
 <script src="https://d3js.org/d3-transition.v1.min.js"></script>
+<script src="https://d3js.org/d3-shape.v1.min.js"></script>
 
 <body> 
     <div class="display-1 text-center">
@@ -65,16 +66,18 @@ var cx = 250,
     cy = 250,
     r = 200
 
+var unitCircleAttrib = {
+    cx: cx,
+    cy: cy,
+    r: r,
+    stroke: "black",
+    strokewidth: "2",
+    fill: "white",
+    opacity: "1.0"
+}
+
 var unitCircle = svg.append("circle")
-                    .attrs({
-                        cx: cx,
-                        cy: cy,
-                        r: r,
-                        stroke: "black",
-                        strokewidth: "2",
-                        fill: "white",
-                        opacity: "1.0"
-                    })
+                    .attrs(unitCircleAttrib)
 
 
 // Handle line/circle buttons
@@ -101,8 +104,8 @@ d3.select(".circle-button")
 
 // Coordinate Transformations 
 function canvasToDisk(coord) {
-    x = Math.round(coord.x - cx) / r
-    y = Math.round(coord.y - cy) / r
+    x = Math.round(coord.x - unitCircleAttrib.cx) / unitCircleAttrib.r
+    y = -Math.round(coord.y - unitCircleAttrib.cy) / unitCircleAttrib.r
 
     if (x*x + y*y < 1.0) {
         return {x: x, y: y}
@@ -112,54 +115,173 @@ function canvasToDisk(coord) {
 }
 
 function diskToCanvas(coord) {
-    if (coord.x * coord.x + coord.y * coord.y < 1.0) {
-        x = coord.x * r + cx
-        y = coord.y * r + cy
-        return {x: x, y: y}
-    } else {
+    x = coord.x * unitCircleAttrib.r + unitCircleAttrib.cx
+    y = -coord.y * unitCircleAttrib.r + unitCircleAttrib.cy
+    return {x: x, y: y}
+}
+
+// Hyperbolic lines
+function computeHyperbolicLine(p, q) {
+    // Infinite case
+    if (p.x == 0 && p.y == 0 && q.x == 0 && q.y == 0) {
         return null
+    }
+
+    function lineEqn(p, q) {
+        return {a: (p.y - q.y), b: (q.x - p.x), c: (p.x * q.y - q.x * p.y)}
+    }
+
+    function perpLine(pq, P) {
+        return {a: pq.b, b: -pq.a, c: -P.x * pq.b + P.y * pq.a}
+    }
+
+    function dist(p, q) {
+        return Math.sqrt(Math.pow(p.x - q.x, 2) + Math.pow(p.y - q.y, 2))
+    }
+
+    function midpoint(p, q) {
+        return {x: (p.x + q.x) / 2, y: (p.y + q.y) / 2}
+    }
+
+    function inversion(p) {
+        pDist = dist(p, {x: 0, y: 0})
+        c = 1. / (pDist * pDist)
+        pp = {x: c * p.x , y: c * p.y}
+        console.log("ppDist = ", dist(pp, {x:0, y:0}))
+        console.log("pp = ", pp)
+        return pp
+    }
+
+    function intersectLines(l1, l2) {
+        a = l1.a
+        b = l1.b
+        c = l1.c
+        j = l2.a
+        k = l2.b
+        l = l2.c
+        return {
+            x: (c * k - b * l) / (b * j - a * k),
+            y: (a * l - c * j) / (b * j - a * k)
+        }
+    }
+
+    P = canvasToDisk(p)
+    Q = canvasToDisk(q)
+
+    // Algorithm from:
+    // https://en.wikipedia.org/wiki/Poincar%C3%A9_disk_model#Compass_and_straightedge_construction
+    PQ = lineEqn(P, Q)
+    M = midpoint(P, Q)
+    m = perpLine(PQ, M)
+    console.log("P", P)
+    console.log("Q", Q)
+    console.log("PQ", PQ)
+    console.log("m", m)
+    Pprime = inversion(P)
+    console.log("P", P, "  Pprime", Pprime)
+    N = midpoint(P, Pprime)
+    console.log("N", N)
+    // console.log("P Pprime", lineEqn(P, Pprime))
+    n = perpLine(lineEqn(P, Pprime), N)
+    console.log("n", n)
+    C = intersectLines(n, m)
+    console.log("C", C)
+   
+    function atan2(y, x) {
+        angle = Math.atan2(y, x)
+        console.log("atan2", angle)
+        return (angle >= 0 ? angle : (2*Math.PI + angle))
+    }
+
+    startAngle = atan2(P.y - C.y, P.x - C.x)
+    endAngle = atan2(Q.y - C.y, Q.x - C.x)
+
+    return {
+        center: diskToCanvas(C),
+        startAngle: startAngle, 
+        endAngle: endAngle,
+        radius: dist(diskToCanvas(C), diskToCanvas(P))
     }
 }
 
 // Globals
 var coordbox = d3.select(".coordinates");
 var elements = d3.select(".elements");
-var lineObjects = [];
-var circleObjects = [];
 var allObjects = [];
 var isMouseDown = false;
-var tmpObject = [];
+var tmpObject = null;
 
-function drawObjects(label, drawType) {
+function drawObjects() {
     if (drawType == "line") {
-        sel = g.selectAll("." + label)
-               .data(lineObjects.concat(tmpObject));
+        data = allObjects.filter(x => x.type == "line")
+                         .concat(tmpObject);
 
-        sel.exit()
-           .remove();
-        
-        sel.attr("class", label)
-           .attr("r", 5)
-           .attr("cx", function(d) { return d.x; })
-           .attr("cy", function(d) { return d.y; })
-           .style("fill", "black");
-        
-        sel.enter()
-           .append("circle")
-           .attr("class", label)
-           .attr("cx", function(d) { console.log(d); return d.x; })
-           .attr("cy", function(d) { console.log(d); return d.y; })
-           .style("fill", "black")
-           .attr("r", 5);
+        //sel = g.selectAll(".line")
+        //       .data(data)
+
+        //sel.exit()
+        //   .remove();
+
+        g.selectAll(".line-start")
+         .data(data)
+         .exit()
+         .remove()
+
+        g.selectAll(".line-start")
+         .data(data)
+         .enter()
+         .append("circle")
+         .attr("class", function(d) { return "line-start " + d.id})
+         .attr("cx", function(d) { console.log(d.p); return d.p.x; })
+         .attr("cy", function(d) { return d.p.y; })
+         .style("fill", "black")
+         .attr("r", 3)
+
+        g.selectAll(".line-end")
+         .data(data)
+         .remove()
+
+        g.selectAll(".line-end")
+         .data(data)
+         .enter()
+         .append("circle")
+         .attr("class", function(d) { return "line-end " + d.id})
+         .attr("cx", function(d) { console.log(d.q); return d.q.x; })
+         .attr("cy", function(d) { return d.q.y; })
+         .style("fill", "black")
+         .attr("r", 3)
+
+        g.selectAll(".line-arc")
+         .data(data)
+         .remove()
+
+        g.selectAll(".line-arc")
+         .data(data)
+         .enter()
+         .append("path")
+         .attr("class", function(d) { return "line-arc " + d.id})
+         .attr("transform", function(d) { 
+             hline = computeHyperbolicLine(d.p, d.q)
+             return "translate(" + hline.center.x + "," + hline.center.y + ")"
+         })
+         .style("fill", "black")
+         .attr("d", function(d) { 
+             hline = computeHyperbolicLine(d.p, d.q)
+             console.log(hline)
+             radius = hline.radius
+             arcGenerator = d3.arc()
+                              .innerRadius(radius)
+                              .outerRadius(radius+1)
+                              .startAngle(hline.startAngle)
+                              .endAngle(hline.endAngle)
+             return arcGenerator()
+         })
+
+
 
         function computeArc(d) {
             return "M";
         }
-
-        sel.enter()
-           .append("path")
-           .attr("d", computeArc())
-           .style("stroke", "black");
     }
 }
 
@@ -181,13 +303,10 @@ function drawElementsBox() {
         sel.exit()
            .remove();
 
-        sel.text(function(d) { return lineToText(d) });
-        
         sel.enter()
            .append("div")
            .attr("class", "elementitem")
            .text(function(d) { 
-               //console.log(d); 
                return lineToText(d)
         });
     }
@@ -205,9 +324,7 @@ function mousedown() {
     isMouseDown = true;
     tmpObject = getTmpObject(canvasCoord, canvasCoord)
 
-    objects = drawType == "line" ? lineObjects : circleObjects;
-    label = drawType + "-" + (objects.length + 1).toString();
-    drawObjects(label, drawType)
+    drawObjects()
 }
 
 
@@ -220,9 +337,7 @@ function mousemove() {
         if (isMouseDown) {
             tmpObject = getTmpObject(tmpObject.p, canvasCoord)
 
-            objects = drawType == "line" ? lineObjects : circleObjects;
-            label = drawType + "-" + (objects.length + 1).toString();
-            drawObjects(label, drawType)
+            drawObjects()
         }
     } else {
         coordbox.text("")
@@ -232,9 +347,8 @@ function mousemove() {
 
 
 function getTmpObject(p, q) {
-    objects = drawType == "line" ? lineObjects : circleObjects;
-    label = drawType + "-" + (objects.length + 1).toString();
-    return {"id": label, "p": p, "q": q}
+    label = drawType + "-" + (allObjects.filter(x => x.type == drawType).length + 1).toString();
+    return {"id": label, "type": drawType, "p": p, "q": q}
 }
 
 
@@ -245,10 +359,7 @@ function mouseup() {
     coord = canvasToDisk(canvasCoord)
 
     if (coord) {
-        obj = (drawType == "line") ? lineObjects : circleObjects;
-        obj.push(tmpObject)
         allObjects.push(tmpObject)
-
         drawElementsBox()
     } else {
         tmpObject = []
