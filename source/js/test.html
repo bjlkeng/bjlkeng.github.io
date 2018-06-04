@@ -13,7 +13,8 @@
 <script src="https://d3js.org/d3-selection-multi.v1.min.js"></script>
 <script src="https://d3js.org/d3-dispatch.v1.min.js"></script>
 <script src="https://d3js.org/d3-transition.v1.min.js"></script>
-<script src="https://d3js.org/d3-shape.v1.min.js"></script>
+<!-- <script src="https://d3js.org/d3-shape.v1.min.js"></script> -->
+<script src="helpers.js"></script>
 
 <body> 
     <div class="display-1 text-center">
@@ -36,8 +37,10 @@
             <div class="col-sm-3" style="height:600px">
                 <div class="well well-sm">
                     <p>
-                    <strong>Coordinates</strong>
+                    <strong>Element Info</strong>
                     <div class="coordinates" style="height:10px"></div>
+                    <br/>
+                    <div class="distance" style="height:10px"></div>
                     </p>
                 </div>
                 <div class="well well-sm" style="height:500px">
@@ -53,29 +56,34 @@
 </html>
 
 <script type="text/javascript">
+// Globals
 var w = window.innerWidth,
     h = window.innerHeight;
 
-// Create main window and poincare disk
-var svg = d3.select(".mainbox").append("svg").attrs({
-    width: w,
-    height: h
-})
-
-var cx = 250,
-    cy = 250,
-    r = 200
+var main_x = 250,
+    main_y = 250,
+    main_radius = 200
 
 var unitCircleAttrib = {
-    cx: cx,
-    cy: cy,
-    r: r,
+    cx: main_x,
+    cy: main_y,
+    r: main_radius,
     stroke: "black",
     strokewidth: "2",
     fill: "white",
     opacity: "1.0"
 }
 
+var elements = d3.select(".elements");
+var allObjects = [];
+var isMouseDown = false;
+var tmpObject = null;
+
+// Create main window and poincare disk
+var svg = d3.select(".mainbox").append("svg").attrs({
+    width: w,
+    height: h
+})
 var unitCircle = svg.append("circle")
                     .attrs(unitCircleAttrib)
 
@@ -91,6 +99,7 @@ d3.select(".line-button")
       d3.select(".circle-button")
         .classed("active", false)
   });
+
 d3.select(".circle-button")
   .classed("active", false)
   .on("click", function(d, i) { 
@@ -102,125 +111,10 @@ d3.select(".circle-button")
   });
 
 
-// Coordinate Transformations 
-function canvasToDisk(coord) {
-    x = Math.round(coord.x - unitCircleAttrib.cx) / unitCircleAttrib.r
-    y = -Math.round(coord.y - unitCircleAttrib.cy) / unitCircleAttrib.r
-
-    if (x*x + y*y < 1.0) {
-        return {x: x, y: y}
-    } else {
-        return null
-    }
-}
-
-function diskToCanvas(coord) {
-    x = coord.x * unitCircleAttrib.r + unitCircleAttrib.cx
-    y = -coord.y * unitCircleAttrib.r + unitCircleAttrib.cy
-    return {x: x, y: y}
-}
-
-// Hyperbolic lines
-function computeHyperbolicLine(p, q) {
-    // Infinite case
-    if (p.x == 0 && p.y == 0 && q.x == 0 && q.y == 0) {
-        return null
-    }
-
-    function lineEqn(p, q) {
-        return {a: (p.y - q.y), b: (q.x - p.x), c: (p.x * q.y - q.x * p.y)}
-    }
-
-    function perpLine(pq, P) {
-        return {a: pq.b, b: -pq.a, c: -P.x * pq.b + P.y * pq.a}
-    }
-
-    function dist(p, q) {
-        return Math.sqrt(Math.pow(p.x - q.x, 2) + Math.pow(p.y - q.y, 2))
-    }
-
-    function midpoint(p, q) {
-        return {x: (p.x + q.x) / 2, y: (p.y + q.y) / 2}
-    }
-
-    function inversion(p) {
-        pDist = dist(p, {x: 0, y: 0})
-        c = 1. / (pDist * pDist)
-        pp = {x: c * p.x , y: c * p.y}
-        console.log("ppDist = ", dist(pp, {x:0, y:0}))
-        console.log("pp = ", pp)
-        return pp
-    }
-
-    function intersectLines(l1, l2) {
-        a = l1.a
-        b = l1.b
-        c = l1.c
-        j = l2.a
-        k = l2.b
-        l = l2.c
-        return {
-            x: (c * k - b * l) / (b * j - a * k),
-            y: (a * l - c * j) / (b * j - a * k)
-        }
-    }
-
-    P = canvasToDisk(p)
-    Q = canvasToDisk(q)
-
-    // Algorithm from:
-    // https://en.wikipedia.org/wiki/Poincar%C3%A9_disk_model#Compass_and_straightedge_construction
-    PQ = lineEqn(P, Q)
-    M = midpoint(P, Q)
-    m = perpLine(PQ, M)
-    console.log("P", P)
-    console.log("Q", Q)
-    console.log("PQ", PQ)
-    console.log("m", m)
-    Pprime = inversion(P)
-    console.log("P", P, "  Pprime", Pprime)
-    N = midpoint(P, Pprime)
-    console.log("N", N)
-    // console.log("P Pprime", lineEqn(P, Pprime))
-    n = perpLine(lineEqn(P, Pprime), N)
-    console.log("n", n)
-    C = intersectLines(n, m)
-    console.log("C", C)
-   
-    function atan2(y, x) {
-        angle = Math.atan2(y, x)
-        console.log("atan2", angle)
-        return (angle >= 0 ? angle : (2*Math.PI + angle))
-    }
-
-    startAngle = atan2(P.y - C.y, P.x - C.x)
-    endAngle = atan2(Q.y - C.y, Q.x - C.x)
-
-    return {
-        center: diskToCanvas(C),
-        startAngle: startAngle, 
-        endAngle: endAngle,
-        radius: dist(diskToCanvas(C), diskToCanvas(P))
-    }
-}
-
-// Globals
-var coordbox = d3.select(".coordinates");
-var elements = d3.select(".elements");
-var allObjects = [];
-var isMouseDown = false;
-var tmpObject = null;
-
 function drawObjects() {
     if (drawType == "line") {
         data = allObjects.filter(x => x.type == "line")
                          .concat(tmpObject);
-
-        //sel = g.selectAll(".line")
-        //       .data(data)
-
-        //sel.exit()
-        //   .remove();
 
         g.selectAll(".line-start")
          .data(data)
@@ -232,7 +126,7 @@ function drawObjects() {
          .enter()
          .append("circle")
          .attr("class", function(d) { return "line-start " + d.id})
-         .attr("cx", function(d) { console.log(d.p); return d.p.x; })
+         .attr("cx", function(d) { return d.p.x; })
          .attr("cy", function(d) { return d.p.y; })
          .style("fill", "black")
          .attr("r", 3)
@@ -246,7 +140,7 @@ function drawObjects() {
          .enter()
          .append("circle")
          .attr("class", function(d) { return "line-end " + d.id})
-         .attr("cx", function(d) { console.log(d.q); return d.q.x; })
+         .attr("cx", function(d) { return d.q.x; })
          .attr("cy", function(d) { return d.q.y; })
          .style("fill", "black")
          .attr("r", 3)
@@ -260,28 +154,15 @@ function drawObjects() {
          .enter()
          .append("path")
          .attr("class", function(d) { return "line-arc " + d.id})
-         .attr("transform", function(d) { 
-             hline = computeHyperbolicLine(d.p, d.q)
-             return "translate(" + hline.center.x + "," + hline.center.y + ")"
-         })
-         .style("fill", "black")
+         .style("fill", "none")
+         .style("stroke", "blue")
+         .style("stroke-width", "2")
          .attr("d", function(d) { 
-             hline = computeHyperbolicLine(d.p, d.q)
-             console.log(hline)
+             hline = computeHyperbolicLine(d.p, d.q, {x: main_x, y: main_y}, main_radius)
              radius = hline.radius
-             arcGenerator = d3.arc()
-                              .innerRadius(radius)
-                              .outerRadius(radius+1)
-                              .startAngle(hline.startAngle)
-                              .endAngle(hline.endAngle)
-             return arcGenerator()
+             return describeArc(hline.center.x, hline.center.y, hline.radius,
+                                hline.startAngle, hline.endAngle)
          })
-
-
-
-        function computeArc(d) {
-            return "M";
-        }
     }
 }
 
@@ -323,26 +204,38 @@ function mousedown() {
 
     isMouseDown = true;
     tmpObject = getTmpObject(canvasCoord, canvasCoord)
-
     drawObjects()
 }
 
+function drawInfoBox(canvasCoord) {
+    diskCoord = canvasToDisk(canvasCoord)
+    if (!isMouseDown) {
+        coordText = "[" + diskCoord.x.toFixed(3) + ", " + diskCoord.y.toFixed(3) + "]";
+        distText = ""
+    } else {
+        coordText = (
+            "P: [" + tmpObject.p.x.toFixed(3) + ", " + tmpObject.p.y.toFixed(3) + "]" +
+            "Q: [" + tmpObject.q.x.toFixed(3) + ", " + tmpObject.q.y.toFixed(3) + "]"
+        );
+        dist = hDist(canvasToDisk(tmpObject.p), canvasToDisk(tmpObject.q))
+        distText = "Hyperbolic Distance: " + dist.toFixed(3)
+    }
+    // console.log(allObjects);
+    d3.select(".coordinates").text(coordText);
+    d3.select(".distance").text(distText);
+}
 
 function mousemove() {
     canvasCoord = {x: d3.mouse(this)[0], y: d3.mouse(this)[1]}
-    coord = canvasToDisk(canvasCoord)
-    if (coord) {
-        coordbox.text("[" + coord.x.toFixed(3) + ", " + coord.y.toFixed(3) + "] - " + isMouseDown)
-
-        if (isMouseDown) {
-            tmpObject = getTmpObject(tmpObject.p, canvasCoord)
-
-            drawObjects()
-        }
-    } else {
-        coordbox.text("")
+    if (!canvasToDisk(canvasCoord)) {
         isMouseDown = false
+        tmpObject = []
+    } else if (isMouseDown) {
+        tmpObject = getTmpObject(tmpObject.p, canvasCoord)
+        drawObjects();
     }
+
+    drawInfoBox(canvasCoord);
 }
 
 
@@ -364,6 +257,10 @@ function mouseup() {
     } else {
         tmpObject = []
     }
+
+    g.selectAll(".fadeCircle")
+     .data([1])
+     .remove()
 }
 
 svg.on("mousedown", mousedown)
