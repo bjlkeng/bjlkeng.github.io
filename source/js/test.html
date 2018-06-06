@@ -114,11 +114,16 @@ d3.select(".circle-button")
 function drawObjects() {
     if (drawType == "line") {
         data = allObjects.filter(x => x.type == "line")
-                         .concat(tmpObject);
+
+        tmpData = null
+        if (tmpObject != null && tmpObject.p != null && tmpObject.q != null) {
+            data = data.concat(tmpObject);
+            hline = computeHyperbolicLine(tmpObject.p, tmpObject.q,
+                                          {x: main_x, y: main_y}, main_radius)
+            tmpData = [hline];
+        }
 
         g.selectAll(".line-start")
-         .data(data)
-         .exit()
          .remove()
 
         g.selectAll(".line-start")
@@ -132,7 +137,6 @@ function drawObjects() {
          .attr("r", 3)
 
         g.selectAll(".line-end")
-         .data(data)
          .remove()
 
         g.selectAll(".line-end")
@@ -146,7 +150,6 @@ function drawObjects() {
          .attr("r", 3)
 
         g.selectAll(".line-arc")
-         .data(data)
          .remove()
 
         g.selectAll(".line-arc")
@@ -163,6 +166,30 @@ function drawObjects() {
              return describeArc(hline.center.x, hline.center.y, hline.radius,
                                 hline.startAngle, hline.endAngle)
          })
+
+        g.selectAll(".fadeCircle")
+         .remove()
+        if (tmpData) {
+            g.selectAll(".fadeCircle")
+             .data(tmpData)
+             .enter()
+             .append("circle")
+             .attr("class", "fadeCircle")
+             .attr("cx", function(hline) { 
+                 return hline.center.x; 
+             })
+             .attr("cy", function(hline) {
+                 return hline.center.y; 
+             })
+             .style("stroke", "blue")
+             .style("stroke-width", "2")
+             .style("opacity", "0.2")
+             .style("fill", "none")
+             .attr("r", function(hline) {
+                return hline.radius;
+             })
+        }
+
     }
 }
 
@@ -189,7 +216,7 @@ function drawElementsBox() {
            .attr("class", "elementitem")
            .text(function(d) { 
                return lineToText(d)
-        });
+           });
     }
 }
 
@@ -208,19 +235,23 @@ function mousedown() {
 }
 
 function drawInfoBox(canvasCoord) {
-    diskCoord = canvasToDisk(canvasCoord)
-    if (!isMouseDown) {
-        coordText = "[" + diskCoord.x.toFixed(3) + ", " + diskCoord.y.toFixed(3) + "]";
-        distText = ""
-    } else {
-        coordText = (
-            "P: [" + tmpObject.p.x.toFixed(3) + ", " + tmpObject.p.y.toFixed(3) + "]" +
-            "Q: [" + tmpObject.q.x.toFixed(3) + ", " + tmpObject.q.y.toFixed(3) + "]"
-        );
-        dist = hDist(canvasToDisk(tmpObject.p), canvasToDisk(tmpObject.q))
-        distText = "Hyperbolic Distance: " + dist.toFixed(3)
+    diskCoord = canvasToDisk(canvasCoord);
+    coordText = "";
+    distText = "";
+
+    if (diskCoord != null) {
+        if (!isMouseDown) {
+            coordText = "[" + diskCoord.x.toFixed(3) + ", " + diskCoord.y.toFixed(3) + "]";
+            distText = "";
+        } else {
+            coordText = ("P: [" + tmpObject.p.x.toFixed(3) + ", " + tmpObject.p.y.toFixed(3) + "]" +
+                         "Q: [" + tmpObject.q.x.toFixed(3) + ", " + tmpObject.q.y.toFixed(3) + "]"
+                        );
+            dist = hDist(canvasToDisk(tmpObject.p), canvasToDisk(tmpObject.q));
+            distText = "Hyperbolic Distance: " + dist.toFixed(3);
+        }
     }
-    // console.log(allObjects);
+
     d3.select(".coordinates").text(coordText);
     d3.select(".distance").text(distText);
 }
@@ -229,13 +260,15 @@ function mousemove() {
     canvasCoord = {x: d3.mouse(this)[0], y: d3.mouse(this)[1]}
     if (!canvasToDisk(canvasCoord)) {
         isMouseDown = false
-        tmpObject = []
-    } else if (isMouseDown) {
+        tmpObject = null
+    } else if (isMouseDown && canvasCoord != null) {
         tmpObject = getTmpObject(tmpObject.p, canvasCoord)
-        drawObjects();
     }
 
-    drawInfoBox(canvasCoord);
+    if (canvasCoord != null) {
+        drawInfoBox(canvasCoord);
+        drawObjects();
+    }
 }
 
 
@@ -249,25 +282,24 @@ function mouseup() {
     isMouseDown = false
 
     canvasCoord = {x: d3.mouse(this)[0], y: d3.mouse(this)[1]}
-    coord = canvasToDisk(canvasCoord)
+    diskCoord = canvasToDisk(canvasCoord)
 
-    if (coord) {
+    if (diskCoord && tmpObject != null) {
         allObjects.push(tmpObject)
         drawElementsBox()
-    } else {
-        tmpObject = []
     }
 
+    tmpObject = []
     g.selectAll(".fadeCircle")
      .data([1])
      .remove()
 }
 
+var g = svg.append("g");
 svg.on("mousedown", mousedown)
    .on("mouseup", mouseup)
    .on("mousemove", mousemove)
 
-var g = svg.append("g");
 
 </script>
 

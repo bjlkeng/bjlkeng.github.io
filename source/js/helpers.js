@@ -117,23 +117,6 @@ function computeHyperbolicLine(p, q, center, radius) {
     endAngle = atan2((P.y - C.y), P.x - C.x)
     startAngle = atan2((Q.y - C.y), Q.x - C.x)
 
-     g.selectAll(".fadeCircle")
-      .data([1])
-      .remove()
-
-     g.selectAll(".fadeCircle")
-      .data([1])
-      .enter()
-      .append("circle")
-      .attr("class", "fadeCircle")
-      .attr("cx", function(d) { return C.x; })
-      .attr("cy", function(d) { return C.y; })
-      .style("stroke", "blue")
-      .style("stroke-width", "2")
-      .style("opacity", "0.2")
-      .style("fill", "none")
-      .attr("r", dist(C, P))
-
     return {
         center: C,
         startAngle: startAngle, 
