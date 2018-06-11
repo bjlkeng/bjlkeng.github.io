@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Poincaré Disk</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+</head>
+
+<style>
+</style>
+
+<body> 
+    <div class="display-1 text-center">
+        <h1>Poincaré Disk Visualization</h1>
+    </div>
+    <div class="container">
+        <div class="row" style="padding-top:20px; padding-bottom:50px">
+            <div class="col-sm-2">
+            </div>
+            <div class="col col-sm-8 h-100">
+            <p>
+                This is a visualization showing the 
+                <a href="https://en.wikipedia.org/wiki/Poincar%C3%A9_disk_model">
+                Poincaré disk model</a> of hyperbolic geometry.
+                The entire geometry is located within the unit circle.
+                Hyperbolic lines are actually arcs of a circle that intersect
+                at right angles to the unit circle.  Hyperbolic circles looks
+                like Euclidean circles contained entirely within the unit
+                circle, except the hyperbolic center is not in general the
+                Euclidean center.
+                </p>
+                <p>
+                Notice how the same Euclidean length at the edge of the circle
+                is much longer than near the center, this is due to the
+                hyperbolic geometry, which has a very different distance function.
+                See my accompanying blog post on 
+                <a href="/posts/hyperbolic-geometry-and-poincare-embeddings/">Hyperbolic
+                Geometry and Poincaré Embeddings</a> for more details.
+                </p>
+                <p>
+                (NOTE: There are still a few kinks for some corner cases
+                (near straight lines, circles near the edge) that don't quite
+                draw the right thing due to the hacky numeric methods I used,
+                but for the most part the lines and circles works as expected.)
+                </p>
+            </div>
+            <div class="col-sm-2">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-2">
+            </div>
+            <div class="col col-sm-5 h-100" style="height:600px">
+                <div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default active line-button">Line</button>
+                        <button type="button" class="btn btn-default circle-button">Circle</button>
+                    </div> 
+                    <p role="button" class="btn btn-primary reset-button">Reset</p>
+                </div>
+                <div class="mainbox">
+                </div>
+            </div>
+            <div class="col-sm-3" style="height:600px">
+                <div class="well well-sm" style="height:100px">
+                    <strong>Information</strong>
+                    <div class="coordinates1"><br/></div>
+                    <div class="coordinates2"><br/></div>
+                    <div class="distance"></div>
+                </div>
+               <div class="well well-sm" style="height:450px">
+                    <strong>Objects</strong>
+                    <div class="elements list-group pre-scrollable" style="max-height:420px"></div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+            </div>
+        </div>
+        <div class="row" style="padding-top:20px; padding-bottom:50px">
+            <div class="col-sm-2">
+            </div>
+            <div class="col col-sm-8 h-100">
+            <p>Contents © 2018 <a href="mailto:brian@briankeng.com">Brian Keng</a>.  Created using <a href="https://d3js.org/">D3.js</a>, <a href="http://www.numericjs.com/">Numeric.js</a> and <a href="https://getbootstrap.com/">Bootstrap</a>.</p>
+            </div>
+            <div class="col-sm-2">
+            </div>
+        </div>
+
+    </div> 
+</body> 
+</html>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/numeric-1.2.6.min.js"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://d3js.org/d3-selection.v1.min.js"></script>
+<script src="https://d3js.org/d3-selection-multi.v1.min.js"></script>
+<script src="https://d3js.org/d3-dispatch.v1.min.js"></script>
+<script src="helpers.js"></script>
+<script src="hyperbolic.js"></script>
