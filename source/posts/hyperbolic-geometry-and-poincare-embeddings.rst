@@ -728,10 +728,50 @@ in general the normal Euclidean center, but rather something asymmetrical.
 The only time it is the actual Euclidean center is if it's at point (0,0).
 
 
- 
-* Show metric, distance, etc.
+|h3| Poincaré Visualization |h3e|
 
-* Include D3 visualization
+Here's an interactive visualization I with D3 `D3.js <https://d3js.org/>`__,
+`Numeric.js <http://www.numericjs.com/>`__ and `Bootstrap
+<https://getbootstrap.com/>`__.  You can play around drawing hyperbolic lines
+and circles.  The interesting things to play around with are:
+
+* How the same length Euclidean distance maps to different distances on
+  the Poincaré disk.
+* How a line segment is actually part of a larger circle intersecting
+  the Poincaré disk.
+* How the Euclidean center of a circle can be very different than its
+  hyperbolic center.
+
+.. figure:: /images/poincare_disk_screenshot.png
+  :target: /js/poincare_disk.html 
+  :height: 300px
+  :alt: Screenshot of my poincare visualization
+  :align: center
+
+  Figure 12: Screenshot of My Poincaré Disk Visualization.
+
+The implementation is all there is the attached Javascript files.  It's pretty
+much a hack that I put together. Raw Javascript can be pretty frustrating
+because of all the little interaction details you have to get right!
+It's no wonder why I'm not a frontend guy.
+
+The more interesting part (to me) was getting the math right for generating the hyperbolic lines and circles.  For generating lines, 
+`Wikipedia <https://en.wikipedia.org/wiki/Poincar%C3%A9_disk_model#Compass_and_straightedge_construction>`__
+has a nice little algorithm to generate the hyperbolic line.  They're mostly
+just variations on basic line equations for the most part.  Although, it took
+me a while to get this mostly right because there are a lot of equations and
+operations to code. Another lesson learned: it's hard to roll your own numeric
+calculations! (Better to use a library when available.)
+
+For the circle, I kind of just cheated and used Numeric.js to solve for the
+points that I needed.  The algorithm I used was basically find 3 points that
+were equidistant from the starting point.  The current position of the mouse
+defines one of them (P1).  The next one, I used the line created from P1 to the
+starting point to find another one on the opposite side (P2).  The third point, I
+used the perpendicular line passing through the starting point (P3).  Lastly, I
+used the formula to find the equation of a circle from three points and was
+able to draw the circle.  For points P2/P3, I just used the Numeric.js solver
+to find the points instead of working the equations out explicitly.
 
 
 |h2| Poincaré Embeddings for Hierarchical Representations |h2e|
