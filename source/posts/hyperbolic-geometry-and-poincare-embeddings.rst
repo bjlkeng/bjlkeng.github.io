@@ -628,11 +628,13 @@ A few notable points:
    the geodesic on the hyperboloid extending out the infinity, that is, as the
    arc approaches the circumference it's approaching the "infinity" of the
    plane.
-2. Each arc approaches the circumference at a 90 degree angle, this is just
+2. This means distances at the edge of the circle grow exponentially as you
+   move toward the edge of the circle (compared to their Euclidean distances).
+3. Each arc approaches the circumference at a 90 degree angle, this is just
    works out as a result of the math of the hyperboloid and the projection.
    The straight line in this case is a point that passes through the "bottom"
    of the hyperboloid :math:`(0, 0, 1)`.
-3. In this case, we can see 3 lines that are parallel and actually diverge from
+4. In this case, we can see 3 lines that are parallel and actually diverge from
    each other (also known as "ultra parallel").  This is a consequence of changing
    Euclid's fifth postulate regarding parallel lines (see the box above).  A
    more clear example is Figure 13.  Here we see that we can have an infinite number
@@ -748,7 +750,7 @@ and circles.  The interesting things to play around with are:
   :alt: Screenshot of my poincare visualization
   :align: center
 
-  Figure 12: Screenshot of My Poincaré Disk Visualization.
+  Figure 14: Screenshot of My Poincaré Disk Visualization.
 
 The implementation is all there is the attached Javascript files.  It's pretty
 much a hack that I put together. Raw Javascript can be pretty frustrating
@@ -776,16 +778,117 @@ to find the points instead of working the equations out explicitly.
 
 |h2| Poincaré Embeddings for Hierarchical Representations |h2e|
 
-* Explain algorithm (roughly)
-* Explain *why* 
+|h3| The Limitations of Euclidean Space for Hierarhical Data |h3e|
 
-|h2| Poincaré Embeddings with NLP package (notebook?) |h2e|
+The whole reason why we went through that primer on hyperbolic geometry is that
+we want to embed data in it.  Consider some hierarchical data, such
+as a tree data.  A tree with branching factor :math:`b` has `(b+1)b^{l-1}`
+nodes at level :math:`l` and :math:`\frac{(b+1)b^{l}-2)}{b-1}` nodes on levels
+less than or equal to :math:`l`.  So as we grow the levels of the tree, the
+number of nodes grows exponentially.  
+
+There are really two important pieces of information in a tree.  One is the
+hierarchical nature of the tree: the child-parent relationships.  The other
+is a relative "distance" between the nodes.  Children and their parents should
+be close, but leaf nodes in totally different branches of the tree should be
+very far apart (probably somehow proportional to the number of links).
+
+Let's imagine putting this into a Euclidean (say 2D) space.  First, we would
+probably put the root at the origin.  Then, place the first level equidistant
+around it.  Then place the second level equidistant from all those points.
+Figure 15 shows these two levels.
 
 
+.. figure:: /images/euclidean_graph_embedding.png
+  :height: 270px
+  :alt: Attempt at a Euclidean graph embedding
+  :align: center
+
+  Figure 15: An attempt at embedding a tree with branching factor 4 into the
+  Euclidean plane.  We are already starting to run out of space!
+
+You can see we're already running out of space.  The hierarchical links are
+*sort of* represented (distances between child/parent are maintained), but
+importantly, the distances between siblings is gets smaller.  Look at the leaf
+nodes which are squeezed at the edge because we don't have enough "space".
+One way around, might be to increase dimensions but then you'd need to increase
+those with the number of levels you have, which brings a whole host of other
+problems.  Long story short, Euclidean space isn't a good representation for
+graph-like data. 
+
+
+|h3| Embedding Hierarchies in Hyperbolic Space |h3e|
+
+It shouldn't be a surprise at this point to know that Hyperbolic space 
+is a good representation of hierarchical data ([1]).
+Using the same sort of algorithm as we tried above of placing the root at the
+center and spacing the children out equidistant recursively *does* work
+in hyperbolic space.  The reason is that distances grow exponentially as we
+move toward the edge of the disk, eliminating the "crowding" effect we saw
+above.  Figure 16 shows a visualization for a tree with branching factor two.
+
+.. figure:: /images/poincare_graph_embedding.png
+  :height: 270px
+  :alt: Embedding a hierarchical tree in hyperbolic space
+  :align: center
+
+  Figure 16: Embedding a hierarchical tree with branching factor two
+  into a 2D hyperbolic plane (Poincaré disk).  Distances between all
+  points are actually equal because distances grow exponentially
+  as you move toward the edge of the disk (source: [1]).
+
+Of course, Figure 16 looks crowded at the lower levels just like the previous
+figure but that's only because hyperbolic space is hard to visualize
+intuitively.  In fact all the points in Figure 16 are equidistant from their
+parent, and siblings and cousins nodes are much further apart then they appear.
+So crowding in fact isn't much of an issue (use my visualization above to play
+around with it).  We can also use the exact same idea but instead of the
+Poincaré disk use the Poincaré ball in :math:`d` dimensions.
+
+The problem now becomes, how do I map my nodes in my hierarchical data to the
+Poincaré ball?  As usual, via an optimization.  We have to use a variant of
+stochastic gradient descent because we're optimizing over an manifold, not just
+simple Euclidean space.  I won't go through all the math (partly because I
+don't quite understand it) but here is the final update equations for the
+embeddings we want to learn :math:`\bf \theta`:
+
+.. math::
+
+    proj({\bf \theta}) &= \begin{cases}
+      \frac{\bf \theta}{\lVert{\bf \theta}\rVert - \epsilon} && \text{if } \lVert {\bf \theta} \rVert \geq 1 \\
+      {\bf \theta} && \text{otherwise}
+      \end{cases} \\
+    {\bf \theta_{t+1}} &\leftarrow proj\big({\bf \theta_t} - \eta_t \frac{(1 - \lVert{\bf \theta_t}\rVert^2)^2}{4} \nabla_E\big)\\
+    \tag{13}
+
+where :math:`\epsilon` is a small constant for numerical stability,
+:math:`\eta_t` is the learning rate, and :math:`\nabla_E` is our usual
+(Euclidean) gradient.  The first equation just makes sure we stay within
+the unit ball, where the second equation is a rescaling of the gradient to
+account for our hyperbolic distances.
+
+So far we haven't talked about what loss function to use.  That's because
+in [1], they use a few different ones depending on what they're trying to do.
+
+* talk about the main one (similar to word2vvec, skipgram embeddings)
+
+
+|h2| Applications and Gensim's Poincaré Implementation |h2e|
+
+* [2]
+* Show some code 
+* Show results from paper, briefly explain
+
+https://nbviewer.jupyter.org/github/RaRe-Technologies/gensim/blob/master/docs/notebooks/Poincare%20Evaluation.ipynb
+
+
+model = PoincareModel(train_data, size=dim, negative=neg, burn_in=burn_in, regularization_coeff=reg)
+model.train(epochs=epochs, batch_size=batch_size)
+model.save(output_file)
 
 |h2| Conclusion |h2e|
 
-
+* Done!
 
 |h2| Further Reading |h2e|
 
