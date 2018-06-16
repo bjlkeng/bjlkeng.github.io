@@ -847,10 +847,11 @@ Poincaré disk use the Poincaré ball in :math:`d` dimensions.
 
 The problem now becomes, how do I map my nodes in my hierarchical data to the
 Poincaré ball?  As usual, via an optimization.  We have to use a variant of
-stochastic gradient descent because we're optimizing over an manifold, not just
-simple Euclidean space.  I won't go through all the math (partly because I
-don't quite understand it) but here is the final update equations for the
-embeddings we want to learn :math:`\bf \theta`:
+our usual stochastic gradient descent called Riemannian Stochastic Gradient
+Descent (RSGD) because we're optimizing over an manifold, not just simple
+Euclidean space.  I won't go through all the math (partly because I don't quite
+understand it) but here is the final update equations for the embeddings we
+want to learn :math:`\bf \theta`:
 
 .. math::
 
@@ -863,32 +864,103 @@ embeddings we want to learn :math:`\bf \theta`:
 
 where :math:`\epsilon` is a small constant for numerical stability,
 :math:`\eta_t` is the learning rate, and :math:`\nabla_E` is our usual
-(Euclidean) gradient.  The first equation just makes sure we stay within
-the unit ball, where the second equation is a rescaling of the gradient to
-account for our hyperbolic distances.
+(Euclidean) gradient of our loss.  The first equation just makes sure we stay
+within the unit ball.  The second equation is our usual parameter updating
+except with a rescaling of the gradient to account for our hyperbolic
+distances.
 
-So far we haven't talked about what loss function to use.  That's because
-in [1], they use a few different ones depending on what they're trying to do.
+So far we haven't talked about the loss function.  That's because in [1], they
+use a few different ones depending on what they're trying to do.
+The one used for hierarchical data bears a striking resemblance to Word2vec's 
+Skip-Gram loss with negative sampling:
 
-* talk about the main one (similar to word2vvec, skipgram embeddings)
+.. math::
 
+    \mathcal{L}(\Theta_{\text{paper}}) &= 
+        \sum_{\substack{(u,v) \in \mathcal{D}}} 
+            \log \frac{e^{-d(u,v)}}{\sum_{v'\in \mathcal{N}(u)} e^{-d(u, v')}} \\
+    \mathcal{L_{\text{impl}}}(\Theta) &= 
+        \sum_{\substack{(u,v) \in \mathcal{D}}} 
+            \log \frac{e^{-d(u,v)}}{e^{-d(u,v)} + \sum_{v'\in \mathcal{N}(u)} e^{-d(u, v')}} \\
+    \tag{14}
+
+
+where :math:`\mathcal{N}(u)` is a set of negative link samples for :math:`u`
+and :math:`\mathcal{D}` is our link dataset.  The difference between the two
+versions (according to [2]) is that the paper gives the former while the actual
+implementation from [1] gives the latter.  Both are very similar, and the
+testing done in [2] seems to favor the latter.
+
+In either case for Equation 14, for a given hierarchical link :math:`(u, v)`,
+we are basically trying to pull them closer (numerator), while pushing a random
+negative sample of the non-relations apart (denominator).  This can be
+interpreted as a soft ranking loss where :math:`d(u, v)` comes before
+:math:`d(u, v')`.  The negative sampling (just like Word2vec) is really done
+just for computational feasibility, we could also do it over every non-link if
+we wanted.
+
+And that's about it!  There are actually a few more tricks that [2] uncovered
+in the original C++ implementation from [1] that practically are important to get
+a good embedding, I encourage you to check out that blog post, which is very
+accessible.
 
 |h2| Applications and Gensim's Poincaré Implementation |h2e|
 
-* [2]
-* Show some code 
-* Show results from paper, briefly explain
+So there are a few tasks that they used to evaluate these hierarchical
+embeddings for in [1]:
 
-https://nbviewer.jupyter.org/github/RaRe-Technologies/gensim/blob/master/docs/notebooks/Poincare%20Evaluation.ipynb
+* Reconstruction of a hierarchy/graph from the embedding (this is a synthetic
+  test because you use all the data to construct the embedding)
+* Link prediction with a train/validation/test set.
 
+Then they show results on three different datasets: transitive closure of
+WordNet noun hierarchy, social network embeddings, and a lexical entailment
+dataset.  They compare these datasets to standard Euclidean distance and
+a related "translational" distance using a similar loss function.  Here
+are the results from [1] on WordNet:
 
-model = PoincareModel(train_data, size=dim, negative=neg, burn_in=burn_in, regularization_coeff=reg)
-model.train(epochs=epochs, batch_size=batch_size)
-model.save(output_file)
+.. figure:: /images/reconstruction_paper.png
+  :height: 170px
+  :alt: Results from [1]
+  :align: center
+
+  Figure 17: Experimental results from [1] showing a massive improvement in
+  reconstruction performance.
+
+You can see that the Poincaré embedding shows a massive improvement over the
+other methods using the average rank and mean average precision.  Rank in this
+context means where did the actual link distance rank relative to all ground
+truth negative examples.  Ideally it should be rank 1.
+With even as little as 5 dimensions, the Poincaré embeddings massively
+outperform the two other distance functions with 200 dimension.  This really
+shows the efficiency of the embedding.
+
+What's even nicer about these embedding is that there is a great implementation
+from `Gensim <https://radimrehurek.com/gensim/models/poincare.html>`__.  [2] is
+a technical post by the authors of Gensim describing how they implemented these
+embeddings.  Here's some sample code from the documentation:
+
+.. code-block:: python
+
+    from gensim.models.poincare import PoincareModel
+    relations = [('kangaroo', 'marsupial'), ('kangaroo', 'mammal'),
+                 ('gib', 'cat')]
+    model = PoincareModel(relations, negative=2)
+    model.train(epochs=50)
+
+I love it when there are nice clean open source implementations available.
+Coding these up from scratch invariably takes a huge amount of time, especially
+when you have to reverse engineer an implementation from a paper (at least they
+had the original authors C++ implementation).
 
 |h2| Conclusion |h2e|
 
-* Done!
+Well that's it!  Started off with a bunch of math then slowly corrected course
+back to some ML topics.  My next post will definitely be back along the lines
+of ML, I've had enough of this diversion into the maths.  Besides, there are 
+still so many interesting papers and topics for me to look at, it just seems like 
+the backlog keeps growing!  Stay tune for some more posts.
+
 
 |h2| Further Reading |h2e|
 
