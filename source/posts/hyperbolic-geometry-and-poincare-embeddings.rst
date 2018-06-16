@@ -42,20 +42,20 @@
 
 This post is finally going to get back to some ML related topics.
 In fact, the original reason I took that whole math-y detour in the previous
-posts was to the more deeply understand this topic, it turns out trying to
+posts was to more deeply understand this topic.  It turns out trying to
 under tensor calculus and differential geometry (even to a basic level) takes a
 while!  Who knew?  In any case, we're getting back to our regularly scheduled program.
 
-In this post, I'm going to write about a different model of space called
-hyperbolic space.  The reason why this abstract math is of interest is because
-there has been a surge of research showing its application in various fields,
-chief among them is the paper by Facebook [1], which discusses how to utilize
-a model of hyperbolic space to represent hierarchical relationships.
-As usual, I'll cover some of the math weighting more towards intuition, and
-also play around with some implementations to help understand the topic a bit
-more.  Don't worry, this time I'll try much harder not going to go down the
-rabbit hole of trying to explain all math, rather I'll just stick with a more
-intuitive explanation with a sprinkle of math.
+In this post, I'm going to explain one of the applications of an abstract
+area of mathematics called hyperbolic geometry.  The reason why this area is of
+interest is because there has been a surge of research showing its
+application in various fields, chief among them is a paper by Facebook
+researchers [1] in which they discuss how to utilize a model of hyperbolic
+geometry to represent hierarchical relationships.  I'll cover some of
+the math weighting more towards intuition, show some of their results, and also
+show some sample code from Gensim.  Don't worry, this time I'll try much harder
+not going to go down the rabbit hole of trying to explain all math (no
+promises though).
 
 (Note: If you're unfamiliar with tensors or manifolds, I suggest getting a quick
 overview with my two previous posts: 
@@ -70,8 +70,8 @@ overview with my two previous posts:
 To begin this discussion, we have to first understand something about
 `curvature <https://en.wikipedia.org/wiki/Curvature>`__.  There are all
 kinds of curvature to talk about whether they be on curves, or surfaces (or
-hypersurfaces).  With the latter having many different variants.  The basic
-idea behind all these different types are that **curvature** is some measure by
+hypersurfaces) with the latter having many different variants.  The basic
+idea behind all these different definitions is that **curvature** is some measure by
 which a geometric object deviates from a flat plane, or in the case of a curve,
 deviates from a straight line.  
 
@@ -86,8 +86,9 @@ when you're reading further.
 |h3| Gaussian Curvature |h3e|
 
 To begin, let's start with Gaussian curvature, which is a measure of curvature
-for surfaces (2D manifolds).  Let's take a look at Figure 1 which shows three
-the three different types of `Gaussian curvature <https://en.wikipedia.org/wiki/Gaussian_curvature>`__.
+for surfaces (2D manifolds).  Let's take a look at Figure 1 which shows the
+three different types of 
+`Gaussian curvature <https://en.wikipedia.org/wiki/Gaussian_curvature>`__.
 
 .. figure:: /images/gaussian_curvature.png
   :height: 170px
@@ -136,7 +137,7 @@ a surface of differently curved surfaces behave.
 We can see that in our flat geometry (centre), a triangle's angles add up to
 exactly :math:`180^{\circ}`; on positive curvature surfaces (right), it adds up
 to more than :math:`180^{\circ}`; on negative curvature surfaces (left), it
-adds up to less than :math:`180^{\circ}`.  Measuring how an object's behavior
+adds up to less than :math:`180^{\circ}`.  Measuring how an object's properties
 differs from flat space is (one way) how we're going to generalize curvature to
 higher dimensions in the next subsection.
 
@@ -144,7 +145,7 @@ higher dimensions in the next subsection.
 
 |h3| Parallel Transport, Riemannian Curvature Tensor and Sectional Curvature |h3e|
 
-The first idea we need to get an intuition on is the concept of 
+The first idea we need is an intuition on the concept of 
 `parallel transport <https://en.wikipedia.org/wiki/Parallel_transport>`__.
 The main idea is that we can move tangent vectors along the surface of smooth
 manifolds to see if our surface is curved.  
@@ -174,7 +175,7 @@ our tangent vector.  We walk straight all the way up to the north pole at N,
 then without changing the direction of our racket, we move towards point B from
 the north pole.  Again, without changing our racket direction, we walk back to
 point A.  This time though, our racket is pointing in a different direction?!
-This is an example of a curved surface, when we parallel transported the vector,
+This is an example of a curved surface. When we parallel transported the vector,
 it changed directions.
 
 We can measure this deviation of parallel transport using the 
@@ -203,21 +204,24 @@ at a point :math:`P` denoted by :math:`K(u, v)`:
    K(u, v) = \frac{\langle R(u, v)v, U\rangle }{\langle u, u\rangle \langle v, v\rangle  - \langle u, v\rangle ^2} \tag{1}
 
 where :math:`u, v` are linearly independent vectors in the tangent space of
-point :math:`P` and the angle brackets are the inner product.
+point :math:`P`, :math:`R` is the Riemannian Curvative Tensor, and the angle
+brackets are the inner product.
 
 |h3| Manifolds with Constant Sectional Curvature |h3e|
 
-Riemannian manifolds with constant curvature at every point are special cases.
+Riemannian manifolds with constant curvature at every point are special cases
+of curved surfaces.
 They come in three forms, constant:
 
 * Constant Positive Curvature: Elliptic geometry
 * Constant Zero Curvature: Euclidean geometry
 * Constant Negative Curvature: Hyperbolic geometry
 
-The first two we are more familiar with: The manifold model for Euclidean
-geometry is just any Euclidean space.  The manifold model for elliptic geometry
-is simply just a sphere.  The model for hyperbolic geometry is a bit more complicated
-and we'll spend some more time with it in the next section.
+The first two we are more familiar with: The standard model for
+Euclidean geometry is just any Euclidean space.  The model for elliptic
+geometry is simply just a sphere (or hypersphere).  The model for hyperbolic
+geometry is a bit more complicated and we'll spend some more time with it in
+the next section.
 
 
 .. admonition:: Euclidean and Non-Euclidean Geometries
@@ -244,7 +248,7 @@ and we'll spend some more time with it in the next section.
   These postulates define Euclidean geometry which is a `axiomatic system
   <https://en.wikipedia.org/wiki/Axiomatic_system>`__.  An axiomatic system is
   one in which every theorem can be logically derived from it.  This is all
-  jargon relating to logic. So the the standard geometry we learn in grade
+  jargon relating to logic. So the standard geometry we learn in grade
   school with lines, cirles, angles, etc. is Euclidean geometry.
 
   However, this is not exactly the same thing as the analytical geometry 
@@ -305,10 +309,11 @@ and we'll spend some more time with it in the next section.
     Figure 7: Lines :math:`x` and :math:`y` intersecting at :math:`P` never pass through line :math:`R`, although it is possible that they can asymptoptically approach it (`source <http://www.math.cornell.edu/~mec/mircea.html>`__).
 
   This figure is not a great visualization because, as we'll mention below, you
-  can't really represent 2D hyperbolic geometry in 3D Euclidean space.  This makes
-  it hard to visualize, and results in a more complex model than the other two
-  geometries.  Further down, we'll describe a couple of models of hyperbolic
-  geometry because there is no one "standard" model as we'll see below.
+  can't really intuitively represent 2D hyperbolic geometry in 2D or 3D
+  Euclidean space.  This makes it hard to visualize, and results in a more
+  complex model than the other two geometries.  Further down, we'll describe a
+  couple of models of hyperbolic geometry because there is no one "standard"
+  model as we'll see below.
 
 
 |h2| Hyperbolic Space |h2e|
@@ -323,12 +328,12 @@ Formally:
 
 Hyperbolic space analogous to the n-dimensional sphere (which has constant
 positive curvature).
-This is very hard thing to visualize though because we're used to only 
+This is a very hard thing to visualize though because we're used to only 
 imagining objects in Euclidean space -- not curved space.
-One to think about it is that when embedded into Euclidean space, every point
-is a `saddle point <https://en.wikipedia.org/wiki/Saddle_point>`__, still kind of
-hard to imagine.
-The real tough part is that even for the 2D hyperplane, we cannot embed it in
+One way to think about it is that when embedded into Euclidean space, every point
+is a `saddle point <https://en.wikipedia.org/wiki/Saddle_point>`__... still kind of
+hard to imagine though.
+The real tough part is that even for the 2D hyperbolic plane, we cannot embed it in
 3D Euclidean space (`Hilbert's theorem <https://en.wikipedia.org/wiki/Hilbert%27s_theorem_(differential_geometry)>`__),
 so something's got to give.
 
@@ -343,7 +348,7 @@ Before we get to the model of hyperbolic geometry, we have to set a few things u
 First, let's define a (generalized) `Minkowski space <https://en.wikipedia.org/wiki/Minkowski_space>`__
 (a type of `pseudo-Riemannian manifold <https://en.wikipedia.org/wiki/Pseudo-Riemannian_manifold>`__):
 
-    For :math:`n>=2`, a :math:`n`-dimensional Minkowski space is a real vector space
+    For :math:`n \geq 2`, a :math:`n`-dimensional Minkowski space is a real vector space
     of real dimension :math:`n` which there is a constant Minkowski metric of
     signature (n-1, 1) or (1, n-1).
 
@@ -367,7 +372,7 @@ are different).  In `special relativity <https://en.wikipedia.org/wiki/Special_r
 dimension 1 is considered the "time"-like dimension while the others are
 "space"-like dimensions.  But I don't think this helps with the intuition all
 that much.  For now, we just need to know that one of the dimensions is treated
-differently, while the others are very similar to regular our Euclidean space.
+differently, while the others are very similar to our regular Euclidean space.
 
 |h3| Hyperboloid |h3e|
 
@@ -376,8 +381,8 @@ Before we get to the model, we need to cover the
 A hyperboloid is a
 generalization of a hyperbola in two dimensions.  If you take a hyperbola and
 spin it around its principal axes (or add certain types of affine
-transformations), you get a hyperboloid.  There are a few other types of
-hyperboloids but we'll only be talking about the two sheet version.  
+transformations), you get a hyperboloid.  There are a few types of hyperboloids
+but we'll only be talking about the two sheet variant.  
 Figure 8 shows an example of a two sheet hyperboloid.  
 
 .. figure:: /images/hyperboloid.png
@@ -394,7 +399,7 @@ The two sheet hyperboloid (in three dimensions) has the following equation:
 
     \frac{x^2}{a^2} + \frac{y^2}{b^2} - \frac{z^2}{c^2} = -1 \tag{3}
 
-where with :math:`z > 0` defines the forward sheet.  You can see how
+where :math:`z > 0` define what is called the "forward sheet".  You can see how
 this can easily extend to multiple dimensions: you just add more positive
 quadratic terms in front, with your "special" negative dimension (in this case
 :math:`z`) in the back.
@@ -414,19 +419,19 @@ Notice that we're using the
 here, which are very much related to hyperbolas (as expected).  Also notice
 that we use :math:`\cos\theta` and :math:`\sin\theta` for :math:`x` and
 :math:`y`, which reminds us of the parameterization of a circle.  Indeed, x and
-y are the "normal" Euclidean dimensions and for a given constant :math:`z`,
+y are the "normal" Euclidean dimensions and, for a given constant :math:`z`,
 they define a circle.
 
 
 |h3| The Hyperboloid Model of Hyperbolic Geometry |h3e|
 
 Finally we get to our first model of hyperbolic geometry!
-Having introduced the two above concepts, our first model
+Having introduced the above two concepts, our first model
 known as the `hyperboloid model <https://en.wikipedia.org/wiki/Hyperboloid_model>`__
 (aka Minkowski model or Lorentz model) is a model of n-dimensional
 hyperbolic geometry in which points are represented on the forward sheet of a
 two-sheeted hyperboloid of (n+1)-dimensional Minkowski space.
-The points on this sheet are defined by:
+The points on this sheet (in 3D Minkowski space) are defined by:
 
 .. math::
 
@@ -437,11 +442,12 @@ intuition.
 
 So we know 2D Elliptic geometry (constant positive curvature) can be mapped to
 a sphere in 3D Euclidean space.  So we can re-create any of our usual geometric
-concepts and have them map to the sphere, for example, points lines, angles,
-triangles etc.  In a similar way for hyperbolic geometry, we can have the same
-concepts but mapped to the surface of the forward sheet of the hyperboloid,
-*except* now we're in Minkowski space which makes your intuition about what
-should happen all screwy.
+concepts and have them map to the sphere, for example, points, lines, angles,
+circles etc.  In a similar way for hyperbolic geometry, we can have the same
+concepts (e.g. points, lines, angles, circles) but mapped to the surface of the
+forward sheet of the hyperboloid.  The big difference is that now we're in
+Minkowski space which makes your intuition about what should happen a bit
+screwy.
 
 For example, how does a straight line get defined? On a sphere
 there are many paths you could take from point A to B, but the shortest path
@@ -456,8 +462,9 @@ In our hyperboloid model, the geodesic (or our hyperbolic line) is defined to
 be the curve created by intersecting two points and the origin with the
 hyperboloid.  So you end up having to go "down" first then back up to reach a
 point, never just directly towards it using the shortest path (on the surface)
-in Euclidean space.  Figure 9 shows a visualization of this curve (ignore the
-bottom circle for now, we'll come back to this later).
+in Euclidean space.  Figure 9 shows a visualization of this curve as the
+brownish line (ignore the bottom circle for now, we'll come back to this
+later).
 
 .. figure:: /images/hyperboloid_projection.png
   :height: 250px
@@ -466,11 +473,14 @@ bottom circle for now, we'll come back to this later).
 
   Figure 9: Hyperboloid Stereoscopic Projection (source: Wikipedia).
 
-Once we have the concept of a line, we can define it as the distance 
+Once we have the concept of a line segment, we can define the distance 
 between two points.  This can be calculated using the 
 `arc length <https://en.wikipedia.org/wiki/Arc_length>`__ of the tangent
-vectors with the Minkowski metric.  This lends itself well to a closed form
-for the hyperbolic distance between two points :math:`\bf u` and :math:`\bf v`:
+vectors with the Minkowski metric.  This is analogous to how we can compute
+the length of a curve, basically walking along it and adding up the
+infinitesimal distances except now we'll be using the Minkowski metric from
+Equation 2.  It turns out that this simplifies to a closed form for the
+hyperbolic distance between two points :math:`\bf u` and :math:`\bf v`:
 
 .. math::
 
@@ -485,8 +495,8 @@ Minkowski metric defined above.
     To illustate a few of the above ideas and to gain some intuition, let's
     calculate the arc length of two points on the hyperbolic plane embedded in
     3D Minkowski space.  First, let's define a curve from A to B parameterized
-    by :math:`t=[t_a, t_b]`, this is just a variation on Equation 4 where we set
-    :math:`\theta=0`:
+    by :math:`t=[t_a, t_b]`. We'll pick a simple curve that lies on the plane
+    :math:`y=0` (i.e. setting :math:`\theta=0` in Equation 4):
 
     .. math::
 
@@ -533,8 +543,8 @@ Minkowski metric defined above.
 The hyperboloid model also has the concept of circles.  The simplest circle
 is with center at the bottom most point :math:`(0, 0, 1)`.  The circles created
 with this center look like regular circles in Euclidean space of a plane parallel
-to the x-y plane intersecting the hyperboloid.  This is a constant hyperbolic
-distance away from this bottom point all go "up" an equidistant.
+to the x-y plane intersecting the hyperboloid.  The points on this circle are a
+constant hyperbolic distance away from this bottom point.
 
 However, if we move to points centered at different locations, we get arbitrary
 "slices" of the hyperboloid as shown in Figure 10 as an ellipse.  The non-Euclidean nature of
@@ -566,16 +576,18 @@ Poincaré disk model).
 This is being presented second because it is much less intuitive and it follows
 directly from the hyperboloid model.
 
-*A digression: You might be wondering how we can "fit" an entire geometry in a
-circle.  We know flat 2D geometry fits in the Euclidean plane, 2D elliptic
-geometry (constant positive curvature) fits on the surface of a sphere, and now
-we're saying 2D hyperbolic geometry fits inside a circle?  The biggest thing to
-realize is, first, there are an infinite number of points within the circle --
-infinities are hard to reason about.  Second, we need to throw away our
-Euclidean sensibilities and intuition.  For example, we'll see below that the
-"distance" between points grows exponentially as we move towards the outside of
-the Poincaré disk.  We need to use a combination of the math and throwing away
-our old intuition in order to understand these non-flat models of geometry.*
+.. admonition:: Can a circle fit an entire geometry?
+    
+    You might be wondering how we can "fit" an entire geometry in a
+    circle.  We know flat 2D geometry fits in the Euclidean plane, 2D elliptic
+    geometry (constant positive curvature) fits on the surface of a sphere, and now
+    we're saying 2D hyperbolic geometry fits inside a circle?  The biggest thing to
+    realize is, first, there are an infinite number of points within the circle --
+    infinities are hard to reason about.  Second, we need to throw away our
+    Euclidean sensibilities and intuition.  For example, we'll see below that the
+    "distance" between points grows exponentially as we move towards the outside of
+    the Poincaré disk.  We need to use a combination of the math and throwing away
+    our old intuition in order to understand these non-flat models of geometry.*
 
 The Poincaré model can be derived using a 
 `stereoscopic projection <https://en.wikipedia.org/wiki/Stereographic_projection>`__
@@ -620,7 +632,7 @@ as shown in Figure 12.
   :align: center
 
   Figure 12: Examples of Poincaré lines as arcs on the unit circle with each
-  one approaching the the circumference at a 90 degree angle. (source: Wikipedia)
+  one approaching the circumference at a 90 degree angle. (source: Wikipedia)
 
 A few notable points:
 
@@ -630,7 +642,7 @@ A few notable points:
    plane.
 2. This means distances at the edge of the circle grow exponentially as you
    move toward the edge of the circle (compared to their Euclidean distances).
-3. Each arc approaches the circumference at a 90 degree angle, this is just
+3. Each arc approaches the circumference at a 90 degree angle, this just
    works out as a result of the math of the hyperboloid and the projection.
    The straight line in this case is a point that passes through the "bottom"
    of the hyperboloid :math:`(0, 0, 1)`.
@@ -723,7 +735,7 @@ we'll find the distance between two points :math:`u,v` on the Poincaré is given
 Equation 12 is a bit more complicated than on the hyperboloid but nothing
 that's not easily computable using standard functions.
 
-A hyperbolic circle, a set of points at a constant radius from from a center
+A hyperbolic circle defined as a set of points at a constant radius from a center
 point, is in general any Euclidean circle completely contained within the unit
 circle.  However, the unintuitive part is that the center point is not 
 in general the normal Euclidean center, but rather something asymmetrical.
@@ -732,7 +744,7 @@ The only time it is the actual Euclidean center is if it's at point (0,0).
 
 |h3| Poincaré Visualization |h3e|
 
-Here's an interactive visualization I with D3 `D3.js <https://d3js.org/>`__,
+Here's an interactive visualization I with `D3.js <https://d3js.org/>`__,
 `Numeric.js <http://www.numericjs.com/>`__ and `Bootstrap
 <https://getbootstrap.com/>`__.  You can play around drawing hyperbolic lines
 and circles.  The interesting things to play around with are:
@@ -752,7 +764,7 @@ and circles.  The interesting things to play around with are:
 
   Figure 14: Screenshot of My Poincaré Disk Visualization.
 
-The implementation is all there is the attached Javascript files.  It's pretty
+The implementation is all there in the attached Javascript files.  It's pretty
 much a hack that I put together. Raw Javascript can be pretty frustrating
 because of all the little interaction details you have to get right!
 It's no wonder why I'm not a frontend guy.
@@ -760,35 +772,34 @@ It's no wonder why I'm not a frontend guy.
 The more interesting part (to me) was getting the math right for generating the hyperbolic lines and circles.  For generating lines, 
 `Wikipedia <https://en.wikipedia.org/wiki/Poincar%C3%A9_disk_model#Compass_and_straightedge_construction>`__
 has a nice little algorithm to generate the hyperbolic line.  They're mostly
-just variations on basic line equations for the most part.  Although, it took
-me a while to get this mostly right because there are a lot of equations and
-operations to code. Another lesson learned: it's hard to roll your own numeric
-calculations! (Better to use a library when available.)
+just variations on basic line equations for the most part.  Although, it did
+take me a while to get this mostly right because there are a lot of equations
+and operations to code. Another lesson learned: it's hard to roll your own
+numeric calculations! (Better to use a library when available.)
 
-For the circle, I kind of just cheated and used Numeric.js to solve for the
+For the circle, I just cheated and used Numeric.js to solve for the
 points that I needed.  The algorithm I used was basically find 3 points that
 were equidistant from the starting point.  The current position of the mouse
 defines one of them (P1).  The next one, I used the line created from P1 to the
-starting point to find another one on the opposite side (P2).  The third point, I
-used the perpendicular line passing through the starting point (P3).  Lastly, I
-used the formula to find the equation of a circle from three points and was
-able to draw the circle.  For points P2/P3, I just used the Numeric.js solver
-to find the points instead of working the equations out explicitly.
+starting point to find another one on the opposite side (P2) using Numeric.js.
+The third point, I used the perpendicular line passing through the starting
+point (P3), again using Numeric.js.  Lastly, I used the formula for finding the
+equation of a circle from three points and was able to draw the circle!
 
 
 |h2| Poincaré Embeddings for Hierarchical Representations |h2e|
 
-|h3| The Limitations of Euclidean Space for Hierarhical Data |h3e|
+|h3| The Limitations of Euclidean Space for Hierarchical Data |h3e|
 
 The whole reason why we went through that primer on hyperbolic geometry is that
-we want to embed data in it.  Consider some hierarchical data, such
-as a tree data.  A tree with branching factor :math:`b` has `(b+1)b^{l-1}`
-nodes at level :math:`l` and :math:`\frac{(b+1)b^{l}-2)}{b-1}` nodes on levels
+we want to embed data in it!  Consider some hierarchical data, such
+as a tree.  A tree with branching factor :math:`b` has :math:`(b+1)b^{l-1}`
+nodes at level :math:`l` and :math:`\frac{(b+1)b^{l}-2}{b-1}` nodes on levels
 less than or equal to :math:`l`.  So as we grow the levels of the tree, the
 number of nodes grows exponentially.  
 
 There are really two important pieces of information in a tree.  One is the
-hierarchical nature of the tree: the child-parent relationships.  The other
+hierarchical nature of the tree: the parent-child relationships.  The other
 is a relative "distance" between the nodes.  Children and their parents should
 be close, but leaf nodes in totally different branches of the tree should be
 very far apart (probably somehow proportional to the number of links).
@@ -819,7 +830,7 @@ graph-like data.
 
 |h3| Embedding Hierarchies in Hyperbolic Space |h3e|
 
-It shouldn't be a surprise at this point to know that Hyperbolic space 
+It shouldn't be a surprise at this point to know that hyperbolic space 
 is a good representation of hierarchical data ([1]).
 Using the same sort of algorithm as we tried above of placing the root at the
 center and spacing the children out equidistant recursively *does* work
@@ -871,12 +882,12 @@ distances.
 
 So far we haven't talked about the loss function.  That's because in [1], they
 use a few different ones depending on what they're trying to do.
-The one used for hierarchical data bears a striking resemblance to Word2vec's 
-Skip-Gram loss with negative sampling:
+We'll focus on the one used for hierarchical data, which bears a striking
+resemblance to Word2vec's Skip-Gram loss with negative sampling:
 
 .. math::
 
-    \mathcal{L}(\Theta_{\text{paper}}) &= 
+    \mathcal{L}_{\text{paper}}(\Theta) &= 
         \sum_{\substack{(u,v) \in \mathcal{D}}} 
             \log \frac{e^{-d(u,v)}}{\sum_{v'\in \mathcal{N}(u)} e^{-d(u, v')}} \\
     \mathcal{L_{\text{impl}}}(\Theta) &= 
@@ -891,7 +902,7 @@ versions (according to [2]) is that the paper gives the former while the actual
 implementation from [1] gives the latter.  Both are very similar, and the
 testing done in [2] seems to favor the latter.
 
-In either case for Equation 14, for a given hierarchical link :math:`(u, v)`,
+In either case, from Equation 14, for a given hierarchical link :math:`(u, v)`,
 we are basically trying to pull them closer (numerator), while pushing a random
 negative sample of the non-relations apart (denominator).  This can be
 interpreted as a soft ranking loss where :math:`d(u, v)` comes before
@@ -907,17 +918,17 @@ accessible.
 |h2| Applications and Gensim's Poincaré Implementation |h2e|
 
 So there are a few tasks that they used to evaluate these hierarchical
-embeddings for in [1]:
+embeddings in the paper ([1]):
 
 * Reconstruction of a hierarchy/graph from the embedding (this is a synthetic
-  test because you use all the data to construct the embedding)
+  test because you use all the data to construct the embedding).
 * Link prediction with a train/validation/test set.
 
-Then they show results on three different datasets: transitive closure of
+They show results on three different datasets: transitive closure of
 WordNet noun hierarchy, social network embeddings, and a lexical entailment
 dataset.  They compare these datasets to standard Euclidean distance and
 a related "translational" distance using a similar loss function.  Here
-are the results from [1] on WordNet:
+are the reconstruction results from [1] on WordNet:
 
 .. figure:: /images/reconstruction_paper.png
   :height: 170px
@@ -951,7 +962,7 @@ embeddings.  Here's some sample code from the documentation:
 I love it when there are nice clean open source implementations available.
 Coding these up from scratch invariably takes a huge amount of time, especially
 when you have to reverse engineer an implementation from a paper (at least they
-had the original authors C++ implementation).
+had the original authors' C++ implementation).
 
 |h2| Conclusion |h2e|
 
@@ -960,6 +971,10 @@ back to some ML topics.  My next post will definitely be back along the lines
 of ML, I've had enough of this diversion into the maths.  Besides, there are 
 still so many interesting papers and topics for me to look at, it just seems like 
 the backlog keeps growing!  Stay tune for some more posts.
+
+(As a side note: It seems my posts keep getting longer and longer.  I got to
+consciously break them up into smaller pieces, maybe do some "Agile" or "Lean
+Blogging" on them.  Or not.  We'll see.)
 
 
 |h2| Further Reading |h2e|
