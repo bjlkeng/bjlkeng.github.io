@@ -1,10 +1,10 @@
 .. title: Hyperbolic Geometry and Poincaré Embeddings
 .. slug: hyperbolic-geometry-and-poincare-embeddings
 .. date: 2018-04-20 08:20:18 UTC-04:00
-.. tags: manifolds, hyperbolic, geometry, poincaré, embeddings, mathjax
+.. tags: manifolds, hyperbolic, geometry, Poincaré, embeddings, mathjax
 .. category: 
 .. link: 
-.. description: An introduction to models of hyperbolic geometry and its application to Pointcare embeddings.
+.. description: An introduction to models of hyperbolic geometry and its application to Poincaré embeddings.
 .. type: text
 
 .. |br| raw:: html
@@ -119,7 +119,7 @@ I think this should probably give some decent intuition on it.
   :alt: Point-wise curvature on a Torus
   :align: center
 
-  Figure 2: A torus' surface has all three types of curvature.  The outside has positive curvuature (red); the inside has negative curvature (blue); and a ring on the top and bottom of the torus have zero curvature (yellow-orange) (source: `Stackexchange <https://mathematica.stackexchange.com/questions/61409/computing-gaussian-curvature>`__).
+  Figure 2: A torus' surface has all three types of curvature.  The outside has positive curvature (red); the inside has negative curvature (blue); and a ring on the top and bottom of the torus have zero curvature (yellow-orange) (source: `Stackexchange <https://mathematica.stackexchange.com/questions/61409/computing-gaussian-curvature>`__).
 
 Gaussian curvature gives us great intuition on 2D surfaces but what about
 higher dimension?  The concept of "axes" gets a bit more muddy, so we need an
@@ -166,7 +166,7 @@ Now consider another example shown in Figure 4.
   :align: center
 
   Figure 4: Transporting a tangent vector along the surface of a curved
-  manifold.  Notice how the direction of the vector changes when traveling from
+  manifold.  Notice how the direction of the vector changes when travelling from
   A to N to B back to A (source: Wikipedia).
 
 From Figure 4, imagine now that we're on the surface of the earth at point A
@@ -204,7 +204,7 @@ at a point :math:`P` denoted by :math:`K(u, v)`:
    K(u, v) = \frac{\langle R(u, v)v, U\rangle }{\langle u, u\rangle \langle v, v\rangle  - \langle u, v\rangle ^2} \tag{1}
 
 where :math:`u, v` are linearly independent vectors in the tangent space of
-point :math:`P`, :math:`R` is the Riemannian Curvative Tensor, and the angle
+point :math:`P`, :math:`R` is the Riemannian Curvature Tensor, and the angle
 brackets are the inner product.
 
 |h3| Manifolds with Constant Sectional Curvature |h3e|
@@ -249,7 +249,7 @@ the next section.
   <https://en.wikipedia.org/wiki/Axiomatic_system>`__.  An axiomatic system is
   one in which every theorem can be logically derived from it.  This is all
   jargon relating to logic. So the standard geometry we learn in grade
-  school with lines, cirles, angles, etc. is Euclidean geometry.
+  school with lines, circles, angles, etc. is Euclidean geometry.
 
   However, this is not exactly the same thing as the analytical geometry 
   we study when we first learn about with Euclidean plane (i.e.  :math:`\mathbb{R}^2`).
@@ -306,7 +306,7 @@ the next section.
     :alt: Hyperbolic Geometry Postulate
     :align: center
 
-    Figure 7: Lines :math:`x` and :math:`y` intersecting at :math:`P` never pass through line :math:`R`, although it is possible that they can asymptoptically approach it (`source <http://www.math.cornell.edu/~mec/mircea.html>`__).
+    Figure 7: Lines :math:`x` and :math:`y` intersecting at :math:`P` never pass through line :math:`R`, although it is possible that they can asymptotically approach it (`source <http://www.math.cornell.edu/~mec/mircea.html>`__).
 
   This figure is not a great visualization because, as we'll mention below, you
   can't really intuitively represent 2D hyperbolic geometry in 2D or 3D
@@ -492,7 +492,7 @@ Minkowski metric defined above.
 
 .. admonition:: Example: Calculating the Arc Length of a Geodesic In Hyperbolic Space
 
-    To illustate a few of the above ideas and to gain some intuition, let's
+    To illustrate a few of the above ideas and to gain some intuition, let's
     calculate the arc length of two points on the hyperbolic plane embedded in
     3D Minkowski space.  First, let's define a curve from A to B parameterized
     by :math:`t=[t_a, t_b]`. We'll pick a simple curve that lies on the plane
@@ -636,7 +636,7 @@ as shown in Figure 12.
 
 A few notable points:
 
-1. The arcs never reach the circumference of the circle.  This is analagous to
+1. The arcs never reach the circumference of the circle.  This is analogous to
    the geodesic on the hyperboloid extending out the infinity, that is, as the
    arc approaches the circumference it's approaching the "infinity" of the
    plane.
@@ -764,8 +764,8 @@ and circles.  The interesting things to play around with are:
 
   Figure 14: Screenshot of My Poincaré Disk Visualization.
 
-The implementation is all there in the attached Javascript files.  It's pretty
-much a hack that I put together. Raw Javascript can be pretty frustrating
+The implementation is all there in the attached JavaScript files.  It's pretty
+much a hack that I put together. Raw JavaScript can be pretty frustrating
 because of all the little interaction details you have to get right!
 It's no wonder why I'm not a frontend guy.
 
