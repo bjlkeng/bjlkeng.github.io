@@ -1,6 +1,6 @@
 .. title: Hyperbolic Geometry and Poincaré Embeddings
 .. slug: hyperbolic-geometry-and-poincare-embeddings
-.. date: 2018-04-20 08:20:18 UTC-04:00
+.. date: 2018-06-17 08:20:18 UTC-04:00
 .. tags: manifolds, hyperbolic, geometry, Poincaré, embeddings, mathjax
 .. category: 
 .. link: 
