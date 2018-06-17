@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="An introduction to models of hyperbolic geometry and its application to Poincaré embeddings.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hyperbolic Geometry and Poincaré Embeddings | Bounded Rationality</title>
+<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
+<link rel="canonical" href="http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="description" itemprop="description" content="An introduction to models of hyperbolic geometry and its application to Poincaré embeddings.">
+<meta name="author" content="Brian Keng">
+<link rel="prev" href="../manifolds/" title="Manifolds: A Gentle Introduction" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="Hyperbolic Geometry and Poincaré Embeddings">
+<meta property="og:url" content="http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/">
+<meta property="og:description" content="An introduction to models of hyperbolic geometry and its application to Poincaré embeddings.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2018-06-17T08:20:18-04:00">
+<meta property="article:tag" content="embeddings">
+<meta property="article:tag" content="geometry">
+<meta property="article:tag" content="hyperbolic">
+<meta property="article:tag" content="manifolds">
+<meta property="article:tag" content="mathjax">
+<meta property="article:tag" content="Poincaré">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://bjlkeng.github.io/">
+
+                <span class="h1" id="blog-title">Bounded Rationality</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
+            <ul class="nav navbar-nav">
+<p class="lead">Understanding math, machine learning, and data to a satisfactory degree.</p>
+<!--
+                
+                <li><a href="/archive.html">Archive</a>
+                <li><a href="/categories/">Tags</a>
+                <li><a href="/rss.xml">RSS feed</a>
+
+                 
+-->
+            </ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+    <a href="index.rst" id="sourcelink">Source</a>
+    </li>
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            <div class="col-lg-9">
+                
+                
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Hyperbolic Geometry and Poincaré Embeddings</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                    Brian Keng
+            </span></p>
+            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2018-06-17T08:20:18-04:00" itemprop="datePublished" title="2018-06-17 08:20">2018-06-17 08:20</time></a></p>
+            
+        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>This post is finally going to get back to some ML related topics.
+In fact, the original reason I took that whole math-y detour in the previous
+posts was to more deeply understand this topic.  It turns out trying to
+under tensor calculus and differential geometry (even to a basic level) takes a
+while!  Who knew?  In any case, we're getting back to our regularly scheduled program.</p>
+<p>In this post, I'm going to explain one of the applications of an abstract
+area of mathematics called hyperbolic geometry.  The reason why this area is of
+interest is because there has been a surge of research showing its
+application in various fields, chief among them is a paper by Facebook
+researchers [1] in which they discuss how to utilize a model of hyperbolic
+geometry to represent hierarchical relationships.  I'll cover some of
+the math weighting more towards intuition, show some of their results, and also
+show some sample code from Gensim.  Don't worry, this time I'll try much harder
+not going to go down the rabbit hole of trying to explain all the math (no
+promises though).</p>
+<p>(Note: If you're unfamiliar with tensors or manifolds, I suggest getting a quick
+overview with my previous two posts:
+<a class="reference external" href="../tensors-tensors-tensors">Tensors, Tensors, Tensors</a> and
+<a class="reference external" href="../manifolds">Manifolds: A Gentle Introduction</a>)</p>
+<!-- TEASER_END -->
+<p><br></p>
+<h4> Curvature </h4>
+<p>To begin this discussion, we have to first understand something about
+<a class="reference external" href="https://en.wikipedia.org/wiki/Curvature">curvature</a>.  There are many
+different kinds of curvature, and they can be with respect to either curves or
+surfaces (hypersurfaces) with the latter having many different variants.
+The basic idea behind all these different definitions is that <strong>curvature</strong> is
+some measure by which a geometric object deviates from a flat plane, or in the
+case of a curve, deviates from a straight line.</p>
+<p>As a side note, there can be <strong>extrinsic curvature</strong> which is defined for
+objects embedded in another higher dimensional space (usually Euclidean).  This
+means its curvature depends on something (the embedding) besides itself.
+Alternatively, there is a concept of <strong>intrinsic curvature</strong>, which is defined
+in terms of deviation of the surface (or manifold) from flat space.  This doesn't
+depend on any particular embedding but is an "intrinsic" property of the surface
+(or manifold).  We won't go into all the details but the kinds of curvature we'll
+be talking about will be intrinsic.</p>
+<p></p>
+<h5> Gaussian Curvature </h5>
+<p>To begin, let's start with Gaussian curvature, which is a measure of curvature
+for surfaces (2D manifolds).  Let's take a look at Figure 1 which shows the
+three different types of
+<a class="reference external" href="https://en.wikipedia.org/wiki/Gaussian_curvature">Gaussian curvature</a>.</p>
+<div class="figure align-center">
+<img alt="Examples of Gaussian Curvature" src="../../images/gaussian_curvature.png" style="height: 170px;"><p class="caption">Figure 1: Examples of the three different types of Gaussian curvature (source: <a class="reference external" href="http://www.science4all.org/article/brazuca/">Science4All</a>).</p>
+</div>
+<p>This gives us a good intuition about what it means to have curvature.  Starting
+with the centre diagram (zero curvature), we see that a cylindrical surface has
+<em>flat or zero</em> curvature in one dimension (blue) and curved around the other
+dimension (green), resulting in zero curvature.  Moving to the right, the sphere on has
+curvature along its to axis in the <em>same direction</em>, resulting in a positive
+curvature.  And to the left, we see the saddle sheet has curvature along its
+axis in <em>different directions</em>, resulting in negative curvature.
+In fact, the Gaussian curvature is the product of its two
+<a class="reference external" href="https://en.wikipedia.org/wiki/Principal_curvature">principal curvatures</a>,
+which we won't get into detail here but corresponds to our intuition of how a
+surface curves along its two main axes.</p>
+<p>Curvature isn't a uniform property of a surface, it's actually defined point-wise.
+Figure 2 shows a torus that has all three different types of Gaussian curvature.
+We won't go deeply into the definition of Gaussian curvature because it's a pain but
+I think this should probably give some decent intuition on it.</p>
+<div class="figure align-center">
+<img alt="Point-wise curvature on a Torus" src="../../images/torus_curvature.jpg" style="height: 170px;"><p class="caption">Figure 2: A torus' surface has all three types of curvature.  The outside has positive curvature (red); the inside has negative curvature (blue); and a ring on the top and bottom of the torus have zero curvature (yellow-orange) (source: <a class="reference external" href="https://mathematica.stackexchange.com/questions/61409/computing-gaussian-curvature">Stackexchange</a>).</p>
+</div>
+<p>Gaussian curvature gives us great intuition on 2D surfaces but what about
+higher dimensions?  The concept of "axes" gets a bit more muddy, so we need an
+alternate way to define things.  One way is to look at the "deviation" of
+certain geometric objects on the surface (or hypersurface) such as a triangle.
+Figure 3 shows how a triangle behaves differently on differently curved surfaces.</p>
+<div class="figure align-center">
+<img alt="Deviation of a triangle under the three different types of Gaussian Curvature" src="../../images/Angles-and-Curvature.png" style="height: 170px;"><p class="caption">Figure 3: Deviation of a triangle under the three different types of Gaussian Curvature (source: <a class="reference external" href="http://www.science4all.org/article/brazuca/">Science4All</a>).</p>
+</div>
+<p>We can see that in our flat geometry (centre), a triangle's angles add up to
+exactly <span class="math">\(180^{\circ}\)</span>; on positive curvature surfaces (right), it adds up
+to more than <span class="math">\(180^{\circ}\)</span>; on negative curvature surfaces (left), it
+adds up to less than <span class="math">\(180^{\circ}\)</span>.  Measuring how an object's properties
+differs from flat space is (one way) how we're going to generalize curvature to
+higher dimensions in the next subsection.</p>
+<p></p>
+<h5> Parallel Transport, Riemannian Curvature Tensor and Sectional Curvature </h5>
+<p>The first idea we need is the concept of
+<a class="reference external" href="https://en.wikipedia.org/wiki/Parallel_transport">parallel transport</a>.
+The main idea is that we can move tangent vectors along the surface of smooth
+manifolds to see if our surface is curved.</p>
+<p>To illustrate, imagine yourself in a tennis court.  First stand in one corner
+of the tennis court perpendicularly facing the net with your racket parallel to
+the ground pointing forward (the racket represents the tangent vector).
+While keeping your racket facing the same direction at all times, walk around the
+outside tennis court.  When you get back to your starting position, the racket
+is in the same direction (still facing towards the net).  This is an example of
+a flat (or zero curvature) manifold because the vector has not deviated from
+its original position after "transporting" around this loop.</p>
+<p>Now consider another example shown in Figure 4.</p>
+<div class="figure align-center">
+<img alt="Transporting a tangent vector along the surface of a curved manifold" src="../../images/parallel_transport.png" style="height: 270px;"><p class="caption">Figure 4: Transporting a tangent vector along the surface of a curved
+manifold.  Notice how the direction of the vector changes when travelling from
+A to N to B back to A (source: Wikipedia).</p>
+</div>
+<p>From Figure 4, imagine now that we're on the surface of the earth at point A
+with our racket still parallel to the ground, facing north (i.e.
+our tangent vector).  We walk straight all the way up to the north pole at N,
+then without changing the direction of our racket, we move towards point B from
+the north pole.  Again, without changing our racket direction, we walk back to
+point A.  This time though, our racket is pointing in a different direction?!
+This is an example of a curved surface because when we parallel transported the
+vector, it changed directions.</p>
+<p>We can measure this deviation of parallel transport using the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Riemann_curvature_tensor">Riemannian Curvature Tensor</a>.
+Starting from a point and moving a vector around a loop, this tensor directly
+measures the failure of the vector to point in the initial direction.
+For each point on a smooth manifold, it provides a (1, 3)-tensor, which can be
+represented as a 4-axis multi-dimensional array.  Another way to look at it is
+that for any two vectors defining a tangent space, it returns a linear
+transformation that describes how the parallel transport deviates a vector in
+the tangent space.  Note: Since we have a different tensor for each point, the
+curvature is a <em>local</em> phenomenon.</p>
+<p>The math for curvature is quite involved because we're not in flat space
+anymore. This means we need to setup a lot of additional structures to deal
+with the fact that we're moving tangent vectors with different tangent spaces.
+Basically, I'm going to gloss over these details which are beyond the scope
+of this post (and not to mention my current understanding) :p</p>
+<p>Once we have this curvature tensor, we can come up with a measure of curvature
+called the <a class="reference external" href="https://en.wikipedia.org/wiki/Sectional_curvature">sectional curvature</a>
+at a point <span class="math">\(P\)</span> denoted by <span class="math">\(K(u, v)\)</span>:</p>
+<div class="math">
+\begin{equation*}
+K(u, v) = \frac{\langle R(u, v)v, u\rangle }{\langle u, u\rangle \langle v, v\rangle  - \langle u, v\rangle ^2} \tag{1}
+\end{equation*}
+</div>
+<p>where <span class="math">\(u, v\)</span> are linearly independent vectors in the tangent space of
+point <span class="math">\(P\)</span>, <span class="math">\(R\)</span> is the Riemannian Curvature Tensor, and the angle
+brackets are the inner product.</p>
+<p></p>
+<h5> Manifolds with Constant Sectional Curvature </h5>
+<p>Riemannian manifolds with constant curvature at every point are special cases
+of curved surfaces.  They come in three forms, which implicitly define three
+geometries:</p>
+<ul class="simple">
+<li>Constant Positive Curvature: Elliptic geometry</li>
+<li>Constant Zero Curvature: Euclidean geometry</li>
+<li>Constant Negative Curvature: Hyperbolic geometry</li>
+</ul>
+<p>The first two we are more familiar with: The standard model for
+Euclidean geometry is just any Euclidean space.  The standard model for
+elliptic geometry is simply just a sphere (or hypersphere).  The model for
+hyperbolic geometry is a bit more complicated and we'll spend some more time
+with it in the next section.</p>
+<div class="admonition admonition-euclidean-and-non-euclidean-geometries">
+<p class="first admonition-title">Euclidean and Non-Euclidean Geometries</p>
+<p>We saw above about how constant sectional curvature can be used to induce
+different types of geometries.  But what does this mean?  Let's dig in a bit.</p>
+<p>If we go way back to Euclid in his seminal work <em>Elements</em>, he gives <a class="reference external" href="https://en.wikipedia.org/wiki/Euclidean_geometry#Axioms">five
+postulates</a> (or axioms):</p>
+<ol class="arabic simple">
+<li>A straight line segment can be drawn joining any two points.</li>
+<li>Any straight line segment can be extended indefinitely in a straight line.</li>
+<li>Given any straight line segment, a circle can be drawn having the segment as radius and one endpoint as center.</li>
+<li>All right angles are congruent.</li>
+<li>If two lines are drawn which intersect a third in such a way that the sum of the inner angles on one side is less than two right angles, then the two lines inevitably must intersect each other on that side if extended far enough. (aka the <a class="reference external" href="https://en.wikipedia.org/wiki/Parallel_postulate">parallel postulate</a> shown in Figure 5)</li>
+</ol>
+<div class="figure align-center">
+<img alt="Euclid's Parallel Postulate" src="../../images/parallel_postulate.png" style="height: 200px;"><p class="caption">Figure 5: Euclid's Parallel Postulate: If two lines are placed over a third such that the sum of angles (<span class="math">\(\alpha+\beta\)</span>) are less than two right angles, then they must intersect at some point (source: Wikipedia).</p>
+</div>
+<p>These postulates define Euclidean geometry which is a <a class="reference external" href="https://en.wikipedia.org/wiki/Axiomatic_system">axiomatic system</a>.  An axiomatic system is
+one in which every theorem can be logically derived from it.  This is all
+jargon relating to logic. So the standard geometry we learn in grade
+school with lines, circles, angles, etc. is Euclidean geometry.</p>
+<p>However, this is not exactly the same thing as the analytical geometry
+we study when we first learn about the Euclidean plane (i.e.  <span class="math">\(\mathbb{R}^2\)</span>).
+The Euclidean plane (and by extension Euclidean space) is a
+<a class="reference external" href="https://en.wikipedia.org/wiki/Axiomatic_system#Models">model</a> of
+Euclidean geometry:</p>
+<blockquote>
+A model for an axiomatic system is a well-defined set, which assigns meaning for the undefined terms presented in the system, in a manner that is correct with the relations defined in the system.</blockquote>
+<p>For example, Euclidean geometry defines a point but there is no concrete
+meaning to it.  In the Euclidean plane, we could define a point as a pair of
+real numbers <span class="math">\((x,y)\)</span> with <span class="math">\(x,y \in \mathbb{R}\)</span>.  You could do the
+same with a line, circle and even an angle (in terms of the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Metric_tensor#Length_and_angle">metric tensor</a>).
+Once we concretely define all these abstract things in Euclidean geometry,
+we have a <strong>model</strong> of Euclidean geometry.
+Non-Euclidean geometries can be defined by similar postulates.
+In particular, by modifying the parallel postulate, we can derive other types
+of geometries.</p>
+<p></p>
+<h5> Elliptic Geometry </h5>
+<p>In Elliptic geometry, we change the parallel postulate to:</p>
+<blockquote>
+Two lines perpendicular to a given line must intersect.</blockquote>
+<p>where a visualization in shown in Figure 6.</p>
+<div class="figure align-center">
+<img alt="Elliptic Geometry Postulate" src="../../images/elliptic_geometry.jpg" style="height: 300px;"><p class="caption">Figure 6: Two lines perpendicular to another line in Elliptic geometry, must intersect at some point (<a class="reference external" href="http://www.math.cornell.edu/~mec/mircea.html">source</a>).</p>
+</div>
+<p>A model of Elliptic geometry is a manifold defined by the surface of a sphere
+(say with radius=1 and the appropriately induced metric tensor).  We can see that the
+Elliptic postulate holds, and it also yields different theorems than standard
+Euclidean geometry, such as the sum of angles in a triangle is greater than
+<span class="math">\(180^{\circ}\)</span>.</p>
+<p></p>
+<h5> Hyperbolic Geometry </h5>
+<p>In Hyperbolic geometry, we change the parallel postulate to:</p>
+<blockquote>
+For any given line R and point P not on R, in the plane containing both
+line R and point P there are at least two distinct lines through P that do
+not intersect R.</blockquote>
+<p>where a visualization in shown in Figure 7.</p>
+<div class="figure align-center">
+<img alt="Hyperbolic Geometry Postulate" src="../../images/hyperbolic_geometry.png" style="height: 200px;"><p class="caption">Figure 7: Lines <span class="math">\(x\)</span> and <span class="math">\(y\)</span> intersecting at <span class="math">\(P\)</span> never pass through line <span class="math">\(R\)</span>, although it is possible that they can asymptotically approach it (<a class="reference external" href="http://www.math.cornell.edu/~mec/mircea.html">source</a>).</p>
+</div>
+<p class="last">This figure is not a great visualization because, as we'll mention below, you
+can't really intuitively represent 2D hyperbolic geometry in 2D or 3D
+Euclidean space.  This makes it hard to visualize, and results in a more
+complex model than the other two geometries.  Further down, we'll describe a
+couple of models of hyperbolic geometry because there is no one "standard"
+model as we'll see below.</p>
+</div>
+<p><br></p>
+<h4> Hyperbolic Space </h4>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Hyperbolic_space">Hyperbolic space</a>
+is a type of manifold with constant negative (sectional) curvature.
+Formally:</p>
+<blockquote>
+Hyperbolic n-space (usually denoted <span class="math">\(\bf H^n\)</span>), is a maximally symmetric,
+simply connected, n-dimensional Riemannian manifold with constant negative
+sectional curvature.</blockquote>
+<p>Hyperbolic space analogous to the n-dimensional sphere (which has constant
+positive curvature).
+This is a very hard thing to visualize though because we're used to only
+imagining objects in Euclidean space -- not curved space.
+One way to think about it is that when embedded into Euclidean space, every point
+is a <a class="reference external" href="https://en.wikipedia.org/wiki/Saddle_point">saddle point</a>... still kind of
+hard to imagine though.
+The real tough part is that even for the 2D hyperbolic plane, we cannot embed it into
+3D Euclidean space (<a class="reference external" href="https://en.wikipedia.org/wiki/Hilbert%27s_theorem_(differential_geometry)">Hilbert's theorem</a>),
+so something's got to give.</p>
+<p>Fortunately, we can embed models of 2D hyperbolic geometry into a
+pseudo-Euclidean space called Minkowski space.  Interestingly, Minkowski space
+and curved space in general has applications in special relativity and general
+relativity, respectively.  Let's see how this works.</p>
+<p></p>
+<h5> Minkowski Space </h5>
+<p>Before we get to the model of hyperbolic geometry, we have to set a few things up.
+The first thing is what's called a (generalized)
+<a class="reference external" href="https://en.wikipedia.org/wiki/Minkowski_space">Minkowski space</a>
+(a type of <a class="reference external" href="https://en.wikipedia.org/wiki/Pseudo-Riemannian_manifold">pseudo-Riemannian manifold</a>):</p>
+<blockquote>
+For <span class="math">\(n \geq 2\)</span>, a <span class="math">\(n\)</span>-dimensional Minkowski space is a real vector space
+of real dimension <span class="math">\(n\)</span> which there is a constant Minkowski metric of
+signature (n-1, 1) or (1, n-1).</blockquote>
+<p>Even though it's defined as a vector space, we can regard it as basically having
+<span class="math">\(n\)</span> real dimensions (just like <span class="math">\(\mathbb{R}^n\)</span>) but with a special
+type of metric tensor (generalization of dot product): the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Minkowski_space#Minkowski_metric">Minkowski metric</a>.
+This is where it gets a bit "mind-bending".</p>
+<p>The Minkowski metric is not too different from the standard Euclidean metric
+tensor.  For two vectors <span class="math">\({\bf u}=(u_1, \ldots, u_n)\)</span> and <span class="math">\({\bf v} = (v, \ldots, v_n)\)</span>,
+we have:</p>
+<div class="math">
+\begin{align*}
+g_E({\bf u, v}) &amp;= u_1 v_1 + u_2 v_2 + \ldots + u_n v_n &amp;&amp; \text{Euclidean Metric} \\
+g_M({\bf u, v}) &amp;= \pm [u_1 v_1 - u_2 v_2 - \ldots - u_n v_n] &amp;&amp; \text{Minkowski Metric} \\ \tag{2}
+\end{align*}
+</div>
+<p>Notice that dimension 1 is treated differently <a class="footnote-reference" href="#id2" id="id1">[1]</a> (alternatively dimension 2 to n
+are different).  In <a class="reference external" href="https://en.wikipedia.org/wiki/Special_relativity">special relativity</a>,
+dimension 1 is considered the "time"-like dimension while the others are
+"space"-like dimensions.  But I don't think this helps with the intuition all
+that much.  For now, we just need to know that one of the dimensions is treated
+differently, while the others are very similar to our regular Euclidean space.</p>
+<p></p>
+<h5> Hyperboloid </h5>
+<p>The next thing we need to set up is the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Hyperboloid">hyperboloid</a>.
+A hyperboloid is a
+generalization of a hyperbola in two dimensions.  If you take a hyperbola and
+spin it around its principal axes (or add certain types of affine
+transformations), you get a hyperboloid.  There are a few types of hyperboloids
+but we'll only be talking about the two sheet variant.
+Figure 8 shows an example of a two sheet hyperboloid.</p>
+<div class="figure align-center">
+<img alt="Two Sheet Hyperboloid" src="../../images/hyperboloid.png" style="height: 300px;"><p class="caption">Figure 8: Example of two sheet hyperboloid (source: Wikipedia).</p>
+</div>
+<p>The two sheet hyperboloid (in three dimensions) has the following equation:</p>
+<div class="math">
+\begin{equation*}
+\frac{x^2}{a^2} + \frac{y^2}{b^2} - \frac{z^2}{c^2} = -1 \tag{3}
+\end{equation*}
+</div>
+<p>where <span class="math">\(z &gt; 0\)</span> define what is called the "forward sheet".  You can see how
+this can easily extend to multiple dimensions: you just add more positive
+quadratic terms in front, with your "special" negative dimension (in this case
+<span class="math">\(z\)</span>) in the back.</p>
+<p>A common parametric representation with parameter <span class="math">\(t\)</span> of the two sheet
+hyperboloid is:</p>
+<div class="math">
+\begin{align*}
+x &amp;= a\sinh t \cos\theta \\
+y &amp;= b\sinh t \sin\theta \\
+z &amp;= \pm c\cosh t \\
+\tag{4}
+\end{align*}
+</div>
+<p>Notice that we're using the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Hyperbolic_function">hyperbolic functions</a>
+here, which are very much related to hyperbolas (as expected).  Also notice
+that we use <span class="math">\(\cos\theta\)</span> and <span class="math">\(\sin\theta\)</span> for <span class="math">\(x\)</span> and
+<span class="math">\(y\)</span>, which reminds us of the parameterization of a circle.  Indeed, x and
+y are the "normal" Euclidean dimensions and, for a given constant <span class="math">\(z\)</span>,
+they define a circle.</p>
+<p></p>
+<h5> The Hyperboloid Model of Hyperbolic Geometry </h5>
+<p>Finally we get to our first model of hyperbolic geometry!
+Having introduced the above two concepts, our first model
+known as the <a class="reference external" href="https://en.wikipedia.org/wiki/Hyperboloid_model">hyperboloid model</a>
+(aka Minkowski model or Lorentz model) is a model of n-dimensional
+hyperbolic geometry in which points are represented on the forward sheet of a
+two-sheeted hyperboloid of (n+1)-dimensional Minkowski space.
+The points on this sheet (in 3D Minkowski space) are defined by:</p>
+<div class="math">
+\begin{equation*}
+x^2 + y^2 - z^2 = -1 \tag{5}
+\end{equation*}
+</div>
+<p>where <span class="math">\(z&gt;0\)</span>.  Simple right?  Well in case it's not, let's try to add some
+intuition.</p>
+<p>So we know 2D Elliptic geometry (constant positive curvature) can be mapped to
+a sphere in 3D Euclidean space.  So we can re-create any of our usual geometric
+concepts and have them map to the sphere, for example, points, lines, angles,
+circles etc.  In a similar way for hyperbolic geometry, we can have the same
+concepts (e.g. points, lines, angles, circles) but mapped to the surface of the
+forward sheet of the hyperboloid.  The big difference is that now we're in
+Minkowski space which makes your intuition about what should happen a bit
+screwy.</p>
+<p>For example, how does a straight line get defined? On a sphere
+there are many paths you could take from point A to B, but the shortest path
+"line" between two points is called a geodesic: the path you take between two
+points when slicing through the center of the sphere
+(i.e. a <a class="reference external" href="https://en.wikipedia.org/wiki/Great_circle">great circle</a>).
+A <a class="reference external" href="https://en.wikipedia.org/wiki/Geodesic">geodesic</a> is the generalization
+of a straight line to curved space, defined to be a curve where you can
+parallel transport a tangent vector without deformation.</p>
+<p>In our hyperboloid model, the geodesic (or our hyperbolic line) is defined to
+be the curve created by intersecting the plane defined by two points (that
+define the line) and the origin (i.e. coordinate <span class="math">\((0, 0, 0)\)</span>) with the
+hyperboloid.  So you end up having to go "down" first then back up to reach a
+point, never just directly towards it using the shortest path on the surface
+in Euclidean space (which would be around the circumference).  Figure 9 shows a
+visualization of this curve as the brownish line (ignore the bottom circle for
+now, we'll come back to this later).</p>
+<div class="figure align-center">
+<img alt="Two Sheet Hyperboloid" src="../../images/hyperboloid_projection.png" style="height: 250px;"><p class="caption">Figure 9: Hyperboloid Stereoscopic Projection (source: Wikipedia).</p>
+</div>
+<p>Once we have the concept of a line segment, we can define the distance
+between two points.  This can be calculated using the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Arc_length">arc length</a> of the tangent
+vectors with the Minkowski metric.  This is analogous to how we can compute
+the length of a curve in Euclidean space, basically walking along it and adding
+up the infinitesimal distances, except now we'll be using the Minkowski metric
+from Equation 2.  It turns out that this simplifies to a closed form for the
+hyperbolic distance between two points <span class="math">\(\bf u\)</span> and <span class="math">\(\bf v\)</span>:</p>
+<div class="math">
+\begin{equation*}
+d({\bf u, v}) = arcosh(g_M({\bf u, v})) \tag{6}
+\end{equation*}
+</div>
+<p>where we're using the inverse (or arc) hyperbolic cosine function and the
+Minkowski metric defined above.</p>
+<div class="admonition admonition-example-calculating-the-arc-length-of-a-geodesic-in-hyperbolic-space">
+<p class="first admonition-title">Example: Calculating the Arc Length of a Geodesic In Hyperbolic Space</p>
+<p>To illustrate a few of the above ideas and to gain some intuition, let's
+calculate the arc length of two points on the hyperbolic plane embedded in
+3D Minkowski space.  First, let's define a curve from A to B parameterized
+by <span class="math">\(t=[t_a, t_b]\)</span>. We'll pick a simple curve that lies on the plane
+<span class="math">\(y=0\)</span> (i.e. setting <span class="math">\(\theta=0\)</span> in Equation 4):</p>
+<div class="math">
+\begin{align*}
+x &amp;= \sinh t  \\
+y &amp;= 0  \\
+z &amp;= \cosh t \\
+\tag{7}
+\end{align*}
+</div>
+<p>Computing the <a class="reference external" href="https://en.wikipedia.org/wiki/Arc_length#Generalization_to_(pseudo-)Riemannian_manifolds">arc length</a>
+on a manifold, we have:</p>
+<div class="math">
+\begin{align*}
+d(A, B) &amp;= \int_{t_a}^{t_b} \sqrt{
+    g_M\big(  (\frac{dx(t)}{dt}, \frac{dy(t)}{dt}, \frac{dz(t)}{dt}),
+            (\frac{dx(t)}{dt}, \frac{dy(t)}{dt}, \frac{dz(t)}{dt})
+    \big)} dt \\
+&amp;= \int_{t_a}^{t_b} \sqrt{
+       \big(\frac{dz(t)}{dt}\big)^2 - \big(\frac{dx(t)}{dt}\big)^2 - \big(\frac{dy(t)}{dt}\big)^2
+    } dt \\
+&amp;= \int_{t_a}^{t_b} \sqrt{ \big(\frac{d \cosh t}{dt}\big)^2 - \big(\frac{d \sinh t}{dt}\big)^2 } dt \\
+&amp;= \int_{t_a}^{t_b} \sqrt{ \sinh^2 t -\cosh^2 t } dt \\
+&amp;= \int_{t_a}^{t_b} \sqrt{ 1 } dt \\
+&amp;= t_b - t_a \\
+\tag{8}
+\end{align*}
+</div>
+<p>This should match up to Equation 6.  Let's see what happens:</p>
+<div class="math">
+\begin{align*}
+d(A, B) &amp;= arcosh\Big(g_M\big(
+    (\sinh t_a, 0, \cosh t_a),
+    (\sinh t_b, 0, \cosh t_b),
+\big)  \Big) \\
+&amp;= arcosh(\cosh t_a \cosh t_b - \sinh t_a \sinh t_b) \\
+&amp;= arcosh(cosh(t_b - t_a)) &amp;&amp; \text{hyperbolic identity} \\
+&amp;= t_b - t_a \\
+\tag{9}
+\end{align*}
+</div>
+<p class="last">As expected, the Equation 6 properly calculates the arc length with the
+Minkowski metric in this case.</p>
+</div>
+<p>The hyperboloid model also has the concept of circles.  The simplest circle
+is with center perpendicular at the bottom most point of the hyperboloid,
+<span class="math">\((0, 0, 1)\)</span>.  The circles created with this center look like regular
+circles in Euclidean space where the circle is on a plane parallel to the
+<span class="math">\(z=0\)</span> plane.  The points on this circle are a constant hyperbolic
+distance away from this bottom point.</p>
+<p>However, if we move to points centered at different locations, we get arbitrary
+"slices" of the hyperboloid as shown in Figure 10 as an ellipse.  The non-Euclidean nature of
+the distance makes it so that the center of this hyperbolic circle is somewhere
+on the hyperboloid (not a point floating in the middle as you would intuitively
+expect in Euclidean geometry).  This point should be equi-hyperbolic distance
+from the ellipse created from the "slice".</p>
+<div class="figure align-center">
+<img alt="Hyperboloid Circle" src="../../images/hyperboloid_circle.png" style="height: 150px;"><p class="caption">Figure 10: Visualization of a hyperboloid circle as a "slice" of the forward
+sheet of a hyperboloid (source: Wikipedia).</p>
+</div>
+<p>So that's a quick overview of our first model of hyperbolic geometry.
+Although "easy" to understand because it's an extension of some concepts we're
+familiar with, we want to actually just use this as a stepping stone to get to
+our next model of hyperbolic geometry: the Poincaré ball model.</p>
+<p></p>
+<h5> Poincaré Ball Model </h5>
+<p>The <a class="reference external" href="https://en.wikipedia.org/wiki/Poincar%C3%A9_disk_model">Poincaré ball model</a> is a model of
+n-dimensional hyperbolic geometry in which all points are embedded in an
+n-dimensional sphere (or in a circle in the 2D case which is called the
+Poincaré disk model).
+This is being presented second because it is much less intuitive but can be derived
+directly from the hyperboloid model.</p>
+<div class="admonition admonition-can-a-circle-fit-an-entire-geometry">
+<p class="first admonition-title">Can a circle fit an entire geometry?</p>
+<p class="last">You might be wondering how we can "fit" an entire geometry in a
+circle.  We know flat 2D geometry fits in the Euclidean plane, 2D elliptic
+geometry (constant positive curvature) fits on the surface of a sphere, and now
+we're saying 2D hyperbolic geometry fits inside a circle?  The biggest thing to
+realize is, first, there are an infinite number of points within the circle --
+infinities are hard to reason about.  Second, we need to throw away our
+Euclidean sensibilities and intuition.  For example, we'll see below that the
+"distance" between points grows exponentially as we move towards the outside of
+the Poincaré disk.  We need to use a combination of the math and throwing away
+our old intuition in order to understand these non-flat models of geometry.</p>
+</div>
+<p>The Poincaré model can be derived using a
+<a class="reference external" href="https://en.wikipedia.org/wiki/Stereographic_projection">stereoscopic projection</a>
+of the hyperboloid model onto the unit circle of the <span class="math">\(z=0\)</span> plane.
+We'll stick with the 2D case but the same ideas can be extended into higher dimensions.
+Figure 11 shows a visualization.</p>
+<div class="figure align-center">
+<img alt="Stereoscopic projection to derive the Poincaré Disk Model" src="../../images/poincare_projection.png" style="height: 300px;"><p class="caption">Figure 11: Stereoscopic projection to derive the Poincaré Disk Model
+(source: <a class="reference external" href="http://inspirehep.net/record/1355197/plots">inspirehep.net</a>).</p>
+</div>
+<p>The basic idea of this stereoscopic projection (in 3D but this idea generalizes)
+is:</p>
+<ol class="arabic simple">
+<li>Start with a point <span class="math">\(P\)</span> on the hyperboloid we wish to map.</li>
+<li>Extend <span class="math">\(P\)</span> out to a focal point <span class="math">\(N=(0, 0, -1)\)</span> to form a line.</li>
+<li>Project that line onto the <span class="math">\(z=0\)</span> plane to find our point <span class="math">\(Q\)</span> in the Poincaré model.</li>
+</ol>
+<p>If you do the <a class="reference external" href="https://math.stackexchange.com/questions/35857/two-point-line-form-in-3d">algebra</a>,
+you'll find the following <a class="reference external" href="https://en.wikipedia.org/wiki/Poincar%C3%A9_disk_model">equations</a>
+for point <span class="math">\(P=(x_1, \ldots, x_n, z)\)</span> on the hyperboloid and <span class="math">\(Q=(y_1, \ldots, y_n)\)</span>
+in the unit circle of the <span class="math">\(z=0\)</span> plane:</p>
+<div class="math">
+\begin{align*}
+y_i &amp;= \frac{x_i}{z + 1} \\
+(z, x_i) &amp;= \frac{(1 + \sum y_i^2, 2y_i)}{1 - \sum y_i^2} \\
+\tag{10}
+\end{align*}
+</div>
+<p>As with our other hyperbolic model, we can represent common geometric concepts
+by points on the unit circle.  Starting with a line, if we project the geodesic
+line from the hyperboloid to the unit circle, we get an arcs along the unit circle
+as shown in Figure 12.</p>
+<div class="figure align-center">
+<img alt="Examples of Poincaré lines." src="../../images/poincare_disk_lines.png" style="height: 300px;"><p class="caption">Figure 12: Examples of Poincaré lines as arcs on the unit circle with each
+one approaching the circumference at a 90 degree angle. (source: Wikipedia)</p>
+</div>
+<p>A few notable points:</p>
+<ol class="arabic simple">
+<li>The arcs never reach the circumference of the circle.  This is analogous to
+the geodesic on the hyperboloid extending out the infinity, that is, as the
+arc approaches the circumference it's approaching the "infinity" of the
+plane.</li>
+<li>This means distances at the edge of the circle grow exponentially as you
+move toward the edge of the circle (compared to their Euclidean distances).</li>
+<li>Each arc approaches the circumference at a 90 degree angle, this just
+works out as a result of the math of the hyperboloid and the projection.
+The straight line in this case is a point that passes through the "bottom"
+of the hyperboloid <span class="math">\((0, 0, 1)\)</span>.</li>
+<li>In this case, we can see 3 lines that are parallel and actually diverge from
+each other (also known as "ultra parallel").  This is a consequence of changing
+Euclid's fifth postulate regarding parallel lines (see the box above).  A
+more clear example is Figure 13.  Here we see that we can have an infinite number
+of lines (black) intersecting at a single point and still be parallel to
+another line (blue).</li>
+</ol>
+<div class="figure align-center">
+<img alt="Hyperbolic parallel lines that do not intersect on the Poincaré disk." src="../../images/poincare_disk_parallel_lines.png" style="height: 300px;"><p class="caption">Figure 13: Hyperbolic parallel lines that do not intersect on the Poincaré
+disk. (source: Wikipedia)</p>
+</div>
+<p>The distance the two points can be computed in the same way as the hyperboloid,
+namely, taking the integral over the arc of line element (defined by the
+associated metric tensor).  If we remember our differential geometry,
+we can actually derive the Poincaré disk metric tensor from the hyperboloid
+model using our transformations from Equation 10.  I'll show a partial
+derivation here (you can work out all the algebra as an exercise :p).
+Starting with the <a class="reference external" href="https://en.wikipedia.org/wiki/Line_element">line element</a>
+calling our hyperboloid variables <span class="math">\(x_1,x_2,z\)</span> and our Poincaré disk
+variables <span class="math">\(y_1, y_2\)</span>:</p>
+<div class="math">
+\begin{align*}
+ds^2 &amp;=
+\begin{bmatrix}
+dx_1 &amp; dx_2 &amp; dz
+\end{bmatrix}
+\begin{bmatrix}
+    1 &amp; 0 &amp; 0 \\
+    0 &amp; 1 &amp; 0 \\
+    0 &amp; 0 &amp; -1 \\
+\end{bmatrix}
+\begin{bmatrix}
+    dx_1 \\ dx_2 \\ dz
+\end{bmatrix}
+&amp;&amp; \text{Minkowski metric} \\
+&amp;=
+\begin{bmatrix}
+dy_1 &amp; dy_2
+\end{bmatrix}
+\begin{bmatrix}
+    \frac{\partial x_1}{\partial y_1} &amp; \frac{\partial x_2}{\partial y_1} &amp; \frac{\partial z}{\partial y_1} \\
+    \frac{\partial x_1}{\partial y_2} &amp; \frac{\partial x_2}{\partial y_2} &amp; \frac{\partial z}{\partial y_2}
+\end{bmatrix}
+\begin{bmatrix}
+    1 &amp; 0 &amp; 0 \\
+    0 &amp; 1 &amp; 0 \\
+    0 &amp; 0 &amp; -1 \\
+\end{bmatrix}
+\begin{bmatrix}
+    \frac{\partial x_1}{\partial y_1} &amp; \frac{\partial x_1}{\partial y_2} \\
+    \frac{\partial x_2}{\partial y_1} &amp; \frac{\partial x_2}{\partial y_2} \\
+    \frac{\partial z}{\partial x_2} &amp; \frac{\partial z}{\partial y_2}
+\end{bmatrix}
+\begin{bmatrix}
+    dy_1 \\ dy_2
+\end{bmatrix}
+&amp;&amp; \text{total differential}\\
+&amp;= \ldots &amp;&amp; \text{sub in Equation 10} \\
+&amp;=
+\begin{bmatrix}
+dy_1 &amp; dy_2
+\end{bmatrix}
+\begin{bmatrix}
+    \frac{4}{1 - y_1^2 - y_2^2} &amp; 0 \\
+    0 &amp; \frac{4}{(1 - y_1^2 - y_2^2)^2}
+\end{bmatrix}
+\begin{bmatrix}
+    dy_1 \\ dy_2
+\end{bmatrix} \\
+&amp;= \frac{4 \lVert{\bf dy}^2\rVert}{(1-\lVert{\bf y}^2\rVert)^2}
+\\
+\tag{11}
+\end{align*}
+</div>
+<p>If you go through the exercise of finding the arc-length using this metric,
+we'll find the distance between two points <span class="math">\(u,v\)</span> on the Poincaré ball is
+given by:</p>
+<div class="math">
+\begin{align*}
+d(u,v) = arcosh\big(1 + 2\frac{\lVert u-v \rVert^2}{(1-\lVert u\rVert^2)(1-\lVert v\rVert^2)}\big) \\
+\tag{12}
+\end{align*}
+</div>
+<p>where the double bars represent the Euclidean distance.  Equation 12 is a bit
+more complicated than on the hyperboloid but nothing that's not easily
+computable using standard functions.</p>
+<p>A hyperbolic circle defined as a set of points at a constant radius from a center
+point, is in general any Euclidean circle completely contained within the unit
+circle.  However, the unintuitive part is that the center point is not
+in general the normal Euclidean center, but rather something asymmetrical.
+The only time it is the actual Euclidean center is if it's at point (0,0).</p>
+<p></p>
+<h5> Poincaré Visualization </h5>
+<p>Here's an interactive visualization I made with <a class="reference external" href="https://d3js.org/">D3.js</a>,
+<a class="reference external" href="http://www.numericjs.com/">Numeric.js</a> and <a class="reference external" href="https://getbootstrap.com/">Bootstrap</a>.  You can play around drawing hyperbolic lines
+and circles.  The interesting things to play around with are:</p>
+<ul class="simple">
+<li>How the same length Euclidean distance maps to different distances on
+the Poincaré disk.</li>
+<li>How a line segment is actually part of a larger circle intersecting
+the Poincaré disk.</li>
+<li>How the Euclidean center of a circle can be very different than its
+hyperbolic center.</li>
+</ul>
+<div class="figure align-center">
+<a class="reference external image-reference" href="../../js/poincare_disk.html"><img alt="Screenshot of my poincare visualization" src="../../images/poincare_disk_screenshot.png" style="height: 300px;"></a>
+<p class="caption">Figure 14: Screenshot of My Poincaré Disk Visualization.</p>
+</div>
+<p>The implementation is all there in the attached JavaScript files.  It's pretty
+much a hack that I put together. JavaScript can be pretty frustrating
+because of all the little interaction details you have to get right!
+It's no wonder why I'm not a frontend guy.</p>
+<p>The more interesting part (to me) was getting the math right for generating the hyperbolic lines and circles.  For generating lines,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Poincar%C3%A9_disk_model#Compass_and_straightedge_construction">Wikipedia</a>
+has a nice little algorithm to generate the hyperbolic line.  They're mostly
+just variations on basic line equations for the most part.  Although, it did
+take me a while to get this mostly right because there are a lot of equations
+and operations to code. Another lesson learned: it's hard to roll your own
+numeric calculations! (Better to use a library when available.)</p>
+<p>For the circle, I just cheated and used Numeric.js to solve for the
+points that I needed.  The algorithm I used was basically find 3 points that
+were equidistant from the starting point.  The current position of the mouse
+defines one of them (P1).  For the next one, I used the line created from P1 to the
+starting point to find another one on the opposite side (P2) using Numeric.js.
+The third point, I used the perpendicular line passing through the starting
+point (P3), again using Numeric.js.  Lastly, I used the formula for finding the
+equation of a circle from three points and was able to draw the circle!</p>
+<p><br></p>
+<h4> Poincaré Embeddings for Hierarchical Representations </h4>
+<p></p>
+<h5> The Limitations of Euclidean Space for Hierarchical Data </h5>
+<p>The whole reason why we went through that primer on hyperbolic geometry is that
+we want to embed data in it!  Consider some hierarchical data, such
+as a tree.  A tree with branching factor <span class="math">\(b\)</span> has <span class="math">\((b+1)b^{l-1}\)</span>
+nodes at level <span class="math">\(l\)</span> and <span class="math">\(\frac{(b+1)b^{l}-2}{b-1}\)</span> nodes on levels
+less than or equal to <span class="math">\(l\)</span>.  So as we grow the levels of the tree, the
+number of nodes grows exponentially.</p>
+<p>There are really two important pieces of information in a tree.  One is the
+hierarchical nature of the tree: the parent-child relationships.  The other
+is a relative "distance" between the nodes.  Children and their parents should
+be close, but leaf nodes in totally different branches of the tree should be
+very far apart (probably somehow proportional to the number of links).</p>
+<p>Let's imagine putting this into a Euclidean (say 2D) space.  First, we would
+probably put the root at the origin.  Then, place the first level equidistant
+around it.  Then place the second level equidistant from all those points.
+Figure 15 shows these two levels.</p>
+<div class="figure align-center">
+<img alt="Attempt at a Euclidean graph embedding" src="../../images/euclidean_graph_embedding.png" style="height: 270px;"><p class="caption">Figure 15: An attempt at embedding a tree with branching factor 4 into the
+Euclidean plane.  We are already starting to run out of space!</p>
+</div>
+<p>You can see we're already running out of space.  The hierarchical links are
+<em>sort of</em> represented (distances between child/parent are maintained), but
+importantly, the distances between siblings is gets smaller.  Look at the leaf
+nodes which are squeezed at the edge because we don't have enough "space".
+One way around, might be to increase dimensions but then you'd need to increase
+those with the number of levels you have, which brings a whole host of other
+problems.  Long story short, Euclidean space isn't a good representation for
+graph-like data.</p>
+<p></p>
+<h5> Embedding Hierarchies in Hyperbolic Space </h5>
+<p>It shouldn't be a surprise at this point to know that hyperbolic space
+is a good representation of hierarchical data ([1]).
+Using the same sort of algorithm as we tried above of placing the root at the
+center and spacing the children out equidistant recursively <em>does</em> work
+in hyperbolic space.  The reason is that distances grow exponentially as we
+move toward the edge of the disk, eliminating the "crowding" effect we saw
+above.  Figure 16 shows a visualization for a tree with branching factor two.</p>
+<div class="figure align-center">
+<img alt="Embedding a hierarchical tree in hyperbolic space" src="../../images/poincare_graph_embedding.png" style="height: 270px;"><p class="caption">Figure 16: Embedding a hierarchical tree with branching factor two
+into a 2D hyperbolic plane (Poincaré disk).  Distances between all
+points are actually equal because distances grow exponentially
+as you move toward the edge of the disk (source: [1]).</p>
+</div>
+<p>Of course, Figure 16 looks crowded at the lower levels just like the previous
+figure but that's only because hyperbolic space is hard to visualize
+intuitively.  In fact all the points in Figure 16 are equidistant from their
+parent, and siblings and cousins nodes are much further apart then they appear.
+So crowding in fact isn't much of an issue (use my visualization above to play
+around with it).  We can also use the exact same idea but instead of the
+Poincaré disk use the Poincaré ball in <span class="math">\(d\)</span> dimensions.</p>
+<p>The problem now becomes, how do I map my nodes in my hierarchical data to the
+Poincaré ball?  As usual, via an optimization.  We have to use a variant of
+our usual stochastic gradient descent called Riemannian Stochastic Gradient
+Descent (RSGD) because we're optimizing over a manifold, not just simple
+Euclidean space.  I won't go through all the math (partly because I don't quite
+understand it) but here is the final update equations for the embeddings we
+want to learn <span class="math">\(\bf \theta\)</span>:</p>
+<div class="math">
+\begin{align*}
+proj({\bf \theta}) &amp;= \begin{cases}
+  \frac{\bf \theta}{\lVert{\bf \theta}\rVert - \epsilon} &amp;&amp; \text{if } \lVert {\bf \theta} \rVert \geq 1 \\
+  {\bf \theta} &amp;&amp; \text{otherwise}
+  \end{cases} \\
+{\bf \theta_{t+1}} &amp;\leftarrow proj\big({\bf \theta_t} - \eta_t \frac{(1 - \lVert{\bf \theta_t}\rVert^2)^2}{4} \nabla_E\big)\\
+\tag{13}
+\end{align*}
+</div>
+<p>where <span class="math">\(\epsilon\)</span> is a small constant for numerical stability,
+<span class="math">\(\eta_t\)</span> is the learning rate, and <span class="math">\(\nabla_E\)</span> is our usual
+(Euclidean) gradient of our loss.  The first equation just makes sure we stay
+within the unit ball.  The second equation is our usual parameter SGD updating
+except with a rescaling of the gradient to account for our hyperbolic
+distances.</p>
+<p>So far we haven't talked about the loss function.  That's because in [1], they
+use a few different ones depending on what they're trying to do.
+We'll focus on the one used for hierarchical data, which bears a striking
+resemblance to Word2vec's Skip-Gram loss with negative sampling:</p>
+<div class="math">
+\begin{align*}
+\mathcal{L}_{\text{paper}}(\Theta) &amp;=
+    \sum_{\substack{(u,v) \in \mathcal{D}}}
+        \log \frac{e^{-d(u,v)}}{\sum_{v'\in \mathcal{N}(u)} e^{-d(u, v')}} \\
+\mathcal{L_{\text{impl}}}(\Theta) &amp;=
+    \sum_{\substack{(u,v) \in \mathcal{D}}}
+        \log \frac{e^{-d(u,v)}}{e^{-d(u,v)} + \sum_{v'\in \mathcal{N}(u)} e^{-d(u, v')}} \\
+\tag{14}
+\end{align*}
+</div>
+<p>where <span class="math">\(\mathcal{N}(u)\)</span> is a set of negative samples for <span class="math">\(u\)</span>
+and <span class="math">\(\mathcal{D}\)</span> is our link dataset.  The difference between the two
+versions (according to [2]) is that the paper gives the former while the actual
+implementation from [1] gives the latter.  Both are very similar, and the
+testing done in [2] seems to favor the latter.</p>
+<p>In either case, from Equation 14, for a given hierarchical link <span class="math">\((u, v)\)</span>,
+we are basically trying to pull them closer (numerator), while pushing a random
+negative sample of the non-relations apart (denominator).  This can be
+interpreted as a soft ranking loss where <span class="math">\(d(u, v)\)</span> comes before
+<span class="math">\(d(u, v')\)</span>.  The negative sampling (just like Word2vec) is really done
+just for computational feasibility, we could also do it over every non-link if
+we wanted.</p>
+<p>And that's about it!  There are actually a few more tricks that [2] uncovered
+in the original C++ implementation from [1] that practically are important to get
+a good embedding, I encourage you to check out that blog post, which is very
+accessible.</p>
+<p><br></p>
+<h4> Applications and Gensim's Poincaré Implementation </h4>
+<p>So there are a few tasks that they used to evaluate these hierarchical
+embeddings in the paper ([1]):</p>
+<ul class="simple">
+<li>Reconstruction of a hierarchy/graph from the embedding (this is a synthetic
+test because you use all the data to construct the embedding).</li>
+<li>Link prediction with a train/validation/test set.</li>
+</ul>
+<p>They show results on three different datasets: transitive closure of
+WordNet noun hierarchy, social network embeddings, and a lexical entailment
+dataset.  They compare these datasets to standard Euclidean distance and
+a related "translational" distance using a similar loss function.  Here
+are the reconstruction results from [1] on WordNet:</p>
+<div class="figure align-center">
+<img alt="Results from [1]" src="../../images/reconstruction_paper.png" style="height: 170px;"><p class="caption">Figure 17: Experimental results from [1] showing a massive improvement in
+reconstruction performance.</p>
+</div>
+<p>You can see that the Poincaré embedding shows a massive improvement over the
+other methods using the average rank and mean average precision.  Rank in this
+context means where did the actual link distance rank relative to all ground
+truth negative examples.  Ideally it should be rank 1.
+With even as little as 5 dimensions, the Poincaré embeddings massively
+outperform the two other distance functions with 200 dimension.  This really
+shows the efficiency of the embedding.</p>
+<p>What's even nicer about these embedding is that there is a great implementation
+from <a class="reference external" href="https://radimrehurek.com/gensim/models/poincare.html">Gensim</a>.  [2] is
+a technical post by the authors of Gensim describing how they implemented these
+embeddings.</p>
+<p>The model is trivial to run using Gensim.  Here's some sample code from their
+documentation:</p>
+<pre class="code python"><a name="rest_code_3b18ee45da404a3294053869251f3a71-1"></a><span class="kn">from</span> <span class="nn">gensim.models.poincare</span> <span class="kn">import</span> <span class="n">PoincareModel</span>
+<a name="rest_code_3b18ee45da404a3294053869251f3a71-2"></a><span class="n">relations</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'marsupial'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'mammal'</span><span class="p">),</span>
+<a name="rest_code_3b18ee45da404a3294053869251f3a71-3"></a>             <span class="p">(</span><span class="s1">'gib'</span><span class="p">,</span> <span class="s1">'cat'</span><span class="p">)]</span>
+<a name="rest_code_3b18ee45da404a3294053869251f3a71-4"></a><span class="n">model</span> <span class="o">=</span> <span class="n">PoincareModel</span><span class="p">(</span><span class="n">relations</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<a name="rest_code_3b18ee45da404a3294053869251f3a71-5"></a><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+</pre>
+<p>I love it when there are nice clean open source implementations available.
+Coding these up from scratch invariably takes a huge amount of time, especially
+when you have to reverse engineer an implementation from a paper (at least they
+had the original authors' C++ implementation though).</p>
+<p><br></p>
+<h4> Conclusion </h4>
+<p>Well that's it!  Started off with a bunch of math then slowly corrected course
+back to some ML topics.  My next post will definitely be back along the lines
+of ML, I've had enough of this diversion into the maths.  Besides, there are
+still so many interesting papers and topics for me to look at, it just seems like
+the backlog keeps growing!  Stay tune for some more posts.</p>
+<p>(As a side note: It seems my posts keep getting longer and longer.  I have got
+to consciously break them up into smaller pieces, maybe do some "Agile" or
+"Lean Blogging" on them.  Or not.  We'll see.)</p>
+<p><br></p>
+<h4> Further Reading </h4>
+<ul class="simple">
+<li>Previous posts: <a class="reference external" href="../tensors-tensors-tensors">Tensors, Tensors, Tensors</a>, <a class="reference external" href="../manifolds">Manifolds: A Gentle Introduction</a>
+</li>
+<li>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Riemannian_manifold">Riemannian Manifold</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Hyperbolic_space">Hyperbolic Space</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Sectional_curvature">Sectional Curvature</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Gaussian_curvature">Gaussian Curvature</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Parallel_transport">parallel transport</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Poincar%C3%A9_disk_model">Poincaré ball model</a>
+</li>
+<li>[1] <a class="reference external" href="https://arxiv.org/abs/1705.08039">Poincaré Embeddings for Learning Hierarchical Representations</a>, Maximilian Nickel, Douwe Kiela</li>
+<li>[2] <a class="reference external" href="https://rare-technologies.com/implementing-poincare-embeddings/">Implementing Poincaré Embeddings</a>, Jayant Jain</li>
+</ul>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup>
+<col class="label">
+<col>
+</colgroup>
+<tbody valign="top"><tr>
+<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
+<td>Both <span class="math">\(+\)</span> and <span class="math">\(-\)</span> make the math work out.  It's by convention you pick one or the other.  We'll be using a leading positive sign in this post.</td>
+</tr></tbody>
+</table>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/embeddings/" rel="tag">embeddings</a></li>
+            <li><a class="tag p-category" href="../../categories/geometry/" rel="tag">geometry</a></li>
+            <li><a class="tag p-category" href="../../categories/hyperbolic/" rel="tag">hyperbolic</a></li>
+            <li><a class="tag p-category" href="../../categories/manifolds/" rel="tag">manifolds</a></li>
+            <li><a class="tag p-category" href="../../categories/poincare/" rel="tag">Poincaré</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../manifolds/" rel="prev" title="Manifolds: A Gentle Introduction">Previous post</a>
+            </li>
+        </ul></nav></aside><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+            MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
+            </script></article>
+</div>
+            <div class="col-md-3 well">
+            <p>
+            I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
+            a former academic, current data scientist and engineer.  This is
+            <a href="../../">the place</a>
+            where I write
+            about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br><p>
+            <a href="../../archive.html">Archive</a>
+            </p>
+            <p>
+            <a href="../../categories/index.html">Tags</a>
+            </p>
+            <p>
+            <a href="../../rss.xml">RSS feed</a>
+            </p>
+
+<!-- Begin MailChimp Signup Form -->
+<hr>
+<link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+    #mc_embed_signup{clear:left; font:13px Helvetica,Arial,sans-serif; }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+       We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="//briankeng.us10.list-manage.com/subscribe/post?u=cedf72ca8daa891e57f4379a0&amp;id=1f1563094f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <b>Signup for Email Blog Posts</b>
+    <div id="mc_embed_signup_scroll">
+<div>
+    <label for="mce-EMAIL"> Email Address </label>
+    <input type="email" value="" name="EMAIL" class="required email form-control input-sm" id="mce-EMAIL">
+</div>
+    <div id="mce-responses" class="clear">
+        <div class="response" id="mce-error-response" style="display:none"></div>
+        <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_cedf72ca8daa891e57f4379a0_1f1563094f" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn btn-default btn-xs"></div>
+    </div>
+</form>
+</div>
+<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
+</div>
+        </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2018         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+        </footer>
+</div>
+</div>
+
+
+            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-15314898-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>

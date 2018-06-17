@@ -15,7 +15,7 @@
 <link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
 <link rel="canonical" href="http://bjlkeng.github.io/">
 <link rel="next" href="index-1.html" type="text/html">
-<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/manifolds/" type="text/html">
+<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/hyperbolic-geometry-and-poincare-embeddings/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -63,7 +63,38 @@
                 
 
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/manifolds/" class="u-url">Manifolds: A Gentle Introduction</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/hyperbolic-geometry-and-poincare-embeddings/" class="u-url">Hyperbolic Geometry and Poincaré Embeddings</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/hyperbolic-geometry-and-poincare-embeddings/" rel="bookmark"><time class="published dt-published" datetime="2018-06-17T08:20:18-04:00" title="2018-06-17 08:20">2018-06-17 08:20</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>This post is finally going to get back to some ML related topics.
+In fact, the original reason I took that whole math-y detour in the previous
+posts was to more deeply understand this topic.  It turns out trying to
+under tensor calculus and differential geometry (even to a basic level) takes a
+while!  Who knew?  In any case, we're getting back to our regularly scheduled program.</p>
+<p>In this post, I'm going to explain one of the applications of an abstract
+area of mathematics called hyperbolic geometry.  The reason why this area is of
+interest is because there has been a surge of research showing its
+application in various fields, chief among them is a paper by Facebook
+researchers [1] in which they discuss how to utilize a model of hyperbolic
+geometry to represent hierarchical relationships.  I'll cover some of
+the math weighting more towards intuition, show some of their results, and also
+show some sample code from Gensim.  Don't worry, this time I'll try much harder
+not going to go down the rabbit hole of trying to explain all the math (no
+promises though).</p>
+<p>(Note: If you're unfamiliar with tensors or manifolds, I suggest getting a quick
+overview with my previous two posts:
+<a class="reference external" href="posts/tensors-tensors-tensors">Tensors, Tensors, Tensors</a> and
+<a class="reference external" href="posts/manifolds">Manifolds: A Gentle Introduction</a>)</p>
+<p class="more"><a href="posts/hyperbolic-geometry-and-poincare-embeddings/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/manifolds/" class="u-url">Manifolds: A Gentle Introduction</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Brian Keng
@@ -153,33 +184,6 @@ and have an implementation with few experiments I ran.  Enjoy!</p>
 <p class="more"><a href="posts/variational-autoencoders-with-inverse-autoregressive-flows/">Read more…</a></p>
 </div>
     </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/autoregressive-autoencoders/" class="u-url">Autoregressive Autoencoders</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Brian Keng
-            </span></p>
-            <p class="dateline"><a href="posts/autoregressive-autoencoders/" rel="bookmark"><time class="published dt-published" datetime="2017-10-14T10:02:15-04:00" title="2017-10-14 10:02">2017-10-14 10:02</time></a></p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>You might think that I'd be bored with autoencoders by now but I still
-find them extremely interesting!  In this post, I'm going to be explaining
-a cute little idea that I came across in the paper <a class="reference external" href="https://arxiv.org/pdf/1502.03509.pdf">MADE: Masked Autoencoder
-for Distribution Estimation</a>.
-Traditional autoencoders are great because they can perform unsupervised
-learning by mapping an input to a latent representation.  However, one
-drawback is that they don't have a solid probabilistic basis
-(of course there are other variants of autoencoders that do, see previous posts
-<a class="reference external" href="posts/variational-autoencoders">here</a>,
-<a class="reference external" href="posts/a-variational-autoencoder-on-the-svnh-dataset">here</a>, and
-<a class="reference external" href="posts/semi-supervised-learning-with-variational-autoencoders">here</a>).
-By using what the authors define as the <em>autoregressive property</em>, we can
-transform the traditional autoencoder approach into a fully probabilistic model
-with very little modification! As usual, I'll provide some intuition, math and
-an implementation.</p>
-<p class="more"><a href="posts/autoregressive-autoencoders/">Read more…</a></p>
-</div>
-    </div>
     </article>
 </div>
 
@@ -251,7 +255,7 @@ an implementation.</p>
 </div>
 
 
-            <script src="assets/js/jquery.min.js"></script><script src="assets/js/bootstrap.min.js"></script><script src="assets/js/moment-with-locales.min.js"></script><script src="assets/js/fancydates.js"></script><script src="assets/js/jquery.colorbox-min.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+            <script src="assets/js/jquery.min.js"></script><script src="assets/js/bootstrap.min.js"></script><script src="assets/js/moment-with-locales.min.js"></script><script src="assets/js/fancydates.js"></script><script src="assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

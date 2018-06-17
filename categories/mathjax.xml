@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 17 Apr 2018 12:25:10 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Manifolds: A Gentle Introduction</title><link>http://bjlkeng.github.io/posts/manifolds/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Following up on the math-y stuff from my &lt;a class="reference external" href="http://bjlkeng.github.io/posts/tensors-tensors-tensors"&gt;last post&lt;/a&gt;,
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sun, 17 Jun 2018 13:08:59 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Hyperbolic Geometry and Poincaré Embeddings</title><link>http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is finally going to get back to some ML related topics.
+In fact, the original reason I took that whole math-y detour in the previous
+posts was to more deeply understand this topic.  It turns out trying to
+under tensor calculus and differential geometry (even to a basic level) takes a
+while!  Who knew?  In any case, we're getting back to our regularly scheduled program.&lt;/p&gt;
+&lt;p&gt;In this post, I'm going to explain one of the applications of an abstract
+area of mathematics called hyperbolic geometry.  The reason why this area is of
+interest is because there has been a surge of research showing its
+application in various fields, chief among them is a paper by Facebook
+researchers [1] in which they discuss how to utilize a model of hyperbolic
+geometry to represent hierarchical relationships.  I'll cover some of
+the math weighting more towards intuition, show some of their results, and also
+show some sample code from Gensim.  Don't worry, this time I'll try much harder
+not going to go down the rabbit hole of trying to explain all the math (no
+promises though).&lt;/p&gt;
+&lt;p&gt;(Note: If you're unfamiliar with tensors or manifolds, I suggest getting a quick
+overview with my previous two posts:
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/tensors-tensors-tensors"&gt;Tensors, Tensors, Tensors&lt;/a&gt; and
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/manifolds"&gt;Manifolds: A Gentle Introduction&lt;/a&gt;)&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/"&gt;Read more…&lt;/a&gt; (34 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>embeddings</category><category>geometry</category><category>hyperbolic</category><category>manifolds</category><category>mathjax</category><category>Poincaré</category><guid>http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/</guid><pubDate>Sun, 17 Jun 2018 12:20:18 GMT</pubDate></item><item><title>Manifolds: A Gentle Introduction</title><link>http://bjlkeng.github.io/posts/manifolds/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Following up on the math-y stuff from my &lt;a class="reference external" href="http://bjlkeng.github.io/posts/tensors-tensors-tensors"&gt;last post&lt;/a&gt;,
 I'm going to be taking a look at another concept that pops up in ML: manifolds.
 It is most well-known in ML for its use in the
 &lt;a class="reference external" href="https://www.quora.com/What-is-the-Manifold-Hypothesis-in-Deep-Learning"&gt;manifold hypothesis&lt;/a&gt;.
@@ -119,19 +138,4 @@ can't do that well unless we have a healthy dose of mathematics.  For some of th
 background concepts, I'll try to refer you to good sources (including my own),
 which I find is the main blocker to understanding this subject (admittedly, the
 math can sometimes be a bit cryptic too).  Enjoy!&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/variational-bayes-and-the-mean-field-approximation/"&gt;Read more…&lt;/a&gt; (24 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Bayesian</category><category>Kullback-Leibler</category><category>mathjax</category><category>mean-field</category><category>variational calculus</category><guid>http://bjlkeng.github.io/posts/variational-bayes-and-the-mean-field-approximation/</guid><pubDate>Mon, 03 Apr 2017 13:02:46 GMT</pubDate></item><item><title>The Calculus of Variations</title><link>http://bjlkeng.github.io/posts/the-calculus-of-variations/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to describe a specialized type of calculus called
-variational calculus.
-Analogous to the usual methods of calculus that we learn in university,
-this one deals with functions &lt;em&gt;of functions&lt;/em&gt; and how to
-minimize or maximize them.  It's used extensively in physics problems such as
-finding the minimum energy path a particle takes under certain conditions.  As
-you can also imagine, it's also used in machine learning/statistics where you
-want to find a density that optimizes an objective &lt;a class="footnote-reference" href="http://bjlkeng.github.io/posts/the-calculus-of-variations/#id4" id="id1"&gt;[1]&lt;/a&gt;.  The explanation I'm
-going to use (at least for the first part) is heavily based upon Svetitsky's
-&lt;a class="reference external" href="http://julian.tau.ac.il/bqs/functionals/functionals.html"&gt;Notes on Functionals&lt;/a&gt;, which so far is
-the most intuitive explanation I've read.  I'll try to follow Svetitsky's
-notes to give some intuition on how we arrive at variational calculus from
-regular calculus with a bunch of examples along the way.  Eventually we'll
-get to an application that relates back to probability.  I think with the right
-intuition and explanation, it's actually not too difficult, enjoy!&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/the-calculus-of-variations/"&gt;Read more…&lt;/a&gt; (16 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>differentials</category><category>entropy</category><category>lagrange multipliers</category><category>mathjax</category><category>probability</category><category>variational calculus</category><guid>http://bjlkeng.github.io/posts/the-calculus-of-variations/</guid><pubDate>Sun, 26 Feb 2017 15:08:38 GMT</pubDate></item></channel></rss>
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/variational-bayes-and-the-mean-field-approximation/"&gt;Read more…&lt;/a&gt; (24 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Bayesian</category><category>Kullback-Leibler</category><category>mathjax</category><category>mean-field</category><category>variational calculus</category><guid>http://bjlkeng.github.io/posts/variational-bayes-and-the-mean-field-approximation/</guid><pubDate>Mon, 03 Apr 2017 13:02:46 GMT</pubDate></item></channel></rss>

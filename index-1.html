@@ -64,7 +64,34 @@
                 
 
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/semi-supervised-learning-with-variational-autoencoders/" class="u-url">Semi-supervised Learning with Variational Autoencoders</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/autoregressive-autoencoders/" class="u-url">Autoregressive Autoencoders</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/autoregressive-autoencoders/" rel="bookmark"><time class="published dt-published" datetime="2017-10-14T10:02:15-04:00" title="2017-10-14 10:02">2017-10-14 10:02</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>You might think that I'd be bored with autoencoders by now but I still
+find them extremely interesting!  In this post, I'm going to be explaining
+a cute little idea that I came across in the paper <a class="reference external" href="https://arxiv.org/pdf/1502.03509.pdf">MADE: Masked Autoencoder
+for Distribution Estimation</a>.
+Traditional autoencoders are great because they can perform unsupervised
+learning by mapping an input to a latent representation.  However, one
+drawback is that they don't have a solid probabilistic basis
+(of course there are other variants of autoencoders that do, see previous posts
+<a class="reference external" href="posts/variational-autoencoders">here</a>,
+<a class="reference external" href="posts/a-variational-autoencoder-on-the-svnh-dataset">here</a>, and
+<a class="reference external" href="posts/semi-supervised-learning-with-variational-autoencoders">here</a>).
+By using what the authors define as the <em>autoregressive property</em>, we can
+transform the traditional autoencoder approach into a fully probabilistic model
+with very little modification! As usual, I'll provide some intuition, math and
+an implementation.</p>
+<p class="more"><a href="posts/autoregressive-autoencoders/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/semi-supervised-learning-with-variational-autoencoders/" class="u-url">Semi-supervised Learning with Variational Autoencoders</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Brian Keng
@@ -200,32 +227,6 @@ because the dataset isn't so easy anymore.</em></p>
 <p class="more"><a href="posts/a-variational-autoencoder-on-the-svnh-dataset/">Read more…</a></p>
 </div>
     </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/variational-autoencoders/" class="u-url">Variational Autoencoders</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Brian Keng
-            </span></p>
-            <p class="dateline"><a href="posts/variational-autoencoders/" rel="bookmark"><time class="published dt-published" datetime="2017-05-30T08:19:36-04:00" title="2017-05-30 08:19">2017-05-30 08:19</time></a></p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>This post is going to talk about an incredibly interesting unsupervised
-learning method in machine learning called variational autoencoders.  It's main
-claim to fame is in building generative models of complex distributions like
-handwritten digits, faces, and image segments among others.  The really cool
-thing about this topic is that it has firm roots in probability but uses a
-function approximator (i.e.  neural networks) to approximate an otherwise
-intractable problem.  As usual, I'll try to start with some background and
-motivation, include a healthy does of math, and along the way try to convey
-some of the intuition of why it works.  I've also annotated a
-<a class="reference external" href="https://github.com/bjlkeng/sandbox/blob/master/notebooks/variational-autoencoder.ipynb">basic example</a>
-so you can see how the math relates to an actual implementation.  I based much
-of this post on Carl Doersch's <a class="reference external" href="https://arxiv.org/abs/1606.05908">tutorial</a>,
-which has a great explanation on this whole topic, so make sure you check that
-out too.</p>
-<p class="more"><a href="posts/variational-autoencoders/">Read more…</a></p>
-</div>
-    </div>
     </article>
 </div>
 
@@ -300,7 +301,7 @@ out too.</p>
 </div>
 
 
-            <script src="assets/js/jquery.min.js"></script><script src="assets/js/bootstrap.min.js"></script><script src="assets/js/moment-with-locales.min.js"></script><script src="assets/js/fancydates.js"></script><script src="assets/js/jquery.colorbox-min.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+            <script src="assets/js/jquery.min.js"></script><script src="assets/js/bootstrap.min.js"></script><script src="assets/js/moment-with-locales.min.js"></script><script src="assets/js/fancydates.js"></script><script src="assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

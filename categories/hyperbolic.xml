@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about hyperbolic)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/hyperbolic.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sun, 17 Jun 2018 13:08:59 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Hyperbolic Geometry and Poincaré Embeddings</title><link>http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is finally going to get back to some ML related topics.
+In fact, the original reason I took that whole math-y detour in the previous
+posts was to more deeply understand this topic.  It turns out trying to
+under tensor calculus and differential geometry (even to a basic level) takes a
+while!  Who knew?  In any case, we're getting back to our regularly scheduled program.&lt;/p&gt;
+&lt;p&gt;In this post, I'm going to explain one of the applications of an abstract
+area of mathematics called hyperbolic geometry.  The reason why this area is of
+interest is because there has been a surge of research showing its
+application in various fields, chief among them is a paper by Facebook
+researchers [1] in which they discuss how to utilize a model of hyperbolic
+geometry to represent hierarchical relationships.  I'll cover some of
+the math weighting more towards intuition, show some of their results, and also
+show some sample code from Gensim.  Don't worry, this time I'll try much harder
+not going to go down the rabbit hole of trying to explain all the math (no
+promises though).&lt;/p&gt;
+&lt;p&gt;(Note: If you're unfamiliar with tensors or manifolds, I suggest getting a quick
+overview with my previous two posts:
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/tensors-tensors-tensors"&gt;Tensors, Tensors, Tensors&lt;/a&gt; and
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/manifolds"&gt;Manifolds: A Gentle Introduction&lt;/a&gt;)&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/"&gt;Read more…&lt;/a&gt; (34 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>embeddings</category><category>geometry</category><category>hyperbolic</category><category>manifolds</category><category>mathjax</category><category>Poincaré</category><guid>http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/</guid><pubDate>Sun, 17 Jun 2018 12:20:18 GMT</pubDate></item></channel></rss>

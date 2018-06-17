@@ -64,7 +64,33 @@
                 
 
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/variational-bayes-and-the-mean-field-approximation/" class="u-url">Variational Bayes and The Mean-Field Approximation</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/variational-autoencoders/" class="u-url">Variational Autoencoders</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/variational-autoencoders/" rel="bookmark"><time class="published dt-published" datetime="2017-05-30T08:19:36-04:00" title="2017-05-30 08:19">2017-05-30 08:19</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>This post is going to talk about an incredibly interesting unsupervised
+learning method in machine learning called variational autoencoders.  It's main
+claim to fame is in building generative models of complex distributions like
+handwritten digits, faces, and image segments among others.  The really cool
+thing about this topic is that it has firm roots in probability but uses a
+function approximator (i.e.  neural networks) to approximate an otherwise
+intractable problem.  As usual, I'll try to start with some background and
+motivation, include a healthy does of math, and along the way try to convey
+some of the intuition of why it works.  I've also annotated a
+<a class="reference external" href="https://github.com/bjlkeng/sandbox/blob/master/notebooks/variational-autoencoder.ipynb">basic example</a>
+so you can see how the math relates to an actual implementation.  I based much
+of this post on Carl Doersch's <a class="reference external" href="https://arxiv.org/abs/1606.05908">tutorial</a>,
+which has a great explanation on this whole topic, so make sure you check that
+out too.</p>
+<p class="more"><a href="posts/variational-autoencoders/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/variational-bayes-and-the-mean-field-approximation/" class="u-url">Variational Bayes and The Mean-Field Approximation</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Brian Keng
@@ -169,29 +195,6 @@ mysterious anymore <a class="footnote-reference" href="posts/lagrange-multiplier
 <p class="more"><a href="posts/lagrange-multipliers/">Read more…</a></p>
 </div>
     </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/the-expectation-maximization-algorithm/" class="u-url">The Expectation-Maximization Algorithm</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Brian Keng
-            </span></p>
-            <p class="dateline"><a href="posts/the-expectation-maximization-algorithm/" rel="bookmark"><time class="published dt-published" datetime="2016-10-07T08:47:47-04:00" title="2016-10-07 08:47">2016-10-07 08:47</time></a></p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>This post is going to talk about a widely used method to find the
-maximum likelihood (MLE) or maximum a posteriori (MAP) estimate of parameters
-in latent variable models called the Expectation-Maximization algorithm.  You
-have probably heard about the most famous variant of this algorithm called the
-k-means algorithm for clustering.
-Even though it's so ubiquitous, whenever I've tried to understand <em>why</em> this
-algorithm works, I never quite got the intuition right.  Now that I've taken
-the time to work through the math, I'm going to <em>attempt</em> to explain the
-algorithm hopefully with a bit more clarity.  We'll start by going back to the
-basics with latent variable models and the likelihood functions, then moving on
-to showing the math with a simple Gaussian mixture model <a class="footnote-reference" href="posts/the-expectation-maximization-algorithm/#id5" id="id1">[1]</a>.</p>
-<p class="more"><a href="posts/the-expectation-maximization-algorithm/">Read more…</a></p>
-</div>
-    </div>
     </article>
 </div>
 
@@ -266,7 +269,7 @@ to showing the math with a simple Gaussian mixture model <a class="footnote-refe
 </div>
 
 
-            <script src="assets/js/jquery.min.js"></script><script src="assets/js/bootstrap.min.js"></script><script src="assets/js/moment-with-locales.min.js"></script><script src="assets/js/fancydates.js"></script><script src="assets/js/jquery.colorbox-min.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+            <script src="assets/js/jquery.min.js"></script><script src="assets/js/bootstrap.min.js"></script><script src="assets/js/moment-with-locales.min.js"></script><script src="assets/js/fancydates.js"></script><script src="assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>
