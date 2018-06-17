@@ -69,7 +69,7 @@ overview with my previous two posts:
 
 To begin this discussion, we have to first understand something about
 `curvature <https://en.wikipedia.org/wiki/Curvature>`__.  There are many
-different kinds of curvatuve, and they can be with respect to either curves or
+different kinds of curvature, and they can be with respect to either curves or
 surfaces (hypersurfaces) with the latter having many different variants.
 The basic idea behind all these different definitions is that **curvature** is
 some measure by which a geometric object deviates from a flat plane, or in the
