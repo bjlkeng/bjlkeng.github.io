@@ -54,11 +54,11 @@ researchers [1] in which they discuss how to utilize a model of hyperbolic
 geometry to represent hierarchical relationships.  I'll cover some of
 the math weighting more towards intuition, show some of their results, and also
 show some sample code from Gensim.  Don't worry, this time I'll try much harder
-not going to go down the rabbit hole of trying to explain all math (no
+not going to go down the rabbit hole of trying to explain all the math (no
 promises though).
 
 (Note: If you're unfamiliar with tensors or manifolds, I suggest getting a quick
-overview with my two previous posts: 
+overview with my previous two posts: 
 `Tensors, Tensors, Tensors <link://slug/tensors-tensors-tensors>`__ and 
 `Manifolds: A Gentle Introduction <link://slug/manifolds>`__)
 
@@ -68,19 +68,21 @@ overview with my two previous posts:
 |h2| Curvature |h2e|
 
 To begin this discussion, we have to first understand something about
-`curvature <https://en.wikipedia.org/wiki/Curvature>`__.  There are all
-kinds of curvature to talk about whether they be on curves, or surfaces (or
-hypersurfaces) with the latter having many different variants.  The basic
-idea behind all these different definitions is that **curvature** is some measure by
-which a geometric object deviates from a flat plane, or in the case of a curve,
-deviates from a straight line.  
+`curvature <https://en.wikipedia.org/wiki/Curvature>`__.  There are many
+different kinds of curvatuve, and they can be with respect to either curves or
+surfaces (hypersurfaces) with the latter having many different variants.
+The basic idea behind all these different definitions is that **curvature** is
+some measure by which a geometric object deviates from a flat plane, or in the
+case of a curve, deviates from a straight line.  
 
 As a side note, there can be **extrinsic curvature** which is defined for
-objects embedded in another space (usually Euclidean).  Alternatively, there is
-a concept of **intrinsic curvature**, which is defined in terms of lengths of a
-curve within a Riemannian manifold, i.e. it is defined independently of any
-embedding.  We won't go into all the details but those two terms might come up
-when you're reading further.
+objects embedded in another higher dimensional space (usually Euclidean).  This
+means its curvature depends on something (the embedding) besides itself.
+Alternatively, there is a concept of **intrinsic curvature**, which is defined
+in terms of deviation of the surface (or manifold) from flat space.  This doesn't
+depend on any particular embedding but is an "intrinsic" property of the surface
+(or manifold).  We won't go into all the details but the kinds of curvature we'll
+be talking about will be intrinsic.
 
 
 |h3| Gaussian Curvature |h3e|
@@ -99,18 +101,18 @@ three different types of
 
 This gives us a good intuition about what it means to have curvature.  Starting
 with the centre diagram (zero curvature), we see that a cylindrical surface has
-*flat or zero* in one dimension (along its length) and curved around the other
-dimension, resulting in zero curvature.  Moving to the right, the sphere on has
+*flat or zero* curvature in one dimension (blue) and curved around the other
+dimension (green), resulting in zero curvature.  Moving to the right, the sphere on has
 curvature along its to axis in the *same direction*, resulting in a positive
 curvature.  And to the left, we see the saddle sheet has curvature along its
 axis in *different directions*, resulting in negative curvature.
 In fact, the Gaussian curvature is the product of its two 
 `principal curvatures <https://en.wikipedia.org/wiki/Principal_curvature>`__, 
-which correspond to our intuitive definition of curving along its two different
-axes.
+which we won't get into detail here but corresponds to our intuition of how a
+surface curves along its two main axes.
 
 Curvature isn't a uniform property of a surface, it's actually defined point-wise.
-Figure 2 shows a Torus that has all three different types of Gaussian curvature.
+Figure 2 shows a torus that has all three different types of Gaussian curvature.
 We won't go deeply into the definition of Gaussian curvature because it's a pain but
 I think this should probably give some decent intuition on it.
 
@@ -122,10 +124,10 @@ I think this should probably give some decent intuition on it.
   Figure 2: A torus' surface has all three types of curvature.  The outside has positive curvature (red); the inside has negative curvature (blue); and a ring on the top and bottom of the torus have zero curvature (yellow-orange) (source: `Stackexchange <https://mathematica.stackexchange.com/questions/61409/computing-gaussian-curvature>`__).
 
 Gaussian curvature gives us great intuition on 2D surfaces but what about
-higher dimension?  The concept of "axes" gets a bit more muddy, so we need an
+higher dimensions?  The concept of "axes" gets a bit more muddy, so we need an
 alternate way to define things.  One way is to look at the "deviation" of
-certain geometric objects such as a triangle.  Figure 3 shows how a triangle on
-a surface of differently curved surfaces behave.
+certain geometric objects on the surface (or hypersurface) such as a triangle.
+Figure 3 shows how a triangle behaves differently on differently curved surfaces.
 
 .. figure:: /images/Angles-and-Curvature.png
   :height: 170px
@@ -145,7 +147,7 @@ higher dimensions in the next subsection.
 
 |h3| Parallel Transport, Riemannian Curvature Tensor and Sectional Curvature |h3e|
 
-The first idea we need is an intuition on the concept of 
+The first idea we need is the concept of 
 `parallel transport <https://en.wikipedia.org/wiki/Parallel_transport>`__.
 The main idea is that we can move tangent vectors along the surface of smooth
 manifolds to see if our surface is curved.  
@@ -155,8 +157,9 @@ of the tennis court perpendicularly facing the net with your racket parallel to
 the ground pointing forward (the racket represents the tangent vector).
 While keeping your racket facing the same direction at all times, walk around the
 outside tennis court.  When you get back to your starting position, the racket
-is in the same direction.  This is an example of a flat (or zero curvature)
-manifold because the vector has not deviated from its original position. 
+is in the same direction (still facing towards the net).  This is an example of
+a flat (or zero curvature) manifold because the vector has not deviated from
+its original position after "transporting" around this loop. 
 
 Now consider another example shown in Figure 4.
 
@@ -170,24 +173,24 @@ Now consider another example shown in Figure 4.
   A to N to B back to A (source: Wikipedia).
 
 From Figure 4, imagine now that we're on the surface of the earth at point A
-facing north with our racket, still parallel to the ground, facing forward i.e.
-our tangent vector.  We walk straight all the way up to the north pole at N,
+with our racket still parallel to the ground, facing north (i.e.
+our tangent vector).  We walk straight all the way up to the north pole at N,
 then without changing the direction of our racket, we move towards point B from
 the north pole.  Again, without changing our racket direction, we walk back to
 point A.  This time though, our racket is pointing in a different direction?!
-This is an example of a curved surface. When we parallel transported the vector,
-it changed directions.
+This is an example of a curved surface because when we parallel transported the
+vector, it changed directions.
 
 We can measure this deviation of parallel transport using the 
 `Riemannian Curvature Tensor <https://en.wikipedia.org/wiki/Riemann_curvature_tensor>`__.
 Starting from a point and moving a vector around a loop, this tensor directly
 measures the failure of the vector to point in the initial direction.
 For each point on a smooth manifold, it provides a (1, 3)-tensor, which can be
-represented as a 4-axis multi-dimensional array.  Another way to look at it is,
-that for any two vectors on a tangent space, it returns a linear transformation
-that describes how the parallel transport deviates a vector.
-Note: Since we have different tensor for each point, the curvature is a *local*
-phenomenon.
+represented as a 4-axis multi-dimensional array.  Another way to look at it is
+that for any two vectors defining a tangent space, it returns a linear
+transformation that describes how the parallel transport deviates a vector in
+the tangent space.  Note: Since we have a different tensor for each point, the
+curvature is a *local* phenomenon.
 
 The math for curvature is quite involved because we're not in flat space
 anymore. This means we need to setup a lot of additional structures to deal
@@ -201,7 +204,7 @@ at a point :math:`P` denoted by :math:`K(u, v)`:
 
 .. math::
 
-   K(u, v) = \frac{\langle R(u, v)v, U\rangle }{\langle u, u\rangle \langle v, v\rangle  - \langle u, v\rangle ^2} \tag{1}
+   K(u, v) = \frac{\langle R(u, v)v, u\rangle }{\langle u, u\rangle \langle v, v\rangle  - \langle u, v\rangle ^2} \tag{1}
 
 where :math:`u, v` are linearly independent vectors in the tangent space of
 point :math:`P`, :math:`R` is the Riemannian Curvature Tensor, and the angle
@@ -210,18 +213,18 @@ brackets are the inner product.
 |h3| Manifolds with Constant Sectional Curvature |h3e|
 
 Riemannian manifolds with constant curvature at every point are special cases
-of curved surfaces.
-They come in three forms, constant:
+of curved surfaces.  They come in three forms, which implicitly define three
+geometries:
 
 * Constant Positive Curvature: Elliptic geometry
 * Constant Zero Curvature: Euclidean geometry
 * Constant Negative Curvature: Hyperbolic geometry
 
 The first two we are more familiar with: The standard model for
-Euclidean geometry is just any Euclidean space.  The model for elliptic
-geometry is simply just a sphere (or hypersphere).  The model for hyperbolic
-geometry is a bit more complicated and we'll spend some more time with it in
-the next section.
+Euclidean geometry is just any Euclidean space.  The standard model for
+elliptic geometry is simply just a sphere (or hypersphere).  The model for
+hyperbolic geometry is a bit more complicated and we'll spend some more time
+with it in the next section.
 
 
 .. admonition:: Euclidean and Non-Euclidean Geometries
@@ -252,7 +255,7 @@ the next section.
   school with lines, circles, angles, etc. is Euclidean geometry.
 
   However, this is not exactly the same thing as the analytical geometry 
-  we study when we first learn about with Euclidean plane (i.e.  :math:`\mathbb{R}^2`).
+  we study when we first learn about the Euclidean plane (i.e.  :math:`\mathbb{R}^2`).
   The Euclidean plane (and by extension Euclidean space) is a 
   `model <https://en.wikipedia.org/wiki/Axiomatic_system#Models>`__ of 
   Euclidean geometry:
@@ -285,11 +288,11 @@ the next section.
 
     Figure 6: Two lines perpendicular to another line in Elliptic geometry, must intersect at some point (`source <http://www.math.cornell.edu/~mec/mircea.html>`__).
 
-  A model of Elliptic geometry is manifold defined by the surface of a sphere
+  A model of Elliptic geometry is a manifold defined by the surface of a sphere
   (say with radius=1 and the appropriately induced metric tensor).  We can see that the
   Elliptic postulate holds, and it also yields different theorems than standard
   Euclidean geometry, such as the sum of angles in a triangle is greater than
-  180 degrees.
+  :math:`180^{\circ}`.
 
   |h3| Hyperbolic Geometry |h3e|
 
@@ -333,7 +336,7 @@ imagining objects in Euclidean space -- not curved space.
 One way to think about it is that when embedded into Euclidean space, every point
 is a `saddle point <https://en.wikipedia.org/wiki/Saddle_point>`__... still kind of
 hard to imagine though.
-The real tough part is that even for the 2D hyperbolic plane, we cannot embed it in
+The real tough part is that even for the 2D hyperbolic plane, we cannot embed it into
 3D Euclidean space (`Hilbert's theorem <https://en.wikipedia.org/wiki/Hilbert%27s_theorem_(differential_geometry)>`__),
 so something's got to give.
 
@@ -345,7 +348,8 @@ relativity, respectively.  Let's see how this works.
 |h3| Minkowski Space |h3e|
 
 Before we get to the model of hyperbolic geometry, we have to set a few things up.
-First, let's define a (generalized) `Minkowski space <https://en.wikipedia.org/wiki/Minkowski_space>`__
+The first thing is what's called a (generalized) 
+`Minkowski space <https://en.wikipedia.org/wiki/Minkowski_space>`__
 (a type of `pseudo-Riemannian manifold <https://en.wikipedia.org/wiki/Pseudo-Riemannian_manifold>`__):
 
     For :math:`n \geq 2`, a :math:`n`-dimensional Minkowski space is a real vector space
@@ -376,7 +380,7 @@ differently, while the others are very similar to our regular Euclidean space.
 
 |h3| Hyperboloid |h3e|
 
-Before we get to the model, we need to cover the 
+The next thing we need to set up is the
 `hyperboloid <https://en.wikipedia.org/wiki/Hyperboloid>`__.
 A hyperboloid is a
 generalization of a hyperbola in two dimensions.  If you take a hyperbola and
@@ -459,12 +463,13 @@ of a straight line to curved space, defined to be a curve where you can
 parallel transport a tangent vector without deformation.
 
 In our hyperboloid model, the geodesic (or our hyperbolic line) is defined to
-be the curve created by intersecting two points and the origin with the
+be the curve created by intersecting the plane defined by two points (that
+define the line) and the origin (i.e. coordinate :math:`(0, 0, 0)`) with the
 hyperboloid.  So you end up having to go "down" first then back up to reach a
-point, never just directly towards it using the shortest path (on the surface)
-in Euclidean space.  Figure 9 shows a visualization of this curve as the
-brownish line (ignore the bottom circle for now, we'll come back to this
-later).
+point, never just directly towards it using the shortest path on the surface
+in Euclidean space (which would be around the circumference).  Figure 9 shows a
+visualization of this curve as the brownish line (ignore the bottom circle for
+now, we'll come back to this later).
 
 .. figure:: /images/hyperboloid_projection.png
   :height: 250px
@@ -477,9 +482,9 @@ Once we have the concept of a line segment, we can define the distance
 between two points.  This can be calculated using the 
 `arc length <https://en.wikipedia.org/wiki/Arc_length>`__ of the tangent
 vectors with the Minkowski metric.  This is analogous to how we can compute
-the length of a curve, basically walking along it and adding up the
-infinitesimal distances except now we'll be using the Minkowski metric from
-Equation 2.  It turns out that this simplifies to a closed form for the
+the length of a curve in Euclidean space, basically walking along it and adding
+up the infinitesimal distances, except now we'll be using the Minkowski metric
+from Equation 2.  It turns out that this simplifies to a closed form for the
 hyperbolic distance between two points :math:`\bf u` and :math:`\bf v`:
 
 .. math::
@@ -541,10 +546,11 @@ Minkowski metric defined above.
 
 
 The hyperboloid model also has the concept of circles.  The simplest circle
-is with center at the bottom most point :math:`(0, 0, 1)`.  The circles created
-with this center look like regular circles in Euclidean space of a plane parallel
-to the x-y plane intersecting the hyperboloid.  The points on this circle are a
-constant hyperbolic distance away from this bottom point.
+is with center perpendicular at the bottom most point of the hyperboloid,
+:math:`(0, 0, 1)`.  The circles created with this center look like regular
+circles in Euclidean space where the circle is on a plane parallel to the
+:math:`z=0` plane.  The points on this circle are a constant hyperbolic
+distance away from this bottom point.
 
 However, if we move to points centered at different locations, we get arbitrary
 "slices" of the hyperboloid as shown in Figure 10 as an ellipse.  The non-Euclidean nature of
@@ -573,7 +579,7 @@ The `Poincaré ball model
 n-dimensional hyperbolic geometry in which all points are embedded in an
 n-dimensional sphere (or in a circle in the 2D case which is called the
 Poincaré disk model).
-This is being presented second because it is much less intuitive and it follows
+This is being presented second because it is much less intuitive but can be derived
 directly from the hyperboloid model.
 
 .. admonition:: Can a circle fit an entire geometry?
@@ -587,7 +593,7 @@ directly from the hyperboloid model.
     Euclidean sensibilities and intuition.  For example, we'll see below that the
     "distance" between points grows exponentially as we move towards the outside of
     the Poincaré disk.  We need to use a combination of the math and throwing away
-    our old intuition in order to understand these non-flat models of geometry.*
+    our old intuition in order to understand these non-flat models of geometry.
 
 The Poincaré model can be derived using a 
 `stereoscopic projection <https://en.wikipedia.org/wiki/Stereographic_projection>`__
@@ -618,7 +624,7 @@ in the unit circle of the :math:`z=0` plane:
 .. math::
 
     y_i &= \frac{x_i}{z + 1} \\
-    (t, x_i) &= \frac{(1 + \sum y_i^2, 2y_i)}{1 - \sum y_i^2} \\
+    (z, x_i) &= \frac{(1 + \sum y_i^2, 2y_i)}{1 - \sum y_i^2} \\
     \tag{10}
 
 As with our other hyperbolic model, we can represent common geometric concepts
@@ -725,15 +731,17 @@ variables :math:`y_1, y_2`:
     \tag{11}  
 
 If you go through the exercise of finding the arc-length using this metric,
-we'll find the distance between two points :math:`u,v` on the Poincaré is given by:
+we'll find the distance between two points :math:`u,v` on the Poincaré ball is
+given by:
 
 .. math::
 
     d(u,v) = arcosh\big(1 + 2\frac{\lVert u-v \rVert^2}{(1-\lVert u\rVert^2)(1-\lVert v\rVert^2)}\big) \\ 
     \tag{12}
 
-Equation 12 is a bit more complicated than on the hyperboloid but nothing
-that's not easily computable using standard functions.
+where the double bars represent the Euclidean distance.  Equation 12 is a bit
+more complicated than on the hyperboloid but nothing that's not easily
+computable using standard functions.
 
 A hyperbolic circle defined as a set of points at a constant radius from a center
 point, is in general any Euclidean circle completely contained within the unit
@@ -744,7 +752,7 @@ The only time it is the actual Euclidean center is if it's at point (0,0).
 
 |h3| Poincaré Visualization |h3e|
 
-Here's an interactive visualization I with `D3.js <https://d3js.org/>`__,
+Here's an interactive visualization I made with `D3.js <https://d3js.org/>`__,
 `Numeric.js <http://www.numericjs.com/>`__ and `Bootstrap
 <https://getbootstrap.com/>`__.  You can play around drawing hyperbolic lines
 and circles.  The interesting things to play around with are:
@@ -765,7 +773,7 @@ and circles.  The interesting things to play around with are:
   Figure 14: Screenshot of My Poincaré Disk Visualization.
 
 The implementation is all there in the attached JavaScript files.  It's pretty
-much a hack that I put together. Raw JavaScript can be pretty frustrating
+much a hack that I put together. JavaScript can be pretty frustrating
 because of all the little interaction details you have to get right!
 It's no wonder why I'm not a frontend guy.
 
@@ -780,7 +788,7 @@ numeric calculations! (Better to use a library when available.)
 For the circle, I just cheated and used Numeric.js to solve for the
 points that I needed.  The algorithm I used was basically find 3 points that
 were equidistant from the starting point.  The current position of the mouse
-defines one of them (P1).  The next one, I used the line created from P1 to the
+defines one of them (P1).  For the next one, I used the line created from P1 to the
 starting point to find another one on the opposite side (P2) using Numeric.js.
 The third point, I used the perpendicular line passing through the starting
 point (P3), again using Numeric.js.  Lastly, I used the formula for finding the
@@ -859,7 +867,7 @@ Poincaré disk use the Poincaré ball in :math:`d` dimensions.
 The problem now becomes, how do I map my nodes in my hierarchical data to the
 Poincaré ball?  As usual, via an optimization.  We have to use a variant of
 our usual stochastic gradient descent called Riemannian Stochastic Gradient
-Descent (RSGD) because we're optimizing over an manifold, not just simple
+Descent (RSGD) because we're optimizing over a manifold, not just simple
 Euclidean space.  I won't go through all the math (partly because I don't quite
 understand it) but here is the final update equations for the embeddings we
 want to learn :math:`\bf \theta`:
@@ -876,7 +884,7 @@ want to learn :math:`\bf \theta`:
 where :math:`\epsilon` is a small constant for numerical stability,
 :math:`\eta_t` is the learning rate, and :math:`\nabla_E` is our usual
 (Euclidean) gradient of our loss.  The first equation just makes sure we stay
-within the unit ball.  The second equation is our usual parameter updating
+within the unit ball.  The second equation is our usual parameter SGD updating
 except with a rescaling of the gradient to account for our hyperbolic
 distances.
 
@@ -896,7 +904,7 @@ resemblance to Word2vec's Skip-Gram loss with negative sampling:
     \tag{14}
 
 
-where :math:`\mathcal{N}(u)` is a set of negative link samples for :math:`u`
+where :math:`\mathcal{N}(u)` is a set of negative samples for :math:`u`
 and :math:`\mathcal{D}` is our link dataset.  The difference between the two
 versions (according to [2]) is that the paper gives the former while the actual
 implementation from [1] gives the latter.  Both are very similar, and the
@@ -949,7 +957,10 @@ shows the efficiency of the embedding.
 What's even nicer about these embedding is that there is a great implementation
 from `Gensim <https://radimrehurek.com/gensim/models/poincare.html>`__.  [2] is
 a technical post by the authors of Gensim describing how they implemented these
-embeddings.  Here's some sample code from the documentation:
+embeddings.  
+
+The model is trivial to run using Gensim.  Here's some sample code from their
+documentation:
 
 .. code-block:: python
 
@@ -962,7 +973,7 @@ embeddings.  Here's some sample code from the documentation:
 I love it when there are nice clean open source implementations available.
 Coding these up from scratch invariably takes a huge amount of time, especially
 when you have to reverse engineer an implementation from a paper (at least they
-had the original authors' C++ implementation).
+had the original authors' C++ implementation though).
 
 |h2| Conclusion |h2e|
 
@@ -972,15 +983,15 @@ of ML, I've had enough of this diversion into the maths.  Besides, there are
 still so many interesting papers and topics for me to look at, it just seems like 
 the backlog keeps growing!  Stay tune for some more posts.
 
-(As a side note: It seems my posts keep getting longer and longer.  I got to
-consciously break them up into smaller pieces, maybe do some "Agile" or "Lean
-Blogging" on them.  Or not.  We'll see.)
+(As a side note: It seems my posts keep getting longer and longer.  I have got
+to consciously break them up into smaller pieces, maybe do some "Agile" or
+"Lean Blogging" on them.  Or not.  We'll see.)
 
 
 |h2| Further Reading |h2e|
 
 * Previous posts: `Tensors, Tensors, Tensors <link://slug/tensors-tensors-tensors>`__, `Manifolds: A Gentle Introduction <link://slug/manifolds>`__
-* Wikipedia: `Riemannian Manifold <https://en.wikipedia.org/wiki/Riemannian_manifold>`__, `Hyperbolic Space <https://en.wikipedia.org/wiki/Hyperbolic_space>`__, `Sectional Curvature <https://en.wikipedia.org/wiki/Sectional_curvature>`__, `Gaussian Curvature <https://en.wikipedia.org/wiki/Gaussian_curvature>`__, `parallel transport <https://en.wikipedia.org/wiki/Parallel_transport>`__
+* Wikipedia: `Riemannian Manifold <https://en.wikipedia.org/wiki/Riemannian_manifold>`__, `Hyperbolic Space <https://en.wikipedia.org/wiki/Hyperbolic_space>`__, `Sectional Curvature <https://en.wikipedia.org/wiki/Sectional_curvature>`__, `Gaussian Curvature <https://en.wikipedia.org/wiki/Gaussian_curvature>`__, `parallel transport <https://en.wikipedia.org/wiki/Parallel_transport>`__, `Poincaré ball model <https://en.wikipedia.org/wiki/Poincar%C3%A9_disk_model>`__
 * [1] `Poincaré Embeddings for Learning Hierarchical Representations <https://arxiv.org/abs/1705.08039>`__, Maximilian Nickel, Douwe Kiela
 * [2] `Implementing Poincaré Embeddings <https://rare-technologies.com/implementing-poincare-embeddings/>`__, Jayant Jain
 
