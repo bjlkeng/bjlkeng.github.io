@@ -1,4 +1,4 @@
-.. title: Universal Resnet: The One-Neuron Monster
+.. title: Universal ResNet: The One-Neuron Monster
 .. slug: universal-resnet-the-one-neuron-monster
 .. date: 2018-07-23 08:03:28 UTC-04:00
 .. tags: ResNet, residual networks, hidden layers, neural networks, universal approximator, mathjax
@@ -51,7 +51,9 @@ can get close to these theoretical limits.
 ResNets: `Residual Networks <link://slug/residual-networks>`__)
 
 
-|H2| Universal Approximation Theorem |H2e|
+|H2| Universal Approximation Theorems |H2e|
+
+|H3| The OG Universal Approximation Theorem |H3e|
 
 The `Universal Approximation Theorem
 <https://en.wikipedia.org/wiki/Universal_approximation_theorem>`__ is one of
@@ -93,7 +95,7 @@ So practically, there isn't much that's interesting about this (basic) version
 of the theorem.  And definitely, people should stop quoting it as if it somehow
 "proved" something.
 
-|H2| Universal Approximation Theorem for Width-Bounded ReLU Networks |H2e|
+|H3| Universal Approximation Theorem for Width-Bounded ReLU Networks |H3e|
 
 A *much* more interesting result for neural networks is a universal approximation
 theorem for width-bounded neural networks published recently (2017) from [2]:
@@ -113,13 +115,77 @@ the number of inputs, add 4, and then make a bunch of hidden layers of that
 size.  Of course, training this is another story, which we'll see below.
 The negative result is also very interesting.  We need some extra width or else
 we'll never be able to approximate anything.
+There are also a whole bunch of other results on neural networks that have been
+proven.  See the references from [1] and [2] if you're interested.
 
-There are also a whole bunch of other results.  See the references from [1],
-[2] if you're interested.
+|H3| Universal Approximation Theorem for The One-Neuron ResNet |H3e|
 
-|H2| Universal Approximation Theorem for The One-Neuron Resnet |H2e|
+ResNet is a neural network architecture that contains a "residual connection".
+Basically, it provides a shortcut from layer :math:`i` merging it with addition
+to layer :math:`i+k` for some constant :math:`k`.  In between, you can do all
+kinds of interesting things such as have multiple layers but the important
+thing is that the input width of layer :math:`i` is the same as the output
+width of layer :math:`i+k`.  Figure 2 shows a simplified ResNet architecture
+where the "in between" transformation is a single neuron.
+
+.. figure:: /images/basic_resnet.png
+  :height: 200px
+  :alt: Basic ResNet Block
+  :align: center
+
+  Figure 2: The basic residual block with one neuron per hidden layer (source: [1])
+
+Note that through this ResNet block there are two paths: one that goes through
+a bottleneck of a *single* neuron, and one that is the identity function.  The
+outputs then get added together at the end.  Writing out the expression of the
+function, we have our ResNet block :math:`\mathcal{R}_i(x)` and our final network
+:math:`Y(x)`:
+
+.. math::
+
+    \text{ReLU}(x) &= max(x, 0) \\
+    \text{Id}(x) &= x \\
+    \mathcal{R}_i({\bf x}) &= {\bf V_i}\text{ReLU}({\bf U_i}{\bf x} + b_i) + \text{Id}({\bf x}) \\
+    Y(x) &= \mathcal{R}_n({\bf x}) \circ \ldots \circ \mathcal{R}_1({\bf x})
+    \tag{1}
+
+where :math:`U` is :math:`d x 1`, :math:`V` is :math:`1xd` matrix, and
+:math:`b` is a constant.
+
+Given the above ResNet architecture, the universal approximation theorem from
+[1] states:
+
+    ResNet with one single neuron per hidden layer is enough to provide
+    universal approximation for any Lebesgue-integrable function as the depth
+    goes to infinity.
+
+This is a pretty surprising statement!  Remember, this architecture's only
+non-linear element is a bottleneck with a *single* neuron!  However,
+this does somehow imply the power of Residual Networks because even with a single
+neuron it is powerful enough to represent any function.
+
+|H2| Experiments |H2e|
+
+In this section I played around with a bunch of different network architectures
+to see how they would perform.  You can see my work in this notebook (TODO).
+
+I generated three toy datasets labelled "easy", "medium", "hard" with two input
+variables :math:`x_1, x_2`, and a single binary label.  Each dataset used the
+same 300 :math:`(x_1, x_2)` input points but had a different predicate of
+increasing complexity.  Figure 3 shows the three datasets.
+
+.. figure:: /images/resnet_datasets.png
+  :height: 200px
+  :alt: "easy", "medium" and "hard" Datasets
+  :align: center
+
+  Figure 3: TODO TODO Plot of "easy", "medium" and "hard" Datasets.
+  
 
 
+
+
+|H3| The OG Universal Approximation Theorem |H3e|
 
 
 |h2| Further Reading |h2e|
