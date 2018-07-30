@@ -45,11 +45,12 @@
 *"In theory, theory and practice are the same. In practice, they are not."*
 
 This post is going to talk about a paper I read recently called *ResNet with
-one-neuron hidden layers is a Universal Approximator*.  It talks about a simplified
-Residual Network as a universal approximator, giving some theoretical backing to 
-the wildly successful ResNet architecture.  Of course, I'm not going to go through
-the any of the theoretical stuff, instead I'm going to play around to see if we
-can get close to these theoretical limits.
+one-neuron hidden layers is a Universal Approximator* by Lin and Jegelka [1].
+It talks about a simplified Residual Network as a universal approximator,
+giving some theoretical backing to the wildly successful ResNet architecture.
+Of course, I'm not going to go through the any of the theoretical stuff,
+instead I'm going to introduce the theorems and play around to see if we can
+get close to these theoretical limits.
 
 (You might also want to checkout my previous post where I played around with
 ResNets: `Residual Networks <link://slug/residual-networks>`__)
