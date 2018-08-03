@@ -64,7 +64,29 @@
                 
 
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/autoregressive-autoencoders/" class="u-url">Autoregressive Autoencoders</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/variational-autoencoders-with-inverse-autoregressive-flows/" class="u-url">Variational Autoencoders with Inverse Autoregressive Flows</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/variational-autoencoders-with-inverse-autoregressive-flows/" rel="bookmark"><time class="published dt-published" datetime="2017-12-19T08:47:38-05:00" title="2017-12-19 08:47">2017-12-19 08:47</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>In this post, I'm going to be describing a really cool idea about how
+to improve variational autoencoders using inverse autoregressive
+flows.  The main idea is that we can generate more powerful posterior
+distributions compared to a more basic isotropic Gaussian by applying a
+series of invertible transformations.  This, in theory, will allow
+your variational autoencoder to fit better by concentrating the
+stochastic samples around a closer approximation to the true
+posterior.  The math works out so nicely while the results are kind of
+marginal <a class="footnote-reference" href="posts/variational-autoencoders-with-inverse-autoregressive-flows/#id3" id="id1">[1]</a>.  As usual, I'll go through some intuition, some math,
+and have an implementation with few experiments I ran.  Enjoy!</p>
+<p class="more"><a href="posts/variational-autoencoders-with-inverse-autoregressive-flows/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/autoregressive-autoencoders/" class="u-url">Autoregressive Autoencoders</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Brian Keng
@@ -192,39 +214,6 @@ Rubikrew table tennis players. So, I did what any data scientist would do
 and I built a model.</p>
 </blockquote>
 <p>Enjoy!</p>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/a-variational-autoencoder-on-the-svnh-dataset/" class="u-url">A Variational Autoencoder on the SVHN dataset</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Brian Keng
-            </span></p>
-            <p class="dateline"><a href="posts/a-variational-autoencoder-on-the-svnh-dataset/" rel="bookmark"><time class="published dt-published" datetime="2017-07-13T08:13:03-04:00" title="2017-07-13 08:13">2017-07-13 08:13</time></a></p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>In this post, I'm going to share some notes on implementing a variational
-autoencoder (VAE) on the
-<a class="reference external" href="http://ufldl.stanford.edu/housenumbers/">Street View House Numbers</a>
-(SVHN) dataset.  My last post on
-<a class="reference external" href="posts/variational-autoencoders">variational autoencoders</a>
-showed a simple example on the MNIST dataset but because it was so simple I
-thought I might have missed some of the subtler points of VAEs -- boy was I
-right!  The fact that I'm not really a computer vision guy nor a deep learning
-guy didn't help either.  Through this exercise, I picked up some of the basics
-in the "craft" of computer vision/deep learning area; there are a lot of subtle
-points that are easy to gloss over if you're just reading someone else's
-tutorial.  I'll share with you some of the details in the math (that I
-initially got wrong) and also some of the implementation notes along with a
-notebook that I used to train the VAE.  Please check out my previous post
-on <a class="reference external" href="posts/variational-autoencoders">variational autoencoders</a> to
-get some background.</p>
-<p><em>Update 2017-08-09: I actually found a bug in my original code where I was
-only using a small subset of the data!  I fixed it up in the notebooks and
-I've added some inline comments below to say what I've changed.  For the most
-part, things have stayed the same but the generated images are a bit blurry
-because the dataset isn't so easy anymore.</em></p>
-<p class="more"><a href="posts/a-variational-autoencoder-on-the-svnh-dataset/">Read more…</a></p>
 </div>
     </div>
     </article>

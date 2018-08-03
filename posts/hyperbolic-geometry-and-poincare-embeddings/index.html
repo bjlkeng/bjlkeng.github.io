@@ -17,6 +17,7 @@
 <!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="description" itemprop="description" content="An introduction to models of hyperbolic geometry and its application to Poincaré embeddings.">
 <meta name="author" content="Brian Keng">
 <link rel="prev" href="../manifolds/" title="Manifolds: A Gentle Introduction" type="text/html">
+<link rel="next" href="../universal-resnet-the-one-neuron-approximator/" title="Universal ResNet: The One-Neuron Approximator" type="text/html">
 <meta property="og:site_name" content="Bounded Rationality">
 <meta property="og:title" content="Hyperbolic Geometry and Poincaré Embeddings">
 <meta property="og:url" content="http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/">
@@ -864,11 +865,11 @@ a technical post by the authors of Gensim describing how they implemented these
 embeddings.</p>
 <p>The model is trivial to run using Gensim.  Here's some sample code from their
 documentation:</p>
-<pre class="code python"><a name="rest_code_3b18ee45da404a3294053869251f3a71-1"></a><span class="kn">from</span> <span class="nn">gensim.models.poincare</span> <span class="kn">import</span> <span class="n">PoincareModel</span>
-<a name="rest_code_3b18ee45da404a3294053869251f3a71-2"></a><span class="n">relations</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'marsupial'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'mammal'</span><span class="p">),</span>
-<a name="rest_code_3b18ee45da404a3294053869251f3a71-3"></a>             <span class="p">(</span><span class="s1">'gib'</span><span class="p">,</span> <span class="s1">'cat'</span><span class="p">)]</span>
-<a name="rest_code_3b18ee45da404a3294053869251f3a71-4"></a><span class="n">model</span> <span class="o">=</span> <span class="n">PoincareModel</span><span class="p">(</span><span class="n">relations</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<a name="rest_code_3b18ee45da404a3294053869251f3a71-5"></a><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_f17ff035934a4aa3a6ab4d3121093972-1"></a><span class="kn">from</span> <span class="nn">gensim.models.poincare</span> <span class="kn">import</span> <span class="n">PoincareModel</span>
+<a name="rest_code_f17ff035934a4aa3a6ab4d3121093972-2"></a><span class="n">relations</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'marsupial'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'mammal'</span><span class="p">),</span>
+<a name="rest_code_f17ff035934a4aa3a6ab4d3121093972-3"></a>             <span class="p">(</span><span class="s1">'gib'</span><span class="p">,</span> <span class="s1">'cat'</span><span class="p">)]</span>
+<a name="rest_code_f17ff035934a4aa3a6ab4d3121093972-4"></a><span class="n">model</span> <span class="o">=</span> <span class="n">PoincareModel</span><span class="p">(</span><span class="n">relations</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<a name="rest_code_f17ff035934a4aa3a6ab4d3121093972-5"></a><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 </pre>
 <p>I love it when there are nice clean open source implementations available.
 Coding these up from scratch invariably takes a huge amount of time, especially
@@ -916,6 +917,9 @@ to consciously break them up into smaller pieces, maybe do some "Agile" or
 <ul class="pager hidden-print">
 <li class="previous">
                 <a href="../manifolds/" rel="prev" title="Manifolds: A Gentle Introduction">Previous post</a>
+            </li>
+            <li class="next">
+                <a href="../universal-resnet-the-one-neuron-approximator/" rel="next" title="Universal ResNet: The One-Neuron Approximator">Next post</a>
             </li>
         </ul></nav></aside><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
             MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});

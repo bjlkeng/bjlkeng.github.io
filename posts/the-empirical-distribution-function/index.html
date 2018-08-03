@@ -117,19 +117,21 @@
 in a similar way to how a histogram relates to a probability density function.
 Some figures (courtesy of Wikipedia) will help explain it better:</p>
 <p><img src="../../images/Cumulative_vs_normal_histogram.svg.png" alt="Normal vs. Cumulative Histogram (Wikipedia)"></p>
-<p>The left figure shows a regular histogram on the left, which samples from what looks like a normal distribution.  The right figure shows the same samples except each bin in the histogram contains the cumulative count of samples up to that bin, which approximates the shape of the CDF for this random variable.  Now the right figure doesn't exactly represent an empirical distribution function because the Y-axis is not normalized to \(1\) and the samples are binned instead of just plotted cumulatively.  Nonetheless, the idea remains the same.  An example of an empirical CDF is given in the next figure (courtesy of Wikipedia):</p>
+<p>The left figure shows a regular histogram on the left, which samples from what looks like a normal distribution.  The right figure shows the same samples except each bin in the histogram contains the cumulative count of samples up to that bin, which approximates the shape of the CDF for this random variable.  Now the right figure doesn't exactly represent an empirical distribution function because the Y-axis is not normalized to $1$ and the samples are binned instead of just plotted cumulatively.  Nonetheless, the idea remains the same.  An example of an empirical CDF is given in the next figure (courtesy of Wikipedia):</p>
 <p><img src="../../images/Empirical_CDF.png" alt="Empirical CDF (Wikipedia)"></p>
 <p>This picture basically sums up the intuition about the empirical distribution function.  The blue line is our empirical CDF whereas the light grey one is our theoretical CDF.  Given just this picture you could probably figure out how to compute the empirical CDF but let's just state it formally.</p>
-<p>Let \(X\) be a random variable with CDF \(F(x) = P(X \leq x)\), and let \( x_1,\ldots,x_n \) be \(n\) <a href="https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_vawiables">i.i.d.</a> random variables sampled from \(X\).  Then, the <strong>empirical distribution function</strong>, \(\hat{F}(x)\), is a CDF:</p>
-$$
+<p>Let $X$ be a random variable with CDF $F(x) = P(X \leq x)$, and let $ x_1,\ldots,x_n $ be $n$ <a href="https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_vawiables">i.i.d.</a> random variables sampled from $X$.  Then, the <strong>empirical distribution function</strong>, $\hat{F}(x)$, is a CDF:</p>
+<p>$$
 \hat{F}(x) = \frac{\text{# of elements in sample} \leq x}{n} = \frac{1}{n} \Sigma_{i=1}^n I(x_i \leq x) \tag{1}
-$$<p>where \(I(\cdot)\) is just the <a href="https://en.wikipedia.org/wiki/Indicator_function">indicator function</a>.</p>
-<p>From this definition, we can derive some nice properties about the empirical CDF. For a fixed value of \(x\), \(I(x_i \leq x)\) is equivalent to a Bernoulli random variable with parameter \(p = F(t)\) (i.e. a coin flip with chance of heads \(p\)).  From this fact, the sum of these variables is equivalent to a binomial random variable, hence the mean and variance of \(\hat{F}(x)\):</p>
-\begin{align}
+$$</p>
+<p>where $I(\cdot)$ is just the <a href="https://en.wikipedia.org/wiki/Indicator_function">indicator function</a>.</p>
+<p>From this definition, we can derive some nice properties about the empirical CDF. For a fixed value of $x$, $I(x_i \leq x)$ is equivalent to a Bernoulli random variable with parameter $p = F(t)$ (i.e. a coin flip with chance of heads $p$).  From this fact, the sum of these variables is equivalent to a binomial random variable, hence the mean and variance of $\hat{F}(x)$:</p>
+<p>\begin{align}
 E[\hat{F}(x)] &amp;= F(x) \\
 Var[\hat{F}(x)] &amp;= \frac{1}{n}F(x)(1-F(x)) \tag{2}
-\end{align}<p>Since the expected value of \(\hat{F}\) converges to the value of the theoretical distribution (\(F\)), \(\hat{F}\) is a consistent estimator for the CDF by definition.  Another nice result due to the strong law of large numbers is that \(\hat{F}_n(x)\) converges to \(F(x)\) almost surely for every value of \(x\) as \(n \rightarrow \infty\).  An even stronger result called the <a href="https://en.wikipedia.org/wiki/Glivenko%E2%80%93Cantelli_theorem">Glivenko-Cantelli theorem</a>, states that this convergence happens uniformly across all \(x\).
-All these results boil down to the fact that \(\hat{F}(x)\) is a good non-parametric estimator for the theoretical CDF \(F\).</p>
+\end{align}</p>
+<p>Since the expected value of $\hat{F}$ converges to the value of the theoretical distribution ($F$), $\hat{F}$ is a consistent estimator for the CDF by definition.  Another nice result due to the strong law of large numbers is that $\hat{F}_n(x)$ converges to $F(x)$ almost surely for every value of $x$ as $n \rightarrow \infty$.  An even stronger result called the <a href="https://en.wikipedia.org/wiki/Glivenko%E2%80%93Cantelli_theorem">Glivenko-Cantelli theorem</a>, states that this convergence happens uniformly across all $x$.
+All these results boil down to the fact that $\hat{F}(x)$ is a good non-parametric estimator for the theoretical CDF $F$.</p>
 
 </div>
 </div>
@@ -141,27 +143,32 @@ All these results boil down to the fact that \(\hat{F}(x)\) is a good non-parame
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Confidence-Intervals-and-Confidence-Bands">Confidence Intervals and Confidence Bands<a class="anchor-link" href="#Confidence-Intervals-and-Confidence-Bands">¶</a>
 </h3>
-<p>The definition of a confidence interval can be extended to a function by considering \(x\) fixed and calculating a \(1-\alpha\) <strong>pointwise confidence interval</strong> about \(x\). Formally, \(C(x)\) defines the region defined by the pointwise confidence interval, given by:</p>
-\begin{align}
+<p>The definition of a confidence interval can be extended to a function by considering $x$ fixed and calculating a $1-\alpha$ <strong>pointwise confidence interval</strong> about $x$. Formally, $C(x)$ defines the region defined by the pointwise confidence interval, given by:</p>
+<p>\begin{align}
 P(\{F(x) \in C(x)\}) \geq 1-\alpha \tag{3}
-\end{align}<p>The issue with this pointwise definition is that each of the \(x\) values are computed independently.  So if we computed the pointwise confidence interval for each \(x\), any individual \(x\) would obey the confidence interval.  However, it would not guarantee that for each \(x\), \(C(x)\) simultaneously would be a \(1-\alpha\) confidence region because the guarantee is only for each point in isolation.</p>
-<p>Due to this issue, we can instead define a \(1 - \alpha\) <strong>confidence band or confidence envelope</strong> that is applied to all \(x\) (denoted by \(B(x)\)):</p>
-\begin{align}
+\end{align}</p>
+<p>The issue with this pointwise definition is that each of the $x$ values are computed independently.  So if we computed the pointwise confidence interval for each $x$, any individual $x$ would obey the confidence interval.  However, it would not guarantee that for each $x$, $C(x)$ simultaneously would be a $1-\alpha$ confidence region because the guarantee is only for each point in isolation.</p>
+<p>Due to this issue, we can instead define a $1 - \alpha$ <strong>confidence band or confidence envelope</strong> that is applied to all $x$ (denoted by $B(x)$):</p>
+<p>\begin{align}
 P(\{F(x) \in B(x), \forall x\}) \geq 1-\alpha \tag{4}
-\end{align}<p>Using a result called the <a href="https://en.wikipedia.org/wiki/Dvoretzky%E2%80%93Kiefer%E2%80%93Wolfowitz_inequality">Dvoretzky-Kiefer-Wolfowitz (DKW) inequality</a> <a href="#fn-1"><sup>[1]</sup></a>, a two sided confidence band is given by the following:</p>
-\begin{align}
+\end{align}</p>
+<p>Using a result called the <a href="https://en.wikipedia.org/wiki/Dvoretzky%E2%80%93Kiefer%E2%80%93Wolfowitz_inequality">Dvoretzky-Kiefer-Wolfowitz (DKW) inequality</a> <a href="#fn-1"><sup>[1]</sup></a>, a two sided confidence band is given by the following:</p>
+<p>\begin{align}
 P(sup_{x\in \mathbb{R}} |\hat{F}_n(x) - F(x)| &gt; \epsilon) \leq 2e^{-2n\epsilon^2}
-\end{align}<p>Notice that this defines the probability of being <em>outside</em> a particular band around \(F(x)\).  So setting the RHS to \(\alpha\), we can find an \(\epsilon\) to create a confidence band:</p>
-\begin{align}
+\end{align}</p>
+<p>Notice that this defines the probability of being <em>outside</em> a particular band around $F(x)$.  So setting the RHS to $\alpha$, we can find an $\epsilon$ to create a confidence band:</p>
+<p>\begin{align}
 \alpha &amp;= 2e^{-2n\epsilon^2} \\
 log(\frac{\alpha}{2}) &amp;= -2n\epsilon^2 \\
 log(\frac{2}{\alpha}) &amp;= 2n\epsilon^2 \\
 \epsilon &amp;= \sqrt{\frac{1}{2n}log(\frac{2}{\alpha})} \tag{5}
-\end{align}<p>Thus, we can define our confidence bands as such:</p>
-\begin{align}
+\end{align}</p>
+<p>Thus, we can define our confidence bands as such:</p>
+<p>\begin{align}
 L(x) &amp;= max\{\hat{F}(x) - \epsilon, 0\} \\
 U(x) &amp;= min\{\hat{F}(x) + \epsilon, 1\} \tag{6}
-\end{align}<p>Now that we have the theory for generating confidence bands, let's simulate some situations to see it in action.</p>
+\end{align}</p>
+<p>Now that we have the theory for generating confidence bands, let's simulate some situations to see it in action.</p>
 
 </div>
 </div>
@@ -253,7 +260,10 @@ U(x) &amp;= min\{\hat{F}(x) + \epsilon, 1\} \tag{6}
 
 
 <div class="output_area">
+
 <div class="prompt"></div>
+
+
 
 
 <div class="output_png output_subarea ">
@@ -290,7 +300,10 @@ U(x) &amp;= min\{\hat{F}(x) + \epsilon, 1\} \tag{6}
 
 
 <div class="output_area">
+
 <div class="prompt"></div>
+
+
 
 
 <div class="output_png output_subarea ">
@@ -327,7 +340,10 @@ U(x) &amp;= min\{\hat{F}(x) + \epsilon, 1\} \tag{6}
 
 
 <div class="output_area">
+
 <div class="prompt"></div>
+
+
 
 
 <div class="output_png output_subarea ">
@@ -367,11 +383,11 @@ U(x) &amp;= min\{\hat{F}(x) + \epsilon, 1\} \tag{6}
 </ul>
 <h3 id="Notes">Notes<a class="anchor-link" href="#Notes">¶</a>
 </h3>
-<p>List of Notes: <sup class="footnote-ref" id="fnref-1"><a href="#fn-1" rel="footnote">1</a></sup></p>
+<p>List of Notes: <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup></p>
 <div class="footnotes">
 <hr>
 <ol>
-<li id="fn-1"><p>What's extremely interesting about the DKW inequality is that it was first proved by its namesake in 1956 with an unspecified multiplicative constant \(C\) on the RHS exponent.  It was only recently in 1990 that Pascal Massart proved that \(C=1\) confirming a long held conjecture.  1990 is pretty darn recent (in mathematical result terms)!<a href="#fnref-1" rev="footnote">↩</a></p></li>
+<li id="fn-1"><p>What's extremely interesting about the DKW inequality is that it was first proved by its namesake in 1956 with an unspecified multiplicative constant $C$ on the RHS exponent.  It was only recently in 1990 that Pascal Massart proved that $C=1$ confirming a long held conjecture.  1990 is pretty darn recent (in mathematical result terms)!<a href="#fnref-1" class="footnote">↩</a></p></li>
 </ol>
 </div>
 

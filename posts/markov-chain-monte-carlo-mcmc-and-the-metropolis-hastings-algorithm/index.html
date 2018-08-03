@@ -125,30 +125,32 @@
 </h4>
 <p>A <a href="https://en.wikipedia.org/wiki/Markov_chain">Markov Chain</a> is a "a random process that undergoes transitions from one state to another on a state space".  You can look up the formal definition on Wikipedia but informally, it's best described as a finite state machine where the transitions represent probabilities of going from one state to another.  Let's take a look at an example from Wikipedia of a <a href="https://en.wikipedia.org/wiki/Examples_of_Markov_chains#A_very_simple_weather_model">simple weather model</a> (image from Wikipedia):</p>
 <p><img src="../../images/weather_markov_chain.png" alt="simple markov chain"></p>
-<p>As you can see it looks just like a finish state machine except we've annotated the state transitions with probabilities.  For example, we can see if it's sunny today, there is a \(0.9\) chance of being sunny tomorrow and a \(0.1\) chance of being rainy.  Similarly starting in rainy state.  It should be clear that from a given state, all the outgoing transitions should total \(1.0\) since it's a proper distribution.</p>
-<p>Another way to represent this information is via a transition matrix \(P\):</p>
-\begin{align}
+<p>As you can see it looks just like a finish state machine except we've annotated the state transitions with probabilities.  For example, we can see if it's sunny today, there is a $0.9$ chance of being sunny tomorrow and a $0.1$ chance of being rainy.  Similarly starting in rainy state.  It should be clear that from a given state, all the outgoing transitions should total $1.0$ since it's a proper distribution.</p>
+<p>Another way to represent this information is via a transition matrix $P$:</p>
+<p>\begin{align}
 P = 
 \begin{bmatrix}
 0.9 &amp; 0.1 \\
 0.5 &amp; 0.5 \\
 \end{bmatrix}
-\end{align}<p>The interesting thing about representing it as a matrix is that we can simulate the Markov Chain just by doing matrix multiplications.  For example, suppose we start in a sunny state, we can represent that as the row vector:  \( {\bf x}^{(0)} = \begin{bmatrix}1 &amp; 0\end{bmatrix}\).  This implicitly represents that we're in the sunny state with probability \(1\), and thus in the rainy state with probability \(0\).  Now, if we perform that matrix multiplication we can find out the probabilities of being in each state after one step:</p>
-\begin{align}
+\end{align}</p>
+<p>The interesting thing about representing it as a matrix is that we can simulate the Markov Chain just by doing matrix multiplications.  For example, suppose we start in a sunny state, we can represent that as the row vector:  $ {\bf x}^{(0)} = \begin{bmatrix}1 &amp; 0\end{bmatrix}$.  This implicitly represents that we're in the sunny state with probability $1$, and thus in the rainy state with probability $0$.  Now, if we perform that matrix multiplication we can find out the probabilities of being in each state after one step:</p>
+<p>\begin{align}
 {\bf x}^{(1)} = 
 \begin{bmatrix}
 1 &amp; 0
 \end{bmatrix}
 \begin{bmatrix}
-0.9 &amp; 0.1 \\
-0.5 &amp; 0.5 \\
-\end{bmatrix}
-= 
-\begin{bmatrix}
+0.9 &amp; 0.1 \
+0.5 &amp; 0.5 \</p>
+<h2 id="\end{bmatrix}">\end{bmatrix}<a class="anchor-link" href="#%5Cend%7Bbmatrix%7D">¶</a>
+</h2>
+<p>\begin{bmatrix}
 0.9 &amp; 0.1
 \end{bmatrix}
-\end{align}<p>We can see that that there is a \(0.9\) chance of being sunny tomorrow (according to our simple model), and a \(0.1\) chance of being rainy.   We can actually keep multiplying the transition matrix through to find the chance of sun/rain \(k\) steps later:</p>
-\begin{align}
+\end{align}</p>
+<p>We can see that that there is a $0.9$ chance of being sunny tomorrow (according to our simple model), and a $0.1$ chance of being rainy.   We can actually keep multiplying the transition matrix through to find the chance of sun/rain $k$ steps later:</p>
+<p>\begin{align}
 {\bf x}^{(k)} = 
 \begin{bmatrix}
 1 &amp; 0
@@ -157,7 +159,8 @@ P =
 0.9 &amp; 0.1 \\
 0.5 &amp; 0.5 \\
 \end{bmatrix}^k
-\end{align}<p>We can easily compute, \({\bf x}^{(k)}\) for various values of \(k\) using <code>numpy</code>:</p>
+\end{align}</p>
+<p>We can easily compute, ${\bf x}^{(k)}$ for various values of $k$ using <code>numpy</code>:</p>
 
 </div>
 </div>
@@ -191,7 +194,10 @@ P =
 
 
 <div class="output_area">
+
 <div class="prompt"></div>
+
+
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>x^(0) = [1.0000 0.0000]
 x^(1) = [0.9000 0.1000]
@@ -239,7 +245,10 @@ x^(9) = [0.8334 0.1666]
 
 
 <div class="output_area">
+
 <div class="prompt"></div>
+
+
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>x^(0) = [0.3653 0.6347]
 x^(1) = [0.6461 0.3539]
@@ -264,14 +273,16 @@ x^(9) = [0.8332 0.1668]
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>This steady state distribution is called a <a href="https://en.wikipedia.org/wiki/Markov_chain#Steady-state_analysis_and_limiting_distributions">stationary distribution</a> usually denoted by \({\bf \pi}\).  This steady state vector \(\bf \pi\) can be found in several ways.  The most straight forward is by taking the limit as \(n\) approaches infinity.</p>
-\begin{align}
+<p>This steady state distribution is called a <a href="https://en.wikipedia.org/wiki/Markov_chain#Steady-state_analysis_and_limiting_distributions">stationary distribution</a> usually denoted by ${\bf \pi}$.  This steady state vector $\bf \pi$ can be found in several ways.  The most straight forward is by taking the limit as $n$ approaches infinity.</p>
+<p>\begin{align}
 {\bf q} = lim_{n \rightarrow \infty} {\bf x}^{(n)}  \tag{1}
-\end{align}<p>The next way is just by solving the equation.  Since \(\bf q\) by definition is the steady state, then multiplying by \(P\) should give the same value back:</p>
-\begin{align}
+\end{align}</p>
+<p>The next way is just by solving the equation.  Since $\bf q$ by definition is the steady state, then multiplying by $P$ should give the same value back:</p>
+<p>\begin{align}
 {\bf \pi}P = {\bf \pi} \\
 {\bf \pi}(P - I) = {\bf 0} \tag{2}
-\end{align}<p>where \(I\) is the identity matrix.  If you expand out our vector/matrix notation, you'll see that this is just a system of equations along with the additional constraint that \(\pi_1, \pi_2, ..., \pi_n\) all sum to \(1\) (i.e. \(\pi\) forms a probability distribution).  In our case with just two states: \(\pi_1 + \pi_2 = 1\).</p>
+\end{align}</p>
+<p>where $I$ is the identity matrix.  If you expand out our vector/matrix notation, you'll see that this is just a system of equations along with the additional constraint that $\pi_1, \pi_2, ..., \pi_n$ all sum to $1$ (i.e. $\pi$ forms a probability distribution).  In our case with just two states: $\pi_1 + \pi_2 = 1$.</p>
 <p>However, not every Markov Chain has a stationary distribution or even a unique one <a href="#fn-1"><sup>[1]</sup></a>.  But we can guarantee these properties if we add two additional constraints to the Markov Chain:</p>
 <ol>
 <li>
@@ -279,26 +290,27 @@ x^(9) = [0.8332 0.1668]
 <li>
 <em>Aperiodic</em>: the system never returns to the same state with a fixed period (e.g. not returning to start "sunny" deterministically every 5 steps).</li>
 </ol>
-<p>Together these two properties define the property <a href="http://nlp.stanford.edu/IR-book/html/htmledition/definition-1.html"><em>ergodic</em></a>.  An important theorem says that if a Markov Chain is ergodic then it has a unique steady state probability vector \(\bf \pi\).  In the context of MCMC, we can jump from any state to any other state (with some finite probability), trivially satisfying irreducibility.</p>
-<p>Another useful definition we'll use is that of <a href="https://en.wikipedia.org/wiki/Markov_chain#Reversible_Markov_chain">detailed balance and reversible Markov Chains</a>.  A Markov Chain is said to be reversible (also known as the detailed balance condition) if there exists a probability distribution \(\bf \pi\) that satisfies this condition:</p>
-\begin{align}
+<p>Together these two properties define the property <a href="http://nlp.stanford.edu/IR-book/html/htmledition/definition-1.html"><em>ergodic</em></a>.  An important theorem says that if a Markov Chain is ergodic then it has a unique steady state probability vector $\bf \pi$.  In the context of MCMC, we can jump from any state to any other state (with some finite probability), trivially satisfying irreducibility.</p>
+<p>Another useful definition we'll use is that of <a href="https://en.wikipedia.org/wiki/Markov_chain#Reversible_Markov_chain">detailed balance and reversible Markov Chains</a>.  A Markov Chain is said to be reversible (also known as the detailed balance condition) if there exists a probability distribution $\bf \pi$ that satisfies this condition:</p>
+<p>\begin{align}
 \pi_i P(X_{n+1} = j | X_{n} = i) = \pi_j P(X_{n+1} = i | X_{n} = j)  \tag{3}
-\end{align}<p>In other words, in the long run, the proportion of times that you transition from state \(i\) to state \(j\) is the same as the proportion of times you transition from state \(j\) to state \(i\).  In fact, if a Markov Chain is reversible then we know that it has a stationary distribution (which is why we use the same notation \(\bf \pi\)).  We'll need Equation 3 when we derive the Metropolis-Hastings algorithm.</p>
+\end{align}</p>
+<p>In other words, in the long run, the proportion of times that you transition from state $i$ to state $j$ is the same as the proportion of times you transition from state $j$ to state $i$.  In fact, if a Markov Chain is reversible then we know that it has a stationary distribution (which is why we use the same notation $\bf \pi$).  We'll need Equation 3 when we derive the Metropolis-Hastings algorithm.</p>
 <h4 id="Markov-Chain-Monte-Carlo-Methods">Markov Chain Monte Carlo Methods<a class="anchor-link" href="#Markov-Chain-Monte-Carlo-Methods">¶</a>
 </h4>
 <p>Markov Chain Monte Carlo (MCMC) methods are simply a class of algorithms that use Markov Chains to sample from a particular probability distribution (the Monte Carlo part).  They work by creating a Markov Chain where the limiting distribution (or stationary distribution) is simply the distribution we want to sample.</p>
-<p>Here's a picture that might help describe the process <a href="#fn-2"><sup>[2]</sup></a>.  Imagine we're trying to make a MCMC to try to sample an arbitrary one dimensional distribution with PDF \(f(x)\).  In this case, our states would be points along the \(x\)-axis and our transition probabilities would be the chance of going from one state to another.  Here's a simplified figure of the situation:</p>
+<p>Here's a picture that might help describe the process <a href="#fn-2"><sup>[2]</sup></a>.  Imagine we're trying to make a MCMC to try to sample an arbitrary one dimensional distribution with PDF $f(x)$.  In this case, our states would be points along the $x$-axis and our transition probabilities would be the chance of going from one state to another.  Here's a simplified figure of the situation:</p>
 <p><img src="../../images/mcmc.png" alt="simple markov chain"></p>
-<p>This figure shows the density function we're trying to approximate with the thick black line, and a visualization of part of the Markov Chain using the blue lines transitioning from orange states.  In particular, just the transitions from state \(X_0\) to \(X_i\) for  \(i=\{-3,-2,-1, 1, 2, 3\}\).  However, each point on the x-axis line is actually a potential state in this Markov Chain.  Notice that this means that we have an infinite state space, thus we can't represent the transitions nicely as a matrix anymore.  The real "trick" to MCMC methods is that we want to design the transition probabilities between states (or points on the x-axis) such that we spend most of our time in regions where \(f(x)\) is large, and relatively small amounts of time in regions where it is small (i.e. in the exact proportions to our density function).</p>
+<p>This figure shows the density function we're trying to approximate with the thick black line, and a visualization of part of the Markov Chain using the blue lines transitioning from orange states.  In particular, just the transitions from state $X_0$ to $X_i$ for  $i=\\{-3,-2,-1, 1, 2, 3\\}$.  However, each point on the x-axis line is actually a potential state in this Markov Chain.  Notice that this means that we have an infinite state space, thus we can't represent the transitions nicely as a matrix anymore.  The real "trick" to MCMC methods is that we want to design the transition probabilities between states (or points on the x-axis) such that we spend most of our time in regions where $f(x)$ is large, and relatively small amounts of time in regions where it is small (i.e. in the exact proportions to our density function).</p>
 <p>In the case of our figure, we'd want to spend most of our time around the center and less time around the outside. 
 In fact, if we simulate our Markov Chain long enough, the limiting distribution of states should approximate the PDF that we're trying to sample.  So the basic algorithm for sampling using a MCMC method amounts to:</p>
 <ol>
-<li>Start at an arbitrary point \(x\).</li>
-<li>Jump to point \(x'\) with a certain transition probability (this may mean staying in the same state).</li>
-<li>Go to step 2 until we have transitioned \(T\) times.</li>
-<li>Record current state \(x'\), go to step 2.</li>
+<li>Start at an arbitrary point $x$.</li>
+<li>Jump to point $x'$ with a certain transition probability (this may mean staying in the same state).</li>
+<li>Go to step 2 until we have transitioned $T$ times.</li>
+<li>Record current state $x'$, go to step 2.</li>
 </ol>
-<p>Now the proportionate number of times we spend at each point x-axis should be an approximation of the PDF we're trying to simulate i.e. if we plot the histogram of x-values, we should get the same shape.  Note that there is an extra step (3) that is required.  This is because when transitioning from state \(x\) to \(x'\) the points are obviously correlated (the probability of going to \(x'\) depends on the current state \(x\)).  However, when sampling we want <em>independent</em> samples.  So we basically throw away a bunch of our samples in order to ensure we get independent samples.  The value of \(T\) has to be picked depending on the details of our target distribution and the construction of the transition probabilities.</p>
+<p>Now the proportionate number of times we spend at each point x-axis should be an approximation of the PDF we're trying to simulate i.e. if we plot the histogram of x-values, we should get the same shape.  Note that there is an extra step (3) that is required.  This is because when transitioning from state $x$ to $x'$ the points are obviously correlated (the probability of going to $x'$ depends on the current state $x$).  However, when sampling we want <em>independent</em> samples.  So we basically throw away a bunch of our samples in order to ensure we get independent samples.  The value of $T$ has to be picked depending on the details of our target distribution and the construction of the transition probabilities.</p>
 
 </div>
 </div>
@@ -310,18 +322,19 @@ In fact, if we simulate our Markov Chain long enough, the limiting distribution 
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Rejection-Sampling">Rejection Sampling<a class="anchor-link" href="#Rejection-Sampling">¶</a>
 </h3>
-<p>Now before we get into a concrete algorithm for MCMC methods, I want to introduce another method for sampling a probability distribution that we'll be using later called <a href="https://en.wikipedia.org/wiki/Rejection_sampling">rejection sampling</a>.  The main idea is that if we're trying to sample from a distribution \(f(x)\), we'll use another instrumental distribution, \(g(x)\), to help sample from \(f(x)\).  The only restriction is that \(f(x) &lt; Mg(x)\) for some \(M &gt; 1\).  It's primary use is when the form of \(f(x)\) makes it hard to sample with directly (but still possible to evaluate it at any point \(x\)).</p>
+<p>Now before we get into a concrete algorithm for MCMC methods, I want to introduce another method for sampling a probability distribution that we'll be using later called <a href="https://en.wikipedia.org/wiki/Rejection_sampling">rejection sampling</a>.  The main idea is that if we're trying to sample from a distribution $f(x)$, we'll use another instrumental distribution, $g(x)$, to help sample from $f(x)$.  The only restriction is that $f(x) &lt; Mg(x)$ for some $M &gt; 1$.  It's primary use is when the form of $f(x)$ makes it hard to sample with directly (but still possible to evaluate it at any point $x$).</p>
 <p>Here's a breakdown of the algorithm:</p>
 <ol>
-<li>Sample \(x\) from  \(g(x)\).</li>
-<li>Sample \(y\) from \(U(0, Mg(x))\) (uniform distribution).</li>
-<li>If \(y &lt; f(x)\), then accept \(x\) as a sample for \(f(x)\), otherwise go to step 1.</li>
+<li>Sample $x$ from  $g(x)$.</li>
+<li>Sample $y$ from $U(0, Mg(x))$ (uniform distribution).</li>
+<li>If $y &lt; f(x)$, then accept $x$ as a sample for $f(x)$, otherwise go to step 1.</li>
 </ol>
-<p>The reason this works is that the uniform distribution helps us "scale" the envelope provided by \(Mg(x)\) down to the PDF of \(f(x)\).  Another way to look at it is the probability that we sample a point \(x_0\).  This is proportional to the probability of sampling \(x_0\) from \(g\) times the proportion of times we accept, which is simply given by the ratio between \(f(x_0)\) and \(Mg(x_0)\):</p>
-\begin{align}
+<p>The reason this works is that the uniform distribution helps us "scale" the envelope provided by $Mg(x)$ down to the PDF of $f(x)$.  Another way to look at it is the probability that we sample a point $x_0$.  This is proportional to the probability of sampling $x_0$ from $g$ times the proportion of times we accept, which is simply given by the ratio between $f(x_0)$ and $Mg(x_0)$:</p>
+<p>\begin{align}
 P(\text{sampling } x_0) \propto g(x_0) * \frac{f(x_0)}{Mg(x_0)} = \frac{f(x_0)}{M} \tag{4}
-\end{align}<p>Equation 4 tells us the probability of sampling an arbitrary point is proportional to \(f(x_0)\).  After sampling many points and finding the proportion of times that we see \(x_0\), the constant \(M\) is normalized out and we get the correct result for the PDF \(f(x)\).</p>
-<p>Let's take a look at it more visually with an example.  Our target distribution, \(f(x)\), that we want to sample from is <a href="http://scipy.github.io/devdocs/tutorial/stats/continuous_dgamma.html">double gamma</a> distribution, basically a two-sided gamma distribution.  We'll be using a normal distribution, \(g(x)\), as our envelope distribution.  From my last post, we know how to <a href="../sampling-from-a-normal-distribution">sample from a normal distribution</a> using just only a couple of uniform random variables.  The code below shows us how to find the scaling constant \(M\) as well as draws us a picture of how the rejection sampling conceptually works.</p>
+\end{align}</p>
+<p>Equation 4 tells us the probability of sampling an arbitrary point is proportional to $f(x_0)$.  After sampling many points and finding the proportion of times that we see $x_0$, the constant $M$ is normalized out and we get the correct result for the PDF $f(x)$.</p>
+<p>Let's take a look at it more visually with an example.  Our target distribution, $f(x)$, that we want to sample from is <a href="http://scipy.github.io/devdocs/tutorial/stats/continuous_dgamma.html">double gamma</a> distribution, basically a two-sided gamma distribution.  We'll be using a normal distribution, $g(x)$, as our envelope distribution.  From my last post, we know how to <a href="../sampling-from-a-normal-distribution">sample from a normal distribution</a> using just only a couple of uniform random variables.  The code below shows us how to find the scaling constant $M$ as well as draws us a picture of how the rejection sampling conceptually works.</p>
 
 </div>
 </div>
@@ -369,7 +382,10 @@ P(\text{sampling } x_0) \propto g(x_0) * \frac{f(x_0)}{Mg(x_0)} = \frac{f(x_0)}{
 
 
 <div class="output_area">
+
 <div class="prompt output_prompt">Out[7]:</div>
+
+
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -379,7 +395,10 @@ P(\text{sampling } x_0) \propto g(x_0) * \frac{f(x_0)}{Mg(x_0)} = \frac{f(x_0)}{
 </div>
 
 <div class="output_area">
+
 <div class="prompt"></div>
+
+
 
 
 <div class="output_png output_subarea ">
@@ -397,7 +416,7 @@ P(\text{sampling } x_0) \propto g(x_0) * \frac{f(x_0)}{Mg(x_0)} = \frac{f(x_0)}{
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>From the figure, once we find a sample for \(g(x)\) (in this case \(x=2\)), we draw from a uniform distribution with range equal to the height of \(Mg(x)\).  If it's within the height of the target PDF, we accept it (green), otherwise reject (reject).</p>
+<p>From the figure, once we find a sample for $g(x)$ (in this case $x=2$), we draw from a uniform distribution with range equal to the height of $Mg(x)$.  If it's within the height of the target PDF, we accept it (green), otherwise reject (reject).</p>
 <h4 id="Implementing-Rejection-Sampling">Implementing Rejection Sampling<a class="anchor-link" href="#Implementing-Rejection-Sampling">¶</a>
 </h4>
 <p>The code below implements rejection sampling for our target double gamma distribution.  It plots the scaled histogram and matches it up with the theoretical PDF we should get.</p>
@@ -438,7 +457,10 @@ P(\text{sampling } x_0) \propto g(x_0) * \frac{f(x_0)}{Mg(x_0)} = \frac{f(x_0)}{
 
 
 <div class="output_area">
+
 <div class="prompt output_prompt">Out[8]:</div>
+
+
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -448,7 +470,10 @@ P(\text{sampling } x_0) \propto g(x_0) * \frac{f(x_0)}{Mg(x_0)} = \frac{f(x_0)}{
 </div>
 
 <div class="output_area">
+
 <div class="prompt"></div>
+
+
 
 
 <div class="output_png output_subarea ">
@@ -467,7 +492,7 @@ P(\text{sampling } x_0) \propto g(x_0) * \frac{f(x_0)}{Mg(x_0)} = \frac{f(x_0)}{
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Overall quite a good fit from our rejection sampler.  No doubt drawing more samples would improve the fit compared to the theoretical distribution.</p>
-<p>The great part of rejection sampling is that it's easy to implement (just a few lines in Python) but there is a major drawback: it's slow.  You can see from the figure above, the distance between the envelope distribution and the target is quite large.  This basically amounts to "wasted" computation we need to do when computing \(f(x)\).  In general, it is difficult to find an efficient envelope distribution that doesn't have too much "waste".  When extending this method to higher dimensions, it becomes even more difficult because the ratio of "actual" space vs "wasted" space tends toward zero as the dimensions increase (see <a href="https://en.wikipedia.org/wiki/Curse_of_dimensionality">curse of dimensionality</a>) resulting in a highly inefficient algorithm.  Our next algorithm using an MCMC method doesn't suffer the same fate (at least not to the same extent) and uses the idea of rejection sampling as part of its algorithm.</p>
+<p>The great part of rejection sampling is that it's easy to implement (just a few lines in Python) but there is a major drawback: it's slow.  You can see from the figure above, the distance between the envelope distribution and the target is quite large.  This basically amounts to "wasted" computation we need to do when computing $f(x)$.  In general, it is difficult to find an efficient envelope distribution that doesn't have too much "waste".  When extending this method to higher dimensions, it becomes even more difficult because the ratio of "actual" space vs "wasted" space tends toward zero as the dimensions increase (see <a href="https://en.wikipedia.org/wiki/Curse_of_dimensionality">curse of dimensionality</a>) resulting in a highly inefficient algorithm.  Our next algorithm using an MCMC method doesn't suffer the same fate (at least not to the same extent) and uses the idea of rejection sampling as part of its algorithm.</p>
 
 </div>
 </div>
@@ -479,39 +504,44 @@ P(\text{sampling } x_0) \propto g(x_0) * \frac{f(x_0)}{Mg(x_0)} = \frac{f(x_0)}{
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Metropolis-Hastings-Algorithm">Metropolis-Hastings Algorithm<a class="anchor-link" href="#Metropolis-Hastings-Algorithm">¶</a>
 </h3>
-<p>The <a href="https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm">Metropolis-Hastings Algorithm</a> (MH) is an MCMC technique that draws samples from a probability distribution where direct sampling is difficult.  The restriction on MH is actually even more lax compared to rejection sampling: for a given probability density function \(p(x)\), we only require that we have a function \(f(x)\) that is <em>proportional</em> to \(p(x)\)!  This is extremely useful when sampling posterior distributions in <a href="https://en.wikipedia.org/wiki/Bayesian_inference">Bayesian inference</a> where the marginal likelihood (the denominator) is usually not explicitly computed.  However, MCMC methods have their drawbacks too as we shall see.</p>
+<p>The <a href="https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm">Metropolis-Hastings Algorithm</a> (MH) is an MCMC technique that draws samples from a probability distribution where direct sampling is difficult.  The restriction on MH is actually even more lax compared to rejection sampling: for a given probability density function $p(x)$, we only require that we have a function $f(x)$ that is <em>proportional</em> to $p(x)$!  This is extremely useful when sampling posterior distributions in <a href="https://en.wikipedia.org/wiki/Bayesian_inference">Bayesian inference</a> where the marginal likelihood (the denominator) is usually not explicitly computed.  However, MCMC methods have their drawbacks too as we shall see.</p>
 <h4 id="Derivation-of-the-Metropolis-Hastings-Algorithm">Derivation of the Metropolis-Hastings Algorithm<a class="anchor-link" href="#Derivation-of-the-Metropolis-Hastings-Algorithm">¶</a>
 </h4>
-<p>To derive the Metropolis-Hastings algorithm, we first start with our end goal: creating a Markov Chain where the steady state distribution is equal to our target distribution, \(p(x)\).  In terms of the Markov Chain, we already know what the state space will be: the support of the probability distribution i.e. the x-values.  Thus (assuming correct construction of the Markov Chain) the steady-state distribution that we end up with will simply be \(p(x)\).  What's left is determining the transition probabilities between these x-values such that we can achieve this steady-state behavior.</p>
+<p>To derive the Metropolis-Hastings algorithm, we first start with our end goal: creating a Markov Chain where the steady state distribution is equal to our target distribution, $p(x)$.  In terms of the Markov Chain, we already know what the state space will be: the support of the probability distribution i.e. the x-values.  Thus (assuming correct construction of the Markov Chain) the steady-state distribution that we end up with will simply be $p(x)$.  What's left is determining the transition probabilities between these x-values such that we can achieve this steady-state behavior.</p>
 <p>Recall Equation 3, the detailed balance condition for Markov Chains, written here in another way:</p>
-\begin{align}
+<p>\begin{align}
 p(x) P(x \rightarrow x') = p(x') P(x' \rightarrow x)  \tag{5}
-\end{align}<p>Here \(p(x)\) is our target distribution, and \(P(x \rightarrow x')\) is the transition probability going from point \(x\) to point \(x'\).  So our goal is to determine the form of \(P(x \rightarrow x')\).  Since we get to construct the Markov Chain, let's start off by using Equation 5 as the basis for that construction.  Remember, the detailed balance condition guarantees that our Markov Chain will have a stationary distribution (that it exists).  Additionally, if we include ergodicity too (not repeating states at fixed intervals and every state much be able to reach any other state eventually), we will have built a Markov Chain that has a unique stationary distribution, \(p(x)\).</p>
+\end{align}</p>
+<p>Here $p(x)$ is our target distribution, and $P(x \rightarrow x')$ is the transition probability going from point $x$ to point $x'$.  So our goal is to determine the form of $P(x \rightarrow x')$.  Since we get to construct the Markov Chain, let's start off by using Equation 5 as the basis for that construction.  Remember, the detailed balance condition guarantees that our Markov Chain will have a stationary distribution (that it exists).  Additionally, if we include ergodicity too (not repeating states at fixed intervals and every state much be able to reach any other state eventually), we will have built a Markov Chain that has a unique stationary distribution, $p(x)$.</p>
 <p>We can we re-arrange Equation 5 as:</p>
-\begin{align}
+<p>\begin{align}
 \frac{P(x \rightarrow x')}{P(x' \rightarrow x)} = \frac{p(x')}{p(x)} = \frac{f(x')}{f(x)} \tag{6}
-\end{align}<p>Here we use \(f(x)\) to represent a function that is <em>proportional</em> to \(p(x)\).  This is to emphasize that we don't explicitly need \(p(x)\), just something proportional to it such that the ratios work out to the same thing.  Now the "trick" here is that we're going to break up \(P(x \rightarrow x')\) into two independent steps: a proposal distribution \(g(x \rightarrow x')\) and an acceptance distribution \(A(x \rightarrow x')\) (similar to how rejection sampling works).  Since they're independent, our transition probability is just the multiplication of the two:</p>
-\begin{align}
+\end{align}</p>
+<p>Here we use $f(x)$ to represent a function that is <em>proportional</em> to $p(x)$.  This is to emphasize that we don't explicitly need $p(x)$, just something proportional to it such that the ratios work out to the same thing.  Now the "trick" here is that we're going to break up $P(x \rightarrow x')$ into two independent steps: a proposal distribution $g(x \rightarrow x')$ and an acceptance distribution $A(x \rightarrow x')$ (similar to how rejection sampling works).  Since they're independent, our transition probability is just the multiplication of the two:</p>
+<p>\begin{align}
 P(x \rightarrow x') = g(x \rightarrow x') A(x \rightarrow x') \tag{7}
-\end{align}<p>At this point, we have to figure out what an appropriate choice for \(g(x)\) and \(A(x)\) will be.  Since \(g(x)\) is the "proposal distribution", it decides the next point we will potentially be sampling.  Thus, it's important that it have the same support as our target distribution \(p(x)\) (ergodicity condition).  A typical choice here would be the normal distribution centered on the current state.  Now given a fixed proposal distribution \(g(x)\), we wish to find an \(A(x)\) that matches.  Re-writing Equation 6 and substituting in Equation 7:</p>
-\begin{align}
+\end{align}</p>
+<p>At this point, we have to figure out what an appropriate choice for $g(x)$ and $A(x)$ will be.  Since $g(x)$ is the "proposal distribution", it decides the next point we will potentially be sampling.  Thus, it's important that it have the same support as our target distribution $p(x)$ (ergodicity condition).  A typical choice here would be the normal distribution centered on the current state.  Now given a fixed proposal distribution $g(x)$, we wish to find an $A(x)$ that matches.  Re-writing Equation 6 and substituting in Equation 7:</p>
+<p>\begin{align}
 \frac{A(x \rightarrow x')}{A(x' \rightarrow x)} = \frac{f(x')}{f(x)}\frac{g(x' \rightarrow x)}{g(x \rightarrow x')} \tag{8}
-\end{align}<p>Although not obvious, a typical choice for \(A(x)\) that satisfies Equation 8 is:</p>
-\begin{align}
+\end{align}</p>
+<p>Although not obvious, a typical choice for $A(x)$ that satisfies Equation 8 is:</p>
+<p>\begin{align}
 A(x \rightarrow x') = min(1, \frac{f(x')g(x' \rightarrow x)}{f(x)g(x \rightarrow x')}) \tag{9}
-\end{align}<p>We can see that by considering the cases where \(\frac{f(x')g(x' \rightarrow x)}{f(x)g(x \rightarrow x')}\) is less than or equal to 1 and the cases when it is greater than 1.  When it's less than or equal to 1, it's inverse is greater than 1, thus the denominator of the LHS, \(A(x' \rightarrow x)\), of Equation 8 is 1, while the numerator is equal to the RHS.  Alternatively, when \(\frac{f(x')g(x' \rightarrow x)}{f(x)g(x \rightarrow x')}\) is greater than one the LHS numerator is 1, while the denominator is just the reciprocal of the RHS, resulting in the LHS equaling the RHS.</p>
-<p>With that, we've shown that the steady state of the Markov Chain we've created will be equal to our target distribution (\(p(x)\)) because the detailed balance condition is satisfied (Equation 5) by construction.  So the overall algorithm would be (which matches closely to the MCMC algorithm above):</p>
+\end{align}</p>
+<p>We can see that by considering the cases where $\frac{f(x')g(x' \rightarrow x)}{f(x)g(x \rightarrow x')}$ is less than or equal to 1 and the cases when it is greater than 1.  When it's less than or equal to 1, it's inverse is greater than 1, thus the denominator of the LHS, $A(x' \rightarrow x)$, of Equation 8 is 1, while the numerator is equal to the RHS.  Alternatively, when $\frac{f(x')g(x' \rightarrow x)}{f(x)g(x \rightarrow x')}$ is greater than one the LHS numerator is 1, while the denominator is just the reciprocal of the RHS, resulting in the LHS equaling the RHS.</p>
+<p>With that, we've shown that the steady state of the Markov Chain we've created will be equal to our target distribution ($p(x)$) because the detailed balance condition is satisfied (Equation 5) by construction.  So the overall algorithm would be (which matches closely to the MCMC algorithm above):</p>
 <ol>
-<li>Initialize the initial state by picking a random \(x\).</li>
-<li>Find new \(x'\) according to \(g(x \rightarrow x')\).</li>
-<li>Accept \(x'\) with uniform probability according to \(A(x \rightarrow x')\).  If accepted transition to \(x'\), otherwise stay in state \(x\).</li>
+<li>Initialize the initial state by picking a random $x$.</li>
+<li>Find new $x'$ according to $g(x \rightarrow x')$.</li>
+<li>Accept $x'$ with uniform probability according to $A(x \rightarrow x')$.  If accepted transition to $x'$, otherwise stay in state $x$.</li>
 <li>Go to step 2, T times.</li>
-<li>Save state \(x\) as a sample, go to step 2 to sample another point. </li>
+<li>Save state $x$ as a sample, go to step 2 to sample another point. </li>
 </ol>
 <h4 id="Burn-In-and-Correlated-Samples">Burn-In and Correlated Samples<a class="anchor-link" href="#Burn-In-and-Correlated-Samples">¶</a>
 </h4>
-<p>Before we move on to the implementation, we need to talk about two very important topics with respect to MCMC methods.  The first topic relates to the initial state we pick.  Since we randomly pick a value for \(x\), it's quite possible that it is in a region where \(p(x)\) is quite small (think the tail ends of our double gamma distribution).  If it starts here, it might spend a disproportionate amount of time traversing through \(x\) values with low density, thus incorrectly giving us the sense that these \(x\) values should occur more often then they do.  So the solution to this is to "burn-in"  <a href="#fn-3"><sup>[3]</sup></a> the sampler by generating a bunch of samples and throwing them away.  The number of samples will depend on the specifics of the distribution we're trying to simulate.</p>
-<p>The second problem, which we mentioned above, is the correlation between two adjacent samples.  Since by definition of our transition function \(P(x \rightarrow x')\), drawing \(x'\) is dependent on current state \(x\). Thus, we lose one vital property of our samples: independence.  To correct for this, we draw \(T^{th}\) samples, and only record the last one drawn.  Assuming \(T\) is large enough, the samples should be relatively independent.  Like the burn-in, the value of \(T\) depends on the target and proposal distribution.</p>
+<p>Before we move on to the implementation, we need to talk about two very important topics with respect to MCMC methods.  The first topic relates to the initial state we pick.  Since we randomly pick a value for $x$, it's quite possible that it is in a region where $p(x)$ is quite small (think the tail ends of our double gamma distribution).  If it starts here, it might spend a disproportionate amount of time traversing through $x$ values with low density, thus incorrectly giving us the sense that these $x$ values should occur more often then they do.  So the solution to this is to "burn-in"  <a href="#fn-3"><sup>[3]</sup></a> the sampler by generating a bunch of samples and throwing them away.  The number of samples will depend on the specifics of the distribution we're trying to simulate.</p>
+<p>The second problem, which we mentioned above, is the correlation between two adjacent samples.  Since by definition of our transition function $P(x \rightarrow x')$, drawing $x'$ is dependent on current state $x$. Thus, we lose one vital property of our samples: independence.  To correct for this, we draw $T^{th}$ samples, and only record the last one drawn.  Assuming $T$ is large enough, the samples should be relatively independent.  Like the burn-in, the value of $T$ depends on the target and proposal distribution.</p>
 
 </div>
 </div>
@@ -523,14 +553,16 @@ A(x \rightarrow x') = min(1, \frac{f(x')g(x' \rightarrow x)}{f(x)g(x \rightarrow
 <div class="text_cell_render border-box-sizing rendered_html">
 <h4 id="Implementing-the-Metropolis-Hastings-Algorithm">Implementing the Metropolis-Hastings Algorithm<a class="anchor-link" href="#Implementing-the-Metropolis-Hastings-Algorithm">¶</a>
 </h4>
-<p>Let's use our example from above of a double gamma distribution.  And let's define our proposal distribution as a normal distribution centered at \(x\) and standard deviation \(2\), N(x, 2) (remember \(x\) is given as the current state):</p>
-\begin{align}
+<p>Let's use our example from above of a double gamma distribution.  And let's define our proposal distribution as a normal distribution centered at $x$ and standard deviation $2$, N(x, 2) (remember $x$ is given as the current state):</p>
+<p>\begin{align}
 g(x \rightarrow x') = f_{N(x,2)}(x) \tag{10}
-\end{align}<p>Given \(f(x)\) proportional to our underlying distribution \(p(x)\) our accepting distribution looks like this:</p>
-\begin{align}
+\end{align}</p>
+<p>Given $f(x)$ proportional to our underlying distribution $p(x)$ our accepting distribution looks like this:</p>
+<p>\begin{align}
 A(x \rightarrow x') = min(1, \frac{f(x')f_{N(x',2)}(x)}{f(x)f_{N(x,2)}(x')}) 
                     = min(1, \frac{f(x')}{f(x)}) \tag{11}
-\end{align}<p>since the normal distribution is symmetric, the PDFs of the normal distributions cancel out when evaluated at their respective points. Now let's take a look at some code:</p>
+\end{align}</p>
+<p>since the normal distribution is symmetric, the PDFs of the normal distributions cancel out when evaluated at their respective points. Now let's take a look at some code:</p>
 
 </div>
 </div>
@@ -584,7 +616,10 @@ A(x \rightarrow x') = min(1, \frac{f(x')f_{N(x',2)}(x)}{f(x)f_{N(x,2)}(x')})
 
 
 <div class="output_area">
+
 <div class="prompt"></div>
+
+
 
 
 <div class="output_png output_subarea ">
@@ -594,7 +629,10 @@ A(x \rightarrow x') = min(1, \frac{f(x')f_{N(x',2)}(x)}{f(x)f_{N(x,2)}(x')})
 </div>
 
 <div class="output_area">
+
 <div class="prompt output_prompt">Out[28]:</div>
+
+
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -604,7 +642,10 @@ A(x \rightarrow x') = min(1, \frac{f(x')f_{N(x',2)}(x)}{f(x)f_{N(x,2)}(x')})
 </div>
 
 <div class="output_area">
+
 <div class="prompt"></div>
+
+
 
 
 <div class="output_png output_subarea ">
@@ -622,7 +663,7 @@ A(x \rightarrow x') = min(1, \frac{f(x')f_{N(x',2)}(x)}{f(x)f_{N(x,2)}(x')})
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>As we can see visually, the samples from our MH sampler are a good approximation to our double gamma distribution.  Additionally, looking at the autocorrelation plot, we can see that it's quite small across our entire sample, indicating that they are relatively independent.  If we had not picked a good value for \(T\) or not had a burn-in period, we would we would likely see large values in the plot.</p>
+<p>As we can see visually, the samples from our MH sampler are a good approximation to our double gamma distribution.  Additionally, looking at the autocorrelation plot, we can see that it's quite small across our entire sample, indicating that they are relatively independent.  If we had not picked a good value for $T$ or not had a burn-in period, we would we would likely see large values in the plot.</p>
 
 </div>
 </div>
@@ -658,13 +699,13 @@ A(x \rightarrow x') = min(1, \frac{f(x')f_{N(x',2)}(x)}{f(x)f_{N(x,2)}(x')})
 </ul>
 <h3 id="Notes">Notes<a class="anchor-link" href="#Notes">¶</a>
 </h3>
-<p>List of Notes: <sup class="footnote-ref" id="fnref-1"><a href="#fn-1" rel="footnote">1</a></sup>, <sup class="footnote-ref" id="fnref-2"><a href="#fn-2" rel="footnote">2</a></sup>, <sup class="footnote-ref" id="fnref-3"><a href="#fn-3" rel="footnote">3</a></sup></p>
+<p>List of Notes: <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup>, <sup class="footnote-ref" id="fnref-2"><a href="#fn-2">2</a></sup>, <sup class="footnote-ref" id="fnref-3"><a href="#fn-3">3</a></sup></p>
 <div class="footnotes">
 <hr>
 <ol>
-<li id="fn-1"><p>Two examples: a Markov Chain that always just stays in the state it's currently in (non-unique steady state) and a Markov Chain that deterministically alternates between two states (no steady state).<a href="#fnref-1" rev="footnote">↩</a></p></li>
-<li id="fn-2"><p>Here I'm describing <a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo#Random_walk_Monte_Carlo_methods">random walk MCMC methods</a>.  There are other types but these are by far the most common when talking about MCMC methods especially in the context of Bayesian inference techniques.<a href="#fnref-2" rev="footnote">↩</a></p></li>
-<li id="fn-3"><p>The term burn-in is taken from the corresponding concept where physical components (such as electronics) are exercised prior to being put in production in order to sort out any of the potentially flawed components.  See: <a href="https://en.wikipedia.org/wiki/Burn-in">https://en.wikipedia.org/wiki/Burn-in</a><a href="#fnref-3" rev="footnote">↩</a></p></li>
+<li id="fn-1"><p>Two examples: a Markov Chain that always just stays in the state it's currently in (non-unique steady state) and a Markov Chain that deterministically alternates between two states (no steady state).<a href="#fnref-1" class="footnote">↩</a></p></li>
+<li id="fn-2"><p>Here I'm describing <a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo#Random_walk_Monte_Carlo_methods">random walk MCMC methods</a>.  There are other types but these are by far the most common when talking about MCMC methods especially in the context of Bayesian inference techniques.<a href="#fnref-2" class="footnote">↩</a></p></li>
+<li id="fn-3"><p>The term burn-in is taken from the corresponding concept where physical components (such as electronics) are exercised prior to being put in production in order to sort out any of the potentially flawed components.  See: <a href="https://en.wikipedia.org/wiki/Burn-in">https://en.wikipedia.org/wiki/Burn-in</a><a href="#fnref-3" class="footnote">↩</a></p></li>
 </ol>
 </div>
 

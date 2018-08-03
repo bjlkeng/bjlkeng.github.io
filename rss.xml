@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality</title><link>http://bjlkeng.github.io/</link><description>Understanding math, machine learning, and data to a satisfactory degree.</description><atom:link href="http://bjlkeng.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sun, 17 Jun 2018 13:09:00 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Hyperbolic Geometry and Poincaré Embeddings</title><link>http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is finally going to get back to some ML related topics.
+<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality</title><link>http://bjlkeng.github.io/</link><description>Understanding math, machine learning, and data to a satisfactory degree.</description><atom:link href="http://bjlkeng.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Fri, 03 Aug 2018 12:41:30 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Universal ResNet: The One-Neuron Approximator</title><link>http://bjlkeng.github.io/posts/universal-resnet-the-one-neuron-approximator/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;&lt;em&gt;"In theory, theory and practice are the same. In practice, they are not."&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;I read a very interesting paper titled &lt;em&gt;ResNet with one-neuron hidden layers is
+a Universal Approximator&lt;/em&gt; by Lin and Jegelka [1].
+The paper describes a simplified Residual Network as a universal approximator,
+giving some theoretical backing to the wildly successful ResNet architecture.
+In this post, I'm going to talk about this paper and a few of the related
+universal approximation theorems for neural networks.
+Instead of going through all the theoretical stuff, I'm simply going introduce
+some theorems and play around with some toy datasets to see if we can get close
+to the theoretical limits.&lt;/p&gt;
+&lt;p&gt;(You might also want to checkout my previous post where I played around with
+ResNets: &lt;a class="reference external" href="http://bjlkeng.github.io/posts/residual-networks"&gt;Residual Networks&lt;/a&gt;)&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/universal-resnet-the-one-neuron-approximator/"&gt;Read more…&lt;/a&gt; (11 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>hidden layers</category><category>mathjax</category><category>neural networks</category><category>residual networks</category><category>ResNet</category><category>universal approximator</category><guid>http://bjlkeng.github.io/posts/universal-resnet-the-one-neuron-approximator/</guid><pubDate>Fri, 03 Aug 2018 12:03:28 GMT</pubDate></item><item><title>Hyperbolic Geometry and Poincaré Embeddings</title><link>http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is finally going to get back to some ML related topics.
 In fact, the original reason I took that whole math-y detour in the previous
 posts was to more deeply understand this topic.  It turns out trying to
 under tensor calculus and differential geometry (even to a basic level) takes a
@@ -142,25 +154,4 @@ winner the ranking of the participants is not clear.&lt;/p&gt;
 Rubikrew table tennis players. So, I did what any data scientist would do
 and I built a model.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;p&gt;Enjoy!&lt;/p&gt;&lt;/div&gt;</description><category>Bradley-Terry</category><category>ping pong</category><category>ranking</category><category>Rubikloud</category><category>table tennis</category><guid>http://bjlkeng.github.io/posts/building-a-table-tennis-ranking-model/</guid><pubDate>Wed, 19 Jul 2017 12:51:41 GMT</pubDate></item><item><title>A Variational Autoencoder on the SVHN dataset</title><link>http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;In this post, I'm going to share some notes on implementing a variational
-autoencoder (VAE) on the
-&lt;a class="reference external" href="http://ufldl.stanford.edu/housenumbers/"&gt;Street View House Numbers&lt;/a&gt;
-(SVHN) dataset.  My last post on
-&lt;a class="reference external" href="http://bjlkeng.github.io/posts/variational-autoencoders"&gt;variational autoencoders&lt;/a&gt;
-showed a simple example on the MNIST dataset but because it was so simple I
-thought I might have missed some of the subtler points of VAEs -- boy was I
-right!  The fact that I'm not really a computer vision guy nor a deep learning
-guy didn't help either.  Through this exercise, I picked up some of the basics
-in the "craft" of computer vision/deep learning area; there are a lot of subtle
-points that are easy to gloss over if you're just reading someone else's
-tutorial.  I'll share with you some of the details in the math (that I
-initially got wrong) and also some of the implementation notes along with a
-notebook that I used to train the VAE.  Please check out my previous post
-on &lt;a class="reference external" href="http://bjlkeng.github.io/posts/variational-autoencoders"&gt;variational autoencoders&lt;/a&gt; to
-get some background.&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;Update 2017-08-09: I actually found a bug in my original code where I was
-only using a small subset of the data!  I fixed it up in the notebooks and
-I've added some inline comments below to say what I've changed.  For the most
-part, things have stayed the same but the generated images are a bit blurry
-because the dataset isn't so easy anymore.&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset/"&gt;Read more…&lt;/a&gt; (19 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoencoders</category><category>generative models</category><category>Kullback-Leibler</category><category>mathjax</category><category>svhn</category><category>variational calculus</category><guid>http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset/</guid><pubDate>Thu, 13 Jul 2017 12:13:03 GMT</pubDate></item></channel></rss>
+&lt;p&gt;Enjoy!&lt;/p&gt;&lt;/div&gt;</description><category>Bradley-Terry</category><category>ping pong</category><category>ranking</category><category>Rubikloud</category><category>table tennis</category><guid>http://bjlkeng.github.io/posts/building-a-table-tennis-ranking-model/</guid><pubDate>Wed, 19 Jul 2017 12:51:41 GMT</pubDate></item></channel></rss>
