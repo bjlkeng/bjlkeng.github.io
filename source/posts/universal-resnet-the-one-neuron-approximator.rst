@@ -1,6 +1,6 @@
 .. title: Universal ResNet: The One-Neuron Approximator
 .. slug: universal-resnet-the-one-neuron-approximator
-.. date: 2018-07-23 08:03:28 UTC-04:00
+.. date: 2018-08-03 08:03:28 UTC-04:00
 .. tags: ResNet, residual networks, hidden layers, neural networks, universal approximator, mathjax
 .. category: 
 .. link: 
@@ -72,7 +72,7 @@ some weight to its spectacular empirical results.  I'll paraphrase the theorem
 here (if you're really interested in the math click on the Wikipedia link):
 
     The **universal approximation theorem** states that a feed-forward
-    networks with a single hidden layer containing a finite number of neurons
+    network with a single hidden layer containing a finite number of neurons
     can approximate functions on compact sets on :math:`\mathbb{R}^n`, under
     mild assumptions of the activation function (non-constant,
     monotonically-increasing, continuous).
@@ -170,8 +170,9 @@ Given the above ResNet architecture, the universal approximation theorem from
 
 This is a pretty surprising statement!  Remember, this architecture's only
 non-linear element is a bottleneck with a *single* neuron!  However,
-this does somehow imply the power of Residual Networks because even with a single
-neuron it is powerful enough to represent any function.
+this theorem somehow gives credibility to the power of Residual Networks
+because even with a single neuron it is powerful enough to represent any
+function.
 
 |H2| Experiments |H2e|
 
@@ -219,7 +220,7 @@ each configuration.
 
 +-------------+-------------------------------+--------------------------------+--------------------------------+
 |             |              Easy             |             Medium             |          Hard                  |
-+-------------+-------------------------------+--------------------------------+--------------------------------+
++-------------+--------+-------------+--------+------------+---------+---------+--------+---------+-------------+
 |             | D=5    | D=10        | D=40   | D=5        | D=10    | D=40    | D=5    | D=10    | D=40        |
 +-------------+--------+-------------+--------+------------+---------+---------+--------+---------+-------------+
 |    ResNet   | 98 ± 1 | **99 ± 0**  | 98 ± 2 | 85 ± 8     | 95 ± 3  | 98 ± 2  | 67 ± 3 | 73 ± 3  | **88 ± 4**  |
@@ -227,22 +228,22 @@ each configuration.
 | Dense (W=2) | 86 ± 0 | 86 ± 0      | 86 ± 0 | 77 ± 0     | 77 ± 0  | 77 ± 0  | 62 ± 2 | 62 ± 0  | 62 ± 0      |
 +-------------+--------+-------------+--------+------------+---------+---------+--------+---------+-------------+
 | Dense (W=6) | 99 ± 0 | 99 ± 1      | 88 ± 6 | **99 ± 1** | 97 ± 6  | 77 ± 0  | 85 ± 5 | 75 ± 8  | 62 ± 0      |
-+-------------+--------+-------------+--------+--------+---------+-------------+------------+---------+---------+
++-------------+--------+-------------+--------+------------+---------+---------+--------+---------+-------------+
 
 We can see in Table 1 that ResNet has pretty consistent performance.  As we
 increase the depth, it's able to successfully translate the increased capacity
 into accuracy gains.  Not only that, it shows the best best performance in the
 easy and hard datasets, while being pretty close on the medium one.
 The fact that we are able to train a network so deep shows the uncanny ability
-of ResNet architectures to train deep networks (as compared to the dense ones
-below).  So the ResNet universal approximation theorem for ResNet seems to be
+of ResNet architectures to train deep networks (as compared to the dense
+layers).  So the ResNet universal approximation theorem for ResNet seems to be
 holding up somewhat.
 
 For the dense networks with width=2, it is totally incapable of learning
 anything useful.  The accuracies reported are actually just the underlying
-ratio of positive to negative labels (see figures in Appendix A).  This
-confirms the negative result of the width bounded universal approximation
-theorem.
+ratio of positive to negative labels where it pretty much just learned the
+constant function (see figures in Appendix A).  This confirms the negative
+result of the width bounded universal approximation theorem.
 
 At width=6, the dense network shows more mixed results.  It performs quite well
 at depths 5 and 10, even producing the best result on the medium dataset at
@@ -264,28 +265,28 @@ results didn't change much.)
 | Medium | 79 ± 2 | 86 ± 8  | 97 ± 3  | **99 ± 1**  | 97 ± 2      |
 +--------+--------+---------+---------+-------------+-------------+
 | Hard   | 66 ± 2 | 68 ± 4  | 77 ± 3  | **81 ± 1**  | 78 ± 1      |
-+--------+--------+---------+---------+------------+--------------+
++--------+--------+---------+---------+-------------+-------------+
 
 Taking a look at similar results with a single hidden layer architecture
 in Table 2, we see that the original universal approximation theorem shows more
 consistent results.  Each increase in width is better than the previous except
-at the W=300 where it performs pretty close to the width below it.  It performs
+at W=300 where it performs pretty close to the width below it.  It performs
 on-par with the above architectures except on the hard where it performs
 slightly worse.  However, we can see the results across the board are much more
 consistent (smaller standard deviation).  This indicates that the single hidden
 layer is also the easier to fit (no vanishing gradients).  However, it's also
 been shown to be very inefficient -- you might need a non-linear (exponential?)
 number of units before you can approximate something.  It turns out that these
-datasets aren't that hard 100 or so units will do.
+datasets aren't that hard so 100 or so hidden units will do.
 
 
 |H2| Conclusion |H2e|
 
 Definitely a shorter post than my previous few.  Although like many theoretical
-results these ones are too practical, but I thought this result was so
+results these ones aren't too practical, but I thought this result was so
 interesting because of the strong empirical evidence in favour of ResNet
 architectures.  Many results in deep learning don't have great theoretical
-foundations, so it's so nice to see a result for one of big idea in this area.
+foundations, so it's so nice to see a result for one of big ideas in this area.
 My next post will likely be a shorter one too with another cute idea that I've
 read about recently.  Stay tuned!
 
