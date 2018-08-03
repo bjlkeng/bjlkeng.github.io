@@ -44,13 +44,15 @@
 
 *"In theory, theory and practice are the same. In practice, they are not."*
 
-This post is going to talk about a paper I read recently called *ResNet with
-one-neuron hidden layers is a Universal Approximator* by Lin and Jegelka [1].
-It talks about a simplified Residual Network as a universal approximator,
+I read a very interesting paper titled *ResNet with one-neuron hidden layers is
+a Universal Approximator* by Lin and Jegelka [1].
+The paper describes a simplified Residual Network as a universal approximator,
 giving some theoretical backing to the wildly successful ResNet architecture.
-Of course, I'm not going to go through the any of the theoretical stuff,
-instead I'm going to introduce the theorems and play around to see if we can
-get close to these theoretical limits.
+In this post, I'm going to talk about this paper and a few of the related
+universal approximation theorems for neural networks. 
+Instead of going through all the theoretical stuff, I'm simply going introduce
+some theorems and play around with some toy datasets to see if we can get close
+to the theoretical limits.
 
 (You might also want to checkout my previous post where I played around with
 ResNets: `Residual Networks <link://slug/residual-networks>`__)
@@ -62,30 +64,31 @@ ResNets: `Residual Networks <link://slug/residual-networks>`__)
 |H3| The OG Universal Approximation Theorem |H3e|
 
 The `Universal Approximation Theorem
-<https://en.wikipedia.org/wiki/Universal_approximation_theorem>`__ is one of
+<https://en.wikipedia.org/wiki/Universal_approximation_theorem>`__ (1989) is one of
 the most well known (and often incorrectly used) theorems when it comes to
 neural networks.  It's probably because neural networks don't have as much
-theoretical depth as other techniques.  I'll paraphrase the theorem here
-(if you're really interested in the math click on the Wikipedia link):
+theoretical depth as other techniques so people feel like they have to give
+some weight to its spectacular empirical results.  I'll paraphrase the theorem
+here (if you're really interested in the math click on the Wikipedia link):
 
     The **universal approximation theorem** states that a feed-forward
     networks with a single hidden layer containing a finite number of neurons
     can approximate functions on compact sets on :math:`\mathbb{R}^n`, under
-    mild assumptions of the activation function (nonconstant,
+    mild assumptions of the activation function (non-constant,
     monotonically-increasing, continuous).
 
-The implications is *theoretically*, we can fit any function just by increasing
-the width of a single hidden layer arbitrarily large. 
+The implications is *theoretically* we can approximate any function just by
+arbitrarily increasing the width of a single hidden layer.
 
 For me, this theorem doesn't strike me as all that insightful (or useful).
 First, in practice we never arbitrarily make the width of a neural network
 really wide, never mind having a single hidden layer.  Second, it seems
 intuitive that this might be the case doesn't it?  If we think about approximating
-a function with an arbitrary number of `piecewise linear functions <https://en.wikipedia.org/wiki/Piecewise_linear_function>`__, then we should be able to approximate
-*most* well-behaved functions (that's basically how derivation works).
+a function with an arbitrary number of `piece-wise linear functions <https://en.wikipedia.org/wiki/Piecewise_linear_function>`__, then we should be able to approximate
+*most* well-behaved functions (that's basically how integration works).
 Similarly, if we have a neuron for each "piece" of the function, we should
 intuitively be able to approximate it to any degree (although I'm sure the
-actual proof is more complicated and elegant).
+actual proof is much more complicated and elegant).
 
 .. figure:: /images/piecewise_linear_approximation.png
   :height: 300px
@@ -93,7 +96,7 @@ actual proof is more complicated and elegant).
   :align: center
 
   Figure 1: If we can approximate functions with an arbitrary number of
-  piecewise lienar functions, why can't we do it with an arbitrary number of
+  piece-wise linear functions, why can't we do it with an arbitrary number of
   hidden units? (source: Wikipedia)
 
 So practically, there isn't much that's interesting about this (basic) version
@@ -109,7 +112,7 @@ theorem for width-bounded neural networks published recently (2017) from [2]:
     ReLU networks can approximate any Lebesgue integrable function on
     n-dimensional space with respect to L1 distance.
 
-    Additionally, except for a negligible set, most functions cannot
+    Additionally, except for a negligible set, most functions *cannot*
     be approximated by a ReLU network of width at most :math:`n`.
 
 So basically if you have just 4 extra neurons in each layer and arbitrary
@@ -128,10 +131,11 @@ proven.  See the references from [1] and [2] if you're interested.
 ResNet is a neural network architecture that contains a "residual connection".
 Basically, it provides a shortcut from layer :math:`i` merging it with addition
 to layer :math:`i+k` for some constant :math:`k`.  In between, you can do all
-kinds of interesting things such as have multiple layers but the important
-thing is that the input width of layer :math:`i` is the same as the output
-width of layer :math:`i+k`.  Figure 2 shows a simplified ResNet architecture
-where the "in between" transformation is a single neuron.
+kinds of interesting things such as have multiple layers, increase or
+bottleneck the width, but the important thing is that the input width of layer
+:math:`i` is the same as the output width of layer :math:`i+k`.  Figure 2 shows
+a simplified ResNet architecture where the "in between" transformation is a
+single neuron.
 
 .. figure:: /images/basic_resnet.png
   :height: 200px
@@ -154,8 +158,8 @@ function, we have our ResNet block :math:`\mathcal{R}_i(x)` and our final networ
     Y(x) &= \mathcal{R}_n({\bf x}) \circ \ldots \circ \mathcal{R}_1({\bf x})
     \tag{1}
 
-where :math:`U` is :math:`d x 1`, :math:`V` is :math:`1xd` matrix, and
-:math:`b` is a constant.
+where :math:`\bf U` is :math:`d \text{x} 1` weight matrix, :math:`\bf V` is
+:math:`1\text{x}d` weight matrix, and :math:`b` is a learnable constant.
 
 Given the above ResNet architecture, the universal approximation theorem from
 [1] states:
@@ -171,104 +175,117 @@ neuron it is powerful enough to represent any function.
 
 |H2| Experiments |H2e|
 
-In this section I played around with a bunch of different network architectures
-to see how they would perform.  You can see my work in this notebook (TODO TODO).
+In this section I play around with a few different network architectures
+relating to the theorems above to see how they would perform.  You can see my
+work in this notebook on
+`GitHub <https://github.com/bjlkeng/sandbox/blob/master/notebooks/universal_resnet/Universal%20Resnet.ipynb>`__.
 
 I generated three toy datasets labelled "easy", "medium", "hard" with two input
 variables :math:`x_1, x_2`, and a single binary label.  Each dataset used the
-same 300 :math:`(x_1, x_2)` input points but had a different predicate of
+same 300 :math:`(x_1, x_2)` input points but had different predicates of
 increasing complexity.  Figure 3 shows the three datasets.
 
 .. figure:: /images/universal_resnet_expr1.png
   :height: 200px
-  :alt: "easy", "medium" and "hard" Datasets
+  :alt: "easy", "medium" and "hard" datasets
   :align: center
 
-  Figure 3: Plot of "easy", "medium" and "hard" Datasets.  The shaded region
-  indicates where the genrating function should be a "1".  The "x"s represent
-  "0"s and the dots represent "1"s.
+  Figure 3: Plot of "easy", "medium" and "hard" datasets.  The shaded region
+  indicates where the generating function should be a "1".  The "x"s represent
+  "0"s and the dots represent "1"s.  Notice the "hard" dataset has a bunch of
+  spurious "1"s that are randomly placed on the grid.
   
 First, let's take a look at the different architectures that I ran.  All the
 experiments use a softmax output layer with a binary crossentropy loss.
 
-    * **Resnet**: Stacking the above ResNet block (figure 2) with a width of 2
-      (same as the input).
-    * **Dense (W=2, W=6)**: Fully connected dense layers with a
-      width of either 2 (size of inputs) or 6 (size of inputs + 4 from the
-      universal theorem above).
-    * **Single Dense with Variable Width**: A single hidden layer but changing
-      the width (OG universal theorem).
+* **Resnet**: Stacking the above ResNet block (figure 2) with a width of 2
+  (same as the input).
+* **Dense (W=2, W=6)**: Fully connected dense layers with a
+  width of either 2 (size of inputs) or 6 (size of inputs + 4 from the
+  universal theorem above) with ReLU activations.
+* **Single Dense with Variable Width**: A single hidden layer but changing
+  the width (OG universal theorem) with ReLU activations.
 
 I varied depths of the first two architectures varied from 5, 10, and 40.  The
 width of the last architecture varies from 5, 10, 40, 100, and 300.
 For each combination, I ran 5 experiments and report the mean and standard
 deviation of accuracy on the training data (no testing set here since we're trying
 to see if it can approximate samples from the underlying function).  Bolded
-results show the best run for each dataset.  The results shown in Table 1 and
-Table 2, while Appendix A shows figures plotting the best run of each
-configuration.
+results show the best run for each dataset.  The overall results are shown in
+Table 1 and Table 2, while Appendix A shows figures plotting the best run of
+each configuration.
 
 *Table 1: ResNet vs. Dense (W=2, 6) with varying depths on Easy, Medium and Hard datasets.*
 
 +-------------+-------------------------------+--------------------------------+--------------------------------+
-|             |              Easy             |             Medium             |              Hard              |
+|             |              Easy             |             Medium             |          Hard                  |
 +-------------+-------------------------------+--------------------------------+--------------------------------+
-|             | D=5    | D=10        | D=40   | D=5    | D=10    | D=40        | D=5        | D=10    | D=40    |
-+-------------+--------+-------------+--------+--------+---------+-------------+------------+---------+---------+
-|    ResNet   | 99 ± 1 | **100 ± 0** | 99 ± 1 | 89 ± 7 | 91 ± 6  | **93 ± 12** | 68 ± 2     | 71 ± 2  | 75 ± 23 |
-+-------------+--------+-------------+--------+--------+---------+-------------+------------+---------+---------+
-| Dense (W=2) | 89 ± 0 | 89 ± 0      | 89 ± 0 | 73 ± 0 | 73 ± 0  | 73 ± 0      | 64 ± 0     | 64 ± 0  | 64 ± 0  |
-+-------------+--------+-------------+--------+--------+---------+-------------+------------+---------+---------+
-| Dense (W=6) | 97 ± 5 | 97 ± 5      | 89 ± 0 | 92 ± 9 | 90 ± 11 | 75 ± 6      | **85 ± 9** | 72 ± 13 | 65 ± 1  |
+|             | D=5    | D=10        | D=40   | D=5        | D=10    | D=40    | D=5    | D=10    | D=40        |
++-------------+--------+-------------+--------+------------+---------+---------+--------+---------+-------------+
+|    ResNet   | 98 ± 1 | **99 ± 0**  | 98 ± 2 | 85 ± 8     | 95 ± 3  | 98 ± 2  | 67 ± 3 | 73 ± 3  | **88 ± 4**  |
++-------------+--------+-------------+--------+------------+---------+---------+--------+---------+-------------+
+| Dense (W=2) | 86 ± 0 | 86 ± 0      | 86 ± 0 | 77 ± 0     | 77 ± 0  | 77 ± 0  | 62 ± 2 | 62 ± 0  | 62 ± 0      |
++-------------+--------+-------------+--------+------------+---------+---------+--------+---------+-------------+
+| Dense (W=6) | 99 ± 0 | 99 ± 1      | 88 ± 6 | **99 ± 1** | 97 ± 6  | 77 ± 0  | 85 ± 5 | 75 ± 8  | 62 ± 0      |
 +-------------+--------+-------------+--------+--------+---------+-------------+------------+---------+---------+
 
 We can see in Table 1 that ResNet has pretty consistent performance.  As we
 increase the depth, it's able to successfully translate the increased capacity
-into accuracy gains.  Notice though at depth 40, the standard deviation is
-huge.  This is probably from the difficulty of fitting a networks so deep.
-Although the fact that we were able to train a network so deep shows the
-uncanny ability of ResNet architectures to train deep networks (as compared to
-the dense ones below).  So the ResNet universal approximation theorem for
-ResNet seems to be holding up somewhat.
+into accuracy gains.  Not only that, it shows the best best performance in the
+easy and hard datasets, while being pretty close on the medium one.
+The fact that we are able to train a network so deep shows the uncanny ability
+of ResNet architectures to train deep networks (as compared to the dense ones
+below).  So the ResNet universal approximation theorem for ResNet seems to be
+holding up somewhat.
 
-A dense network with width=2 is totally incapable of learning anything useful.
-The accuracies reported are actually just the underlying ratio positive to
-negative labels (see figures in Appendix A).  This confirms the negative
-result of the width bounded universal approximation theorem.
+For the dense networks with width=2, it is totally incapable of learning
+anything useful.  The accuracies reported are actually just the underlying
+ratio of positive to negative labels (see figures in Appendix A).  This
+confirms the negative result of the width bounded universal approximation
+theorem.
 
 At width=6, the dense network shows more mixed results.  It performs quite well
-at depths 5 and 10, even producing the best result on the hard dataset at
-depth=5. However, it totally breaks down at depth 40.  This is most likely due
+at depths 5 and 10, even producing the best result on the medium dataset at
+depth=5.  However, it totally breaks down at depth 40.  This is most likely due
 to the difficulty of fitting really deep networks.  An important lesson:
-theoretical results don't always translate into practical ones.
+theoretical results don't always translate into practical ones.  
+(We probably could have helped this along by adding some normalization to fit
+the deep networks.  I did add do one trial with batch normalization but the
+results didn't change much.)
 
 
 *Table 2: Dense with a single hidden layer and varying width on Easy, Medium and Hard datasets.*
 
-+--------+--------+---------+---------+---------+-------------+
-| Width  | 5      | 10      | 40      | 100     | 300         |
-+--------+--------+---------+---------+---------+-------------+
-| Easy   | 99 ± 1 | 100 ± 0 | 100 ± 0 | 100 ± 0 | **100 ± 0** |
-+--------+--------+---------+---------+---------+-------------+
-| Medium | 79 ± 2 | 85 ± 5  | 97 ± 1  | 97 ± 1  | **97 ± 1**  |
-+--------+--------+---------+---------+---------+-------------+
-| Hard   | 70 ± 1 | 70 ± 3  | 74 ± 2  | 80 ± 2  | **81 ± 3**  |
-+--------+--------+---------+---------+---------+-------------+
++--------+--------+---------+---------+-------------+-------------+
+| Width  | 5      | 10      | 40      | 100         | 300         |
++--------+--------+---------+---------+-------------+-------------+
+| Easy   | 99 ± 1 | 100 ± 0 | 100 ± 0 | **100 ± 0** | 99 ± 0      |
++--------+--------+---------+---------+-------------+-------------+
+| Medium | 79 ± 2 | 86 ± 8  | 97 ± 3  | **99 ± 1**  | 97 ± 2      |
++--------+--------+---------+---------+-------------+-------------+
+| Hard   | 66 ± 2 | 68 ± 4  | 77 ± 3  | **81 ± 1**  | 78 ± 1      |
++--------+--------+---------+---------+------------+--------------+
 
-Taking a look at similar type results with a single hidden layer architecture
+Taking a look at similar results with a single hidden layer architecture
 in Table 2, we see that the original universal approximation theorem shows more
-consistent results.  Each increase in width is better than the previous, and it
-very wide widths (300), it performs better than the above architectures
-except on the hard where it performs similarly with a tighter range.
+consistent results.  Each increase in width is better than the previous except
+at the W=300 where it performs pretty close to the width below it.  It performs
+on-par with the above architectures except on the hard where it performs
+slightly worse.  However, we can see the results across the board are much more
+consistent (smaller standard deviation).  This indicates that the single hidden
+layer is also the easier to fit (no vanishing gradients).  However, it's also
+been shown to be very inefficient -- you might need a non-linear (exponential?)
+number of units before you can approximate something.  It turns out that these
+datasets aren't that hard 100 or so units will do.
 
 
 |H2| Conclusion |H2e|
 
 Definitely a shorter post than my previous few.  Although like many theoretical
-results, it's not practically very useful but I thought this result was so
-interesting because of the strong empirical evidence in favor of ResNet
+results these ones are too practical, but I thought this result was so
+interesting because of the strong empirical evidence in favour of ResNet
 architectures.  Many results in deep learning don't have great theoretical
-foundations, so it's so nice to see one for one of the big idea in this area.
+foundations, so it's so nice to see a result for one of big idea in this area.
 My next post will likely be a shorter one too with another cute idea that I've
 read about recently.  Stay tuned!
 
@@ -282,12 +299,18 @@ read about recently.  Stay tuned!
 
 |H2| Appendix A: Figures for Experiments |H2e|
 
+The figures below show the *best* run out of the five runs for each of the
+given experiments.  So the accuracies are at the top of the range
+and do not match the averages in Table 1 and 2.
+
 .. figure:: /images/universal_resnet_expr2.png
   :height: 600px
   :alt: Plots of Predictions (ResNet)
   :align: center
 
   Figure 3: Plot of predictions from the ResNet architecture.
+
+|br|
 
 .. figure:: /images/universal_resnet_expr3.png
   :height: 600px
@@ -296,6 +319,8 @@ read about recently.  Stay tuned!
 
   Figure 4: Plot of predictions from the Dense (W=2) architecture.
 
+|br|
+
 .. figure:: /images/universal_resnet_expr4.png
   :height: 600px
   :alt: Plots of Predictions (Dense)
@@ -303,13 +328,16 @@ read about recently.  Stay tuned!
 
   Figure 5: Plot of predictions from the Dense (W=6) architecture.
 
+|br|
+
 .. figure:: /images/universal_resnet_expr7.png
-  :height: 600px
+  :height: 1200px
   :alt: Plots of Predictions (Dense)
   :align: center
 
   Figure 6: Plot of predictions from the Single Dense architecture.
 
+|br|
 
 
 
