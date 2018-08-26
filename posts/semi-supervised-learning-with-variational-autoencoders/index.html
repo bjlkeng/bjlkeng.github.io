@@ -509,7 +509,7 @@ a workaround: train two networks (with shared layers)!</p>
 <p>So basically, I have one network for labelled data and one for unlabelled data.
 They both share all the same components (<span class="math">\(q(y|{\bf x}), q(z|{\bf x}), p({\bf x}|y, z)\)</span>)
 but differ in their input/output as well as loss functions.
-The labelled data has input <span class="math">\(({\bf x}, y)\)</span> and output <span class="math">\((y', {\bf x'})\)</span>.
+The labelled data has input <span class="math">\(({\bf x}, y)\)</span> and output <span class="math">\(({\bf x'}, y')\)</span>.
 <span class="math">\(y'\)</span> corresponds to the predictions from the posterior, while
 <span class="math">\({\bf x'}\)</span> corresponds to the decoder output.
 The loss function is Equation 8 with <span class="math">\(\alpha=0.1N\)</span> (not the one I derived
