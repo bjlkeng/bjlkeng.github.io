@@ -88,8 +88,57 @@ output) to train result in better accuracy?  It's actually quite simple.
 
 |H3| Intuition |H3e|
 
-The big insight is...
+The big idea is that *images can have multiple labels*! Well... duh!  However,
+this is a big problem for datasets like ImageNet where each image has exactly
+one label.  Take Figure 2 for example.
 
+.. figure:: /images/label_refinery2.png
+  :height: 200px
+  :alt: Label Refinery Illustration
+  :align: center
+
+  Figure 2: Illustration of multiple label problem (source: [1])
+
+Figure 2 shows a picture of a "persian cat" from imageNet's training set.  This
+label is not bad but you could also conceivably label this image as a "ball" too.
+This problem is magnified though when training a network using standard image augmentation
+techniques such as cropping.  We can see the cropped image should clearly be
+labelled as a "ball" and not "persian cat".  However, if we add this augmented cropped
+image to our dataset, it will just add noise making it harder for the
+classifier to learn.  On the other hand, if we use the label refinery technique above,
+we can have a *soft labelling* of the image.  So it could be "80% persian cat" and
+"20% ball".  This help reduce overfitting to the training images.  
+The next figure shows another example of this.
+
+.. figure:: /images/label_refinery3.png
+  :height: 200px
+  :alt: Label Refinery Illustration
+  :align: center
+
+  Figure 3: Examples of similar image patches. (source: [1])
+
+Figure 3 shows examples of random crops of "dough" and "butternut squash".  You can
+see that they are visually very similar.  Similarly, if we use hard labels for the
+crops, we'll most likely have a very dissonant time learning because for two
+similar images we have completely different labels.  Contrast that with having a 
+"soft label" for the patches of "dought", "buttnut squash", "burrito", "french
+loaf" etc.
+
+.. figure:: /images/label_refinery4.png
+  :height: 400px
+  :alt: Label Refinery Illustration
+  :align: center
+
+  Figure 4: Examples of similar image patches. (source: [1])
+
+Figure 4 shows another example with the top three predictions at each iteration
+of label refinery.  You can see that the first iteration clearly overfit to
+"barbershop" especially when considering the cropped "shop" label.  Using
+label refinery on the fifth iteration, we have a more reasonable soft labelling
+of "barbershop", "scoreboard", and "street sign".
+
+
+|H2| Experiments on CIFAR10 and SVHN |H2e|
 
 |H2| Conclusion |H2e|
 
