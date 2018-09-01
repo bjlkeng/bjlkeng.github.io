@@ -132,17 +132,136 @@ loaf" etc.
   Figure 4: Examples of similar image patches. (source: [1])
 
 Figure 4 shows another example with the top three predictions at each iteration
-of label refinery.  You can see that the first iteration clearly overfit to
-"barbershop" especially when considering the cropped "shop" label.  Using
-label refinery on the fifth iteration, we have a more reasonable soft labelling
-of "barbershop", "scoreboard", and "street sign".
+of label refinery trained on Alexnet.  You can see that the first iteration
+overfits to "barbershop" especially when considering the cropped "shop"
+image.  Using label refinery on the fifth iteration, we have a more reasonable
+soft labelling of "barbershop", "scoreboard", and "street sign".
 
 
 |H2| Experiments on CIFAR10 and SVHN |H2e|
 
+The experiments in [1] were all about improving ImageNet classification across
+1000 categories where the images were all relatively large size of 256x256
+(pre-processed).  I wondered how this idea would translate to other datasets
+that could run on my meager GTX 1070.  To this end, I tried the label refinery
+method on two much easier datasets are the CIFAR10 [2] and SVHN [3] datasets.
+The former is classification of natural images like cars, animals etc, while
+the latter is a bunch of images of street view house numbers.  
+
+Testing our hypothesis that label refinery works well because of our soft labels,
+we would expect that it might perform better on SVHN compared to CIFAR10 because
+it actually have multiple labels in the same pictures (multiple numbers in the
+same image but only one hard label).  Figure 5 and 6 show samples from the
+training data.
+
+.. figure:: /images/label_refinery5.png
+  :height: 300px
+  :alt: CIFAR 10 Sample
+  :align: center
+
+  Figure 5: CIFAR10 Sample Images
+
+.. figure:: /images/label_refinery6.png
+  :height: 300px
+  :alt: SVHN Sample
+  :align: center
+
+  Figure 6: SVHN Sample Images
+
+I used the `ResNet50 <https://keras.io/applications/#resnet50>`__ model from
+Keras as my base classifier replacing the last layer with a 10-way softmax
+dense layer.  I also augmented the dataset with two times more images with
+random 10 degree rotations, 10% zoom and 10% shifts in X or Y directions with
+horizontal flip for CIFAR 10.  I used the `ImageDataGenerator
+<https://keras.io/preprocessing/image/>`__ class from Keras to make the
+augmented images.  Usually for ImageNet you actually do a crop but since the
+images are so small it doesn't quite make sense to do that.
+
+Some other details that I used: 
+
+* Standard test set from both datasets
+* 15% validation set from the training set
+* Categorical crossentropy loss 
+* Used Adam optimizer with reduced learning rate on loss plateau and early
+  stopping based on the validation set accuracy
+* Each combination below was run 5 times and the mean test accuracy and
+  standard deviation are reported.
+
+All the code can be found `here on Github
+<https://github.com/bjlkeng/sandbox/tree/master/notebooks/label_refinery>`__.
+Table 1 shows the results of the experiments.
+
+
+*Table 1: Label Refinery Experiments with CIFAR10 and SVHN datasets with and without image augmentation.*
+
++------------------+-------------------------+-------------------------+
+|                  | **CIFAR10**             | **SVHN**                |
++------------------+------------+------------+------------+------------+
+| **Label Refinery | Augment=0  | Augment=1  | Augment=0  | Augment=1  | 
+| Iteration**      |            |            |            |            |
++------------------+------------+------------+------------+------------+
+| 1                | 62.9 ± 6.7 | 68.7 ± 4.5 | 88.1 ± 2.7 | 91.0 ± 2.1 |
++------------------+------------+------------+------------+------------+
+| 2                | 44.2 ± 20  | 64.2 ± 11  | 73.1 ± 30  | 91.5 ± 1.3 |
++------------------+------------+------------+------------+------------+
+| 3                | 32.3 ± 22  | 59.0 ± 12  | 73.9 ± 31  | 91.5 ± 1.2 |
++------------------+------------+------------+------------+------------+
+
+From Table 1, the first column shows the label refinery iteration.  "1" means
+that we just trained a single classifier, "2" means we took "1"'s output and used
+it as labels for "2" etc.  The first thing to notice is that image augmentation
+works pretty well!  The test set accuracy on the base classifiers go from 62.9%
+to 68.7% and 88.1 to 91.0% on CIFAR10 and SVHN respectively.  That's pretty
+good for just doing some simple transformations on images.  It makes sense
+since the content of images are, for the most part, invariant to small
+perturbations.  This basically just adds more varied training data, which of
+course will make the classifier stronger.
+
+The second thing to notice is that the label refinery technique performs poorly
+on the CIFAR10 dataset.  I suspect that the main reason is the hypothesis we
+stated above: the soft labels don't really help because there is no overlap in
+labels in the pictures.  We can see that the performance varies so widely in
+latter iterations.
+
+Taking a look at SVHN, we see that without augmentation label refinery shows
+similarly poor results.  However with augmentation, we do see some
+marginal, relatively stable improvement from 91.0% to 91.5% mean test set
+accuracy.  Relating this back to the hypothesis above, here are some thoughts:
+
+1. We actually have a use for the soft labels because some images indeed do
+   have multiple labels (more than one numbers).
+2. The augmentation might be needed with label refinery because the number of
+   images with multiple numbers is not very large, thus it is not able to make
+   use of multiple labels efficiently otherwise.
+3. Along these lines, the classifier is able to learn more generalized digits
+   with the augmented images and soft labels.  For example, an image might be
+   labeled "3" but have numbers "123".  If we shift and zoom it, it might only
+   show "12".  The soft labels of course will help in this case, but it also
+   gives the classifier a chance to see additional examples of "1" and "2",
+   increasing its generalizing capability.
+
+The effect on SVHN is still relatively small though, most likely because
+the label overlap problem is not as severe as ImageNet.
+
+
 |H2| Conclusion |H2e|
+
+Sometimes we get caught up in super complex models that do funky things like 
+GANs or Deep RL that we don't pay much attention to some of the simpler ideas.
+I really like these simple yet robust ideas because they actually carry 80-90%
+of the weight in practical applications of ML.
+It would be cool if this translated to other types of domains like numeric
+predictions but I'm not sure the effect would be as pronounced or widely
+applicable as images.  I'm working on another post but it might take a while to
+get out because I'll be taking some vacation and will be super busy in the
+fall.  Hopefully, I'll find some time in between to push it out before the end
+of the year.  Thanks for reading!
+
 
 |H2| Further Reading |H2e|
 
 * Previous posts: `Residual Networks <link://slug/residual-networks>`__
+* My label refinery code: `Github <https://github.com/bjlkeng/sandbox/tree/master/notebooks/label_refinery>`__
 * [1] `Label Refinery: Improving ImageNet Classification through Label Progression <https://arxiv.org/abs/1805.02641>`__, Hessam Bagherinezhad, Maxwell Horton, Mohammad Rastegari, Ali Farhadi
+* [2] `CIFAR-10 Dataset <https://www.cs.toronto.edu/~kriz/cifar.html>`__
+* [3] `SVHN Dataset <http://ufldl.stanford.edu/housenumbers/>`__
