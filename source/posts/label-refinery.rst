@@ -79,7 +79,7 @@ visually.
   Figure 1: The basic idea behind Label Refinery (source: [1])
 
 You can see at each iteration we're using the predicted labels ("Refined
-Label") to feed into the next model as the training labels.  At point, the last
+Label") to feed into the next model as the training labels.  At some point, the last
 model in the chain becomes your classifier.  Along the way, inexplicably, the
 accuracy improves.
 
@@ -130,10 +130,10 @@ The next figure shows another example of this.
 
 Figure 3 shows examples of random crops of "dough" and "butternut squash".  You can
 see that they are visually very similar.  Similarly, if we use hard labels for the
-crops, we'll most likely have a very hard time learning learning the two
+crops, we'll most likely have a very hard time learning the two
 because for two similar images we have completely different labels.  Contrast
-that with having a "soft label" for the patches of "dough", "butternut squash",
-"burrito", "french loaf" etc.
+that with having a soft label of "dough", "butternut squash",
+"burrito", "french loaf" etc. for the various patches.
 
 .. figure:: /images/label_refinery4.png
   :height: 400px
@@ -249,7 +249,12 @@ latter iterations.
 Taking a look at SVHN, we see that without augmentation label refinery shows
 similarly poor results.  However with augmentation, we do see some
 marginal, relatively stable improvement from 91.0% to 91.5% mean test set
-accuracy.  Relating this back to the hypothesis above, here are some thoughts:
+accuracy.  Although I should note that it only actually improved results on the
+second iteration in 3 out of the 5 runs.  In the other two runs, it went from
+92.5% to 91.5% to 91.9%, and 92.6% to 92.5% to 92.9%.  So still pretty good,
+with only one run showing somewhat of a decrease.
+
+Relating this back to the hypothesis above, here are some thoughts:
 
 1. We actually have a use for the soft labels because some images indeed do
    have multiple labels (more than one number in the image).
@@ -268,7 +273,6 @@ The effect on SVHN is still relatively small though, most likely because
 the label overlap problem is not as severe as ImageNet where they do actual
 cropping.
 
-
 |H2| Conclusion |H2e|
 
 Sometimes we focus too much on the super sexy models that do funky things like
@@ -276,7 +280,7 @@ GANs or Deep RL (or variational autoencoders!) and often don't pay much
 attention to some of the simpler ideas.
 I really like simple yet robust ideas like this label refinery because they 
 usually end up being more useful as well as more insightful.
-It would be cool if label refinery translated to other types of domains like numeric
+It would be cool if label refinery could be applied to other types of domains like numeric
 predictions but I don't think the effect would translate to non-images.
 I'm working on another post but it might take a while to
 get out because I'll be taking some vacation and will be super busy in the
