@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sun, 26 Aug 2018 16:18:37 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Universal ResNet: The One-Neuron Approximator</title><link>http://bjlkeng.github.io/posts/universal-resnet-the-one-neuron-approximator/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;&lt;em&gt;"In theory, theory and practice are the same. In practice, they are not."&lt;/em&gt;&lt;/p&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 04 Sep 2018 12:47:43 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Label Refinery: A Softer Approach</title><link>http://bjlkeng.github.io/posts/label-refinery/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to be about a really simple idea that is surprisingly effective
+from a paper by Bagherinezhad et al. called &lt;a class="reference external" href="https://arxiv.org/abs/1805.02641"&gt;Label Refinery: Improving ImageNet
+Classification through Label Progression&lt;/a&gt;.
+The title pretty much says it all but I'll also discuss some intuition and show
+some experiments on the CIFAR10 and SVHN datasets.  The idea is both simple and
+surprising, my favourite kind of idea!  Let's take a look.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/label-refinery/"&gt;Read more…&lt;/a&gt; (10 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>CIFAR10</category><category>label refinery</category><category>mathjax</category><category>residual networks</category><category>svhn</category><guid>http://bjlkeng.github.io/posts/label-refinery/</guid><pubDate>Tue, 04 Sep 2018 11:26:02 GMT</pubDate></item><item><title>Universal ResNet: The One-Neuron Approximator</title><link>http://bjlkeng.github.io/posts/universal-resnet-the-one-neuron-approximator/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;&lt;em&gt;"In theory, theory and practice are the same. In practice, they are not."&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;I read a very interesting paper titled &lt;em&gt;ResNet with one-neuron hidden layers is
 a Universal Approximator&lt;/em&gt; by Lin and Jegelka [1].
 The paper describes a simplified Residual Network as a universal approximator,
@@ -120,18 +126,4 @@ only using a small subset of the data!  I fixed it up in the notebooks and
 I've added some inline comments below to say what I've changed.  For the most
 part, things have stayed the same but the generated images are a bit blurry
 because the dataset isn't so easy anymore.&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset/"&gt;Read more…&lt;/a&gt; (19 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoencoders</category><category>generative models</category><category>Kullback-Leibler</category><category>mathjax</category><category>svhn</category><category>variational calculus</category><guid>http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset/</guid><pubDate>Thu, 13 Jul 2017 12:13:03 GMT</pubDate></item><item><title>Variational Autoencoders</title><link>http://bjlkeng.github.io/posts/variational-autoencoders/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to talk about an incredibly interesting unsupervised
-learning method in machine learning called variational autoencoders.  It's main
-claim to fame is in building generative models of complex distributions like
-handwritten digits, faces, and image segments among others.  The really cool
-thing about this topic is that it has firm roots in probability but uses a
-function approximator (i.e.  neural networks) to approximate an otherwise
-intractable problem.  As usual, I'll try to start with some background and
-motivation, include a healthy does of math, and along the way try to convey
-some of the intuition of why it works.  I've also annotated a
-&lt;a class="reference external" href="https://github.com/bjlkeng/sandbox/blob/master/notebooks/variational-autoencoder.ipynb"&gt;basic example&lt;/a&gt;
-so you can see how the math relates to an actual implementation.  I based much
-of this post on Carl Doersch's &lt;a class="reference external" href="https://arxiv.org/abs/1606.05908"&gt;tutorial&lt;/a&gt;,
-which has a great explanation on this whole topic, so make sure you check that
-out too.&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/variational-autoencoders/"&gt;Read more…&lt;/a&gt; (25 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoencoders</category><category>generative models</category><category>Kullback-Leibler</category><category>mathjax</category><category>variational calculus</category><guid>http://bjlkeng.github.io/posts/variational-autoencoders/</guid><pubDate>Tue, 30 May 2017 12:19:36 GMT</pubDate></item></channel></rss>
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset/"&gt;Read more…&lt;/a&gt; (19 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoencoders</category><category>generative models</category><category>Kullback-Leibler</category><category>mathjax</category><category>svhn</category><category>variational calculus</category><guid>http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset/</guid><pubDate>Thu, 13 Jul 2017 12:13:03 GMT</pubDate></item></channel></rss>
