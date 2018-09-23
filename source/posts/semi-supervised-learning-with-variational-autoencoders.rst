@@ -593,7 +593,7 @@ Thanks for reading!
 
 |h2| Further Reading |h2e|
 
-* Previous Posts: `Variational Autoencoders <link://slug/variational-autoencoders>`__, `A Variational Autoencoder on the SVHN dataset <link://slug/a-variational-autoencoder-on-the-svnh-dataset>`__, `Variational Bayes and The Mean-Field Approximation <link://variational-bayes-and-the-mean-field-approximation>`__, `Maximum Entropy Distributions <link://slugmaximum-entropy-distributions>`__
+* Previous Posts: `Variational Autoencoders <link://slug/variational-autoencoders>`__, `A Variational Autoencoder on the SVHN dataset <link://slug/a-variational-autoencoder-on-the-svnh-dataset>`__, `Variational Bayes and The Mean-Field Approximation <link://slug/variational-bayes-and-the-mean-field-approximation>`__, `Maximum Entropy Distributions <link://slug/maximum-entropy-distributions>`__
 * Wikipedia: `Semi-supervised learning <https://en.wikipedia.org/wiki/Semi-supervised_learning>`__, `Variational Bayesian methods <https://en.wikipedia.org/wiki/Variational_Bayesian_methods>`__, `Kullback-Leibler divergence <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>`__
 * "Variational Inference: Foundations and Modern Methods", Blei, Ranganath, Mohamed, `NIPS 2016 Tutorial <https://media.nips.cc/Conferences/2016/Slides/6199-Slides.pdf>`__.
 * "Semi-supervised Learning with Deep Generative Models", Kingma, Rezende, Mohamed, Welling, https://arxiv.org/abs/1406.5298
