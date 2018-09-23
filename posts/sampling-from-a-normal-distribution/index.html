@@ -349,44 +349,44 @@ P(r_1 \leq R \leq r_2) &amp;=  \int_{g^{-1}(r_2)}^{g^{-1}(r_1)} f_{U_1}(s) ds  &
 <p>giving us the PDF for $R$, $f_R(r)$<a href="#fn-4"><sup>[4]</sup></a>.  It should also be clear that $R$ and $\Theta$ are independent because $U_1$ and $U_2$ are independent.</p>
 <p>Now that we have the distributions for both $R$ and $\Theta$, let's label Equation 8 and 9 as $X=g_x(R, \Theta)$ and $Y=g_y(R, \Theta)$, respectively.  Now we can apply the same procedure as above using variable substitution (for multiple variables) to derive the joint distribution of $X$ and $Y$ (we'll represent the 
 area in the transformed space by $A$<a href="#fn-5"><sup>[5]</sup></a>):</p>
-<p>\begin{align}</p>
-<p>P(x_1 &amp;\leq X \leq x_2, y_1 \leq Y \leq y_2) \
-    &amp;= \int \int<em>A f</em>{R,\Theta}(u, v) du dv \
-    &amp;= \int \int<em>A f</em>{R}(u)f_{\Theta}(v) du dv &amp;&amp; \text{since } R \text{ and } \Theta \text{ are independent} \ 
-    &amp;= \int \int_A ue^{\frac{-u^2}{2}}\frac{1}{2\pi} du dv \tag{13}</p>
-<p>\end{align}</p>
+<p>\begin{align}
+P(x_1 &amp;\leq X \leq x_2, y_1 \leq Y \leq y_2) \\
+    &amp;= \int \int_A f_{R,\Theta}(u, v) du dv \\
+    &amp;= \int \int_A f_{R}(u)f_{\Theta}(v) du dv &amp;&amp; \text{since } R \text{ and } \Theta \text{ are independent} \\ 
+    &amp;= \int \int_A ue^{\frac{-u^2}{2}}\frac{1}{2\pi} du dv \tag{13}
+\end{align}</p>
 <p>At this point, we should remember that if $p=ucos(v), q=usin(v)$, then solving for $u,v$ results in $u=\sqrt{q^2+p^2}, v=arctan(\frac{q}{p})$.  Also, <a href="https://en.wikipedia.org/wiki/Integration_by_substitution#Substitution_for_multiple_variables">substitution for multiple variables</a> means that $du dv = |det(\frac{\partial(u,v)}{\partial(p, q)})| dp dq$, plugging our expressions for $u$ and $v$ in:</p>
 <p>\begin{align}
-du dv &amp;= |det(\frac{\partial(u,v)}{\partial(p, q)})| dp dq \
+du dv &amp;= |det(\frac{\partial(u,v)}{\partial(p, q)})| dp dq \\
       &amp;= 
 \left |
 \begin{array}{cc}
 \frac{\partial u}{\partial p} &amp; \frac{\partial u}{\partial q} \\
 \frac{\partial v}{\partial p} &amp; \frac{\partial v}{\partial q}
 \end{array}
-\right | dpdq \
+\right | dpdq \\
       &amp;= 
 \left |
 \begin{array}{cc}
 \frac{\partial \sqrt{q^2+p^2}}{\partial p} &amp; \frac{\partial \sqrt{q^2+p^2}}{\partial q} \\
 \frac{\partial arctan(\frac{q}{p})}{\partial p} &amp; \frac{\partial arctan(\frac{q}{p})}{\partial q}
 \end{array}
-\right | dpdq \
+\right | dpdq \\
       &amp;= 
 \left |
 \begin{array}{cc}
 \frac{p}{\sqrt{p^2+q^2}} &amp; \frac{q}{\sqrt{p^2+q^2}} \\
 \frac{-q}{p^2(1+(\frac{q}{p})^2)} &amp; \frac{1}{p(1+(\frac{q}{p})^2)}
 \end{array}
-\right | dpdq \
-      &amp;= \frac{1}{\sqrt{p^2 + q^2}} dpdq \tag{14}</p>
-<p>\end{align}</p>
+\right | dpdq \\
+      &amp;= \frac{1}{\sqrt{p^2 + q^2}} dpdq \tag{14}
+\end{align}</p>
 <p>Using the result from Equation 14 into Equation 13, we get:</p>
-<p>\begin{align}</p>
-<p>P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y<em>2) &amp;&amp; \text{change variables} \
-    &amp;= \int</em>{x_1}^{x<em>2} \int</em>{y_1}^{y<em>2} \frac{\sqrt{p^2 + q^2}}{2\pi}\cdot e^{\frac{-(p^2 + q^2)}{2}} \cdot \frac{1}{\sqrt{p^2 + q^2}} dp dq  &amp;&amp; p=ucos(v)  \
-    &amp;                     &amp;&amp; q=usin(v) \
-    &amp;= \int</em>{x_1}^{x<em>2} \underbrace{\frac{1}{\sqrt{2\pi}} e^{\frac{-p^2}{2}}}</em>{f<em>X(x)} dp \int</em>{y_1}^{y<em>2} \underbrace{\frac{1}{\sqrt{2\pi}} e^{\frac{-q^2}{2}}}</em>{f_Y(y)} dq  \tag{15}
+<p>\begin{align}
+P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variables} \\
+    &amp;= \int_{x_1}^{x_2} \int_{y_1}^{y_2} \frac{\sqrt{p^2 + q^2}}{2\pi}\cdot e^{\frac{-(p^2 + q^2)}{2}} \cdot \frac{1}{\sqrt{p^2 + q^2}} dp dq  &amp;&amp; p=ucos(v)  \\
+    &amp;                     &amp;&amp; q=usin(v) \\
+    &amp;= \int_{x_1}^{x_2} \underbrace{\frac{1}{\sqrt{2\pi}} e^{\frac{-p^2}{2}}}_{f_X(x)} dp \int_{y_1}^{y_2} \underbrace{\frac{1}{\sqrt{2\pi}} e^{\frac{-q^2}{2}}}_{f_Y(y)} dq  \tag{15}
 \end{align}</p>
 <p>Equation 15 shows that $X$ and $Y$ are independent each with PDF matching our standard normal distribution $N(0,1)$ as required.</p>
 <h4 id="Implementing-Box-Muller-Transform">Implementing Box-Muller Transform<a class="anchor-link" href="#Implementing-Box-Muller-Transform">¶</a>
@@ -552,8 +552,18 @@ du dv &amp;= |det(\frac{\partial(u,v)}{\partial(p, q)})| dp dq \
                 <a href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/" rel="next" title="Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm">Next post</a>
             </li>
         </ul></nav></aside><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
-            MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
-            </script></article>
+                    MathJax.Hub.Config({
+                        tex2jax: {
+                            inlineMath: [ ['$','$'], ["\\\(","\\\)"] ],
+                            displayMath: [ ['$$','$$'], ["\\\[","\\\]"] ],
+                            processEscapes: true
+                        },
+                        displayAlign: 'left', // Change this to 'center' to center equations.
+                        "HTML-CSS": {
+                            styles: {'.MathJax_Display': {"margin": 0}}
+                        }
+                    });
+                    </script></article>
 </div>
             <div class="col-md-3 well">
             <p>

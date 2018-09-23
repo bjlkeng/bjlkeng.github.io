@@ -141,12 +141,11 @@ P =
 1 &amp; 0
 \end{bmatrix}
 \begin{bmatrix}
-0.9 &amp; 0.1 \
-0.5 &amp; 0.5 \</p>
-<h2 id="\end{bmatrix}">\end{bmatrix}<a class="anchor-link" href="#%5Cend%7Bbmatrix%7D">¶</a>
-</h2>
-<p>\begin{bmatrix}
-0.9 &amp; 0.1
+0.9 &amp; 0.1 \\
+0.5 &amp; 0.5
+\end{bmatrix} = 
+\begin{bmatrix}
+0.9 &amp; 0.1 \\
 \end{bmatrix}
 \end{align}</p>
 <p>We can see that that there is a $0.9$ chance of being sunny tomorrow (according to our simple model), and a $0.1$ chance of being rainy.   We can actually keep multiplying the transition matrix through to find the chance of sun/rain $k$ steps later:</p>
@@ -301,7 +300,7 @@ x^(9) = [0.8332 0.1668]
 <p>Markov Chain Monte Carlo (MCMC) methods are simply a class of algorithms that use Markov Chains to sample from a particular probability distribution (the Monte Carlo part).  They work by creating a Markov Chain where the limiting distribution (or stationary distribution) is simply the distribution we want to sample.</p>
 <p>Here's a picture that might help describe the process <a href="#fn-2"><sup>[2]</sup></a>.  Imagine we're trying to make a MCMC to try to sample an arbitrary one dimensional distribution with PDF $f(x)$.  In this case, our states would be points along the $x$-axis and our transition probabilities would be the chance of going from one state to another.  Here's a simplified figure of the situation:</p>
 <p><img src="../../images/mcmc.png" alt="simple markov chain"></p>
-<p>This figure shows the density function we're trying to approximate with the thick black line, and a visualization of part of the Markov Chain using the blue lines transitioning from orange states.  In particular, just the transitions from state $X_0$ to $X_i$ for  $i=\\{-3,-2,-1, 1, 2, 3\\}$.  However, each point on the x-axis line is actually a potential state in this Markov Chain.  Notice that this means that we have an infinite state space, thus we can't represent the transitions nicely as a matrix anymore.  The real "trick" to MCMC methods is that we want to design the transition probabilities between states (or points on the x-axis) such that we spend most of our time in regions where $f(x)$ is large, and relatively small amounts of time in regions where it is small (i.e. in the exact proportions to our density function).</p>
+<p>This figure shows the density function we're trying to approximate with the thick black line, and a visualization of part of the Markov Chain using the blue lines transitioning from orange states.  In particular, just the transitions from state $X_0$ to $X_i$ for  $i=-3,-2,-1, 1, 2, 3$.  However, each point on the x-axis line is actually a potential state in this Markov Chain.  Notice that this means that we have an infinite state space, thus we can't represent the transitions nicely as a matrix anymore.  The real "trick" to MCMC methods is that we want to design the transition probabilities between states (or points on the x-axis) such that we spend most of our time in regions where $f(x)$ is large, and relatively small amounts of time in regions where it is small (i.e. in the exact proportions to our density function).</p>
 <p>In the case of our figure, we'd want to spend most of our time around the center and less time around the outside. 
 In fact, if we simulate our Markov Chain long enough, the limiting distribution of states should approximate the PDF that we're trying to sample.  So the basic algorithm for sampling using a MCMC method amounts to:</p>
 <ol>
@@ -733,8 +732,18 @@ A(x \rightarrow x') = min(1, \frac{f(x')f_{N(x',2)}(x)}{f(x)f_{N(x,2)}(x')})
                 <a href="../hypothesis-testing/" rel="next" title="A Primer on Statistical Inference and Hypothesis Testing">Next post</a>
             </li>
         </ul></nav></aside><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
-            MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
-            </script></article>
+                    MathJax.Hub.Config({
+                        tex2jax: {
+                            inlineMath: [ ['$','$'], ["\\\(","\\\)"] ],
+                            displayMath: [ ['$$','$$'], ["\\\[","\\\]"] ],
+                            processEscapes: true
+                        },
+                        displayAlign: 'left', // Change this to 'center' to center equations.
+                        "HTML-CSS": {
+                            styles: {'.MathJax_Display': {"margin": 0}}
+                        }
+                    });
+                    </script></article>
 </div>
             <div class="col-md-3 well">
             <p>

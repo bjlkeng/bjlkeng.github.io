@@ -206,16 +206,10 @@ log\,P(\theta|y) &amp;\approx log\,P(\hat{\theta}) + (\theta - \hat{\theta}) \fr
 <p>Using our Taylor expansion in Equation 5, as $n\rightarrow \infty$, the mass of the posterior distribution $P(\theta|y)$ becomes concentrated around $\theta_0$ according to Theorem 1 and 2.  Thus, the distance between the posterior mode and $\theta_0$ gets smaller, i.e. $|\hat{\theta} - \theta_0| \rightarrow 0$.  When this happens, the third and higher order terms of the Taylor expansion fade in importance the quadratic term dominates.  Thus as $n \rightarrow \infty$, the Taylor expansion about the posterior mode up to the quadratic term becomes an increasingly accurate approximation of the log posterior distribution.</p>
 <p>Finally, noticing that for large $n$:</p>
 <p>\begin{align}
-log\,P(\theta|y) &amp;\approx  log\,P(\hat{\theta})</p>
-<ul>
-<li>\frac{1}{2}(\theta - \hat{\theta})^2 \frac{d^2}{d\theta^2}[log\,P(\theta|y)]_{\theta=\hat{\theta}} \
-&amp;= const - \frac{1}{2}\frac{(\theta - \hat{\theta})^2}{(nI(\hat{\theta}))^{-1}} \
-P(\theta|y) &amp;\approx exp{C + \frac{(\theta - \hat{\theta})^2}{2(nI(\hat{\theta}))^{-1}}} \
-<pre><code>      &amp;= N(\hat{\theta}, (nI(\hat{\theta}))^{-1}) \tag{8}
-</code></pre>
-\end{align}
-$\blacksquare$</li>
-</ul>
+log\,P(\theta|y) &amp;\approx  log\,P(\hat{\theta}) + \frac{1}{2}(\theta - \hat{\theta})^2 \frac{d^2}{d\theta^2}[log\,P(\theta|y)]_{\theta=\hat{\theta}} \\ &amp;= const - \frac{1}{2}\frac{(\theta - \hat{\theta})^2}{(nI(\hat{\theta}))^{-1}} \\ P(\theta|y) &amp;\approx exp\{C + \frac{(\theta - \hat{\theta})^2}{2(nI(\hat{\theta}))^{-1}}\} \\ &amp;= N(\hat{\theta}, (nI(\hat{\theta}))^{-1}) \tag{8}
+\end{align}</p>
+<p>$\blacksquare$</p>
+
 </div>
 </div>
 </div>
@@ -404,8 +398,18 @@ nI(\lambda=\hat{\lambda}) &amp;\approx -\frac{d^2log\,P(\hat{\lambda}|y)}{d\lamb
                 <a href="../a-probabilistic-view-of-regression/" rel="next" title="A Probabilistic View of Linear Regression">Next post</a>
             </li>
         </ul></nav></aside><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
-            MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
-            </script></article>
+                    MathJax.Hub.Config({
+                        tex2jax: {
+                            inlineMath: [ ['$','$'], ["\\\(","\\\)"] ],
+                            displayMath: [ ['$$','$$'], ["\\\[","\\\]"] ],
+                            processEscapes: true
+                        },
+                        displayAlign: 'left', // Change this to 'center' to center equations.
+                        "HTML-CSS": {
+                            styles: {'.MathJax_Display': {"margin": 0}}
+                        }
+                    });
+                    </script></article>
 </div>
             <div class="col-md-3 well">
             <p>

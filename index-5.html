@@ -210,8 +210,18 @@ useful.</p>
                 <a href="index-6.html" rel="next">Older posts</a>
             </li>
         </ul></nav><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
-            MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
-            </script>
+                    MathJax.Hub.Config({
+                        tex2jax: {
+                            inlineMath: [ ['$','$'], ["\\\(","\\\)"] ],
+                            displayMath: [ ['$$','$$'], ["\\\[","\\\]"] ],
+                            processEscapes: true
+                        },
+                        displayAlign: 'left', // Change this to 'center' to center equations.
+                        "HTML-CSS": {
+                            styles: {'.MathJax_Display': {"margin": 0}}
+                        }
+                    });
+                    </script>
 </div>
             <div class="col-md-3 well">
             <p>
