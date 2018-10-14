@@ -390,6 +390,9 @@ performing variational inference over <span class="math">\(\pi\)</span>.  Of cou
 true (I think) but it's not that straightforward to derive!  Well, I worked out
 the details, so here's my presentation of deriving the variational objective
 with labelled data.</p>
+<p><em>Updated (2018-10): After receiving some great questions from a few readers,
+I've taken another look at this and I believe I have a more sensible
+derivation.  See Appendix B below.</em></p>
 <hr class="docutils">
 <p>For the case when we have both <span class="math">\((x,y)\)</span> points, we'll treat both <span class="math">\(z\)</span>
 and <span class="math">\({\bf \pi}\)</span> as unknown latent variables and perform variational
@@ -834,6 +837,139 @@ derive his expression without just arbitrarily adding an extra term to the
 loss function (why work out any math when you're going to arbitrarily add
 things to the loss function?).  Please let me know if you have a better way of
 deriving this equation.</p>
+<p><br></p>
+<h4> Appendix B: Updated Derivation of Variational Objective with Labelled Data </h4>
+<p>First, we'll re-write the factorization of our generative model from Equation 4
+to explicitly show <span class="math">\({\bf \pi}\)</span>:</p>
+<div class="math">
+\begin{align*}
+p({\bf x}, y, {\bf z}, {\bf \pi})
+&amp;= p({\bf x}|y,{\bf z}) p({\bf z}) p(y|{\bf \pi}) p(\pi)
+\tag{B.1} \\
+\end{align*}
+</div>
+<p>Notice a couple of things:</p>
+<ol class="arabic simple">
+<li>In our generative model, our output (<span class="math">\({\bf x}\)</span>) only depends directly
+on <span class="math">\(y, {\bf z}\)</span>, not <span class="math">\(\pi\)</span>.</li>
+<li>We are now emphasizing the relationship between <span class="math">\(y\)</span> and <span class="math">\(\pi\)</span>,
+where <span class="math">\(y\)</span> depends on <span class="math">\(\pi\)</span>.</li>
+</ol>
+<p>Next, we'll have to change our posterior approximation a bit:</p>
+<div class="math">
+\begin{align*}
+q(\pi, {\bf z}|{\bf x}, y) &amp;= q({\bf z}|{\bf x})q(\pi|{\bf x}) \\
+q(\pi|{\bf x}) &amp;= \delta_{\pi_{q(y|{\bf x})}}(\pi) \\
+\tag{B.2}
+\end{align*}
+</div>
+<p>Notice that we're using <span class="math">\(q(\pi|{\bf x})\)</span> instead of <span class="math">\(q(y|{\bf x})\)</span>.
+This requires some explanation.  Recall, our approximation network
+(<span class="math">\(q(y|{\bf x})\)</span>) is outputting the <em>parameters</em> for our categorical
+variable <span class="math">\(y\)</span>, call it <span class="math">\(\pi_{q(y|{\bf x})}\)</span>, this clearly does not
+define a distribution over <span class="math">\(\pi\)</span>; it's actually just a point
+estimate of <span class="math">\(\pi\)</span>.  So how do we get <span class="math">\(q(\pi|{\bf x})\)</span>?  We take
+this point estimate and assume it defines a <a class="reference external" href="https://en.wikipedia.org/wiki/Dirac_delta_function">Dirac delta distribution</a>!  In other words, it's
+density is zero everywhere except at a single point and its integral over the
+entire support is <span class="math">\(1\)</span>.  This of course is some sort of hack to make the
+math work out but I think it's a bit more elegant than throwing an extra loss
+term or the hand-waving I did above.</p>
+<p>So now that we have re-defined our posterior approximation, we go through our
+ELBO equation as before:</p>
+<div class="math">
+\begin{align*}
+\log p_{\theta}({\bf x}, y) &amp;\geq
+    E_{q({\bf z}, {\bf \pi} | {\bf x}, y)}\bigg[
+    \log p_{\theta}({\bf x}, y, {\bf z}, {\bf \pi})
+    - \log q({\bf z}, {\bf \pi}|{\bf x}, y)
+\bigg] \\
+&amp;= E_{q({\bf z}, {\bf \pi} | {\bf x}, y)}\bigg[
+    \log p_{\theta}({\bf x} | y, {\bf z})
+    + \log p_{\theta}(y | {\bf \pi})
+    + \log p_{\theta}({\bf \pi})
+    + \log p_{\theta}({\bf z})
+    - \log q({\bf z}|{\bf x})
+    - \log q({\bf \pi}|{\bf x})
+   \bigg] \\
+&amp;= E_{q({\bf z} | {\bf x})}\bigg[
+    \log p_{\theta}({\bf x} | y, {\bf z})
+    + \log p_{\theta}({\bf z})
+    - \log q({\bf z}|{\bf x})
+   \bigg] \\
+&amp;\quad + E_{q({\bf \pi} | {\bf x})}\bigg[
+    \log p_{\theta}(y|{\bf \pi})
+    + \log p_{\theta}({\bf \pi})
+    - \log q({\bf \pi}|{\bf x})
+\bigg] \\
+&amp;= -\mathcal{L}({\bf x},y)
+  + E_{q({\bf \pi} | {\bf x})}\bigg[
+        \log p_{\theta}(y|{\bf \pi})
+    \bigg]
+    - KL[q({\bf \pi}|{\bf x})||p_{\theta}({\bf \pi})] + K_1 \\
+\tag{B.3}
+\end{align*}
+</div>
+<p>We expand our generative model and posterior approximation according to the
+factorizations in Equations B.1 and B.2, and then group them together
+into their respective expectations.  Finally, we see that the
+<span class="math">\(-\mathcal{L}({\bf x},y)\)</span> terms appear as before along with a KL
+divergence term.  Up until here, the derivation should resemble everything
+we've done before.</p>
+<p>From here, we have to deal with the KL divergence term... by getting rid of it!
+How can we do this?  Well, we really can't.  The KL divergence term is actually
+<span class="math">\(-\infty\)</span> (by method of taking the limit implicit in the Dirac delta
+distribution) because the divergence between a symmetric Dirichlet distribution
+(<span class="math">\(p(\pi)\)</span>) and a point estimate using a Dirac delta distribution
+(<span class="math">\(q(\pi|{\bf x})\)</span>) is infinite.  However, looking at it from another
+angle because we chose a Dirac delta distribution for the posterior
+approximation, the divergence will <em>always</em> be infinite.  So if it's always
+infinite, why even care about it in our loss function?  Hopefully, you kind of
+buy this argument:</p>
+<div class="math">
+\begin{align*}
+&amp;-\mathcal{L}({\bf x},y) + E_{q({\bf \pi} | {\bf x})}\bigg[
+        \log p_{\theta}(y|{\bf \pi})
+    \bigg] + K_1
+    - KL[q({\bf \pi}|{\bf x})||p_{\theta}({\bf \pi})] \\
+&amp;\approx -\mathcal{L}({\bf x},y)
+  + E_{q({\bf \pi} | {\bf x})}\bigg[
+        \log p_{\theta}(y|{\bf \pi})
+    \bigg] + K_1 \\
+    \tag{B.4}
+\end{align*}
+</div>
+<p>Continuing on (after getting rid of the KL divergence term), we utilize
+our selection of <span class="math">\(q(\pi|{\bf x})\)</span> as a Dirac delta distribution:</p>
+<div class="math">
+\begin{align*}
+&amp; -\mathcal{L}({\bf x},y) + E_{q({\bf \pi} | {\bf x})}\bigg[
+        \log p_{\theta}(y|{\bf \pi})
+    \bigg] + K_1 \\
+&amp;= -\mathcal{L}({\bf x},y)
+    + \int_{-\infty}^{\infty} q({\bf \pi} | {\bf x}) \log p(y|{\bf \pi}) d\pi
+    + K_1 \\
+&amp;= -\mathcal{L}({\bf x},y)
+    + \int_{-\infty}^{\infty}
+    \delta_{\pi_{q(y|{\bf x})}}(\pi) \log p(y|{\bf \pi}) d\pi
+    + K_1 \\
+&amp;=  -\mathcal{L}({\bf x},y)
+    + \log p(y|\pi_{q(y|{\bf x})})
+    + K_1 \\
+&amp;=  -\mathcal{L}({\bf x},y)
+    + \log [\prod_{i=1}^K (\pi_{q(y=i|{\bf x})})^{I(y=i)}]
+    + K_1 \\
+&amp;= -\mathcal{L}({\bf x},y) + \log q(y=i|{\bf x}) + K_1 \\
+&amp;\approx -\mathcal{L}({\bf x},y) + \alpha \log q(y=i|{\bf x}) + K_1 \\
+\tag{B.5}
+\end{align*}
+</div>
+<p>We can see the Dirac delta simplifies the expectation significantly,
+which just "filters" out the logarithm from the integral.
+Next, we expand out <span class="math">\(p(y|\pi_{q(y|{\bf x})})\)</span> with the PDF of
+a categorical variable at a given value of <span class="math">\(y\)</span> (<span class="math">\(I\)</span> is the indicator
+function).  The indicator function essentially filters out the proportion
+for the observed <span class="math">\(y\)</span> value, which is just the PDF of <span class="math">\(q(y|{\bf x})\)</span>,
+our approximate posterior as required.</p>
 <p><br></p>
 </div>
     </div>

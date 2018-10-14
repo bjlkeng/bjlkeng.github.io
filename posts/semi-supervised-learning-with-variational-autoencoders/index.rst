@@ -354,6 +354,10 @@ true (I think) but it's not that straightforward to derive!  Well, I worked out
 the details, so here's my presentation of deriving the variational objective
 with labelled data.
 
+*Updated (2018-10): After receiving some great questions from a few readers,
+I've taken another look at this and I believe I have a more sensible
+derivation.  See Appendix B below.*
+
 -----
 
 For the case when we have both :math:`(x,y)` points, we'll treat both :math:`z`
@@ -719,6 +723,143 @@ loss function (why work out any math when you're going to arbitrarily add
 things to the loss function?).  Please let me know if you have a better way of
 deriving this equation.
 
+|h2| Appendix B: Updated Derivation of Variational Objective with Labelled Data |h2e|
+
+First, we'll re-write the factorization of our generative model from Equation 4
+to explicitly show :math:`{\bf \pi}`:
+
+.. math::
+
+    p({\bf x}, y, {\bf z}, {\bf \pi})
+    &= p({\bf x}|y,{\bf z}) p({\bf z}) p(y|{\bf \pi}) p(\pi)
+    \tag{B.1} \\
+
+Notice a couple of things: 
+
+1. In our generative model, our output (:math:`{\bf x}`) only depends directly
+   on :math:`y, {\bf z}`, not :math:`\pi`.
+2. We are now emphasizing the relationship between :math:`y` and :math:`\pi`,
+   where :math:`y` depends on :math:`\pi`.
+
+Next, we'll have to change our posterior approximation a bit:
+
+
+.. math::
+
+    q(\pi, {\bf z}|{\bf x}, y) &= q({\bf z}|{\bf x})q(\pi|{\bf x}) \\
+    q(\pi|{\bf x}) &= \delta_{\pi_{q(y|{\bf x})}}(\pi) \\
+    \tag{B.2}
+
+Notice that we're using :math:`q(\pi|{\bf x})` instead of :math:`q(y|{\bf x})`.
+This requires some explanation.  Recall, our approximation network
+(:math:`q(y|{\bf x})`) is outputting the *parameters* for our categorical
+variable :math:`y`, call it :math:`\pi_{q(y|{\bf x})}`, this clearly does not
+define a distribution over :math:`\pi`; it's actually just a point
+estimate of :math:`\pi`.  So how do we get :math:`q(\pi|{\bf x})`?  We take
+this point estimate and assume it defines a `Dirac delta distribution
+<https://en.wikipedia.org/wiki/Dirac_delta_function>`__!  In other words, it's
+density is zero everywhere except at a single point and its integral over the
+entire support is :math:`1`.  This of course is some sort of hack to make the
+math work out but I think it's a bit more elegant than throwing an extra loss
+term or the hand-waving I did above.
+
+So now that we have re-defined our posterior approximation, we go through our
+ELBO equation as before: 
+ 
+.. math::
+
+    \log p_{\theta}({\bf x}, y) &\geq 
+        E_{q({\bf z}, {\bf \pi} | {\bf x}, y)}\bigg[ 
+        \log p_{\theta}({\bf x}, y, {\bf z}, {\bf \pi})
+        - \log q({\bf z}, {\bf \pi}|{\bf x}, y)
+    \bigg] \\
+    &= E_{q({\bf z}, {\bf \pi} | {\bf x}, y)}\bigg[ 
+        \log p_{\theta}({\bf x} | y, {\bf z})
+        + \log p_{\theta}(y | {\bf \pi})
+        + \log p_{\theta}({\bf \pi})
+        + \log p_{\theta}({\bf z})
+        - \log q({\bf z}|{\bf x})
+        - \log q({\bf \pi}|{\bf x})
+       \bigg] \\
+    &= E_{q({\bf z} | {\bf x})}\bigg[
+        \log p_{\theta}({\bf x} | y, {\bf z})
+        + \log p_{\theta}({\bf z})
+        - \log q({\bf z}|{\bf x})
+       \bigg] \\
+    &\quad + E_{q({\bf \pi} | {\bf x})}\bigg[ 
+        \log p_{\theta}(y|{\bf \pi})
+        + \log p_{\theta}({\bf \pi})
+        - \log q({\bf \pi}|{\bf x})
+    \bigg] \\
+    &= -\mathcal{L}({\bf x},y)
+      + E_{q({\bf \pi} | {\bf x})}\bigg[
+            \log p_{\theta}(y|{\bf \pi})
+        \bigg]
+        - KL[q({\bf \pi}|{\bf x})||p_{\theta}({\bf \pi})] + K_1 \\
+    \tag{B.3}
+
+We expand our generative model and posterior approximation according to the
+factorizations in Equations B.1 and B.2, and then group them together
+into their respective expectations.  Finally, we see that the
+:math:`-\mathcal{L}({\bf x},y)` terms appear as before along with a KL
+divergence term.  Up until here, the derivation should resemble everything
+we've done before.
+
+From here, we have to deal with the KL divergence term... by getting rid of it!
+How can we do this?  Well, we really can't.  The KL divergence term is actually
+:math:`-\infty` (by method of taking the limit implicit in the Dirac delta
+distribution) because the divergence between a symmetric Dirichlet distribution
+(:math:`p(\pi)`) and a point estimate using a Dirac delta distribution
+(:math:`q(\pi|{\bf x})`) is infinite.  However, looking at it from another
+angle because we chose a Dirac delta distribution for the posterior
+approximation, the divergence will *always* be infinite.  So if it's always
+infinite, why even care about it in our loss function?  Hopefully, you kind of
+buy this argument:
+
+
+.. math::
+
+    &-\mathcal{L}({\bf x},y) + E_{q({\bf \pi} | {\bf x})}\bigg[
+            \log p_{\theta}(y|{\bf \pi})
+        \bigg] + K_1
+        - KL[q({\bf \pi}|{\bf x})||p_{\theta}({\bf \pi})] \\
+    &\approx -\mathcal{L}({\bf x},y) 
+      + E_{q({\bf \pi} | {\bf x})}\bigg[
+            \log p_{\theta}(y|{\bf \pi})
+        \bigg] + K_1 \\
+        \tag{B.4}
+
+Continuing on (after getting rid of the KL divergence term), we utilize
+our selection of :math:`q(\pi|{\bf x})` as a Dirac delta distribution:
+
+.. math::
+    & -\mathcal{L}({\bf x},y) + E_{q({\bf \pi} | {\bf x})}\bigg[
+            \log p_{\theta}(y|{\bf \pi})
+        \bigg] + K_1 \\
+    &= -\mathcal{L}({\bf x},y)
+        + \int_{-\infty}^{\infty} q({\bf \pi} | {\bf x}) \log p(y|{\bf \pi}) d\pi
+        + K_1 \\
+    &= -\mathcal{L}({\bf x},y)
+        + \int_{-\infty}^{\infty} 
+        \delta_{\pi_{q(y|{\bf x})}}(\pi) \log p(y|{\bf \pi}) d\pi
+        + K_1 \\
+    &=  -\mathcal{L}({\bf x},y)
+        + \log p(y|\pi_{q(y|{\bf x})})
+        + K_1 \\
+    &=  -\mathcal{L}({\bf x},y)
+        + \log [\prod_{i=1}^K (\pi_{q(y=i|{\bf x})})^{I(y=i)}]
+        + K_1 \\
+    &= -\mathcal{L}({\bf x},y) + \log q(y=i|{\bf x}) + K_1 \\
+    &\approx -\mathcal{L}({\bf x},y) + \alpha \log q(y=i|{\bf x}) + K_1 \\
+    \tag{B.5}
+
+We can see the Dirac delta simplifies the expectation significantly, 
+which just "filters" out the logarithm from the integral.
+Next, we expand out :math:`p(y|\pi_{q(y|{\bf x})})` with the PDF of
+a categorical variable at a given value of :math:`y` (:math:`I` is the indicator
+function).  The indicator function essentially filters out the proportion
+for the observed :math:`y` value, which is just the PDF of :math:`q(y|{\bf x})`,
+our approximate posterior as required.
 
 
 |br|
