@@ -46,6 +46,17 @@ Write your post here.
 
 
 
+|h2| Implementaiton Details |h2e|
+
+
+
+* Getting the loss function right was hard
+* Constrain the sigmas for Z and for s
+* batch norm is kind of important for training deep networks...
+* RELU + batch_norm (no weight norm) for some reason totally bombed, switching to ELU changed things...
+* Each iteration of the code I seem to clean it up a bit more... it's just some hacking, no need to be clean
+
+
 |h2| Conclusion |h2e|
 
 |h2| Further Reading |h2e|
