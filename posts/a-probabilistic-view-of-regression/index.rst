@@ -263,7 +263,7 @@ values for the vector of :math:`{\bf \beta}` values:
 .. math::
 
     {\bf \beta}
-    &= \arg\min_{\bf \beta} \sum_{i=1}^{n} (y_i-\beta_0 + \beta_1 x_{1} + ... + \beta_p x_{p})^2 \\
+    &= \arg\min_{\bf \beta} \sum_{i=1}^{n} (y_i- (\beta_0 + \beta_1 x_{1} + ... + \beta_p x_{p}))^2 \\
     &= \arg\min_{\bf \beta} \sum_{i=1}^{n} (y_i-\hat{y_i})^2
     \tag{11}
 
