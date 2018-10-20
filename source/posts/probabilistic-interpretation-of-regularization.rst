@@ -66,7 +66,7 @@ that the maximum likelihood estimate for ordinary linear regression is given by:
 .. math::
 
     {\bf \hat{\beta}_{\text{MLE}}}
-    &= \arg\min_{\bf \beta} \sum_{i=1}^{n} (y_i-\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p})^2 \\
+    &= \arg\min_{\bf \beta} \sum_{i=1}^{n} (y_i- (\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p}))^2 \\
     &= \arg\min_{\bf \beta} \sum_{i=1}^{n} (y_i-\hat{y_i})^2
     \tag{1}
 
@@ -91,13 +91,13 @@ Two common schemes for regularization add a simple modification to Equation 1:
 .. math::
 
     {\bf \hat{\beta}_{\text{L1}}}
-    = \arg\min_{\bf \beta} \big( \sum_{i=1}^{n} (y_i-\beta_0 + \beta_1 x_{i, 1} + ... + \beta_p x_{i,p})^2 
+    = \arg\min_{\bf \beta} \big( \sum_{i=1}^{n} (y_i- (\beta_0 + \beta_1 x_{i, 1} + ... + \beta_p x_{i,p}))^2 
       + \lambda \sum_{j=0}^{p} | \beta_j | \big)
     \\
     \tag{2}
 
     {\bf \hat{\beta}_{\text{L2}}}
-    = \arg\min_{\bf \beta} \big( \sum_{i=1}^{n} (y_i-\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p})^2 
+    = \arg\min_{\bf \beta} \big( \sum_{i=1}^{n} (y_i-(\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p}))^2 
       + \lambda \sum_{j=0}^{p} | \beta_j | ^2 \big)
     \tag{3}
 
@@ -124,7 +124,7 @@ Recall Equation 1 can be derived from the likelihood function (without
 
     \mathcal{L({\bf \beta}|{\bf y})} &:= P({\bf y} | {\bf \beta}) \\
         &= \prod_{i=1}^{n} P_Y(y_i|{\bf \beta}, \sigma^2) \\
-        &= \prod_{i=1}^{n} \frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{(y_i-\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p})^2}{2\sigma^2}} 
+        &= \prod_{i=1}^{n} \frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{(y_i- (\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p}))^2}{2\sigma^2}} 
     \tag{4}
 
 where :math:`{\bf y}` are our observed data points (:math:`y_1, \ldots, y_N`) and
@@ -223,13 +223,13 @@ likelihood function from Equation 4 and our prior:
 
 .. math::
 
-   &\arg\max_{\bf \beta} \Big[ \log \prod_{i=1}^{n} \frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{(y_i-\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p})^2}{2\sigma^2}}  
+   &\arg\max_{\bf \beta} \Big[ \log \prod_{i=1}^{n} \frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{(y_i- (\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p}))^2}{2\sigma^2}}  
    + \log \prod_{j=0}^{p} \frac{1}{\tau\sqrt{2\pi}}e^{-\frac{\beta_j^2}{2\tau^2}} \Big] \\
-  &= \arg\max_{\bf \beta} \Big[- \sum_{i=1}^{n} {\frac{(y_i-\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p})^2}{2\sigma^2}}
+  &= \arg\max_{\bf \beta} \Big[- \sum_{i=1}^{n} {\frac{(y_i- (\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p}))^2}{2\sigma^2}}
    - \sum_{j=0}^{p} {\frac{\beta_j^2}{2\tau^2}} \Big]\\
-  &= \arg\min_{\bf \beta} \frac{1}{2\sigma^2} \big[ \sum_{i=1}^{n} (y_i-\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p})^2
+  &= \arg\min_{\bf \beta} \frac{1}{2\sigma^2} \big[ \sum_{i=1}^{n} (y_i-(\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p}))^2
    + \frac{\sigma^2}{\tau^2} \sum_{j=0}^{p} \beta_j^2 \big] \\
-  &= \arg\min_{\bf \beta} \big[ \sum_{i=1}^{n} (y_i-\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p})^2 + \lambda \sum_{j=0}^{p} \beta_j^2 \big]
+  &= \arg\min_{\bf \beta} \big[ \sum_{i=1}^{n} (y_i-(\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p}))^2 + \lambda \sum_{j=0}^{p} \beta_j^2 \big]
    \tag{8} 
 
 Notice that we dropped many of the constants (with respect to :math:`\beta`)
@@ -265,13 +265,13 @@ in the previous subsection:
 
 .. math::
 
-   &\arg\max_{\bf \beta} \Big[ \log \prod_{i=1}^{n} \frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{(y_i-\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p})^2}{2\sigma^2}}  
+   &\arg\max_{\bf \beta} \Big[ \log \prod_{i=1}^{n} \frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{(y_i- (\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p}))^2}{2\sigma^2}}  
    + \log \prod_{j=0}^{p} \frac{1}{2b}e^{-\frac{|\beta_j|}{2b}} \Big] \\
-  &= \arg\max_{\bf \beta} \Big[- \sum_{i=1}^{n} {\frac{(y_i-\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p})^2}{2\sigma^2}}
+  &= \arg\max_{\bf \beta} \Big[- \sum_{i=1}^{n} {\frac{(y_i- (\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p}))^2}{2\sigma^2}}
    - \sum_{j=0}^{p} {\frac{|\beta_j|}{2b}} \Big]\\
-  &= \arg\min_{\bf \beta} \frac{1}{2\sigma^2} \big[ \sum_{i=1}^{n} (y_i-\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p})^2
+  &= \arg\min_{\bf \beta} \frac{1}{2\sigma^2} \big[ \sum_{i=1}^{n} (y_i-(\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p}))^2
    + \frac{\sigma^2}{b} \sum_{j=0}^{p} |\beta_j| \big] \\
-  &= \arg\min_{\bf \beta} \big[ \sum_{i=1}^{n} (y_i-\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p})^2 + \lambda \sum_{j=0}^{p} |\beta_j| \big]
+  &= \arg\min_{\bf \beta} \big[ \sum_{i=1}^{n} (y_i-(\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p}))^2 + \lambda \sum_{j=0}^{p} |\beta_j| \big]
    \tag{9} 
 
 Again we can see that Equation 9 contains the same expression as L1
