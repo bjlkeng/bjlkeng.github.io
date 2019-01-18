@@ -133,18 +133,82 @@ at an example.
     might expect by adding up the critical path because the 
     `sum of two exponentials <https://math.stackexchange.com/questions/474775/sum-of-two-independent-exponential-distributions>`__
     is not a simple exponential distribution.)
-
-
     This example along with the one below is shown in the notebook
     **TODO{FIX ME}**.
 
+    Now suppose that there is a large penalty if we exceed 70 days.
+    Figure 2 shows the result of several Monte Carlo simulations
+    with different number of trials.
 
+    .. figure:: /images/dag_example1.png
+      :height: 300px
+      :alt: Estimated probability of occurence of tasks exceeding 70 days using Monte Carlo simulation.
+      :align: center
+
+      Figure 2: Estimated probability of occurence of tasks exceeding 70 days using Monte Carlo simulation.
+
+    You can see we over and under estimate the number of trials when N is low.  For N={1000, 10000}, we
+    in fact get 0 trials; for N={500,00, 100,000, 500,000} it looks like we've
+    overestimating it.  Only when we approach 1,000,000 do we get close to the
+    true estimate.  Of course, this rare occurrence would give use problems in
+    straight forward Monte Carlo simluations, the question is can we do better?
     
 
 |h2| Importance Sampling |h2e|
 
+It turns out there is a more efficient way to do Monte Carlo simulation and
+it's called *importance sampling*.  Let's suppose we want to compute
+the expected value of some random variable:
+:math:`E(f({\bf X})) = \int_{\mathcal{D}} f({\bf x})p({\bf x}) d{\bf x}`, where
+:math:`f({\bf x})` is some function on the random variables,
+:math:`p({\bf x})` is some probability density function on :math:`\mathbb{R}^{d}`.
+For some other density function :math:`q({\bf x})` over the same support, we have:
+
+.. math::
+
+    E_p(f({\bf X})) &= \int_{\mathcal{D}} f({\bf x})p({\bf x}) d{\bf x} \\
+                  &= \int_{\mathcal{D}} \frac{f({\bf x})p({\bf x})}{q({\bf x})} q({\bf x}) d{\bf x} \\
+                  &= E_q\big(\frac{f({\bf X})p({\bf X})}{q({\bf X})} \big) \\
+                  \tag{3}
+
+We simply just multiplied the numerator and denominator by :math:`q({\bf x})`
+to get Equation 3.  The interesting thing to notice here is that the expectation 
+has suddenly switched from being with respect to :math:`p({\bf x})` to
+:math:`q({\bf x})`.  The extra ratio between the two densities (called the
+*likelihood ratio*) is to compensate for using :math:`q({\bf x})` to sample
+instead of :math:`p({\bf x})`.  The distribution :math:`q` is called the
+*importance distribution* and :math:`p` is called the *nominal distribution*.
+There are some additional requirements on :math:`q`, such as it has to be
+positive everywhere :math:`f({\bf x})p({\bf x}) \neq 0` is positive, or else you would
+be dividing by 0.
+
+This leads us directly to the *importance sampling estimate*, which is simply
+just a restatement of Equation 2 with the expectation from Equation 3:
+
+.. math::
+
+    E_p(f({\bf X})) = 
+    E_q\big(\frac{f({\bf X})p({\bf X})}{q({\bf X})} \big)
+    \approx \frac{1}{n} \sum_{i=1}^n \frac{f({\bf x_i})p({\bf x_i})}{q({\bf x_i})} && \text{where } {\bf x_i} \sim {\bf q} \\
+    \tag{4}
+
+So why go through all this trouble?  The big result is this theorem:
+
+.. admonition:: Theorem 1: 
+
+    Let :math:`\mu=E_p(f({\bf X}))` and 
+    :math:`\hat{\mu_q} = E_q\big(\frac{f({\bf X})p({\bf X})}{q({\bf X})} \big)` 
+    where :math:`q` is positive whenever 
+    :math:`f({\bf x})p({\bf x}) \neq 0`, then :math:`E_q(\hat{\mu_q}) = \mu` and 
+    :math:`Var_q(\hat{\mu_q}) = \frac{\sigma^2_q}{n}` where
+
+    .. math::
+        
+       \sigma^2_q = \int \frac{(f({\bf x})p({\bf x}))^2}{q({\bf x})} dx - \mu^2
+       \tag{5}
 
 
+TODO ADD EXAMPLE HERE
 
 |h2| Estimating Marginal Likelihood in Variational Autoencoders |h2e|
 
