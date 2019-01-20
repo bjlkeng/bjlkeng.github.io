@@ -189,32 +189,116 @@ just a restatement of Equation 2 with the expectation from Equation 3:
 
     E_p(f({\bf X})) = 
     E_q\big(\frac{f({\bf X})p({\bf X})}{q({\bf X})} \big)
-    \approx \frac{1}{n} \sum_{i=1}^n \frac{f({\bf x_i})p({\bf x_i})}{q({\bf x_i})} && \text{where } {\bf x_i} \sim {\bf q} \\
+    &\approx \frac{1}{n} \sum_{i=1}^n \frac{f({\bf x_i})p({\bf x_i})}{q({\bf x_i})} && \text{where } {\bf x_i} \sim {\bf q} \\
+    \hat{\mu_q} &:= \frac{1}{n} \sum_{i=1}^n \frac{f({\bf x_i})p({\bf x_i})}{q({\bf x_i})} && \text{where } {\bf x_i} \sim {\bf q} \\
     \tag{4}
+
+The main idea here is that if we pick :math:`q` carefully, we *might* have a
+more efficient.  The simplest case is what we saw in Example 1, 
+for long-tail events, we can sample an alternate distribution that puts
+more density further out, allowing us to keep the Monte Carlo sampling
+reasonable.  The only caveat is that since we're using a different distribution
+than the actual, we have to adjust, which is where the extra likelihood ratio
+comes in.
 
 So why go through all this trouble?  The big result is this theorem:
 
 .. admonition:: Theorem 1: 
 
-    Let :math:`\mu=E_p(f({\bf X}))` and 
-    :math:`\hat{\mu_q} = E_q\big(\frac{f({\bf X})p({\bf X})}{q({\bf X})} \big)` 
-    where :math:`q` is positive whenever 
-    :math:`f({\bf x})p({\bf x}) \neq 0`, then :math:`E_q(\hat{\mu_q}) = \mu` and 
+    Let :math:`\mu=E_p(f({\bf X}))`, then :math:`E_q(\hat{\mu_q}) = \mu` and
     :math:`Var_q(\hat{\mu_q}) = \frac{\sigma^2_q}{n}` where
 
     .. math::
         
-       \sigma^2_q = \int \frac{(f({\bf x})p({\bf x}))^2}{q({\bf x})} dx - \mu^2
+       \sigma^2_q &= \int \frac{(f({\bf x})p({\bf x}))^2}{q({\bf x})} d{\bf x} - \mu^2 \\
+                  &= \int \frac{(f({\bf x})p({\bf x}) - \mu q({\bf x}))^2}{q({\bf x})} d{\bf x} \\
        \tag{5}
 
+Equation 5 follow directly from the fact that :math:`\hat{\mu_q}` is a 
+`mean of iid variables <http://scipp.ucsc.edu/~haber/ph116C/iid.pdf>`__
+and the fact that the underlying variable is our :math:`fp/q` (by simplifying
+the standard expression for variance, try multiplying :math:`q({\bf x})` on the
+top and bottom).
 
-TODO ADD EXAMPLE HERE
+We can see a desirable :math:`q` has a few properties:
+
+* From the first expression in Equation 5, we want :math:`q` to be close to :math:`fp`
+  so the variance is low (since :math:`\mu = \int f({\bf x})p({\bf x}) d{\bf x}`).
+  In general, we want it to have a similar shape; peaks and tails where we have
+  peaks in the original distribution.
+* From the second expression, we can also see that :math:`q` the variance is magnified
+  when :math:`q` is close to 0.  Again, we need to ensure :math:`q` has density
+  in similar places as :math:`p`.
+
+For standard distributions, we can usually take something with a similar shape, or
+slightly modified parameters.  It's kind of both an art and a science type of thing.
+For example, for Gaussian's we would use a t-distribution, and for exponentials we might
+shift the parameter around.  There are also a bunch of diagnostics to check whether
+or not the importance distribution matches.  Check out [1] for a more detailed treatment.
+
+
+.. admonition:: Example 2 (Continuing from Example 1): Computing the expected
+    number of times to miss a project deadline (source [1])
+
+    We can use importance sampling to drastically reduce the number of simulations
+    that we have to do.  Our importance distributions will exponential just like
+    our nominal distributions but with different parameters, :math:`T_j \sim Exp(\lambda_j)`,
+    that is, exponentially distributed with mean :math:`\lambda_j`.
+    We'll call our original parameters :math:`\theta_j` (durations listed in Table 1).
+    
+    The function we want to estimate is whether or not the project takes longer
+    than 70 days: :math:`\mathbb{1}(T_{10} \geq 70)` just like before (using the
+    indicator function).  From Equation 4, we get:
+
+    .. math::
+
+        \hat{\mu} = \frac{1}{n} \sum_{i=1}^n \mathbb{1}(T_{i,10} \geq 70) \prod_{j=1}^{10} 
+                    \frac{\frac{1}{\theta_j}exp(\frac{-T_{ij}}{\theta_j})}
+                         {\frac{1}{\lambda_j}exp(\frac{-T_{ij}}{\lambda_j})} \\
+                         \tag{6}
+   
+    Looking at the individual parts, you should be able to match it up to
+    :math:`f, p, q` with the main difference is that we are more explicit that
+    there is a vector of random variables.
+    
+    Now the bigger question is: what values are we going to use for the various
+    :math:`\lambda_j`?  So if we take a step back, we want to make the long-tail
+    event of :math:`T_{10} \geq 70` happen more often.  The obvious way is to
+    shift out the mean of the exponentials of our importance distribution so
+    that they happen more often.  We'll try two general ideas:
+
+    a. Multiply all durations by 4.
+    b. Multiply only the durations on the critical path by some constant.
+       The critical path in this case is task 1, 2, 4, 10.
+
+    Figure 3 shows the results of these experiments (the code is in the same
+    TODO FIX ME HERE notebook)
+
+    .. figure:: /images/importance_sampling.png
+      :height: 300px
+      :alt: Estimated mean using various importance sampling distributions.
+      :align: center
+
+      Figure 3: Estimated mean using various importance sampling distributions.
+
+    We can see that our first strategy (orange) of multiplying all durations
+    isn't very good.  Since we task, we distored the joint distribution too much
+    causing issues.  While it's convergence looks a bit smoother than the
+    original case, it still takes around 500,000+ samples to converge.
+
+    Looking at our critical path approach, it's much more efficient.  We can 
+    see it's pretty stable even at small values like 10,000.  As to which one
+    is better, it's not obvious that obvioius and it's a bit more of a subtle
+    question.  In any case, importance sampling can be extremely efficient with 
+    the *big* caveat that you need to pick the right importance distribution for
+    your problem.
+
 
 |h2| Estimating Marginal Likelihood in Variational Autoencoders |h2e|
 
 
 
-|h2| Implementaiton Details |h2e|
+|h2| Implementation Details |h2e|
 
 
 
