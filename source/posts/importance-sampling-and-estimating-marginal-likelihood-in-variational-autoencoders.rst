@@ -1,6 +1,6 @@
 .. title: Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders
 .. slug: importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders
-.. date: 2018-09-25 08:20:11 UTC-04:00
+.. date: 2019-01-20 08:20:11 UTC-04:00
 .. tags: variational calculus, autoencoders, importance sampling, generative models, MNIST, autoregressive, CIFAR10, Monte Carlo, mathjax
 .. category: 
 .. link: 
@@ -87,7 +87,7 @@ vector random variables.  Using the same idea as Equation 1, we have:
 where all of the quantities are now vectors and :math:`f` is a deterministic
 function.  
 For more well behaved smaller problems, we can get a reasonably good
-estimate of this expectation with :math:`\frac{1}{n}` convergence 
+estimate of this expectation with :math:`\frac{1}{\sqrt{n}}` convergence 
 (by the `central limit theorem <https://en.wikipedia.org/wiki/Central_limit_theorem>`__).
 That is, quadrupling the number of points halves the error.  Let's take a look
 at an example.
@@ -147,7 +147,7 @@ at an example.
 
       Figure 2: Estimated probability of occurence of tasks exceeding 70 days using Monte Carlo simulation.
 
-    You can see we over and under estimate the number of trials when N is low.  For N={1000, 10000}, we
+    You can see we over- and under-estimate the number of trials when N is low.  For N={1000, 10000}, we
     in fact get 0 trials; for N={500,00, 100,000, 500,000} it looks like we've
     overestimating it.  Only when we approach 1,000,000 do we get close to the
     true estimate.  Of course, this rare occurrence would give use problems in
@@ -288,13 +288,118 @@ or not the importance distribution matches.  Check out [1] for a more detailed t
 
     Looking at our critical path approach, it's much more efficient.  We can 
     see it's pretty stable even at small values like 10,000.  As to which one
-    is better, it's not obvious that obvioius and it's a bit more of a subtle
-    question.  In any case, importance sampling can be extremely efficient with 
-    the *big* caveat that you need to pick the right importance distribution for
-    your problem.
+    is better, it's not obvious and it's a bit more of a subtle question.  In
+    any case, importance sampling can be extremely efficient with the *big*
+    caveat that you need to pick the right importance distribution for your
+    problem.
 
 
 |h2| Estimating Marginal Likelihood in Variational Autoencoders |h2e|
+
+So how all does all this help us with autoencoders?  We all know that
+an autoencoder has two parts: a encoder and a decoder (also known as a
+generator).  The latter can be used to sample from a distribution, for example,
+of images.  Starting to sound familiar?  Below is the (ugly) diagram I made of
+a VAE from my post on `autoencoders <link://slug/variational-autoencoders>`__.
+
+.. figure:: /images/variational_autoencoder3.png
+  :height: 400px
+  :alt: Variational Autoencoder
+  :align: center
+
+  Figure 4: Variational Autoencoder Diagram
+
+You can see the bottom left neural network is the encoder and the top right is
+the generator (or decoder).  After training, we can just take the generator
+network, sample a standard Gaussian, feed it in to the generator, and out
+*should* pop a sample from your original data distribution.  The big question
+is does it?
+
+Evaluating the quality of generative models is a hard thing to do usually
+because you don't know the actual data distribution.  Instead, you just have a
+bunch of samples from it.  One way to evaluate models is to look at the
+marginal likelihood of your model.  That is, if your model is probabilistic 
+conditional on some random random variable we know how to sample:
+:math:`p_M(x|z)`, where :math:`X` is our resultant sample from our data
+distribution, :math:`Z` is something we know how to sample from e.g. a
+Gaussian, and :math:`M` is just indicating it's with respect to our model.  We
+you can estimate the marginal likelihood via Monte Carlo sampling like so:
+
+.. math::
+
+    P_M(X) = \int p_M(x|z) dz \approx \frac{1}{n} \sum_{i=1}^N p_M(x|z) \tag{7}
+
+This is just like Equation 1 and it tells us the probability of seeing the data 
+given our model :math:`M`.  The 
+`marginal likelihood <https://en.wikipedia.org/wiki/Marginal_likelihood>`__ is a common tactic that we can use to compare models in 
+`Bayesian model comparison <https://en.wikipedia.org/wiki/Bayes_factor>`__.
+Theoretically, this is a nice concept, we'll get a single number to tell us
+if one model is "better" than the other.  Unfortunately, this is not really the
+case for many deep generative models especially ones dealing with images, see
+[2] for more details.  The long and short of it is that any one metric doesn't
+necessarily correlate to improved qualitative performance; you need to evaluate
+it on a per task basis.
+In any case, we still would like to understand how the heck I can do this for a
+variational autoencoder!
+
+So there are two main problems when trying to do this for a VAE.  You need to:
+
+1. Make the model fully probabilistic.
+2. Efficiently sample from it.
+
+We'll talk about both in the next two subsections.
+
+|h3| Fully Probabilistic Variational Autoencoders |h3e|
+
+If you read my previous posts, you are probably wondering: aren't VAEs already
+probabilistic? I mean that's one the reasons why I like them so much!  Well,
+it actually depends on how you define it.  The main issue is that the output
+of the autoencoder.  
+
+So all the examples I've done up to now have been with images.  In most images,
+each pixel is either a greyscale integer from 0 to 255, or an RGB triplet
+composed of three integers from 0 to 255.  In either case, we *usually*
+constrain the output layer of the generator network to use a sigmoid with
+continuous range [0,1].  This naturally maps to 0 to 255 with scaling but it's
+not exactly correct because we actually have integers, not a continuous value.
+Moreover, the loss function we apply usually doesn't match the image data.
+
+For example, for greyscale images, we usually apply a sigmoid output with
+a binary cross entropy loss (for each pixel).  This is not the right assumption
+because a binary cross entropy loss maps to a Bernoulli (0/1) variable,
+definitely not the same thing as an integer in the [0,255] range.
+(This does work if you assume binarized pixels like in the Binarized MNIST dataset
+that I used for the
+`Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__ post.)
+Another common example is to use the same sigmoid on the output layer but
+use a MSE loss function.  This implicitly assumes a Gaussian on the output,
+which again, is not a valid assumption because it's continuous density is
+spread over the entire real-line.
+
+So how can we deal with this problem?  One method is to model each pixel intensity
+separately.  That's exactly what the PixelRNN/PixelCNN paper [4] does.  On the
+output, for each (sub-)pixel, it has a 256-way softmax to model each of the 0 to
+255 integer values.  Correspondingly, it puts a cross-entropy loss on each of
+the pixels and assumes each pixel is independent (sub-pixels have some
+conditional dependency).  This matches all the high-level assumptions of the
+data.  There are only two problems.  First, it's a gigantic model!  Having a
+32x32x3 256-way softmax isn't even close to fitting on my 8GB GPU (I can do
+about a quarter of this size).  It's also incredibly slow to train.  This model
+is kind of a luxury for Google researchers who have unlimited hardware.
+Second, the softmax has is missing some assumptions about the continuity of the
+data.  If the network is outputting pixel intensity of 127 but the actual is
+128, those two should be pretty "close" together and result in a small error.
+However, with this method 127 is treated no differently than 255.  Of course,
+after training with enough data the model's flexibility will be able to learn
+that they should be close but there is no built in assumption.  Overall, I
+personally couldn't really get this to work in a scalable way.
+
+Another more efficient method described in [5] is to assume that the underlying
+process
+
+use a mixture of
+continuous distributions but explicitly model the rounding that happens.
+
 
 
 
@@ -314,11 +419,12 @@ or not the importance distribution matches.  Check out [1] for a more detailed t
 |h2| Further Reading |h2e|
 
 * [1] "Importance Sampling", Art Owen, `<https://statweb.stanford.edu/~owen/mc/Ch-var-is.pdf>`__
-* [2] "Variational Inference with Normalizing Flows", Danilo Jimenez Rezende, Shakir Mohamed, `ICML 2015 <https://arxiv.org/abs/1505.05770>`__
-* [3] "Pixel Recurrent Neural Networks", Aaron van den Oord, Nal Kalchbrenner, Koray Kavukcuoglu, `<https://arxiv.org/pdf/1601.06759.pdf>`__
-
+* [2] "A Note on The Evaluation of Generative Models", Lucas Theis, Aäron van den Oord, Matthias Bethge, ICLR 2016.
+* [3] "Improving Variational Inference with Inverse Autoregressive Flow", Diederik P. Kingma, Tim Salimans, Rafal Jozefowicz, Xi Chen, Ilya Sutskever, Max Welling, `NIPS 2016 <https://arxiv.org/abs/1606.04934>`_
+* [4] "Pixel Recurrent Neural Networks", Aaron van den Oord, Nal Kalchbrenner, Koray Kavukcuoglu, `<https://arxiv.org/pdf/1601.06759.pdf>`__
+* [5] "PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications", Tim Salimans, Andrej Karpathy, Xi Chen, Diederik P. Kingma, 
+`<http://arxiv.org/abs/1701.05517>`__.
 * Wikipedia: `Importance Sampling <https://en.wikipedia.org/wiki/Importance_sampling>`__, `Monto Carlo methods <https://en.wikipedia.org/wiki/Monte_Carlo_method>`__
-
 * Previous posts: `Variational Autoencoders <link://slug/variational-autoencoders>`__, `A Variational Autoencoder on the SVHN dataset <link://slug/a-variational-autoencoder-on-the-svnh-dataset>`__, `Semi-supervised Learning with Variational Autoencoders <link://slug/semi-supervised-learning-with-variational-autoencoders>`__, `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__, `Variational Autoencoders with Inverse Autoregressive Flows <link://slug/variational-autoencoders-with-inverse-autoregressive-flows>`__
 
 
