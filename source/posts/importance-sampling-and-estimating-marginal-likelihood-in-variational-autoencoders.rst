@@ -378,10 +378,9 @@ spread over the entire real-line.
 
 So how can we deal with this problem?  One method is to model each pixel intensity
 separately.  That's exactly what the PixelRNN/PixelCNN paper [4] does.  On the
-output, for each (sub-)pixel, it has a 256-way softmax to model each of the 0 to
+output, for each sub-pixel, it has a 256-way softmax to model each of the 0 to
 255 integer values.  Correspondingly, it puts a cross-entropy loss on each of
-the pixels and assumes each pixel is independent (sub-pixels have some
-conditional dependency).  This matches all the high-level assumptions of the
+the sub-pixels.  This matches all the high-level assumptions of the
 data.  There are only two problems.  First, it's a gigantic model!  Having a
 32x32x3 256-way softmax isn't even close to fitting on my 8GB GPU (I can do
 about a quarter of this size).  It's also incredibly slow to train.  This model
@@ -395,10 +394,79 @@ that they should be close but there is no built in assumption.  Overall, I
 personally couldn't really get this to work in a scalable way.
 
 Another more efficient method described in [5] is to assume that the underlying
-process
+process works by first predicting a latent continuous colour intensity, then
+rounding it to the 0 to 255 integer.  By first using the latent continuous
+intensity, it's much more efficient to model and estimate.
+Assume the process works by first outputting a continuous distribution
+:math:`\nu` representing the colour intensity.  Then we'll model each sub-pixel
+by a mixture of a 
+`logistic distributions <https://en.wikipedia.org/wiki/Logistic_distribution>`__,
+followed by a rounding process to transform the density into a discrete
+distribution over the 0 to 255 values parameterized by the mixture weights
+:math:`\pi`, and parameters of the logistic :math:`\mu, s`:
 
-use a mixture of
-continuous distributions but explicitly model the rounding that happens.
+.. math::
+
+    \nu \sim \sum_{i=1}^K \pi_i logistic(\mu_i, s_i) \tag{8}
+
+This defines our continuous sub-pixel intensity distribution.  We then convert
+it to a mass function by assigning regions of it to the 0 to 255 pixels:
+
+.. math::
+
+    P(x|\pi, \mu,s,) = \sum_{i=1}^K \pi_i 
+        \big[\sigma(\frac{x+0.5-\mu_i}{s_i}) 
+        - \sigma(\frac{x-0.5-\mu_i}{s_i})\big] \tag{9}
+
+where :math:`\sigma` is the sigmoid function (recall sigmoid is the CDF of the
+logistic function), x is an integer value between 0 and 255. This is
+additionally modified for the edge cases to integrate over the rest of the number line.
+So for 0 intensity, we would integrate from :math:`-\infty` to 0.5, and for the
+255 intensity, we would integrate from :math:`254.5` to :math:`\infty`.
+
+The authors of [5] mention that this method naturally puts more mass on pixels
+0 and 255, which are more commonly seen.  Additionally, using 5 mixtures
+results in pretty good performance, making it much more efficient to generate
+(5 mixtures means 2 * 5 + 5 = 15 parameters on each sub-pixel vs. 256-way softmax).
+Due to the significantly fewer parameters, it should also train faster.
+
+The implementation of this is non-trivial.  Thankfully the authors released
+their code. There are definitely some strange subtleties in implementing it
+due to numerical instability.  I also have an implementation of it too.  I
+tried to do it from scratch but in the end had to look at their code and try to
+reverse engineer it.  I *think* I have something working, although the images
+I generate still have lots of artifacts, but I'm not sure if it's due to the loss
+or my weird CNN.  You can check it out below.
+
+
+|h3| Efficiently Estimating Marginal Likelihood using Importance Sampling |h3e|
+
+Finally, we are getting to the whole point of this article!
+So how can we estimate the marginal likelihood?  Well the simplest way is to
+just apply Equation 7:
+
+- For each point :math:`x` in your test set:
+    - Sample :math:`N` :math:`\bf z` vectors as standard independent Gaussians.
+    - Use Equation 9 to estimate :math:`p_M(x|z)` for each of the :math:`N` samples.
+      (depending on your generator, the pixels will be independent or
+      conditional on each other).
+    - Use Equation 7 to estimate compute the marginal likelihood :math:`P_M(X)`
+      by averaging over all the probabilities.
+
+
+
+But... there's a bit problem with this method: the 
+`curse of dimensionality <https://en.wikipedia.org/wiki/Curse_of_dimensionality>`__!
+Recall, our standard VAE has a vector of latent :math:`Z` variable distributed
+as independent standard Gaussians.  To get good coverage of the latent space,
+we would have to sample an exponential number of samples from the generator.
+Obviously not something we want to do for a 100 dimension latent space.  If
+only we could sample from an alternate distribution that would allow us compute
+the same quantity more efficiently...  Enter importance sampling.
+
+Recall from our discussion above for importance sampling, we need to select an
+importance distribution that has a similar shape to our original distribution.
+For example, if our VAE is trained on images, then we'd like to sample
 
 
 
@@ -422,9 +490,8 @@ continuous distributions but explicitly model the rounding that happens.
 * [2] "A Note on The Evaluation of Generative Models", Lucas Theis, Aäron van den Oord, Matthias Bethge, ICLR 2016.
 * [3] "Improving Variational Inference with Inverse Autoregressive Flow", Diederik P. Kingma, Tim Salimans, Rafal Jozefowicz, Xi Chen, Ilya Sutskever, Max Welling, `NIPS 2016 <https://arxiv.org/abs/1606.04934>`_
 * [4] "Pixel Recurrent Neural Networks", Aaron van den Oord, Nal Kalchbrenner, Koray Kavukcuoglu, `<https://arxiv.org/pdf/1601.06759.pdf>`__
-* [5] "PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications", Tim Salimans, Andrej Karpathy, Xi Chen, Diederik P. Kingma, 
-`<http://arxiv.org/abs/1701.05517>`__.
+* [5] "PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications", Tim Salimans, Andrej Karpathy, Xi Chen, Diederik P. Kingma, `<http://arxiv.org/abs/1701.05517>`__.
+* PixelCNN++ code on Github: https://github.com/openai/pixel-cnn
 * Wikipedia: `Importance Sampling <https://en.wikipedia.org/wiki/Importance_sampling>`__, `Monto Carlo methods <https://en.wikipedia.org/wiki/Monte_Carlo_method>`__
 * Previous posts: `Variational Autoencoders <link://slug/variational-autoencoders>`__, `A Variational Autoencoder on the SVHN dataset <link://slug/a-variational-autoencoder-on-the-svnh-dataset>`__, `Semi-supervised Learning with Variational Autoencoders <link://slug/semi-supervised-learning-with-variational-autoencoders>`__, `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__, `Variational Autoencoders with Inverse Autoregressive Flows <link://slug/variational-autoencoders-with-inverse-autoregressive-flows>`__
-
 
