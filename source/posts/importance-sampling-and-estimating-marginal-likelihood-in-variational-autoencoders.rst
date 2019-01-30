@@ -133,8 +133,7 @@ at an example.
     might expect by adding up the critical path because the 
     `sum of two exponentials <https://math.stackexchange.com/questions/474775/sum-of-two-independent-exponential-distributions>`__
     is not a simple exponential distribution.)
-    This example along with the one below is shown in the notebook
-    **TODO{FIX ME}**.
+    This example along with the one below is shown in this: `notebook <https://github.com/bjlkeng/sandbox/blob/master/notebooks/vae-importance_sampling/DAG_example.ipynb>`__.
 
     Now suppose that there is a large penalty if we exceed 70 days.
     Figure 2 shows the result of several Monte Carlo simulations
@@ -271,8 +270,9 @@ or not the importance distribution matches.  Check out [1] for a more detailed t
     b. Multiply only the durations on the critical path by some constant.
        The critical path in this case is task 1, 2, 4, 10.
 
-    Figure 3 shows the results of these experiments (the code is in the same
-    TODO FIX ME HERE notebook)
+    Figure 3 shows the results of these experiments 
+    (the code is in the same:
+    `notebook <https://github.com/bjlkeng/sandbox/blob/master/notebooks/vae-importance_sampling/DAG_example.ipynb>`__).
 
     .. figure:: /images/importance_sampling.png
       :height: 300px
@@ -323,11 +323,14 @@ conditional on some random random variable we know how to sample:
 :math:`p_M(x|z)`, where :math:`X` is our resultant sample from our data
 distribution, :math:`Z` is something we know how to sample from e.g. a
 Gaussian, and :math:`M` is just indicating it's with respect to our model.  We
-you can estimate the marginal likelihood via Monte Carlo sampling like so:
+you can estimate the marginal likelihood via Monte Carlo sampling for a 
+single data point :math:`X` like so:
 
 .. math::
 
-    P_M(X) = \int p_M(x|z) dz \approx \frac{1}{n} \sum_{i=1}^N p_M(x|z) \tag{7}
+    P_M(X) = \int p_M(x|z) dz \approx \frac{1}{N} \sum_{i=1}^N p_M(x|z_i),
+    && z_i \sim \mathcal{N}(0, 1) \\
+    \tag{7}
 
 This is just like Equation 1 and it tells us the probability of seeing the data 
 given our model :math:`M`.  The 
@@ -453,8 +456,6 @@ just apply Equation 7:
     - Use Equation 7 to estimate compute the marginal likelihood :math:`P_M(X)`
       by averaging over all the probabilities.
 
-
-
 But... there's a bit problem with this method: the 
 `curse of dimensionality <https://en.wikipedia.org/wiki/Curse_of_dimensionality>`__!
 Recall, our standard VAE has a vector of latent :math:`Z` variable distributed
@@ -466,14 +467,90 @@ the same quantity more efficiently...  Enter importance sampling.
 
 Recall from our discussion above for importance sampling, we need to select an
 importance distribution that has a similar shape to our original distribution.
-For example, if our VAE is trained on images, then we'd like to sample
+Our nominal distribution are independent standard Gaussians so we need something
+similar in shape... how about the scaled and shifted Gaussians from our encoder?!
+In fact, this is the perfect importance distribution because it's precisely the
+same shape and catches all the density under the function we care about:
+:math:`p(x|z)`.
+(This is actually the exact motivation we had for having the "encoder"
+in a VAE, we want to make the probability of :math:`p(x|z)` high without having
+to randomly sample about the :math:`Z` space.)
+Of course, we can't just use it directly because that would bias the estimate,
+so that's where importance sampling comes in.
+
+So all of that just to say that we use the generator's outputs to sample
+:math:`Z` values from the scaled and shifted Gaussians in order to ultimately 
+computer an estimate for :math:`P(X)`.  The final equation to estimate
+the likelihood for a single data point :math:`X` looks something like this:
+
+.. math::
+
+    P_M(X) = \int p_M(X|z) dz \approx \frac{1}{N} \sum_{i=1}^N 
+        \frac{p_M(X|z_i)p_{\mathcal{N}(0,1)}(z_i)}{q_{\mathcal{N}(\mu(X), \sigma(X))}(z_i)},
+    && z_i \sim \mathcal{N}(\mu(X), \sigma(X)) \\
+    \tag{10}
+
+where :math:`\mu, \sigma` are the corresponding outputs from the generator
+network.  Compared to Equation 7, :math:`N` can be significantly smaller (I
+used :math:`N=128` in the experiments).
+
+|h2| Experiments |h2e|
+
+I implemented this for two vanilla VAEs corresponding to binarized MNIST and CIFAR10.
+You can find the code on my `Github
+<https://github.com/bjlkeng/sandbox/tree/master/notebooks/vae-importance_sampling>`__.
+Table 1 shows the results of these two experiments using the two standard
+metrics: log marginal likelihood and the bits per pixel.  The latter metric
+simply is the negative logarithm base 2 divided by the total number of
+(sub-)pixels.  This is supposed to give the theoretical average number of bits
+you need to encode the information using this encoding scheme (information
+theory result).
+
+.. csv-table:: Table 1: Importance Sampling Results
+   :header: "Model", "log p(x)", "Bits/pixel (:math:`-\log_2 p(x) / pixels`)"
+   :widths: 15, 10, 10
+   :align: center
+
+   "Binarized MNIST", -87.08, 0.16
+   "CIFAR10", -20437, 6.65
+
+My results are relatively poor compared to the state of the art.  For example,
+in the IAF paper [3], they report :math:`\log p(x)` of :math:`-81.08` vs.
+my VAE of :math:`-87.08` for a vanilla autoencoder.  While for CIFAR10, they
+achieve results around the 3.11 bits/pixel range vs. my implementation of 6.65.
+My only consolation is that one of the previous results reports a 8.0
+bits/pixel, so at least it's better than that one!  These start of the art
+models is something that I'm interested in and I'm probably going to get around
+to looking at them sooner or later.
 
 
+|h3| Implementation Details |h3e|
+
+The implementation of this was a bit more complicated that I had expected for two
+reasons: making the autoencoder fully probabilistic (see section above) and
+then some of the details when actually computing the importance samples.
+
+For the binarized MNIST, it was pretty straight forward to implement.  Here
+are the notes.
+
+* The output just needs to be a sigmoid, which is interpreted as the :math:`p`
+  parameter of a Bernoulli variable since we're modelling binarized output data
+  (not greyscale).
+* :math:`\log p(x|z)` is a simply binary cross entropy expression.
+* :math:`p(z)` and :math:`q(z)` are just Gaussian densities.
+* I calculated all the individual terms in log-space (:math:`\log p(x|z), \log
+  p(x), \log q(x)`), which gets you the logarithm of the expression on the
+  inside of the summation in Equation 10.  However, you still need to convert
+  back to non-log-space and do the summation, and then take the logarithm to
+  get :math:`\log p(x)`.  To do this efficiently, you need to use the
+  `logsumexp <https://en.wikipedia.org/wiki/LogSumExp>`__ function, otherwise
+  you'll get some numerical instability when you try to take exponentials.
+  Fortunately, this is a common operation and `numpy` has a function for it.
 
 
-|h2| Implementation Details |h2e|
+For CIFAR 10, it was a bit more complicated and I had to make a few more tweaks (above and beyond the above notes) in order to get things working:
 
-
+TODO FIX ME
 
 * Getting the loss function right was hard
 * Constrain the sigmas for Z and for s
