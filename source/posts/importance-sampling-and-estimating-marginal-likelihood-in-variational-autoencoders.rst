@@ -4,7 +4,7 @@
 .. tags: variational calculus, autoencoders, importance sampling, generative models, MNIST, autoregressive, CIFAR10, Monte Carlo, mathjax
 .. category: 
 .. link: 
-.. description: A short post describing how to use importance sampling to estimate marginal likelihood in variational autoencoers.
+.. description: A short post describing how to use importance sampling to estimate marginal likelihood in variational autoencoders.
 .. type: text
 
 .. |br| raw:: html
@@ -55,7 +55,7 @@ to build some good intuition around this topic.  Enjoy!
 
 |h2| A Brief Review of Monte Carlo Simulation |h2e|
 
-`Monto Carlo simulation <https://en.wikipedia.org/wiki/Monte_Carlo_method>`__
+`Monte Carlo simulation <https://en.wikipedia.org/wiki/Monte_Carlo_method>`__
 methods are a broad class of algorithms that use repeated sampling 
 (hence Monte Carlo like the casino in Monaco) to obtain a numerical result.
 These techniques are useful when we cannot explicitly compute the end result.
@@ -141,16 +141,16 @@ at an example.
 
     .. figure:: /images/dag_example1.png
       :height: 300px
-      :alt: Estimated probability of occurence of tasks exceeding 70 days using Monte Carlo simulation.
+      :alt: Estimated probability of occurrence of tasks exceeding 70 days using Monte Carlo simulation.
       :align: center
 
-      Figure 2: Estimated probability of occurence of tasks exceeding 70 days using Monte Carlo simulation.
+      Figure 2: Estimated probability of occurrence of tasks exceeding 70 days using Monte Carlo simulation.
 
     You can see we over- and under-estimate the number of trials when N is low.  For N={1000, 10000}, we
     in fact get 0 trials; for N={500,00, 100,000, 500,000} it looks like we've
     overestimating it.  Only when we approach 1,000,000 do we get close to the
     true estimate.  Of course, this rare occurrence would give use problems in
-    straight forward Monte Carlo simluations, the question is can we do better?
+    straight forward Monte Carlo simulations, the question is can we do better?
     
 
 |h2| Importance Sampling |h2e|
@@ -282,7 +282,7 @@ or not the importance distribution matches.  Check out [1] for a more detailed t
       Figure 3: Estimated mean using various importance sampling distributions.
 
     We can see that our first strategy (orange) of multiplying all durations
-    isn't very good.  Since we task, we distored the joint distribution too much
+    isn't very good.  Since we task, we distorted the joint distribution too much
     causing issues.  While it's convergence looks a bit smoother than the
     original case, it still takes around 500,000+ samples to converge.
 
@@ -360,14 +360,14 @@ it actually depends on how you define it.  The main issue is that the output
 of the autoencoder.  
 
 So all the examples I've done up to now have been with images.  In most images,
-each pixel is either a greyscale integer from 0 to 255, or an RGB triplet
+each pixel is either a grey-scale integer from 0 to 255, or an RGB triplet
 composed of three integers from 0 to 255.  In either case, we *usually*
 constrain the output layer of the generator network to use a sigmoid with
 continuous range [0,1].  This naturally maps to 0 to 255 with scaling but it's
 not exactly correct because we actually have integers, not a continuous value.
 Moreover, the loss function we apply usually doesn't match the image data.
 
-For example, for greyscale images, we usually apply a sigmoid output with
+For example, for grey-scale images, we usually apply a sigmoid output with
 a binary cross entropy loss (for each pixel).  This is not the right assumption
 because a binary cross entropy loss maps to a Bernoulli (0/1) variable,
 definitely not the same thing as an integer in the [0,255] range.
@@ -535,7 +535,7 @@ are the notes.
 
 * The output just needs to be a sigmoid, which is interpreted as the :math:`p`
   parameter of a Bernoulli variable since we're modelling binarized output data
-  (not greyscale).
+  (not grey-scale).
 * :math:`\log p(x|z)` is a simply binary cross entropy expression.
 * :math:`p(z)` and :math:`q(z)` are just Gaussian densities.
 * I calculated all the individual terms in log-space (:math:`\log p(x|z), \log
@@ -574,7 +574,7 @@ For CIFAR 10, it was a bit more complicated and I had to make a few more tweaks 
   corruption but at very regular grid-like patterns.  I was wondering if it was
   due to the CNN strides that I was doing.  In retrospect though, I think it might
   be because I'm using a single logistic distribution.  In the paper, they used
-  a mixture of five, which probably will have much better behavior.
+  a mixture of five, which probably will have much better behaviour.
 * My code isn't the cleanest because I'm really just prototyping here.  Somehow
   each time I try to write a VAE, I clean it up a bit more.  It's getting there
   but still nothing I would actually put in production.
@@ -586,7 +586,7 @@ Well all that to explain a "simple" concept: how to measure the estimate
 likelihood with variational encoders.  I do kind of like these things where a
 seemingly simple task requires you to:
 (a) understand basic statistics (importance sampling),
-(b) deeply understand the underlying method (VAEs, fully probabilitic models with mixtures of logistics)
+(b) deeply understand the underlying method (VAEs, fully probabilistic models with mixtures of logistics)
 (c) get the implementation details right!
 These posts always seem to take longer than I initially think.  Every topic
 is much deeper than I thought and I can't help but going down the rabbit hole
@@ -605,6 +605,6 @@ distracted by all these other interesting topics!
 * [4] "Pixel Recurrent Neural Networks", Aaron van den Oord, Nal Kalchbrenner, Koray Kavukcuoglu, `<https://arxiv.org/pdf/1601.06759.pdf>`__
 * [5] "PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications", Tim Salimans, Andrej Karpathy, Xi Chen, Diederik P. Kingma, `<http://arxiv.org/abs/1701.05517>`__.
 * PixelCNN++ code on Github: https://github.com/openai/pixel-cnn
-* Wikipedia: `Importance Sampling <https://en.wikipedia.org/wiki/Importance_sampling>`__, `Monto Carlo methods <https://en.wikipedia.org/wiki/Monte_Carlo_method>`__
+* Wikipedia: `Importance Sampling <https://en.wikipedia.org/wiki/Importance_sampling>`__, `Monte Carlo methods <https://en.wikipedia.org/wiki/Monte_Carlo_method>`__
 * Previous posts: `Variational Autoencoders <link://slug/variational-autoencoders>`__, `A Variational Autoencoder on the SVHN dataset <link://slug/a-variational-autoencoder-on-the-svnh-dataset>`__, `Semi-supervised Learning with Variational Autoencoders <link://slug/semi-supervised-learning-with-variational-autoencoders>`__, `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__, `Variational Autoencoders with Inverse Autoregressive Flows <link://slug/variational-autoencoders-with-inverse-autoregressive-flows>`__
 
