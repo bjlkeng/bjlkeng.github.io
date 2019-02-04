@@ -519,7 +519,7 @@ in the IAF paper [3], they report :math:`\log p(x)` of :math:`-81.08` vs.
 my VAE of :math:`-87.08` for a vanilla autoencoder.  While for CIFAR10, they
 achieve results around the 3.11 bits/pixel range vs. my implementation of 6.65.
 My only consolation is that one of the previous results reports a 8.0
-bits/pixel, so at least it's better than that one!  These start of the art
+bits/pixel, so at least it's better than that one!  These state of the art
 models is something that I'm interested in and I'm probably going to get around
 to looking at them sooner or later.
 
@@ -550,16 +550,52 @@ are the notes.
 
 For CIFAR 10, it was a bit more complicated and I had to make a few more tweaks (above and beyond the above notes) in order to get things working:
 
-TODO FIX ME
-
-* Getting the loss function right was hard
-* Constrain the sigmas for Z and for s
-* batch norm is kind of important for training deep networks...
-* RELU + batch_norm (no weight norm) for some reason totally bombed, switching to ELU changed things...
-* Each iteration of the code I seem to clean it up a bit more... it's just some hacking, no need to be clean
+* To make the VAE fully probabilistic, I used the mixtures of logistics
+  technique described above except with only one logistic distribution.
+* To make things converge consistently, I also had to constrain the `sigma`
+  of the latent variable, as well as the inverse `s` parameter of the logistic
+  distribution.  The former used a tanh multiplied by 5, the latter used a sigmoid
+  scaled by 7.  These are pretty wide ranges for the distributions, which seem to 
+  work okay. Letting it by any real number, at least in my experience, causes lots
+  of NaNs to appear.
+* The loss function was incredibly difficult to get right.  In the end, I followed
+  almost exactly what Kingma [5] did in his implementation which is here:
+  `<https://github.com/openai/pixel-cnn>`__.  It was incredibly hard to decode
+  what he was doing though.  I had to spend a lot of time going step-by-step
+  understanding what he did with all the random operations and constants
+  going on.  A big trick was that you had to do some funky stuff to check for 
+  invalid values or else Tensorflow would propagate NaNs through.
+  I put some comments in my implementations and my naming is maybe
+  a bit better?  So hopefully both you and I can remember next time I read it.
+* I used ResNet architecture as a base for both the encoder and decoder.  I
+  initially turned off batch normalization but the network had a lot of trouble
+  fitting.  Batch norm is really useful!
+* My actual reconstructed final images are pretty terrible.  There is a lot of
+  corruption but at very regular grid-like patterns.  I was wondering if it was
+  due to the CNN strides that I was doing.  In retrospect though, I think it might
+  be because I'm using a single logistic distribution.  In the paper, they used
+  a mixture of five, which probably will have much better behavior.
+* My code isn't the cleanest because I'm really just prototyping here.  Somehow
+  each time I try to write a VAE, I clean it up a bit more.  It's getting there
+  but still nothing I would actually put in production.
 
 
 |h2| Conclusion |h2e|
+
+Well all that to explain a "simple" concept: how to measure the estimate
+likelihood with variational encoders.  I do kind of like these things where a
+seemingly simple task requires you to:
+(a) understand basic statistics (importance sampling),
+(b) deeply understand the underlying method (VAEs, fully probabilitic models with mixtures of logistics)
+(c) get the implementation details right!
+These posts always seem to take longer than I initially think.  Every topic
+is much deeper than I thought and I can't help but going down the rabbit hole
+to understand the details (to a `satisficing
+<https://en.wikipedia.org/wiki/Satisficing>`__ degree).  
+Anyways, look out for more posts in the future, I really do want to
+finally get to state-of-the-art (non-GAN) generative models but I keep getting
+distracted by all these other interesting topics!
+
 
 |h2| Further Reading |h2e|
 
