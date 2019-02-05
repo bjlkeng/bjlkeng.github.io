@@ -1,6 +1,6 @@
 .. title: Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders
 .. slug: importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders
-.. date: 2019-01-20 08:20:11 UTC-04:00
+.. date: 2019-02-04 08:20:11 UTC-04:00
 .. tags: variational calculus, autoencoders, importance sampling, generative models, MNIST, autoregressive, CIFAR10, Monte Carlo, mathjax
 .. category: 
 .. link: 
@@ -41,15 +41,15 @@ generative models.  There's so much in ML that you can't help learning a lot
 of random things along the way.  That's why it's interesting, right?
 
 Today's topic is *importance sampling*.  It's a really old idea that you may
-have learned in a statistics class (I didn't) but somehow in deep learning,
+have learned in a statistics class (I didn't) but somehow is useful in deep learning,
 what's old is new right?  How this is relevant to the discussion is that when
 we have a model without an explicit likelihood function (e.g. a variational
 autoencoder), we still want to be able to estimate the marginal likelihood
-given the data.  It's kind of a throwaway line in the experiments of some VAE
-papers when comparing different models.  I was curious how it was computed and
-it took me down this rabbit hole.  Turns out it's actually pretty interesting!
-As usual, I'll have a mix of background material, examples, math and code 
-to build some good intuition around this topic.  Enjoy!
+given the data.  The marginal likelihood is kind of a throwaway line in the
+experiments of some VAE papers when comparing different models.  I was curious
+how it was computed and it took me down this rabbit hole.  Turns out it's
+actually pretty interesting!  As usual, I'll have a mix of background material,
+examples, math and code to build some intuition around this topic.  Enjoy!
 
 .. TEASER_END
 
@@ -76,7 +76,7 @@ This is a simple restatement of the
 `law of large numbers <https://en.wikipedia.org/wiki/Law_of_large_numbers>`__.
 To make this a bit more useful, we don't just want the expectation of a single
 random variable, instead we usually have some (deterministic) function of a
-vector random variables.  Using the same idea as Equation 1, we have:
+vector of random variables.  Using the same idea as Equation 1, we have:
 
 .. math::
 
@@ -136,8 +136,8 @@ at an example.
     This example along with the one below is shown in this: `notebook <https://github.com/bjlkeng/sandbox/blob/master/notebooks/vae-importance_sampling/DAG_example.ipynb>`__.
 
     Now suppose that there is a large penalty if we exceed 70 days.
-    Figure 2 shows the result of several Monte Carlo simulations
-    with different number of trials.
+    Figure 2 shows the estimated probability of exceeding 70 days over several
+    Monte Carlo simulations with different number of trials.
 
     .. figure:: /images/dag_example1.png
       :height: 300px
@@ -147,9 +147,9 @@ at an example.
       Figure 2: Estimated probability of occurrence of tasks exceeding 70 days using Monte Carlo simulation.
 
     You can see we over- and under-estimate the number of trials when N is low.  For N={1000, 10000}, we
-    in fact get 0 trials; for N={500,00, 100,000, 500,000} it looks like we've
+    in fact get 0 trials; for N={500k, 100k, 500k} it looks like we've
     overestimating it.  Only when we approach 1,000,000 do we get close to the
-    true estimate.  Of course, this rare occurrence would give use problems in
+    true estimate.  Of course, this rare occurrence would give us problems in
     straight forward Monte Carlo simulations, the question is can we do better?
     
 
@@ -193,7 +193,7 @@ just a restatement of Equation 2 with the expectation from Equation 3:
     \tag{4}
 
 The main idea here is that if we pick :math:`q` carefully, we *might* have a
-more efficient.  The simplest case is what we saw in Example 1, 
+more efficient method.  The simplest case is what we saw in Example 1, 
 for long-tail events, we can sample an alternate distribution that puts
 more density further out, allowing us to keep the Monte Carlo sampling
 reasonable.  The only caveat is that since we're using a different distribution
@@ -215,43 +215,48 @@ So why go through all this trouble?  The big result is this theorem:
 
 Equation 5 follow directly from the fact that :math:`\hat{\mu_q}` is a 
 `mean of iid variables <http://scipp.ucsc.edu/~haber/ph116C/iid.pdf>`__
-and the fact that the underlying variable is our :math:`fp/q` (by simplifying
-the standard expression for variance, try multiplying :math:`q({\bf x})` on the
-top and bottom).
+and the fact that the underlying variable is our :math:`fp/q` (to get the second expression in Equation 5, try multiplying :math:`q({\bf x})` on the top and bottom).
 
 We can see a desirable :math:`q` has a few properties:
 
 * From the first expression in Equation 5, we want :math:`q` to be close to :math:`fp`
   so the variance is low (since :math:`\mu = \int f({\bf x})p({\bf x}) d{\bf x}`).
   In general, we want it to have a similar shape; peaks and tails where we have
-  peaks in the original distribution.
-* From the second expression, we can also see that :math:`q` the variance is magnified
+  peaks and tails in the original distribution.
+* From the second expression, we can also see that the variance is magnified
   when :math:`q` is close to 0.  Again, we need to ensure :math:`q` has density
   in similar places as :math:`p`.
 
 For standard distributions, we can usually take something with a similar shape, or
-slightly modified parameters.  It's kind of both an art and a science type of thing.
-For example, for Gaussian's we would use a t-distribution, and for exponentials we might
-shift the parameter around.  There are also a bunch of diagnostics to check whether
-or not the importance distribution matches.  Check out [1] for a more detailed treatment.
+the same distribution but with slightly modified parameters.  It's kind of both
+an art and a science type of thing.  For example, for Gaussian's we would use a
+t-distribution, and for exponentials we might shift the parameter around.
+Note that it's not guaranteed to actually improve your sampling efficiency though.
+However, if you do some careful selection of the importance distribution it can
+be quite efficient.  There are a bunch of diagnostics to check whether or not
+the importance distribution matches.  Check out [1] for a more detailed
+treatment.
 
 
 .. admonition:: Example 2 (Continuing from Example 1): Computing the expected
     number of times to miss a project deadline (source [1])
 
     We can use importance sampling to drastically reduce the number of simulations
-    that we have to do.  Our importance distributions will exponential just like
-    our nominal distributions but with different parameters, :math:`T_j \sim Exp(\lambda_j)`,
-    that is, exponentially distributed with mean :math:`\lambda_j`.
-    We'll call our original parameters :math:`\theta_j` (durations listed in Table 1).
+    that we have to do.  Our importance distributions will be exponential just like
+    our nominal distributions but with different parameters. 
+    Our new importance distributions will be exponentials with mean :math:`\lambda_j`,
+    call it :math:`T_j \sim Exp(\lambda_j)`.
+    We'll call the original parameters for our exponentials as :math:`\theta_j`
+    (durations listed in Table 1).  We'll call the total duration of all tasks
+    :math:`D_i = \sum_{i,j} T_{ij}`.
     
     The function we want to estimate is whether or not the project takes longer
-    than 70 days: :math:`\mathbb{1}(T_{10} \geq 70)` just like before (using the
+    than 70 days: :math:`\mathbb{1}(D \geq 70)` just like before (using the
     indicator function).  From Equation 4, we get:
 
     .. math::
 
-        \hat{\mu} = \frac{1}{n} \sum_{i=1}^n \mathbb{1}(T_{i,10} \geq 70) \prod_{j=1}^{10} 
+        \hat{\mu} = \frac{1}{n} \sum_{i=1}^n \mathbb{1}(D_{i} \geq 70) \prod_{j=1}^{10} 
                     \frac{\frac{1}{\theta_j}exp(\frac{-T_{ij}}{\theta_j})}
                          {\frac{1}{\lambda_j}exp(\frac{-T_{ij}}{\lambda_j})} \\
                          \tag{6}
@@ -262,7 +267,7 @@ or not the importance distribution matches.  Check out [1] for a more detailed t
     
     Now the bigger question is: what values are we going to use for the various
     :math:`\lambda_j`?  So if we take a step back, we want to make the long-tail
-    event of :math:`T_{10} \geq 70` happen more often.  The obvious way is to
+    event of :math:`D \geq 70` happen more often.  The obvious way is to
     shift out the mean of the exponentials of our importance distribution so
     that they happen more often.  We'll try two general ideas:
 
@@ -272,7 +277,8 @@ or not the importance distribution matches.  Check out [1] for a more detailed t
 
     Figure 3 shows the results of these experiments 
     (the code is in the same:
-    `notebook <https://github.com/bjlkeng/sandbox/blob/master/notebooks/vae-importance_sampling/DAG_example.ipynb>`__).
+    `notebook <https://github.com/bjlkeng/sandbox/blob/master/notebooks/vae-importance_sampling/DAG_example.ipynb>`__).  Notice we're only going up to 1M in this
+    graph vs. 5M in the previous one.
 
     .. figure:: /images/importance_sampling.png
       :height: 300px
@@ -282,9 +288,11 @@ or not the importance distribution matches.  Check out [1] for a more detailed t
       Figure 3: Estimated mean using various importance sampling distributions.
 
     We can see that our first strategy (orange) of multiplying all durations
-    isn't very good.  Since we task, we distorted the joint distribution too much
-    causing issues.  While it's convergence looks a bit smoother than the
-    original case, it still takes around 500,000+ samples to converge.
+    isn't very good.  Since we scale every distribution, we distorted the
+    joint distribution too much causing issues (which eventually even out with
+    large enough sample size).  While it's convergence looks a
+    bit smoother than the original case, it still takes around 500k+ samples
+    to converge.
 
     Looking at our critical path approach, it's much more efficient.  We can 
     see it's pretty stable even at small values like 10,000.  As to which one
@@ -300,7 +308,7 @@ So how all does all this help us with autoencoders?  We all know that
 an autoencoder has two parts: a encoder and a decoder (also known as a
 generator).  The latter can be used to sample from a distribution, for example,
 of images.  Starting to sound familiar?  Below is the (ugly) diagram I made of
-a VAE from my post on `autoencoders <link://slug/variational-autoencoders>`__.
+a VAE from my post on `variational autoencoders <link://slug/variational-autoencoders>`__.
 
 .. figure:: /images/variational_autoencoder3.png
   :height: 400px
@@ -315,16 +323,20 @@ network, sample a standard Gaussian, feed it in to the generator, and out
 *should* pop a sample from your original data distribution.  The big question
 is does it?
 
-Evaluating the quality of generative models is a hard thing to do usually
+Evaluating the quality of deep generative models is a hard thing to do usually
 because you don't know the actual data distribution.  Instead, you just have a
 bunch of samples from it.  One way to evaluate models is to look at the
 marginal likelihood of your model.  That is, if your model is probabilistic 
-conditional on some random random variable we know how to sample:
-:math:`p_M(x|z)`, where :math:`X` is our resultant sample from our data
-distribution, :math:`Z` is something we know how to sample from e.g. a
-Gaussian, and :math:`M` is just indicating it's with respect to our model.  We
-you can estimate the marginal likelihood via Monte Carlo sampling for a 
-single data point :math:`X` like so:
+conditional on some known random variable, we can sample from it by:
+
+a. Sample :math:`Z` from a known latent distribution.
+b. Sample from :math:`p_M(X|Z)`.
+
+where :math:`X` is our resultant sample from our data
+distribution (i.e. training data sample), :math:`Z` is something we know how to
+sample from e.g. a Gaussian, and :math:`M` is just indicating it's with respect
+to our model.  With this idea, you can estimate the marginal likelihood via
+Monte Carlo sampling for a single data point :math:`X` like so:
 
 .. math::
 
@@ -336,13 +348,13 @@ This is just like Equation 1 and it tells us the probability of seeing the data
 given our model :math:`M`.  The 
 `marginal likelihood <https://en.wikipedia.org/wiki/Marginal_likelihood>`__ is a common tactic that we can use to compare models in 
 `Bayesian model comparison <https://en.wikipedia.org/wiki/Bayes_factor>`__.
-Theoretically, this is a nice concept, we'll get a single number to tell us
-if one model is "better" than the other.  Unfortunately, this is not really the
-case for many deep generative models especially ones dealing with images, see
-[2] for more details.  The long and short of it is that any one metric doesn't
-necessarily correlate to improved qualitative performance; you need to evaluate
-it on a per task basis.
-In any case, we still would like to understand how the heck I can do this for a
+Theoretically, this is a nice concept, we'll get a single number to tell us if
+one model is "better" than the other (given a particular dataset).
+Unfortunately, this is not really the case for many deep generative models
+especially ones dealing with images, see [2] for more details.  The long and
+short of it is that any one metric doesn't necessarily correlate to improved
+qualitative performance; you need to evaluate it on a per task basis.  In any
+case, we still would like to understand how the heck we can do this for a
 variational autoencoder!
 
 So there are two main problems when trying to do this for a VAE.  You need to:
@@ -388,32 +400,33 @@ data.  There are only two problems.  First, it's a gigantic model!  Having a
 32x32x3 256-way softmax isn't even close to fitting on my 8GB GPU (I can do
 about a quarter of this size).  It's also incredibly slow to train.  This model
 is kind of a luxury for Google researchers who have unlimited hardware.
-Second, the softmax has is missing some assumptions about the continuity of the
+Second, the softmax is missing some assumptions about the continuity of the
 data.  If the network is outputting pixel intensity of 127 but the actual is
 128, those two should be pretty "close" together and result in a small error.
 However, with this method 127 is treated no differently than 255.  Of course,
 after training with enough data the model's flexibility will be able to learn
-that they should be close but there is no built in assumption.  Overall, I
-personally couldn't really get this to work in a scalable way.
+that they should be close but there is no built-in assumption.  I personally
+couldn't really get this to work on CIFAR10.
 
-Another more efficient method described in [5] is to assume that the underlying
-process works by first predicting a latent continuous colour intensity, then
-rounding it to the 0 to 255 integer.  By first using the latent continuous
-intensity, it's much more efficient to model and estimate.
-Assume the process works by first outputting a continuous distribution
-:math:`\nu` representing the colour intensity.  Then we'll model each sub-pixel
-by a mixture of a 
-`logistic distributions <https://en.wikipedia.org/wiki/Logistic_distribution>`__,
-followed by a rounding process to transform the density into a discrete
-distribution over the 0 to 255 values parameterized by the mixture weights
-:math:`\pi`, and parameters of the logistic :math:`\mu, s`:
+Another more efficient method is described in [5].  It assumes that the underlying
+process works in two steps: (a) predict a continuous latent colour intensity
+(say between 0 to 255), and then (b) round the intensity to the nearest integer
+to get the observed pixel.  By first using the latent continuous intensity,
+it's much more efficient to model and estimate (many two parameter
+distributions fit this bill vs. a 256 way softmax).
+
+Assume the process first outputs a continuous distribution :math:`\nu`
+representing the colour intensity.  We'll model :math:`\nu` as a mixture of
+`logistic distributions <https://en.wikipedia.org/wiki/Logistic_distribution>`__
+parameterized by the mixture weights :math:`\pi`, and parameters of the
+logistics :math:`\mu_i, s_i`:
 
 .. math::
 
     \nu \sim \sum_{i=1}^K \pi_i logistic(\mu_i, s_i) \tag{8}
 
-This defines our continuous sub-pixel intensity distribution.  We then convert
-it to a mass function by assigning regions of it to the 0 to 255 pixels:
+We then convert this intensity to a mass function by assigning regions of it to
+the 0 to 255 pixels:
 
 .. math::
 
@@ -422,16 +435,18 @@ it to a mass function by assigning regions of it to the 0 to 255 pixels:
         - \sigma(\frac{x-0.5-\mu_i}{s_i})\big] \tag{9}
 
 where :math:`\sigma` is the sigmoid function (recall sigmoid is the CDF of the
-logistic function), x is an integer value between 0 and 255. This is
+logistic function) and x is an integer value between 0 and 255. This is
 additionally modified for the edge cases to integrate over the rest of the number line.
-So for 0 intensity, we would integrate from :math:`-\infty` to 0.5, and for the
-255 intensity, we would integrate from :math:`254.5` to :math:`\infty`.
+So for :math:`0` pixel intensity, we would integrate from :math:`-\infty` to
+:math:`0.5`, and for the
+:math:`255` intensity, we would integrate from :math:`254.5` to :math:`\infty`.
 
 The authors of [5] mention that this method naturally puts more mass on pixels
-0 and 255, which are more commonly seen.  Additionally, using 5 mixtures
-results in pretty good performance, making it much more efficient to generate
-(5 mixtures means 2 * 5 + 5 = 15 parameters on each sub-pixel vs. 256-way softmax).
-Due to the significantly fewer parameters, it should also train faster.
+0 and 255, which are more commonly seen in images.  Additionally using 5
+mixtures results in pretty good performance, making it much more efficient to
+generate (5 mixtures means 2 * 5 + 5 = 15 parameters on each sub-pixel vs.
+256-way softmax).  Due to the significantly fewer parameters, it should also
+train faster.
 
 The implementation of this is non-trivial.  Thankfully the authors released
 their code. There are definitely some strange subtleties in implementing it
@@ -453,7 +468,7 @@ just apply Equation 7:
     - Use Equation 9 to estimate :math:`p_M(x|z)` for each of the :math:`N` samples.
       (depending on your generator, the pixels will be independent or
       conditional on each other).
-    - Use Equation 7 to estimate compute the marginal likelihood :math:`P_M(X)`
+    - Use Equation 7 to estimate the marginal likelihood :math:`P_M(X)`
       by averaging over all the probabilities.
 
 But... there's a bit problem with this method: the 
@@ -470,8 +485,8 @@ importance distribution that has a similar shape to our original distribution.
 Our nominal distribution are independent standard Gaussians so we need something
 similar in shape... how about the scaled and shifted Gaussians from our encoder?!
 In fact, this is the perfect importance distribution because it's precisely the
-same shape and catches all the density under the function we care about:
-:math:`p(x|z)`.
+same shape and is designed to ensure that there is density under the function
+we care about: :math:`p(x|z)`.
 (This is actually the exact motivation we had for having the "encoder"
 in a VAE, we want to make the probability of :math:`p(x|z)` high without having
 to randomly sample about the :math:`Z` space.)
@@ -480,7 +495,7 @@ so that's where importance sampling comes in.
 
 So all of that just to say that we use the generator's outputs to sample
 :math:`Z` values from the scaled and shifted Gaussians in order to ultimately 
-computer an estimate for :math:`P(X)`.  The final equation to estimate
+compute an estimate for :math:`P(X)`.  The final equation to estimate
 the likelihood for a single data point :math:`X` looks something like this:
 
 .. math::
@@ -552,8 +567,9 @@ For CIFAR 10, it was a bit more complicated and I had to make a few more tweaks 
 
 * To make the VAE fully probabilistic, I used the mixtures of logistics
   technique described above except with only one logistic distribution.
-* To make things converge consistently, I also had to constrain the `sigma`
-  of the latent variable, as well as the inverse `s` parameter of the logistic
+* To make things converge consistently, I also had to constrain the standard
+  deviation parameter of the latent variable :math:`z`, 
+  as well as the equivalent inverse parameter `s` of the logistic
   distribution.  The former used a tanh multiplied by 5, the latter used a sigmoid
   scaled by 7.  These are pretty wide ranges for the distributions, which seem to 
   work okay. Letting it by any real number, at least in my experience, causes lots
@@ -566,7 +582,7 @@ For CIFAR 10, it was a bit more complicated and I had to make a few more tweaks 
   going on.  A big trick was that you had to do some funky stuff to check for 
   invalid values or else Tensorflow would propagate NaNs through.
   I put some comments in my implementations and my naming is maybe
-  a bit better?  So hopefully both you and I can remember next time I read it.
+  a bit better?  So hopefully both you and I can remember next time we read it.
 * I used ResNet architecture as a base for both the encoder and decoder.  I
   initially turned off batch normalization but the network had a lot of trouble
   fitting.  Batch norm is really useful!
@@ -575,17 +591,17 @@ For CIFAR 10, it was a bit more complicated and I had to make a few more tweaks 
   due to the CNN strides that I was doing.  In retrospect though, I think it might
   be because I'm using a single logistic distribution.  In the paper, they used
   a mixture of five, which probably will have much better behaviour.
-* My code isn't the cleanest because I'm really just prototyping here.  Somehow
-  each time I try to write a VAE, I clean it up a bit more.  It's getting there
-  but still nothing I would actually put in production.
+* My code isn't the cleanest because I'm really just prototyping here.
+  Although somehow each time I try to write a VAE, I clean it up a bit more.
+  It's getting there but still nothing I would actually put in production.
 
 
 |h2| Conclusion |h2e|
 
-Well all that to explain a "simple" concept: how to measure the estimate
-likelihood with variational encoders.  I do kind of like these things where a
+Well all that to explain a "simple" concept: how to estimate
+likelihood with variational encoders.  I do kind of like these types of problems where a
 seemingly simple task requires you to:
-(a) understand basic statistics (importance sampling),
+(a) understand basic statistics/probability (importance sampling),
 (b) deeply understand the underlying method (VAEs, fully probabilistic models with mixtures of logistics)
 (c) get the implementation details right!
 These posts always seem to take longer than I initially think.  Every topic
