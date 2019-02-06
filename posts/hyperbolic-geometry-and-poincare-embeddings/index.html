@@ -865,11 +865,11 @@ a technical post by the authors of Gensim describing how they implemented these
 embeddings.</p>
 <p>The model is trivial to run using Gensim.  Here's some sample code from their
 documentation:</p>
-<pre class="code python"><a name="rest_code_cfabac3e08de4bb18ee864aee9b5f42d-1"></a><span class="kn">from</span> <span class="nn">gensim.models.poincare</span> <span class="kn">import</span> <span class="n">PoincareModel</span>
-<a name="rest_code_cfabac3e08de4bb18ee864aee9b5f42d-2"></a><span class="n">relations</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'marsupial'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'mammal'</span><span class="p">),</span>
-<a name="rest_code_cfabac3e08de4bb18ee864aee9b5f42d-3"></a>             <span class="p">(</span><span class="s1">'gib'</span><span class="p">,</span> <span class="s1">'cat'</span><span class="p">)]</span>
-<a name="rest_code_cfabac3e08de4bb18ee864aee9b5f42d-4"></a><span class="n">model</span> <span class="o">=</span> <span class="n">PoincareModel</span><span class="p">(</span><span class="n">relations</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<a name="rest_code_cfabac3e08de4bb18ee864aee9b5f42d-5"></a><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_6d211054cd174c688b01a6af91cc2d96-1"></a><span class="kn">from</span> <span class="nn">gensim.models.poincare</span> <span class="kn">import</span> <span class="n">PoincareModel</span>
+<a name="rest_code_6d211054cd174c688b01a6af91cc2d96-2"></a><span class="n">relations</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'marsupial'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'mammal'</span><span class="p">),</span>
+<a name="rest_code_6d211054cd174c688b01a6af91cc2d96-3"></a>             <span class="p">(</span><span class="s1">'gib'</span><span class="p">,</span> <span class="s1">'cat'</span><span class="p">)]</span>
+<a name="rest_code_6d211054cd174c688b01a6af91cc2d96-4"></a><span class="n">model</span> <span class="o">=</span> <span class="n">PoincareModel</span><span class="p">(</span><span class="n">relations</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<a name="rest_code_6d211054cd174c688b01a6af91cc2d96-5"></a><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 </pre>
 <p>I love it when there are nice clean open source implementations available.
 Coding these up from scratch invariably takes a huge amount of time, especially
@@ -978,7 +978,7 @@ to consciously break them up into smaller pieces, maybe do some "Agile" or
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2018         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2019         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
 </div>

@@ -15,7 +15,7 @@
 <link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
 <link rel="canonical" href="http://bjlkeng.github.io/">
 <link rel="next" href="index-1.html" type="text/html">
-<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/label-refinery/" type="text/html">
+<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -63,7 +63,34 @@
                 
 
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/label-refinery/" class="u-url">Label Refinery: A Softer Approach</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/" class="u-url">Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/" rel="bookmark"><time class="published dt-published" datetime="2019-02-06T08:20:11-04:00" title="2019-02-06 08:20">2019-02-06 08:20</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>It took a while but I'm back!  This post is kind of a digression (which seems
+to happen a lot) along my journey of learning more about probabilistic
+generative models.  There's so much in ML that you can't help learning a lot
+of random things along the way.  That's why it's interesting, right?</p>
+<p>Today's topic is <em>importance sampling</em>.  It's a really old idea that you may
+have learned in a statistics class (I didn't) but somehow is useful in deep learning,
+what's old is new right?  How this is relevant to the discussion is that when
+we have a large latent variable model (e.g. a variational
+autoencoder), we want to be able to efficiently estimate the marginal likelihood
+given data.  The marginal likelihood is kind of taken for granted in the
+experiments of some VAE papers when comparing different models.  I was curious
+how it was actually computed and it took me down this rabbit hole.  Turns out
+it's actually pretty interesting!  As usual, I'll have a mix of background
+material, examples, math and code to build some intuition around this topic.
+Enjoy!</p>
+<p class="more"><a href="posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/label-refinery/" class="u-url">Label Refinery: A Softer Approach</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Brian Keng
@@ -158,30 +185,6 @@ depth or formalities.  I hope you mani-like it!</p>
 <p class="more"><a href="posts/manifolds/">Read more…</a></p>
 </div>
     </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/tensors-tensors-tensors/" class="u-url">Tensors, Tensors, Tensors</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Brian Keng
-            </span></p>
-            <p class="dateline"><a href="posts/tensors-tensors-tensors/" rel="bookmark"><time class="published dt-published" datetime="2018-03-13T08:24:57-05:00" title="2018-03-13 08:24">2018-03-13 08:24</time></a></p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>This post is going to take a step back from some of the machine learning
-topics that I've been writing about recently and go back to some basics: math!
-In particular, tensors.  This is a topic that is casually mentioned in machine
-learning papers but for those of us who weren't physics or math majors
-(*cough* computer engineers), it's a bit murky trying to understand what's going on.
-So on my most recent vacation, I started reading a variety of sources on the
-interweb trying to piece together a picture of what tensors were all
-about.  As usual, I'll skip the heavy formalities (partly because I probably
-couldn't do them justice) and instead try to explain the intuition using my
-usual approach of examples and more basic maths.  I'll sprinkle in a bunch of
-examples and also try to relate it back to ML where possible.  Hope you like
-it!</p>
-<p class="more"><a href="posts/tensors-tensors-tensors/">Read more…</a></p>
-</div>
-    </div>
     </article>
 </div>
 
@@ -246,7 +249,7 @@ it!</p>
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2018         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2019         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
 </div>

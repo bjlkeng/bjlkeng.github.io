@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about CIFAR10)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/cifar10.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sat, 20 Oct 2018 01:35:12 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Label Refinery: A Softer Approach</title><link>http://bjlkeng.github.io/posts/label-refinery/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to be about a really simple idea that is surprisingly effective
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about CIFAR10)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/cifar10.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Wed, 06 Feb 2019 14:28:04 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders</title><link>http://bjlkeng.github.io/posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;It took a while but I'm back!  This post is kind of a digression (which seems
+to happen a lot) along my journey of learning more about probabilistic
+generative models.  There's so much in ML that you can't help learning a lot
+of random things along the way.  That's why it's interesting, right?&lt;/p&gt;
+&lt;p&gt;Today's topic is &lt;em&gt;importance sampling&lt;/em&gt;.  It's a really old idea that you may
+have learned in a statistics class (I didn't) but somehow is useful in deep learning,
+what's old is new right?  How this is relevant to the discussion is that when
+we have a large latent variable model (e.g. a variational
+autoencoder), we want to be able to efficiently estimate the marginal likelihood
+given data.  The marginal likelihood is kind of taken for granted in the
+experiments of some VAE papers when comparing different models.  I was curious
+how it was actually computed and it took me down this rabbit hole.  Turns out
+it's actually pretty interesting!  As usual, I'll have a mix of background
+material, examples, math and code to build some intuition around this topic.
+Enjoy!&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/"&gt;Read more…&lt;/a&gt; (22 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoencoders</category><category>autoregressive</category><category>CIFAR10</category><category>generative models</category><category>importance sampling</category><category>mathjax</category><category>MNIST</category><category>Monte Carlo</category><category>variational calculus</category><guid>http://bjlkeng.github.io/posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/</guid><pubDate>Wed, 06 Feb 2019 12:20:11 GMT</pubDate></item><item><title>Label Refinery: A Softer Approach</title><link>http://bjlkeng.github.io/posts/label-refinery/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to be about a really simple idea that is surprisingly effective
 from a paper by Bagherinezhad et al. called &lt;a class="reference external" href="https://arxiv.org/abs/1805.02641"&gt;Label Refinery: Improving ImageNet
 Classification through Label Progression&lt;/a&gt;.
 The title pretty much says it all but I'll also discuss some intuition and show
