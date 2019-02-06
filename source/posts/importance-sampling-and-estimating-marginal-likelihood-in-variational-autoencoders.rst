@@ -1,6 +1,6 @@
 .. title: Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders
 .. slug: importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders
-.. date: 2019-02-04 08:20:11 UTC-04:00
+.. date: 2019-02-06 08:20:11 UTC-04:00
 .. tags: variational calculus, autoencoders, importance sampling, generative models, MNIST, autoregressive, CIFAR10, Monte Carlo, mathjax
 .. category: 
 .. link: 
@@ -43,13 +43,14 @@ of random things along the way.  That's why it's interesting, right?
 Today's topic is *importance sampling*.  It's a really old idea that you may
 have learned in a statistics class (I didn't) but somehow is useful in deep learning,
 what's old is new right?  How this is relevant to the discussion is that when
-we have a model without an explicit likelihood function (e.g. a variational
-autoencoder), we still want to be able to estimate the marginal likelihood
-given the data.  The marginal likelihood is kind of a throwaway line in the
+we have a large latent variable model (e.g. a variational
+autoencoder), we want to be able to efficiently estimate the marginal likelihood
+given data.  The marginal likelihood is kind of taken for granted in the
 experiments of some VAE papers when comparing different models.  I was curious
-how it was computed and it took me down this rabbit hole.  Turns out it's
-actually pretty interesting!  As usual, I'll have a mix of background material,
-examples, math and code to build some intuition around this topic.  Enjoy!
+how it was actually computed and it took me down this rabbit hole.  Turns out
+it's actually pretty interesting!  As usual, I'll have a mix of background
+material, examples, math and code to build some intuition around this topic.
+Enjoy!
 
 .. TEASER_END
 
@@ -58,7 +59,8 @@ examples, math and code to build some intuition around this topic.  Enjoy!
 `Monte Carlo simulation <https://en.wikipedia.org/wiki/Monte_Carlo_method>`__
 methods are a broad class of algorithms that use repeated sampling 
 (hence Monte Carlo like the casino in Monaco) to obtain a numerical result.
-These techniques are useful when we cannot explicitly compute the end result.
+These techniques are useful when we cannot explicitly compute the end result
+either because we don't know how or it's too inefficient.
 The simplest example is computing an expectation when the closed form result is
 unavailable but we can sample from the underlying distribution (there are many
 others examples, see the Wiki page).
@@ -128,16 +130,16 @@ at an example.
     very useful when we want to understand if the project is at risk of delays.
     So let's model each task as an independent random `exponential distribution
     <https://en.wikipedia.org/wiki/Exponential_distribution>`__ with mean
-    according to the duration of the task.  When we simulate this our 
-    mean time to completion is around :math:`18.2`.  (It's not exactly the 15 we
-    might expect by adding up the critical path because the 
+    according to the duration of the task.  When we simulate this, our 
+    mean time to completion is around :math:`18.2` days.  (It's not exactly the
+    15 days we might expect by adding up the critical path because the 
     `sum of two exponentials <https://math.stackexchange.com/questions/474775/sum-of-two-independent-exponential-distributions>`__
     is not a simple exponential distribution.)
     This example along with the one below is shown in this: `notebook <https://github.com/bjlkeng/sandbox/blob/master/notebooks/vae-importance_sampling/DAG_example.ipynb>`__.
 
     Now suppose that there is a large penalty if we exceed 70 days.
-    Figure 2 shows the estimated probability of exceeding 70 days over several
-    Monte Carlo simulations with different number of trials.
+    Figure 2 shows the proportion of times we exceed 70 days over several Monte
+    Carlo simulations with different number of trials.
 
     .. figure:: /images/dag_example1.png
       :height: 300px
@@ -146,11 +148,12 @@ at an example.
 
       Figure 2: Estimated probability of occurrence of tasks exceeding 70 days using Monte Carlo simulation.
 
-    You can see we over- and under-estimate the number of trials when N is low.  For N={1000, 10000}, we
-    in fact get 0 trials; for N={500k, 100k, 500k} it looks like we've
-    overestimating it.  Only when we approach 1,000,000 do we get close to the
-    true estimate.  Of course, this rare occurrence would give us problems in
-    straight forward Monte Carlo simulations, the question is can we do better?
+    You can see we over- and under-estimate the number of times we exceed 70
+    days when N is low.  For N={1000, 10000}, we in fact get 0 trials; for
+    N={500k, 100k, 500k} it looks like we've overestimating it.  Only when we
+    approach 1,000,000 do we get close to the true estimate.  Of course, this
+    rare occurrence would give us problems in straight forward Monte Carlo
+    simulations, the question is can we do better?
     
 
 |h2| Importance Sampling |h2e|
@@ -159,7 +162,7 @@ It turns out there is a more efficient way to do Monte Carlo simulation and
 it's called *importance sampling*.  Let's suppose we want to compute
 the expected value of some random variable:
 :math:`E(f({\bf X})) = \int_{\mathcal{D}} f({\bf x})p({\bf x}) d{\bf x}`, where
-:math:`f({\bf x})` is some function on the random variables,
+:math:`f({\bf x})` is some deterministic function,
 :math:`p({\bf x})` is some probability density function on :math:`\mathbb{R}^{d}`.
 For some other density function :math:`q({\bf x})` over the same support, we have:
 
@@ -174,7 +177,7 @@ We simply just multiplied the numerator and denominator by :math:`q({\bf x})`
 to get Equation 3.  The interesting thing to notice here is that the expectation 
 has suddenly switched from being with respect to :math:`p({\bf x})` to
 :math:`q({\bf x})`.  The extra ratio between the two densities (called the
-*likelihood ratio*) is to compensate for using :math:`q({\bf x})` to sample
+*likelihood ratio*) is used to compensate for using :math:`q({\bf x})` to sample
 instead of :math:`p({\bf x})`.  The distribution :math:`q` is called the
 *importance distribution* and :math:`p` is called the *nominal distribution*.
 There are some additional requirements on :math:`q`, such as it has to be
@@ -213,6 +216,9 @@ So why go through all this trouble?  The big result is this theorem:
                   &= \int \frac{(f({\bf x})p({\bf x}) - \mu q({\bf x}))^2}{q({\bf x})} d{\bf x} \\
        \tag{5}
 
+This theorem essentially states that we'll converge to the same value as
+vanilla Monte Carlo sampling but potentially with a tighter variance (Equation 5)
+depending on how we pick :math:`Q`.
 Equation 5 follow directly from the fact that :math:`\hat{\mu_q}` is a 
 `mean of iid variables <http://scipp.ucsc.edu/~haber/ph116C/iid.pdf>`__
 and the fact that the underlying variable is our :math:`fp/q` (to get the second expression in Equation 5, try multiplying :math:`q({\bf x})` on the top and bottom).
@@ -262,8 +268,8 @@ treatment.
                          \tag{6}
    
     Looking at the individual parts, you should be able to match it up to
-    :math:`f, p, q` with the main difference is that we are more explicit that
-    there is a vector of random variables.
+    :math:`f, p, q` with the main difference being that we are more explicit that
+    there is a vector of independent random variables.
     
     Now the bigger question is: what values are we going to use for the various
     :math:`\lambda_j`?  So if we take a step back, we want to make the long-tail
@@ -304,7 +310,7 @@ treatment.
 
 |h2| Estimating Marginal Likelihood in Variational Autoencoders |h2e|
 
-So how all does all this help us with autoencoders?  We all know that
+So how does all this help us with autoencoders?  We all know that
 an autoencoder has two parts: a encoder and a decoder (also known as a
 generator).  The latter can be used to sample from a distribution, for example,
 of images.  Starting to sound familiar?  Below is the (ugly) diagram I made of
@@ -318,24 +324,24 @@ a VAE from my post on `variational autoencoders <link://slug/variational-autoenc
   Figure 4: Variational Autoencoder Diagram
 
 You can see the bottom left neural network is the encoder and the top right is
-the generator (or decoder).  After training, we can just take the generator
-network, sample a standard Gaussian, feed it in to the generator, and out
-*should* pop a sample from your original data distribution.  The big question
-is does it?
+the generator (or decoder).  After training, we can sample a standard Gaussian,
+feed it into the generator, and out *should* pop a sample from your original
+data distribution.  The big question is: does it?
 
 Evaluating the quality of deep generative models is a hard thing to do usually
 because you don't know the actual data distribution.  Instead, you just have a
 bunch of samples from it.  One way to evaluate models is to look at the
 marginal likelihood of your model.  That is, if your model is probabilistic 
-conditional on some known random variable, we can sample from it by:
+conditional on some known random variable, we can estimate the probability of a
+data point :math:`X` occurring given the model by:
 
-a. Sample :math:`Z` from a known latent distribution.
-b. Sample from :math:`p_M(X|Z)`.
+a. Sampling many :math:`Z` from the known latent distribution, and
+b. Computing the average value of :math:`p_M(X|Z)` for all the sampled :math:`Z`.
 
 where :math:`X` is our resultant sample from our data
 distribution (i.e. training data sample), :math:`Z` is something we know how to
 sample from e.g. a Gaussian, and :math:`M` is just indicating it's with respect
-to our model.  With this idea, you can estimate the marginal likelihood via
+to our model.  More precisely, you can estimate the marginal likelihood via
 Monte Carlo sampling for a single data point :math:`X` like so:
 
 .. math::
@@ -353,9 +359,9 @@ one model is "better" than the other (given a particular dataset).
 Unfortunately, this is not really the case for many deep generative models
 especially ones dealing with images, see [2] for more details.  The long and
 short of it is that any one metric doesn't necessarily correlate to improved
-qualitative performance; you need to evaluate it on a per task basis.  In any
-case, we still would like to understand how the heck we can do this for a
-variational autoencoder!
+qualitative performance; you need to evaluate it on a per task basis.  However,
+we won't concern ourselves with that issue and proceed on to how we can estimate this
+metric for variational autoencoders.
 
 So there are two main problems when trying to do this for a VAE.  You need to:
 
@@ -396,10 +402,13 @@ separately.  That's exactly what the PixelRNN/PixelCNN paper [4] does.  On the
 output, for each sub-pixel, it has a 256-way softmax to model each of the 0 to
 255 integer values.  Correspondingly, it puts a cross-entropy loss on each of
 the sub-pixels.  This matches all the high-level assumptions of the
-data.  There are only two problems.  First, it's a gigantic model!  Having a
-32x32x3 256-way softmax isn't even close to fitting on my 8GB GPU (I can do
-about a quarter of this size).  It's also incredibly slow to train.  This model
-is kind of a luxury for Google researchers who have unlimited hardware.
+data.  There are only two problems.  
+
+First, it's a gigantic model!  Having a 32x32x3 256-way softmax isn't even
+close to fitting on my 8GB GPU (I can do about a quarter of this size).  It's
+also incredibly slow to train.  This model is kind of a luxury for Google
+researchers who have unlimited hardware.
+
 Second, the softmax is missing some assumptions about the continuity of the
 data.  If the network is outputting pixel intensity of 127 but the actual is
 128, those two should be pretty "close" together and result in a small error.
@@ -435,7 +444,7 @@ the 0 to 255 pixels:
         - \sigma(\frac{x-0.5-\mu_i}{s_i})\big] \tag{9}
 
 where :math:`\sigma` is the sigmoid function (recall sigmoid is the CDF of the
-logistic function) and x is an integer value between 0 and 255. This is
+logistic distribution) and x is an integer value between 0 and 255. This is
 additionally modified for the edge cases to integrate over the rest of the number line.
 So for :math:`0` pixel intensity, we would integrate from :math:`-\infty` to
 :math:`0.5`, and for the
@@ -482,7 +491,7 @@ the same quantity more efficiently...  Enter importance sampling.
 
 Recall from our discussion above for importance sampling, we need to select an
 importance distribution that has a similar shape to our original distribution.
-Our nominal distribution are independent standard Gaussians so we need something
+Our nominal distributions are independent standard Gaussians so we need something
 similar in shape... how about the scaled and shifted Gaussians from our encoder?!
 In fact, this is the perfect importance distribution because it's precisely the
 same shape and is designed to ensure that there is density under the function
@@ -493,7 +502,7 @@ to randomly sample about the :math:`Z` space.)
 Of course, we can't just use it directly because that would bias the estimate,
 so that's where importance sampling comes in.
 
-So all of that just to say that we use the generator's outputs to sample
+So all of that just to say that we use the encoder's outputs to sample
 :math:`Z` values from the scaled and shifted Gaussians in order to ultimately 
 compute an estimate for :math:`P(X)`.  The final equation to estimate
 the likelihood for a single data point :math:`X` looks something like this:
@@ -505,7 +514,7 @@ the likelihood for a single data point :math:`X` looks something like this:
     && z_i \sim \mathcal{N}(\mu(X), \sigma(X)) \\
     \tag{10}
 
-where :math:`\mu, \sigma` are the corresponding outputs from the generator
+where :math:`\mu, \sigma` are the corresponding outputs from the encoder
 network.  Compared to Equation 7, :math:`N` can be significantly smaller (I
 used :math:`N=128` in the experiments).
 
@@ -516,7 +525,7 @@ You can find the code on my `Github
 <https://github.com/bjlkeng/sandbox/tree/master/notebooks/vae-importance_sampling>`__.
 Table 1 shows the results of these two experiments using the two standard
 metrics: log marginal likelihood and the bits per pixel.  The latter metric
-simply is the negative logarithm base 2 divided by the total number of
+simply is the negative logarithm base 2 likelihood divided by the total number of
 (sub-)pixels.  This is supposed to give the theoretical average number of bits
 you need to encode the information using this encoding scheme (information
 theory result).
@@ -531,7 +540,7 @@ theory result).
 
 My results are relatively poor compared to the state of the art.  For example,
 in the IAF paper [3], they report :math:`\log p(x)` of :math:`-81.08` vs.
-my VAE of :math:`-87.08` for a vanilla autoencoder.  While for CIFAR10, they
+my VAE of :math:`-87.08`.  While for CIFAR10, they
 achieve results around the 3.11 bits/pixel range vs. my implementation of 6.65.
 My only consolation is that one of the previous results reports a 8.0
 bits/pixel, so at least it's better than that one!  These state of the art
@@ -541,7 +550,7 @@ to looking at them sooner or later.
 
 |h3| Implementation Details |h3e|
 
-The implementation of this was a bit more complicated that I had expected for two
+The implementation of this was a bit more complicated than I had expected for two
 reasons: making the autoencoder fully probabilistic (see section above) and
 then some of the details when actually computing the importance samples.
 
@@ -551,7 +560,7 @@ are the notes.
 * The output just needs to be a sigmoid, which is interpreted as the :math:`p`
   parameter of a Bernoulli variable since we're modelling binarized output data
   (not grey-scale).
-* :math:`\log p(x|z)` is a simply binary cross entropy expression.
+* :math:`\log p(x|z)` is simply a binary cross entropy expression.
 * :math:`p(z)` and :math:`q(z)` are just Gaussian densities.
 * I calculated all the individual terms in log-space (:math:`\log p(x|z), \log
   p(x), \log q(x)`), which gets you the logarithm of the expression on the
@@ -588,18 +597,18 @@ For CIFAR 10, it was a bit more complicated and I had to make a few more tweaks 
   fitting.  Batch norm is really useful!
 * My actual reconstructed final images are pretty terrible.  There is a lot of
   corruption but at very regular grid-like patterns.  I was wondering if it was
-  due to the CNN strides that I was doing.  In retrospect though, I think it might
+  due to the CNN strides that I was using.  In retrospect though, I think it might
   be because I'm using a single logistic distribution.  In the paper, they used
   a mixture of five, which probably will have much better behaviour.
 * My code isn't the cleanest because I'm really just prototyping here.
   Although somehow each time I try to write a VAE, I clean it up a bit more.
-  It's getting there but still nothing I would actually put in production.
+  It's getting there but still nothing I would actually put into production.
 
 
 |h2| Conclusion |h2e|
 
-Well all that to explain a "simple" concept: how to estimate
-likelihood with variational encoders.  I do kind of like these types of problems where a
+Well all that to explain a "simple" concept: how to estimate the marginal
+likelihood with variational autoencoders.  I do kind of like these types of problems where a
 seemingly simple task requires you to:
 (a) understand basic statistics/probability (importance sampling),
 (b) deeply understand the underlying method (VAEs, fully probabilistic models with mixtures of logistics)
