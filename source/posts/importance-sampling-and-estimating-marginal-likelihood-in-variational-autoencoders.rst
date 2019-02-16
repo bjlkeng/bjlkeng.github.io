@@ -346,7 +346,7 @@ Monte Carlo sampling for a single data point :math:`X` like so:
 
 .. math::
 
-    P_M(X) = \int p_M(x|z) dz \approx \frac{1}{N} \sum_{i=1}^N p_M(x|z_i),
+    P_M(X) = \int p_M(X|z) p(z) dz \approx \frac{1}{N} \sum_{i=1}^N p_M(x|z_i),
     && z_i \sim \mathcal{N}(0, 1) \\
     \tag{7}
 
@@ -509,7 +509,7 @@ the likelihood for a single data point :math:`X` looks something like this:
 
 .. math::
 
-    P_M(X) = \int p_M(X|z) dz \approx \frac{1}{N} \sum_{i=1}^N 
+    P_M(X) = \int p_M(X|z) p(z) dz \approx \frac{1}{N} \sum_{i=1}^N 
         \frac{p_M(X|z_i)p_{\mathcal{N}(0,1)}(z_i)}{q_{\mathcal{N}(\mu(X), \sigma(X))}(z_i)},
     && z_i \sim \mathcal{N}(\mu(X), \sigma(X)) \\
     \tag{10}
