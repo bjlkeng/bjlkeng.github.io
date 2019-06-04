@@ -499,7 +499,7 @@ for Equation 13, we get:
 
 .. math::
 
-    \mathcal{L}[q_1, \ldots, q_N] - \sum_{i=1}^N \lambda_i \int_{\theta_i} q_i(\theta_i) d\theta_i = 0 \\
+    \mathcal{L}[q_1, \ldots, q_N] - \sum_{i=1}^N \lambda_i \int_{\theta_i} q_i(\theta_i) d\theta_i \\
     \tag{14}
 
 where the terms in the summation are our usual probabilistic constraints that the
