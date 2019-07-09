@@ -87,7 +87,8 @@ where :math:`{\bf x}_{<i} = [x_1, \ldots, x_{i-1}]`.  Basically, component
 :math:`i` of :math:`{\bf x}` only depends on the dimensions of :math:`j < i`.
 In your head, you can think of each :math:`x_i` as a pixel.  So each pixel is
 going to have a probability distribution that is a function of all the
-(sub-)pixels that came before it.
+(sub-)pixels that came before it (for RGB images, each of "R", "G", "B" are
+treated as separate sub-pixels).
 
 The way to generate an image from an autoregressive generative model is as follows:
 
@@ -110,9 +111,76 @@ of the images are another story).
 
 |h2| PixelCNN |h2e|
 
+Now that we understand autoregressive generative models, PixelCNN is
+not too difficult to understand.  We want to build a *single* CNN that takes as
+input an image and outputs a *distribution* for each (sub-)pixel (theoretically,
+you could have a different network for each pixel but that seems inefficient).
+There are a few subtleties when doing that:
 
-**For each of the distributions, we'll have a TODO: ONE NEURAL NETWORK for
-all of this stuff, but need some help masking things.**
+(a) Due to the autoregressive nature, pixel :math:`i` should not see any pixels
+    :math:`\geq i`, otherwise it wouldn't be autoregressive (you could "see the
+    future").
+(b) Selecting a distribution to properly model the pixels.
+(c) A special loss function is needed in order to train the network due to the
+    distributional outputs.
+
+Let's take a look at each one separately.
+
+|h3| Masked Convolution |h3e|
+
+The masked convolution is basically the same idea as the masked autoencoder
+from my post on MADE: 
+`Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__.
+As stated above, we impose (an arbitrary) ordering on the sub-pixels: 
+top to bottom, left to right, R to G to B.  Given this, we want to make sure
+pixels :math:`\geq i` are "hidden" from pixel :math:`i`, we can accomplish
+this with *masks*.  This is shown on the left side of Figure 1 where pixel
+:math:`i` only "reads" from its predecessors (the center image is the same
+thing for a larger multi-scale resolution).  This can easily be generated using
+a "mask" that is element-wise multiplied by your convolution kernel.  We'll
+talk about the implementation of this later on.
+
+.. figure:: /images/pixelcnn_mask.png
+  :width: 600px
+  :alt: PixelCNN Mask
+  :align: center
+
+  Figure 1: PixelCNN Mask (source: [1])
+
+However, the mask doesn't just deal with the spacial location of full pixels,
+it also has to take into account the RGB values, which leads us to two
+different types of masks: A and B.  For the first convolution
+layer on the original image, the same rule applies as above, never read ahead.
+For full pixel :math:`i`'s mask when reading from pixel :math:`x_i`, the "B"
+pixel should only be connected to "G" and "R"; the "R" pixel should only be
+connected to "R"; and the "R" pixel shouldn't be connected at all to pixel
+:math:`i`.  You can see the connectivity on the right side of Figure 1
+(Note you still have full "read" access to all sub-pixels from predecessor
+pixels, the differences for these masks only affect the current pixel).
+
+For layers other than the first one, things change.  Since any sub-pixel output
+from a convolution layer has already been masked from it's corresponding
+input sub-pixel, you are free to use it in another convolution.  That might
+be a bit confusing but you can see this in Mask B in Figure 1.  For example,
+the output of the "G" sub-pixel in Mask B, depends on the "G" sub-pixel output
+from Mask A, which in turn depends only on the "R".  That means "G" only depends
+on "R", which is what we wanted.  If we didn't do this, the "G" output from
+Mask B would never be able to "read" from the "R" sub-pixel in the original
+input.  If this is just confusing, just take a minute to study the connectivity
+in the diagram and I think it should be pretty clear.
+
+Keep in mind Figure 1 really only shows the case where you have three color
+channels.  In all convolution layers beyond the first one, we likely have many
+different filters per layer.  Just imagine instead of "RGB", we have
+"RRRRGGGGBBBB" as input to Mask B, and you can probably guess what the
+connectivity should look like.  Again this only applies to the current
+sub-pixels, we should have full connectivity to all predecessors.
+
+|h3| Logistic Mixture to Model Pixels |h3e|
+|h3| PixelCNN Loss |h3e|
+
+|h3| Training and Generating |h3e|
+
 
 
 |h2| Implementation Details |h2e|
