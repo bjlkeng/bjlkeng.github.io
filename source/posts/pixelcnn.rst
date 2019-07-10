@@ -57,7 +57,7 @@ from it).  Let's get started!
 |h2| Autoregressive Generative Models |h2e|
 
 Before we begin, we should review autoregressive generative models.
-I'll basically summarize what I wrote in one of my previous posts: 
+I'll basically summarize what I wrote in one of my previous post: 
 `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__.
 
 An `Autoregressive model <https://en.wikipedia.org/wiki/Autoregressive_model>`__
@@ -111,18 +111,17 @@ of the images are another story).
 
 |h2| PixelCNN |h2e|
 
-Now that we understand autoregressive generative models, PixelCNN is
+Now that we covered autoregressive generative models, PixelCNN is
 not too difficult to understand.  We want to build a *single* CNN that takes as
 input an image and outputs a *distribution* for each (sub-)pixel (theoretically,
 you could have a different network for each pixel but that seems inefficient).
-There are a few subtleties when doing that:
+There are a couple subtleties when doing that:
 
 (a) Due to the autoregressive nature, pixel :math:`i` should not see any pixels
     :math:`\geq i`, otherwise it wouldn't be autoregressive (you could "see the
     future").
-(b) Selecting a distribution to properly model the pixels.
-(c) A special loss function is needed in order to train the network due to the
-    distributional outputs.
+(b) Selecting a distribution and its corresponding loss function in order to
+    model the output pixels.
 
 Let's take a look at each one separately.
 
@@ -176,14 +175,131 @@ different filters per layer.  Just imagine instead of "RGB", we have
 connectivity should look like.  Again this only applies to the current
 sub-pixels, we should have full connectivity to all predecessors.
 
-|h3| Logistic Mixture to Model Pixels |h3e|
-|h3| PixelCNN Loss |h3e|
+|h3| Discretized Logistic Mixture Likelihood |h3e|
 
-|h3| Training and Generating |h3e|
+I covered this topic in my previous post in detail
+(`Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders <link://slug/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders>`__) so I'll just do a summary here.
 
+Modelling pixels is a funny problem.  On one hand, we can view them as 8-bit
+discrete random variables (e.g. 256-way softmax), but on the other hand, we can
+give them as approaching a sort-of continuous distribution (e.g. real-valued output).
+The former approach is the way that [1] tackles the problem: just stick a
+256-softmax output on each sub-pixel.  There are two issues: (1) it uses up a
+gigantic amount of resources, and (2) there is no relationship between adjacent
+pixel values (R=100 is similar enough to R=101).  Mostly due to the first reason,
+I opted out to not implement it (couldn't fit a full image on my meager GTX 1070).
 
+The other way to go about it is to imagine the pixel generation process as such described in [2]:
+
+(1) For each sub-pixel, generate a continuous distribution :math:`\nu`
+    representing the intensity.  For example, :math:`\nu` could be a 
+    `logistic distributions <https://en.wikipedia.org/wiki/Logistic_distribution>`__
+    parameterized by :math:`\mu, s`.  
+(2) Next, "round" each sub-pixel to a
+    discretized distribution over :math:`[0, 255] \in \mathbb{Z}` by
+    integrating over the appropriate width along the real line (assuming a
+    logistic distribution):
+
+    .. math::
+    
+        P(x|\mu,s) = 
+            \begin{cases}
+                \sigma(\frac{x+0.5-\mu}{s}) & \text{for } x = 0 \\
+                \sigma(\frac{x+0.5-\mu}{s}) - \sigma(\frac{x-0.5-\mu}{s}) 
+                    & \text{for } 0 < x < 255 \\
+                1 - \sigma(\frac{x-0.5-\mu}{s}) & \text{for } x = 255
+            \end{cases}
+        \tag{1}
+
+    where :math:`\sigma` is the sigmoid function (recall sigmoid is the CDF of
+    the logistic distribution).
+    Here we basically take the :math:`\pm 0.5` interval around each pixel value
+    to compute its discretized probability mass .  For the edges, we just
+    integrate to infinity.
+
+However, this will make each pixel uni-modal, which doesn't afford us much
+flexibility.  To improve it, we use a mixture of logistics for :math:`\nu`:
+
+.. math::
+
+    \nu \sim \sum_{i=1}^K \pi_i logistic(\mu_i, s_i) \tag{2}
+
+To bring it back to neural networks, for each sub-pixel, we want our network
+to output three things: 
+
+* :math:`K` :math:`\mu_i` representing the centers of our logistic distributions
+* :math:`K` :math:`s_i` representing the scale of our logistic distributions
+* :math:`K` :math:`\pi_i` representing the mixture weights (summing to 1)
+
+We don't need that many mixture components to get a good result ([2] uses
+:math:`K=5`), which is a lot less than a 256-way softmax.  Figure 2 shows
+a realization of the toy discretized mixture I did while testing.  You can see,
+we clearly that we can model multi-modal distributions, and at the same time
+have a lot of mass at the 0 and 255 pixels.
+
+.. figure:: /images/pixelcnn_histogram.png
+  :width: 400px
+  :alt: Distribution of Discretized Logistic Mixtures
+  :align: center
+
+  Figure 2: Distribution of Discretized Logistic Mixtures: Top to
+  bottom represent the "R", "G", "B" components of a single pixel
+
+All of this can be implemented pretty easily by strapping a bunch of masked
+convolution layers together and setting the last layer to have :math:`3*3K`
+filters (one for each sub-pixel).  The really interesting stuff happens in the
+loss function though which computes the negative log of Equation 1.  The nice thing
+about this loss is that it's fully probabilistic from the start.
+We'll get to implementing it in a later section but suffice it to say, it's not
+easy dealing with overflow!
+
+|h3| Training and Generating Samples |h3e|
+
+Training this network is actually pretty easy, all we have to do is make
+the actual image for available on the input and output of the network.  
+Note the input dimensions of the network naturally takes an image, the output
+of the network outputs a distribution for each sub-pixel.  However, a custom
+loss function is needed that takes all the outputs of the network and the
+actual image and compute the negative log-likelihood.  Other than the complexity
+of the loss function, you just set it and go!
+
+Generating images is something that is a bit more complicated but follows the same idea from my post on `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__:
+
+0. Set :math:`i=0` to represent current iteration and pixel (implicitly we
+   would translate it to the row/col/sub-pixel in the image).
+1. Start off with a tensor for your image :math:`\bf x^0` with any initialization
+   (it doesn't matter).
+2. Feed :math:`\bf x^i` into the PixelCNN network to generate distributional
+   outputs :math:`\bf y^{i+1}`.
+3. Randomly sample sub-pixel :math:`u_{i+1}` from the mixture distribution
+   defined by :math:`\bf y^{i+1}` (we only need the subset of values for
+   sub-pixel :math:`i+1`).
+4. Set :math:`x^{i+1}` as :math:`x^i` but replacing the single sub-pixel with
+   :math:`u_{i+1}`.
+5. Repeat step 2-4 until entire image is generated.
+
+This is a slow process!  For a 32x32x3 image, we basically need to do a forward
+pass of the network 3072 times for a single image (of course we have some
+parallelism because we can do several images in batch).  This is the downside
+of autoregressive models: training is done in parallel but generation is
+sequential (and slow).  As a data point, my slow implementation took almost 37
+mins to generate 16 images (forward passes were parallelized on the GPU but
+sampling was sequential in a loop on the CPU).
 
 |h2| Implementation Details |h2e|
+
+So far the theory isn't too bad: some masked layers, extra outputs and some
+sigmoid losses and we're done, right?  Well it's a bit tricker than that,
+especially the loss function.  I'll explain details (and headaches) that I went
+through implementing it in Keras.  As usual, you can find all my code in this 
+`Github repo <https://github.com/bjlkeng/sandbox/tree/master/notebooks/pixel_cnn>`__.
+
+|h3| Masked Convolution Layer |h3e|
+
+|h3| Loss Function |h3e|
+
+|h3| Implementation Strategy |h3e|
+
 
 |h2| Experiments |h2e|
 
@@ -195,7 +311,6 @@ sub-pixels, we should have full connectivity to all predecessors.
 * [2] "PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications," Tim Salimans, Andrej Karpathy, Xi Chen, Diederik P. Kingma, `<http://arxiv.org/abs/1701.05517>`__.
 * [3] "Conditional Image Generation with PixelCNN Decoders," Aaron van den Oord, Nal Kalchbrenner, Oriol Vinyals, Lasse Espeholt, Alex Graves, Koray Kavukcuoglu, `<https://arxiv.org/abs/1606.0532A>`__
 * Wikipedia: `Autoregressive model <https://en.wikipedia.org/wiki/Autoregressive_model>`__
-* Previous posts: `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__
-
+* Previous posts: `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__, `Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders <link://slug/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders>`__
 
 
