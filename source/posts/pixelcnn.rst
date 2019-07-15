@@ -81,7 +81,7 @@ With that in mind, let's review the
 
 .. math::
 
-    p({\bf x}) = \prod_{i=1}^{D} p(x_i | {\bf x}_{<i})  \tag{8}
+    p({\bf x}) = \prod_{i=1}^{D} p(x_i | {\bf x}_{<i})  \tag{1}
 
 where :math:`{\bf x}_{<i} = [x_1, \ldots, x_{i-1}]`.  Basically, component
 :math:`i` of :math:`{\bf x}` only depends on the dimensions of :math:`j < i`.
@@ -209,7 +209,7 @@ The other way to go about it is to imagine the pixel generation process as such 
                     & \text{for } 0 < x < 255 \\
                 1 - \sigma(\frac{x-0.5-\mu}{s}) & \text{for } x = 255
             \end{cases}
-        \tag{1}
+        \tag{2}
 
     where :math:`\sigma` is the sigmoid function (recall sigmoid is the CDF of
     the logistic distribution).
@@ -222,7 +222,7 @@ flexibility.  To improve it, we use a mixture of logistics for :math:`\nu`:
 
 .. math::
 
-    \nu \sim \sum_{i=1}^K \pi_i logistic(\mu_i, s_i) \tag{2}
+    \nu \sim \sum_{i=1}^K \pi_i logistic(\mu_i, s_i) \tag{3}
 
 To bring it back to neural networks, for each sub-pixel, we want our network
 to output three things: 
@@ -248,7 +248,7 @@ have a lot of mass at the 0 and 255 pixels.
 All of this can be implemented pretty easily by strapping a bunch of masked
 convolution layers together and setting the last layer to have :math:`3*3K`
 filters (one for each sub-pixel).  The really interesting stuff happens in the
-loss function though which computes the negative log of Equation 1.  The nice thing
+loss function though which computes the negative log of Equation 2.  The nice thing
 about this loss is that it's fully probabilistic from the start.
 We'll get to implementing it in a later section but suffice it to say, it's not
 easy dealing with overflow!
@@ -292,11 +292,180 @@ So far the theory isn't too bad: some masked layers, extra outputs and some
 sigmoid losses and we're done, right?  Well it's a bit tricker than that,
 especially the loss function.  I'll explain details (and headaches) that I went
 through implementing it in Keras.  As usual, you can find all my code in this 
-`Github repo <https://github.com/bjlkeng/sandbox/tree/master/notebooks/pixel_cnn>`__.
+`Github repo <https://github.com/bjlkeng/sandbox/tree/master/notebooks/pixel_cnn/pixelcnn.ipynb>`__.
 
 |h3| Masked Convolution Layer |h3e|
 
+The masked convolution layer (which I named ``PixelConv2D``) was actually
+pretty easy to implement in Keras because I just inherited from the ``Conv2D``
+layer, build a binary mask and then do an element-wise product with the kernel.
+There's just a bit of accounting that needs to go on in building the mask such
+as ensuring that your input is a multiple of 3 and that the right bits are set.
+This probably isn't the most efficient method of doing it because you literally
+are multiplying by a binary matrix every time, but it probably is the easiest!
+
+|h3| PixelCNN Outputs |h3e|
+
+The output of the network is a distribution, but how is that realized?
+The last layer is composed is made up of three sets of ``PixelConv2D`` layers
+representing:
+
+* Logistic mean values :math:`\mu`, filters = # of mixture component, no activation
+* Logistic inverse log of scale values :math:`s`, filters = # of mixture components,
+  "softplus" activation function
+* Pre-softmax inputs, filters = # of mixture components, no activation
+
+The mean is pretty straight forward.  We put no restriction on it being in 
+our normalized pixel interval (i.e. :math:`[-1, 1]`), which seems to work out
+fine.
+
+The network output corresponding to scale is set to be an inverse because we
+never way to divide by 0.  As for modelling the output as the logarithm, I
+suspect (but haven't observed) that it's just a better match for scale.  For
+example, your network needs to output :math:`6` instead of :math:`e^6`, where
+the latter will have to have huge weights on the last layer.  The "softplus"
+seems to be the best fit here because it's very smooth (unlike "ReLU"), and the
+non-negative logarithm values ensure :math:`s < 1`.  Since we're dealing with
+normalized pixels between :math:`[-1, 1]`, we would never want a shape parameter that wider than half the interval (that would just put almost all the mass on the end points).
+
+Finally, the network's output corresponding to the mixture components are
+the *inputs* to the softmax without an explicit softmax.  This is done
+because in the loss function we compute the :math:`\log` of the softmax, which
+is numerically more stable if we have the raw pre-softmax inputs rather than
+the post-softmax outputs.  It's a small change and just requires a few extra
+processing steps when we're actually generating images.
+
+|h3| Network Architecture |h3e|
+
+I used the same architecture as the PixelCNN paper [1] except for the
+outputs where I used logistic mixture outputs instead of a softmax (as
+described above):
+
+* 7x7 Conv Layer, Mask A, ReLU
+* 15 - 3x3 Resnet Blocks, Mask B, :math:`h=128` (shown in Figure 3)
+* 2 - 1x1 Conv layers, Mask B, ReLU, :math:`filters=1024`
+* Output layers (as described above)
+
+.. figure:: /images/pixelcnn_resnet.png
+  :width: 200px
+  :alt: PixelCNN Resnet Block
+  :align: center
+ 
+  Figure 3: PixelCNN Resnet Block (source [1])
+
+The network widths above are for each colour channel, which are concatenated
+after each operation and fed into the next ``PixelConv2D`` which know how to
+deal with them via masks.
+
 |h3| Loss Function |h3e|
+
+The loss function was definitely the hardest part about the entire implementation.
+There are so many subtleties, I don't know where to begin.  And this was *after*
+I basically heavily referenced the PixlCNN++ code [4].  Let's start with
+computing the log-likelihood shown in Equation 2.  There are actually 4 different
+cases (actual condition in parenthesis, scaled to pixel range :math:`[-1,1]`).
+
+Note: I'm using :math:`0.5` in the equations below but substitute
+:math:`\frac{1}{2(127.5)}` for the rescaled pixel range :math:`[-1,1]`.
+
+**Case 1 Black Pixel**: :math:`x\leq 0` (:math:`x < -0.999`)
+
+Here we just need to do a bit of math to simplify the expression:
+
+.. math::
+
+    \log\big( \sigma(\frac{x+0.5-\mu}{s}) \big)
+    = \frac{x+0.5-\mu}{s} - \text{softplus}(\frac{x+0.5-\mu}{s})
+    \tag{4}
+
+where softplus is defined as :math`\log(e^x+1)`, see this 
+`Math Stack Exchange Question <https://math.stackexchange.com/questions/2320905/obtaining-derivative-of-log-of-sigmoid-function>`__ for more details.
+
+**Case 2 White Pixel**: :math:`x\geq 255` (:math:`x > 0.999`)
+
+Again, simply a simplification of Equation 2:
+
+.. math::
+
+    \log\big(1 - \sigma(\frac{x-0.5-\mu}{s}) \big)
+    = -\text{softplus}(\frac{x-0.5-\mu}{s})
+    \tag{5}
+
+If you just expand out the sigmoid into exponentials, this should be a pretty
+easy to derive.
+
+**Case 3 Overflow Condition**: :math:`\sigma(\frac{x+0.5-\mu}{s}) - \sigma(\frac{x-0.5-\mu}{s}) < 10^{-5}`
+
+This is the part where we have to be careful.  Even if we don't have a black or
+white pixel, we can still overflow.  Imagine the case where the centre of our logistic
+distribution is way off from our pixel range e.g. :math:`\mu=1000, s=1`.  This means
+that any pixel within the :math:`[-1, 1]` range will be :math:`0` (remember we
+don't have infinite precision) since it's so far out in the tail of the
+distribution.  As such, the difference will also be zero and when we try to take
+the logarithm, we get :math:`-\infty` or NaNs.
+
+Interestingly enough, the code from PixelCNN++ [4] says that this condition
+doesn't occur in their code, but for me it definitely happens.  I took this
+condition out and I started getting NaNs everywhere.  It's possible with
+their architecture it doesn't happen but I suspect either their comment is
+misleading or they just didn't do a lot of checks.
+
+Anyways, to solve this problem, we actually approximate the integral (area
+under the PDF) by taking the centered PDF of the logistic and multiply it by a
+pixel width interval:
+
+.. math::
+
+    \log(\text{PDF} \cdot \frac{1}{127.5}) 
+    &= \log\big(\frac{e^{-(x-m)/s}}{{s(1 + e^{-(x-m)/s})^2}}\big)-\log(127.5) \\
+    &= -\frac{x-m}{s} - \log(s) - 2\log(1+e^{-(x-m)/s}) - \log(127.5) \\
+    &= -\frac{x-m}{s} - \log(s) - 2\cdot\text{softplus}(-\frac{x-m}{s}) - \log(127.5)
+    \\ \tag{6}
+
+If that weren't enough, I did some extra work to make it even more precise!
+This was not in the original implementation, and actually in retrospect, I'm
+not sure if it even helps but I'm going to explain it anyways since I spent a
+bunch of time on it.
+
+For Equation 6, it obviously is not equivalent to the actual expression
+:math:`\log\big(\sigma(\frac{x+0.5-\mu}{s}) - \sigma(\frac{x-0.5-\mu}{s})\big)`.
+So at the cross over point of :math:`10^{-5}`, there must be some sort of 
+discontinuity in the loss.  This is shown in Figure 4.
+
+.. figure:: /images/pixelcnn_discontinuity1.png
+  :height: 250px
+  :alt: PixelCNN Loss Discontinuity for Edge Case
+  :align: center
+ 
+  Figure 4: PixelCNN Loss Discontinuity for Edge Case
+
+For various values of :math:`\text{invs}=\log(\frac{1}{s})`, I plotted the
+discontinuity as a function of the centered x values.  The dotted line
+represents the cross over point.  When you are very far away from the center
+(larger x values), the exception case kicks in, but when we get closer
+to being in the right region, we get the normal case.
+As we get a tighter distribution (larger invs), the point at which the
+exception case kicks in is sooner.
+The problem is the exception case has a *smaller* loss than the normal case,
+which means it's possible that it might flip/flop between the two cases.
+
+To adjust for it, I added a line of best fit as a function of invs.
+Figure 5 shows this line of best fit (nevermind the axis label where
+I'm using inconsistent naming).
+
+.. figure:: /images/pixelcnn_discontinuity2.png
+  :height: 400px
+  :alt: PixelCNN Loss Adjustment for Edge Case
+  :align: center
+ 
+  Figure 5: PixelCNN Loss Adjustment for Edge Case
+
+As you can see, the line of best fit is pretty good up to
+:math:`\text{invs}\approx 6`.  In most cases, I haven't observed such a tight
+distribution on the outputs so it probably will serve us pretty well.
+As I mentioned above, I'm actually kind of skeptical that it makes a difference
+but here it is anyways.
+
 
 |h3| Implementation Strategy |h3e|
 
@@ -310,6 +479,7 @@ through implementing it in Keras.  As usual, you can find all my code in this
 * [1] "Pixel Recurrent Neural Networks," Aaron van den Oord, Nal Kalchbrenner, Koray Kavukcuoglu, `<https://arxiv.org/abs/1601.06759>`__.
 * [2] "PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications," Tim Salimans, Andrej Karpathy, Xi Chen, Diederik P. Kingma, `<http://arxiv.org/abs/1701.05517>`__.
 * [3] "Conditional Image Generation with PixelCNN Decoders," Aaron van den Oord, Nal Kalchbrenner, Oriol Vinyals, Lasse Espeholt, Alex Graves, Koray Kavukcuoglu, `<https://arxiv.org/abs/1606.0532A>`__
+* [4] PixelCNN++ code on Github: https://github.com/openai/pixel-cnn
 * Wikipedia: `Autoregressive model <https://en.wikipedia.org/wiki/Autoregressive_model>`__
 * Previous posts: `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__, `Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders <link://slug/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders>`__
 
