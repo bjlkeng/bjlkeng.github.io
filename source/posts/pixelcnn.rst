@@ -469,18 +469,80 @@ but here it is anyways.
 
 |h3| Implementation Strategy |h3e|
 
+One thing about these types of models is that they're complex!  It's actually
+very easy to have a small bug that takes a *long* time to debug.  After many
+false starts trying to get it working in one shot, I decided to actually do
+best practice and start small.  The way I did this was incrementally test out
+new parts and then slowly put the pieces together.  These are the iterations
+that I did (which correspond to the different notebooks you'll see on Github):
+
+* `PixelConv2D` layer: making sure that I got all the masking right.
+* Next, I generated several images 2x2 RGB Image from a logistic distribution
+  for each sub-pixel.  Using this approach I could actually take a look at the
+  distributional parameters, plot the distribution for each pixel and then
+  compare to actuals.  The network I used for this was essentially just an
+  output layer because I was testing how the loss function behaved.  I spent
+  *a lot* of time here trying to understand what was going on in the loss
+  function.  It was very helpful.
+* As a continuation, I generated the same RGB images but with a mixture of
+  logistics.  This was a natural extension of the previous iteration and
+  allowed me to test out the logic I had for mixtures.
+* After I was more or less sure that things were working on the toy example,
+  I moved to the actual CIFAR10 images.  Here I started out with a single image
+  and tiny slices of it (e.g. 2x2, 4x4, 8x8, etc.) working my way up to the
+  entire image.  I wanted to see if I could overfit on a single example, 
+  which would give me some indication that I was on the right track.
+* Naturally, I extended this to 2 images, then multiple images, finally the
+  entire dataset.
+
+One thing that I found incredibly useful is that for each set of experiments,
+I took notes!  Ugh... I know it's obvious but it's easy to be lazy when you're
+working on your own.  You'll see at the bottom of the notebook I put some notes
+for each time I was working on it.  You'll see some of the frustration and
+false starts I went through.
+
+Besides the obvious reasons why it's good to document progress, it was extra
+helpful because I only get to work on this stuff so sporadically that it can be
+a month or two between sessions.  Try remembering what tweaks you were doing to
+your loss function from two months ago!  Anyways, it was really helpful because
+I could re-read my previous train of thought and then move on to my next
+experiment.  Highly recommend it.
+
+Another small thing that I did was that I prototyped everything in a notebook
+first and then as I was more confident that it worked, I moved it into a Python
+file.  This was helpful because each notebook didn't have it's own (perhaps out
+of date)copy of a function.  It also made the notebooks a bit nicer to read.  I
+would recommend doing the first prototype in a notebook though, you want the
+agility of modifying things on the fly with the least friction.
 
 |h2| Experiments |h2e|
+
+.. figure:: /images/pixelcnn_images.png
+  :width: 400px
+  :alt: PixelCNN Generated Images
+  :align: center
+
+  Figure 6: PixelCNN Generated Images
+
+
+.. csv-table:: Table 1: PixelCNN Loss on CIFAR10 (bits/pixel)
+   :header: "Model", "Training Loss", "Validation Loss"
+   :widths: 15, 10, 10
+   :align: center
+
+   "My Implementation", 3.40, 3.41
+   "PixelCNN [1]", \-, 3.14
+   "PixelCNN++ [2]", \-, 2.92
+
 
 |h2| Conclusion |h2e|
 
 |h2| Further Reading |h2e|
 
+* My code on Github: `Github repo <https://github.com/bjlkeng/sandbox/tree/master/notebooks/pixel_cnn/>`__
 * [1] "Pixel Recurrent Neural Networks," Aaron van den Oord, Nal Kalchbrenner, Koray Kavukcuoglu, `<https://arxiv.org/abs/1601.06759>`__.
 * [2] "PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications," Tim Salimans, Andrej Karpathy, Xi Chen, Diederik P. Kingma, `<http://arxiv.org/abs/1701.05517>`__.
 * [3] "Conditional Image Generation with PixelCNN Decoders," Aaron van den Oord, Nal Kalchbrenner, Oriol Vinyals, Lasse Espeholt, Alex Graves, Koray Kavukcuoglu, `<https://arxiv.org/abs/1606.0532A>`__
 * [4] PixelCNN++ code on Github: https://github.com/openai/pixel-cnn
 * Wikipedia: `Autoregressive model <https://en.wikipedia.org/wiki/Autoregressive_model>`__
 * Previous posts: `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__, `Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders <link://slug/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders>`__
-
-
