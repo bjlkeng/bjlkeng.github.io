@@ -517,6 +517,22 @@ agility of modifying things on the fly with the least friction.
 
 |h2| Experiments |h2e|
 
+Based on the implementation above, I was able to train a PixelCNN network.
+Some images generated are shown in Figure 6.  Not very impressive... 
+One thing that I think would make it better is to actually increase the convolution
+size.  I'm just using a 5x5 window where with masking, only results in roughly
+a 3x5 window.  I suspect going a bit bigger might help the image look better,
+similarly with the internal 3x3 convolutions.  PixelCNN++ actually has varying
+internal conv layers to capture different resolutions.
+
+One thing that I struggled with for a long time was that I was generating crappy
+images like the one below.  I tried really hard to get images that looked like
+the original ones. However, when I looked closer at the PixelCNN images
+generated, they also had a mishmash of pictures.  They also weren't generating
+anything intelligible either (although theirs did looks much better than mine).
+In any case, since we're not expecting photo-realistic images like GANs, I
+decided to move on.
+
 .. figure:: /images/pixelcnn_images.png
   :width: 400px
   :alt: PixelCNN Generated Images
@@ -524,6 +540,18 @@ agility of modifying things on the fly with the least friction.
 
   Figure 6: PixelCNN Generated Images
 
+What I was relatively happy with are my results shown in Table 1.  Using
+the bits/pixel metric (see my discussion of this metric on my 
+`Importance Sampling <link://slug/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders>`__ 
+post), I was able to achieve somewhat close results to the paper: 3.4 vs 3.14.
+
+It's not too surprising the results are different.  I tried to use the same
+architecture as PixelCNN [1] *except* for how they model their output pixels.
+For that used the PixelCNN++ [2] paper.  PixelCNN has *more* flexibility in the
+output layer being a 256-way softmax so you probably would expect it do a bit
+better.  PixelCNN++ does do better overall but I think it's because of their
+architectural changes with varying resolutions of conv layers compared with a
+Resnet-like architecture of PixelCNN.
 
 .. csv-table:: Table 1: PixelCNN Loss on CIFAR10 (bits/pixel)
    :header: "Model", "Training Loss", "Validation Loss"
@@ -534,8 +562,26 @@ agility of modifying things on the fly with the least friction.
    "PixelCNN [1]", \-, 3.14
    "PixelCNN++ [2]", \-, 2.92
 
+I trained the PixelCNN to reduce the learning rate on a loss plateau (I needed
+to start relatively small in the learning rate at 0.002 and then use the
+gradual learning rate reduction or else it would never go down).
+Interestingly, I couldn't get the architecture to overfit.  Somehow the
+validation loss is incredibly close to the training loss.  This is in
+contrast to the PixelCNN++ paper, which states that overfitting is a major
+problem (which they address via dropout).  This kind of suggests that the
+vanilla Resnet architecture probably isn't the most efficient for this task,
+which authors of [1] change up in their extension paper in [3].  Still, I'm
+pretty happy with the results, which is my best CIFAR-10 loss to date.
 
 |h2| Conclusion |h2e|
+
+I'm so glad that I finally got to implement and write about this post.  It's
+been a long time coming and be particularly hard this past year where I've been
+so incredibly busy with work both at the company and university.  In the two
+years since I wanted to write a post on this paper, there have been at least
+another half dozen papers that have come out that I want to write posts on.
+It's a bit of a never-ending cycle but that's what makes it fun!  Hopefully
+you won't have to wait two years for me to get to those papers!
 
 |h2| Further Reading |h2e|
 
