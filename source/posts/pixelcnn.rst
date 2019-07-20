@@ -1,6 +1,6 @@
 .. title: PixelCNN
 .. slug: pixelcnn
-.. date: 2019-07-08 08:11:09 UTC-04:00
+.. date: 2019-07-20 08:11:09 UTC-04:00
 .. tags: generative models, autoregressive, CIFAR10, mathjax
 .. category: 
 .. link: 
@@ -68,12 +68,12 @@ In particular, literature usually assume a linear dependence and name these
 "AR" models of the "ARIMA" notoriety.  Here "auto" refers to self, and
 "regressive" means regressed against.  
 
-In the conext of deep generative models, we'll drop the condition of linear
+In the context of deep generative models, we'll drop the condition of linear
 dependence and formulate our image problem as a random process.  In particular,
 we will:
 
 a. Use a deep generative models (obviously non-linear), and
-b. Assume the pixels of an image is a random variable with a specific ordering
+b. Assume the pixels of an image are random variables with a specific ordering
    (top to bottom, left to right), which formulates it as a random process.
 
 With that in mind, let's review the 
@@ -96,17 +96,19 @@ The way to generate an image from an autoregressive generative model is as follo
    a totally unconditional distribution.  We simply sample from this
    distribution to get a concrete realization for the first (sub-)pixel.
 2. Each subsequent (sub-)pixel distribution is generated in sequence conditioned on
-   all previously sampled (sub-)pixels.  We simply sample from this conditional
-   distribution to get the current pixel value.
+   all (or a subset of) previously sampled (sub-)pixels.  We simply sample from
+   this conditional distribution to get the current pixel value.
 3. Repeat until you have the entire image.
 
 According to my intuition, this is a really weird way to generate an image!
 Think of it, if you want to generate a picture of a dog, you start at the top
 left pixel, figure out what it is, then move on to the one beside it, and so
-on.  This goes against my sensibilities of implicitly having a hierarchical
-relationship from a higher level concept like a dog and low-level pixels.
-In any case, we can still get good negative log-likelihood (although the quality
-of the images are another story).
+on, until somehow you have an image of a dog?
+This goes against my human sensibilities of generating images where I
+implicitly have a concept of a dog and recursively fill in broad
+regions of the image getting to finer detail as I go along.
+In any case, we can still get good negative log-likelihood (although
+the quality of the images are another story), so that's all that counts (?).
 
 
 |h2| PixelCNN |h2e|
@@ -117,9 +119,9 @@ input an image and outputs a *distribution* for each (sub-)pixel (theoretically,
 you could have a different network for each pixel but that seems inefficient).
 There are a couple subtleties when doing that:
 
-(a) Due to the autoregressive nature, pixel :math:`i` should not see any pixels
-    :math:`\geq i`, otherwise it wouldn't be autoregressive (you could "see the
-    future").
+(a) Due to the autoregressive nature, output pixel :math:`i` should not see any 
+    input pixels :math:`\geq i`, otherwise it wouldn't be autoregressive (you
+    could "see the future").
 (b) Selecting a distribution and its corresponding loss function in order to
     model the output pixels.
 
@@ -132,12 +134,12 @@ from my post on MADE:
 `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__.
 As stated above, we impose (an arbitrary) ordering on the sub-pixels: 
 top to bottom, left to right, R to G to B.  Given this, we want to make sure
-pixels :math:`\geq i` are "hidden" from pixel :math:`i`, we can accomplish
-this with *masks*.  This is shown on the left side of Figure 1 where pixel
-:math:`i` only "reads" from its predecessors (the center image is the same
-thing for a larger multi-scale resolution).  This can easily be generated using
-a "mask" that is element-wise multiplied by your convolution kernel.  We'll
-talk about the implementation of this later on.
+input pixels :math:`\geq i` are "hidden" from output pixel :math:`i`, and we can
+accomplish this with *masks*.  This is shown on the left side of Figure 1 where
+output pixel :math:`i` only "reads" from its predecessors (the center image is the
+same thing for a larger multi-scale resolution).  This can easily be generated
+using a "mask" implemented as an element-wise multiplication with a
+convolution kernel.  We'll talk about the implementation of this later on.
 
 .. figure:: /images/pixelcnn_mask.png
   :width: 600px
@@ -146,12 +148,12 @@ talk about the implementation of this later on.
 
   Figure 1: PixelCNN Mask (source: [1])
 
-However, the mask doesn't just deal with the spacial location of full pixels,
+However, the mask doesn't just deal with the spatial location of full pixels,
 it also has to take into account the RGB values, which leads us to two
 different types of masks: A and B.  For the first convolution
 layer on the original image, the same rule applies as above, never read ahead.
 For full pixel :math:`i`'s mask when reading from pixel :math:`x_i`, the "B"
-pixel should only be connected to "G" and "R"; the "R" pixel should only be
+pixel should only be connected to "G" and "R"; the "G" pixel should only be
 connected to "R"; and the "R" pixel shouldn't be connected at all to pixel
 :math:`i`.  You can see the connectivity on the right side of Figure 1
 (Note you still have full "read" access to all sub-pixels from predecessor
@@ -173,7 +175,7 @@ channels.  In all convolution layers beyond the first one, we likely have many
 different filters per layer.  Just imagine instead of "RGB", we have
 "RRRRGGGGBBBB" as input to Mask B, and you can probably guess what the
 connectivity should look like.  Again this only applies to the current
-sub-pixels, we should have full connectivity to all predecessors.
+sub-pixels, we should have full connectivity to all spatial predecessors.
 
 |h3| Discretized Logistic Mixture Likelihood |h3e|
 
@@ -182,11 +184,11 @@ I covered this topic in my previous post in detail
 
 Modelling pixels is a funny problem.  On one hand, we can view them as 8-bit
 discrete random variables (e.g. 256-way softmax), but on the other hand, we can
-give them as approaching a sort-of continuous distribution (e.g. real-valued output).
+view them as a sort-of continuous distribution (e.g. real-valued output).
 The former approach is the way that [1] tackles the problem: just stick a
 256-softmax output on each sub-pixel.  There are two issues: (1) it uses up a
 gigantic amount of resources, and (2) there is no relationship between adjacent
-pixel values (R=100 is similar enough to R=101).  Mostly due to the first reason,
+pixel values (R=100 should be similar to R=101).  Mostly due to the first reason,
 I opted out to not implement it (couldn't fit a full image on my meager GTX 1070).
 
 The other way to go about it is to imagine the pixel generation process as such described in [2]:
@@ -204,10 +206,10 @@ The other way to go about it is to imagine the pixel generation process as such 
     
         P(x|\mu,s) = 
             \begin{cases}
-                \sigma(\frac{x+0.5-\mu}{s}) & \text{for } x = 0 \\
-                \sigma(\frac{x+0.5-\mu}{s}) - \sigma(\frac{x-0.5-\mu}{s}) 
+                \sigma(\frac{x-\mu+0.5}{s}) & \text{for } x = 0 \\
+                \sigma(\frac{x-\mu+0.5}{s}) - \sigma(\frac{x-\mu-0.5}{s}) 
                     & \text{for } 0 < x < 255 \\
-                1 - \sigma(\frac{x-0.5-\mu}{s}) & \text{for } x = 255
+                1 - \sigma(\frac{x-\mu-0.5}{s}) & \text{for } x = 255
             \end{cases}
         \tag{2}
 
@@ -224,18 +226,19 @@ flexibility.  To improve it, we use a mixture of logistics for :math:`\nu`:
 
     \nu \sim \sum_{i=1}^K \pi_i logistic(\mu_i, s_i) \tag{3}
 
-To bring it back to neural networks, for each sub-pixel, we want our network
-to output three things: 
+where :math:`\pi_i` is the categorical weight.  To bring it back to neural
+networks, for each sub-pixel, we want our network to output three things: 
 
-* :math:`K` :math:`\mu_i` representing the centers of our logistic distributions
-* :math:`K` :math:`s_i` representing the scale of our logistic distributions
-* :math:`K` :math:`\pi_i` representing the mixture weights (summing to 1)
+* :math:`K` :math:`\mu_i`'s representing the centers of our logistic distributions
+* :math:`K` :math:`s_i`'s representing the scale of our logistic distributions
+* :math:`K` :math:`\pi_i`'s representing the mixture weights (summing to 1)
 
 We don't need that many mixture components to get a good result ([2] uses
 :math:`K=5`), which is a lot less than a 256-way softmax.  Figure 2 shows
-a realization of the toy discretized mixture I did while testing.  You can see,
-we clearly that we can model multi-modal distributions, and at the same time
-have a lot of mass at the 0 and 255 pixels.
+a realization of a toy discretized mixture I did while testing.  You can see
+clearly that we can model multi-modal distributions, and at the same time
+have a lot of mass at the 0 and 255 pixels (which [2] claim is a good thing
+because black and white occur a lot in images?).
 
 .. figure:: /images/pixelcnn_histogram.png
   :width: 400px
@@ -256,12 +259,12 @@ easy dealing with overflow!
 |h3| Training and Generating Samples |h3e|
 
 Training this network is actually pretty easy, all we have to do is make
-the actual image for available on the input and output of the network.  
-Note the input dimensions of the network naturally takes an image, the output
-of the network outputs a distribution for each sub-pixel.  However, a custom
-loss function is needed that takes all the outputs of the network and the
-actual image and compute the negative log-likelihood.  Other than the complexity
-of the loss function, you just set it and go!
+the actual image available on the input and output of the network.  
+Note the input tensor of the network takes an image, while the output
+of the network outputs a distribution for each sub-pixel.  You still use
+the image on both the input and output but use a custom
+loss function that computes the negative log-likelihood using the network
+outputs.  Other than the complexity of the loss function, you just set it and go!
 
 Generating images is something that is a bit more complicated but follows the same idea from my post on `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__:
 
@@ -274,7 +277,7 @@ Generating images is something that is a bit more complicated but follows the sa
 3. Randomly sample sub-pixel :math:`u_{i+1}` from the mixture distribution
    defined by :math:`\bf y^{i+1}` (we only need the subset of values for
    sub-pixel :math:`i+1`).
-4. Set :math:`x^{i+1}` as :math:`x^i` but replacing the single sub-pixel with
+4. Set :math:`\bf x^{i+1}` as :math:`\bf x^i` but replacing the current sub-pixel with
    :math:`u_{i+1}`.
 5. Repeat step 2-4 until entire image is generated.
 
@@ -289,8 +292,8 @@ sampling was sequential in a loop on the CPU).
 |h2| Implementation Details |h2e|
 
 So far the theory isn't too bad: some masked layers, extra outputs and some
-sigmoid losses and we're done, right?  Well it's a bit tricker than that,
-especially the loss function.  I'll explain details (and headaches) that I went
+sigmoid losses and we're done, right?  Well it's a bit trickier than that,
+especially the loss function.  I'll explain the details (and headaches) that I went
 through implementing it in Keras.  As usual, you can find all my code in this 
 `Github repo <https://github.com/bjlkeng/sandbox/tree/master/notebooks/pixel_cnn/pixelcnn.ipynb>`__.
 
@@ -313,7 +316,7 @@ representing:
 * Logistic mean values :math:`\mu`, filters = # of mixture component, no activation
 * Logistic inverse log of scale values :math:`s`, filters = # of mixture components,
   "softplus" activation function
-* Pre-softmax inputs, filters = # of mixture components, no activation
+* Pre-softmax mixture inputs, filters = # of mixture components, no activation
 
 The mean is pretty straight forward.  We put no restriction on it being in 
 our normalized pixel interval (i.e. :math:`[-1, 1]`), which seems to work out
@@ -321,19 +324,22 @@ fine.
 
 The network output corresponding to scale is set to be an inverse because we
 never way to divide by 0.  As for modelling the output as the logarithm, I
-suspect (but haven't observed) that it's just a better match for scale.  For
-example, your network needs to output :math:`6` instead of :math:`e^6`, where
-the latter will have to have huge weights on the last layer.  The "softplus"
-seems to be the best fit here because it's very smooth (unlike "ReLU"), and the
-non-negative logarithm values ensure :math:`s < 1`.  Since we're dealing with
-normalized pixels between :math:`[-1, 1]`, we would never want a shape parameter that wider than half the interval (that would just put almost all the mass on the end points).
+suspect (but haven't observed) that it's just a better match for neural network
+outputs ranges.  For example, your network needs to output :math:`6` instead of
+:math:`e^6`, where the latter will have to have huge weights on the last layer.
+The "softplus" seems to be the best fit here because it's very smooth (unlike
+"ReLU"), and the non-negative logarithm values ensure :math:`s < 1`.  Since
+we're dealing with normalized pixels between :math:`[-1, 1]`, we would never
+want a shape parameter wider than half the interval (that would just put
+almost all the mass on the end points).
 
 Finally, the network's output corresponding to the mixture components are
 the *inputs* to the softmax without an explicit softmax.  This is done
 because in the loss function we compute the :math:`\log` of the softmax, which
 is numerically more stable if we have the raw pre-softmax inputs rather than
 the post-softmax outputs.  It's a small change and just requires a few extra
-processing steps when we're actually generating images.
+processing steps when we're actually generating images to get the mixture
+weights.
 
 |h3| Network Architecture |h3e|
 
@@ -341,7 +347,7 @@ I used the same architecture as the PixelCNN paper [1] except for the
 outputs where I used logistic mixture outputs instead of a softmax (as
 described above):
 
-* 7x7 Conv Layer, Mask A, ReLU
+* 5x5 Conv Layer, Mask A, ReLU
 * 15 - 3x3 Resnet Blocks, Mask B, :math:`h=128` (shown in Figure 3)
 * 2 - 1x1 Conv layers, Mask B, ReLU, :math:`filters=1024`
 * Output layers (as described above)
@@ -361,9 +367,9 @@ deal with them via masks.
 
 The loss function was definitely the hardest part about the entire implementation.
 There are so many subtleties, I don't know where to begin.  And this was *after*
-I basically heavily referenced the PixlCNN++ code [4].  Let's start with
+I heavily referenced the PixelCNN++ code [4].  Let's start with
 computing the log-likelihood shown in Equation 2.  There are actually 4 different
-cases (actual condition in parenthesis, scaled to pixel range :math:`[-1,1]`).
+cases (actual condition in parenthesis when scaled to pixel range :math:`[-1,1]`).
 
 Note: I'm using :math:`0.5` in the equations below but substitute
 :math:`\frac{1}{2(127.5)}` for the rescaled pixel range :math:`[-1,1]`.
@@ -374,11 +380,11 @@ Here we just need to do a bit of math to simplify the expression:
 
 .. math::
 
-    \log\big( \sigma(\frac{x+0.5-\mu}{s}) \big)
-    = \frac{x+0.5-\mu}{s} - \text{softplus}(\frac{x+0.5-\mu}{s})
+    \log\big( \sigma(\frac{x-\mu+0.5}{s}) \big)
+    = \frac{x-\mu+0.5}{s} - \text{softplus}(\frac{x-\mu+0.5}{s})
     \tag{4}
 
-where softplus is defined as :math`\log(e^x+1)`, see this 
+where softplus is defined as :math:`\log(e^x+1)`, see this 
 `Math Stack Exchange Question <https://math.stackexchange.com/questions/2320905/obtaining-derivative-of-log-of-sigmoid-function>`__ for more details.
 
 **Case 2 White Pixel**: :math:`x\geq 255` (:math:`x > 0.999`)
@@ -387,22 +393,22 @@ Again, simply a simplification of Equation 2:
 
 .. math::
 
-    \log\big(1 - \sigma(\frac{x-0.5-\mu}{s}) \big)
-    = -\text{softplus}(\frac{x-0.5-\mu}{s})
+    \log\big(1 - \sigma(\frac{x-\mu-0.5}{s}) \big)
+    = -\text{softplus}(\frac{x-\mu-0.5}{s})
     \tag{5}
 
 If you just expand out the sigmoid into exponentials, this should be a pretty
 easy to derive.
 
-**Case 3 Overflow Condition**: :math:`\sigma(\frac{x+0.5-\mu}{s}) - \sigma(\frac{x-0.5-\mu}{s}) < 10^{-5}`
+**Case 3 Overflow Condition**: :math:`\sigma(\frac{x-\mu+0.5}{s}) - \sigma(\frac{x-\mu-0.5}{s}) < 10^{-5}`
 
 This is the part where we have to be careful.  Even if we don't have a black or
 white pixel, we can still overflow.  Imagine the case where the centre of our logistic
 distribution is way off from our pixel range e.g. :math:`\mu=1000, s=1`.  This means
-that any pixel within the :math:`[-1, 1]` range will be :math:`0` (remember we
-don't have infinite precision) since it's so far out in the tail of the
-distribution.  As such, the difference will also be zero and when we try to take
-the logarithm, we get :math:`-\infty` or NaNs.
+that any pixel :math:`x` within the :math:`[-1, 1]` range will be incredibly
+close to :math:`0` (remember we don't have infinite precision) since it's so
+far out in the tail of the distribution.  As such, the difference will also be
+zero and when we try to take the logarithm, we get :math:`-\infty` or NaNs.
 
 Interestingly enough, the code from PixelCNN++ [4] says that this condition
 doesn't occur in their code, but for me it definitely happens.  I took this
@@ -412,7 +418,8 @@ misleading or they just didn't do a lot of checks.
 
 Anyways, to solve this problem, we actually approximate the integral (area
 under the PDF) by taking the centered PDF of the logistic and multiply it by a
-pixel width interval:
+pixel width interval (:math:`\frac{1}{127.5}` is a pixel width interval in
+our [-1, 1] range):
 
 .. math::
 
@@ -423,9 +430,9 @@ pixel width interval:
     \\ \tag{6}
 
 If that weren't enough, I did some extra work to make it even more precise!
-This was not in the original implementation, and actually in retrospect, I'm
-not sure if it even helps but I'm going to explain it anyways since I spent a
-bunch of time on it.
+This was not in the original implementation [4], and actually in retrospect,
+I'm not sure if it even helps but I'm going to explain it anyways since I spent
+a bunch of time on it.
 
 For Equation 6, it obviously is not equivalent to the actual expression
 :math:`\log\big(\sigma(\frac{x+0.5-\mu}{s}) - \sigma(\frac{x-0.5-\mu}{s})\big)`.
@@ -450,7 +457,7 @@ The problem is the exception case has a *smaller* loss than the normal case,
 which means it's possible that it might flip/flop between the two cases.
 
 To adjust for it, I added a line of best fit as a function of invs.
-Figure 5 shows this line of best fit (nevermind the axis label where
+Figure 5 shows this line of best fit (never mind the axis label where
 I'm using inconsistent naming).
 
 .. figure:: /images/pixelcnn_discontinuity2.png
@@ -474,19 +481,22 @@ very easy to have a small bug that takes a *long* time to debug.  After many
 false starts trying to get it working in one shot, I decided to actually do
 best practice and start small.  The way I did this was incrementally test out
 new parts and then slowly put the pieces together.  These are the iterations
-that I did (which correspond to the different notebooks you'll see on Github):
+that I did (which correspond to the different notebooks you'll see on 
+`Github <https://github.com/bjlkeng/sandbox/tree/master/notebooks/pixel_cnn/>`__):
 
 * `PixelConv2D` layer: making sure that I got all the masking right.
-* Next, I generated several images 2x2 RGB Image from a logistic distribution
-  for each sub-pixel.  Using this approach I could actually take a look at the
-  distributional parameters, plot the distribution for each pixel and then
-  compare to actuals.  The network I used for this was essentially just an
-  output layer because I was testing how the loss function behaved.  I spent
-  *a lot* of time here trying to understand what was going on in the loss
+* Next, I generated several images 2x2 RGB images from a known logistic
+  distribution for each sub-pixel.  Using this approach I could actually take a
+  look at the distributional parameters outputs, plot the distribution for each pixel
+  and then compare to actuals.  The network I used for this was essentially
+  just an output layer because I was testing how the loss function behaved.  I
+  spent *a lot* of time here trying to understand what was going on in the loss
   function.  It was very helpful.
 * As a continuation, I generated the same RGB images but with a mixture of
   logistics.  This was a natural extension of the previous iteration and
   allowed me to test out the logic I had for mixtures.
+* As a further continuation, I put together the actual network I wanted to use
+  (with fewer Resnet layers).  I had a couple of bugs here too.
 * After I was more or less sure that things were working on the toy example,
   I moved to the actual CIFAR10 images.  Here I started out with a single image
   and tiny slices of it (e.g. 2x2, 4x4, 8x8, etc.) working my way up to the
@@ -499,19 +509,19 @@ One thing that I found incredibly useful is that for each set of experiments,
 I took notes!  Ugh... I know it's obvious but it's easy to be lazy when you're
 working on your own.  You'll see at the bottom of the notebook I put some notes
 for each time I was working on it.  You'll see some of the frustration and
-false starts I went through.
+false starts that I went through.
 
 Besides the obvious reasons why it's good to document progress, it was extra
-helpful because I only get to work on this stuff so sporadically that it can be
-a month or two between sessions.  Try remembering what tweaks you were doing to
-your loss function from two months ago!  Anyways, it was really helpful because
-I could re-read my previous train of thought and then move on to my next
-experiment.  Highly recommend it.
+helpful because I only get to work on this stuff so sporadically that it was
+sometimes a month or two between sessions.  Try remembering what tweaks you
+were doing to your loss function from two months ago!  Anyways, it was really
+helpful because I could re-read my previous train of thought and then move on
+to my next experiment.  Highly recommend it.
 
 Another small thing that I did was that I prototyped everything in a notebook
 first and then as I was more confident that it worked, I moved it into a Python
 file.  This was helpful because each notebook didn't have it's own (perhaps out
-of date)copy of a function.  It also made the notebooks a bit nicer to read.  I
+of date) copy of a function.  It also made the notebooks a bit nicer to read.  I
 would recommend doing the first prototype in a notebook though, you want the
 agility of modifying things on the fly with the least friction.
 
@@ -523,13 +533,13 @@ One thing that I think would make it better is to actually increase the convolut
 size.  I'm just using a 5x5 window where with masking, only results in roughly
 a 3x5 window.  I suspect going a bit bigger might help the image look better,
 similarly with the internal 3x3 convolutions.  PixelCNN++ actually has varying
-internal conv layers to capture different resolutions.
+internal kernel sizes to capture different resolutions.
 
 One thing that I struggled with for a long time was that I was generating crappy
-images like the one below.  I tried really hard to get images that looked like
+images like the ones below.  I tried really hard to get images that looked like
 the original ones. However, when I looked closer at the PixelCNN images
 generated, they also had a mishmash of pictures.  They also weren't generating
-anything intelligible either (although theirs did looks much better than mine).
+anything intelligible either (although theirs did look much better than mine).
 In any case, since we're not expecting photo-realistic images like GANs, I
 decided to move on.
 
@@ -540,15 +550,16 @@ decided to move on.
 
   Figure 6: PixelCNN Generated Images
 
-What I was relatively happy with are my results shown in Table 1.  Using
-the bits/pixel metric (see my discussion of this metric on my 
+What I was relatively happy with are my loss performance results shown in Table 1.
+Using the bits/pixel metric (see my discussion of this metric from my 
 `Importance Sampling <link://slug/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders>`__ 
-post), I was able to achieve somewhat close results to the paper: 3.4 vs 3.14.
+post), I was able to achieve somewhat close results to the paper: 3.4 (mine) vs
+3.14 ([1]).
 
 It's not too surprising the results are different.  I tried to use the same
 architecture as PixelCNN [1] *except* for how they model their output pixels.
-For that used the PixelCNN++ [2] paper.  PixelCNN has *more* flexibility in the
-output layer being a 256-way softmax so you probably would expect it do a bit
+For that I used the PixelCNN++ [2] paper.  PixelCNN has *more* flexibility in the
+output layer being a 256-way softmax so you would expect it do a bit
 better.  PixelCNN++ does do better overall but I think it's because of their
 architectural changes with varying resolutions of conv layers compared with a
 Resnet-like architecture of PixelCNN.
@@ -562,9 +573,7 @@ Resnet-like architecture of PixelCNN.
    "PixelCNN [1]", \-, 3.14
    "PixelCNN++ [2]", \-, 2.92
 
-I trained the PixelCNN to reduce the learning rate on a loss plateau (I needed
-to start relatively small in the learning rate at 0.002 and then use the
-gradual learning rate reduction or else it would never go down).
+I trained the PixelCNN to reduce the learning rate on a loss plateau [1]_ .
 Interestingly, I couldn't get the architecture to overfit.  Somehow the
 validation loss is incredibly close to the training loss.  This is in
 contrast to the PixelCNN++ paper, which states that overfitting is a major
@@ -576,12 +585,12 @@ pretty happy with the results, which is my best CIFAR-10 loss to date.
 |h2| Conclusion |h2e|
 
 I'm so glad that I finally got to implement and write about this post.  It's
-been a long time coming and be particularly hard this past year where I've been
+been a long time coming and was particularly hard this past year where I've been
 so incredibly busy with work both at the company and university.  In the two
 years since I wanted to write a post on this paper, there have been at least
 another half dozen papers that have come out that I want to write posts on.
 It's a bit of a never-ending cycle but that's what makes it fun!  Hopefully
-you won't have to wait two years for me to get to those papers!
+you won't have to wait *another* two years for me to get to those papers!
 
 |h2| Further Reading |h2e|
 
@@ -592,3 +601,8 @@ you won't have to wait two years for me to get to those papers!
 * [4] PixelCNN++ code on Github: https://github.com/openai/pixel-cnn
 * Wikipedia: `Autoregressive model <https://en.wikipedia.org/wiki/Autoregressive_model>`__
 * Previous posts: `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__, `Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders <link://slug/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders>`__
+
+
+.. [1] I needed to start relatively small in the learning rate at 0.002 and then gradually reduce the learning rate or else the loss plateaus.  One thing that I think happens is because we're modifying the scale parameter :math:`s`, you never want big jumps or else the loss changes dramatically.  Thus, as you get in the right area with :math:`\mu`, you want to learn slower to "fine-tune" :math:`s`.
+
+
