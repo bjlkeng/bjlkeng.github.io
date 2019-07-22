@@ -535,7 +535,7 @@ Using this model, we can perform a "forward pass":
 1. Inputting values of :math:`X=x_i`
 2. Computing :math:`\mu_{z|X}` and :math:`\Sigma_{z|X}` from :math:`g_{z|X}(X;\phi)`
 3. Sample a :math:`z` value from :math:`\mathcal{N}(\mu_{z|X}, \Sigma_{z|X})`
-4. Compute :math:`\mu_{X|z}` from :math:`g_{X|z}(X;\theta)` to produce the
+4. Compute :math:`\mu_{X|z}` from :math:`g_{X|z}(z;\theta)` to produce the
    (mean of the) reconstructed output.
 
 Remember, our goal is to learn the parameters for our two networks: :math:`\theta`
