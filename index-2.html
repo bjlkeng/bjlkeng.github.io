@@ -64,7 +64,31 @@
                 
 
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/the-hard-thing-about-machine-learning/" class="u-url">The Hard Thing about Machine Learning</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/semi-supervised-learning-with-variational-autoencoders/" class="u-url">Semi-supervised Learning with Variational Autoencoders</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/semi-supervised-learning-with-variational-autoencoders/" rel="bookmark"><time class="published dt-published" datetime="2017-09-11T08:40:47-04:00" title="2017-09-11 08:40">2017-09-11 08:40</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>In this post, I'll be continuing on this variational autoencoder (VAE) line of
+exploration
+(previous posts: <a class="reference external" href="posts/variational-autoencoders">here</a> and
+<a class="reference external" href="posts/a-variational-autoencoder-on-the-svnh-dataset">here</a>) by
+writing about how to use variational autoencoders to do semi-supervised
+learning.  In particular, I'll be explaining the technique used in
+"Semi-supervised Learning with Deep Generative Models" by Kingma et al.
+I'll be digging into the math (hopefully being more explicit than the paper),
+giving a bit more background on the variational lower bound, as well as
+my usual attempt at giving some more intuition.
+I've also put some notebooks on Github that compare the VAE methods
+with others such as PCA, CNNs, and pre-trained models.  Enjoy!</p>
+<p class="more"><a href="posts/semi-supervised-learning-with-variational-autoencoders/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/the-hard-thing-about-machine-learning/" class="u-url">The Hard Thing about Machine Learning</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Brian Keng
@@ -200,34 +224,6 @@ of this post on Carl Doersch's <a class="reference external" href="https://arxiv
 which has a great explanation on this whole topic, so make sure you check that
 out too.</p>
 <p class="more"><a href="posts/variational-autoencoders/">Read more…</a></p>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/variational-bayes-and-the-mean-field-approximation/" class="u-url">Variational Bayes and The Mean-Field Approximation</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Brian Keng
-            </span></p>
-            <p class="dateline"><a href="posts/variational-bayes-and-the-mean-field-approximation/" rel="bookmark"><time class="published dt-published" datetime="2017-04-03T08:02:46-05:00" title="2017-04-03 08:02">2017-04-03 08:02</time></a></p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>This post is going to cover Variational Bayesian methods and, in particular,
-the most common one, the mean-field approximation.  This is a topic that I've
-been trying to understand for a while now but didn't quite have all the background
-that I needed.  After picking up the main ideas from
-<a class="reference external" href="posts/the-calculus-of-variations">variational calculus</a> and
-getting more fluent in manipulating probability statements like
-in my <a class="reference external" href="posts/the-expectation-maximization-algorithm">EM</a> post,
-this variational Bayes stuff seems a lot easier.</p>
-<p>Variational Bayesian methods are a set of techniques to approximate posterior
-distributions in <a class="reference external" href="https://en.wikipedia.org/wiki/Bayesian_inference">Bayesian Inference</a>.
-If this sounds a bit terse, keep reading!  I hope to provide some intuition
-so that the big ideas are easy to understand (which they are), but of course we
-can't do that well unless we have a healthy dose of mathematics.  For some of the
-background concepts, I'll try to refer you to good sources (including my own),
-which I find is the main blocker to understanding this subject (admittedly, the
-math can sometimes be a bit cryptic too).  Enjoy!</p>
-<p class="more"><a href="posts/variational-bayes-and-the-mean-field-approximation/">Read more…</a></p>
 </div>
     </div>
     </article>

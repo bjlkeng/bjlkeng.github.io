@@ -647,7 +647,7 @@ like:
 
 .. math::
 
-    \frac{1}{N} \sum_{x_i \in X} -\frac{1}{2\sigma^2}(x_i-\mu_{z|X})^2 - \frac{1}{2}\big(tr(\Sigma_{z|X}(x_i)) + (\mu_{z|X}(x_i))^T(\mu_{z|X}(x_i)) - k - \log \text{det}(\Sigma_{z|X}(x_i))\big)
+    \frac{1}{N} \sum_{x_i \in X} -\frac{1}{2\sigma^2}(x_i-\mu_{X|z})^2 - \frac{1}{2}\big(tr(\Sigma_{z|X}(x_i)) + (\mu_{z|X}(x_i))^T(\mu_{z|X}(x_i)) - k - \log \text{det}(\Sigma_{z|X}(x_i))\big) \tag{14}
 
 Each of the two big terms corresponds to :math:`\log P(x_i|z)` and 
 :math:`\mathcal{D}(Q(z|x_i) || P(z)` respectively, where I dropped out some of

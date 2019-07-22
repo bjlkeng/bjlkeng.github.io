@@ -15,7 +15,7 @@
 <link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
 <link rel="canonical" href="http://bjlkeng.github.io/">
 <link rel="next" href="index-1.html" type="text/html">
-<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/" type="text/html">
+<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/pixelcnn/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -63,7 +63,34 @@
                 
 
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/" class="u-url">Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/pixelcnn/" class="u-url">PixelCNN</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/pixelcnn/" rel="bookmark"><time class="published dt-published" datetime="2019-07-22T07:11:09-04:00" title="2019-07-22 07:11">2019-07-22 07:11</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>It's been a long time coming but I'm finally getting this post out!  I read
+this paper a couple of years ago and wanted to really understand it because it
+was state of the art at the time (still pretty close even now).  As usual
+though, once I started down the variational autoencoder line of posts, there
+was always <em>yet</em> another VAE paper to look into so I never got around to
+looking at this one.</p>
+<p>This post is all about a proper probabilistic generative model called Pixel
+Convolutional Neural Networks or PixelCNN.  It was originally proposed
+as a side contribution of Pixel Recurrent Neural Networks in [1] and later
+expanded upon in [2,3] (and I'm sure many other papers).  The real cool thing
+about it is that it's (a) probabilistic, and (b) autoregressive.  It's still
+counter-intuitive to me that you can generate images one pixel at at time, but
+I'm jumping ahead of myself here.  We'll go over some background material, the
+method, and my painstaking attempts at an implementation (and what I learned
+from it).  Let's get started!</p>
+<p class="more"><a href="posts/pixelcnn/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/" class="u-url">Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Brian Keng
@@ -161,28 +188,6 @@ overview with my previous two posts:
 <a class="reference external" href="posts/tensors-tensors-tensors">Tensors, Tensors, Tensors</a> and
 <a class="reference external" href="posts/manifolds">Manifolds: A Gentle Introduction</a>)</p>
 <p class="more"><a href="posts/hyperbolic-geometry-and-poincare-embeddings/">Read more…</a></p>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/manifolds/" class="u-url">Manifolds: A Gentle Introduction</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Brian Keng
-            </span></p>
-            <p class="dateline"><a href="posts/manifolds/" rel="bookmark"><time class="published dt-published" datetime="2018-04-17T06:24:57-05:00" title="2018-04-17 06:24">2018-04-17 06:24</time></a></p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>Following up on the math-y stuff from my <a class="reference external" href="posts/tensors-tensors-tensors">last post</a>,
-I'm going to be taking a look at another concept that pops up in ML: manifolds.
-It is most well-known in ML for its use in the
-<a class="reference external" href="https://www.quora.com/What-is-the-Manifold-Hypothesis-in-Deep-Learning">manifold hypothesis</a>.
-Manifolds belong to the branches of mathematics of topology and differential
-geometry.  I'll be focusing more on the study of manifolds from the latter
-category, which fortunately is a bit less abstract, more well behaved, and more
-intuitive than the former.  As usual, I'll go through some intuition,
-definitions, and examples to help clarify the ideas without going into too much
-depth or formalities.  I hope you mani-like it!</p>
-<p class="more"><a href="posts/manifolds/">Read more…</a></p>
 </div>
     </div>
     </article>

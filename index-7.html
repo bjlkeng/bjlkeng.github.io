@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="Understanding math, machine learning, and data to a satisfactory degree.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bounded Rationality (old posts, page 7) | Bounded Rationality</title>
+<link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="assets/css/rst.css" rel="stylesheet" type="text/css">
+<link href="assets/css/code.css" rel="stylesheet" type="text/css">
+<link href="assets/css/colorbox.css" rel="stylesheet" type="text/css">
+<link href="assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
+<link rel="canonical" href="http://bjlkeng.github.io/index-7.html">
+<link rel="prev" href="index-6.html" type="text/html">
+<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://bjlkeng.github.io/">
+
+                <span class="h1" id="blog-title">Bounded Rationality</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
+            <ul class="nav navbar-nav">
+<p class="lead">Understanding math, machine learning, and data to a satisfactory degree.</p>
+<!--
+                
+                <li><a href="/archive.html">Archive</a>
+                <li><a href="/categories/">Tags</a>
+                <li><a href="/rss.xml">RSS feed</a>
+
+                 
+-->
+            </ul>
+<ul class="nav navbar-nav navbar-right"></ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            <div class="col-lg-9">
+                
+                
+
+<div class="postindex">
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/a-first-post/" class="u-url">A First Post</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Brian Keng
+            </span></p>
+            <p class="dateline"><a href="posts/a-first-post/" rel="bookmark"><time class="published dt-published" datetime="2015-08-02T05:03:25-04:00" title="2015-08-02 05:03">2015-08-02 05:03</time></a></p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>Hi all, this the first post in my technical blog.  For a long time I've resisted making
+a blog about anything technical because, to be frank, I didn't feel like I
+was qualified.  What makes me more qualified now?  Nothing really, I'm just a bit less
+afraid of <a class="reference external" href="https://xkcd.com/386/">being wrong</a>.</p>
+<p>So maybe a good place to start is what I used to setup this blog and what the
+domain/title mean.
+For my personal blog (<a class="reference external" href="http://www.briankeng.com/">www.briankeng.com</a>), where
+I discuss random worldly wisdom that I come across, I use <a class="reference external" href="https://wordpress.org/">WordPress</a>.
+For this one, I used something a bit more technical (because why not?):</p>
+<dl class="docutils">
+<dt><a class="reference external" href="https://pages.github.com/">Github Pages</a></dt>
+<dd>Great place to host a static website (free) but also has some of that "hacker
+cred".  It's quite easy to use (if you've used git before) and also quite
+well <a class="reference external" href="https://help.github.com/articles/setting-up-a-custom-domain-with-github-pages/">documented</a>
+on how to get your domain setup.</dd>
+<dt>
+<br><a class="reference external" href="https://getnikola.com/">Nikola</a> (static site generator)</dt>
+<dd>The recommended static site generator with Github Pages is Jekyll but one
+thing I wanted for this site is to make use of <a class="reference external" href="http://ipython.org/notebook.html">IPython Notebooks</a>.  After a bit of searching, I found
+Nikola to be a good match because it supports IPython Notebooks out of the box
+(as opposed to Jekyll which required some fiddling), and seemd to have a reasonably
+simple setup.  The really interesting line from the <a class="reference external" href="https://getnikola.com/handbook.html#getting-more-themes">documentation</a>
+is this quote: <tt class="docutils literal">DON'T READ THIS MANUAL. IF YOU NEED TO READ IT I FAILED, JUST USE THE THING.</tt>
+Exactly the sentiment I was going for.</dd>
+<dt>
+<br><a class="reference external" href="https://themes.getnikola.com/#bootstrap3">Bootstrap3</a> theme and <a class="reference external" href="bhttp://bootswatch.com/readable/">Readable</a> Bootstrap theme.</dt>
+<dd>
+<p class="first">Bootstrap3 is the default theme for Nikola, conveniently using <a class="reference external" href="http://getbootstrap.com/">Bootstrap</a>,
+the most popular HTML/CSS/JS framework for the web.  Since I'm not a very
+good designer using high quality themes/framework is definitely ideal.</p>
+<p>The default Nikola theme, however, was not too my liking.  A bit too spartan for me.  Fortunately, Nikola has a really cool
+feature where you can take an existing Bootstrap theme from <a class="reference external" href="http://bootswatch.com">http://bootswatch.com</a>
+and skin the default Nikola Bootstrap theme.  I chose the <a class="reference external" href="bhttp://bootswatch.com/readable/">Readable</a> theme because I'm
+a huge fan of making things easy-to-read (you should see how large the font
+size is on my devices, frequently referred to as "old people font size").</p>
+<p class="last">Even with the new Bootstrap theme, the site layout didn't quite look right.
+So I fiddled around with the layout and placement of items, pretty much
+copying the layout of another blog I really enjoy <a class="reference external" href="http://prog21.dadgum.com/">programming in the twenty-first century</a> by James Hague.
+It was interesting playing around with HTML templates and CSS but pretty much
+confirmed that it's not really what I like doing.  Getting to a satisfactory
+layout was as much effort as I really wanted to put in.</p>
+</dd>
+</dl>
+<p class="more"><a href="posts/a-first-post/">Read more…</a></p>
+</div>
+    </div>
+    </article>
+</div>
+
+        <nav class="postindexpager"><ul class="pager">
+<li class="previous">
+                <a href="index-6.html" rel="prev">Newer posts</a>
+            </li>
+        </ul></nav>
+</div>
+            <div class="col-md-3 well">
+            <p>
+            I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
+            a former academic, current data scientist and engineer.  This is
+            <a href=".">the place</a>
+            where I write
+            about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br><p>
+            <a href="archive.html">Archive</a>
+            </p>
+            <p>
+            <a href="categories/index.html">Tags</a>
+            </p>
+            <p>
+            <a href="rss.xml">RSS feed</a>
+            </p>
+
+<!-- Begin MailChimp Signup Form -->
+<hr>
+<link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+    #mc_embed_signup{clear:left; font:13px Helvetica,Arial,sans-serif; }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+       We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="//briankeng.us10.list-manage.com/subscribe/post?u=cedf72ca8daa891e57f4379a0&amp;id=1f1563094f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <b>Signup for Email Blog Posts</b>
+    <div id="mc_embed_signup_scroll">
+<div>
+    <label for="mce-EMAIL"> Email Address </label>
+    <input type="email" value="" name="EMAIL" class="required email form-control input-sm" id="mce-EMAIL">
+</div>
+    <div id="mce-responses" class="clear">
+        <div class="response" id="mce-error-response" style="display:none"></div>
+        <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_cedf72ca8daa891e57f4379a0_1f1563094f" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn btn-default btn-xs"></div>
+    </div>
+</form>
+</div>
+<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
+</div>
+        </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2019         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+        </footer>
+</div>
+</div>
+
+
+            <script src="assets/js/jquery.min.js"></script><script src="assets/js/bootstrap.min.js"></script><script src="assets/js/moment-with-locales.min.js"></script><script src="assets/js/fancydates.js"></script><script src="assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates --><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-15314898-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>

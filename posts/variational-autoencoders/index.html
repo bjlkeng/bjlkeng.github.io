@@ -681,7 +681,7 @@ converge to the same place and it simplifies life for us a bit.</p>
 like:</p>
 <div class="math">
 \begin{equation*}
-\frac{1}{N} \sum_{x_i \in X} -\frac{1}{2\sigma^2}(x_i-\mu_{z|X})^2 - \frac{1}{2}\big(tr(\Sigma_{z|X}(x_i)) + (\mu_{z|X}(x_i))^T(\mu_{z|X}(x_i)) - k - \log \text{det}(\Sigma_{z|X}(x_i))\big)
+\frac{1}{N} \sum_{x_i \in X} -\frac{1}{2\sigma^2}(x_i-\mu_{X|z})^2 - \frac{1}{2}\big(tr(\Sigma_{z|X}(x_i)) + (\mu_{z|X}(x_i))^T(\mu_{z|X}(x_i)) - k - \log \text{det}(\Sigma_{z|X}(x_i))\big) \tag{14}
 \end{equation*}
 </div>
 <p>Each of the two big terms corresponds to <span class="math">\(\log P(x_i|z)\)</span> and

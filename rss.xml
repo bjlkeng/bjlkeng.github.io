@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality</title><link>http://bjlkeng.github.io/</link><description>Understanding math, machine learning, and data to a satisfactory degree.</description><atom:link href="http://bjlkeng.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 04 Jun 2019 12:36:08 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders</title><link>http://bjlkeng.github.io/posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;It took a while but I'm back!  This post is kind of a digression (which seems
+<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality</title><link>http://bjlkeng.github.io/</link><description>Understanding math, machine learning, and data to a satisfactory degree.</description><atom:link href="http://bjlkeng.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Mon, 22 Jul 2019 12:54:02 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>PixelCNN</title><link>http://bjlkeng.github.io/posts/pixelcnn/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;It's been a long time coming but I'm finally getting this post out!  I read
+this paper a couple of years ago and wanted to really understand it because it
+was state of the art at the time (still pretty close even now).  As usual
+though, once I started down the variational autoencoder line of posts, there
+was always &lt;em&gt;yet&lt;/em&gt; another VAE paper to look into so I never got around to
+looking at this one.&lt;/p&gt;
+&lt;p&gt;This post is all about a proper probabilistic generative model called Pixel
+Convolutional Neural Networks or PixelCNN.  It was originally proposed
+as a side contribution of Pixel Recurrent Neural Networks in [1] and later
+expanded upon in [2,3] (and I'm sure many other papers).  The real cool thing
+about it is that it's (a) probabilistic, and (b) autoregressive.  It's still
+counter-intuitive to me that you can generate images one pixel at at time, but
+I'm jumping ahead of myself here.  We'll go over some background material, the
+method, and my painstaking attempts at an implementation (and what I learned
+from it).  Let's get started!&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/pixelcnn/"&gt;Read more…&lt;/a&gt; (23 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoregressive</category><category>CIFAR10</category><category>generative models</category><category>mathjax</category><guid>http://bjlkeng.github.io/posts/pixelcnn/</guid><pubDate>Mon, 22 Jul 2019 11:11:09 GMT</pubDate></item><item><title>Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders</title><link>http://bjlkeng.github.io/posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;It took a while but I'm back!  This post is kind of a digression (which seems
 to happen a lot) along my journey of learning more about probabilistic
 generative models.  There's so much in ML that you can't help learning a lot
 of random things along the way.  That's why it's interesting, right?&lt;/p&gt;
@@ -108,16 +123,4 @@ By using what the authors define as the &lt;em&gt;autoregressive property&lt;/em
 transform the traditional autoencoder approach into a fully probabilistic model
 with very little modification! As usual, I'll provide some intuition, math and
 an implementation.&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/autoregressive-autoencoders/"&gt;Read more…&lt;/a&gt; (17 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoencoders</category><category>autoregressive</category><category>generative models</category><category>MADE</category><category>mathjax</category><category>MNIST</category><guid>http://bjlkeng.github.io/posts/autoregressive-autoencoders/</guid><pubDate>Sat, 14 Oct 2017 14:02:15 GMT</pubDate></item><item><title>Semi-supervised Learning with Variational Autoencoders</title><link>http://bjlkeng.github.io/posts/semi-supervised-learning-with-variational-autoencoders/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;In this post, I'll be continuing on this variational autoencoder (VAE) line of
-exploration
-(previous posts: &lt;a class="reference external" href="http://bjlkeng.github.io/posts/variational-autoencoders"&gt;here&lt;/a&gt; and
-&lt;a class="reference external" href="http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset"&gt;here&lt;/a&gt;) by
-writing about how to use variational autoencoders to do semi-supervised
-learning.  In particular, I'll be explaining the technique used in
-"Semi-supervised Learning with Deep Generative Models" by Kingma et al.
-I'll be digging into the math (hopefully being more explicit than the paper),
-giving a bit more background on the variational lower bound, as well as
-my usual attempt at giving some more intuition.
-I've also put some notebooks on Github that compare the VAE methods
-with others such as PCA, CNNs, and pre-trained models.  Enjoy!&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/semi-supervised-learning-with-variational-autoencoders/"&gt;Read more…&lt;/a&gt; (25 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoencoders</category><category>CIFAR10</category><category>CNN</category><category>generative models</category><category>inception</category><category>Kullback-Leibler</category><category>mathjax</category><category>PCA</category><category>semi-supervised learning</category><category>variational calculus</category><guid>http://bjlkeng.github.io/posts/semi-supervised-learning-with-variational-autoencoders/</guid><pubDate>Mon, 11 Sep 2017 12:40:47 GMT</pubDate></item></channel></rss>
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/autoregressive-autoencoders/"&gt;Read more…&lt;/a&gt; (17 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoencoders</category><category>autoregressive</category><category>generative models</category><category>MADE</category><category>mathjax</category><category>MNIST</category><guid>http://bjlkeng.github.io/posts/autoregressive-autoencoders/</guid><pubDate>Sat, 14 Oct 2017 14:02:15 GMT</pubDate></item></channel></rss>
