@@ -363,7 +363,7 @@ of our :math:`N` observations):
 
 .. math::
 
-    \log P(X) \approx \frac{1}{N} \sum_{i=1}^N 
+    \log P(X) \approx \sum_{i=1}^N 
            \log(\frac{1}{M} \sum_{m=1}^M p_{\mathcal{N}}(x_i;g(z_m;\theta),\sigma^2*I)) \tag{7}
 
 Two problems here. First, the :math:`\log` can't be pushed inside the
