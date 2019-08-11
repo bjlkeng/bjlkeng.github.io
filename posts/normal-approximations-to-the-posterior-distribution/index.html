@@ -5,11 +5,7 @@
 <meta name="description" content="A brief note on using a normal distribution to approximate a Bayesian posterior distribution.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Normal Approximation to the Posterior Distribution | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -84,14 +80,15 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Normal Approximation to the Posterior Distribution</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard"><span class="byline-name fn">
                     Brian Keng
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2016-04-02T15:22:54-04:00" itemprop="datePublished" title="2016-04-02 15:22">2016-04-02 15:22</time></a></p>
             
-        <p class="sourceline"><a href="index.ipynb" class="sourcelink">Source</a></p>
+        <p class="sourceline"><a href="index.ipynb" id="sourcelink">Source</a></p>
 
-        </div>
+                <meta name="description" itemprop="description" content="A brief note on using a normal distribution to approximate a Bayesian posterior distribution.">
+</div>
         
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
@@ -115,30 +112,29 @@
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Background">Background<a class="anchor-link" href="#Background">¶</a>
 </h2>
-<p>We're going to first start by reviewing some simple terminology and definitions regarding Bayesian methods to make the discussion later a bit easier to follow.  The main problem we're trying to solve: given probability model $\mathcal{M}$ (for example a normal distribution) and some data denoted by $y$ (such as observations of customer purchases or readings from a machine), we wish to find a probability distribution of the parameters $\theta$ (e.g. $\mu$ and $\sigma$ in the case of a normal distribution).  The basic idea is given by Bayes theorem:</p>
-<p>$$
+<p>We're going to first start by reviewing some simple terminology and definitions regarding Bayesian methods to make the discussion later a bit easier to follow.  The main problem we're trying to solve: given probability model \(\mathcal{M}\) (for example a normal distribution) and some data denoted by \(y\) (such as observations of customer purchases or readings from a machine), we wish to find a probability distribution of the parameters \(\theta\) (e.g. \(\mu\) and \(\sigma\) in the case of a normal distribution).  The basic idea is given by Bayes theorem:</p>
+$$
 P(\theta | y) = \frac{P(y | \theta) P(\theta)}{P(y)} = C \cdot P(y | \theta) P(\theta) \tag{1}
-$$</p>
-<p>Some definitions <a href="#fn-1"><sup>[1]</sup></a>:</p>
+$$<p>Some definitions <a href="#fn-1"><sup>[1]</sup></a>:</p>
 <ul>
-<li>$ P(\theta | y) $ is called the <strong>posterior</strong> distribution.</li>
-<li>$P(y | \theta)$ is called the <strong>likelihood function</strong>.</li>
-<li>$P(\theta)$ is called the <strong>prior</strong> distribution.</li>
-<li>$P(y)$ is called the marginal likelihood.</li>
+<li>\( P(\theta | y) \) is called the <strong>posterior</strong> distribution.</li>
+<li>\(P(y | \theta)\) is called the <strong>likelihood function</strong>.</li>
+<li>\(P(\theta)\) is called the <strong>prior</strong> distribution.</li>
+<li>\(P(y)\) is called the marginal likelihood.</li>
 </ul>
-<p>Notice the second form in Equation 1 where $\frac{1}{P(y)}$ term is replaced by a constant $C$.  This is usually written out like this because once you've collected all your data, it's fixed.  Thus, the probability of it occurring does not change with respect to the parameters of your model $\theta$.  Think of it as a normalizing constant to make the posterior have a proper probability distribution (i.e. sum to $1$).</p>
+<p>Notice the second form in Equation 1 where \(\frac{1}{P(y)}\) term is replaced by a constant \(C\).  This is usually written out like this because once you've collected all your data, it's fixed.  Thus, the probability of it occurring does not change with respect to the parameters of your model \(\theta\).  Think of it as a normalizing constant to make the posterior have a proper probability distribution (i.e. sum to \(1\)).</p>
 <p><a href="https://en.wikipedia.org/wiki/Bayesian_inference">Bayesian inference</a> usually follows these high level steps:</p>
 <ol>
-<li>Decide on a probability model $\mathcal{M}$.</li>
+<li>Decide on a probability model \(\mathcal{M}\).</li>
 <li>Decide on a prior distribution that encodes your previous knowledge about the problem.  For example, if we're modeling the average conversion rate of an email campaign, we might look at previous campaigns and find a number around (or a distribution centered at) 1%.</li>
-<li>Given samples $y$, find the posterior distribution of your model parameters $\theta$ according to Equation 1.  This is usually done via simulation except for the most basic cases where the posterior has a closed form expression.</li>
+<li>Given samples \(y\), find the posterior distribution of your model parameters \(\theta\) according to Equation 1.  This is usually done via simulation except for the most basic cases where the posterior has a closed form expression.</li>
 </ol>
 <p>Of course, there is a lot of nuance to each of these steps but by and large this is what usually happens.</p>
-<p>The big contrast between this method and more traditional statistics methods (frequentist methods) is that the latter focuses more on the likelihood function.  A popular estimate for $\theta$ is usually given by the <a href="https://en.wikipedia.org/wiki/Maximum_likelihood">maximum likelihood estimate</a> (MLE), where it tries to find $\theta$ that maximizes the likelihood function.  There's a huge amount of literature written on the differences between the two but here are some of the bigger points:</p>
+<p>The big contrast between this method and more traditional statistics methods (frequentist methods) is that the latter focuses more on the likelihood function.  A popular estimate for \(\theta\) is usually given by the <a href="https://en.wikipedia.org/wiki/Maximum_likelihood">maximum likelihood estimate</a> (MLE), where it tries to find \(\theta\) that maximizes the likelihood function.  There's a huge amount of literature written on the differences between the two but here are some of the bigger points:</p>
 <ul>
 <li>The MLE estimate provides a point estimate (a single value) of the parameter (or sometimes a confidence interval).  The Bayesian method provides a proper probability distribution for the parameter via the posterior distribution.</li>
 <li>The Bayesian method is "more" subjective because of the use of the prior.  The reasoning is that you <em>should</em> use everything you know about the problem when conducting inference.  However, finding a prior that accurately represents your state of knowledge is definitely a challenge.</li>
-<li>The MLE is in a way still "subjective" because the choice of model $\mathcal{M}$ is an implicit "prior".</li>
+<li>The MLE is in a way still "subjective" because the choice of model \(\mathcal{M}\) is an implicit "prior".</li>
 <li>Bayesian methods treat the model parameters as random variables (i.e. the posterior) while frequentist methods usually treat the parameters as <a href="../hypothesis-testing">fixed</a> (with the assumption that there is some theoretical "true" value) and what you're trying to find is a confidence interval that "traps" the fixed value a certain percentage of the time.</li>
 </ul>
 <p>With that incredibly brief introduction to Bayesian methods, let's see how we can approximate the posterior with a normal distribution.  There are a <em>ton</em> of resources to learn more about Bayesian methods, two references I've read through/reading are <em>Bayesian Data Analysis</em> and <em>Probability Theory: The Logic of Science</em> in the references below.</p>
@@ -153,62 +149,57 @@ $$</p>
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Normal-Approximation-to-the-Posterior-Distribution-[2]">Normal Approximation to the Posterior Distribution <a href="#fn-2"><sup>[2]</sup></a><a class="anchor-link" href="#Normal-Approximation-to-the-Posterior-Distribution-%5B2%5D">¶</a>
 </h2>
-<p>The normal approximation for the posterior distribution can be used in several ways.  The first is directly as an approximation of the posterior.  This usually works well in low dimensional $\theta$ parameter spaces.  Second, even for high dimensional parameter spaces, it may also work well when computing the marginal distribution across one of the components of $\theta$.  Third, the reason you might want an approximation at all is that for more complex models, a closed form analytic solution may not be possible.   This is usually solved by some kind of <a href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm">MCMC</a> simulation that allows you to draw an arbitrary number of samples that will allow you to empirically build the posterior distribution.  Having an approximate analytically normal distribution does have advantages over just a collection of samples.   Additionally, a normal approximation can be used to help debug a solution using a more complex model or method to see if the complex method is approximately correct.</p>
+<p>The normal approximation for the posterior distribution can be used in several ways.  The first is directly as an approximation of the posterior.  This usually works well in low dimensional \(\theta\) parameter spaces.  Second, even for high dimensional parameter spaces, it may also work well when computing the marginal distribution across one of the components of \(\theta\).  Third, the reason you might want an approximation at all is that for more complex models, a closed form analytic solution may not be possible.   This is usually solved by some kind of <a href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm">MCMC</a> simulation that allows you to draw an arbitrary number of samples that will allow you to empirically build the posterior distribution.  Having an approximate analytically normal distribution does have advantages over just a collection of samples.   Additionally, a normal approximation can be used to help debug a solution using a more complex model or method to see if the complex method is approximately correct.</p>
 <h4 id="Assumptions">Assumptions<a class="anchor-link" href="#Assumptions">¶</a>
 </h4>
-<p>The key assumption is that we have independent and identically distributed (<a href="https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables">i.i.d</a>) data, $y_1, \ldots, y_n$, drawn from the "true distribution", which we label as $f(\cdot)$ for its density function.  These results only hold given that we have a "true distribution" with fixed parameters from which the data was sampled.  This assumption is typical in classical statistical analysis, although not as common in Bayesian analysis where the parameters are treated as random variables and hence don't necessarily have a "true distribution" with fixed parameters. If this is not the case, it isn't hard to pick some specific values of $y$ that violate the result presented here.</p>
-<p>If the "true distribution" $f(\cdot)$ actually comes from the same family of distributions of our model $\mathcal{M}$, then the "true distribution" should have a fixed unique parameter $\theta_0$.  We expect our posterior distribution to approach $\theta_0$ as $n$ the number of samples increase.  If $f(\cdot)$ is not part of the same distribution as our model, then we expect that there is a unique value $\theta_0$ in our model that minimizes the "discrepancy" between our model and the true distribution given by $f(\cdot)$.  The discrepancy between the true distribution $F$ and our model distribution $\mathcal{M}$ is measured by the <a href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">Kullback-Leibeler (KL) divergence</a>:</p>
-<p>$$
+<p>The key assumption is that we have independent and identically distributed (<a href="https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables">i.i.d</a>) data, \(y_1, \ldots, y_n\), drawn from the "true distribution", which we label as \(f(\cdot)\) for its density function.  These results only hold given that we have a "true distribution" with fixed parameters from which the data was sampled.  This assumption is typical in classical statistical analysis, although not as common in Bayesian analysis where the parameters are treated as random variables and hence don't necessarily have a "true distribution" with fixed parameters. If this is not the case, it isn't hard to pick some specific values of \(y\) that violate the result presented here.</p>
+<p>If the "true distribution" \(f(\cdot)\) actually comes from the same family of distributions of our model \(\mathcal{M}\), then the "true distribution" should have a fixed unique parameter \(\theta_0\).  We expect our posterior distribution to approach \(\theta_0\) as \(n\) the number of samples increase.  If \(f(\cdot)\) is not part of the same distribution as our model, then we expect that there is a unique value \(\theta_0\) in our model that minimizes the "discrepancy" between our model and the true distribution given by \(f(\cdot)\).  The discrepancy between the true distribution \(F\) and our model distribution \(\mathcal{M}\) is measured by the <a href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">Kullback-Leibeler (KL) divergence</a>:</p>
+$$
 KL(F || \mathcal{M}) = KL(\theta) = E[log(\frac{f(y_i)}{p(y_i|\theta)})] = \int log(\frac{f(y_i)}{p(y_i|\theta)})f(y_i) dy_i \tag{2}
-$$</p>
-<p>If we denote our model density by $p(\cdot)$, then we can see KL divergence is minimized when $p(y_i) = f(y_i)$ and the $log$ evaluates to $0$.  When they're not equal, if the densities are close to each other, the $log$ factor is small and so is KL divergence.  Otherwise, we get a larger value.</p>
-<p>All we're basically saying is that there is some $\theta_0$ that our posterior will approach to as we increase $n$.  This will either be the exact value of the "true distribution" if our model is correct, or the value that minimizes the KL divergence with the "true distribution" (the best possible value we could hope for in our given model).</p>
-<p>There are also a couple of other assumptions about the "regularity" of the likelihood function and prior.   A few examples are that the likelihood function is continuous, $\theta_0$ is not on the boundary of the parameter space, the prior is non-zero at the point of convergence.  See section 4.3 in <em>Bayesian Data Analysis</em> for a more complete treatment.  They basically boils down to the fact that we should have a smooth function, well peaked about its unique maximum.</p>
+$$<p>If we denote our model density by \(p(\cdot)\), then we can see KL divergence is minimized when \(p(y_i) = f(y_i)\) and the \(log\) evaluates to \(0\).  When they're not equal, if the densities are close to each other, the \(log\) factor is small and so is KL divergence.  Otherwise, we get a larger value.</p>
+<p>All we're basically saying is that there is some \(\theta_0\) that our posterior will approach to as we increase \(n\).  This will either be the exact value of the "true distribution" if our model is correct, or the value that minimizes the KL divergence with the "true distribution" (the best possible value we could hope for in our given model).</p>
+<p>There are also a couple of other assumptions about the "regularity" of the likelihood function and prior.   A few examples are that the likelihood function is continuous, \(\theta_0\) is not on the boundary of the parameter space, the prior is non-zero at the point of convergence.  See section 4.3 in <em>Bayesian Data Analysis</em> for a more complete treatment.  They basically boils down to the fact that we should have a smooth function, well peaked about its unique maximum.</p>
 <h4 id="Proof-Outline">Proof Outline<a class="anchor-link" href="#Proof-Outline">¶</a>
 </h4>
-<p>We'll break the proof down into three parts.  The first two parts basically show that our posterior distribution mass will be tightly concentrated around the theoretical $\theta_0$ value.
-Once we know that the posterior will be concentrated around $\theta_0$, the third part will show how a normal approximation about the posterior mode will be a good approximation to the actual posterior distribution.</p>
-<p><strong>Theorem 1</strong>: If the parameter space $\Theta$ is finite and $P(\theta = \theta_0) &gt; 0$ (prior is non-zero at $\theta_0$), then $P(\theta=\theta_0 | y) \rightarrow 1$ as $n \rightarrow \infty$, where $\theta_0$ is the value that uniquely minimizes the KL divergence.</p>
+<p>We'll break the proof down into three parts.  The first two parts basically show that our posterior distribution mass will be tightly concentrated around the theoretical \(\theta_0\) value.
+Once we know that the posterior will be concentrated around \(\theta_0\), the third part will show how a normal approximation about the posterior mode will be a good approximation to the actual posterior distribution.</p>
+<p><strong>Theorem 1</strong>: If the parameter space \(\Theta\) is finite and \(P(\theta = \theta_0) &gt; 0\) (prior is non-zero at \(\theta_0\)), then \(P(\theta=\theta_0 | y) \rightarrow 1\) as \(n \rightarrow \infty\), where \(\theta_0\) is the value that uniquely minimizes the KL divergence.</p>
 <p><strong>Proof</strong>:</p>
-<p>As a recap, as we get more data points $y$, our estimate of the distribution of $\theta$ should get more accurate i.e. the posterior distribution $P(\theta|y)$ gets more mass around $\theta_0$.  For a finite parameter space ($\theta \in \Theta$), each value of $\theta$ will be assigned some probability of occurring (given the data).  If we take the assumption that the data was drawn from a "true distribution" with fixed parameters $\theta_0$ (or in the case where this assumption is off, the value that minimizes the KL divergence), then we are claiming that all the probability mass tend toward this single value.</p>
-<p>To show this, we instead show that the posterior probability mass of all values $\theta$ <em>except</em> $\theta_0$ will tend toward $0$ as $n$ grows.  First start off with the log posterior odds of $\theta$ vs. $\theta_0$ expanding and simplifying using Equation 1:</p>
-<p>$$
+<p>As a recap, as we get more data points \(y\), our estimate of the distribution of \(\theta\) should get more accurate i.e. the posterior distribution \(P(\theta|y)\) gets more mass around \(\theta_0\).  For a finite parameter space (\(\theta \in \Theta\)), each value of \(\theta\) will be assigned some probability of occurring (given the data).  If we take the assumption that the data was drawn from a "true distribution" with fixed parameters \(\theta_0\) (or in the case where this assumption is off, the value that minimizes the KL divergence), then we are claiming that all the probability mass tend toward this single value.</p>
+<p>To show this, we instead show that the posterior probability mass of all values \(\theta\) <em>except</em> \(\theta_0\) will tend toward \(0\) as \(n\) grows.  First start off with the log posterior odds of \(\theta\) vs. \(\theta_0\) expanding and simplifying using Equation 1:</p>
+$$
 log\Big(\frac{P(\theta|y)}{P(\theta_0|y)}\Big) = log\Big(\frac{P(\theta)}{P(\theta_0)}\Big) + \sum_{i=1}^{n} log\Big(\frac{P(y_i|\theta)}{P(y_i|\theta_0)}\Big) \tag{3}
-$$</p>
-<p>Looking at the second term on the RHS, we see that it is a sum of $n$ i.i.d. variables, whose mean is given by:</p>
-<p>\begin{align}
+$$<p>Looking at the second term on the RHS, we see that it is a sum of \(n\) i.i.d. variables, whose mean is given by:</p>
+\begin{align}
 E\Big[\sum_{i=1}^{n} log\Big(\frac{P(y_i|\theta)}{P(y_i|\theta_0)}\Big)\Big] 
 &amp;= \sum_{i=1}^{n} E\Big[log\Big(\frac{P(y_i|\theta)}{P(y_i|\theta_0)}\Big)\Big] \\
 &amp;= \sum_{i=1}^{n} E\Big[log\Big(\frac{P(y_i|\theta)}{f(y_i)}\frac{f(y_i)}{P(y_i|\theta_0)}\Big)\Big] \\
 &amp;= \sum_{i=1}^{n} E\Big[log\Big(\frac{f(y_i)}{P(y_i|\theta_0)}\Big) - log\Big(\frac{f(y_i)}{P(y_i|\theta)}\Big)  \Big] \\
 &amp;= \sum_{i=1}^{n} \big(KL(\theta_0) - KL(\theta)\big)  \tag{4}
-\end{align}</p>
-<p>Since $\theta_0$ is a unique minimizer for KL divergence, the difference in Equation 4 is always negative unless $\theta = \theta_0$.  By the law of large numbers, the average of Equation 4 will approach $KL(\theta_0) - KL(\theta)$.  As $n \rightarrow \infty$, this means the summation in Equation 4  will approach $-\infty$ for all $\theta \neq \theta_0$.  Going back to Equation 3, so long as the prior is finite ($P(\theta_0) &gt; 0$), Equation 3 will also tend towards $-\infty$.  This means $\frac{P(\theta|y)}{P(\theta_0|y)} \rightarrow 0$ for all $\theta \neq \theta_0$, meaning that $P(\theta|y) \rightarrow 0$.  Since all probabilities sum to $1$, this implies that $P(\theta_0|y) \rightarrow 1$. $\blacksquare$</p>
-<p><strong>Theorem 2</strong>: If $\theta$ is defined on a compact set and $A$ is a neighborhood of $\theta_0$ with nonzero prior probability, then $P(\theta \in A|y) \rightarrow 1 $ as $n \rightarrow \infty$, where $\theta_0$ is the value of $\theta$ that minimizes KL divergence.</p>
+\end{align}<p>Since \(\theta_0\) is a unique minimizer for KL divergence, the difference in Equation 4 is always negative unless \(\theta = \theta_0\).  By the law of large numbers, the average of Equation 4 will approach \(KL(\theta_0) - KL(\theta)\).  As \(n \rightarrow \infty\), this means the summation in Equation 4  will approach \(-\infty\) for all \(\theta \neq \theta_0\).  Going back to Equation 3, so long as the prior is finite (\(P(\theta_0) &gt; 0\)), Equation 3 will also tend towards \(-\infty\).  This means \(\frac{P(\theta|y)}{P(\theta_0|y)} \rightarrow 0\) for all \(\theta \neq \theta_0\), meaning that \(P(\theta|y) \rightarrow 0\).  Since all probabilities sum to \(1\), this implies that \(P(\theta_0|y) \rightarrow 1\). \(\blacksquare\)</p>
+<p><strong>Theorem 2</strong>: If \(\theta\) is defined on a compact set and \(A\) is a neighborhood of \(\theta_0\) with nonzero prior probability, then \(P(\theta \in A|y) \rightarrow 1 \) as \(n \rightarrow \infty\), where \(\theta_0\) is the value of \(\theta\) that minimizes KL divergence.</p>
 <p><strong>Proof Sketch</strong>:</p>
-<p>This proof is similar to the one before except we're dividing the continuous parameter space into neighborhoods.  We use a similar argument as above to show that all neighborhoods except for the ones containing $\theta_0$ have probability tending towards $0$. $\blacksquare$</p>
-<p>So far, we have only shown that most of the probability is concentrated around $\theta_0$.  We still need to show that we can approximate it by a normal distribution.</p>
-<p><strong>Theorem 3</strong> (Bernstein-von Mises Theorem  <a href="#fn-3"><sup>[3]</sup></a>): Under some regularity conditions, as $n \rightarrow \infty$, the posterior distribution of $\theta$ approaches normality with mean $\theta_0$ and variance $(nI(\theta_0))^{-1}$, where $\theta_0$ is the value that minimized the KL divergence and I is the Fisher information.</p>
+<p>This proof is similar to the one before except we're dividing the continuous parameter space into neighborhoods.  We use a similar argument as above to show that all neighborhoods except for the ones containing \(\theta_0\) have probability tending towards \(0\). \(\blacksquare\)</p>
+<p>So far, we have only shown that most of the probability is concentrated around \(\theta_0\).  We still need to show that we can approximate it by a normal distribution.</p>
+<p><strong>Theorem 3</strong> (Bernstein-von Mises Theorem  <a href="#fn-3"><sup>[3]</sup></a>): Under some regularity conditions, as \(n \rightarrow \infty\), the posterior distribution of \(\theta\) approaches normality with mean \(\theta_0\) and variance \((nI(\theta_0))^{-1}\), where \(\theta_0\) is the value that minimized the KL divergence and I is the Fisher information.</p>
 <p><strong>Proof</strong>:</p>
-<p>We first consider the posterior mode (the value $\theta$ with the highest probability or the "peak"), call it $\hat{\theta}$.  Without proof, we state that $\hat{\theta}$ is consistent, that is, as $\hat{\theta} \rightarrow \theta_0 $ as $n \rightarrow \infty$.</p>
+<p>We first consider the posterior mode (the value \(\theta\) with the highest probability or the "peak"), call it \(\hat{\theta}\).  Without proof, we state that \(\hat{\theta}\) is consistent, that is, as \(\hat{\theta} \rightarrow \theta_0 \) as \(n \rightarrow \infty\).</p>
 <p>The crux of the argument is that we can approximate the log posterior density using a Taylor approximation up to the quadratic term centered at the posterior mode, which when translated back to a non-log scale is a normal distribution.  This technique is called <a href="https://en.wikipedia.org/wiki/Laplace's_method">Laplace's Method</a> and can be used for approximating things other than density functions.  It's relatively simple and quite elegant, let's take a look at how it works.</p>
-<p>First, start with the Taylor expansion up to the quadratic term of the log posterior density centered at $\hat{\theta}$:</p>
-<p>\begin{align}
+<p>First, start with the Taylor expansion up to the quadratic term of the log posterior density centered at \(\hat{\theta}\):</p>
+\begin{align}
 log\,P(\theta|y) &amp;\approx log\,P(\hat{\theta}) + (\theta - \hat{\theta}) \frac{d}{d\theta}[log\,P(\theta|y)]_{\theta=\hat{\theta}} \\
 &amp;\quad\qquad\qquad + \frac{1}{2}(\theta - \hat{\theta})^2 \frac{d^2}{d\theta^2}[log\,P(\theta|y)]_{\theta=\hat{\theta}}  \\
 &amp;= log\,P(\hat{\theta}) + \frac{1}{2}(\theta - \hat{\theta})^2 \frac{d^2}{d\theta^2}[log\,P(\theta|y)]_{\theta=\hat{\theta}}  \\
 &amp;= const + \frac{1}{2}(\theta - \hat{\theta})^2 \frac{d^2}{d\theta^2}[log\,P(\theta|y)]_{\theta=\hat{\theta}}  \\
 &amp;= const - \frac{1}{2}\frac{(\theta - \mu)^2}{\sigma^2} \\
 \tag{5}
-\end{align}</p>
-<p>Notice that the first order term, $(\theta - \hat{\theta}) \frac{d}{d\theta}[log\,P(\theta|y)]_{\theta=\hat{\theta}} =0$ because the first derivative at the mode is $0$ ($0$ slope at a maximum).</p>
-<p>Simplifying a bit more, we can see that we have something that looks like a normal distribution with $\mu = \hat{\theta}$ and $\sigma^2 = -(\frac{d^2}{d\theta^2}[log\,P(\theta|y)]_{\theta=\hat{\theta}})^{-1} $.  The inner expression of the latter is just the <a href="https://en.wikipedia.org/wiki/Observed_information">observed information</a>, which is approximately $nI(\hat{\theta})$ for large $n$, where $I$ is the <a href="https://en.wikipedia.org/wiki/Fisher_information">Fisher Information</a>.</p>
-<p>Using our Taylor expansion in Equation 5, as $n\rightarrow \infty$, the mass of the posterior distribution $P(\theta|y)$ becomes concentrated around $\theta_0$ according to Theorem 1 and 2.  Thus, the distance between the posterior mode and $\theta_0$ gets smaller, i.e. $|\hat{\theta} - \theta_0| \rightarrow 0$.  When this happens, the third and higher order terms of the Taylor expansion fade in importance the quadratic term dominates.  Thus as $n \rightarrow \infty$, the Taylor expansion about the posterior mode up to the quadratic term becomes an increasingly accurate approximation of the log posterior distribution.</p>
-<p>Finally, noticing that for large $n$:</p>
-<p>\begin{align}
+\end{align}<p>Notice that the first order term, \((\theta - \hat{\theta}) \frac{d}{d\theta}[log\,P(\theta|y)]_{\theta=\hat{\theta}} =0\) because the first derivative at the mode is \(0\) (\(0\) slope at a maximum).</p>
+<p>Simplifying a bit more, we can see that we have something that looks like a normal distribution with \(\mu = \hat{\theta}\) and \(\sigma^2 = -(\frac{d^2}{d\theta^2}[log\,P(\theta|y)]_{\theta=\hat{\theta}})^{-1} \).  The inner expression of the latter is just the <a href="https://en.wikipedia.org/wiki/Observed_information">observed information</a>, which is approximately \(nI(\hat{\theta})\) for large \(n\), where \(I\) is the <a href="https://en.wikipedia.org/wiki/Fisher_information">Fisher Information</a>.</p>
+<p>Using our Taylor expansion in Equation 5, as \(n\rightarrow \infty\), the mass of the posterior distribution \(P(\theta|y)\) becomes concentrated around \(\theta_0\) according to Theorem 1 and 2.  Thus, the distance between the posterior mode and \(\theta_0\) gets smaller, i.e. \(|\hat{\theta} - \theta_0| \rightarrow 0\).  When this happens, the third and higher order terms of the Taylor expansion fade in importance the quadratic term dominates.  Thus as \(n \rightarrow \infty\), the Taylor expansion about the posterior mode up to the quadratic term becomes an increasingly accurate approximation of the log posterior distribution.</p>
+<p>Finally, noticing that for large \(n\):</p>
+\begin{align}
 log\,P(\theta|y) &amp;\approx  log\,P(\hat{\theta}) + \frac{1}{2}(\theta - \hat{\theta})^2 \frac{d^2}{d\theta^2}[log\,P(\theta|y)]_{\theta=\hat{\theta}} \\ &amp;= const - \frac{1}{2}\frac{(\theta - \hat{\theta})^2}{(nI(\hat{\theta}))^{-1}} \\ P(\theta|y) &amp;\approx exp\{C + \frac{(\theta - \hat{\theta})^2}{2(nI(\hat{\theta}))^{-1}}\} \\ &amp;= N(\hat{\theta}, (nI(\hat{\theta}))^{-1}) \tag{8}
-\end{align}</p>
-<p>$\blacksquare$</p>
+\end{align}<p>\(\blacksquare\)</p>
 
 </div>
 </div>
@@ -220,37 +211,32 @@ log\,P(\theta|y) &amp;\approx  log\,P(\hat{\theta}) + \frac{1}{2}(\theta - \hat{
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Simulations">Simulations<a class="anchor-link" href="#Simulations">¶</a>
 </h2>
-<p>Now that we have some theory underneath our belt, let's see how this approximation works in practice.  The setup will be drawing samples from some "true distribution".  Choosing a prior on the parameters such that it has non-zero mass at the actual parameter value $\theta_0$.  And finally, comparing the normal approximation above with the exact simulation.  Hopefully, we should get something that matches pretty closely.</p>
-<p>Let's show a simple example using an <a href="https://en.wikipedia.org/wiki/Exponential_distribution">exponential distribution</a> parameterized by $\lambda$ with its <a href="https://en.wikipedia.org/wiki/Exponential_distribution#Bayesian_inference">conjugate prior</a> (gamma distribution) since it will be pretty easy to work with.  Let's define all the terms before we try to code it up.  The prior is a <a href="https://en.wikipedia.org/wiki/Gamma_distribution">gamma</a> distribution is parameterized by $\alpha, \beta$.  Intuitively, $\alpha$ can be interpreted as the number of prior observations, and $\beta$ can be the sum of those observations.  Let's use a relatively uninformative prior by setting these hyper parameters $\alpha=1, \beta=1$:</p>
-<p>\begin{align}
+<p>Now that we have some theory underneath our belt, let's see how this approximation works in practice.  The setup will be drawing samples from some "true distribution".  Choosing a prior on the parameters such that it has non-zero mass at the actual parameter value \(\theta_0\).  And finally, comparing the normal approximation above with the exact simulation.  Hopefully, we should get something that matches pretty closely.</p>
+<p>Let's show a simple example using an <a href="https://en.wikipedia.org/wiki/Exponential_distribution">exponential distribution</a> parameterized by \(\lambda\) with its <a href="https://en.wikipedia.org/wiki/Exponential_distribution#Bayesian_inference">conjugate prior</a> (gamma distribution) since it will be pretty easy to work with.  Let's define all the terms before we try to code it up.  The prior is a <a href="https://en.wikipedia.org/wiki/Gamma_distribution">gamma</a> distribution is parameterized by \(\alpha, \beta\).  Intuitively, \(\alpha\) can be interpreted as the number of prior observations, and \(\beta\) can be the sum of those observations.  Let's use a relatively uninformative prior by setting these hyper parameters \(\alpha=1, \beta=1\):</p>
+\begin{align}
 P(\lambda) = Gamma(\lambda; \alpha=1, \beta=1) \tag{9}
-\end{align}</p>
-<p>Next, let's define our posterior density function:</p>
-<p>\begin{align}
+\end{align}<p>Next, let's define our posterior density function:</p>
+\begin{align}
 P(\lambda|y) &amp;= \frac{L(y|\lambda) Gamma(\lambda; \alpha=1, \beta=1)}{P(y)} \\
              &amp;= Gamma(\lambda; \alpha=n+1, \beta=n\bar{y} + 1) \tag{10}
-\end{align}</p>
-<p>where the simplification occurs because we know that the Gamma distribution is the conjugate prior of the exponential distribution and $n$ is the number of observations in $y$ and $\bar{y}$ is their mean.  The posterior mode $\hat{\lambda}$ is then just the mode of the Gamma distribution:</p>
-<p>\begin{align}
+\end{align}<p>where the simplification occurs because we know that the Gamma distribution is the conjugate prior of the exponential distribution and \(n\) is the number of observations in \(y\) and \(\bar{y}\) is their mean.  The posterior mode \(\hat{\lambda}\) is then just the mode of the Gamma distribution:</p>
+\begin{align}
 \hat{\lambda} = \frac{\alpha - 1}{\beta} = \frac{n+1 - 1}{n\bar{y} + 1} = \frac{n}{n\bar{y} + 1}  \tag{11}
-\end{align}</p>
-<p>To find the Fisher Information $I(\lambda)$, we have to look at the second derivative of the log posterior function (a Gamma distribution).  First, the first derivative:</p>
-<p>\begin{align}
+\end{align}<p>To find the Fisher Information \(I(\lambda)\), we have to look at the second derivative of the log posterior function (a Gamma distribution).  First, the first derivative:</p>
+\begin{align}
 P(\lambda|y) &amp;= \frac{\beta^\alpha}{\Gamma(\alpha)}\lambda^{\alpha - 1} e^{-\beta \lambda} \\
 log\,P(\lambda|y) &amp;= C + (\alpha - 1)log\,\lambda - \beta \lambda \\
 \\
 \frac{dlog\,P(\lambda|y)}{d\lambda} &amp;= \frac{(\alpha - 1)}{\lambda} - \beta \tag{12}
-\end{align}</p>
-<p>Notice that by setting the first derivative of the log posterior to zero and solving for $\lambda$, gives us exactly the expression for the mode above in Equation 11, where the density has a unique maximum at the $\lambda_0$ corresponding to the mode of our posterior distribution.  Now taking another derivative we can find the estimate of our variance (which is proportional to the Fisher Information):</p>
-<p>\begin{align}
+\end{align}<p>Notice that by setting the first derivative of the log posterior to zero and solving for \(\lambda\), gives us exactly the expression for the mode above in Equation 11, where the density has a unique maximum at the \(\lambda_0\) corresponding to the mode of our posterior distribution.  Now taking another derivative we can find the estimate of our variance (which is proportional to the Fisher Information):</p>
+\begin{align}
 nI(\lambda=\hat{\lambda}) &amp;\approx -\frac{d^2log\,P(\hat{\lambda}|y)}{d\lambda^2} \\
 &amp;= \frac{(\alpha - 1)}{\hat{\lambda}^2} \\
 &amp;= \frac{n}{\hat{\lambda}^2} \\
 &amp;= \frac{n}{\hat{\lambda}^2} \\
 &amp;= \frac{({n\bar{y} + 1})^2}{n}
 \tag{13}
-\end{align}</p>
-<p>So according to our work, our posterior distribution should be approximated by  $N(\frac{n}{n\bar{y} + 1}, \frac{n}{(n\bar{y} + 1)^2)})$ according to Equation 8.  Let's simulate some of this to see if it's correct.</p>
+\end{align}<p>So according to our work, our posterior distribution should be approximated by  \(N(\frac{n}{n\bar{y} + 1}, \frac{n}{(n\bar{y} + 1)^2)})\) according to Equation 8.  Let's simulate some of this to see if it's correct.</p>
 
 </div>
 </div>
@@ -260,7 +246,7 @@ nI(\lambda=\hat{\lambda}) &amp;\approx -\frac{d^2log\,P(\hat{\lambda}|y)}{d\lamb
 <div class="prompt input_prompt">In [86]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> inline
+<div class=" highlight hl-ipython3"><pre><span class="o">%</span><span class="k">matplotlib</span> inline
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -269,31 +255,31 @@ nI(\lambda=\hat{\lambda}) &amp;\approx -\frac{d^2log\,P(\hat{\lambda}|y)}{d\lamb
 <span class="n">lamb</span><span class="o">=</span><span class="mf">3.14</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
 <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">pltnum</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">221</span><span class="p">),</span> <span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">222</span><span class="p">),</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">223</span><span class="p">),</span> <span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">224</span><span class="p">)]:</span>
-    <span class="c1"># Generate some samples from our "true distribution"</span>
+    <span class="c"># Generate some samples from our "true distribution"</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">expon</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="n">lamb</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
     
-    <span class="c1"># Generate our posterior density</span>
-    <span class="c1"># (Of course for a more complex model we would probably </span>
-    <span class="c1">#  draw samples instead of using the analytical form)</span>
+    <span class="c"># Generate our posterior density</span>
+    <span class="c"># (Of course for a more complex model we would probably </span>
+    <span class="c">#  draw samples instead of using the analytical form)</span>
     <span class="n">alpha</span> <span class="o">=</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span>
     <span class="n">beta</span> <span class="o">=</span> <span class="n">n</span> <span class="o">*</span> <span class="n">y</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="mf">1.</span>
     <span class="n">post</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">scale</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">beta</span><span class="p">)</span>
     
-    <span class="c1"># Plot the posterior</span>
+    <span class="c"># Plot the posterior</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">pltnum</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mf">0.001</span><span class="p">),</span> <span class="n">post</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mf">0.999</span><span class="p">),</span> <span class="mi">1000</span><span class="p">)</span>
-    <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'posterior'</span><span class="p">)</span>
+    <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">'posterior'</span><span class="p">)</span>
     
-    <span class="c1"># Generate our normal approximation</span>
+    <span class="c"># Generate our normal approximation</span>
     <span class="n">mu</span> <span class="o">=</span> <span class="p">(</span><span class="n">alpha</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">/</span> <span class="n">beta</span>
     <span class="n">sigma2</span> <span class="o">=</span> <span class="n">n</span> <span class="o">/</span> <span class="n">beta</span> <span class="o">**</span> <span class="mi">2</span>
     <span class="n">norm</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma2</span><span class="p">))</span>
     
-    <span class="c1"># Plot normal approximation</span>
+    <span class="c"># Plot normal approximation</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mf">0.001</span><span class="p">),</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mf">0.999</span><span class="p">),</span> <span class="mi">1000</span><span class="p">)</span>
-    <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'norm'</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">'Normal Approx. to the Posterior (N=</span><span class="si">%d</span><span class="s1">, l=</span><span class="si">%.2f</span><span class="s1">)'</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">lamb</span><span class="p">))</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">'best'</span><span class="p">)</span>
+    <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">'norm'</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">'Normal Approx. to the Posterior (N=%d, l=%.2f)'</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">lamb</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s">'best'</span><span class="p">)</span>
     
 </pre></div>
 
@@ -306,10 +292,7 @@ nI(\lambda=\hat{\lambda}) &amp;\approx -\frac{d^2log\,P(\hat{\lambda}|y)}{d\lamb
 
 
 <div class="output_area">
-
 <div class="prompt"></div>
-
-
 
 
 <div class="output_png output_subarea ">
@@ -327,7 +310,7 @@ nI(\lambda=\hat{\lambda}) &amp;\approx -\frac{d^2log\,P(\hat{\lambda}|y)}{d\lamb
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The normal distribution is a pretty good approximation to the posterior as $n$ grows larger.  Also notice that the posterior distribution gets closer and closer to the "true" value of the parameter $3.14$ as we would expect from a bigger sample size $n$.  The posterior's variance around the mode is also much tighter as our estimate of $\lambda$ gets better with more data.</p>
+<p>The normal distribution is a pretty good approximation to the posterior as \(n\) grows larger.  Also notice that the posterior distribution gets closer and closer to the "true" value of the parameter \(3.14\) as we would expect from a bigger sample size \(n\).  The posterior's variance around the mode is also much tighter as our estimate of \(\lambda\) gets better with more data.</p>
 
 </div>
 </div>
@@ -365,13 +348,13 @@ nI(\lambda=\hat{\lambda}) &amp;\approx -\frac{d^2log\,P(\hat{\lambda}|y)}{d\lamb
 </ul>
 <h3 id="Notes">Notes<a class="anchor-link" href="#Notes">¶</a>
 </h3>
-<p>List of Notes: <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup>, <sup class="footnote-ref" id="fnref-2"><a href="#fn-2">2</a></sup>, <sup class="footnote-ref" id="fnref-3"><a href="#fn-3">3</a></sup></p>
+<p>List of Notes: <sup class="footnote-ref" id="fnref-1"><a href="#fn-1" rel="footnote">1</a></sup>, <sup class="footnote-ref" id="fnref-2"><a href="#fn-2" rel="footnote">2</a></sup>, <sup class="footnote-ref" id="fnref-3"><a href="#fn-3" rel="footnote">3</a></sup></p>
 <div class="footnotes">
 <hr>
 <ol>
-<li id="fn-1"><p>In terms of notation and terminology, I'm going to use an imprecise notation/terminology where I do not distinguish between distribution and density.  It should be clear from the context when I refer to a distribution or density, I am either referring to a CDF or PDF.  Also in terms of notation I use $P(\cdot)$ to denote the density in many cases although probably we should be using something like $p$ or $f$ but I think it should be clear from the context it occurs.<a href="#fnref-1" class="footnote">↩</a></p></li>
-<li id="fn-2"><p>Most of this section was based on the proof in Appendix <em>Outline of proofs of limit theorems</em> in <em>Bayesian Data Analysis</em> as well as <em>Laplace Approximation to the Posterior</em> in the references.  I recommend taking a look at them for more details.<a href="#fnref-2" class="footnote">↩</a></p></li>
-<li id="fn-3"><p>I couldn't find many good (simple) resources describing the Bernstein-von Mises Theorem except <em>Laplace Approximation to the Posterior</em>.  I haven't really read any papers on it but I think the general idea is probably contained in this theorem.<a href="#fnref-3" class="footnote">↩</a></p></li>
+<li id="fn-1"><p>In terms of notation and terminology, I'm going to use an imprecise notation/terminology where I do not distinguish between distribution and density.  It should be clear from the context when I refer to a distribution or density, I am either referring to a CDF or PDF.  Also in terms of notation I use \(P(\cdot)\) to denote the density in many cases although probably we should be using something like \(p\) or \(f\) but I think it should be clear from the context it occurs.<a href="#fnref-1" rev="footnote">↩</a></p></li>
+<li id="fn-2"><p>Most of this section was based on the proof in Appendix <em>Outline of proofs of limit theorems</em> in <em>Bayesian Data Analysis</em> as well as <em>Laplace Approximation to the Posterior</em> in the references.  I recommend taking a look at them for more details.<a href="#fnref-2" rev="footnote">↩</a></p></li>
+<li id="fn-3"><p>I couldn't find many good (simple) resources describing the Bernstein-von Mises Theorem except <em>Laplace Approximation to the Posterior</em>.  I haven't really read any papers on it but I think the general idea is probably contained in this theorem.<a href="#fnref-3" rev="footnote">↩</a></p></li>
 </ol>
 </div>
 
@@ -471,7 +454,7 @@ nI(\lambda=\hat{\lambda}) &amp;\approx -\frac{d^2log\,P(\hat{\lambda}|y)}{d\lamb
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

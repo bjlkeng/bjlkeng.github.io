@@ -5,11 +5,7 @@
 <meta name="description" content="A primer on some elementary statistics for direct marketing.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Elementary Statistics for Direct Marketing | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -83,14 +79,15 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Elementary Statistics for Direct Marketing</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard"><span class="byline-name fn">
                     Brian Keng
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2016-02-27T20:40:41-05:00" itemprop="datePublished" title="2016-02-27 20:40">2016-02-27 20:40</time></a></p>
             
-        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
+        <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
 
-        </div>
+                <meta name="description" itemprop="description" content="A primer on some elementary statistics for direct marketing.">
+</div>
         
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
@@ -297,7 +294,7 @@ A = E[Y|X=1] - E[Y|X=0]  \tag{5}
 </div>
 <p>It's a widely known fact that association does not equal causation.
 Let's take a look at a small example why.</p>
-<div class="admonition admonition-example-1">
+<div class="admonition-example-1 admonition">
 <p class="first admonition-title">Example 1</p>
 <div class="math">
 \begin{equation*}
@@ -340,7 +337,7 @@ while putting the low value ones in the control group.  We want to ensure any
 confounding variables (like whether or not a customer is a high spender) is
 spread out proportionally across both treatment and control.  The next theorem
 states this idea.</p>
-<div class="admonition admonition-theorem">
+<div class="admonition-theorem admonition">
 <p class="first admonition-title"><strong>Theorem</strong></p>
 <p>If we randomly assign subjects to treatment and control such that <span class="math">\(P(X=0) &gt; 0\)</span>
 and <span class="math">\(P(X=1) &gt; 0\)</span>, then <span class="math">\(A=\text{lift}\)</span>.</p>
@@ -508,7 +505,7 @@ estimate it.  In that case, you could use a previously known sample variance
 the range of allowable values usually falls within <span class="math">\(4\sigma\)</span>.
 Both these will provide a decent estimate of the values.
 Let's take a look at an example.</p>
-<div class="admonition admonition-example-2">
+<div class="admonition-example-2 admonition">
 <p class="first admonition-title">Example 2</p>
 <p>From a past experiment, we know that customers usually spend between
 $20 and $80. We can send
@@ -605,7 +602,7 @@ n &amp;\geq \sigma^2_{\text{lift}} \frac{(z_{\alpha/2} + z_{1 - \beta})^2}{\Delt
 \end{align*}
 </div>
 <p>Let's take a look at an example of how this works.</p>
-<div class="admonition admonition-example-3">
+<div class="admonition-example-3 admonition">
 <p class="first admonition-title">Example 3</p>
 <p>Using the numbers from Example 2, how large of a sample size do we require if <span class="math">\(1-\beta=0.80\)</span> and now we
 can send <span class="math">\(30,000\)</span> flyers?</p>
@@ -807,7 +804,7 @@ on both subjects.</p>
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

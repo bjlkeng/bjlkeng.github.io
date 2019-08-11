@@ -5,11 +5,7 @@
 <meta name="description" content="A quick introduction to manifolds.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Manifolds: A Gentle Introduction | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -81,14 +77,15 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Manifolds: A Gentle Introduction</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard"><span class="byline-name fn">
                     Brian Keng
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2018-04-17T06:24:57-05:00" itemprop="datePublished" title="2018-04-17 06:24">2018-04-17 06:24</time></a></p>
             
-        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
+        <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
 
-        </div>
+                <meta name="description" itemprop="description" content="A quick introduction to manifolds.">
+</div>
         
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
@@ -239,7 +236,7 @@ studied geography beyond grade school but I'm guessing you have similar terminol
 such as charts, coordinate systems, and atlases.  The ideas are, on the
 surface, similar.  However, I'd probably still stick with Figure 4, which
 is much more accurate.</p>
-<div class="admonition admonition-manifolds-all-about-mapping">
+<div class="admonition-manifolds-all-about-mapping admonition">
 <p class="first admonition-title">Manifolds: All About Mapping</p>
 <p class="last">Wrapping your head around manifolds can be sometimes be hard because of all
 the symbols.  The key thing to remember is that <strong>manifolds are all about mappings</strong>.
@@ -274,7 +271,7 @@ dimensional Euclidean space, things are a lot easier to analyze.  Performing
 analysis on a manifold embedded in a high dimensional space could be a major
 pain in the butt, but analysis in a lower-dimensional Euclidean space is easy
 (relatively)!</p>
-<div class="admonition admonition-example-1-euclidean-space-is-a-manifold">
+<div class="admonition-example-1-euclidean-space-is-a-manifold admonition">
 <p class="first admonition-title">Example 1: Euclidean Space is a Manifold</p>
 <p class="last">Standard Euclidean space in <span class="math">\(\mathbb{R}^n\)</span> is, of course, a manifold
 itself. It requires a single chart that it just the identity function,
@@ -282,7 +279,7 @@ which also makes up its atlas.  We'll see below that many of concepts
 we've been learned in Euclidean space have analogues when discussing
 manifolds.</p>
 </div>
-<div class="admonition admonition-example-2-a-1d-manifold-with-multiple-charts">
+<div class="admonition-example-2-a-1d-manifold-with-multiple-charts admonition">
 <p class="first admonition-title">Example 2: A 1D Manifold with Multiple Charts</p>
 <p>Let's take pretty much the simplest example we can think of: a circle.</p>
 <p>If we use <a class="reference external" href="https://en.wikipedia.org/wiki/Polar_coordinate_system#Conventions">polar coordinates</a>,
@@ -365,7 +362,7 @@ u_2 &amp;= \varphi_{\alpha\beta}(u_1) \\
 <p class="last">which is only defined for the points in the intersection (i.e. all points
 on the circle except the "north" and "south" pole).</p>
 </div>
-<div class="admonition admonition-example-3-stereographic-projections-for-math-s-n">
+<div class="admonition-example-3-stereographic-projections-for-math-s-n admonition">
 <p class="first admonition-title">Example 3: Stereographic Projections for <span class="math">\(S^n\)</span></p>
 <p>As you might have guessed, we can perform the same
 <a class="reference external" href="https://en.wikipedia.org/wiki/Stereographic_projection">stereographic projection</a>
@@ -631,7 +628,7 @@ A "with" change of coordinates transformation would be multiplying by the
 inverse of the Jacobian, which we'll see below with the metric tensor.</p>
 <p>So after all that manipulation, let's take a look at an example on our
 sphere to make things a bit more concrete.</p>
-<div class="admonition admonition-example-4-tangent-vectors-on-a-sphere">
+<div class="admonition-example-4-tangent-vectors-on-a-sphere admonition">
 <p class="first admonition-title">Example 4: Tangent Vectors on a Sphere</p>
 <p>Let us take the unit sphere, and define a curve <span class="math">\(\gamma(t)\)</span> parallel to
 the equator at a 45 degree angle from the equator.  Figure 8 shows a picture
@@ -1013,7 +1010,7 @@ time!</p>
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

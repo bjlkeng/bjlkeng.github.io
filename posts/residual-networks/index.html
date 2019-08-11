@@ -5,11 +5,7 @@
 <meta name="description" content="A brief post on residual networks with some experiments on variational autoencoders.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Residual Networks | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -83,14 +79,15 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Residual Networks</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard"><span class="byline-name fn">
                     Brian Keng
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2018-02-18T13:55:13-05:00" itemprop="datePublished" title="2018-02-18 13:55">2018-02-18 13:55</time></a></p>
             
-        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
+        <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
 
-        </div>
+                <meta name="description" itemprop="description" content="A brief post on residual networks with some experiments on variational autoencoders.">
+</div>
         
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
@@ -207,47 +204,23 @@ like ResNet would benefit the model performance.</p>
 with a few modifications such as supporting transposed convolutions for the
 decoder.  It should be pretty straight forward to see in the code if you're
 curious.  The results for the different depths of ResNet are in Table 1.</p>
-<table border="1" class="colwidths-given docutils align-center">
-<caption>Table 1: CIFAR10 VAE Results</caption>
-<colgroup>
-<col width="33%">
-<col width="22%">
-<col width="22%">
-<col width="22%">
-</colgroup>
-<thead valign="bottom"><tr>
-<th class="head">Depth</th>
-<th class="head">Training Time (hrs)</th>
-<th class="head">Training Loss</th>
-<th class="head">Validation Loss</th>
-</tr></thead>
-<tbody valign="top">
-<tr>
-<td>28</td>
-<td>79.2</td>
-<td>1790.4</td>
-<td>1794.7</td>
-</tr>
-<tr>
-<td>40</td>
-<td>61.9</td>
-<td>1787.5</td>
-<td>1795.7</td>
-</tr>
-<tr>
-<td>70</td>
-<td>80.0</td>
-<td>1784.8</td>
-<td>1799.0</td>
-</tr>
-<tr>
-<td>100</td>
-<td>164.7</td>
-<td>1782.3</td>
-<td>1804.0</td>
-</tr>
-</tbody>
-</table>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">&lt;string&gt;</tt>, line 167)</p>
+<p>Error in "csv-table" directive:
+unknown option: "align".</p>
+<pre class="literal-block">
+.. csv-table:: Table 1: CIFAR10 VAE Results
+   :header: "Depth", "Training Time (hrs)", "Training Loss", "Validation Loss"
+   :widths: 15, 10, 10, 10
+   :align: center
+
+   "28", 79.2, 1790.4, 1794.7
+   "40", 61.9, 1787.5, 1795.7
+   "70", 80.0, 1784.8, 1799.0
+   "100", 164.7, 1782.3, 1804.0
+
+</pre>
+</div>
 <p>As you can see not much has changed in terms of model performance between the
 different runs but look at those depths!  The training loss seems to improve a
 bit but the validation loss seems to get slightly worse.  Of course the
@@ -388,7 +361,7 @@ them.  Expect the usual slow trickle instead of a flood.  See you next time!</p>
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

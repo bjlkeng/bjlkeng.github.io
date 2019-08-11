@@ -5,11 +5,7 @@
 <meta name="description" content="A brief introduction into variational autoencoders.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Variational Autoencoders | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -83,14 +79,15 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Variational Autoencoders</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard"><span class="byline-name fn">
                     Brian Keng
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2017-05-30T08:19:36-04:00" itemprop="datePublished" title="2017-05-30 08:19">2017-05-30 08:19</time></a></p>
             
-        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
+        <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
 
-        </div>
+                <meta name="description" itemprop="description" content="A brief introduction into variational autoencoders.">
+</div>
         
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
@@ -132,7 +129,7 @@ focusing on the application of generating new values that look like the
 observed data but check out the
 <a class="reference external" href="https://en.wikipedia.org/wiki/Generative_model">Wikipedia</a>
 article for a better picture of some other applications.</p>
-<div class="admonition admonition-example-1-generative-models">
+<div class="admonition-example-1-generative-models admonition">
 <p class="first admonition-title">Example 1: Generative Models</p>
 <ol class="last arabic">
 <li><dl class="first docutils">
@@ -271,7 +268,7 @@ in a discontinuity.  This is important because we will eventually want to use
 stochastic gradient descent to learn <span class="math">\(g(z)\)</span> and this implicitly requires
 a smooth function.  We'll see how this probabilistic interpretation plays into
 the loss/objective function below.</p>
-<div class="admonition admonition-inverse-transform-sampling">
+<div class="admonition-inverse-transform-sampling admonition">
 <p class="first admonition-title">Inverse Transform Sampling</p>
 <p><a class="reference external" href="https://en.wikipedia.org/wiki/Inverse_transform_sampling">Inverse transform sampling</a>
 is a method for sampling from any distribution given its cumulative
@@ -401,12 +398,12 @@ P(X=x) &amp;= \int p(X=x,Z=z) dz \\
 model marginalizing (i.e. integrating) out <span class="math">\(Z\)</span>.  Since we don't have an
 analytical form of the density, we approximate the integral by averaging over
 <span class="math">\(M\)</span> samples from <span class="math">\(Z\sim \mathcal{N}(0, I)\)</span>.</p>
-<p>Putting together the log-likelihood (defined by logging the density and summing over all
+<p>Putting together the log-likelihood (defined by log'ing the density and summing over all
 of our <span class="math">\(N\)</span> observations):</p>
 <div class="math">
 \begin{equation*}
-\log P(X) = \frac{1}{M} \sum_{i=1}^N
-       \log(\sum_{m=1}^M p_{\mathcal{N}}(x_i;g(z_m;\theta),\sigma^2*I)) \tag{7}
+\log P(X) \approx \frac{1}{N} \sum_{i=1}^N
+       \log(\frac{1}{M} \sum_{m=1}^M p_{\mathcal{N}}(x_i;g(z_m;\theta),\sigma^2*I)) \tag{7}
 \end{equation*}
 </div>
 <p>Two problems here. First, the <span class="math">\(\log\)</span> can't be pushed inside the
@@ -417,7 +414,7 @@ since our density is normally distributed.</p>
 <p>The other big problem, that is not easily seen through the notation, is that
 <span class="math">\(z_m\)</span> is actually a <span class="math">\(K\)</span>-dimensional vector.  In order to approximate
 the integral properly, we would have to sample over a <em>huge</em> number of
-<span class="math">\(z\)</span> values!  This basically plays into the
+<span class="math">\(z\)</span> values for <em>each</em> <span class="math">\(x_i\)</span> sample!  This basically plays into the
 <a class="reference external" href="https://en.wikipedia.org/wiki/Curse_of_dimensionality">curse of dimensionality</a>
 whereby each additional dimension of <span class="math">\(z\)</span> exponentially increases the
 number of samples you need to properly approximate the volume of the space.
@@ -870,7 +867,7 @@ that have a solid basis in probability.  Look out for future posts!</p>
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

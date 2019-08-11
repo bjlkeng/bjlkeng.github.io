@@ -5,11 +5,7 @@
 <meta name="description" content="Looking at a couple of ways to sample a normal distribution.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sampling from a Normal Distribution | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -81,14 +77,15 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Sampling from a Normal Distribution</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard"><span class="byline-name fn">
                     Brian Keng
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2015-11-28T21:57:02-05:00" itemprop="datePublished" title="2015-11-28 21:57">2015-11-28 21:57</time></a></p>
             
-        <p class="sourceline"><a href="index.ipynb" class="sourcelink">Source</a></p>
+        <p class="sourceline"><a href="index.ipynb" id="sourcelink">Source</a></p>
 
-        </div>
+                <meta name="description" itemprop="description" content="Looking at a couple of ways to sample a normal distribution.">
+</div>
         
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
@@ -107,24 +104,21 @@
 </h3>
 <h4 id="Normal-Distribution">Normal Distribution<a class="anchor-link" href="#Normal-Distribution">¶</a>
 </h4>
-<p>Let's start off first by covering some basics.  A normal distribution (also known as a Gaussian distribution) $N \sim (\mu, \sigma)$ has probability density function (PDF) and cumulative density function (CDF) shown here parameterized by its mean ($\mu$) and standard deviation ($\sigma$) <a href="#fn-1"><sup>[1]</sup></a>:</p>
-<p>$$ f_N(x) = \frac{1}{\sigma \sqrt{2\pi}}e^{-\frac{(x-\mu)^2}{2\sigma^2}} \tag{1}$$
-$$ F_N(x) = \int_{-\infty}^{x}f_N(t) dt  \tag{2}$$</p>
-<p>The CDF doesn't have a nice closed form, so we'll just represent it here using the definition of CDF in terms of its PDF.  We can graph the PDF and CDF (images from <a href="https://en.wikipedia.org/wiki/Normal_distribution">Wikipedia</a>) using various values of the two parameters:</p>
+<p>Let's start off first by covering some basics.  A normal distribution (also known as a Gaussian distribution) \(N \sim (\mu, \sigma)\) has probability density function (PDF) and cumulative density function (CDF) shown here parameterized by its mean (\(\mu\)) and standard deviation (\(\sigma\)) <a href="#fn-1"><sup>[1]</sup></a>:</p>
+$$ f_N(x) = \frac{1}{\sigma \sqrt{2\pi}}e^{-\frac{(x-\mu)^2}{2\sigma^2}} \tag{1}$$$$ F_N(x) = \int_{-\infty}^{x}f_N(t) dt  \tag{2}$$<p>The CDF doesn't have a nice closed form, so we'll just represent it here using the definition of CDF in terms of its PDF.  We can graph the PDF and CDF (images from <a href="https://en.wikipedia.org/wiki/Normal_distribution">Wikipedia</a>) using various values of the two parameters:</p>
 <p><img src="../../images/normal_pdf_cdf.png" alt="PDF of Normal Distribution"></p>
-<p>The normal distribution is sometimes colloquially known as the "bell curve" because of a it's symmetric hump.  A very common thing to do with a probability distribution is to <em>sample</em> from it.  In other words, we want to randomly generate numbers (i.e. $x$ values) such that the values of $x$ are in proportion to the PDF.  So for the standard normal distribution, $N \sim (0, 1) $ (the red curve in the picture above), most of the values would fall close to somewhere around $x=0$.  In fact, 68% will fall within $[-1, 1]$, 95% will fall within $[-2,2]$ and 99.7% will fall within $[-3,3]$.  This corresponds to $\sigma, 2\sigma, 3\sigma$ from the mean, see this <a href="https://en.wikipedia.org/wiki/68%E2%80%9395%E2%80%9399.7_rule">article</a> for more details.</p>
+<p>The normal distribution is sometimes colloquially known as the "bell curve" because of a it's symmetric hump.  A very common thing to do with a probability distribution is to <em>sample</em> from it.  In other words, we want to randomly generate numbers (i.e. \(x\) values) such that the values of \(x\) are in proportion to the PDF.  So for the standard normal distribution, \(N \sim (0, 1) \) (the red curve in the picture above), most of the values would fall close to somewhere around \(x=0\).  In fact, 68% will fall within \([-1, 1]\), 95% will fall within \([-2,2]\) and 99.7% will fall within \([-3,3]\).  This corresponds to \(\sigma, 2\sigma, 3\sigma\) from the mean, see this <a href="https://en.wikipedia.org/wiki/68%E2%80%9395%E2%80%9399.7_rule">article</a> for more details.</p>
 <h4 id="Central-Limit-Theorem">Central Limit Theorem<a class="anchor-link" href="#Central-Limit-Theorem">¶</a>
 </h4>
-<p>The central limit theorem (CLT) is quite a surprising result relating the sample average of $n$ <a href="https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables">independent and identically distributed</a> (i.i.d.) random variables and a normal distribution.  To state it more precisely:</p>
+<p>The central limit theorem (CLT) is quite a surprising result relating the sample average of \(n\) <a href="https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables">independent and identically distributed</a> (i.i.d.) random variables and a normal distribution.  To state it more precisely:</p>
 <blockquote>
-<p>Let ${X_1, X_2, \ldots, X_n}$ be $n$ i.i.d. random variables with $E(X_i)=\mu$ 
-and $Var(X_i)=\sigma^2$ and  let $S_n = \frac{X_1 + X_2 + \ldots + X_n}{n}$ be the sample 
-average. Then $S_n$ approximates a normal distribution with mean of $\mu$ and 
-variance of $\frac{\sigma^2}{n}$ for large $n$ (i.e. $S_n \approx N(\mu, \frac{\sigma^2}{n})$).</p>
+<p>Let \({X_1, X_2, \ldots, X_n}\) be \(n\) i.i.d. random variables with \(E(X_i)=\mu\) 
+and \(Var(X_i)=\sigma^2\) and  let \(S_n = \frac{X_1 + X_2 + \ldots + X_n}{n}\) be the sample 
+average. Then \(S_n\) approximates a normal distribution with mean of \(\mu\) and 
+variance of \(\frac{\sigma^2}{n}\) for large \(n\) (i.e. \(S_n \approx N(\mu, \frac{\sigma^2}{n})\)).</p>
 </blockquote>
-<p>The surprising result is that $X_n$ can be <em>any</em> distribution.  It isn't restricted to just normal distributions.  We can also define the standard normal distribution in terms of $S_n$ by shifting and scaling it:</p>
-<p>$$ N(0,1) \approx \frac{S_n - \mu}{\frac{\sigma}{\sqrt{n}}} = \frac{\sqrt{n}(S_n - \mu)}{\sigma} \tag{3} $$</p>
-<h4 id="Comparing-Distributions">Comparing Distributions<a class="anchor-link" href="#Comparing-Distributions">¶</a>
+<p>The surprising result is that \(X_n\) can be <em>any</em> distribution.  It isn't restricted to just normal distributions.  We can also define the standard normal distribution in terms of \(S_n\) by shifting and scaling it:</p>
+$$ N(0,1) \approx \frac{S_n - \mu}{\frac{\sigma}{\sqrt{n}}} = \frac{\sqrt{n}(S_n - \mu)}{\sigma} \tag{3} $$<h4 id="Comparing-Distributions">Comparing Distributions<a class="anchor-link" href="#Comparing-Distributions">¶</a>
 </h4>
 <p>Since our goal is to implement sampling from a normal distribution, it would be nice to know if we actually did it correctly!  One common way to test if two arbitrary distributions are the same is to use the <a href="https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test">Kolmogorov–Smirnov test</a>.  In the basic form, we can compare a sample of points with a reference distribution to find their similarity.</p>
 <p>The basic idea of the test is to first sort the points in the sample and the compute the <a href="https://en.wikipedia.org/wiki/Empirical_distribution_function">empirical CDF</a>. Next, find the largest absolute difference between any point in the empirical CDF and the theoretical reference distribution.  If the two are the same, this difference should be very small. If it's large then we can be confident that the distribution is different.  Further, this difference follows a certain distribution, which allows us to test our null hypothesis of whether our samples were drawn from the reference distribution.<br>
@@ -140,28 +134,28 @@ The following figure (from <a href="https://en.wikipedia.org/wiki/Kolmogorov%E2%
 <div class="prompt input_prompt">In [290]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
+<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span> 
 
-<span class="c1"># number of samples</span>
+<span class="c"># number of samples</span>
 <span class="n">N</span><span class="o">=</span><span class="mi">10000</span>
 
-<span class="c1"># Run Kolmogorov-Smirnov test Uniform(0,1) vs. reference N(0, 1)</span>
+<span class="c"># Run Kolmogorov-Smirnov test Uniform(0,1) vs. reference N(0, 1)</span>
 <span class="n">samples</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">uniform</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
-<span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">kstest</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="s1">'norm'</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"U(0,1) vs. N(0, 1): KS=</span><span class="si">%.4f</span><span class="s2"> with p-value = </span><span class="si">%.4f</span><span class="s2">."</span> <span class="o">%</span> <span class="p">(</span><span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span><span class="p">))</span>
+<span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">kstest</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="s">'norm'</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">"U(0,1) vs. N(0, 1): KS=%.4f with p-value = %.4f."</span> <span class="o">%</span> <span class="p">(</span><span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span><span class="p">))</span>
 
-<span class="c1"># Run Kolmogorov-Smirnov test N(0, 2) vs. reference N(0, 1)</span>
+<span class="c"># Run Kolmogorov-Smirnov test N(0, 2) vs. reference N(0, 1)</span>
 <span class="n">samples</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span> 
-<span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">kstest</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="s1">'norm'</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"N(0,2) vs. N(0, 1): KS=</span><span class="si">%.4f</span><span class="s2"> with p-value = </span><span class="si">%.4f</span><span class="s2">."</span> <span class="o">%</span> <span class="p">(</span><span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span><span class="p">))</span>
+<span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">kstest</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="s">'norm'</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">"N(0,2) vs. N(0, 1): KS=%.4f with p-value = %.4f."</span> <span class="o">%</span> <span class="p">(</span><span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span><span class="p">))</span>
 
-<span class="c1"># Run Kolmogorov-Smirnov test N(0, 1) vs. reference N(0, 1)</span>
+<span class="c"># Run Kolmogorov-Smirnov test N(0, 1) vs. reference N(0, 1)</span>
 <span class="n">samples</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span> 
-<span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">kstest</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="s1">'norm'</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"N(0,1) vs. N(0, 1): KS=</span><span class="si">%.4f</span><span class="s2"> with p-value = </span><span class="si">%.4f</span><span class="s2">."</span> <span class="o">%</span> <span class="p">(</span><span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span><span class="p">))</span>
+<span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">kstest</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="s">'norm'</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">"N(0,1) vs. N(0, 1): KS=%.4f with p-value = %.4f."</span> <span class="o">%</span> <span class="p">(</span><span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span><span class="p">))</span>
 </pre></div>
 
 </div>
@@ -173,10 +167,7 @@ The following figure (from <a href="https://en.wikipedia.org/wiki/Kolmogorov%E2%
 
 
 <div class="output_area">
-
 <div class="prompt"></div>
-
-
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>U(0,1) vs. N(0, 1): KS=0.5000 with p-value = 0.0000.
 N(0,2) vs. N(0, 1): KS=0.1673 with p-value = 0.0000.
@@ -194,7 +185,7 @@ N(0,1) vs. N(0, 1): KS=0.0104 with p-value = 0.2288.
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Using $N(0,1)$ as our reference distribution, the KS test has a large value and a negligible p-value when comparing to a uniform distribution $U(0,1)$ ($KS=0.5$).  The normal distribution with a wider base $N(0, 2)$ ($KS=0.1673$) also has a negligible p-value.  However, when we compare samples from the identical distribution $N(0,1)$, we get a relatively small value ($KS=0.0104$) for the test statistic and a large p-value, indicating we don't have sufficient evidence to reject the null hypothesis (that our two distributions are the same).</p>
+<p>Using \(N(0,1)\) as our reference distribution, the KS test has a large value and a negligible p-value when comparing to a uniform distribution \(U(0,1)\) (\(KS=0.5\)).  The normal distribution with a wider base \(N(0, 2)\) (\(KS=0.1673\)) also has a negligible p-value.  However, when we compare samples from the identical distribution \(N(0,1)\), we get a relatively small value (\(KS=0.0104\)) for the test statistic and a large p-value, indicating we don't have sufficient evidence to reject the null hypothesis (that our two distributions are the same).</p>
 
 </div>
 </div>
@@ -206,18 +197,16 @@ N(0,1) vs. N(0, 1): KS=0.0104 with p-value = 0.2288.
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Sampling-using-the-Central-Limit-Theorem">Sampling using the Central Limit Theorem<a class="anchor-link" href="#Sampling-using-the-Central-Limit-Theorem">¶</a>
 </h3>
-<p>Now let's try to use the Central Limit Theorem to sample from $N(0,1)$.  First let's define our i.i.d. variable $X_n$ to have a <a href="https://en.wikipedia.org/wiki/Bernoulli_distribution">Bernoulli distribution</a> with $p=0.5$, which we can intuitively think of tossing an unbiased coin:</p>
-<p>$$ P(X_n=k) = \begin{cases} p=0.5 &amp; \text{if }k=1, \\[6pt] 1-p = 0.5 &amp; \text {if }k=0.\end{cases}&lt;/math&gt; \tag{4} $$</p>
-<p>Recall, the Bernoulli distribution is closely relates to the <a href="https://en.wikipedia.org/wiki/Binomial_distribution">Binomial distribution</a> denoted by $B(n, p)$ by $Bernoulli(p) = B(n=1, p)$ .  The Binomial distribution can intuitively be thought of as counting the number of heads in $n$ tosses of a coin (i.e. Bernoulli trials).  If $n=1$, it reduces to a Bernoulli distribution (or single coin toss).</p>
-<p>Let's now define our sample average for $n$ tosses of our unbiased coin:</p>
-<p>$$ S_n = \frac{X_1 + X_2 + \ldots + X_n}{n} = \frac{B(n, p=0.5)}{n} $$</p>
-<p>We can see that this distribution has $\mu=\frac{n}{2}$ (we expect half our tosses to be heads), and $\sigma^2=\frac{p(1-p)}{n}=\frac{0.25}{n}$ (Bernoulli RVs have $\sigma^2 = p(1-p)$).</p>
+<p>Now let's try to use the Central Limit Theorem to sample from \(N(0,1)\).  First let's define our i.i.d. variable \(X_n\) to have a <a href="https://en.wikipedia.org/wiki/Bernoulli_distribution">Bernoulli distribution</a> with \(p=0.5\), which we can intuitively think of tossing an unbiased coin:</p>
+$$ P(X_n=k) = \begin{cases} p=0.5 &amp; \text{if }k=1, \\[6pt] 1-p = 0.5 &amp; \text {if }k=0.\end{cases} \tag{4} $$<p>Recall, the Bernoulli distribution is closely relates to the <a href="https://en.wikipedia.org/wiki/Binomial_distribution">Binomial distribution</a> denoted by \(B(n, p)\) by \(Bernoulli(p) = B(n=1, p)\) .  The Binomial distribution can intuitively be thought of as counting the number of heads in \(n\) tosses of a coin (i.e. Bernoulli trials).  If \(n=1\), it reduces to a Bernoulli distribution (or single coin toss).</p>
+<p>Let's now define our sample average for \(n\) tosses of our unbiased coin:</p>
+$$ S_n = \frac{X_1 + X_2 + \ldots + X_n}{n} = \frac{B(n, p=0.5)}{n} $$<p>We can see that this distribution has \(\mu=\frac{n}{2}\) (we expect half our tosses to be heads), and \(\sigma^2=\frac{p(1-p)}{n}=\frac{0.25}{n}\) (Bernoulli RVs have \(\sigma^2 = p(1-p)\)).</p>
 <p>Shifting and scaling<a href="#fn-2"><sup>[2]</sup></a> this to get our standard normal distribution using Equation 3, we get:</p>
-<p>\begin{align} 
+\begin{align} 
 N(0,1) &amp;\approx \frac{\sqrt{n}(S_n - \mu)}{\sigma} \\
        &amp;= \frac{\sqrt{n}(\frac{X_1 + X_2 + \ldots + X_n}{n} - 0.5)}{\sqrt{0.25}} \\
        &amp;= 2\sqrt{n}(\frac{X_1 + X_2 + \ldots + X_n}{n} - 0.5) \tag{5}
-\end{align}</p>
+\end{align}<p></p>
 <p>Theoretically, this should give us an equation to roughly simulate a standard normal distribution.  Let's try it!</p>
 
 </div>
@@ -228,7 +217,7 @@ N(0,1) &amp;\approx \frac{\sqrt{n}(S_n - \mu)}{\sigma} \\
 <div class="prompt input_prompt">In [289]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> inline
+<div class=" highlight hl-ipython3"><pre><span class="o">%</span><span class="k">matplotlib</span> inline
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">math</span>
@@ -239,18 +228,18 @@ N(0,1) &amp;\approx \frac{\sqrt{n}(S_n - \mu)}{\sigma} \\
 <span class="k">def</span> <span class="nf">bernoulli</span><span class="p">():</span>
     <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
 
-<span class="c1"># Our sample function of N(0,1) using Equation 5</span>
+<span class="c"># Our sample function of N(0,1) using Equation 5</span>
 <span class="k">def</span> <span class="nf">sampleN_v1</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">2500</span><span class="p">):</span>
     <span class="k">return</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">bernoulli</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">))</span> <span class="o">/</span> <span class="n">N</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
 
-<span class="c1"># Use KS to test again</span>
+<span class="c"># Use KS to test again</span>
 <span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="n">sampleN_v1</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
-<span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">kstest</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="s1">'norm'</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"sample_N(0,1) vs. N(0, 1): KS=</span><span class="si">%.4f</span><span class="s2"> with p-value = </span><span class="si">%.4f</span><span class="s2">."</span> <span class="o">%</span> <span class="p">(</span><span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span><span class="p">))</span>
+<span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">kstest</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="s">'norm'</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">"sample_N(0,1) vs. N(0, 1): KS=%.4f with p-value = %.4f."</span> <span class="o">%</span> <span class="p">(</span><span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span><span class="p">))</span>
 
-<span class="c1"># Let's plot our samples against our reference distribution</span>
+<span class="c"># Let's plot our samples against our reference distribution</span>
 <span class="n">reference</span> <span class="o">=</span> <span class="p">[</span><span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">rvs</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
-<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">'sample_N'</span><span class="p">:</span> <span class="n">samples</span><span class="p">,</span> <span class="s1">'N(0,1)'</span><span class="p">:</span> <span class="n">reference</span><span class="p">})</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">'hist'</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">'sample_N'</span><span class="p">:</span> <span class="n">samples</span><span class="p">,</span> <span class="s">'N(0,1)'</span><span class="p">:</span> <span class="n">reference</span><span class="p">})</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s">'hist'</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -262,10 +251,7 @@ N(0,1) &amp;\approx \frac{\sqrt{n}(S_n - \mu)}{\sigma} \\
 
 
 <div class="output_area">
-
 <div class="prompt"></div>
-
-
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>sample_N(0,1) vs. N(0, 1): KS=0.0114 with p-value = 0.1499.
 </pre>
@@ -273,10 +259,7 @@ N(0,1) &amp;\approx \frac{\sqrt{n}(S_n - \mu)}{\sigma} \\
 </div>
 
 <div class="output_area">
-
 <div class="prompt output_prompt">Out[289]:</div>
-
-
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -286,10 +269,7 @@ N(0,1) &amp;\approx \frac{\sqrt{n}(S_n - \mu)}{\sigma} \\
 </div>
 
 <div class="output_area">
-
 <div class="prompt"></div>
-
-
 
 
 <div class="output_png output_subarea ">
@@ -307,8 +287,8 @@ N(0,1) &amp;\approx \frac{\sqrt{n}(S_n - \mu)}{\sigma} \\
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Our KS score is somewhat close to $0$ with a p-value that suggests we can't reject our null hypothesis.  Graphing our implementation of $N(0,1)$ with the reference one shows that we have the roughly the right shape.  No doubt by setting larger $N$ (for both the number of Bernoulli trials and the number of samples drawn), we would get something much closer.</p>
-<p>One large downside of our CLT implementation is that it's <em>slow</em>.  While the wall clock time of drawing $10000$ samples using the <code>numpy</code> library is unnoticeable, it takes roughly ten seconds on my machine with the parameters above using our CLT implementation, quite a big difference.  In the next section, we'll see a much more efficient implementation that uses a "trick" to transform a pair of independent uniform random variables to a pair of independent normal random variables.</p>
+<p>Our KS score is somewhat close to \(0\) with a p-value that suggests we can't reject our null hypothesis.  Graphing our implementation of \(N(0,1)\) with the reference one shows that we have the roughly the right shape.  No doubt by setting larger \(N\) (for both the number of Bernoulli trials and the number of samples drawn), we would get something much closer.</p>
+<p>One large downside of our CLT implementation is that it's <em>slow</em>.  While the wall clock time of drawing \(10000\) samples using the <code>numpy</code> library is unnoticeable, it takes roughly ten seconds on my machine with the parameters above using our CLT implementation, quite a big difference.  In the next section, we'll see a much more efficient implementation that uses a "trick" to transform a pair of independent uniform random variables to a pair of independent normal random variables.</p>
 
 </div>
 </div>
@@ -320,43 +300,38 @@ N(0,1) &amp;\approx \frac{\sqrt{n}(S_n - \mu)}{\sigma} \\
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Sampling-using-the-Box-Muller-Transform">Sampling using the Box-Muller Transform<a class="anchor-link" href="#Sampling-using-the-Box-Muller-Transform">¶</a>
 </h3>
-<p>The <a href="https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform">Box-Muller transform</a> is a neat little "trick" that allows us to sample from a pair of normally distributed variables using a source of only uniformly distributed variables.  The transform is actually pretty simple to compute.  Given two independent uniformly distributed random variables $U_1, U_2$ on the interval $(0,1)$, we define two new random variables, $R$ and $\Theta$, that intuitively representing <a href="https://en.wikipedia.org/wiki/Polar_coordinate_system">polar coordinates</a> as such:</p>
-<p>\begin{align}
+<p>The <a href="https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform">Box-Muller transform</a> is a neat little "trick" that allows us to sample from a pair of normally distributed variables using a source of only uniformly distributed variables.  The transform is actually pretty simple to compute.  Given two independent uniformly distributed random variables \(U_1, U_2\) on the interval \((0,1)\), we define two new random variables, \(R\) and \(\Theta\), that intuitively representing <a href="https://en.wikipedia.org/wiki/Polar_coordinate_system">polar coordinates</a> as such:</p>
+\begin{align}
 R    &amp;= \sqrt{-2lnU_1}   \tag{6}\\
 \Theta &amp;= 2\pi U_2  \tag{7}
-\end{align}</p>
-<p>Now using the standard transformation from polar coordinates $R, \Theta$ to Cartesian ones $X, Y$, we claim that $X$ and $Y$ are independent standard normally distributed random variables:</p>
-<p>\begin{align}
+\end{align}<p>Now using the standard transformation from polar coordinates \(R, \Theta\) to Cartesian ones \(X, Y\), we claim that \(X\) and \(Y\) are independent standard normally distributed random variables:</p>
+\begin{align}
 X &amp;= Rcos\Theta &amp;= \sqrt{-2lnU_1}cos(2\pi U_2) \tag{8}\\
 Y &amp;= Rsin\Theta &amp;= \sqrt{-2lnU_1}sin(2\pi U_2) \tag{9}
-\end{align}</p>
-<p>Let's take a look at the proof to gain some intuition on how this works.</p>
+\end{align}<p>Let's take a look at the proof to gain some intuition on how this works.</p>
 <h4 id="Proof">Proof<a class="anchor-link" href="#Proof">¶</a>
 </h4>
-<p>Starting with $U_1, U_2$, let's see what kind of distributions we have for $R, \Theta$.  From Equation 7, it should be clear that $\Theta$ is also uniformly distributed since it's just multiplying by a constant ($2\pi$), but let's go through the motions to explicitly see that.  From the CDF of $\Theta$:</p>
-<p>\begin{align}
+<p>Starting with \(U_1, U_2\), let's see what kind of distributions we have for \(R, \Theta\).  From Equation 7, it should be clear that \(\Theta\) is also uniformly distributed since it's just multiplying by a constant (\(2\pi\)), but let's go through the motions to explicitly see that.  From the CDF of \(\Theta\):</p>
+\begin{align}
 P(\Theta \leq \theta) &amp;= P(2\pi U_2 \leq \theta) \\
                       &amp;= P(U_2 \leq \frac{\theta}{2\pi}) \\
                \Theta &amp;\sim Uniform(0, 2\pi) \tag{10}
-\end{align}</p>
-<p>So we have our first result that $\Theta$ is uniformly distributed on $(0, 2\pi)$ (as we would expect).  Using a more explicit method, we can find the distribution of $R$.  From Equation 7, we know that the mapping from $U_1$ to $R$ is one-to-one, which we'll call $g$ (i.e. $R=g(U_1)$).  So if we're trying to find the probability of R over $(r_1, r_2)$ (by integrating its PDF), there is some equivalent range over $(g^{-1}(r_1), g^{-1}(r_2))$ where we can integrate over the PDF of $U_1$.  Let's see how this works <a href="#fn-3"><sup>[3]</sup></a>:</p>
-<p>\begin{align}
+\end{align}<p>So we have our first result that \(\Theta\) is uniformly distributed on \((0, 2\pi)\) (as we would expect).  Using a more explicit method, we can find the distribution of \(R\).  From Equation 7, we know that the mapping from \(U_1\) to \(R\) is one-to-one, which we'll call \(g\) (i.e. \(R=g(U_1)\)).  So if we're trying to find the probability of R over \((r_1, r_2)\) (by integrating its PDF), there is some equivalent range over \((g^{-1}(r_1), g^{-1}(r_2))\) where we can integrate over the PDF of \(U_1\).  Let's see how this works <a href="#fn-3"><sup>[3]</sup></a>:</p>
+\begin{align}
 P(r_1 \leq R \leq r_2) &amp;=  \int_{g^{-1}(r_2)}^{g^{-1}(r_1)} f_{U_1}(s) ds  &amp;&amp; \text{since } g(x) \text{ is strictly decreasing}\\
                        &amp;=  -\int_{g^{-1}(r_1)}^{g^{-1}(r_2)}  ds &amp;&amp; \text{since }f_{U_1}(u)=1 \\
                        &amp;=  -\int_{r_1}^{r_2} -t e^{\frac{-t^2}{2}} dt &amp;&amp; \text{change variables } t=\sqrt{-2\ln s}\tag{11} \\
                 f_R(r) &amp;=  r e^{\frac{-r^2}{2}}  \tag{12}
-\end{align}</p>
-<p>giving us the PDF for $R$, $f_R(r)$<a href="#fn-4"><sup>[4]</sup></a>.  It should also be clear that $R$ and $\Theta$ are independent because $U_1$ and $U_2$ are independent.</p>
-<p>Now that we have the distributions for both $R$ and $\Theta$, let's label Equation 8 and 9 as $X=g_x(R, \Theta)$ and $Y=g_y(R, \Theta)$, respectively.  Now we can apply the same procedure as above using variable substitution (for multiple variables) to derive the joint distribution of $X$ and $Y$ (we'll represent the 
-area in the transformed space by $A$<a href="#fn-5"><sup>[5]</sup></a>):</p>
-<p>\begin{align}
+\end{align}<p>giving us the PDF for \(R\), \(f_R(r)\)<a href="#fn-4"><sup>[4]</sup></a>.  It should also be clear that \(R\) and \(\Theta\) are independent because \(U_1\) and \(U_2\) are independent.</p>
+<p>Now that we have the distributions for both \(R\) and \(\Theta\), let's label Equation 8 and 9 as \(X=g_x(R, \Theta)\) and \(Y=g_y(R, \Theta)\), respectively.  Now we can apply the same procedure as above using variable substitution (for multiple variables) to derive the joint distribution of \(X\) and \(Y\) (we'll represent the 
+area in the transformed space by \(A\)<a href="#fn-5"><sup>[5]</sup></a>):</p>
+\begin{align}
 P(x_1 &amp;\leq X \leq x_2, y_1 \leq Y \leq y_2) \\
     &amp;= \int \int_A f_{R,\Theta}(u, v) du dv \\
     &amp;= \int \int_A f_{R}(u)f_{\Theta}(v) du dv &amp;&amp; \text{since } R \text{ and } \Theta \text{ are independent} \\ 
     &amp;= \int \int_A ue^{\frac{-u^2}{2}}\frac{1}{2\pi} du dv \tag{13}
-\end{align}</p>
-<p>At this point, we should remember that if $p=ucos(v), q=usin(v)$, then solving for $u,v$ results in $u=\sqrt{q^2+p^2}, v=arctan(\frac{q}{p})$.  Also, <a href="https://en.wikipedia.org/wiki/Integration_by_substitution#Substitution_for_multiple_variables">substitution for multiple variables</a> means that $du dv = |det(\frac{\partial(u,v)}{\partial(p, q)})| dp dq$, plugging our expressions for $u$ and $v$ in:</p>
-<p>\begin{align}
+\end{align}<p>At this point, we should remember that if \(p=ucos(v), q=usin(v)\), then solving for \(u,v\) results in \(u=\sqrt{q^2+p^2}, v=arctan(\frac{q}{p})\).  Also, <a href="https://en.wikipedia.org/wiki/Integration_by_substitution#Substitution_for_multiple_variables">substitution for multiple variables</a> means that \(du dv = |det(\frac{\partial(u,v)}{\partial(p, q)})| dp dq\), plugging our expressions for \(u\) and \(v\) in:</p>
+\begin{align}
 du dv &amp;= |det(\frac{\partial(u,v)}{\partial(p, q)})| dp dq \\
       &amp;= 
 \left |
@@ -380,15 +355,13 @@ du dv &amp;= |det(\frac{\partial(u,v)}{\partial(p, q)})| dp dq \\
 \end{array}
 \right | dpdq \\
       &amp;= \frac{1}{\sqrt{p^2 + q^2}} dpdq \tag{14}
-\end{align}</p>
-<p>Using the result from Equation 14 into Equation 13, we get:</p>
-<p>\begin{align}
+\end{align}<p>Using the result from Equation 14 into Equation 13, we get:</p>
+\begin{align}
 P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variables} \\
     &amp;= \int_{x_1}^{x_2} \int_{y_1}^{y_2} \frac{\sqrt{p^2 + q^2}}{2\pi}\cdot e^{\frac{-(p^2 + q^2)}{2}} \cdot \frac{1}{\sqrt{p^2 + q^2}} dp dq  &amp;&amp; p=ucos(v)  \\
     &amp;                     &amp;&amp; q=usin(v) \\
     &amp;= \int_{x_1}^{x_2} \underbrace{\frac{1}{\sqrt{2\pi}} e^{\frac{-p^2}{2}}}_{f_X(x)} dp \int_{y_1}^{y_2} \underbrace{\frac{1}{\sqrt{2\pi}} e^{\frac{-q^2}{2}}}_{f_Y(y)} dq  \tag{15}
-\end{align}</p>
-<p>Equation 15 shows that $X$ and $Y$ are independent each with PDF matching our standard normal distribution $N(0,1)$ as required.</p>
+\end{align}<p>Equation 15 shows that \(X\) and \(Y\) are independent each with PDF matching our standard normal distribution \(N(0,1)\) as required.</p>
 <h4 id="Implementing-Box-Muller-Transform">Implementing Box-Muller Transform<a class="anchor-link" href="#Implementing-Box-Muller-Transform">¶</a>
 </h4>
 <p>The implementation is a relatively straight forward application of Equation 8 and 9:</p>
@@ -401,13 +374,13 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
 <div class="prompt input_prompt">In [288]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<div class=" highlight hl-ipython3"><pre><span class="kn">import</span> <span class="nn">sys</span>
 <span class="n">N</span><span class="o">=</span><span class="mi">10000</span>
 <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
 <span class="n">epsilon</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">epsilon</span>
 
 <span class="k">def</span> <span class="nf">box_muller</span><span class="p">():</span>
-    <span class="c1"># Avoid getting u == 0.0</span>
+    <span class="c"># Avoid getting u == 0.0</span>
     <span class="n">u1</span><span class="p">,</span> <span class="n">u2</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
     <span class="k">while</span> <span class="n">u1</span> <span class="o">&lt;</span> <span class="n">epsilon</span> <span class="ow">or</span> <span class="n">u2</span> <span class="o">&lt;</span> <span class="n">epsilon</span><span class="p">:</span>
         <span class="n">u1</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
@@ -418,14 +391,14 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
     <span class="k">return</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span>
 
 
-<span class="c1"># Use KS to test</span>
+<span class="c"># Use KS to test</span>
 <span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="n">box_muller</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
-<span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">kstest</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="s1">'norm'</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"sample_N(0,1) vs. N(0, 1): KS=</span><span class="si">%.4f</span><span class="s2"> with p-value = </span><span class="si">%.4f</span><span class="s2">."</span> <span class="o">%</span> <span class="p">(</span><span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span><span class="p">))</span>
+<span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">kstest</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="s">'norm'</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">"sample_N(0,1) vs. N(0, 1): KS=%.4f with p-value = %.4f."</span> <span class="o">%</span> <span class="p">(</span><span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span><span class="p">))</span>
 
-<span class="c1"># Plot our samples against our reference distribution</span>
+<span class="c"># Plot our samples against our reference distribution</span>
 <span class="n">reference</span> <span class="o">=</span> <span class="p">[</span><span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">rvs</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
-<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">'sample_N'</span><span class="p">:</span> <span class="n">samples</span><span class="p">,</span> <span class="s1">'N(0,1)'</span><span class="p">:</span> <span class="n">reference</span><span class="p">})</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">'hist'</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">'sample_N'</span><span class="p">:</span> <span class="n">samples</span><span class="p">,</span> <span class="s">'N(0,1)'</span><span class="p">:</span> <span class="n">reference</span><span class="p">})</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s">'hist'</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -437,10 +410,7 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
 
 
 <div class="output_area">
-
 <div class="prompt"></div>
-
-
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>sample_N(0,1) vs. N(0, 1): KS=0.0074 with p-value = 0.6372.
 </pre>
@@ -448,10 +418,7 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
 </div>
 
 <div class="output_area">
-
 <div class="prompt output_prompt">Out[288]:</div>
-
-
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -461,10 +428,7 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
 </div>
 
 <div class="output_area">
-
 <div class="prompt"></div>
-
-
 
 
 <div class="output_png output_subarea ">
@@ -482,7 +446,7 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>As we can see, our Box-Muller method of sampling from $ N(0,1) $ generates quite good results.  Our KS test statistic is quite small along with a large p-value (so we can't reject our null hypothesis).  Similarly, the graph shows the expected shape matching our reference distribution.  The one big advantage this method has though is that it's quite fast.  There's no noticeable lag when generating (N=10000) samples.</p>
+<p>As we can see, our Box-Muller method of sampling from \( N(0,1) \) generates quite good results.  Our KS test statistic is quite small along with a large p-value (so we can't reject our null hypothesis).  Similarly, the graph shows the expected shape matching our reference distribution.  The one big advantage this method has though is that it's quite fast.  There's no noticeable lag when generating (N=10000) samples.</p>
 
 </div>
 </div>
@@ -520,15 +484,15 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
 </ul>
 <h3 id="Notes">Notes<a class="anchor-link" href="#Notes">¶</a>
 </h3>
-<p>List of Notes: <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup>, <sup class="footnote-ref" id="fnref-2"><a href="#fn-2">2</a></sup>, <sup class="footnote-ref" id="fnref-3"><a href="#fn-3">3</a></sup>, <sup class="footnote-ref" id="fnref-4"><a href="#fn-4">4</a></sup>, <sup class="footnote-ref" id="fnref-5"><a href="#fn-5">5</a></sup></p>
+<p>List of Notes: <sup class="footnote-ref" id="fnref-1"><a href="#fn-1" rel="footnote">1</a></sup>, <sup class="footnote-ref" id="fnref-2"><a href="#fn-2" rel="footnote">2</a></sup>, <sup class="footnote-ref" id="fnref-3"><a href="#fn-3" rel="footnote">3</a></sup>, <sup class="footnote-ref" id="fnref-4"><a href="#fn-4" rel="footnote">4</a></sup>, <sup class="footnote-ref" id="fnref-5"><a href="#fn-5" rel="footnote">5</a></sup></p>
 <div class="footnotes">
 <hr>
 <ol>
-<li id="fn-1"><p>We'll use the convention of $f_X(x)$ and $F_X(x)$ to denote the PDF and CDF of random variable X, respectively.<a href="#fnref-1" class="footnote">↩</a></p></li>
-<li id="fn-2"><p>If we got back to the definitions of mean and variance, we can see this shifting and scaling yields the correct result.  $E(\frac{\sqrt{n}(S_n - \mu)}{\sigma}) = \frac{\sqrt{n}(E(S_n) - \mu)}{\sigma} = 0$ since $E(S_n)=\mu$ by definition.  And $Var(\frac{\sqrt{n}(S_n - \mu)}{\sigma}) = \frac{n}{\sigma^2}(E((S_n - \mu)^2) - (E(S_n - \mu))^2 = \frac{n}{\sigma^2} \frac{\sigma^2}{n} = 1 $<a href="#fnref-2" class="footnote">↩</a></p></li>
-<li id="fn-3"><p>We use $s, t$ for the dummy variables of $U_1, R$ respectively.  You might also need a refresher on <a href="https://en.wikipedia.org/wiki/Integration_by_substitution">integration by substitution</a> like I did.  Also notice that we flipped the integral endpoints of $g^{-1}(r1)$ and $g^{-1}(r2)$ because $g(x)$ is a strictly decreasing function, so the lower limit $r_1$ maps to the upper limit $g^{-1}(r_1)$ in the transformed function.  Similarly with $r_2$ and $g^{-1}(r_2)$.<a href="#fnref-3" class="footnote">↩</a></p></li>
-<li id="fn-4"><p>Our result is actually a specific case of a more general result when transforming from one probability distribution.  Take a look at <a href="http://www.math.uah.edu/stat/dist/Transformations.html">Transformations of Random Variables</a> for more details and examples.<a href="#fnref-4" class="footnote">↩</a></p></li>
-<li id="fn-5"><p>Remember that the rectangular area represented by $(x_1, x_2)$ and $(y_1, y_2)$ is non-rectagular when we transform it into the $R$ and $\Theta$ space.  This means that we're no longer integrating just along $R$ and $\Theta$ separately but together along the new oddly shaped area, thus the need to use $A$ to represent the area.<a href="#fnref-5" class="footnote">↩</a></p></li>
+<li id="fn-1"><p>We'll use the convention of \(f_X(x)\) and \(F_X(x)\) to denote the PDF and CDF of random variable X, respectively.<a href="#fnref-1" rev="footnote">↩</a></p></li>
+<li id="fn-2"><p>If we got back to the definitions of mean and variance, we can see this shifting and scaling yields the correct result.  \(E(\frac{\sqrt{n}(S_n - \mu)}{\sigma}) = \frac{\sqrt{n}(E(S_n) - \mu)}{\sigma} = 0\) since \(E(S_n)=\mu\) by definition.  And \(Var(\frac{\sqrt{n}(S_n - \mu)}{\sigma}) = \frac{n}{\sigma^2}(E((S_n - \mu)^2) - (E(S_n - \mu))^2 = \frac{n}{\sigma^2} \frac{\sigma^2}{n} = 1 \)<a href="#fnref-2" rev="footnote">↩</a></p></li>
+<li id="fn-3"><p>We use \(s, t\) for the dummy variables of \(U_1, R\) respectively.  You might also need a refresher on <a href="https://en.wikipedia.org/wiki/Integration_by_substitution">integration by substitution</a> like I did.  Also notice that we flipped the integral endpoints of \(g^{-1}(r1)\) and \(g^{-1}(r2)\) because \(g(x)\) is a strictly decreasing function, so the lower limit \(r_1\) maps to the upper limit \(g^{-1}(r_1)\) in the transformed function.  Similarly with \(r_2\) and \(g^{-1}(r_2)\).<a href="#fnref-3" rev="footnote">↩</a></p></li>
+<li id="fn-4"><p>Our result is actually a specific case of a more general result when transforming from one probability distribution.  Take a look at <a href="http://www.math.uah.edu/stat/dist/Transformations.html">Transformations of Random Variables</a> for more details and examples.<a href="#fnref-4" rev="footnote">↩</a></p></li>
+<li id="fn-5"><p>Remember that the rectangular area represented by \((x_1, x_2)\) and \((y_1, y_2)\) is non-rectagular when we transform it into the \(R\) and \(\Theta\) space.  This means that we're no longer integrating just along \(R\) and \(\Theta\) separately but together along the new oddly shaped area, thus the need to use \(A\) to represent the area.<a href="#fnref-5" rev="footnote">↩</a></p></li>
 </ol>
 </div>
 
@@ -625,7 +589,7 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

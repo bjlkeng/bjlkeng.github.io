@@ -358,13 +358,13 @@ model marginalizing (i.e. integrating) out :math:`Z`.  Since we don't have an
 analytical form of the density, we approximate the integral by averaging over
 :math:`M` samples from :math:`Z\sim \mathcal{N}(0, I)`.
 
-Putting together the log-likelihood (defined by logging the density and summing over all
+Putting together the log-likelihood (defined by log'ing the density and summing over all
 of our :math:`N` observations):
 
 .. math::
 
-    \log P(X) = \frac{1}{M} \sum_{i=1}^N 
-           \log(\sum_{m=1}^M p_{\mathcal{N}}(x_i;g(z_m;\theta),\sigma^2*I)) \tag{7}
+    \log P(X) \approx \frac{1}{N} \sum_{i=1}^N 
+           \log(\frac{1}{M} \sum_{m=1}^M p_{\mathcal{N}}(x_i;g(z_m;\theta),\sigma^2*I)) \tag{7}
 
 Two problems here. First, the :math:`\log` can't be pushed inside the
 summation, which actually isn't much a problem because we're not trying to
@@ -375,7 +375,7 @@ since our density is normally distributed.
 The other big problem, that is not easily seen through the notation, is that
 :math:`z_m` is actually a :math:`K`-dimensional vector.  In order to approximate
 the integral properly, we would have to sample over a *huge* number of
-:math:`z` values!  This basically plays into the 
+:math:`z` values for *each* :math:`x_i` sample!  This basically plays into the 
 `curse of dimensionality <https://en.wikipedia.org/wiki/Curse_of_dimensionality>`__
 whereby each additional dimension of :math:`z` exponentially increases the 
 number of samples you need to properly approximate the volume of the space.

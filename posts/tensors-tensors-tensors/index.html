@@ -5,11 +5,7 @@
 <meta name="description" content="A quick introduction to tensors for the uninitiated.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tensors, Tensors, Tensors | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -87,14 +83,15 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Tensors, Tensors, Tensors</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard"><span class="byline-name fn">
                     Brian Keng
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2018-03-13T08:24:57-05:00" itemprop="datePublished" title="2018-03-13 08:24">2018-03-13 08:24</time></a></p>
             
-        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
+        <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
 
-        </div>
+                <meta name="description" itemprop="description" content="A quick introduction to tensors for the uninitiated.">
+</div>
         
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
@@ -160,7 +157,7 @@ super/subscripts represent different values, not exponents, which we'll get to
 later, and you can ignore all the other stuff in the diagram).</p>
 <p>So then a geometric vector is the geometric object, <em>not</em> specifically its
 representation in a particular basis.</p>
-<div class="admonition admonition-example-1-a-geometric-vector-in-a-different-basis">
+<div class="admonition-example-1-a-geometric-vector-in-a-different-basis admonition">
 <p class="first admonition-title">Example 1: A geometric vector in a different basis.</p>
 <p>Let's take the vector <span class="math">\(v\)</span> as <span class="math">\([a, b]\)</span> in the standard Euclidean
 basis: <span class="math">\([1, 0]\)</span> and <span class="math">\([0, 1]\)</span>.  Another way to write this is as:</p>
@@ -288,7 +285,7 @@ we're working in).</li>
 </ul>
 <p>Just to drive the first point home, Example 2 shows an example of a tuple
 that might look like it represents a tensor but does not.</p>
-<div class="admonition admonition-example-2-non-tensors">
+<div class="admonition-example-2-non-tensors admonition">
 <p class="first admonition-title">Example 2: Non-Tensors</p>
 <p class="last">We can represent the height, width and length of a box as an ordered list
 of numbers: <span class="math">\([10, 20, 15]\)</span>.  However, this is not a tensor because if
@@ -347,7 +344,7 @@ are in.  In contrast, a contravariant vector like a geometric vector, takes no
 input and produces an output, which is just itself (the geometric vector).
 This is a common theme we'll see in tensors: input, output, and independent of
 basis.  Let's take a look at an example of how covectors arise.</p>
-<div class="admonition admonition-example-3-a-differential-as-a-covariant-vector">
+<div class="admonition-example-3-a-differential-as-a-covariant-vector admonition">
 <p class="first admonition-title">Example 3: A differential as a Covariant Vector</p>
 <p>Let's define a function and its differential in <span class="math">\(\mathbb{R}^2\)</span> in the
 standard Euclidean basis:</p>
@@ -499,7 +496,7 @@ inverse transform (contravariant), nor just the forward transform (covariant),
 we're doing both, which hints that this is a (1,1)-tensor!  Indeed, this is
 our first example of a rank 2 tensor, which usually is represented as a matrix
 (e.g. 2 axes).</p>
-<div class="admonition admonition-example-4-a-linear-transformation-as-a-1-1-tensor">
+<div class="admonition-example-4-a-linear-transformation-as-a-1-1-tensor admonition">
 <p class="first admonition-title">Example 4: A Linear Transformation as a (1,1)-Tensor</p>
 <p>Let's start with a simple linear transformation in our standard
 Euclidean basis:</p>
@@ -701,7 +698,7 @@ cos(\theta) = \frac{g_{ij} u^i v^j}{||{\bf u}|| ||{\bf v}||} \\
 </div>
 <p>The next example shows that the distance and angle are truly invariant between
 a change in basis if we use our new metric tensor definition.</p>
-<div class="admonition admonition-example-5-computing-distance-and-angle-with-the-metric-tensor">
+<div class="admonition-example-5-computing-distance-and-angle-with-the-metric-tensor admonition">
 <p class="first admonition-title">Example 5: Computing Distance and Angle with the Metric Tensor</p>
 <p>Let's begin by defining two vectors in our standard Euclidean basis:</p>
 <div class="math">
@@ -830,7 +827,7 @@ components it has (not to be confused with the dimension of each "axis").</li>
 covariant components with rank <span class="math">\(n+m\)</span>.</li>
 </ul>
 <p>We've looked at four different types of tensors:</p>
-<table border="1" class="colwidths-given docutils">
+<table border="1" class="docutils">
 <colgroup>
 <col width="43%">
 <col width="14%">
@@ -1015,7 +1012,7 @@ on our matrix algebra anymore.</p>
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

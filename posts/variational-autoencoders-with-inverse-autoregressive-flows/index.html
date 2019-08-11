@@ -5,11 +5,7 @@
 <meta name="description" content="An introduction to normalizing flows and inverse autoregressive flows for variational inference.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Variational Autoencoders with Inverse Autoregressive Flows | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -87,14 +83,15 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Variational Autoencoders with Inverse Autoregressive Flows</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard"><span class="byline-name fn">
                     Brian Keng
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2017-12-19T08:47:38-05:00" itemprop="datePublished" title="2017-12-19 08:47">2017-12-19 08:47</time></a></p>
             
-        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
+        <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
 
-        </div>
+                <meta name="description" itemprop="description" content="An introduction to normalizing flows and inverse autoregressive flows for variational inference.">
+</div>
         
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
@@ -179,7 +176,7 @@ something more flexible that can match the true posterior.
 It's called a normalizing flow because the density "flows" through
 each transform.  See the box below about transforming probability
 density functions.</p>
-<div class="admonition admonition-transforming-probability-density-functions">
+<div class="admonition-transforming-probability-density-functions admonition">
 <p class="first admonition-title">Transforming Probability Density Functions</p>
 <p>Given a n-dimensional random variable <span class="math">\(\bf x\)</span> with joint
 density function <span class="math">\(f({\bf x})\)</span>, we can transform it into
@@ -496,47 +493,23 @@ layers respectively.  For the IAF portion, I used separate MADE layers (with 2
 hidden layers each) for the <span class="math">\(\bf m\)</span> and <span class="math">\(\bf s\)</span> variables with 10x
 hidden nodes relative to the latent dimensions.  As the paper suggested, I
 reversed the order of <span class="math">\(\bf z_t\)</span> after each IAF transform.</p>
-<table border="1" class="colwidths-given docutils align-center">
-<caption>Table 1: IAF Results</caption>
-<colgroup>
-<col width="33%">
-<col width="22%">
-<col width="22%">
-<col width="22%">
-</colgroup>
-<thead valign="bottom"><tr>
-<th class="head">Model</th>
-<th class="head">Training Loss</th>
-<th class="head">Validation Loss</th>
-<th class="head">P(x|z) Test Loss</th>
-</tr></thead>
-<tbody valign="top">
-<tr>
-<td>MNIST-VAE</td>
-<td>70.92</td>
-<td>72.33</td>
-<td>40.19</td>
-</tr>
-<tr>
-<td>MNIST-VAE+IAF</td>
-<td>66.44</td>
-<td>70.89</td>
-<td>39.99</td>
-</tr>
-<tr>
-<td>CIFAR10-VAE</td>
-<td>1815.29</td>
-<td>1820.17</td>
-<td>1781.58</td>
-</tr>
-<tr>
-<td>CIFAR10-VAE+IAF</td>
-<td>1815.07</td>
-<td>1823.05</td>
-<td>1786.24</td>
-</tr>
-</tbody>
-</table>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">&lt;string&gt;</tt>, line 471)</p>
+<p>Error in "csv-table" directive:
+unknown option: "align".</p>
+<pre class="literal-block">
+.. csv-table:: Table 1: IAF Results
+   :header: "Model", "Training Loss", "Validation Loss", "P(x|z) Test Loss"
+   :widths: 15, 10, 10, 10
+   :align: center
+
+   "MNIST-VAE", 70.92, 72.33, 40.19
+   "MNIST-VAE+IAF", 66.44, 70.89, 39.99
+   "CIFAR10-VAE", 1815.29, 1820.17, 1781.58
+   "CIFAR10-VAE+IAF", 1815.07, 1823.05, 1786.24
+
+</pre>
+</div>
 <p>Table 1 shows the results of the experiments on both datasets.  As you can see
 the IAF layers seems to do a bit of improvement on MNIST taking the validation
 loss down from <span class="math">\(72.3\)</span> to <span class="math">\(70.9\)</span>, while there's barely an
@@ -720,7 +693,7 @@ Happy Holidays!</p>
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>
