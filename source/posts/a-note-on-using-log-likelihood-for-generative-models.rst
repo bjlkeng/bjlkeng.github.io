@@ -46,7 +46,7 @@ some intuition, examples and some basic demonstrations.  Let's get started!
 
 .. TEASER_END
 
-|h2| A Digression into Fundamentals |h2e|
+|h2| Review of Some Fundamental Concepts |h2e|
 
 **TODO{rewrite this...}**
 The first thing I want to explain is something *very* fundamental (inspired
@@ -225,7 +225,7 @@ of (fitted) models by taking the logarithm:
     \tag{8}
 
 Where the last line of Equation 8 should look very familiar: it's the standard
-log likelihood that we maximize in many ML and statistical models. Thus,
+log-likelihood that we maximize in many ML and statistical models. Thus,
 we can directly compare how well a model represents some data using the loss
 from the log-likelihood as you would expect. (However, keep in mind it is
 *not* a probability.)
@@ -298,19 +298,175 @@ P using Q".  See this
 for more details.
 
 
-|h2| Image Data, Log-Likelihood and Generative Models |h2e|
+|h2| Generative Models, Log-Likelihoods and Image Data |h2e|
 
-Talk about how you don't have the issue directly if you
-model the discrete data (a la PixelCNN, Pixel CNN++).
+Evaluating generative models is a tricky subject mostly because there is no
+"one metric to rule them all".  Unlike classifiers or regression problems,
+there is no singular concept of "accuracy" or "error".  Generally, this is
+because we evaluate generative models in two broad ways (a) quality of the
+samples, and (b) average log-likelihoods.
+Both of these metrics do not necessarily track each other, in other words,
+we can have high log-likelihoods but low quality samples and vice versa
+(of course they can be high or low on both too).  A more thorough discussion
+of this topic is in [1].
 
-Explain Equation 3 from [1] in more detail
+However in this post, I just want to focus on the average log-likelihood method
+for now, in particular, interpretations of it in terms of probability for image
+data.  The (usual) reason why this is of more concern is that it's *easy* to
+measure.  For example, how can we measure the quality of a generated image?
+There's no obvious ways to do it ([1] discusses a few approximations to it).
+That's why focusing on likelihood methods is so attractive (and perhaps
+misguided?) because it's easier to interpret and compare different models.
 
-* Start by explaining the expected log-likelihood used in training
-* Then show that this is a lower bound on the actual NLL (bits/pixel)
+This section will go over two cases for image data in particular: models with
+discrete outputs and models with continuous outputs.
 
-|h2| Log-Likelihood and Image Quality |h2e|
+|h3| Discrete Models |h3e|
 
-Not the best measure, evidenced by PixelCNN vs. RealNVP
+Image data is naturally discrete. For a typical a 8-bit pixel (or subpixel),
+you have :math:`2^8 = 256` possible values representing its intensity.  This
+naturally lends itself well to a generative model outputting a discrete value.
+There are two primary ways (that I know of) to model these pixels.
+
+The first is pretty simple: just have a 256-way 
+`softmax <https://en.wikipedia.org/wiki/Softmax_function>`__ 
+for each pixel with a 
+`cross entropy <https://en.wikipedia.org/wiki/Cross_entropy>`__ 
+loss.  This is the most straightforward and direct way to model each pixel.
+This is the method used in the original PixelCNN paper [4].  The main issue
+with this is that the resulting network is *huge* because you have
+256 times the number of subpixels you have 
+(e.g. :math:`32 x 32 x 3 x 256 = 3072 * 256 = 786432`).
+This can't fit on any reasonably sized GPU.  The other issue is that
+qualitatively, pixel intensity :math:`x \in [0, 255]` should be close to
+:math:`x+1`, but if we model it as a softmax, they are more or less independent
+with respect to their loss function so your model doesn't capture this
+intuitive property.  In any case, using this method should *theoreticaly*
+generate a good model if you can practically fit it.
+
+The other method described in PixelCNN++ [5] uses a different tactic.  They use
+a two step process: first model the intensity as a continuous distribution then
+"round" to the nearest pixel by integrating the continuous distribution in the
+region around the pixel.  From my post on `PixelCNN <link://slug/pixelcnn>`__,
+the rounding step works like so (see the post for more details):
+
+.. math::
+
+    P(x|\mu,s) = 
+        \begin{cases}
+            \sigma(\frac{x-\mu+0.5}{s}) & \text{for } x = 0 \\
+            \sigma(\frac{x-\mu+0.5}{s}) - \sigma(\frac{x-\mu-0.5}{s}) 
+                & \text{for } 0 < x < 255 \\
+            1 - \sigma(\frac{x-\mu-0.5}{s}) & \text{for } x = 255
+        \end{cases}
+    \tag{12}
+
+Here :math:`\sigma` is the CDF of our continuous pixel intensity distribution
+parameterized by :math:`\mu, s`.  To find the probability of a given pixel
+:math:`P(x|\mu,s)`, we simply integrate the distribution across a pixel width 
+(i.e. take the difference of the CDFs).
+
+This is actually a really elegant solution because we have the nice property
+adjacent pixels being similar to each other (assuming a smooth distribution)
+and we have a clear way to generate a probability.  It also is much more
+parameter efficient (2 parameters vs. 256) but practically you'll need
+a more complex distribution.  In the paper, they use a mixture of five logistic
+distributions, so it's 10 parameters vs. 256, still a win.
+
+Finally, training the model is as simply as minimizing the negative log-likelihood
+of Equation 12 (for :math:`N` iid images):
+
+.. math::
+
+    \mathcal{L}({\bf \mu, s}) 
+        &= -\log P({\bf x_1, \ldots, x_N}) \\
+        &= -\log[P({\bf x_1}),\ldots, P({x_N})] \\
+        &= -\sum_{i=1}^N \log P({\bf x_i}|{\bf \mu, s}) \\
+        \tag{13}
+
+If we want the average log-likelihood, we can divide Equation 13 by :math:`N`
+to get:
+
+.. math::
+
+    \frac{1}{N}\mathcal{L}({\bf \mu, s}) 
+        &=  -\sum_{i=1}^N \frac{1}{N} \log P({\bf x_i}|{\bf \mu, s}) \\
+        &=  -\sum_{i=1}^N p_{true}({\bf x_i}) \log P({\bf x_i}|{\bf \mu, s}) \\
+        \tag{14}
+
+where :math:`p_{true} = \frac{1}{N}` because we assume the sample dataset we
+is uniformly sampled from the "true distribution" of images.
+As you can see this directly gives us the cross-entropy from Equation 10.  This
+means that we can directly interpret our average log-likelihood loss in terms
+of cross entropy, which gives us the "average number of bits (using base 2
+logarithm) needed to code a sample from :math:`p_{true}` using our model
+:math:`P`".  Dividing this by the number of pixels, gives us the "bits per
+pixel" metric that we see often in papers (e.g. [4], [5]).
+
+|h2| Continuous Models |h2e|
+
+What do you do when your image data is discrete but your model outputs
+a continuous distribution (e.g. normal, logistic etc.)?  When mixing discrete
+image data with continuous distributions you get zero probability events
+like we discussed above, which naturally leads to infinite differential entropy
+(Equation 11).  One alternative is the "rounding" method above. Another
+"trick" described in [1] (and previously in a few other papers), is to 
+add *uniform* noise to de-quantize the data.  Let's see how this works.
+
+Suppose we have image data :math:`{\bf x} \in {0,\ldots,255}^D` with
+a discrete probability distribution :math:`P(X)`, uniform noise 
+:math:`{\bf u} \in [0,1]^D`, and define noisy data 
+:math:`{\bf y} = {\bf x} + {\bf u}`.  Let :math:`p` refer to the noisy data
+density and :math:`q` refer to the continuous density output by our model.
+Let's take a look at the negative cross entropy of these two distributions:
+
+.. math::
+
+    -H(p,q) &= \int p({\bf y})\log q({\bf y})d{\bf y} \\
+           &= \int_{\bf y} \int{\bf v} p({\bf y})\log q({\bf y})d{\bf y}d{{\bf v}}
+           && \text{add dummy variable } v \\
+           &= \int_{\bf x} \int_{\bf u} p({\bf x} + {\bf u})\log q({\bf x} + {\bf u})d{{\bf u}}d{\bf x}
+           && \text{change of variable: } y=x+u, v=u \\
+           &= \sum_{\bf x} \int_{\bf u\in [0,1]^D} p({\bf x} + {\bf u})\log q({\bf x} + {\bf u})d{{\bf u}} \\
+           &= \sum_{\bf x} P({\bf x}) \int_{\bf u\in [0,1]^D} \log q({\bf x} + {\bf u})d{{\bf u}} 
+           && p({\bf x} + {\bf u}) := P({\bf x}) \\
+           &\leq \sum_{\bf x} P({\bf x}) \log \big[\int_{\bf u\in [0,1]^D} q({\bf x} + {\bf u}) d{{\bf u}\big]} 
+           && \text{by Jensen's inequality} \\
+           &= \sum_{\bf x} P({\bf x}) \log Q({\bf x}) \\
+           &= -H(P,Q) \\
+           \tag{15}
+
+where we define 
+:math:`Q({\bf x}) = \int_{\bf u\in [0,1]^D} q({\bf x} + {\bf u}) d{\bf u}`.
+A couple of points on the derivation: 
+
+* When doing the `change of variable
+  <http://tutorial.math.lamar.edu/Classes/CalcIII/ChangeOfVariables.aspx>`__ we
+  implicitly are using the determinant of the Jacobian but in this case t's
+  just 1.
+* The integral of :math:`\int_x dx = \sum_x` since :math:`x` is discrete.
+* We defined the noisy data density :math:`p({\bf x} + {\bf u})` as
+  :math:`P({\bf x})` since that's the most logical way to define the density
+  (the density should sum to 1 as expected).
+
+When training a generative model, we'll usually try to minimize 
+:math:`H(p,q) \geq H(P,Q)`, which sets an upper bound on the cross entropy
+of our original discrete data distribution :math:`P({\bf x})` and our
+"discretized" continuous density distribution :math:`Q({\bf x})`. In a similar
+way to the discrete models above, we can then also be interpret the loss as
+the average number of bits to encode the image (or "bits per pixel" if dividing
+through by the total number of pixels).
+
+On a final note, as before, we would typically assume iid data for our samples
+:math:`{\bf x}`, which leads us to:
+
+.. math::
+
+    H(p,q) &= \int p({\bf y})\log q({\bf y})d{\bf y} \\
+           &= \frac{1}{n} \int \log q({\bf y})d{\bf y} \\
+           &\approx \text{FIX ME} \frac{1}{n} \sum_{\bf x} \log q({\bf x} + {\bf u}) \\
+
+
 
 |h2| Conclusion |h2e|
 
@@ -321,4 +477,6 @@ Not the best measure, evidenced by PixelCNN vs. RealNVP
 * Stack Exchange Questions:
     * [2] `Probability that a Continuous Event is Generated from a Distribution <https://math.stackexchange.com/questions/2818318/probability-that-a-sample-is-generated-from-a-distribution>`__
     * [3] `Zero Probability Event <https://math.stackexchange.com/questions/920241/can-an-observed-event-in-fact-be-of-zero-probability>`__
+* [4] "Pixel Recurrent Neural Networks," Aaron van den Oord, Nal Kalchbrenner, Koray Kavukcuoglu, `<https://arxiv.org/abs/1601.06759>`__.
+* [5] "PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications," Tim Salimans, Andrej Karpathy, Xi Chen, Diederik P. Kingma, `<http://arxiv.org/abs/1701.05517>`__.
 * Previous posts: `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__, `Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders <link://slug/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders>`__, `PixelCNN <link://slug/pixelcnn>`__
