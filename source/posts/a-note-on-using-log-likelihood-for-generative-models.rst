@@ -302,11 +302,11 @@ Note: We should be careful distinguishing between information entropy defined in
 Equation 9 on discrete variables and the continuous version called 
 `differential entropy <https://en.wikipedia.org/wiki/Differential_entropy>`__.
 Differential entropy has a similar form but doesn't have the same nice
-intuitive meaning of encoding into bits.  It also doesn't have nice properites,
+intuitive meaning of encoding into bits.  It also doesn't have nice properties,
 for example, differential entropy can be negative.  A more interpretable
 quantity is the KL divergence, which is the "number of extra bits to encode
 P using Q".  See this
-`Stackoverflow question <https://stats.stackexchange.com/questions/256203/how-to-interpret-differential-entropy>`__ 
+`Stack Exchange question <https://stats.stackexchange.com/questions/256203/how-to-interpret-differential-entropy>`__ 
 for more details.
 
 
@@ -353,7 +353,7 @@ This can't fit on any reasonably sized GPU.  The other issue is that
 qualitatively, pixel intensity :math:`x \in [0, 255]` should be close to
 :math:`x+1`, but if we model it as a softmax, they are more or less independent
 with respect to their loss function so your model doesn't capture this
-intuitive property.  In any case, using this method should *theoreticaly*
+intuitive property.  In any case, using this method should *theoretically*
 generate a good model if you can practically fit it.
 
 The other method described in PixelCNN++ [5] uses a different tactic.  They use
