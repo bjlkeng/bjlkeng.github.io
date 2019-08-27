@@ -1,0 +1,515 @@
+.. title: A Note on Using Log-Likelihood for Generative Models
+.. slug: a-note-on-using-log-likelihood-for-generative-models
+.. date: 2019-08-27 07:50:09 UTC-04:00
+.. tags: log-likelihood, generative models, mathjax
+.. category: 
+.. link: 
+.. description: A short exploration on the theory behind using log-likelihood to train and measure generative models using image-like data.
+.. type: text
+
+.. |br| raw:: html
+
+   <br />
+
+.. |H2| raw:: html
+
+   <br/><h3>
+
+.. |H2e| raw:: html
+
+   </h3>
+
+.. |H3| raw:: html
+
+   <h4>
+
+.. |H3e| raw:: html
+
+   </h4>
+
+.. |center| raw:: html
+
+   <center>
+
+.. |centere| raw:: html
+
+   </center>
+
+One of the things that I find is usually missing from many ML papers is how
+they relate to the fundamentals.  There's always a throwaway line where it 
+assumes something that is not at all obvious (see my post on 
+`Importance Sampling <link://slug/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders>`__).  I'm the kind of person who likes to 
+understand things to a satisfactory degree (it's literally in the subtitle of
+the blog) so I couldn't help myself investigating a minor idea I read about in
+a paper.
+
+This post investigates how to use continuous density outputs (e.g. a logistic
+or normal distribution) to model discrete image data (e.g. 8-bit RGB values).
+It seems like it might be something obvious such as setting the loss as the
+average log-likelihood of the continuous density and that's *almost* the
+whole story.  But leaving it at that skips over so many (interesting) and
+non-obvious things that you would never know if you didn't bother to look.  I'm
+a curious fellow so come with me and let's take a look!
+
+.. TEASER_END
+
+|h2| Review of Some Fundamental Concepts |h2e|
+
+Before we get into the meat of the topic, I want to spend some time on some
+basic questions regarding mixing continuous and discrete data (inspired
+from [2,3]): 
+
+    *How you find the probability of seeing observations drawn from a
+    continuous distributions? e.g. What's the probability of drawing*
+    :math:`x=0` *from a standard normal distribution?*
+
+Seems like a simple problem, right?  Well, there are lots of paradoxes lurking
+here, so let's clarify them before moving on.  
+
+|h3| Zero Probability Events |h3e|
+
+For example, assume you have sampled some data from an 
+`IID <https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables>`__
+continuous distribution, what is the probability of that happening?
+Let's reason it out.
+
+To make things concrete, assume we have a :math:`U`
+`continuous uniform distribution <https://en.wikipedia.org/wiki/Uniform_distribution_(continuous>`__ 
+with support :math:`[0,1]`. Let's draw a sample :math:`x` from :math:`U`, what
+is the probability that we drew :math:`x`?  Well we know a few things about
+this distribution, in particular, it's probability density function and how to
+compute probability from it:
+
+.. math::
+
+    f_U(y) &= \frac{1}{b-a} = \left\{
+        \begin{array}{ll}
+            1 && \text{for support } [a,b] \\
+            0 && \text{otherwise}
+        \end{array}
+    \right. \tag{1} \\
+    P(u \leq y \leq v) &= \int_u^v f_U(y) dy = y \big|_u^v = v - u && \text{for } u, v \in [0,1] \tag{2}
+
+Very fundamental indeed!  So we know how to compute probability (Equation 2)
+over a distribution if we have a continuous interval, but that doesn't
+quite get us to a single data point.
+Let's take the limit of Equation 2 to see how the interval behaves as it
+approaches a single data point:
+
+.. math::
+
+    P(x|U) &= \lim_{\epsilon \to 0}{P(x - \epsilon \leq y \leq x + \epsilon)} \\
+    &= \lim_{\epsilon \to 0} \int_{x-\epsilon}^{x+\epsilon} f_U(y) dy \\
+    &= \lim_{\epsilon \to 0} y \big|_{x-\epsilon}^{x+\epsilon} \\
+    &= \lim_{\epsilon \to 0} { (x + \epsilon) - (x - \epsilon) } \\
+    &= 0 \\
+    \tag{3}
+
+So the probability of :math:`x` occurring is :math:`0`?!
+
+Yes!  Which is a bit
+of a paradox since we did indeed draw it from a distribution, so it definitely
+"happened".  This is also not particular to the uniform distribution, if you do
+the same with any (reasonable) distribution, you'll find the same thing.  How
+can this be possible?
+
+Another way to think about this: what if the probability of observing :math:`x`
+wasn't :math:`0` but rather some positive number :math:`\epsilon`?  That means
+every number in the range :math:`[0, 1]` would have some positive probability
+of being observed.  However, all those numbers/events are mutually exclusive,
+so the sum of them should add up to :math:`1` but this isn't possible because
+you have infinitely many of them, so each one must be infinitely small.
+Infinities are weird.
+
+|h3| Hypothesis Testing with Continuous Data and Log-Likelihoods |h3e|
+
+So how can resolve this paradox? As usual, we're asking the wrong question!
+When we have observed an event, what we're really asking is "*what is the
+probability that this event is generated by this hypothesis?*".  In other
+words, we're really doing hypothesis testing! (Here, we're talking about
+`statistical hypotheses <https://en.wikipedia.org/wiki/Statistical_hypothesis_testing>`__, 
+which is an assumption about a distribution with a particular set of parameters.)
+
+So let's try this again but a bit more generically.  Let's say we have observed
+a real-valued datum :math:`x` (this can easily be extended to multiple points
+given IID data), and we have :math:`N` hypothesis, :math:`M_1, M_2, \ldots,
+M_N`, each representing a fixed parameter distribution with PDFs :math:`f_i`
+and CDFs :math:`F_i`.
+
+(Note: we'll use the notation ":math:`M`" here because it also implies that
+our hypotheses are trained models.  That is, a set of assumptions about the
+data with a particular set of trained parameters.  You can start to see
+how this is going to lead us to generative models...)
+
+Let's formulate our question: "*what is the probability of hypothesis* :math:`M_1`
+*given datum* :math:`x`" (using Bayes rule):
+
+.. math::
+
+    P(M_1 | x) &= \frac{P(x | M_1)P(M_1)}{P(x)} \\
+               &= \frac{P(x | M_1)P(M_1)}{\sum_{i=1}^N P(x | M_i)P(M_i)} \\
+               \tag{4}
+
+Here we're using the standard expansion of the denominator for :math:`P(x)`.
+As with Bayesian analysis, we need some prior for how likely each model occurs.
+Let's just assume we have no intuition about which model is better, so they're
+equally likely.  Since we're also dealing with continuous values, we'll use the
+":math:`\epsilon` trick" we used above:
+
+.. math::
+
+    P(M_1 | x) 
+    &= \frac{P(x | M_1)P(M_1)}{\sum_{i=1}^N P(x | M_i)P(M_i)} \\
+    &= \lim_{\epsilon \to 0} 
+        \frac{[\int_{x-\epsilon}^{x+\epsilon} f_1(x) dx][\frac{1}{N}]}{
+            \sum_{i=1}^N [\int_{x-\epsilon}^{x+\epsilon} f_i(x) dx][\frac{1}{N}]} \\
+    &= \lim_{\epsilon \to 0} 
+        \frac{F_1(x+\epsilon) - F_1(x-\epsilon)}{\sum_{i=1}^N \big(F_i(x+\epsilon) - F_i(x-\epsilon)\big)} \\
+    &= \frac{\lim_{\epsilon \to 0} \frac{F_1(x+\epsilon) - F_1(x-\epsilon)}{\epsilon}}{
+        \sum_{i=1}^N 
+        \lim_{\epsilon \to 0} 
+        \big(\frac{F_i(x+\epsilon) - F_i(x-\epsilon)}{\epsilon}\big)} 
+        && \text{divide top and bottom by } \epsilon \text{ and distribute limit}
+        \\
+    &= \frac{f_1(x)}{\sum_{i=1}^N f_i(x)} && \text{definition of derivative} \\
+    \tag{5}
+
+You might have to brush off your calculus a bit with the comments above, but I
+think you should be able to follow along.  The last step is not the typical
+definition of a derivative but it's should be equivalent. (Note: this derivative
+probably only works for smooth functions.)
+
+The interesting thing here is that we've totally resolved the problem of dealing
+with continuous data!  We're dealing only with PDFs now and removed the zero
+probability case when looking at :math:`P(x|M_i)` in isolation.
+
+.. admonition:: Example 1: Probability an Observation is from a Given Two 
+    Gaussian Hypotheses
+
+    Suppose we have a datum :math:`x=0` that we know is drawn from
+    one of two Gaussian distributions:
+    
+    * :math:`M_1: \mathcal{N}(\mu=0, \sigma^2=1)`
+    * :math:`M_2: \mathcal{N}(\mu=1, \sigma^2=1)`
+
+    What is the probability of :math:`x` being drawn from each distribution
+    (assuming our priors are equally likely)?
+    Equivalently, what is :math:`P(M_1 | x)` and :math:`P(M_2 | x)`
+    with :math:`P(M_1)= P(M_2)=0.5`?
+
+    Using Equation 5 it is simply just the PDFs of the two normalized by
+    our priors:
+
+    .. math::
+    
+        P(M_1|x) &= \frac{f_{M_1}P(M_1)}{f_{M_1}P(M_1)+ f_{M_2}P(M_2)} \\
+                 &= \frac{-e^{x^2/2}(0.5)}{e^{-x^2/2}(0.5) + e^{-(x-1)^2/2}(0.5)}
+                 &\approx 0.6225 \\
+        P(M_2|x) &= \frac{f_{M_2}P(M_2)}{f_{M_1}P(M_1)+ f_{M_2}P(M_2)} \\
+                 &= \frac{-e^{(x-1)^2/2}(0.5)}{e^{-x^2/2}(0.5) + e^{-(x-1)^2/2}(0.5)}
+                 &\approx 0.3775 \tag{6}
+
+    Therefore, :math:`x` is more likely to be drawn from distribution :math:`M_1`.
+
+
+Before we finish off this section, we should notice one thing.  Given a fixed
+set of hypotheses (or models) the denominator in Equation 5 doesn't change.
+That is, :math:`P(X)` is constant.  Therefore, assuming all models are equally
+likely, we can do a relative comparison of models just by their PDFs.
+From Equation 5:
+
+.. math::
+
+    P(M_i | x) = \frac{f_i(x)}{\sum_{i=1}^N f_i(x)} \propto f_i(x)
+    \tag{7}
+
+Further, given a IID data for :math:`x`, we can do a relative comparison
+of (fitted) models by taking the logarithm:
+
+.. math::
+
+    P(M_i | x_1 \ldots x_n) &= \frac{f_i(x_1)\ldots f_i(x_n)}{\sum_{i=1}^N f_i(x_1)\ldots f_i(x_n)} \\
+    \log{P(M_i | x_1 \ldots x_n)} &= \log\big[\frac{f_i(x_1)\ldots f_i(x_n)}{\sum_{i=1}^N f_i(x_1)\ldots f_i(x_n)}\big] \\
+    &= \log{f_i(x_1)} + \ldots + \log{f_i(x_n)} - \log{[\sum_{i=1}^N f_i(x_1)\ldots f_i(x_n)]} \\
+    &\propto \log{f_i(x_1)} + \ldots + \log{f_i(x_n)} \\
+    &= \sum_{j=1}^n \log{f_i(x_j)} \\
+    \tag{8}
+
+Where the last line of Equation 8 should look very familiar: it's the standard
+log-likelihood that we maximize in many ML and statistical models. Thus,
+we can directly compare how well a model represents some data using the loss
+from the log-likelihood as you would expect. (However, keep in mind it is
+*not* a probability.)
+
+|h3| Cross Entropy and Expected Message Length |h3e|
+
+I won't go too deep into the concept of `(information) entropy <https://en.wikipedia.org/wiki/Entropy>`__,
+you can find a more detailed explanation in my previous post on
+`Maximum Entropy Distributions <link://slug/maximum-entropy-distributions/>`__.
+Information Entropy is defined as follows over a discrete probability
+distribution :math:`P`:
+
+.. math::
+
+    H(p) = -\sum_{x \in \mathcal{X}} P(x) \log P(x) \tag{9}
+
+
+One of the interesting properties for discrete random variables is that the
+entropy provides a lower bound for how much (on average) those symbols can be
+compressed 
+(via the `Shannon Coding Theorem <https://en.wikipedia.org/wiki/Shannon's_source_coding_theorem>`__).
+This is squarely in the domain of information theory and communication
+systems.  
+
+For example, a *very* simplified application might be you might be sending a
+string of bytes to your friend over a Wifi channel, how should you encode each
+byte (i.e. symbol) into bits so that it minimizes the length of the message?
+Intuitively, you would want the most frequent byte values (symbols) to have
+the shortest length, the next most frequent byte to have a slightly longer
+length, etc. `Huffman Coding <https://en.wikipedia.org/wiki/Huffman_coding>`__
+is an example of such a scheme that enables lossless compression that is
+optimal.  Optimality (that is, symbol-to-symbol optimality) is precisely the
+entropy lower bound.
+
+A related concept is that of 
+`cross entropy <https://en.wikipedia.org/wiki/Cross_entropy>`__:
+given two probability discrete distributions :math:`P` and :math:`Q` defined
+over the same set, we have:
+
+.. math::
+
+    H(p,q) &= -\sum_{x \in \mathcal{X}} P(x) \log Q(x) \\
+    &= H(P) + D_{KL}(P||Q) \\ 
+    \tag{10}
+
+This looks almost identical to the definition of entropy in Equation 9 except
+we replace :math:`P` with :math:`Q` inside the logarithm. As you would
+expect, this also has an equivalent interpretation: cross entropy gives 
+the average number of bits (using base 2 logarithm) needed to code a symbol
+drawn from :math:`P` using the optimal code for :math:`Q`. 
+The second line of Equation 10 also shows us another interpretation of cross
+entropy: :math:`H(P,Q)` is equal to entropy of :math:`P` plus the KL divergence
+between :math:`Q` from :math:`P`.
+
+Cross entropy can also be defined for the continuous case too
+for continuous densities :math:`p` and :math:`q`:
+
+.. math::
+
+    H(p, q) = -\int_{\mathcal{X}} P(x)\log Q(x) dx \tag{11}
+
+Note: We should be careful distinguishing between information entropy defined in
+Equation 9 on discrete variables and the continuous version called 
+`differential entropy <https://en.wikipedia.org/wiki/Differential_entropy>`__.
+Differential entropy has a similar form but doesn't have the same nice
+intuitive meaning of encoding into bits.  It also doesn't have nice properties,
+for example, differential entropy can be negative.  A more interpretable
+quantity is the KL divergence, which is the "number of extra bits to encode
+P using Q".  See this
+`Stack Exchange question <https://stats.stackexchange.com/questions/256203/how-to-interpret-differential-entropy>`__ 
+for more details.
+
+
+|h2| Generative Models, Log-Likelihoods and Image Data |h2e|
+
+Evaluating generative models is a tricky subject mostly because there is no
+"one metric to rule them all".  Unlike classifiers or regression problems,
+there is no singular concept of "accuracy" or "error".  Generally, this is
+because we evaluate generative models in two broad ways (a) quality of the
+samples, and (b) average log-likelihoods.
+Both of these metrics do not necessarily track each other, in other words,
+we can have high log-likelihoods but low quality samples and vice versa
+(of course they can be high or low on both too).  A more thorough discussion
+of this topic is in [1].
+
+However in this post, I just want to focus on the average log-likelihood method
+for now, in particular, interpretations of it in terms of probability for image
+data.  The (usual) reason why this is of more concern is that it's *easy* to
+measure.  For example, how can we measure the quality of a generated image?
+There's no obvious ways to do it ([1] discusses a few approximations to it).
+That's why focusing on likelihood methods is so attractive (and perhaps
+misguided?) because it's easier to interpret and compare different models.
+
+This section will go over two cases for image data in particular: models with
+discrete outputs and models with continuous outputs.
+
+|h3| Discrete Models |h3e|
+
+Image data is naturally discrete. For a typical a 8-bit pixel (or subpixel),
+you have :math:`2^8 = 256` possible values representing its intensity.  This
+naturally lends itself well to a generative model outputting a discrete value.
+There are two primary ways (that I know of) to model these pixels.
+
+The first is pretty simple: just have a 256-way 
+`softmax <https://en.wikipedia.org/wiki/Softmax_function>`__ 
+for each pixel with a 
+`cross entropy <https://en.wikipedia.org/wiki/Cross_entropy>`__ 
+loss.  This is the most straightforward and direct way to model each pixel.
+This is the method used in the original PixelCNN paper [4].  The main issue
+with this is that the resulting network is *huge* because you have
+256 times the number of subpixels you have 
+(e.g. :math:`32 x 32 x 3 x 256 = 3072 * 256 = 786432`).
+This can't fit on any reasonably sized GPU.  The other issue is that
+qualitatively, pixel intensity :math:`x \in [0, 255]` should be close to
+:math:`x+1`, but if we model it as a softmax, they are more or less independent
+with respect to their loss function so your model doesn't capture this
+intuitive property.  In any case, using this method should *theoretically*
+generate a good model if you can practically fit it.
+
+The other method described in PixelCNN++ [5] uses a different tactic.  They use
+a two step process: first model the intensity as a continuous distribution then
+"round" to the nearest pixel by integrating the continuous distribution in the
+region around the pixel.  From my post on `PixelCNN <link://slug/pixelcnn>`__,
+the rounding step works like so (see the post for more details):
+
+.. math::
+
+    P(x|\mu,s) = 
+        \begin{cases}
+            \sigma(\frac{x-\mu+0.5}{s}) & \text{for } x = 0 \\
+            \sigma(\frac{x-\mu+0.5}{s}) - \sigma(\frac{x-\mu-0.5}{s}) 
+                & \text{for } 0 < x < 255 \\
+            1 - \sigma(\frac{x-\mu-0.5}{s}) & \text{for } x = 255
+        \end{cases}
+    \tag{12}
+
+Here :math:`\sigma` is the CDF of our continuous pixel intensity distribution
+parameterized by :math:`\mu, s`.  To find the probability of a given pixel
+:math:`P(x|\mu,s)`, we simply integrate the distribution across a pixel width 
+(i.e. take the difference of the CDFs).
+
+This is actually a really elegant solution because we have the nice property
+adjacent pixels being similar to each other (assuming a smooth distribution)
+and we have a clear way to generate a probability.  It also is much more
+parameter efficient (2 parameters vs. 256) but practically you'll need
+a more complex distribution.  In the paper, they use a mixture of five logistic
+distributions, so it's 10 parameters vs. 256, still a win.
+
+Finally, training the model is as simply as minimizing the negative log-likelihood
+of Equation 12 (for :math:`N` IID images):
+
+.. math::
+
+    \mathcal{L}({\bf \mu, s}) 
+        &= -\log P({\bf x_1, \ldots, x_N}) \\
+        &= -\log[P({\bf x_1}),\ldots, P({x_N})] \\
+        &= -\sum_{i=1}^N \log P({\bf x_i}|{\bf \mu, s}) \\
+        \tag{13}
+
+If we want the average log-likelihood, we can divide Equation 13 by :math:`N`
+to get:
+
+.. math::
+
+    \frac{1}{N}\mathcal{L}({\bf \mu, s}) 
+        &=  -\sum_{i=1}^N \frac{1}{N} \log P({\bf x_i}|{\bf \mu, s}) \\
+        &=  -\sum_{i=1}^N p_{true}({\bf x_i}) \log P({\bf x_i}|{\bf \mu, s}) \\
+        \tag{14}
+
+where :math:`p_{true} = \frac{1}{N}` because we assume the sample dataset we
+is uniformly sampled from the "true distribution" of images.
+As you can see this directly gives us the cross-entropy from Equation 10.  This
+means that we can directly interpret our average log-likelihood loss in terms
+of cross entropy, which gives us the "average number of bits (using base 2
+logarithm) needed to code a sample from :math:`p_{true}` using our model
+:math:`P`".  Dividing this by the number of pixels, gives us the "bits per
+pixel" metric that we see often in papers (e.g. [4], [5]).
+
+|h2| Continuous Models |h2e|
+
+What do you do when your image data is discrete but your model outputs
+a continuous distribution (e.g. normal, logistic etc.)?  When mixing discrete
+image data with continuous distributions you get zero probability events
+like we discussed above, which could lead to a infinite differential entropy
+during training [1]_.  One alternative is the "rounding" method above. Another
+"trick" described in [1] (and previously in a few other papers), is to 
+add *uniform* noise to de-quantize the data.  Let's see how this works.
+
+Suppose we have image data :math:`{\bf x} \in \{0,\ldots,255\}^D` with
+a discrete probability distribution :math:`P(X)`, uniform noise 
+:math:`{\bf u} \in [0,1]^D`, and define noisy data 
+:math:`{\bf y} = {\bf x} + {\bf u}`.  Let :math:`p` refer to the noisy data
+density and :math:`q` refer to the continuous density output by our model.
+Let's take a look at the negative cross entropy of these two distributions:
+
+.. math::
+
+    -H(p,q) &= \int p({\bf y})\log q({\bf y})d{\bf y} \\
+           &= \int_{\bf y} \int_{\bf v} p({\bf y})\log q({\bf y})d{\bf v}d{\bf y}
+           && \text{add dummy variable } v \\
+           &= \int_{\bf x} \int_{\bf u} p({\bf x} + {\bf u})\log q({\bf x} + {\bf u})d{{\bf u}}d{\bf x}
+           && \text{change of variable: } y=x+u, v=u \\
+           &= \sum_{\bf x} \int_{\bf u\in [0,1]^D} p({\bf x} + {\bf u})\log q({\bf x} + {\bf u})d{{\bf u}} \\
+           &= \sum_{\bf x} P({\bf x}) \int_{\bf u\in [0,1]^D} \log q({\bf x} + {\bf u})d{{\bf u}} 
+           && p({\bf x} + {\bf u}) := P({\bf x}) \\
+           &\leq \sum_{\bf x} P({\bf x}) \log \big[\int_{\bf u\in [0,1]^D} q({\bf x} + {\bf u}) d{{\bf u}\big]} 
+           && \text{by Jensen's inequality} \\
+           &= \sum_{\bf x} P({\bf x}) \log Q({\bf x}) \\
+           &= -H(P,Q) \\
+           \tag{15}
+
+where we define 
+:math:`Q({\bf x}) = \int_{\bf u\in [0,1]^D} q({\bf x} + {\bf u}) d{\bf u}`.
+A couple of points on the derivation: 
+
+* When doing the `change of variable
+  <http://tutorial.math.lamar.edu/Classes/CalcIII/ChangeOfVariables.aspx>`__ we
+  implicitly are using the determinant of the Jacobian but in this case it's
+  just 1.
+* The integral of :math:`\int_x dx = \sum_x` since :math:`x` is discrete.
+* We defined the noisy data density :math:`p({\bf x} + {\bf u})` as
+  :math:`P({\bf x})` since that's the most logical way to define the density
+  (the density should sum to 1 as expected).
+
+When training a generative model, we'll usually try to minimize 
+:math:`H(p,q) \geq H(P,Q)`, which sets an upper bound on the cross entropy
+of our original discrete data distribution :math:`P({\bf x})` and our
+"discretized" continuous density distribution :math:`Q({\bf x})`. In a similar
+way to the discrete models above, we can then also be interpret the loss as
+the average number of bits to encode the image (or "bits per pixel" if dividing
+through by the total number of pixels).
+
+On a final note, as before, we would typically assume IID data for our
+:math:`N` training data points :math:`{\bf x}` and that we would draw :math:`M`
+uniform noise samples for each data point, which leads us to:
+
+.. math::
+
+    H(p,q) &= \int p({\bf y})\log q({\bf y})d{\bf y} \\
+           &= \sum_{i=1}^N P({\bf x_i}) \int_{\bf u\in [0,1]^D} \log q({\bf x_i} + {\bf u})d{{\bf u}} \\
+           &= \sum_{i=1}^N \frac{1}{N} \int_{\bf u\in [0,1]^D} \log q({\bf x_i} + {\bf u})d{{\bf u}} \\
+           &\approx \sum_{i=1}^N \frac{1}{N} \big[\frac{1}{M}\sum_{j=1}^M \log q({\bf x_i} + {\bf u_j})\big] \\
+           &= \frac{1}{NM} \sum_{i=1}^N \sum_{j=1}^M \log q({\bf x_i} + {\bf u_j}) \\
+           \tag{16}
+
+So after all, our loss function is still just the average log-likelihood with
+the addition that we're averaging over :math:`M` uniform noise samples per data
+point.  Usually we just draw a single uniform noise sample per data point, per
+epoch, which, given enough iterations, will also converge to the same value.
+Note the caveat is that this "trick" is just estimating the upper bound
+of "bits per pixel" because of our use of a continuous density output of our
+model.
+
+
+|h2| Conclusion |h2e|
+
+A bit of a digression but, as usual, I came across it while investigating a
+topic but realized I didn't fully understand a supporting idea.  I really like
+some of these side posts because they explain in fundamental terms (i.e.
+probability), ideas that are taken for granted in many papers.  What's nice is
+that these explanations can help all those unwitting souls (like myself) who
+want a deeper understanding of the throwaway lines you commonly see in ML papers.
+Hope you liked it!
+
+|h2| Further Reading |h2e|
+
+* [1] "A note on the evaluation of generative models", Lucas Theis, Aäron van den Oord, Matthias Bethge, `<http://arxiv.org/abs/1511.01844>`__
+* Stack Exchange Questions:
+    * [2] `Probability that a Continuous Event is Generated from a Distribution <https://math.stackexchange.com/questions/2818318/probability-that-a-sample-is-generated-from-a-distribution>`__
+    * [3] `Zero Probability Event <https://math.stackexchange.com/questions/920241/can-an-observed-event-in-fact-be-of-zero-probability>`__
+* [4] "Pixel Recurrent Neural Networks," Aaron van den Oord, Nal Kalchbrenner, Koray Kavukcuoglu, `<https://arxiv.org/abs/1601.06759>`__.
+* [5] "PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications," Tim Salimans, Andrej Karpathy, Xi Chen, Diederik P. Kingma, `<http://arxiv.org/abs/1701.05517>`__.
+* Previous posts: `Autoregressive Autoencoders <link://slug/autoregressive-autoencoders>`__, `Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders <link://slug/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders>`__, `PixelCNN <link://slug/pixelcnn>`__
+
+
+.. [1] Imagine you have a single data point :math:`x=0` and you are trying to learn a normal distribution.  What's the best fit normal distribution?  Well definitely you want the mean to be 0 but what about the variance?  Of course, you want it to be infinitesimally small which maximizes the density, but this means in the limit the density tends to infinity causing the degenerate scenario described above.

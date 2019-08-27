@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about log-likelihood)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/log-likelihood.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 27 Aug 2019 13:44:41 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>A Note on Using Log-Likelihood for Generative Models</title><link>http://bjlkeng.github.io/posts/a-note-on-using-log-likelihood-for-generative-models/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;One of the things that I find is usually missing from many ML papers is how
+they relate to the fundamentals.  There's always a throwaway line where it
+assumes something that is not at all obvious (see my post on
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders"&gt;Importance Sampling&lt;/a&gt;).  I'm the kind of person who likes to
+understand things to a satisfactory degree (it's literally in the subtitle of
+the blog) so I couldn't help myself investigating a minor idea I read about in
+a paper.&lt;/p&gt;
+&lt;p&gt;This post investigates how to use continuous density outputs (e.g. a logistic
+or normal distribution) to model discrete image data (e.g. 8-bit RGB values).
+It seems like it might be something obvious such as setting the loss as the
+average log-likelihood of the continuous density and that's &lt;em&gt;almost&lt;/em&gt; the
+whole story.  But leaving it at that skips over so many (interesting) and
+non-obvious things that you would never know if you didn't bother to look.  I'm
+a curious fellow so come with me and let's take a look!&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/a-note-on-using-log-likelihood-for-generative-models/"&gt;Read more…&lt;/a&gt; (15 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>generative models</category><category>log-likelihood</category><category>mathjax</category><guid>http://bjlkeng.github.io/posts/a-note-on-using-log-likelihood-for-generative-models/</guid><pubDate>Tue, 27 Aug 2019 11:50:09 GMT</pubDate></item></channel></rss>

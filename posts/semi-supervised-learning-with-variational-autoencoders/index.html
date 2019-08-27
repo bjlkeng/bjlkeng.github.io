@@ -5,7 +5,11 @@
 <meta name="description" content="A post on semi-supervised learning with variational autoencoders.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Semi-supervised Learning with Variational Autoencoders | Bounded Rationality</title>
-<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -84,15 +88,14 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Semi-supervised Learning with Variational Autoencoders</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                     Brian Keng
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2017-09-11T08:40:47-04:00" itemprop="datePublished" title="2017-09-11 08:40">2017-09-11 08:40</time></a></p>
             
-        <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
+        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
 
-                <meta name="description" itemprop="description" content="A post on semi-supervised learning with variational autoencoders.">
-</div>
+        </div>
         
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
@@ -547,7 +550,7 @@ layers.  I didn't do any fine-tuning of the Inception layers.</li>
 <p>The datasets I used were MNIST and CIFAR10 with stratified sampling on the
 training data to create the semi-supervised dataset.  The test sets are the
 ones included with the data.  Here are the results for MNIST:</p>
-<table border="1" class="docutils">
+<table border="1" class="colwidths-given docutils">
 <caption>Table 1: MNIST Results</caption>
 <colgroup>
 <col width="23%">
@@ -612,7 +615,7 @@ gets in the same range.  Interestingly at <span class="math">\(N=100\)</span> th
 use of the unlabelled data do better than a CNN which has so little training
 data it surely is not learning to generalize.  Next, onto CIFAR 10 results
 shown in Table 2.</p>
-<table border="1" class="docutils">
+<table border="1" class="colwidths-given docutils">
 <caption>Table 2: CIFAR10 Results</caption>
 <colgroup>
 <col width="23%">
@@ -1052,7 +1055,7 @@ our approximate posterior as required.</p>
 </div>
 
 
-            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>
