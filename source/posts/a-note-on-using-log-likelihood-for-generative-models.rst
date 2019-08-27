@@ -1,6 +1,6 @@
 .. title: A Note on Using Log-Likelihood for Generative Models
 .. slug: a-note-on-using-log-likelihood-for-generative-models
-.. date: 2019-08-24 07:50:09 UTC-04:00
+.. date: 2019-08-27 07:50:09 UTC-04:00
 .. tags: log-likelihood, generative models, mathjax
 .. category: 
 .. link: 
