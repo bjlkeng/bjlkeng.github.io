@@ -1,6 +1,6 @@
 .. title: A Note on Using Log-Likelihood for Generative Models
 .. slug: a-note-on-using-log-likelihood-for-generative-models
-.. date: 2019-07-30 07:50:09 UTC-04:00
+.. date: 2019-08-24 07:50:09 UTC-04:00
 .. tags: log-likelihood, generative models, mathjax
 .. category: 
 .. link: 
@@ -47,9 +47,9 @@ This post investigates how to use continuous density outputs (e.g. a logistic
 or normal distribution) to model discrete image data (e.g. 8-bit RGB values).
 It seems like it might be something obvious such as setting the loss as the
 average log-likelihood of the continuous density and that's *almost* the
-whole story.  It just skips over so many (interesting) and non-obvious things
-that you would never know if you didn't bother to look.  I'm a curious fellow
-so come with me and let's take a look!
+whole story.  But leaving it at that skips over so many (interesting) and
+non-obvious things that you would never know if you didn't bother to look.  I'm
+a curious fellow so come with me and let's take a look!
 
 .. TEASER_END
 
@@ -174,12 +174,12 @@ equally likely.  Since we're also dealing with continuous values, we'll use the
     &= \frac{f_1(x)}{\sum_{i=1}^N f_i(x)} && \text{definition of derivative} \\
     \tag{5}
 
-You might have to brush off your calculus a bit with the comments above, I
+You might have to brush off your calculus a bit with the comments above, but I
 think you should be able to follow along.  The last step is not the typical
 definition of a derivative but it's should be equivalent. (Note: this derivative
 probably only works for smooth functions.)
 
-The interesting this here is that we've totally resolved the problem of dealing
+The interesting thing here is that we've totally resolved the problem of dealing
 with continuous data!  We're dealing only with PDFs now and removed the zero
 probability case when looking at :math:`P(x|M_i)` in isolation.
 
