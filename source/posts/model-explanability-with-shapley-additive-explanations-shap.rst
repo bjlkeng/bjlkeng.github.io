@@ -68,7 +68,8 @@ better outcome.  On the other hand, you probably don't want to pick someone
 like me who spends the majority of their free time indoors in front a computer,
 I might just be dead weight.  In essence, we want to answer two questions:
 
-1. How important is each person to the overall goal of surviving longer?
+1. How important is each person to the overall goal of surviving longer 
+   (i.e. what's their fair share of the winnings)?
 2. What outcome can we reasonably expect?
 
 This is essentially the problem of a cooperative game from game theory (this is
@@ -76,11 +77,11 @@ in contrast to the traditional non-cooperative games from game theory that most
 people are familiar with).  Formally: 
 
     A **coalitional game** is a where there is a set :math:`P`
-    (consisting of :math:`N` players) and a *characteristic function* :math:`v`
+    (consisting of :math:`N` players) and a *value function* :math:`v`
     that maps subset of players to real numbers: :math:`v: 2^P \rightarrow
     \mathbb{R}` with :math:`v(\emptyset)=0` (empty set is zero).
 
-The characteristic function :math:`v(S)` describes the total expected payoff
+The value function :math:`v(S)` describes the total expected payoff
 for a subset of players :math:`S`.  For example, including a survivalist in
 your desert island coalition will likely result in better outcome (payoff) than
 including me.  This function answers the second question: what outcome can
@@ -97,7 +98,7 @@ lies in shapely values.
 
 **Shapely values** (named in honour of Lloyd Shapely), denoted by
 :math:`\varphi_i(v)`, are a solution to the above coalition game.  
-For player :math:`i` and characteristic function :math:`v`, the Shapely value
+For player :math:`i` and value function :math:`v`, the Shapely value
 is defined as:
 
 .. math::
@@ -154,14 +155,125 @@ All of these properties seem like pretty obvious things you would want to have:
 
 Let's take a look at a couple examples to get a feel for it.
 
-.. admonition:: Example 1: 
+.. admonition:: Example 1: Glove Game
 
-    TODO
+    Imagine we have a game where players have left or right handed gloves.
+    The goal is to form pairs.  Imagine a three player game: 
+    :math:`N=\{1,2,3\}` where Players 1 and 2 have left handed gloves and Player
+    3 has a right handed glove.  The value function is scoring for every subset
+    that has a L/R pair, and zero otherwise:
 
-.. admonition:: Example 2:
+    .. math::
+    
+        v(S) = \begin{cases}
+            1 & \text{if } S \in \{\{1,3\}, \{2,3\}, \{1,2,3\}\} \\
+            0 & \text{otherwise}
+        \end{cases}
 
-    TODO
+    Using Equation 1, we need to find the marginal contribution of players.
+    For Player 1, we have:
 
+    .. math::
+
+        v(\{1\}) - v(\emptyset) &= 0 - 0 &= 0 \\
+        v(\{1,2\}) - v(\{2\}) &= 0 - 0 &= 0 \\
+        v(\{1,3\}) - v(\{3\}) &= 1 - 0 &= 1 \\
+        v(\{1,2,3\}) - v(\{2, 3\}) &= 1 - 1 &= 0 
+
+    From Equation 1:
+
+    .. math::
+
+        \varphi_1(v) &= \frac{1}{N} \sum_{S \subseteq N \setminus \{i\}} 
+            {N-1 \choose |S|}^{-1} (v(S\cup \{i\}) - v(S)) \\ 
+         &= \frac{1}{3} \big[{2 \choose 0}^{-1} (v(\{1\}) - v(\emptyset))  +
+             {2 \choose 1}^{-1} (v(\{1,2\}) - v(\{2\})) + \\
+         &\hspace{2.3em}  {2 \choose 1}^{-1} (v(\{1,3\}) - v(\{3\})) +
+            {2 \choose 2}^{-1} (v(\{1,2,3\}) - v(\{,,3\})) 
+         \big]  \\ 
+         &= \frac{1}{3}[1(0) + \frac{1}{2}(0) + \frac{1}{2}(1) + (1)(0)] \\
+         &= \frac{1}{6} \\
+         \tag{3}
+
+    Based on symmetry (Property 2), we can conclude Player 1 and 2 are
+    equivalent, so:
+   
+    .. math:: 
+
+        \varphi_2(v) = \varphi_1(v) = \frac{1}{6} \\
+        \tag{4}
+
+    Further, due efficiency (Property 1), we can find the remaining Shapely
+    value for Player 3:
+
+    .. math::
+
+        \varphi_3(v) = v(N) - \varphi_1(v) - \varphi_3(v) 
+        = 1 - \frac{1}{6} - \frac{1}{6}
+        = \frac{2}{3} \\
+        \tag{4}
+
+    As expected, since Player 3 has the only right handed glove, so their
+    split of the profits should be 4 times bigger than the other players.
+
+
+.. admonition:: Example 2: Business
+
+    Consider an owner of the business, denoted by :math:`o`, who provides the
+    initial investment in the business.  If there is no initial investment,
+    then there is no business (zero return).  The business also has :math:`k`
+    workers :math:`w_1, \ldots, w_k`, each of whom contribute :math:`p` to the
+    overall profit.  Our set of players is:
+
+    .. math::
+
+        N = \{o, w_1, \ldots, w_k\} \tag{5}
+
+    The value function for this game is:
+
+    .. math::
+
+        v(S) = \begin{cases}
+            mp & \text{if } o \in S \\
+            0 & \text{otherwise }
+        \end{cases} \\
+        \tag{6}
+
+    where :math:`m` is the number of players in :math:`S \setminus o`.
+
+    We can setup Equation 1 but breaking down the sum into symmetrical parts
+    based on the size of :math:`S`:
+
+    .. math::
+         
+        \varphi_{o}(v) &= \frac{1}{N} \sum_{S \subseteq N \setminus \{i\}} 
+            {N-1 \choose |S|}^{-1} (v(S\cup \{i\}) - v(S)) \\ 
+        &= \frac{1}{N} \big[
+            \sum_{m=1}^k
+            \sum_{S \subseteq N \setminus \{i\}, |S|=m} 
+            {N-1 \choose |S|}^{-1} (v(S\cup \{i\}) - v(S)) 
+            \big] \\ 
+        &= \frac{1}{N} \big[
+            \sum_{m=1}^k
+            {N-1 \choose |S|}^{-1} {N-1 \choose |S|} mp
+            \big] && \text{each of the inner summations is symmetric}\\ 
+        &= \frac{1}{N} \sum_{m=1}^k mp \\ 
+        &= \frac{1}{k+1} \frac{k(k+1)p}{2} && \text{N=k+1}\\ 
+        &= \frac{kp}{2} \\ 
+        \tag{7}
+
+    By efficiency and symmetry, the rest of the k workers get the rest of the
+    :math:`\frac{kp}{2}` profits (total profits is :math:`kp`), and thus each
+    worker should get :math:`\frac{p}{2}` of the profits.  In other words, each
+    worker is "contributing" half of their share of the profits they make to
+    the business owner.  
+    
+    Is it fair though?  Shapely values seems to say so.  Whether this has any
+    implications for our capitalistic society where investors/business owners
+    get much more than half of the profits is left as an exercise for the
+    reader :p
+
+        
 
 
 |h2| Feature Explainability as Shapely Values |h2e|
