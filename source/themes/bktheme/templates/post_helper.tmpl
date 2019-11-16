@@ -85,7 +85,7 @@
 </%def>
 
 <%def name="mathjax_script(post)">
-    %if post.is_mathjax:
+    %if post.has_math:
         %if use_katex:
             <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.3.0/katex.min.js"></script>
             <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.3.0/contrib/auto-render.min.js"></script>

@@ -54,7 +54,6 @@ and I'll *explain*.
 .. TEASER_END
 
 .. contents::
-    :local:
 
 
 |h2| Shapely Values and Cooperative Games |h2e|

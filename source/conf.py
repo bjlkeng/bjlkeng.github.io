@@ -28,6 +28,8 @@ SITE_URL = "http://bjlkeng.github.io/"
 BLOG_EMAIL = "brian@briankeng.com"
 BLOG_DESCRIPTION = "Understanding math, machine learning, and data to a satisfactory degree."
 
+WARN_ABOUT_TAG_METADATA = False
+
 # (translatable)
 
 # Nikola is multilingual!

@@ -19,7 +19,7 @@
 </%def>
 
 <%def name="mathjax_script(posts)">
-    %if any(post.is_mathjax for post in posts):
+    %if any(post.has_math for post in posts):
         %if use_katex:
             <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.3.0/katex.min.js"></script>
             <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.3.0/contrib/auto-render.min.js"></script>

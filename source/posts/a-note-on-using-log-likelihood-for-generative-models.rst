@@ -245,7 +245,7 @@ from the log-likelihood as you would expect. (However, keep in mind it is
 
 I won't go too deep into the concept of `(information) entropy <https://en.wikipedia.org/wiki/Entropy>`__,
 you can find a more detailed explanation in my previous post on
-`Maximum Entropy Distributions <link://slug/maximum-entropy-distributions/>`__.
+`Maximum Entropy Distributions <link://slug/maximum-entropy-distributions>`__.
 Information Entropy is defined as follows over a discrete probability
 distribution :math:`P`:
 
