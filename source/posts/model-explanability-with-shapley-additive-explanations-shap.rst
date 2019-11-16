@@ -53,6 +53,10 @@ and I'll *explain*.
 
 .. TEASER_END
 
+.. contents::
+    :local:
+
+
 |h2| Shapely Values and Cooperative Games |h2e|
 
 |h3| Cooperative Games |h3e|
@@ -273,10 +277,120 @@ Let's take a look at a couple examples to get a feel for it.
     get much more than half of the profits is left as an exercise for the
     reader :p
 
-        
-
-
 |h2| Feature Explainability as Shapely Values |h2e|
+
+
+|h3| Additive Feature Attribution Models |h3e|
+
+The first thing we need to cover is what does it mean for a model
+to be explainable?  Take a simple linear regression for example:
+
+.. math::
+
+    y = \beta_0 + \beta_1 x_1 + \ldots + \beta_n x_n  \tag{8}
+
+This model probably follows our intuition of an explainable model:
+each of the :math:`x_i` variables are *independent, additive*, and
+we can clearly point to a coefficient (:math:`\beta_i`) saying how it
+contributed to the overall result (:math:`y`).  But about more complex
+models?  Even if we stick with linear models, as soon as we introduce any
+interactions, it gets much more messy:
+
+.. math::
+
+    y = \beta_0 + \sum_{i=1}^n \beta_i x_i 
+        + \sum_{i=1}^{n-1} \sum_{j>i}^{n} \beta_{i,j}x_i x_j
+    \tag{9}
+
+In this case, how much has :math:`x_i` contributed to the overall prediction?
+I have no idea and the reason is that my intuition expects the variables to be
+independent and additive, and if they're not, I'm not really sure how to "explain"
+the model.
+
+So far we've been trying to explain the model as a whole.  What if we did
+something simpler?  What if instead of trying to explain the entire model,
+we took on a simpler problem: explain a single data point.  Of course, we would
+want some additional properties, namely, that we can interpret it like the
+simple linear regression in Equation 8, that there is some guarantee of local
+accuracy, and probably some guarantee that similar models would produce similar
+explanations.  We'll get to all of that but first let's setup the problem and
+go through some definitions.
+
+What we are describing here are call **local methods** designed to explain a
+single input :math:`\bf` on a prediction model :math:`f({\bf x})`.
+When looking at a single data point, we don't really care about the level (i.e.
+value) of the feature, just how much it contributes to the overall prediction.
+To the end, let's define a binary vector of *simplified inputs* :math:`\bf x'`
+(denoted by :math:`'`) that represents whether or not we want to include that
+feature's contribution to the overall prediction (analogous to our cooperative
+game above).  We also have a mapping function :math:`h_x({\bf x'}) = {\bf x}`
+that translates this binary vector to the equivalent values
+for the data point :math:`\bf x`.  Notice that this mapping function
+:math:`h_x(\cdot)` is *specific* to data point :math:`x` -- you'll have one of
+these functions for every data point.
+It's a bit confusing to write out in words so let's take a look at an example,
+which should clarify the idea.
+
+.. admonition:: Example 3: Simplified Inputs
+
+    Consider a simple linear interaction model with two real inputs 
+    :math:`x_1, x_2`:
+
+    .. math::
+
+        y = 1 + 2 x_1 + 3 x_2 + 4 x_1 x_2  \tag{10}
+
+    Let's look at two data points:
+
+    .. math::
+
+        {\bf u} &= (x_1, x_2) = (-1, -0.5), &&y = -0.5 \\
+        {\bf v} &= (x_1, x_2) = (0.5, 1), &&y = 7 \\
+        \tag{11}
+
+    Let's suppose we wanted to look at the effect of :math:`x_1`, for these two
+    data points we would look at the vector :math:`{\bf z'} = [1, 0]` and
+    use their :math:`h` mapping to find the original values:
+    
+    .. math::
+
+        h_{\bf u}({\bf z'}) = h_{\bf u}([1, 0]) = [-1, n/a] \\
+        h_{\bf v}({\bf z'}) = h_{\bf v}([1, 0]) = [0.5, n/a] \\
+        \tag{12}
+
+    where we represent missing values with "n/a" (we'll get to this later).  As
+    you can see, this formalism is just to allow us to speak about whether we
+    should include a feature or not (:math:`\bf z'`) and their equivalent
+    values (:math:`\bf u, v`).
+
+Now that we have these definitions, our end goal is to essentially build
+a new *explanation model*, :math:`g({\bf z'})` that ensures that 
+:math:`g({\bf z'}) \approx f(h_{\bf x}({\bf z'}))` whenever 
+:math:`{\bf z'} \approx {\bf x'}`.  In particular, we want this explanation
+model to be simple like our linear regression in Equation 8.  Thus, let's define
+this type of model:
+
+    **Additive Feature Attribution Methods** have an explanation model that
+    is a linear function of binary variables:
+
+    .. math::
+
+        g({\bf z'}) = \phi_0 + \sum_{i=1}^M \phi_i z_i'
+
+    where :math:`z' \in \{0,1\}^M`, :math:`M` is the number of simplified input
+    features and :math:`\phi_i \in \mathbb{R}`.
+
+
+|h3| Desirable Properties and Shapely Values |h3e|
+
+* Explain Property 1, 2, 3
+* Show theorem 1, relate it back to our cooperative game
+
+
+|h3| SHapely Additive exPlanations (SHAP) |h3e|
+
+* Show Equation and simplifications
+* Explain how to deal with missingness
 
 |h2| Computing SHAP |h2e|
 
