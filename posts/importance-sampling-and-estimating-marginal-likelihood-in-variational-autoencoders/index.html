@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="A short post describing how to use importance sampling to estimate marginal likelihood in variational autoencoders.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -18,21 +14,6 @@
 <meta name="author" content="Brian Keng">
 <link rel="prev" href="../label-refinery/" title="Label Refinery: A Softer Approach" type="text/html">
 <link rel="next" href="../pixelcnn/" title="PixelCNN" type="text/html">
-<meta property="og:site_name" content="Bounded Rationality">
-<meta property="og:title" content="Importance Sampling and Estimating Marginal Likelihood in Variational ">
-<meta property="og:url" content="http://bjlkeng.github.io/posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/">
-<meta property="og:description" content="A short post describing how to use importance sampling to estimate marginal likelihood in variational autoencoders.">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2019-02-06T08:20:11-04:00">
-<meta property="article:tag" content="autoencoders">
-<meta property="article:tag" content="autoregressive">
-<meta property="article:tag" content="CIFAR10">
-<meta property="article:tag" content="generative models">
-<meta property="article:tag" content="importance sampling">
-<meta property="article:tag" content="mathjax">
-<meta property="article:tag" content="MNIST">
-<meta property="article:tag" content="Monte Carlo">
-<meta property="article:tag" content="variational calculus">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -87,10 +68,13 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
                     Brian Keng
             </span></p>
-            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2019-02-06T08:20:11-04:00" itemprop="datePublished" title="2019-02-06 08:20">2019-02-06 08:20</time></a></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2019-02-06T08:20:11-04:00" itemprop="datePublished" title="2019-02-06 08:20">2019-02-06 08:20</time></a>
+            </p>
             
         <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
 
@@ -155,7 +139,7 @@ estimate of this expectation with <span class="math">\(\frac{1}{\sqrt{n}}\)</spa
 That is, quadrupling the number of points halves the error.  Let's take a look
 at an example.</p>
 <div class="admonition admonition-example-1-computing-the-expected-number-of-times-to-miss-a-project-deadline-source-1">
-<p class="first admonition-title">Example 1: Computing the expected number of times to miss a
+<p class="admonition-title">Example 1: Computing the expected number of times to miss a
 project deadline (source [1])</p>
 <div class="figure align-center">
 <img alt="DAG of Tasks" src="../../images/task_dag.png" style="height: 300px;"><p class="caption">Figure 1: The graph of task dependencies (source [1]).</p>
@@ -163,68 +147,68 @@ project deadline (source [1])</p>
 <p>Imagine, we're running a project with 10 distinct steps.  The project
 has dependencies shown in Figure 1.  Further, the mean time to
 complete each task is listed in Table 1.</p>
-<table border="1" class="colwidths-given docutils align-center">
+<table class="colwidths-given align-center">
 <caption>Table 1: Mean Task Times</caption>
 <colgroup>
-<col width="43%">
-<col width="29%">
-<col width="29%">
+<col style="width: 43%">
+<col style="width: 29%">
+<col style="width: 29%">
 </colgroup>
-<thead valign="bottom"><tr>
-<th class="head">Task j</th>
-<th class="head">Predecessors</th>
-<th class="head">Duration (days)</th>
+<thead><tr>
+<th class="head"><p>Task j</p></th>
+<th class="head"><p>Predecessors</p></th>
+<th class="head"><p>Duration (days)</p></th>
 </tr></thead>
-<tbody valign="top">
+<tbody>
 <tr>
-<td>1</td>
-<td>None</td>
-<td>4</td>
+<td><p>1</p></td>
+<td><p>None</p></td>
+<td><p>4</p></td>
 </tr>
 <tr>
-<td>2</td>
-<td>1</td>
-<td>4</td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>4</p></td>
 </tr>
 <tr>
-<td>3</td>
-<td>1</td>
-<td>2</td>
+<td><p>3</p></td>
+<td><p>1</p></td>
+<td><p>2</p></td>
 </tr>
 <tr>
-<td>4</td>
-<td>2</td>
-<td>5</td>
+<td><p>4</p></td>
+<td><p>2</p></td>
+<td><p>5</p></td>
 </tr>
 <tr>
-<td>5</td>
-<td>2</td>
-<td>2</td>
+<td><p>5</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
 </tr>
 <tr>
-<td>6</td>
-<td>3</td>
-<td>3</td>
+<td><p>6</p></td>
+<td><p>3</p></td>
+<td><p>3</p></td>
 </tr>
 <tr>
-<td>7</td>
-<td>3</td>
-<td>2</td>
+<td><p>7</p></td>
+<td><p>3</p></td>
+<td><p>2</p></td>
 </tr>
 <tr>
-<td>8</td>
-<td>3</td>
-<td>3</td>
+<td><p>8</p></td>
+<td><p>3</p></td>
+<td><p>3</p></td>
 </tr>
 <tr>
-<td>9</td>
-<td>5,6,7</td>
-<td>2</td>
+<td><p>9</p></td>
+<td><p>5,6,7</p></td>
+<td><p>2</p></td>
 </tr>
 <tr>
-<td>10</td>
-<td>4, 8, 9</td>
-<td>2</td>
+<td><p>10</p></td>
+<td><p>4, 8, 9</p></td>
+<td><p>2</p></td>
 </tr>
 </tbody>
 </table>
@@ -244,7 +228,7 @@ Carlo simulations with different number of trials.</p>
 <div class="figure align-center">
 <img alt="Estimated probability of occurrence of tasks exceeding 70 days using Monte Carlo simulation." src="../../images/dag_example1.png" style="height: 300px;"><p class="caption">Figure 2: Estimated probability of occurrence of tasks exceeding 70 days using Monte Carlo simulation.</p>
 </div>
-<p class="last">You can see we over- and under-estimate the number of times we exceed 70
+<p>You can see we over- and under-estimate the number of times we exceed 70
 days when N is low.  For N={1000, 10000}, we in fact get 0 trials; for
 N={500k, 100k, 500k} it looks like we've overestimating it.  Only when we
 approach 1,000,000 do we get close to the true estimate.  Of course, this
@@ -298,10 +282,10 @@ than the actual, we have to adjust, which is where the extra likelihood ratio
 comes in.</p>
 <p>So why go through all this trouble?  The big result is this theorem:</p>
 <div class="admonition admonition-theorem-1">
-<p class="first admonition-title">Theorem 1:</p>
+<p class="admonition-title">Theorem 1:</p>
 <p>Let <span class="math">\(\mu=E_p(f({\bf X}))\)</span>, then <span class="math">\(E_q(\hat{\mu_q}) = \mu\)</span> and
 <span class="math">\(Var_q(\hat{\mu_q}) = \frac{\sigma^2_q}{n}\)</span> where</p>
-<div class="last math">
+<div class="math">
 \begin{align*}
 \sigma^2_q &amp;= \int \frac{(f({\bf x})p({\bf x}))^2}{q({\bf x})} d{\bf x} - \mu^2 \\
            &amp;= \int \frac{(f({\bf x})p({\bf x}) - \mu q({\bf x}))^2}{q({\bf x})} d{\bf x} \\
@@ -317,13 +301,13 @@ Equation 5 follow directly from the fact that <span class="math">\(\hat{\mu_q}\)
 and the fact that the underlying variable is our <span class="math">\(fp/q\)</span> (to get the second expression in Equation 5, try multiplying <span class="math">\(q({\bf x})\)</span> on the top and bottom).</p>
 <p>We can see a desirable <span class="math">\(q\)</span> has a few properties:</p>
 <ul class="simple">
-<li>From the first expression in Equation 5, we want <span class="math">\(q\)</span> to be close to <span class="math">\(fp\)</span>
+<li><p>From the first expression in Equation 5, we want <span class="math">\(q\)</span> to be close to <span class="math">\(fp\)</span>
 so the variance is low (since <span class="math">\(\mu = \int f({\bf x})p({\bf x}) d{\bf x}\)</span>).
 In general, we want it to have a similar shape; peaks and tails where we have
-peaks and tails in the original distribution.</li>
-<li>From the second expression, we can also see that the variance is magnified
+peaks and tails in the original distribution.</p></li>
+<li><p>From the second expression, we can also see that the variance is magnified
 when <span class="math">\(q\)</span> is close to 0.  Again, we need to ensure <span class="math">\(q\)</span> has density
-in similar places as <span class="math">\(p\)</span>.</li>
+in similar places as <span class="math">\(p\)</span>.</p></li>
 </ul>
 <p>For standard distributions, we can usually take something with a similar shape, or
 the same distribution but with slightly modified parameters.  It's kind of both
@@ -335,7 +319,7 @@ be quite efficient.  There are a bunch of diagnostics to check whether or not
 the importance distribution matches.  Check out [1] for a more detailed
 treatment.</p>
 <div class="admonition admonition-example-2-continuing-from-example-1-computing-the-expected-number-of-times-to-miss-a-project-deadline-source-1">
-<p class="first admonition-title">Example 2 (Continuing from Example 1): Computing the expected
+<p class="admonition-title">Example 2 (Continuing from Example 1): Computing the expected
 number of times to miss a project deadline (source [1])</p>
 <p>We can use importance sampling to drastically reduce the number of simulations
 that we have to do.  Our importance distributions will be exponential just like
@@ -365,9 +349,9 @@ event of <span class="math">\(D \geq 70\)</span> happen more often.  The obvious
 shift out the mean of the exponentials of our importance distribution so
 that they happen more often.  We'll try two general ideas:</p>
 <ol class="loweralpha simple">
-<li>Multiply all durations by 4.</li>
-<li>Multiply only the durations on the critical path by some constant.
-The critical path in this case is task 1, 2, 4, 10.</li>
+<li><p>Multiply all durations by 4.</p></li>
+<li><p>Multiply only the durations on the critical path by some constant.
+The critical path in this case is task 1, 2, 4, 10.</p></li>
 </ol>
 <p>Figure 3 shows the results of these experiments
 (the code is in the same:
@@ -382,7 +366,7 @@ joint distribution too much causing issues (which eventually even out with
 large enough sample size).  While it's convergence looks a
 bit smoother than the original case, it still takes around 500k+ samples
 to converge.</p>
-<p class="last">Looking at our critical path approach, it's much more efficient.  We can
+<p>Looking at our critical path approach, it's much more efficient.  We can
 see it's pretty stable even at small values like 10,000.  As to which one
 is better, it's not obvious and it's a bit more of a subtle question.  In
 any case, importance sampling can be extremely efficient with the <em>big</em>
@@ -395,7 +379,7 @@ problem.</p>
 an autoencoder has two parts: a encoder and a decoder (also known as a
 generator).  The latter can be used to sample from a distribution, for example,
 of images.  Starting to sound familiar?  Below is the (ugly) diagram I made of
-a VAE from my post on <a class="reference external" href="../variational-autoencoders">variational autoencoders</a>.</p>
+a VAE from my post on <a class="reference external" href="../variational-autoencoders/">variational autoencoders</a>.</p>
 <div class="figure align-center">
 <img alt="Variational Autoencoder" src="../../images/variational_autoencoder3.png" style="height: 400px;"><p class="caption">Figure 4: Variational Autoencoder Diagram</p>
 </div>
@@ -410,8 +394,8 @@ marginal likelihood of your model.  That is, if your model is probabilistic
 conditional on some known random variable, we can estimate the probability of a
 data point <span class="math">\(X\)</span> occurring given the model by:</p>
 <ol class="loweralpha simple">
-<li>Sampling many <span class="math">\(Z\)</span> from the known latent distribution, and</li>
-<li>Computing the average value of <span class="math">\(p_M(X|Z)\)</span> for all the sampled <span class="math">\(Z\)</span>.</li>
+<li><p>Sampling many <span class="math">\(Z\)</span> from the known latent distribution, and</p></li>
+<li><p>Computing the average value of <span class="math">\(p_M(X|Z)\)</span> for all the sampled <span class="math">\(Z\)</span>.</p></li>
 </ol>
 <p>where <span class="math">\(X\)</span> is our resultant sample from our data
 distribution (i.e. training data sample), <span class="math">\(Z\)</span> is something we know how to
@@ -439,8 +423,8 @@ we won't concern ourselves with that issue and proceed on to how we can estimate
 metric for variational autoencoders.</p>
 <p>So there are two main problems when trying to do this for a VAE.  You need to:</p>
 <ol class="arabic simple">
-<li>Make the model fully probabilistic.</li>
-<li>Efficiently sample from it.</li>
+<li><p>Make the model fully probabilistic.</p></li>
+<li><p>Efficiently sample from it.</p></li>
 </ol>
 <p>We'll talk about both in the next two subsections.</p>
 <p></p>
@@ -462,7 +446,7 @@ because a binary cross entropy loss maps to a Bernoulli (0/1) variable,
 definitely not the same thing as an integer in the [0,255] range.
 (This does work if you assume binarized pixels like in the Binarized MNIST dataset
 that I used for the
-<a class="reference external" href="../autoregressive-autoencoders">Autoregressive Autoencoders</a> post.)
+<a class="reference external" href="../autoregressive-autoencoders/">Autoregressive Autoencoders</a> post.)
 Another common example is to use the same sigmoid on the output layer but
 use a MSE loss function.  This implicitly assumes a Gaussian on the output,
 which again, is not a valid assumption because it's continuous density is
@@ -534,15 +518,15 @@ or my weird CNN.  You can check it out below.</p>
 So how can we estimate the marginal likelihood?  Well the simplest way is to
 just apply Equation 7:</p>
 <ul class="simple">
-<li><dl class="first docutils">
+<li><dl class="simple">
 <dt>For each point <span class="math">\(x\)</span> in your test set:</dt>
-<dd><ul class="first last">
-<li>Sample <span class="math">\(N\)</span> <span class="math">\(\bf z\)</span> vectors as standard independent Gaussians.</li>
-<li>Use Equation 9 to estimate <span class="math">\(p_M(x|z)\)</span> for each of the <span class="math">\(N\)</span> samples.
+<dd><ul>
+<li><p>Sample <span class="math">\(N\)</span> <span class="math">\(\bf z\)</span> vectors as standard independent Gaussians.</p></li>
+<li><p>Use Equation 9 to estimate <span class="math">\(p_M(x|z)\)</span> for each of the <span class="math">\(N\)</span> samples.
 (depending on your generator, the pixels will be independent or
-conditional on each other).</li>
-<li>Use Equation 7 to estimate the marginal likelihood <span class="math">\(P_M(X)\)</span>
-by averaging over all the probabilities.</li>
+conditional on each other).</p></li>
+<li><p>Use Equation 7 to estimate the marginal likelihood <span class="math">\(P_M(X)\)</span>
+by averaging over all the probabilities.</p></li>
 </ul></dd>
 </dl></li>
 </ul>
@@ -591,28 +575,28 @@ simply is the negative logarithm base 2 likelihood divided by the total number o
 (sub-)pixels.  This is supposed to give the theoretical average number of bits
 you need to encode the information using this encoding scheme (information
 theory result).</p>
-<table border="1" class="colwidths-given docutils align-center">
+<table class="colwidths-given align-center">
 <caption>Table 1: Importance Sampling Results</caption>
 <colgroup>
-<col width="43%">
-<col width="29%">
-<col width="29%">
+<col style="width: 43%">
+<col style="width: 29%">
+<col style="width: 29%">
 </colgroup>
-<thead valign="bottom"><tr>
-<th class="head">Model</th>
-<th class="head">log p(x)</th>
-<th class="head">Bits/pixel (<span class="math">\(-log_2 p(x) / pixels\)</span>)</th>
+<thead><tr>
+<th class="head"><p>Model</p></th>
+<th class="head"><p>log p(x)</p></th>
+<th class="head"><p>Bits/pixel (<span class="math">\(-log_2 p(x) / pixels\)</span>)</p></th>
 </tr></thead>
-<tbody valign="top">
+<tbody>
 <tr>
-<td>Binarized MNIST</td>
-<td>-87.08</td>
-<td>0.16</td>
+<td><p>Binarized MNIST</p></td>
+<td><p>-87.08</p></td>
+<td><p>0.16</p></td>
 </tr>
 <tr>
-<td>CIFAR10</td>
-<td>-20437</td>
-<td>6.65</td>
+<td><p>CIFAR10</p></td>
+<td><p>-20437</p></td>
+<td><p>6.65</p></td>
 </tr>
 </tbody>
 </table>
@@ -632,34 +616,32 @@ then some of the details when actually computing the importance samples.</p>
 <p>For the binarized MNIST, it was pretty straight forward to implement.  Here
 are the notes.</p>
 <ul class="simple">
-<li>The output just needs to be a sigmoid, which is interpreted as the <span class="math">\(p\)</span>
+<li><p>The output just needs to be a sigmoid, which is interpreted as the <span class="math">\(p\)</span>
 parameter of a Bernoulli variable since we're modelling binarized output data
-(not grey-scale).</li>
-<li>
-<span class="math">\(\log p(x|z)\)</span> is simply a binary cross entropy expression.</li>
-<li>
-<span class="math">\(p(z)\)</span> and <span class="math">\(q(z)\)</span> are just Gaussian densities.</li>
-<li>I calculated all the individual terms in log-space (<span class="math">\(\log p(x|z), \log
+(not grey-scale).</p></li>
+<li><p><span class="math">\(\log p(x|z)\)</span> is simply a binary cross entropy expression.</p></li>
+<li><p><span class="math">\(p(z)\)</span> and <span class="math">\(q(z)\)</span> are just Gaussian densities.</p></li>
+<li><p>I calculated all the individual terms in log-space (<span class="math">\(\log p(x|z), \log
 p(x), \log q(x)\)</span>), which gets you the logarithm of the expression on the
 inside of the summation in Equation 10.  However, you still need to convert
 back to non-log-space and do the summation, and then take the logarithm to
 get <span class="math">\(\log p(x)\)</span>.  To do this efficiently, you need to use the
 <a class="reference external" href="https://en.wikipedia.org/wiki/LogSumExp">logsumexp</a> function, otherwise
 you'll get some numerical instability when you try to take exponentials.
-Fortunately, this is a common operation and <cite>numpy</cite> has a function for it.</li>
+Fortunately, this is a common operation and <cite>numpy</cite> has a function for it.</p></li>
 </ul>
 <p>For CIFAR 10, it was a bit more complicated and I had to make a few more tweaks (above and beyond the above notes) in order to get things working:</p>
 <ul class="simple">
-<li>To make the VAE fully probabilistic, I used the mixtures of logistics
-technique described above except with only one logistic distribution.</li>
-<li>To make things converge consistently, I also had to constrain the standard
+<li><p>To make the VAE fully probabilistic, I used the mixtures of logistics
+technique described above except with only one logistic distribution.</p></li>
+<li><p>To make things converge consistently, I also had to constrain the standard
 deviation parameter of the latent variable <span class="math">\(z\)</span>,
 as well as the equivalent inverse parameter <cite>s</cite> of the logistic
 distribution.  The former used a tanh multiplied by 5, the latter used a sigmoid
 scaled by 7.  These are pretty wide ranges for the distributions, which seem to
 work okay. Letting it by any real number, at least in my experience, causes lots
-of NaNs to appear.</li>
-<li>The loss function was incredibly difficult to get right.  In the end, I followed
+of NaNs to appear.</p></li>
+<li><p>The loss function was incredibly difficult to get right.  In the end, I followed
 almost exactly what Kingma [5] did in his implementation which is here:
 <a class="reference external" href="https://github.com/openai/pixel-cnn">https://github.com/openai/pixel-cnn</a>.  It was incredibly hard to decode
 what he was doing though.  I had to spend a lot of time going step-by-step
@@ -667,18 +649,18 @@ understanding what he did with all the random operations and constants
 going on.  A big trick was that you had to do some funky stuff to check for
 invalid values or else Tensorflow would propagate NaNs through.
 I put some comments in my implementations and my naming is maybe
-a bit better?  So hopefully both you and I can remember next time we read it.</li>
-<li>I used ResNet architecture as a base for both the encoder and decoder.  I
+a bit better?  So hopefully both you and I can remember next time we read it.</p></li>
+<li><p>I used ResNet architecture as a base for both the encoder and decoder.  I
 initially turned off batch normalization but the network had a lot of trouble
-fitting.  Batch norm is really useful!</li>
-<li>My actual reconstructed final images are pretty terrible.  There is a lot of
+fitting.  Batch norm is really useful!</p></li>
+<li><p>My actual reconstructed final images are pretty terrible.  There is a lot of
 corruption but at very regular grid-like patterns.  I was wondering if it was
 due to the CNN strides that I was using.  In retrospect though, I think it might
 be because I'm using a single logistic distribution.  In the paper, they used
-a mixture of five, which probably will have much better behaviour.</li>
-<li>My code isn't the cleanest because I'm really just prototyping here.
+a mixture of five, which probably will have much better behaviour.</p></li>
+<li><p>My code isn't the cleanest because I'm really just prototyping here.
 Although somehow each time I try to write a VAE, I clean it up a bit more.
-It's getting there but still nothing I would actually put into production.</li>
+It's getting there but still nothing I would actually put into production.</p></li>
 </ul>
 <p><br></p>
 <h4> Conclusion </h4>
@@ -697,20 +679,14 @@ distracted by all these other interesting topics!</p>
 <p><br></p>
 <h4> Further Reading </h4>
 <ul class="simple">
-<li>[1] "Importance Sampling", Art Owen, <a class="reference external" href="https://statweb.stanford.edu/~owen/mc/Ch-var-is.pdf">https://statweb.stanford.edu/~owen/mc/Ch-var-is.pdf</a>
-</li>
-<li>[2] "A Note on The Evaluation of Generative Models", Lucas Theis, Aäron van den Oord, Matthias Bethge, ICLR 2016.</li>
-<li>[3] "Improving Variational Inference with Inverse Autoregressive Flow", Diederik P. Kingma, Tim Salimans, Rafal Jozefowicz, Xi Chen, Ilya Sutskever, Max Welling, <a class="reference external" href="https://arxiv.org/abs/1606.04934">NIPS 2016</a>
-</li>
-<li>[4] "Pixel Recurrent Neural Networks", Aaron van den Oord, Nal Kalchbrenner, Koray Kavukcuoglu, <a class="reference external" href="https://arxiv.org/pdf/1601.06759.pdf">https://arxiv.org/pdf/1601.06759.pdf</a>
-</li>
-<li>[5] "PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications", Tim Salimans, Andrej Karpathy, Xi Chen, Diederik P. Kingma, <a class="reference external" href="http://arxiv.org/abs/1701.05517">http://arxiv.org/abs/1701.05517</a>.</li>
-<li>PixelCNN++ code on Github: <a class="reference external" href="https://github.com/openai/pixel-cnn">https://github.com/openai/pixel-cnn</a>
-</li>
-<li>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Importance_sampling">Importance Sampling</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Monte_Carlo_method">Monte Carlo methods</a>
-</li>
-<li>Previous posts: <a class="reference external" href="../variational-autoencoders">Variational Autoencoders</a>, <a class="reference external" href="../a-variational-autoencoder-on-the-svnh-dataset">A Variational Autoencoder on the SVHN dataset</a>, <a class="reference external" href="../semi-supervised-learning-with-variational-autoencoders">Semi-supervised Learning with Variational Autoencoders</a>, <a class="reference external" href="../autoregressive-autoencoders">Autoregressive Autoencoders</a>, <a class="reference external" href="../variational-autoencoders-with-inverse-autoregressive-flows">Variational Autoencoders with Inverse Autoregressive Flows</a>
-</li>
+<li><p>[1] "Importance Sampling", Art Owen, <a class="reference external" href="https://statweb.stanford.edu/~owen/mc/Ch-var-is.pdf">https://statweb.stanford.edu/~owen/mc/Ch-var-is.pdf</a></p></li>
+<li><p>[2] "A Note on The Evaluation of Generative Models", Lucas Theis, Aäron van den Oord, Matthias Bethge, ICLR 2016.</p></li>
+<li><p>[3] "Improving Variational Inference with Inverse Autoregressive Flow", Diederik P. Kingma, Tim Salimans, Rafal Jozefowicz, Xi Chen, Ilya Sutskever, Max Welling, <a class="reference external" href="https://arxiv.org/abs/1606.04934">NIPS 2016</a></p></li>
+<li><p>[4] "Pixel Recurrent Neural Networks", Aaron van den Oord, Nal Kalchbrenner, Koray Kavukcuoglu, <a class="reference external" href="https://arxiv.org/pdf/1601.06759.pdf">https://arxiv.org/pdf/1601.06759.pdf</a></p></li>
+<li><p>[5] "PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications", Tim Salimans, Andrej Karpathy, Xi Chen, Diederik P. Kingma, <a class="reference external" href="http://arxiv.org/abs/1701.05517">http://arxiv.org/abs/1701.05517</a>.</p></li>
+<li><p>PixelCNN++ code on Github: <a class="reference external" href="https://github.com/openai/pixel-cnn">https://github.com/openai/pixel-cnn</a></p></li>
+<li><p>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Importance_sampling">Importance Sampling</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Monte_Carlo_method">Monte Carlo methods</a></p></li>
+<li><p>Previous posts: <a class="reference external" href="../variational-autoencoders/">Variational Autoencoders</a>, <a class="reference external" href="../a-variational-autoencoder-on-the-svnh-dataset/">A Variational Autoencoder on the SVHN dataset</a>, <a class="reference external" href="../semi-supervised-learning-with-variational-autoencoders/">Semi-supervised Learning with Variational Autoencoders</a>, <a class="reference external" href="../autoregressive-autoencoders/">Autoregressive Autoencoders</a>, <a class="reference external" href="../variational-autoencoders-with-inverse-autoregressive-flows/">Variational Autoencoders with Inverse Autoregressive Flows</a></p></li>
 </ul>
 </div>
     </div>
@@ -788,14 +764,14 @@ distracted by all these other interesting topics!</p>
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2019         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
 </div>
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

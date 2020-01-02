@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="A quick introduction to tensors for the uninitiated.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tensors, Tensors, Tensors | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -18,21 +14,6 @@
 <meta name="author" content="Brian Keng">
 <link rel="prev" href="../residual-networks/" title="Residual Networks" type="text/html">
 <link rel="next" href="../manifolds/" title="Manifolds: A Gentle Introduction" type="text/html">
-<meta property="og:site_name" content="Bounded Rationality">
-<meta property="og:title" content="Tensors, Tensors, Tensors">
-<meta property="og:url" content="http://bjlkeng.github.io/posts/tensors-tensors-tensors/">
-<meta property="og:description" content="A quick introduction to tensors for the uninitiated.">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2018-03-13T08:24:57-05:00">
-<meta property="article:tag" content="bilinear">
-<meta property="article:tag" content="contravariance">
-<meta property="article:tag" content="covariance">
-<meta property="article:tag" content="covectors">
-<meta property="article:tag" content="geometric vectors">
-<meta property="article:tag" content="linear transformations">
-<meta property="article:tag" content="mathjax">
-<meta property="article:tag" content="metric tensor">
-<meta property="article:tag" content="tensors">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -87,10 +68,13 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Tensors, Tensors, Tensors</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
                     Brian Keng
             </span></p>
-            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2018-03-13T08:24:57-05:00" itemprop="datePublished" title="2018-03-13 08:24">2018-03-13 08:24</time></a></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2018-03-13T08:24:57-05:00" itemprop="datePublished" title="2018-03-13 08:24">2018-03-13 08:24</time></a>
+            </p>
             
         <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
 
@@ -151,7 +135,7 @@ you use (source: Wikipedia).</p>
 </div>
 <p>You can see in Figure 1 that we have a vector <span class="math">\(A\)</span> (in red) that can
 be represented in two different bases: <span class="math">\(e^1, e^2\)</span> (blue) and <span class="math">\(e_1,
-e_2\)</span> (yellow) <a class="footnote-reference" href="#id4" id="id1">[1]</a>.  You can see it's the same old vector, it's just that the
+e_2\)</span> (yellow) <a class="footnote-reference brackets" href="#id4" id="id1">1</a>.  You can see it's the same old vector, it's just that the
 way we're describing it has changed.  In the former case, we can describe it
 as a <a class="reference external" href="https://en.wikipedia.org/wiki/Coordinate_vector">coordinate vector</a>
 by <span class="math">\([a_1, a_2]\)</span>,
@@ -161,7 +145,7 @@ later, and you can ignore all the other stuff in the diagram).</p>
 <p>So then a geometric vector is the geometric object, <em>not</em> specifically its
 representation in a particular basis.</p>
 <div class="admonition admonition-example-1-a-geometric-vector-in-a-different-basis">
-<p class="first admonition-title">Example 1: A geometric vector in a different basis.</p>
+<p class="admonition-title">Example 1: A geometric vector in a different basis.</p>
 <p>Let's take the vector <span class="math">\(v\)</span> as <span class="math">\([a, b]\)</span> in the standard Euclidean
 basis: <span class="math">\([1, 0]\)</span> and <span class="math">\([0, 1]\)</span>.  Another way to write this is as:</p>
 <div class="math">
@@ -254,7 +238,7 @@ as:</p>
 \end{align*}
 </div>
 <p>Which we can see is exactly the same vector as before:</p>
-<div class="last math">
+<div class="math">
 \begin{equation*}
 v = a \begin{bmatrix} 1 \\ 0 \end{bmatrix}
   + b \begin{bmatrix} 0 \\ 1 \end{bmatrix}
@@ -278,19 +262,19 @@ objects regardless if we're in a standard basis or not.</p>
 <p>So geometric vectors are our first step in understanding tensors.  To summarize
 some of the main points:</p>
 <ul class="simple">
-<li>Tensors can be viewed as an ordered list of numbers with respect to a basis
-but that isn't the tensor itself.</li>
-<li>They are independent of a change in basis (i.e. their representation changes
-but what they represent does not).</li>
-<li>The <em>rank</em> (or <em>degree</em> or <em>order</em>) of a tensor specifies how many axes you
+<li><p>Tensors can be viewed as an ordered list of numbers with respect to a basis
+but that isn't the tensor itself.</p></li>
+<li><p>They are independent of a change in basis (i.e. their representation changes
+but what they represent does not).</p></li>
+<li><p>The <em>rank</em> (or <em>degree</em> or <em>order</em>) of a tensor specifies how many axes you
 need to specify it (careful this is different than the dimensional space
-we're working in).</li>
+we're working in).</p></li>
 </ul>
 <p>Just to drive the first point home, Example 2 shows an example of a tuple
 that might look like it represents a tensor but does not.</p>
 <div class="admonition admonition-example-2-non-tensors">
-<p class="first admonition-title">Example 2: Non-Tensors</p>
-<p class="last">We can represent the height, width and length of a box as an ordered list
+<p class="admonition-title">Example 2: Non-Tensors</p>
+<p>We can represent the height, width and length of a box as an ordered list
 of numbers: <span class="math">\([10, 20, 15]\)</span>.  However, this is not a tensor because if
 we change our basis, the height, width and length of the box don't change,
 they stay the same.  Tensors, however, have specific rules of how to change
@@ -332,7 +316,7 @@ u_\alpha = [ v_0, v_1, v_2 ]   \tag{10}
 \end{equation*}
 </div>
 <p>Now covectors are a little bit harder to explain than contravariant vectors
-because the examples of them are more abstract than geometric vectors <a class="footnote-reference" href="#id5" id="id2">[2]</a>.
+because the examples of them are more abstract than geometric vectors <a class="footnote-reference brackets" href="#id5" id="id2">2</a>.
 First, they do <em>not</em> represent geometric vectors (or else they'd be
 contravariant).  Instead, we should think of them as a linear function that
 takes a vector as input (in a particular basis) and maps it to a scalar, i.e.:</p>
@@ -348,7 +332,7 @@ input and produces an output, which is just itself (the geometric vector).
 This is a common theme we'll see in tensors: input, output, and independent of
 basis.  Let's take a look at an example of how covectors arise.</p>
 <div class="admonition admonition-example-3-a-differential-as-a-covariant-vector">
-<p class="first admonition-title">Example 3: A differential as a Covariant Vector</p>
+<p class="admonition-title">Example 3: A differential as a Covariant Vector</p>
 <p>Let's define a function and its differential in <span class="math">\(\mathbb{R}^2\)</span> in the
 standard Euclidean basis:</p>
 <div class="math">
@@ -417,7 +401,7 @@ u_R (v_R) &amp;= 3\sqrt{2} (\frac{a}{\sqrt{2}} + \frac{b}{\sqrt{2}})
           &amp;= 2a + 4b \\ \tag{17}
 \end{align*}
 </div>
-<p class="last">which is precisely the scalar that we got in the Euclidean basis.</p>
+<p>which is precisely the scalar that we got in the Euclidean basis.</p>
 </div>
 <p>Before we move on, I want to introduce some more notation to simply our lives.
 From Equation 11, using some new notation, we can re-write covector
@@ -500,7 +484,7 @@ we're doing both, which hints that this is a (1,1)-tensor!  Indeed, this is
 our first example of a rank 2 tensor, which usually is represented as a matrix
 (e.g. 2 axes).</p>
 <div class="admonition admonition-example-4-a-linear-transformation-as-a-1-1-tensor">
-<p class="first admonition-title">Example 4: A Linear Transformation as a (1,1)-Tensor</p>
+<p class="admonition-title">Example 4: A Linear Transformation as a (1,1)-Tensor</p>
 <p>Let's start with a simple linear transformation in our standard
 Euclidean basis:</p>
 <div class="math">
@@ -574,7 +558,7 @@ R^{-1}(L{\bf v}) &amp;= \begin{bmatrix} \frac{1}{\sqrt{2}} &amp; \frac{1}{\sqrt{
 \tag{26}
 \end{align*}
 </div>
-<p class="last">which we can see is the same as Equation 23.</p>
+<p>which we can see is the same as Equation 23.</p>
 </div>
 <p><br></p>
 <h4> Bilinear Forms </h4>
@@ -638,21 +622,16 @@ most important tensors around: the
 <a class="reference external" href="https://en.wikipedia.org/wiki/Metric_tensor">Metric Tensor</a>.
 In fact, it's probably one of the top reasons people start to learn about tensors
 (and the main motivation for this post).</p>
-<p>The definition is a lot simpler because it's just a special kind of bilinear <a class="footnote-reference" href="#id6" id="id3">[3]</a>:</p>
+<p>The definition is a lot simpler because it's just a special kind of bilinear <a class="footnote-reference brackets" href="#id6" id="id3">3</a>:</p>
 <blockquote>
 <p>A metric tensor at a point <span class="math">\(p\)</span> is a function <span class="math">\(g_p({\bf x}_p, {\bf y}_p)\)</span>
 which takes a pair of (tangent) vectors <span class="math">\({\bf x}_p, {\bf y}_p\)</span> at <span class="math">\(p\)</span>
 and produces a real number such that:</p>
 <ul class="simple">
-<li>
-<span class="math">\(g_p\)</span> is bilinear (see previous definition)</li>
-<li>
-<span class="math">\(g_p\)</span> is symmetric: <span class="math">\(g_p({\bf x}_p, {\bf y}_p) = g_p({\bf y}_p, {\bf x}_p)\)</span>
-</li>
-<li>
-<span class="math">\(g_p\)</span> is nondegenerate.  For every <span class="math">\({\bf x_p} \neq 0\)</span> there exists
-<span class="math">\({\bf y_p}\)</span> such that <span class="math">\(g_p({\bf x_p}, {\bf y_p}) \neq 0\)</span>
-</li>
+<li><p><span class="math">\(g_p\)</span> is bilinear (see previous definition)</p></li>
+<li><p><span class="math">\(g_p\)</span> is symmetric: <span class="math">\(g_p({\bf x}_p, {\bf y}_p) = g_p({\bf y}_p, {\bf x}_p)\)</span></p></li>
+<li><p><span class="math">\(g_p\)</span> is nondegenerate.  For every <span class="math">\({\bf x_p} \neq 0\)</span> there exists
+<span class="math">\({\bf y_p}\)</span> such that <span class="math">\(g_p({\bf x_p}, {\bf y_p}) \neq 0\)</span></p></li>
 </ul>
 </blockquote>
 <p>Don't worry so much about the "tangent" part, I'm glossing over parts of it
@@ -702,7 +681,7 @@ cos(\theta) = \frac{g_{ij} u^i v^j}{||{\bf u}|| ||{\bf v}||} \\
 <p>The next example shows that the distance and angle are truly invariant between
 a change in basis if we use our new metric tensor definition.</p>
 <div class="admonition admonition-example-5-computing-distance-and-angle-with-the-metric-tensor">
-<p class="first admonition-title">Example 5: Computing Distance and Angle with the Metric Tensor</p>
+<p class="admonition-title">Example 5: Computing Distance and Angle with the Metric Tensor</p>
 <p>Let's begin by defining two vectors in our standard Euclidean basis:</p>
 <div class="math">
 \begin{equation*}
@@ -807,7 +786,7 @@ cos(\theta) &amp;= \frac{\tilde{g_{ij}} \tilde{u}^i \tilde{v}^j}{||\tilde{\bf u}
 \tag{40}
 \end{align*}
 </div>
-<p class="last">which line up with the calculations we did in our original basis.</p>
+<p>which line up with the calculations we did in our original basis.</p>
 </div>
 <p>The metric tensor comes up a lot in many different contexts (look out for
 future posts) because it helps define what we mean by "distance" and "angle".
@@ -818,49 +797,49 @@ a bit more depth than this post but still in a very clear manner.</p>
 <h4> Summary: A Tensor is a Tensor </h4>
 <p>So, let's review a bit about tensors:</p>
 <ul class="simple">
-<li>A <strong>tensor</strong> is an object that takes an input tensor (or none at all in the
+<li><p>A <strong>tensor</strong> is an object that takes an input tensor (or none at all in the
 case of geometric vectors) and produces an output tensor that is <em>invariant</em>
 under a change of basis, and whose coordinates change in a <em>special,
-predictable</em> way when changing basis.</li>
-<li>A tensor can have <strong>contravariant</strong> and <strong>covariant</strong> components corresponding
-to the components of the tensor transforming <em>against</em> or <em>with</em> the change of basis.</li>
-<li>The <strong>rank</strong> (or degree or order) of a tensor is the number of "axes" or
-components it has (not to be confused with the dimension of each "axis").</li>
-<li>A <span class="math">\((n, m)\)</span>-tensor has <span class="math">\(n\)</span> contravariant components and <span class="math">\(m\)</span>
-covariant components with rank <span class="math">\(n+m\)</span>.</li>
+predictable</em> way when changing basis.</p></li>
+<li><p>A tensor can have <strong>contravariant</strong> and <strong>covariant</strong> components corresponding
+to the components of the tensor transforming <em>against</em> or <em>with</em> the change of basis.</p></li>
+<li><p>The <strong>rank</strong> (or degree or order) of a tensor is the number of "axes" or
+components it has (not to be confused with the dimension of each "axis").</p></li>
+<li><p>A <span class="math">\((n, m)\)</span>-tensor has <span class="math">\(n\)</span> contravariant components and <span class="math">\(m\)</span>
+covariant components with rank <span class="math">\(n+m\)</span>.</p></li>
 </ul>
 <p>We've looked at four different types of tensors:</p>
-<table border="1" class="colwidths-given docutils">
+<table class="colwidths-given">
 <colgroup>
-<col width="43%">
-<col width="14%">
-<col width="43%">
+<col style="width: 43%">
+<col style="width: 14%">
+<col style="width: 43%">
 </colgroup>
-<thead valign="bottom"><tr>
-<th class="head">Tensor</th>
-<th class="head">Type</th>
-<th class="head">Example</th>
+<thead><tr>
+<th class="head"><p>Tensor</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Example</p></th>
 </tr></thead>
-<tbody valign="top">
+<tbody>
 <tr>
-<td>Contravariant Vectors (vectors)</td>
-<td>(1, 0)</td>
-<td>Geometric (Euclidean) vectors</td>
+<td><p>Contravariant Vectors (vectors)</p></td>
+<td><p>(1, 0)</p></td>
+<td><p>Geometric (Euclidean) vectors</p></td>
 </tr>
 <tr>
-<td>Covariant Vectors</td>
-<td>(0, 1)</td>
-<td>Linear Functionals</td>
+<td><p>Covariant Vectors</p></td>
+<td><p>(0, 1)</p></td>
+<td><p>Linear Functionals</p></td>
 </tr>
 <tr>
-<td>Linear Map</td>
-<td>(1, 1)</td>
-<td>Linear Transformations</td>
+<td><p>Linear Map</p></td>
+<td><p>(1, 1)</p></td>
+<td><p>Linear Transformations</p></td>
 </tr>
 <tr>
-<td>Bilinear Form</td>
-<td>(0, 2)</td>
-<td>Metric Tensor</td>
+<td><p>Bilinear Form</p></td>
+<td><p>(0, 2)</p></td>
+<td><p>Metric Tensor</p></td>
 </tr>
 </tbody>
 </table>
@@ -873,15 +852,13 @@ in ML.</p>
 <p><br></p>
 <h4> 5. Further Reading </h4>
 <ul class="simple">
-<li>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Tensor_(disambiguation)">Tensors</a>,
+<li><p>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Tensor_(disambiguation)">Tensors</a>,
 <a class="reference external" href="https://en.wikipedia.org/wiki/Metric_tensor">Metric Tensor</a>,
 <a class="reference external" href="https://en.wikipedia.org/wiki/Covariance_and_contravariance_of_vectors">Covariance and contravariance of vectors</a>,
-<a class="reference external" href="https://en.wikipedia.org/wiki/Vector_(mathematics_and_physics)">Vector</a>
-</li>
-<li>[1] <a class="reference external" href="https://www.youtube.com/playlist?list=PLJHszsWbB6hrkmmq57lX8BV-o-YIOFsiG">Tensors for Beginners (YouTube playlist)</a>, eigenchris</li>
-<li>[2] <a class="reference external" href="http://www.markushanke.net/tensors-for-laypeople/">Tensors for Laypeople</a>, Markus Hanke</li>
-<li>[3] <a class="reference external" href="https://www.grc.nasa.gov/www/k-12/Numbers/Math/documents/Tensors_TM2002211716.pdf">An Introduction for Tensors for Students of Physics and Engineering</a>
-</li>
+<a class="reference external" href="https://en.wikipedia.org/wiki/Vector_(mathematics_and_physics)">Vector</a></p></li>
+<li><p>[1] <a class="reference external" href="https://www.youtube.com/playlist?list=PLJHszsWbB6hrkmmq57lX8BV-o-YIOFsiG">Tensors for Beginners (YouTube playlist)</a>, eigenchris</p></li>
+<li><p>[2] <a class="reference external" href="http://www.markushanke.net/tensors-for-laypeople/">Tensors for Laypeople</a>, Markus Hanke</p></li>
+<li><p>[3] <a class="reference external" href="https://www.grc.nasa.gov/www/k-12/Numbers/Math/documents/Tensors_TM2002211716.pdf">An Introduction for Tensors for Students of Physics and Engineering</a></p></li>
 </ul>
 <p><br></p>
 <h4> Appendix A: Showing a Bilinear is a (0,2)-Tensor using Matrix Notation </h4>
@@ -902,36 +879,20 @@ that the bilinear transforms like a (0,2)-tensor using matrix notation:</p>
 <p>Note: that we can only write out the matrix representation because we're still
 using rank 2 tensors. When working with higher order tensors, we can't fall back
 on our matrix algebra anymore.</p>
-<table class="docutils footnote" frame="void" id="id4" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
-<td>This is not exactly the best example because it's showing a vector in both contravariant and tangent covector space, which is not exactly the point I'm trying to make here.  But the idea is basically the same: the vector is the same object regardless of what basis you use.</td>
-</tr></tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id5" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="#id2">[2]</a></td>
-<td>There is a <a class="reference external" href="https://en.wikipedia.org/wiki/Linear_form#Visualizing_linear_functionals">geometric interpretation of covectors</a> are parallel surfaces and the contravariant vectors "piercing" these surfaces.  I don't really like this interpretation because it's kind of artificial and doesn't have any physical analogue that I can think of.</td>
-</tr></tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id6" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="#id3">[3]</a></td>
-<td>Actually the metric tensor is usually defined more generally in terms of manifolds but I've simplified it here because I haven't quite got to that topic yet!</td>
-</tr></tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd>
+<p>This is not exactly the best example because it's showing a vector in both contravariant and tangent covector space, which is not exactly the point I'm trying to make here.  But the idea is basically the same: the vector is the same object regardless of what basis you use.</p>
+</dd>
+<dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd>
+<p>There is a <a class="reference external" href="https://en.wikipedia.org/wiki/Linear_form#Visualizing_linear_functionals">geometric interpretation of covectors</a> are parallel surfaces and the contravariant vectors "piercing" these surfaces.  I don't really like this interpretation because it's kind of artificial and doesn't have any physical analogue that I can think of.</p>
+</dd>
+<dt class="label" id="id6"><span class="brackets"><a class="fn-backref" href="#id3">3</a></span></dt>
+<dd>
+<p>Actually the metric tensor is usually defined more generally in terms of manifolds but I've simplified it here because I haven't quite got to that topic yet!</p>
+</dd>
+</dl>
 </div>
     </div>
     <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
@@ -1008,14 +969,14 @@ on our matrix algebra anymore.</p>
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2019         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
 </div>
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

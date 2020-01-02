@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="A brief introduction to variational Bayes and the mean-field approximation.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Variational Bayes and The Mean-Field Approximation | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -18,17 +14,6 @@
 <meta name="author" content="Brian Keng">
 <link rel="prev" href="../the-calculus-of-variations/" title="The Calculus of Variations" type="text/html">
 <link rel="next" href="../variational-autoencoders/" title="Variational Autoencoders" type="text/html">
-<meta property="og:site_name" content="Bounded Rationality">
-<meta property="og:title" content="Variational Bayes and The Mean-Field Approximation">
-<meta property="og:url" content="http://bjlkeng.github.io/posts/variational-bayes-and-the-mean-field-approximation/">
-<meta property="og:description" content="A brief introduction to variational Bayes and the mean-field approximation.">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2017-04-03T08:02:46-05:00">
-<meta property="article:tag" content="Bayesian">
-<meta property="article:tag" content="Kullback-Leibler">
-<meta property="article:tag" content="mathjax">
-<meta property="article:tag" content="mean-field">
-<meta property="article:tag" content="variational calculus">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -83,10 +68,13 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Variational Bayes and The Mean-Field Approximation</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
                     Brian Keng
             </span></p>
-            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2017-04-03T08:02:46-05:00" itemprop="datePublished" title="2017-04-03 08:02">2017-04-03 08:02</time></a></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2017-04-03T08:02:46-05:00" itemprop="datePublished" title="2017-04-03 08:02">2017-04-03 08:02</time></a>
+            </p>
             
         <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
 
@@ -99,9 +87,9 @@
 the most common one, the mean-field approximation.  This is a topic that I've
 been trying to understand for a while now but didn't quite have all the background
 that I needed.  After picking up the main ideas from
-<a class="reference external" href="../the-calculus-of-variations">variational calculus</a> and
+<a class="reference external" href="../the-calculus-of-variations/">variational calculus</a> and
 getting more fluent in manipulating probability statements like
-in my <a class="reference external" href="../the-expectation-maximization-algorithm">EM</a> post,
+in my <a class="reference external" href="../the-expectation-maximization-algorithm/">EM</a> post,
 this variational Bayes stuff seems a lot easier.</p>
 <p>Variational Bayesian methods are a set of techniques to approximate posterior
 distributions in <a class="reference external" href="https://en.wikipedia.org/wiki/Bayesian_inference">Bayesian Inference</a>.
@@ -126,7 +114,7 @@ variables (and is against the spirit of Bayesian analysis).  The other
 aims to find a (joint) distribution of each unknown variable.  With a proper
 distribution for each variable, we can do a whole bunch of nice Bayesian
 analysis like the mean, variance, 95% credible interval etc.</p>
-<p>One good but relatively slow method for finding a distribution is to use <a class="reference external" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm">MCMC</a>
+<p>One good but relatively slow method for finding a distribution is to use <a class="reference external" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/">MCMC</a>
 (a simulation technique)
 to iteratively draw samples that eventually give you the shape of the joint distribution
 of the unknown variables.  Another method is to use variational Bayes, which helps to
@@ -137,10 +125,10 @@ analysis you like, and the best part is it's relatively easy to compute!</p>
 <p>The next example shows a couple of Bayesian inference problems to make things
 more concrete.</p>
 <div class="admonition admonition-example-1-bayesian-inference-problems">
-<p class="first admonition-title">Example 1: Bayesian Inference Problems</p>
-<ol class="last arabic">
+<p class="admonition-title">Example 1: Bayesian Inference Problems</p>
+<ol class="arabic">
 <li>
-<p class="first"><strong>Fitting a univariate Gaussian with unknown mean and variance</strong>:
+<p><strong>Fitting a univariate Gaussian with unknown mean and variance</strong>:
 Given observed data <span class="math">\(X=\{x_1,\ldots, x_N\}\)</span>, we wish to model this data
 as a normal distribution with parameters <span class="math">\(\mu,\sigma^2\)</span> with a
 normally distributed prior on the mean and an inverse-gamma distributed
@@ -161,7 +149,7 @@ posterior distribution <span class="math">\(q(\mu, \tau) \approx p(\mu, \tau | x
 \ldots, x_N)\)</span>.</p>
 </li>
 <li>
-<p class="first"><strong>Bayesian Gaussian Mixture Model</strong>:
+<p><strong>Bayesian Gaussian Mixture Model</strong>:
 A
 <a class="reference external" href="https://en.wikipedia.org/wiki/Variational_Bayesian_methods#A_more_complex_example">Bayesian Gaussian mixture model</a>
 with <span class="math">\(K\)</span> mixture components
@@ -181,10 +169,8 @@ x_i &amp;\sim \mathcal{N}(\mu_{z_i}, \Lambda_{z_i}^{-1})  \\
 </div>
 <p>Notes:</p>
 <ul class="simple">
-<li>
-<span class="math">\(\mathcal{W}\)</span> is the <a class="reference external" href="https://en.wikipedia.org/wiki/Wishart_distribution">Wishart distribution</a>, which is the generalization to multiple dimensions of the gamma distribution. It's used for the prior on the covariance matrix for our multivariate normal distribution.  It's also a conjugate prior of the precision matrix (the inverse of the covariance matrix).</li>
-<li>
-<span class="math">\(\text{Symmetric-Dirichlet}\)</span> is a <a class="reference external" href="https://en.wikipedia.org/wiki/Dirichlet_distribution">Dirichlet distribution</a> which is the conjugate prior of a categorical variable (or equivalently a multinomial distribution with a single observation).</li>
+<li><p><span class="math">\(\mathcal{W}\)</span> is the <a class="reference external" href="https://en.wikipedia.org/wiki/Wishart_distribution">Wishart distribution</a>, which is the generalization to multiple dimensions of the gamma distribution. It's used for the prior on the covariance matrix for our multivariate normal distribution.  It's also a conjugate prior of the precision matrix (the inverse of the covariance matrix).</p></li>
+<li><p><span class="math">\(\text{Symmetric-Dirichlet}\)</span> is a <a class="reference external" href="https://en.wikipedia.org/wiki/Dirichlet_distribution">Dirichlet distribution</a> which is the conjugate prior of a categorical variable (or equivalently a multinomial distribution with a single observation).</p></li>
 </ul>
 <p>In this case, you would want to (ideally) find an approximation to the
 joint distribution posterior (including both parameters and latent variables):
@@ -207,25 +193,25 @@ partition is independent of the others.  Using KL divergence, we can derive
 mutually dependent equations (one for each partition) that define the shape of
 <span class="math">\(Q\)</span>.  The resultant <span class="math">\(Q\)</span> function then usually takes on the form of
 well-known distributions that we can easily analyze.  The leads to an
-easy-to-compute iterative algorithm (similar to the <a class="reference external" href="../the-expectation-maximization-algorithm">EM algorithm</a>) where we use all other
+easy-to-compute iterative algorithm (similar to the <a class="reference external" href="../the-expectation-maximization-algorithm/">EM algorithm</a>) where we use all other
 previously calculated partitions to derive the current one in an iterative fashion.</p>
 <p>To summarize, variational Bayes has these ideas:</p>
 <ul class="simple">
-<li>The Bayesian inference problem of finding a posterior on the unknown
+<li><p>The Bayesian inference problem of finding a posterior on the unknown
 variables (parameters and latent variables) is hard and usually can't be
-solved analytically.</li>
-<li>Variational Bayes solves this problem by finding a distribution <span class="math">\(Q\)</span>
-that approximates the true posterior <span class="math">\(P\)</span>.</li>
-<li>It uses KL-divergence as a measure of how well our approximation fits the true posterior.</li>
-<li>The mean-field approximation partitions the unknown variables and assumes
-each partition is independent (a simplifying assumption).</li>
-<li>With some (long) derivations, we can find an algorithm that iteratively computes the
+solved analytically.</p></li>
+<li><p>Variational Bayes solves this problem by finding a distribution <span class="math">\(Q\)</span>
+that approximates the true posterior <span class="math">\(P\)</span>.</p></li>
+<li><p>It uses KL-divergence as a measure of how well our approximation fits the true posterior.</p></li>
+<li><p>The mean-field approximation partitions the unknown variables and assumes
+each partition is independent (a simplifying assumption).</p></li>
+<li><p>With some (long) derivations, we can find an algorithm that iteratively computes the
 <span class="math">\(Q\)</span> distributions for a given partition by using the previous values of
-all the other partitions.</li>
+all the other partitions.</p></li>
 </ul>
 <p>Now that we have an overview of this process, let's see how it actually works.</p>
 <div class="admonition admonition-kullback-leibler-divergence">
-<p class="first admonition-title">Kullback-Leibler Divergence</p>
+<p class="admonition-title">Kullback-Leibler Divergence</p>
 <p><a class="reference external" href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">Kullback-Leibler divergence</a>
 (aka information gain) is a non-symmetric measure of the difference between
 two probability distributions <span class="math">\(P\)</span> and <span class="math">\(Q\)</span>.  It is defined for discrete
@@ -244,7 +230,7 @@ information entropy because I think it's a bit more intuitive.</p>
 <h5> KL Divergence as Information Gain </h5>
 <p>To quickly summarize, <a class="reference external" href="https://en.wikipedia.org/wiki/Entropy_(information_theory)">entropy</a>
 is the average amount of information or "surprise" for a probability
-distribution <a class="footnote-reference" href="#id5" id="id1">[1]</a>.  Entropy is defined as for both discrete and continuous distributions:</p>
+distribution <a class="footnote-reference brackets" href="#id5" id="id1">1</a>.  Entropy is defined as for both discrete and continuous distributions:</p>
 <div class="math">
 \begin{align*}
 H(P) &amp;:= E_P[I_P(X)] = -\sum_{i=1}^n P(i) \log(P(i)) \\
@@ -337,7 +323,7 @@ factor will be close to zero, also making for a better reverse KL fit.
 Reverse KL also has the nice tendency to make our <span class="math">\(Q\)</span> distribution
 matches at least one of the modes of <span class="math">\(P\)</span>, which is really the best we
 could hope for with the shape of our approximation.</p>
-<p class="last">In our use of KL divergence, we'll be using reverse KL divergence, not only
+<p>In our use of KL divergence, we'll be using reverse KL divergence, not only
 because of the nice properties above, but for the more practical reason that
 the math works out nicely :p</p>
 </div>
@@ -363,7 +349,7 @@ directly compute the marginal likelihood and instead only needed the likelihood
 (and prior)?</p>
 <p>This idea leads us to the two commonly used methods to solve Bayesian inference
 problems: MCMC and variational inference.  You can check out my previous post on
-<a class="reference external" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm">MCMC</a>
+<a class="reference external" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/">MCMC</a>
 but in general
 it's quite slow since it involves repeated sampling but your approximation can
 get arbitrarily close to the actual distribution (given enough time).
@@ -397,7 +383,7 @@ Rearranging we get:</p>
             \tag{9}
 \end{align*}
 </div>
-<p>where <span class="math">\(\mathcal{L}\)</span> is called the (negative) <em>variational free energy</em> <a class="footnote-reference" href="#id6" id="id2">[2]</a>,
+<p>where <span class="math">\(\mathcal{L}\)</span> is called the (negative) <em>variational free energy</em> <a class="footnote-reference brackets" href="#id6" id="id2">2</a>,
 NOT the likelihood (I don't like the choice of symbols either but that's how it's shown
 in most texts).  Recall that the evidence on the LHS is constant (for a given
 model), thus if we maximize the variational free energy <span class="math">\(\mathcal{L}\)</span>, we
@@ -410,7 +396,7 @@ likelihood either, this is a big win because the likelihood and prior are usuall
 easily specified with the marginal likelihood intractable.
 Note that we need to find a <em>function</em>, not just a
 point, that maximizes <span class="math">\(\mathcal{L}\)</span>, which means we need to use
-variational calculus (see my <a class="reference external" href="../the-calculus-of-variations">previous post</a>
+variational calculus (see my <a class="reference external" href="../the-calculus-of-variations/">previous post</a>
 on the subject), hence the name "variational Bayes".</p>
 <p><br></p>
 <h4> The Mean-Field Approximation </h4>
@@ -436,7 +422,7 @@ p(\theta|X) \approx q(\theta) = q(\theta_1, \ldots, \theta_n) = \prod_{i=1}^N q_
 <h5> Deriving the Functional Form of <span class="math">\(q_j(\theta_j)\)</span> </h5>
 <p>From Equation 10, we can plug it back into our variational free energy
 <span class="math">\(\mathcal{L}\)</span> and try to derive the functional form of <span class="math">\(q_j\)</span> using
-variational calculus <a class="footnote-reference" href="#id7" id="id3">[3]</a>.  Let's start with <span class="math">\(\mathcal{L}\)</span> and try to
+variational calculus <a class="footnote-reference brackets" href="#id7" id="id3">3</a>.  Let's start with <span class="math">\(\mathcal{L}\)</span> and try to
 re-write it isolating the terms for <span class="math">\(q_j(\theta_j)\)</span> in hopes of taking
 a functional derivative afterwards to find the optimal form of the function.
 Note that <span class="math">\(\mathcal{L}\)</span> is a <a class="reference external" href="https://en.wikipedia.org/wiki/Functional_(mathematics)">functional</a> that depends on our
@@ -579,11 +565,11 @@ values of all the other <span class="math">\(q_i(\theta_i)\)</span> functions (b
 expectation <span class="math">\(E_{m|m\neq j}[\log p(\theta, X)]\)</span>).  This suggests an
 iterative optimization algorithm:</p>
 <ol class="arabic simple">
-<li>Start with some random values for each of the parameters of the
-<span class="math">\(q_j(\theta_j)\)</span> functions.</li>
-<li>For each <span class="math">\(q_j\)</span>, use Equation 16 to minimize the overall KL divergence
-by updating <span class="math">\(q_j(\theta_j)\)</span> (holding all the others constant).</li>
-<li>Repeat until convergence.</li>
+<li><p>Start with some random values for each of the parameters of the
+<span class="math">\(q_j(\theta_j)\)</span> functions.</p></li>
+<li><p>For each <span class="math">\(q_j\)</span>, use Equation 16 to minimize the overall KL divergence
+by updating <span class="math">\(q_j(\theta_j)\)</span> (holding all the others constant).</p></li>
+<li><p>Repeat until convergence.</p></li>
 </ol>
 <p>Notice that in each iteration, we are lowering the KL divergence between our
 <span class="math">\(Q\)</span> and <span class="math">\(P\)</span> distributions, so we're guaranteed to be improving each
@@ -726,21 +712,21 @@ b_N &amp;= b_0 + \frac{\kappa_0}{2}\big(
 from Equation 24 to keep it a bit neater.  From this, we can develop a simple
 algorithm to compute <span class="math">\(q(\mu)\)</span> and <span class="math">\(q(\tau)\)</span>:</p>
 <ol class="arabic simple">
-<li>Compute values <span class="math">\(E_{q_{\mu}(\mu)}[\mu], E_{q_{\mu}(\mu)}[\mu^2], E_{q_{\tau}(\tau)}[\tau]\)</span> from Equation 24 as well as <span class="math">\(\mu_N, a_N\)</span> since they can be computed directly from the data and constants.</li>
-<li>Initialize <span class="math">\(\tau_N\)</span> to some arbitrary value.</li>
-<li>Use current value of <span class="math">\(\tau_N\)</span> and values from Step 1 to compute <span class="math">\(b_N\)</span>.</li>
-<li>Use current value of <span class="math">\(b_N\)</span> and values from Step 1 to compute <span class="math">\(\tau_N\)</span>.</li>
-<li>Repeat the last two steps until neither value has changed much.</li>
+<li><p>Compute values <span class="math">\(E_{q_{\mu}(\mu)}[\mu], E_{q_{\mu}(\mu)}[\mu^2], E_{q_{\tau}(\tau)}[\tau]\)</span> from Equation 24 as well as <span class="math">\(\mu_N, a_N\)</span> since they can be computed directly from the data and constants.</p></li>
+<li><p>Initialize <span class="math">\(\tau_N\)</span> to some arbitrary value.</p></li>
+<li><p>Use current value of <span class="math">\(\tau_N\)</span> and values from Step 1 to compute <span class="math">\(b_N\)</span>.</p></li>
+<li><p>Use current value of <span class="math">\(b_N\)</span> and values from Step 1 to compute <span class="math">\(\tau_N\)</span>.</p></li>
+<li><p>Repeat the last two steps until neither value has changed much.</p></li>
 </ol>
 <p>Once we have the parameters for <span class="math">\(q(\mu)\)</span> and <span class="math">\(q(\tau)\)</span>, we can compute
 anything we want such as the mean, variance, 95% credible interval etc.</p>
 <p><br></p>
-<h4> Variational Bayes EM for mixtures of Gaussians <a class="footnote-reference" href="#id8" id="id4">[4]</a> </h4>
+<h4> Variational Bayes EM for mixtures of Gaussians <a class="footnote-reference brackets" href="#id8" id="id4">4</a> </h4>
 <p>The previous example of a univariate Gaussian already seems a bit complex
 (one of the downsides for VB) so I just want to mention that we can do this
 for the second case in Example 1 too, the Bayesian Gaussian Mixture Model.
 This application of variational Bayes takes a very similar form to the
-<a class="reference external" href="../the-expectation-maximization-algorithm">Expectation-Maximization</a>
+<a class="reference external" href="../the-expectation-maximization-algorithm/">Expectation-Maximization</a>
 algorithm.</p>
 <p>Recall a mixture model has two types of variables: the latent categorical
 variables for each data point specifying which Gaussian it came from (<span class="math">\(z_i\)</span>),
@@ -791,11 +777,11 @@ can just refer to Murphy or
 if you really want to dig into it.</p>
 <p>In the end, we'll end up with a two step iterative process EM-like process:</p>
 <ol class="arabic simple">
-<li>A variational "E" step where we compute the values latent variables (or more directly
+<li><p>A variational "E" step where we compute the values latent variables (or more directly
 the responsibility) based upon the current parameter estimates of the
-mixture components.</li>
-<li>A variational "M" step where we estimate the parameters of the distributions
-for each mixture component based upon the values of all the latent variables.</li>
+mixture components.</p></li>
+<li><p>A variational "M" step where we estimate the parameters of the distributions
+for each mixture component based upon the values of all the latent variables.</p></li>
 </ol>
 <p><br></p>
 <h4> Conclusion </h4>
@@ -807,55 +793,30 @@ learning domain but with strong roots in probability.</p>
 <p><br></p>
 <h4> Further Reading </h4>
 <ul class="simple">
-<li>Previous Posts: <a class="reference external" href="../the-calculus-of-variations">Variational Calculus</a>, <a class="reference external" href="../the-expectation-maximization-algorithm">Expectation-Maximization Algorithm</a>, <a class="reference external" href="../the-expectation-maximization-algorithm">Normal Approximation to the Posterior</a>, <a class="reference external" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm">Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm</a>, <a class="reference external" href="../maximum-entropy-distributions">Maximum Entropy Distributions</a>
-</li>
-<li>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Variational_Bayesian_methods">Variational Bayesian methods</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Bayesian_inference">Bayesian Inference</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">Kullback-Leibler divergence</a>
-</li>
-<li>Machine Learning: A Probabilistic Perspective, Kevin P. Murphy</li>
-<li>
-<a class="reference external" href="http://blog.evjang.com/2016/08/variational-bayes.html">A Beginner's Guide to Variational Methods: Mean-Field Approximation</a>, Eric Jang.</li>
+<li><p>Previous Posts: <a class="reference external" href="../the-calculus-of-variations/">Variational Calculus</a>, <a class="reference external" href="../the-expectation-maximization-algorithm/">Expectation-Maximization Algorithm</a>, <a class="reference external" href="../the-expectation-maximization-algorithm/">Normal Approximation to the Posterior</a>, <a class="reference external" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/">Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm</a>, <a class="reference external" href="../maximum-entropy-distributions/">Maximum Entropy Distributions</a></p></li>
+<li><p>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Variational_Bayesian_methods">Variational Bayesian methods</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Bayesian_inference">Bayesian Inference</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">Kullback-Leibler divergence</a></p></li>
+<li><p>Machine Learning: A Probabilistic Perspective, Kevin P. Murphy</p></li>
+<li><p><a class="reference external" href="http://blog.evjang.com/2016/08/variational-bayes.html">A Beginner's Guide to Variational Methods: Mean-Field Approximation</a>, Eric Jang.</p></li>
 </ul>
 <p><br></p>
-<table class="docutils footnote" frame="void" id="id5" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
-<td>There are a few different ways to intuitively understand information entropy.  See my previous post on <a class="reference external" href="../maximum-entropy-distributions">Maximum Entropy Distributions</a> for a slightly different explanation.</td>
-</tr></tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id6" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="#id2">[2]</a></td>
-<td>The term variational free energy is from an alternative interpretation from physics.  As with a lot of ML techniques, this one has its roots in physics where they make great use of probability to model the physical world.</td>
-</tr></tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id7" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="#id3">[3]</a></td>
-<td>This is one of the parts that I struggled with because many texts skip over this part (probably because it needs variational calculus).  They very rarely show the derivation of the functional form.</td>
-</tr></tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id8" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="#id4">[4]</a></td>
-<td>This section heavily draws upon the treatment from Murphy's Machine Learning: A Probabilistic Perspective.  You should take a look at it for a more thorough treatment.</td>
-</tr></tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd>
+<p>There are a few different ways to intuitively understand information entropy.  See my previous post on <a class="reference external" href="../maximum-entropy-distributions/">Maximum Entropy Distributions</a> for a slightly different explanation.</p>
+</dd>
+<dt class="label" id="id6"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd>
+<p>The term variational free energy is from an alternative interpretation from physics.  As with a lot of ML techniques, this one has its roots in physics where they make great use of probability to model the physical world.</p>
+</dd>
+<dt class="label" id="id7"><span class="brackets"><a class="fn-backref" href="#id3">3</a></span></dt>
+<dd>
+<p>This is one of the parts that I struggled with because many texts skip over this part (probably because it needs variational calculus).  They very rarely show the derivation of the functional form.</p>
+</dd>
+<dt class="label" id="id8"><span class="brackets"><a class="fn-backref" href="#id4">4</a></span></dt>
+<dd>
+<p>This section heavily draws upon the treatment from Murphy's Machine Learning: A Probabilistic Perspective.  You should take a look at it for a more thorough treatment.</p>
+</dd>
+</dl>
 </div>
     </div>
     <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
@@ -928,14 +889,14 @@ learning domain but with strong roots in probability.</p>
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2019         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
 </div>
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

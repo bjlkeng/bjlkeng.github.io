@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about Rubikloud)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/rubikloud.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 27 Aug 2019 13:44:41 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>The Hard Thing about Machine Learning</title><link>http://bjlkeng.github.io/posts/the-hard-thing-about-machine-learning/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;I wrote a post on the hard parts about machine learning over
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about Rubikloud)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/rubikloud.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Thu, 02 Jan 2020 21:59:55 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>The Hard Thing about Machine Learning</title><link>http://bjlkeng.github.io/posts/the-hard-thing-about-machine-learning/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;I wrote a post on the hard parts about machine learning over
 at Rubikloud:&lt;/p&gt;
 &lt;ul class="simple"&gt;
-&lt;li&gt;&lt;a class="reference external" href="https://rubikloud.com/labs/data-science/hard-thing-machine-learning/"&gt;The Hard Thing about Machine Learning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;a class="reference external" href="https://rubikloud.com/labs/data-science/hard-thing-machine-learning/"&gt;The Hard Thing about Machine Learning&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Here's a blurb:&lt;/p&gt;
 &lt;blockquote&gt;
@@ -28,7 +28,7 @@ predictions and building machine learning systems.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;Enjoy!&lt;/p&gt;&lt;/div&gt;</description><category>Machine Learning</category><category>Rubikloud</category><category>systems</category><guid>http://bjlkeng.github.io/posts/the-hard-thing-about-machine-learning/</guid><pubDate>Tue, 22 Aug 2017 12:32:55 GMT</pubDate></item><item><title>Building A Table Tennis Ranking Model</title><link>http://bjlkeng.github.io/posts/building-a-table-tennis-ranking-model/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;I wrote a post about building a table tennis ranking model over at Rubikloud:&lt;/p&gt;
 &lt;ul class="simple"&gt;
-&lt;li&gt;&lt;a class="reference external" href="https://rubikloud.com/labs/building-table-tennis-ranking-model/"&gt;Building A Table Tennis Ranking Model&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;a class="reference external" href="https://rubikloud.com/labs/building-table-tennis-ranking-model/"&gt;Building A Table Tennis Ranking Model&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;It uses
 &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model"&gt;Bradley-Terry&lt;/a&gt;
@@ -58,12 +58,12 @@ and I built a model.&lt;/p&gt;
 collaborative filtering that we're doing at my job as a Data Scientist at
 &lt;a class="reference external" href="http://www.rubikloud.com"&gt;Rubikloud&lt;/a&gt;:&lt;/p&gt;
 &lt;ul class="simple"&gt;
-&lt;li&gt;&lt;a class="reference external" href="http://rubikloud.com/labs/data-science/beyond-collaborative-filtering/"&gt;Beyond Collaborative Filtering (Part 1)&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class="reference external" href="http://rubikloud.com/labs/data-science/beyond-collaborative-filtering-part-2/"&gt;Beyond Collaborative Filtering (Part 2)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;a class="reference external" href="http://rubikloud.com/labs/data-science/beyond-collaborative-filtering/"&gt;Beyond Collaborative Filtering (Part 1)&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;a class="reference external" href="http://rubikloud.com/labs/data-science/beyond-collaborative-filtering-part-2/"&gt;Beyond Collaborative Filtering (Part 2)&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Here's a blurb:&lt;/p&gt;
 &lt;blockquote&gt;
-Here at Rubikloud, a big focus of our data science team is empowering retailers
+&lt;p&gt;Here at Rubikloud, a big focus of our data science team is empowering retailers
 in delivering personalized one-to-one communications with their customers. A
 big aspect of personalization is recommending products and services that are
 tailored to a customer’s wants and needs. Naturally, recommendation systems are
@@ -73,5 +73,6 @@ series, I’ll describe the unique challenges that we have faced in building a
 retail specific product recommendation system and outline one of the main
 components of our recommendation system: a collaborative filtering algorithm.
 In Part 2, I’ll follow up with several useful applications of collaborative
-filtering and end by highlighting some of its limitations.&lt;/blockquote&gt;
+filtering and end by highlighting some of its limitations.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;Hope you like it!&lt;/p&gt;&lt;/div&gt;</description><category>Collaborative Filtering</category><category>Machine Learning</category><category>Recommendation Systems</category><category>Rubikloud</category><guid>http://bjlkeng.github.io/posts/beyond-collaborative-filtering/</guid><pubDate>Sat, 11 Jun 2016 22:00:34 GMT</pubDate></item></channel></rss>

@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="A First Post">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>A First Post | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -17,17 +13,6 @@
 <!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="description" itemprop="description" content="A First Post">
 <meta name="author" content="Brian Keng">
 <link rel="next" href="../common-sense-and-investing/" title="Common Sense and Investing" type="text/html">
-<meta property="og:site_name" content="Bounded Rationality">
-<meta property="og:title" content="A First Post">
-<meta property="og:url" content="http://bjlkeng.github.io/posts/a-first-post/">
-<meta property="og:description" content="A First Post">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2015-08-02T05:03:25-04:00">
-<meta property="article:tag" content="first post">
-<meta property="article:tag" content="Github">
-<meta property="article:tag" content="James Hague">
-<meta property="article:tag" content="Nikola">
-<meta property="article:tag" content="satisficing">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -82,10 +67,13 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">A First Post</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
                     Brian Keng
             </span></p>
-            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2015-08-02T05:03:25-04:00" itemprop="datePublished" title="2015-08-02 05:03">2015-08-02 05:03</time></a></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2015-08-02T05:03:25-04:00" itemprop="datePublished" title="2015-08-02 05:03">2015-08-02 05:03</time></a>
+            </p>
             
         <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
 
@@ -103,25 +91,29 @@ domain/title mean.
 For my personal blog (<a class="reference external" href="http://www.briankeng.com/">www.briankeng.com</a>), where
 I discuss random worldly wisdom that I come across, I use <a class="reference external" href="https://wordpress.org/">WordPress</a>.
 For this one, I used something a bit more technical (because why not?):</p>
-<dl class="docutils">
+<dl>
 <dt><a class="reference external" href="https://pages.github.com/">Github Pages</a></dt>
-<dd>Great place to host a static website (free) but also has some of that "hacker
+<dd>
+<p>Great place to host a static website (free) but also has some of that "hacker
 cred".  It's quite easy to use (if you've used git before) and also quite
 well <a class="reference external" href="https://help.github.com/articles/setting-up-a-custom-domain-with-github-pages/">documented</a>
-on how to get your domain setup.</dd>
+on how to get your domain setup.</p>
+</dd>
 <dt>
 <br><a class="reference external" href="https://getnikola.com/">Nikola</a> (static site generator)</dt>
-<dd>The recommended static site generator with Github Pages is Jekyll but one
+<dd>
+<p>The recommended static site generator with Github Pages is Jekyll but one
 thing I wanted for this site is to make use of <a class="reference external" href="http://ipython.org/notebook.html">IPython Notebooks</a>.  After a bit of searching, I found
 Nikola to be a good match because it supports IPython Notebooks out of the box
 (as opposed to Jekyll which required some fiddling), and seemd to have a reasonably
 simple setup.  The really interesting line from the <a class="reference external" href="https://getnikola.com/handbook.html#getting-more-themes">documentation</a>
-is this quote: <tt class="docutils literal">DON'T READ THIS MANUAL. IF YOU NEED TO READ IT I FAILED, JUST USE THE THING.</tt>
-Exactly the sentiment I was going for.</dd>
+is this quote: <code class="docutils literal">DON'T READ THIS MANUAL. IF YOU NEED TO READ IT I FAILED, JUST USE THE THING.</code>
+Exactly the sentiment I was going for.</p>
+</dd>
 <dt>
 <br><a class="reference external" href="https://themes.getnikola.com/#bootstrap3">Bootstrap3</a> theme and <a class="reference external" href="bhttp://bootswatch.com/readable/">Readable</a> Bootstrap theme.</dt>
 <dd>
-<p class="first">Bootstrap3 is the default theme for Nikola, conveniently using <a class="reference external" href="http://getbootstrap.com/">Bootstrap</a>,
+<p>Bootstrap3 is the default theme for Nikola, conveniently using <a class="reference external" href="http://getbootstrap.com/">Bootstrap</a>,
 the most popular HTML/CSS/JS framework for the web.  Since I'm not a very
 good designer using high quality themes/framework is definitely ideal.</p>
 <p>The default Nikola theme, however, was not too my liking.  A bit too spartan for me.  Fortunately, Nikola has a really cool
@@ -129,7 +121,7 @@ feature where you can take an existing Bootstrap theme from <a class="reference 
 and skin the default Nikola Bootstrap theme.  I chose the <a class="reference external" href="bhttp://bootswatch.com/readable/">Readable</a> theme because I'm
 a huge fan of making things easy-to-read (you should see how large the font
 size is on my devices, frequently referred to as "old people font size").</p>
-<p class="last">Even with the new Bootstrap theme, the site layout didn't quite look right.
+<p>Even with the new Bootstrap theme, the site layout didn't quite look right.
 So I fiddled around with the layout and placement of items, pretty much
 copying the layout of another blog I really enjoy <a class="reference external" href="http://prog21.dadgum.com/">programming in the twenty-first century</a> by James Hague.
 It was interesting playing around with HTML templates and CSS but pretty much
@@ -141,9 +133,10 @@ layout was as much effort as I really wanted to put in.</p>
 <p>As for the name of the blog, ever since I read the autobiography of <a class="reference external" href="https://en.wikipedia.org/wiki/Herbert_A._Simon">Herbert Simon</a>,
 I've been fascinated by his idea of <a class="reference external" href="https://en.wikipedia.org/wiki/Bounded_rationality">bounded rationality</a> which is the idea that:</p>
 <blockquote>
-"when individuals make decisions, their rationality is limited
+<p>"when individuals make decisions, their rationality is limited
 by the information they have, the cognitive limitations of their minds, and
-the time available to make the decision."</blockquote>
+the time available to make the decision."</p>
+</blockquote>
 <p>Along with this idea, Simon also gives the idea of <em>satisficing</em>, a term
 combining the meaning <em>satisfy</em> and <em>suffice</em>, a stark contrast to optimal
 decision making.  Not only was he quite ahead of the times applying this idea
@@ -151,8 +144,8 @@ of bounded rationality to economics/social science analysis, it also really
 speaks to his strong inclination to look at reality in the most rational way.
 This is as opposed to how many academics behave by trying to fit reality
 into their elegant mathematical models (A pithy quote from Galbraith:
-<tt class="docutils literal">economists are most economical about ideas. They make the ones they learned
-in graduate school last a lifetime</tt>).</p>
+<code class="docutils literal">economists are most economical about ideas. They make the ones they learned
+in graduate school last a lifetime</code>).</p>
 <p>Simon is definitely a personal hero of mine, a true polymath.  This is quite
 apparent from Simon winning both a Nobel Prize <em>and</em> a Turing award (the Turing
 award was for his contributions to artificial intelligence and IPL, a precursor
@@ -240,14 +233,14 @@ classifications, so why limit what I write about?  Hope you enjoy it.</p>
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2019         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
 </div>
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

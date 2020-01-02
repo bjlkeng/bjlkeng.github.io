@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="Understanding math, machine learning, and data to a satisfactory degree.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bounded Rationality (old posts, page 6) | Bounded Rationality</title>
-<link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
@@ -73,7 +69,7 @@
         </div>
     </header><div class="p-summary entry-summary">
     <div>
-<p>My last post was about some <a class="reference external" href="posts/gamblers-fallacy-and-the-law-of-small-numbers">common mistakes</a> when betting
+<p>My last post was about some <a class="reference external" href="posts/gamblers-fallacy-and-the-law-of-small-numbers/">common mistakes</a> when betting
 or gambling, even with a basic understanding of probability.  This post is going to
 talk about the other side: optimal betting strategies using some very
 interesting results from some very famous mathematicians in the 50s and 60s.
@@ -93,10 +89,7 @@ best left to the reader.</p>
             <p class="dateline"><a href="posts/gamblers-fallacy-and-the-law-of-small-numbers/" rel="bookmark"><time class="published dt-published" datetime="2015-11-01T11:08:11-04:00" title="2015-11-01 11:08">2015-11-01 11:08</time></a></p>
         </div>
     </header><div class="p-summary entry-summary">
-    <div tabindex="-1" id="notebook" class="border-box-sizing">
-    <div class="container" id="notebook-container">
-
-<div class="cell border-box-sizing text_cell rendered">
+    <div class="cell border-box-sizing text_cell rendered">
 <div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
@@ -104,8 +97,6 @@ best left to the reader.</p>
 <p>Games and gambling have been part of human cultures around the world for millennia.  Nowadays, the connection between games of chance and mathematics (in particular probability) are so obvious that it is taught to school children.  However, the mathematics of games and gambling only started to formally <a href="https://en.wikipedia.org/wiki/Gambling#History">develop</a> in the 17th century with the works of multiple mathematicians such as Fermat and Pascal.  It is then no wonder that many incorrect beliefs around gambling have formed that are "intuitive" from a layman's perspective but fail to pass muster when applying the rigor of mathematics.</p>
 <p>In this post, I want to discuss how surprisingly easy it is to be fooled into the wrong line of thinking even when approaching it using mathematics.  We'll take a look from both a theoretical (mathematics) point of view looking at topics such as the <a href="https://en.wikipedia.org/wiki/Gambler's_fallacy">Gambler's Fallacy</a> and the <a href="https://en.wikipedia.org/wiki/Hasty_generalization">law of small numbers</a> as well as do some simulations using code to gain some insight into the problem.  This post was inspired by a paper I recently came across a paper by Miller and Sanjurjo<a href="posts/gamblers-fallacy-and-the-law-of-small-numbers/#fn-1"><sup>[1]</sup></a> that explains the surprising result of how easily we can be fooled.</p>
 <p class="more"><a href="posts/gamblers-fallacy-and-the-law-of-small-numbers/">Read more…</a></p>
-</div>
-</div>
 </div>
 </div>
 </div>
@@ -125,11 +116,12 @@ using measure theory with concepts like events and sample space.
 In one way, it's intuitive to understand how this works as Laplace
 <a class="reference external" href="https://en.wikipedia.org/wiki/Classical_definition_of_probability">wrote</a>:</p>
 <blockquote>
-The probability of an event is the ratio of the number of cases favorable
+<p>The probability of an event is the ratio of the number of cases favorable
 to it, to the number of all cases possible, when [the cases are] equally
 possible. ... Probability is thus simply a fraction whose numerator is the
 number of favorable cases and whose denominator is the number of all the
-cases possible.</blockquote>
+cases possible.</p>
+</blockquote>
 <p>However, the intuition of this view of probability breaks down when we want to
 do more complex reasoning.  After learning probability from the lens of coins,
 dice and urns full of red and white balls, I still didn't feel that I had
@@ -139,7 +131,7 @@ whose numerator is the number of favorable cases and whose denominator is the
 number of all the cases possible"</em>.  And then I read <a class="reference external" href="http://www.cambridge.org/gb/academic/subjects/physics/theoretical-physics-and-mathematical-physics/probability-theory-logic-science">Probability Theory: The Logic of Science</a> by E. T. Jayne.</p>
 <p>Jayne takes a drastically different approach to probability, not with events and
 sample spaces, but rather as an extension of Boolean logic.  Taking this view made
-a great deal of sense to me since I spent a lot of time <a class="reference external" href="posts/accessible-satisfiability">studying and reasoning</a> in Boolean logic.  The following post
+a great deal of sense to me since I spent a lot of time <a class="reference external" href="posts/accessible-satisfiability/">studying and reasoning</a> in Boolean logic.  The following post
 is my attempt to explain Jayne's view of probability theory, where he derives
 it from "common sense" extensions to Boolean logic.  (<em>Spoiler alert: he ends
 up with pretty much the same mathematical system as Kolmogorov's probability
@@ -181,11 +173,11 @@ formative years.</p>
 functional language.  Yes, yes, I've done some small school assignments in
 <a class="reference external" href="https://en.wikipedia.org/wiki/Scheme_%28programming_language%29">Scheme</a> (a
 dialect of Lisp), even helping out my friend from another university with his
-Scheme assignment but nothing <em>real</em> <a class="footnote-reference" href="posts/functions-and-procedures/#id3" id="id1">[1]</a>.  Does this
+Scheme assignment but nothing <em>real</em> <a class="footnote-reference brackets" href="posts/functions-and-procedures/#id3" id="id1">1</a>.  Does this
 make me a worse programmer?  Probably not, I imagine most developers haven't
 done anything <em>real</em> with functional programming.  Although that's probably not
 what you'd expect from reading <a class="reference external" href="https://news.ycombinator.com/">Hacker News</a>,
-where you don't know programming if you haven't tried Clojure or Haskell <a class="footnote-reference" href="posts/functions-and-procedures/#id4" id="id2">[2]</a>.</p>
+where you don't know programming if you haven't tried Clojure or Haskell <a class="footnote-reference brackets" href="posts/functions-and-procedures/#id4" id="id2">2</a>.</p>
 <p>My position is much more pragmatic: I'm interested in tools and techniques that
 help me solve problems faster, cleaner and with less headache.  Ideas and
 concepts from functional programming languages are <em>supposed</em> to help with at
@@ -274,14 +266,14 @@ procedures and pure functions.</p>
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2019         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
 </div>
 </div>
 
 
-            <script src="assets/js/jquery.min.js"></script><script src="assets/js/bootstrap.min.js"></script><script src="assets/js/moment-with-locales.min.js"></script><script src="assets/js/fancydates.js"></script><script src="assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

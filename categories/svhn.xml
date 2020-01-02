@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about svhn)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/svhn.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 27 Aug 2019 13:44:41 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Label Refinery: A Softer Approach</title><link>http://bjlkeng.github.io/posts/label-refinery/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to be about a really simple idea that is surprisingly effective
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about svhn)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/svhn.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Thu, 02 Jan 2020 21:59:58 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Label Refinery: A Softer Approach</title><link>http://bjlkeng.github.io/posts/label-refinery/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to be about a really simple idea that is surprisingly effective
 from a paper by Bagherinezhad et al. called &lt;a class="reference external" href="https://arxiv.org/abs/1805.02641"&gt;Label Refinery: Improving ImageNet
 Classification through Label Progression&lt;/a&gt;.
 The title pretty much says it all but I'll also discuss some intuition and show
@@ -9,7 +9,7 @@ surprising, my favourite kind of idea!  Let's take a look.&lt;/p&gt;
 autoencoder (VAE) on the
 &lt;a class="reference external" href="http://ufldl.stanford.edu/housenumbers/"&gt;Street View House Numbers&lt;/a&gt;
 (SVHN) dataset.  My last post on
-&lt;a class="reference external" href="http://bjlkeng.github.io/posts/variational-autoencoders"&gt;variational autoencoders&lt;/a&gt;
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/variational-autoencoders/"&gt;variational autoencoders&lt;/a&gt;
 showed a simple example on the MNIST dataset but because it was so simple I
 thought I might have missed some of the subtler points of VAEs -- boy was I
 right!  The fact that I'm not really a computer vision guy nor a deep learning
@@ -19,7 +19,7 @@ points that are easy to gloss over if you're just reading someone else's
 tutorial.  I'll share with you some of the details in the math (that I
 initially got wrong) and also some of the implementation notes along with a
 notebook that I used to train the VAE.  Please check out my previous post
-on &lt;a class="reference external" href="http://bjlkeng.github.io/posts/variational-autoencoders"&gt;variational autoencoders&lt;/a&gt; to
+on &lt;a class="reference external" href="http://bjlkeng.github.io/posts/variational-autoencoders/"&gt;variational autoencoders&lt;/a&gt; to
 get some background.&lt;/p&gt;
 &lt;p&gt;&lt;em&gt;Update 2017-08-09: I actually found a bug in my original code where I was
 only using a small subset of the data!  I fixed it up in the notebooks and

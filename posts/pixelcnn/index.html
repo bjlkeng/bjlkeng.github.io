@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="A post of PixelCNN generative models.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PixelCNN | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -18,16 +14,6 @@
 <meta name="author" content="Brian Keng">
 <link rel="prev" href="../importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/" title="Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders" type="text/html">
 <link rel="next" href="../a-note-on-using-log-likelihood-for-generative-models/" title="A Note on Using Log-Likelihood for Generative Models" type="text/html">
-<meta property="og:site_name" content="Bounded Rationality">
-<meta property="og:title" content="PixelCNN">
-<meta property="og:url" content="http://bjlkeng.github.io/posts/pixelcnn/">
-<meta property="og:description" content="A post of PixelCNN generative models.">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2019-07-22T07:11:09-04:00">
-<meta property="article:tag" content="autoregressive">
-<meta property="article:tag" content="CIFAR10">
-<meta property="article:tag" content="generative models">
-<meta property="article:tag" content="mathjax">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -82,10 +68,13 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">PixelCNN</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
                     Brian Keng
             </span></p>
-            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2019-07-22T07:11:09-04:00" itemprop="datePublished" title="2019-07-22 07:11">2019-07-22 07:11</time></a></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2019-07-22T07:11:09-04:00" itemprop="datePublished" title="2019-07-22 07:11">2019-07-22 07:11</time></a>
+            </p>
             
         <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
 
@@ -114,7 +103,7 @@ from it).  Let's get started!</p>
 <h4> Autoregressive Generative Models </h4>
 <p>Before we begin, we should review autoregressive generative models.
 I'll basically summarize what I wrote in one of my previous post:
-<a class="reference external" href="../autoregressive-autoencoders">Autoregressive Autoencoders</a>.</p>
+<a class="reference external" href="../autoregressive-autoencoders/">Autoregressive Autoencoders</a>.</p>
 <p>An <a class="reference external" href="https://en.wikipedia.org/wiki/Autoregressive_model">Autoregressive model</a>
 is usually used in the context of time-series modelling
 (of <a class="reference external" href="https://en.wikipedia.org/wiki/Stochastic_process">random processes</a>)
@@ -126,9 +115,9 @@ In particular, literature usually assume a linear dependence and name these
 dependence and formulate our image problem as a random process.  In particular,
 we will:</p>
 <ol class="loweralpha simple">
-<li>Use a deep generative models (obviously non-linear), and</li>
-<li>Assume the pixels of an image are random variables with a specific ordering
-(top to bottom, left to right), which formulates it as a random process.</li>
+<li><p>Use a deep generative models (obviously non-linear), and</p></li>
+<li><p>Assume the pixels of an image are random variables with a specific ordering
+(top to bottom, left to right), which formulates it as a random process.</p></li>
 </ol>
 <p>With that in mind, let's review the
 <a class="reference external" href="https://en.wikipedia.org/wiki/Chain_rule_(probability)">product rule</a>:</p>
@@ -145,13 +134,13 @@ going to have a probability distribution that is a function of all the
 treated as separate sub-pixels).</p>
 <p>The way to generate an image from an autoregressive generative model is as follows:</p>
 <ol class="arabic simple">
-<li>Naturally, the first (sub-)pixel in our sequence has nothing before it so it's
+<li><p>Naturally, the first (sub-)pixel in our sequence has nothing before it so it's
 a pure unconditional distribution.  We simply sample from this
-distribution to get a concrete realization for the first (sub-)pixel.</li>
-<li>Each subsequent (sub-)pixel distribution is generated in sequence conditioned on
+distribution to get a concrete realization for the first (sub-)pixel.</p></li>
+<li><p>Each subsequent (sub-)pixel distribution is generated in sequence conditioned on
 all (or a subset of) previously sampled (sub-)pixels.  We simply sample from
-this conditional distribution to get the current pixel value.</li>
-<li>Repeat until you have the entire image.</li>
+this conditional distribution to get the current pixel value.</p></li>
+<li><p>Repeat until you have the entire image.</p></li>
 </ol>
 <p>According to my intuition, this is a really weird way to generate an image!
 Think of it, if you want to generate a picture of a dog, you start at the top
@@ -170,18 +159,18 @@ input an image and outputs a <em>distribution</em> for each (sub-)pixel (theoret
 you could have a different network for each pixel but that seems inefficient).
 There are a couple subtleties when doing that:</p>
 <ol class="loweralpha simple">
-<li>Due to the autoregressive nature, output pixel <span class="math">\(i\)</span> should not see any
+<li><p>Due to the autoregressive nature, output pixel <span class="math">\(i\)</span> should not see any
 input pixels <span class="math">\(\geq i\)</span>, otherwise it wouldn't be autoregressive (you
-could "see the future").</li>
-<li>Selecting a distribution and its corresponding loss function in order to
-model the output pixels.</li>
+could "see the future").</p></li>
+<li><p>Selecting a distribution and its corresponding loss function in order to
+model the output pixels.</p></li>
 </ol>
 <p>Let's take a look at each one separately.</p>
 <p></p>
 <h5> Masked Convolution </h5>
 <p>The masked convolution is basically the same idea as the masked autoencoder
 from my post on MADE:
-<a class="reference external" href="../autoregressive-autoencoders">Autoregressive Autoencoders</a>.
+<a class="reference external" href="../autoregressive-autoencoders/">Autoregressive Autoencoders</a>.
 As stated above, we impose (an arbitrary) ordering on the sub-pixels:
 top to bottom, left to right, R to G to B.  Given this, we want to make sure
 input pixels <span class="math">\(\geq i\)</span> are "hidden" from output pixel <span class="math">\(i\)</span>, and we can
@@ -223,7 +212,7 @@ sub-pixels, we should have full connectivity to all spatial predecessors.</p>
 <p></p>
 <h5> Discretized Logistic Mixture Likelihood </h5>
 <p>I covered this topic in my previous post in detail
-(<a class="reference external" href="../importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders">Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders</a>) so I'll just do a summary here.</p>
+(<a class="reference external" href="../importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/">Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders</a>) so I'll just do a summary here.</p>
 <p>Modelling pixels is a funny problem.  On one hand, we can view them as 8-bit
 discrete random variables (e.g. 256-way softmax), but on the other hand, we can
 view them as a sort-of continuous distribution (e.g. real-valued output).
@@ -234,14 +223,12 @@ pixel values (R=100 should be similar to R=101).  Mostly due to the first reason
 I opted out to not implement it (couldn't fit a full image on my meager GTX 1070).</p>
 <p>The other way to go about it is to imagine the pixel generation process as such described in [2]:</p>
 <ol class="arabic">
-<li>
-<p class="first">For each sub-pixel, generate a continuous distribution <span class="math">\(\nu\)</span>
+<li><p>For each sub-pixel, generate a continuous distribution <span class="math">\(\nu\)</span>
 representing the intensity.  For example, <span class="math">\(\nu\)</span> could be a
 <a class="reference external" href="https://en.wikipedia.org/wiki/Logistic_distribution">logistic distribution</a>
-parameterized by <span class="math">\(\mu, s\)</span>.</p>
-</li>
+parameterized by <span class="math">\(\mu, s\)</span>.</p></li>
 <li>
-<p class="first">Next, "round" each sub-pixel to a
+<p>Next, "round" each sub-pixel to a
 discretized distribution over <span class="math">\([0, 255] \in \mathbb{Z}\)</span> by
 integrating over the appropriate width along the real line (assuming a
 logistic distribution):</p>
@@ -274,12 +261,9 @@ flexibility.  To improve it, we use a mixture of logistics for <span class="math
 <p>where <span class="math">\(\pi_i\)</span> is the categorical weight.  To bring it back to neural
 networks, for each sub-pixel, we want our network to output three things:</p>
 <ul class="simple">
-<li>
-<span class="math">\(K\)</span> <span class="math">\(\mu_i\)</span>'s representing the centers of our logistic distributions</li>
-<li>
-<span class="math">\(K\)</span> <span class="math">\(s_i\)</span>'s representing the scale of our logistic distributions</li>
-<li>
-<span class="math">\(K\)</span> <span class="math">\(\pi_i\)</span>'s representing the mixture weights (summing to 1)</li>
+<li><p><span class="math">\(K\)</span> <span class="math">\(\mu_i\)</span>'s representing the centers of our logistic distributions</p></li>
+<li><p><span class="math">\(K\)</span> <span class="math">\(s_i\)</span>'s representing the scale of our logistic distributions</p></li>
+<li><p><span class="math">\(K\)</span> <span class="math">\(\pi_i\)</span>'s representing the mixture weights (summing to 1)</p></li>
 </ul>
 <p>We don't need that many mixture components to get a good result ([2] uses
 <span class="math">\(K=5\)</span>), which is a lot less than a 256-way softmax.  Figure 2 shows
@@ -307,20 +291,20 @@ of the network outputs a distribution for each sub-pixel.  You still use
 the image on both the input and output but use a custom
 loss function that computes the negative log-likelihood using the network
 outputs.  Other than the complexity of the loss function, you just set it and go!</p>
-<p>Generating images is something that is a bit more complicated but follows the same idea from my post on <a class="reference external" href="../autoregressive-autoencoders">Autoregressive Autoencoders</a>:</p>
+<p>Generating images is something that is a bit more complicated but follows the same idea from my post on <a class="reference external" href="../autoregressive-autoencoders/">Autoregressive Autoencoders</a>:</p>
 <ol class="arabic simple" start="0">
-<li>Set <span class="math">\(i=0\)</span> to represent current iteration and pixel (implicitly we
-would translate it to the row/col/sub-pixel in the image).</li>
-<li>Start off with a tensor for your image <span class="math">\(\bf x^0\)</span> with any initialization
-(it doesn't matter).</li>
-<li>Feed <span class="math">\(\bf x^i\)</span> into the PixelCNN network to generate distributional
-outputs <span class="math">\(\bf y^{i+1}\)</span>.</li>
-<li>Randomly sample sub-pixel <span class="math">\(u_{i+1}\)</span> from the mixture distribution
+<li><p>Set <span class="math">\(i=0\)</span> to represent current iteration and pixel (implicitly we
+would translate it to the row/col/sub-pixel in the image).</p></li>
+<li><p>Start off with a tensor for your image <span class="math">\(\bf x^0\)</span> with any initialization
+(it doesn't matter).</p></li>
+<li><p>Feed <span class="math">\(\bf x^i\)</span> into the PixelCNN network to generate distributional
+outputs <span class="math">\(\bf y^{i+1}\)</span>.</p></li>
+<li><p>Randomly sample sub-pixel <span class="math">\(u_{i+1}\)</span> from the mixture distribution
 defined by <span class="math">\(\bf y^{i+1}\)</span> (we only need the subset of values for
-sub-pixel <span class="math">\(i+1\)</span>).</li>
-<li>Set <span class="math">\(\bf x^{i+1}\)</span> as <span class="math">\(\bf x^i\)</span> but replacing the current sub-pixel with
-<span class="math">\(u_{i+1}\)</span>.</li>
-<li>Repeat step 2-4 until entire image is generated.</li>
+sub-pixel <span class="math">\(i+1\)</span>).</p></li>
+<li><p>Set <span class="math">\(\bf x^{i+1}\)</span> as <span class="math">\(\bf x^i\)</span> but replacing the current sub-pixel with
+<span class="math">\(u_{i+1}\)</span>.</p></li>
+<li><p>Repeat step 2-4 until entire image is generated.</p></li>
 </ol>
 <p>From this algorithm, you can see that we're generating one pixel at a time, a
 very slow process!  For a 32x32x3 image, we basically need to do a forward
@@ -341,8 +325,8 @@ through implementing it in Keras.  As usual, you can find all my code in this
 <a class="reference external" href="https://github.com/bjlkeng/sandbox/tree/master/notebooks/pixel_cnn/pixelcnn.ipynb">Github repo</a>.</p>
 <p></p>
 <h5> Masked Convolution Layer </h5>
-<p>The masked convolution layer (which I named <tt class="docutils literal">PixelConv2D</tt>) was actually
-pretty easy to implement in Keras because I just inherited from the <tt class="docutils literal">Conv2D</tt>
+<p>The masked convolution layer (which I named <code class="docutils literal">PixelConv2D</code>) was actually
+pretty easy to implement in Keras because I just inherited from the <code class="docutils literal">Conv2D</code>
 layer, build a binary mask and then did an element-wise product with the kernel.
 There's just a bit of accounting that needs to go on in building the mask such
 as ensuring that your input is a multiple of 3 and that the right bits are set.
@@ -351,13 +335,13 @@ are multiplying by a binary matrix every time, but it probably is the easiest.</
 <p></p>
 <h5> PixelCNN Outputs </h5>
 <p>The output of the network is a distribution, but how is that realized?
-The last layer is composed is made up of three sets of <tt class="docutils literal">PixelConv2D</tt> layers
+The last layer is composed is made up of three sets of <code class="docutils literal">PixelConv2D</code> layers
 representing:</p>
 <ul class="simple">
-<li>Logistic mean values <span class="math">\(\mu\)</span>, filters = # of mixture component, no activation</li>
-<li>Logistic log of inverse scale values <span class="math">\(s\)</span>, filters = # of mixture components,
-"softplus" activation function</li>
-<li>Pre-softmax mixture inputs, filters = # of mixture components, no activation</li>
+<li><p>Logistic mean values <span class="math">\(\mu\)</span>, filters = # of mixture component, no activation</p></li>
+<li><p>Logistic log of inverse scale values <span class="math">\(s\)</span>, filters = # of mixture components,
+"softplus" activation function</p></li>
+<li><p>Pre-softmax mixture inputs, filters = # of mixture components, no activation</p></li>
 </ul>
 <p>The mean is pretty straight forward.  We put no restriction on it being in
 our normalized pixel interval (i.e. <span class="math">\([-1, 1]\)</span>), which seems to work out
@@ -387,17 +371,16 @@ mixture weights.</p>
 outputs where I used logistic mixture outputs instead of a softmax (as
 described above):</p>
 <ul class="simple">
-<li>5x5 Conv Layer, Mask A, ReLU</li>
-<li>15 - 3x3 Resnet Blocks, Mask B, <span class="math">\(h=128\)</span> (shown in Figure 3)</li>
-<li>2 - 1x1 Conv layers, Mask B, ReLU, <span class="math">\(filters=1024\)</span>
-</li>
-<li>Output layers (as described above)</li>
+<li><p>5x5 Conv Layer, Mask A, ReLU</p></li>
+<li><p>15 - 3x3 Resnet Blocks, Mask B, <span class="math">\(h=128\)</span> (shown in Figure 3)</p></li>
+<li><p>2 - 1x1 Conv layers, Mask B, ReLU, <span class="math">\(filters=1024\)</span></p></li>
+<li><p>Output layers (as described above)</p></li>
 </ul>
 <div class="figure align-center">
 <img alt="PixelCNN Resnet Block" src="../../images/pixelcnn_resnet.png" style="width: 200px;"><p class="caption">Figure 3: PixelCNN Resnet Block (source [1])</p>
 </div>
 <p>The network widths above are for each colour channel, which are concatenated
-after each operation and fed into the next <tt class="docutils literal">PixelConv2D</tt> which know how to
+after each operation and fed into the next <code class="docutils literal">PixelConv2D</code> which know how to
 deal with them via masks.</p>
 <p></p>
 <h5> Loss Function </h5>
@@ -512,28 +495,27 @@ new parts and then slowly put the pieces together.  These are the iterations
 that I did (which correspond to the different notebooks you'll see on
 <a class="reference external" href="https://github.com/bjlkeng/sandbox/tree/master/notebooks/pixel_cnn/">Github</a>):</p>
 <ul class="simple">
-<li>
-<cite>PixelConv2D</cite> layer: making sure that I got all the masking right.  I made
-several toy networks ("unit tests") just to make sure the input was masked properly.</li>
-<li>Next, I generated 2x2 RGB images from a known logistic
+<li><p><cite>PixelConv2D</cite> layer: making sure that I got all the masking right.  I made
+several toy networks ("unit tests") just to make sure the input was masked properly.</p></li>
+<li><p>Next, I generated 2x2 RGB images from a known logistic
 distribution for each sub-pixel.  Using this approach I could actually take a
 look at the distributional parameter outputs, plot the distribution for each pixel
 and then compare to actuals.  The network I used for this was essentially
 just an output layer because I was testing how the loss function behaved.  I
 spent <em>a lot</em> of time here trying to understand what was going on in the loss
-function.  It was very helpful.</li>
-<li>As a continuation, I generated the same RGB images but with a mixture of
+function.  It was very helpful.</p></li>
+<li><p>As a continuation, I generated the same RGB images but with a mixture of
 logistics.  This was a natural extension of the previous iteration and
-allowed me to test out the logic I had for mixtures.</li>
-<li>As a further continuation, I put together the actual network I wanted to use
-(with fewer Resnet layers).  I had a couple of bugs here too.</li>
-<li>After I was more or less sure that things were working on the toy example,
+allowed me to test out the logic I had for mixtures.</p></li>
+<li><p>As a further continuation, I put together the actual network I wanted to use
+(with fewer Resnet layers).  I had a couple of bugs here too.</p></li>
+<li><p>After I was more or less sure that things were working on the toy example,
 I moved to the actual CIFAR10 images.  Here I started out with a single image
 and tiny slices of it (e.g. 2x2, 4x4, 8x8, etc.) working my way up to the
 entire image.  I wanted to see if I could overfit on a single example,
-which would give me some indication that I was on the right track.</li>
-<li>Naturally, I extended this to 2 images, then multiple images, finally the
-entire dataset.</li>
+which would give me some indication that I was on the right track.</p></li>
+<li><p>Naturally, I extended this to 2 images, then multiple images, finally the
+entire dataset.</p></li>
 </ul>
 <p>One thing that I found incredibly useful is to take notes for each set of
 experiments... duhhh!  I know it's obvious but it's easy to be lazy when you're
@@ -573,7 +555,7 @@ decided to move on.</p>
 </div>
 <p>What I was relatively happy with are my loss performance results shown in Table 1.
 Using the bits/pixel metric (see my discussion of this metric from my
-<a class="reference external" href="../importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders">Importance Sampling</a>
+<a class="reference external" href="../importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/">Importance Sampling</a>
 post), I was able to achieve somewhat close results to the paper: 3.4 (mine) vs
 3.14 ([1]).</p>
 <p>It's not too surprising the results are different.  I tried to use the same
@@ -583,37 +565,37 @@ output layer being a 256-way softmax so you would expect it do a bit
 better.  PixelCNN++ does do better overall but I think it's because of their
 architectural changes with varying resolutions of conv layers compared with a
 Resnet-like architecture of PixelCNN.</p>
-<table border="1" class="colwidths-given docutils align-center">
+<table class="colwidths-given align-center">
 <caption>Table 1: PixelCNN Loss on CIFAR10 (bits/pixel)</caption>
 <colgroup>
-<col width="43%">
-<col width="29%">
-<col width="29%">
+<col style="width: 43%">
+<col style="width: 29%">
+<col style="width: 29%">
 </colgroup>
-<thead valign="bottom"><tr>
-<th class="head">Model</th>
-<th class="head">Training Loss</th>
-<th class="head">Validation Loss</th>
+<thead><tr>
+<th class="head"><p>Model</p></th>
+<th class="head"><p>Training Loss</p></th>
+<th class="head"><p>Validation Loss</p></th>
 </tr></thead>
-<tbody valign="top">
+<tbody>
 <tr>
-<td>My Implementation</td>
-<td>3.40</td>
-<td>3.41</td>
+<td><p>My Implementation</p></td>
+<td><p>3.40</p></td>
+<td><p>3.41</p></td>
 </tr>
 <tr>
-<td>PixelCNN [1]</td>
-<td>-</td>
-<td>3.14</td>
+<td><p>PixelCNN [1]</p></td>
+<td><p>-</p></td>
+<td><p>3.14</p></td>
 </tr>
 <tr>
-<td>PixelCNN++ [2]</td>
-<td>-</td>
-<td>2.92</td>
+<td><p>PixelCNN++ [2]</p></td>
+<td><p>-</p></td>
+<td><p>2.92</p></td>
 </tr>
 </tbody>
 </table>
-<p>I trained the PixelCNN to reduce the learning rate on a loss plateau <a class="footnote-reference" href="#id2" id="id1">[1]</a> .
+<p>I trained the PixelCNN to reduce the learning rate on a loss plateau <a class="footnote-reference brackets" href="#id2" id="id1">1</a> .
 Interestingly, I couldn't get the architecture to overfit.  Somehow the
 validation loss is incredibly close to the training loss.  This is in
 contrast to the PixelCNN++ paper, which states that overfitting is a major
@@ -633,29 +615,20 @@ you won't have to wait <em>another</em> two years for me to get to those papers!
 <p><br></p>
 <h4> Further Reading </h4>
 <ul class="simple">
-<li>My code on Github: <a class="reference external" href="https://github.com/bjlkeng/sandbox/tree/master/notebooks/pixel_cnn/">Github repo</a>
-</li>
-<li>[1] "Pixel Recurrent Neural Networks," Aaron van den Oord, Nal Kalchbrenner, Koray Kavukcuoglu, <a class="reference external" href="https://arxiv.org/abs/1601.06759">https://arxiv.org/abs/1601.06759</a>.</li>
-<li>[2] "PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications," Tim Salimans, Andrej Karpathy, Xi Chen, Diederik P. Kingma, <a class="reference external" href="http://arxiv.org/abs/1701.05517">http://arxiv.org/abs/1701.05517</a>.</li>
-<li>[3] "Conditional Image Generation with PixelCNN Decoders," Aaron van den Oord, Nal Kalchbrenner, Oriol Vinyals, Lasse Espeholt, Alex Graves, Koray Kavukcuoglu, <a class="reference external" href="https://arxiv.org/abs/1606.05328">https://arxiv.org/abs/1606.05328</a>
-</li>
-<li>[4] PixelCNN++ code on Github: <a class="reference external" href="https://github.com/openai/pixel-cnn">https://github.com/openai/pixel-cnn</a>
-</li>
-<li>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Autoregressive_model">Autoregressive model</a>
-</li>
-<li>Previous posts: <a class="reference external" href="../autoregressive-autoencoders">Autoregressive Autoencoders</a>, <a class="reference external" href="../importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders">Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders</a>
-</li>
+<li><p>My code on Github: <a class="reference external" href="https://github.com/bjlkeng/sandbox/tree/master/notebooks/pixel_cnn/">Github repo</a></p></li>
+<li><p>[1] "Pixel Recurrent Neural Networks," Aaron van den Oord, Nal Kalchbrenner, Koray Kavukcuoglu, <a class="reference external" href="https://arxiv.org/abs/1601.06759">https://arxiv.org/abs/1601.06759</a>.</p></li>
+<li><p>[2] "PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications," Tim Salimans, Andrej Karpathy, Xi Chen, Diederik P. Kingma, <a class="reference external" href="http://arxiv.org/abs/1701.05517">http://arxiv.org/abs/1701.05517</a>.</p></li>
+<li><p>[3] "Conditional Image Generation with PixelCNN Decoders," Aaron van den Oord, Nal Kalchbrenner, Oriol Vinyals, Lasse Espeholt, Alex Graves, Koray Kavukcuoglu, <a class="reference external" href="https://arxiv.org/abs/1606.05328">https://arxiv.org/abs/1606.05328</a></p></li>
+<li><p>[4] PixelCNN++ code on Github: <a class="reference external" href="https://github.com/openai/pixel-cnn">https://github.com/openai/pixel-cnn</a></p></li>
+<li><p>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Autoregressive_model">Autoregressive model</a></p></li>
+<li><p>Previous posts: <a class="reference external" href="../autoregressive-autoencoders/">Autoregressive Autoencoders</a>, <a class="reference external" href="../importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/">Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders</a></p></li>
 </ul>
-<table class="docutils footnote" frame="void" id="id2" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
-<td>I needed to start relatively small in the learning rate at 0.002 and then gradually reduce the learning rate or else the loss plateaus.  One thing that I think happens is because we're modifying the scale parameter <span class="math">\(s\)</span>, you never want big jumps or else the loss changes dramatically.  Thus, as you get in the right area with <span class="math">\(\mu\)</span>, you want to learn slower to "fine-tune" <span class="math">\(s\)</span>.</td>
-</tr></tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd>
+<p>I needed to start relatively small in the learning rate at 0.002 and then gradually reduce the learning rate or else the loss plateaus.  One thing that I think happens is because we're modifying the scale parameter <span class="math">\(s\)</span>, you never want big jumps or else the loss changes dramatically.  Thus, as you get in the right area with <span class="math">\(\mu\)</span>, you want to learn slower to "fine-tune" <span class="math">\(s\)</span>.</p>
+</dd>
+</dl>
 </div>
     </div>
     <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
@@ -727,14 +700,14 @@ you won't have to wait <em>another</em> two years for me to get to those papers!
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2019         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
 </div>
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

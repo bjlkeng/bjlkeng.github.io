@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="A short exploration on the theory behind using log-likelihood to train and measure generative models using image-like data.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>A Note on Using Log-Likelihood for Generative Models | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -17,15 +13,6 @@
 <!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="description" itemprop="description" content="A short exploration on the theory behind using log-likelihood to train and measure generative models using image-like data.">
 <meta name="author" content="Brian Keng">
 <link rel="prev" href="../pixelcnn/" title="PixelCNN" type="text/html">
-<meta property="og:site_name" content="Bounded Rationality">
-<meta property="og:title" content="A Note on Using Log-Likelihood for Generative Models">
-<meta property="og:url" content="http://bjlkeng.github.io/posts/a-note-on-using-log-likelihood-for-generative-models/">
-<meta property="og:description" content="A short exploration on the theory behind using log-likelihood to train and measure generative models using image-like data.">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2019-08-27T07:50:09-04:00">
-<meta property="article:tag" content="generative models">
-<meta property="article:tag" content="log-likelihood">
-<meta property="article:tag" content="mathjax">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -80,10 +67,13 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">A Note on Using Log-Likelihood for Generative Models</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
                     Brian Keng
             </span></p>
-            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2019-08-27T07:50:09-04:00" itemprop="datePublished" title="2019-08-27 07:50">2019-08-27 07:50</time></a></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2019-08-27T07:50:09-04:00" itemprop="datePublished" title="2019-08-27 07:50">2019-08-27 07:50</time></a>
+            </p>
             
         <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
 
@@ -95,7 +85,7 @@
 <p>One of the things that I find is usually missing from many ML papers is how
 they relate to the fundamentals.  There's always a throwaway line where it
 assumes something that is not at all obvious (see my post on
-<a class="reference external" href="../importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders">Importance Sampling</a>).  I'm the kind of person who likes to
+<a class="reference external" href="../importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/">Importance Sampling</a>).  I'm the kind of person who likes to
 understand things to a satisfactory degree (it's literally in the subtitle of
 the blog) so I couldn't help myself investigating a minor idea I read about in
 a paper.</p>
@@ -113,9 +103,9 @@ a curious fellow so come with me and let's take a look!</p>
 basic questions regarding mixing continuous and discrete data (inspired
 from [2,3]):</p>
 <blockquote>
-<em>How you find the probability of seeing observations drawn from a
+<p><em>How you find the probability of seeing observations drawn from a
 continuous distributions? e.g. What's the probability of drawing</em>
-<span class="math">\(x=0\)</span> <em>from a standard normal distribution?</em>
+<span class="math">\(x=0\)</span> <em>from a standard normal distribution?</em></p>
 </blockquote>
 <p>Seems like a simple problem, right?  Well, there are lots of paradoxes lurking
 here, so let's clarify them before moving on.</p>
@@ -228,13 +218,13 @@ probably only works for smooth functions.)</p>
 with continuous data!  We're dealing only with PDFs now and removed the zero
 probability case when looking at <span class="math">\(P(x|M_i)\)</span> in isolation.</p>
 <div class="admonition admonition-example-1-probability-an-observation-is-from-a-given-two-gaussian-hypotheses">
-<p class="first admonition-title">Example 1: Probability an Observation is from a Given Two
+<p class="admonition-title">Example 1: Probability an Observation is from a Given Two
 Gaussian Hypotheses</p>
 <p>Suppose we have a datum <span class="math">\(x=0\)</span> that we know is drawn from
 one of two Gaussian distributions:</p>
 <ul class="simple">
-<li><span class="math">\(M_1: \mathcal{N}(\mu=0, \sigma^2=1)\)</span></li>
-<li><span class="math">\(M_2: \mathcal{N}(\mu=1, \sigma^2=1)\)</span></li>
+<li><p><span class="math">\(M_1: \mathcal{N}(\mu=0, \sigma^2=1)\)</span></p></li>
+<li><p><span class="math">\(M_2: \mathcal{N}(\mu=1, \sigma^2=1)\)</span></p></li>
 </ul>
 <p>What is the probability of <span class="math">\(x\)</span> being drawn from each distribution
 (assuming our priors are equally likely)?
@@ -252,7 +242,7 @@ P(M_2|x) &amp;= \frac{f_{M_2}P(M_2)}{f_{M_1}P(M_1)+ f_{M_2}P(M_2)} \\
          &amp;\approx 0.3775 \tag{6}
 \end{align*}
 </div>
-<p class="last">Therefore, <span class="math">\(x\)</span> is more likely to be drawn from distribution <span class="math">\(M_1\)</span>.</p>
+<p>Therefore, <span class="math">\(x\)</span> is more likely to be drawn from distribution <span class="math">\(M_1\)</span>.</p>
 </div>
 <p>Before we finish off this section, we should notice one thing.  Given a fixed
 set of hypotheses (or models) the denominator in Equation 5 doesn't change.
@@ -389,7 +379,7 @@ generate a good model if you can practically fit it.</p>
 <p>The other method described in PixelCNN++ [5] uses a different tactic.  They use
 a two step process: first model the intensity as a continuous distribution then
 "round" to the nearest pixel by integrating the continuous distribution in the
-region around the pixel.  From my post on <a class="reference external" href="../pixelcnn">PixelCNN</a>,
+region around the pixel.  From my post on <a class="reference external" href="../pixelcnn/">PixelCNN</a>,
 the rounding step works like so (see the post for more details):</p>
 <div class="math">
 \begin{equation*}
@@ -448,7 +438,7 @@ pixel" metric that we see often in papers (e.g. [4], [5]).</p>
 a continuous distribution (e.g. normal, logistic etc.)?  When mixing discrete
 image data with continuous distributions you get zero probability events
 like we discussed above, which could lead to a infinite differential entropy
-during training <a class="footnote-reference" href="#id2" id="id1">[1]</a>.  One alternative is the "rounding" method above. Another
+during training <a class="footnote-reference brackets" href="#id2" id="id1">1</a>.  One alternative is the "rounding" method above. Another
 "trick" described in [1] (and previously in a few other papers), is to
 add <em>uniform</em> noise to de-quantize the data.  Let's see how this works.</p>
 <p>Suppose we have image data <span class="math">\({\bf x} \in \{0,\ldots,255\}^D\)</span> with
@@ -478,13 +468,13 @@ Let's take a look at the negative cross entropy of these two distributions:</p>
 <span class="math">\(Q({\bf x}) = \int_{\bf u\in [0,1]^D} q({\bf x} + {\bf u}) d{\bf u}\)</span>.
 A couple of points on the derivation:</p>
 <ul class="simple">
-<li>When doing the <a class="reference external" href="http://tutorial.math.lamar.edu/Classes/CalcIII/ChangeOfVariables.aspx">change of variable</a> we
+<li><p>When doing the <a class="reference external" href="http://tutorial.math.lamar.edu/Classes/CalcIII/ChangeOfVariables.aspx">change of variable</a> we
 implicitly are using the determinant of the Jacobian but in this case it's
-just 1.</li>
-<li>The integral of <span class="math">\(\int_x dx = \sum_x\)</span> since <span class="math">\(x\)</span> is discrete.</li>
-<li>We defined the noisy data density <span class="math">\(p({\bf x} + {\bf u})\)</span> as
+just 1.</p></li>
+<li><p>The integral of <span class="math">\(\int_x dx = \sum_x\)</span> since <span class="math">\(x\)</span> is discrete.</p></li>
+<li><p>We defined the noisy data density <span class="math">\(p({\bf x} + {\bf u})\)</span> as
 <span class="math">\(P({\bf x})\)</span> since that's the most logical way to define the density
-(the density should sum to 1 as expected).</li>
+(the density should sum to 1 as expected).</p></li>
 </ul>
 <p>When training a generative model, we'll usually try to minimize
 <span class="math">\(H(p,q) \geq H(P,Q)\)</span>, which sets an upper bound on the cross entropy
@@ -525,32 +515,24 @@ Hope you liked it!</p>
 <p><br></p>
 <h4> Further Reading </h4>
 <ul class="simple">
-<li>[1] "A note on the evaluation of generative models", Lucas Theis, Aäron van den Oord, Matthias Bethge, <a class="reference external" href="http://arxiv.org/abs/1511.01844">http://arxiv.org/abs/1511.01844</a>
-</li>
-<li><dl class="first docutils">
+<li><p>[1] "A note on the evaluation of generative models", Lucas Theis, Aäron van den Oord, Matthias Bethge, <a class="reference external" href="http://arxiv.org/abs/1511.01844">http://arxiv.org/abs/1511.01844</a></p></li>
+<li><dl class="simple">
 <dt>Stack Exchange Questions:</dt>
-<dd><ul class="first last">
-<li>[2] <a class="reference external" href="https://math.stackexchange.com/questions/2818318/probability-that-a-sample-is-generated-from-a-distribution">Probability that a Continuous Event is Generated from a Distribution</a>
-</li>
-<li>[3] <a class="reference external" href="https://math.stackexchange.com/questions/920241/can-an-observed-event-in-fact-be-of-zero-probability">Zero Probability Event</a>
-</li>
+<dd><ul>
+<li><p>[2] <a class="reference external" href="https://math.stackexchange.com/questions/2818318/probability-that-a-sample-is-generated-from-a-distribution">Probability that a Continuous Event is Generated from a Distribution</a></p></li>
+<li><p>[3] <a class="reference external" href="https://math.stackexchange.com/questions/920241/can-an-observed-event-in-fact-be-of-zero-probability">Zero Probability Event</a></p></li>
 </ul></dd>
 </dl></li>
-<li>[4] "Pixel Recurrent Neural Networks," Aaron van den Oord, Nal Kalchbrenner, Koray Kavukcuoglu, <a class="reference external" href="https://arxiv.org/abs/1601.06759">https://arxiv.org/abs/1601.06759</a>.</li>
-<li>[5] "PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications," Tim Salimans, Andrej Karpathy, Xi Chen, Diederik P. Kingma, <a class="reference external" href="http://arxiv.org/abs/1701.05517">http://arxiv.org/abs/1701.05517</a>.</li>
-<li>Previous posts: <a class="reference external" href="../autoregressive-autoencoders">Autoregressive Autoencoders</a>, <a class="reference external" href="../importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders">Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders</a>, <a class="reference external" href="../pixelcnn">PixelCNN</a>
-</li>
+<li><p>[4] "Pixel Recurrent Neural Networks," Aaron van den Oord, Nal Kalchbrenner, Koray Kavukcuoglu, <a class="reference external" href="https://arxiv.org/abs/1601.06759">https://arxiv.org/abs/1601.06759</a>.</p></li>
+<li><p>[5] "PixelCNN++: Improving the PixelCNN with Discretized Logistic Mixture Likelihood and Other Modifications," Tim Salimans, Andrej Karpathy, Xi Chen, Diederik P. Kingma, <a class="reference external" href="http://arxiv.org/abs/1701.05517">http://arxiv.org/abs/1701.05517</a>.</p></li>
+<li><p>Previous posts: <a class="reference external" href="../autoregressive-autoencoders/">Autoregressive Autoencoders</a>, <a class="reference external" href="../importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/">Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders</a>, <a class="reference external" href="../pixelcnn/">PixelCNN</a></p></li>
 </ul>
-<table class="docutils footnote" frame="void" id="id2" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
-<td>Imagine you have a single data point <span class="math">\(x=0\)</span> and you are trying to learn a normal distribution.  What's the best fit normal distribution?  Well definitely you want the mean to be 0 but what about the variance?  Of course, you want it to be infinitesimally small which maximizes the density, but this means in the limit the density tends to infinity causing the degenerate scenario described above.</td>
-</tr></tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd>
+<p>Imagine you have a single data point <span class="math">\(x=0\)</span> and you are trying to learn a normal distribution.  What's the best fit normal distribution?  Well definitely you want the mean to be 0 but what about the variance?  Of course, you want it to be infinitesimally small which maximizes the density, but this means in the limit the density tends to infinity causing the degenerate scenario described above.</p>
+</dd>
+</dl>
 </div>
     </div>
     <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
@@ -618,14 +600,14 @@ Hope you liked it!</p>
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2019         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
 </div>
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

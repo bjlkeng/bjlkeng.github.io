@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="An introduction to models of hyperbolic geometry and its application to Poincaré embeddings.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hyperbolic Geometry and Poincaré Embeddings | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -18,18 +14,6 @@
 <meta name="author" content="Brian Keng">
 <link rel="prev" href="../manifolds/" title="Manifolds: A Gentle Introduction" type="text/html">
 <link rel="next" href="../universal-resnet-the-one-neuron-approximator/" title="Universal ResNet: The One-Neuron Approximator" type="text/html">
-<meta property="og:site_name" content="Bounded Rationality">
-<meta property="og:title" content="Hyperbolic Geometry and Poincaré Embeddings">
-<meta property="og:url" content="http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/">
-<meta property="og:description" content="An introduction to models of hyperbolic geometry and its application to Poincaré embeddings.">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2018-06-17T08:20:18-04:00">
-<meta property="article:tag" content="embeddings">
-<meta property="article:tag" content="geometry">
-<meta property="article:tag" content="hyperbolic">
-<meta property="article:tag" content="manifolds">
-<meta property="article:tag" content="mathjax">
-<meta property="article:tag" content="Poincaré">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -84,10 +68,13 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Hyperbolic Geometry and Poincaré Embeddings</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
                     Brian Keng
             </span></p>
-            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2018-06-17T08:20:18-04:00" itemprop="datePublished" title="2018-06-17 08:20">2018-06-17 08:20</time></a></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2018-06-17T08:20:18-04:00" itemprop="datePublished" title="2018-06-17 08:20">2018-06-17 08:20</time></a>
+            </p>
             
         <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
 
@@ -113,8 +100,8 @@ not going to go down the rabbit hole of trying to explain all the math (no
 promises though).</p>
 <p>(Note: If you're unfamiliar with tensors or manifolds, I suggest getting a quick
 overview with my previous two posts:
-<a class="reference external" href="../tensors-tensors-tensors">Tensors, Tensors, Tensors</a> and
-<a class="reference external" href="../manifolds">Manifolds: A Gentle Introduction</a>)</p>
+<a class="reference external" href="../tensors-tensors-tensors/">Tensors, Tensors, Tensors</a> and
+<a class="reference external" href="../manifolds/">Manifolds: A Gentle Introduction</a>)</p>
 <!-- TEASER_END -->
 <p><br></p>
 <h4> Curvature </h4>
@@ -234,9 +221,9 @@ brackets are the inner product.</p>
 of curved surfaces.  They come in three forms, which implicitly define three
 geometries:</p>
 <ul class="simple">
-<li>Constant Positive Curvature: Elliptic geometry</li>
-<li>Constant Zero Curvature: Euclidean geometry</li>
-<li>Constant Negative Curvature: Hyperbolic geometry</li>
+<li><p>Constant Positive Curvature: Elliptic geometry</p></li>
+<li><p>Constant Zero Curvature: Euclidean geometry</p></li>
+<li><p>Constant Negative Curvature: Hyperbolic geometry</p></li>
 </ul>
 <p>The first two we are more familiar with: The standard model for
 Euclidean geometry is just any Euclidean space.  The standard model for
@@ -244,17 +231,17 @@ elliptic geometry is simply just a sphere (or hypersphere).  The model for
 hyperbolic geometry is a bit more complicated and we'll spend some more time
 with it in the next section.</p>
 <div class="admonition admonition-euclidean-and-non-euclidean-geometries">
-<p class="first admonition-title">Euclidean and Non-Euclidean Geometries</p>
+<p class="admonition-title">Euclidean and Non-Euclidean Geometries</p>
 <p>We saw above about how constant sectional curvature can be used to induce
 different types of geometries.  But what does this mean?  Let's dig in a bit.</p>
 <p>If we go way back to Euclid in his seminal work <em>Elements</em>, he gives <a class="reference external" href="https://en.wikipedia.org/wiki/Euclidean_geometry#Axioms">five
 postulates</a> (or axioms):</p>
 <ol class="arabic simple">
-<li>A straight line segment can be drawn joining any two points.</li>
-<li>Any straight line segment can be extended indefinitely in a straight line.</li>
-<li>Given any straight line segment, a circle can be drawn having the segment as radius and one endpoint as center.</li>
-<li>All right angles are congruent.</li>
-<li>If two lines are drawn which intersect a third in such a way that the sum of the inner angles on one side is less than two right angles, then the two lines inevitably must intersect each other on that side if extended far enough. (aka the <a class="reference external" href="https://en.wikipedia.org/wiki/Parallel_postulate">parallel postulate</a> shown in Figure 5)</li>
+<li><p>A straight line segment can be drawn joining any two points.</p></li>
+<li><p>Any straight line segment can be extended indefinitely in a straight line.</p></li>
+<li><p>Given any straight line segment, a circle can be drawn having the segment as radius and one endpoint as center.</p></li>
+<li><p>All right angles are congruent.</p></li>
+<li><p>If two lines are drawn which intersect a third in such a way that the sum of the inner angles on one side is less than two right angles, then the two lines inevitably must intersect each other on that side if extended far enough. (aka the <a class="reference external" href="https://en.wikipedia.org/wiki/Parallel_postulate">parallel postulate</a> shown in Figure 5)</p></li>
 </ol>
 <div class="figure align-center">
 <img alt="Euclid's Parallel Postulate" src="../../images/parallel_postulate.png" style="height: 200px;"><p class="caption">Figure 5: Euclid's Parallel Postulate: If two lines are placed over a third such that the sum of angles (<span class="math">\(\alpha+\beta\)</span>) are less than two right angles, then they must intersect at some point (source: Wikipedia).</p>
@@ -269,7 +256,8 @@ The Euclidean plane (and by extension Euclidean space) is a
 <a class="reference external" href="https://en.wikipedia.org/wiki/Axiomatic_system#Models">model</a> of
 Euclidean geometry:</p>
 <blockquote>
-A model for an axiomatic system is a well-defined set, which assigns meaning for the undefined terms presented in the system, in a manner that is correct with the relations defined in the system.</blockquote>
+<p>A model for an axiomatic system is a well-defined set, which assigns meaning for the undefined terms presented in the system, in a manner that is correct with the relations defined in the system.</p>
+</blockquote>
 <p>For example, Euclidean geometry defines a point but there is no concrete
 meaning to it.  In the Euclidean plane, we could define a point as a pair of
 real numbers <span class="math">\((x,y)\)</span> with <span class="math">\(x,y \in \mathbb{R}\)</span>.  You could do the
@@ -284,7 +272,8 @@ of geometries.</p>
 <h5> Elliptic Geometry </h5>
 <p>In Elliptic geometry, we change the parallel postulate to:</p>
 <blockquote>
-Two lines perpendicular to a given line must intersect.</blockquote>
+<p>Two lines perpendicular to a given line must intersect.</p>
+</blockquote>
 <p>where a visualization in shown in Figure 6.</p>
 <div class="figure align-center">
 <img alt="Elliptic Geometry Postulate" src="../../images/elliptic_geometry.jpg" style="height: 300px;"><p class="caption">Figure 6: Two lines perpendicular to another line in Elliptic geometry, must intersect at some point (<a class="reference external" href="http://www.math.cornell.edu/~mec/mircea.html">source</a>).</p>
@@ -298,14 +287,15 @@ Euclidean geometry, such as the sum of angles in a triangle is greater than
 <h5> Hyperbolic Geometry </h5>
 <p>In Hyperbolic geometry, we change the parallel postulate to:</p>
 <blockquote>
-For any given line R and point P not on R, in the plane containing both
+<p>For any given line R and point P not on R, in the plane containing both
 line R and point P there are at least two distinct lines through P that do
-not intersect R.</blockquote>
+not intersect R.</p>
+</blockquote>
 <p>where a visualization in shown in Figure 7.</p>
 <div class="figure align-center">
 <img alt="Hyperbolic Geometry Postulate" src="../../images/hyperbolic_geometry.png" style="height: 200px;"><p class="caption">Figure 7: Lines <span class="math">\(x\)</span> and <span class="math">\(y\)</span> intersecting at <span class="math">\(P\)</span> never pass through line <span class="math">\(R\)</span>, although it is possible that they can asymptotically approach it (<a class="reference external" href="http://www.math.cornell.edu/~mec/mircea.html">source</a>).</p>
 </div>
-<p class="last">This figure is not a great visualization because, as we'll mention below, you
+<p>This figure is not a great visualization because, as we'll mention below, you
 can't really intuitively represent 2D hyperbolic geometry in 2D or 3D
 Euclidean space.  This makes it hard to visualize, and results in a more
 complex model than the other two geometries.  Further down, we'll describe a
@@ -318,9 +308,10 @@ model as we'll see below.</p>
 is a type of manifold with constant negative (sectional) curvature.
 Formally:</p>
 <blockquote>
-Hyperbolic n-space (usually denoted <span class="math">\(\bf H^n\)</span>), is a maximally symmetric,
+<p>Hyperbolic n-space (usually denoted <span class="math">\(\bf H^n\)</span>), is a maximally symmetric,
 simply connected, n-dimensional Riemannian manifold with constant negative
-sectional curvature.</blockquote>
+sectional curvature.</p>
+</blockquote>
 <p>Hyperbolic space analogous to the n-dimensional sphere (which has constant
 positive curvature).
 This is a very hard thing to visualize though because we're used to only
@@ -342,9 +333,10 @@ The first thing is what's called a (generalized)
 <a class="reference external" href="https://en.wikipedia.org/wiki/Minkowski_space">Minkowski space</a>
 (a type of <a class="reference external" href="https://en.wikipedia.org/wiki/Pseudo-Riemannian_manifold">pseudo-Riemannian manifold</a>):</p>
 <blockquote>
-For <span class="math">\(n \geq 2\)</span>, a <span class="math">\(n\)</span>-dimensional Minkowski space is a real vector space
+<p>For <span class="math">\(n \geq 2\)</span>, a <span class="math">\(n\)</span>-dimensional Minkowski space is a real vector space
 of real dimension <span class="math">\(n\)</span> which there is a constant Minkowski metric of
-signature (n-1, 1) or (1, n-1).</blockquote>
+signature (n-1, 1) or (1, n-1).</p>
+</blockquote>
 <p>Even though it's defined as a vector space, we can regard it as basically having
 <span class="math">\(n\)</span> real dimensions (just like <span class="math">\(\mathbb{R}^n\)</span>) but with a special
 type of metric tensor (generalization of dot product): the
@@ -359,7 +351,7 @@ g_E({\bf u, v}) &amp;= u_1 v_1 + u_2 v_2 + \ldots + u_n v_n &amp;&amp; \text{Euc
 g_M({\bf u, v}) &amp;= \pm [u_1 v_1 - u_2 v_2 - \ldots - u_n v_n] &amp;&amp; \text{Minkowski Metric} \\ \tag{2}
 \end{align*}
 </div>
-<p>Notice that dimension 1 is treated differently <a class="footnote-reference" href="#id2" id="id1">[1]</a> (alternatively dimension 2 to n
+<p>Notice that dimension 1 is treated differently <a class="footnote-reference brackets" href="#id2" id="id1">1</a> (alternatively dimension 2 to n
 are different).  In <a class="reference external" href="https://en.wikipedia.org/wiki/Special_relativity">special relativity</a>,
 dimension 1 is considered the "time"-like dimension while the others are
 "space"-like dimensions.  But I don't think this helps with the intuition all
@@ -464,7 +456,7 @@ d({\bf u, v}) = arcosh(g_M({\bf u, v})) \tag{6}
 <p>where we're using the inverse (or arc) hyperbolic cosine function and the
 Minkowski metric defined above.</p>
 <div class="admonition admonition-example-calculating-the-arc-length-of-a-geodesic-in-hyperbolic-space">
-<p class="first admonition-title">Example: Calculating the Arc Length of a Geodesic In Hyperbolic Space</p>
+<p class="admonition-title">Example: Calculating the Arc Length of a Geodesic In Hyperbolic Space</p>
 <p>To illustrate a few of the above ideas and to gain some intuition, let's
 calculate the arc length of two points on the hyperbolic plane embedded in
 3D Minkowski space.  First, let's define a curve from A to B parameterized
@@ -509,7 +501,7 @@ d(A, B) &amp;= arcosh\Big(g_M\big(
 \tag{9}
 \end{align*}
 </div>
-<p class="last">As expected, the Equation 6 properly calculates the arc length with the
+<p>As expected, the Equation 6 properly calculates the arc length with the
 Minkowski metric in this case.</p>
 </div>
 <p>The hyperboloid model also has the concept of circles.  The simplest circle
@@ -541,8 +533,8 @@ Poincaré disk model).
 This is being presented second because it is much less intuitive but can be derived
 directly from the hyperboloid model.</p>
 <div class="admonition admonition-can-a-circle-fit-an-entire-geometry">
-<p class="first admonition-title">Can a circle fit an entire geometry?</p>
-<p class="last">You might be wondering how we can "fit" an entire geometry in a
+<p class="admonition-title">Can a circle fit an entire geometry?</p>
+<p>You might be wondering how we can "fit" an entire geometry in a
 circle.  We know flat 2D geometry fits in the Euclidean plane, 2D elliptic
 geometry (constant positive curvature) fits on the surface of a sphere, and now
 we're saying 2D hyperbolic geometry fits inside a circle?  The biggest thing to
@@ -565,9 +557,9 @@ Figure 11 shows a visualization.</p>
 <p>The basic idea of this stereoscopic projection (in 3D but this idea generalizes)
 is:</p>
 <ol class="arabic simple">
-<li>Start with a point <span class="math">\(P\)</span> on the hyperboloid we wish to map.</li>
-<li>Extend <span class="math">\(P\)</span> out to a focal point <span class="math">\(N=(0, 0, -1)\)</span> to form a line.</li>
-<li>Project that line onto the <span class="math">\(z=0\)</span> plane to find our point <span class="math">\(Q\)</span> in the Poincaré model.</li>
+<li><p>Start with a point <span class="math">\(P\)</span> on the hyperboloid we wish to map.</p></li>
+<li><p>Extend <span class="math">\(P\)</span> out to a focal point <span class="math">\(N=(0, 0, -1)\)</span> to form a line.</p></li>
+<li><p>Project that line onto the <span class="math">\(z=0\)</span> plane to find our point <span class="math">\(Q\)</span> in the Poincaré model.</p></li>
 </ol>
 <p>If you do the <a class="reference external" href="https://math.stackexchange.com/questions/35857/two-point-line-form-in-3d">algebra</a>,
 you'll find the following <a class="reference external" href="https://en.wikipedia.org/wiki/Poincar%C3%A9_disk_model">equations</a>
@@ -590,22 +582,22 @@ one approaching the circumference at a 90 degree angle. (source: Wikipedia)</p>
 </div>
 <p>A few notable points:</p>
 <ol class="arabic simple">
-<li>The arcs never reach the circumference of the circle.  This is analogous to
+<li><p>The arcs never reach the circumference of the circle.  This is analogous to
 the geodesic on the hyperboloid extending out the infinity, that is, as the
 arc approaches the circumference it's approaching the "infinity" of the
-plane.</li>
-<li>This means distances at the edge of the circle grow exponentially as you
-move toward the edge of the circle (compared to their Euclidean distances).</li>
-<li>Each arc approaches the circumference at a 90 degree angle, this just
+plane.</p></li>
+<li><p>This means distances at the edge of the circle grow exponentially as you
+move toward the edge of the circle (compared to their Euclidean distances).</p></li>
+<li><p>Each arc approaches the circumference at a 90 degree angle, this just
 works out as a result of the math of the hyperboloid and the projection.
 The straight line in this case is a point that passes through the "bottom"
-of the hyperboloid <span class="math">\((0, 0, 1)\)</span>.</li>
-<li>In this case, we can see 3 lines that are parallel and actually diverge from
+of the hyperboloid <span class="math">\((0, 0, 1)\)</span>.</p></li>
+<li><p>In this case, we can see 3 lines that are parallel and actually diverge from
 each other (also known as "ultra parallel").  This is a consequence of changing
 Euclid's fifth postulate regarding parallel lines (see the box above).  A
 more clear example is Figure 13.  Here we see that we can have an infinite number
 of lines (black) intersecting at a single point and still be parallel to
-another line (blue).</li>
+another line (blue).</p></li>
 </ol>
 <div class="figure align-center">
 <img alt="Hyperbolic parallel lines that do not intersect on the Poincaré disk." src="../../images/poincare_disk_parallel_lines.png" style="height: 300px;"><p class="caption">Figure 13: Hyperbolic parallel lines that do not intersect on the Poincaré
@@ -697,12 +689,12 @@ The only time it is the actual Euclidean center is if it's at point (0,0).</p>
 <a class="reference external" href="http://www.numericjs.com/">Numeric.js</a> and <a class="reference external" href="https://getbootstrap.com/">Bootstrap</a>.  You can play around drawing hyperbolic lines
 and circles.  The interesting things to play around with are:</p>
 <ul class="simple">
-<li>How the same length Euclidean distance maps to different distances on
-the Poincaré disk.</li>
-<li>How a line segment is actually part of a larger circle intersecting
-the Poincaré disk.</li>
-<li>How the Euclidean center of a circle can be very different than its
-hyperbolic center.</li>
+<li><p>How the same length Euclidean distance maps to different distances on
+the Poincaré disk.</p></li>
+<li><p>How a line segment is actually part of a larger circle intersecting
+the Poincaré disk.</p></li>
+<li><p>How the Euclidean center of a circle can be very different than its
+hyperbolic center.</p></li>
 </ul>
 <div class="figure align-center">
 <a class="reference external image-reference" href="../../js/poincare_disk.html"><img alt="Screenshot of my poincare visualization" src="../../images/poincare_disk_screenshot.png" style="height: 300px;"></a>
@@ -839,9 +831,9 @@ accessible.</p>
 <p>So there are a few tasks that they used to evaluate these hierarchical
 embeddings in the paper ([1]):</p>
 <ul class="simple">
-<li>Reconstruction of a hierarchy/graph from the embedding (this is a synthetic
-test because you use all the data to construct the embedding).</li>
-<li>Link prediction with a train/validation/test set.</li>
+<li><p>Reconstruction of a hierarchy/graph from the embedding (this is a synthetic
+test because you use all the data to construct the embedding).</p></li>
+<li><p>Link prediction with a train/validation/test set.</p></li>
 </ul>
 <p>They show results on three different datasets: transitive closure of
 WordNet noun hierarchy, social network embeddings, and a lexical entailment
@@ -865,11 +857,11 @@ a technical post by the authors of Gensim describing how they implemented these
 embeddings.</p>
 <p>The model is trivial to run using Gensim.  Here's some sample code from their
 documentation:</p>
-<pre class="code python"><a name="rest_code_d92949f692cc4583a3b3645d413fce3b-1"></a><span class="kn">from</span> <span class="nn">gensim.models.poincare</span> <span class="kn">import</span> <span class="n">PoincareModel</span>
-<a name="rest_code_d92949f692cc4583a3b3645d413fce3b-2"></a><span class="n">relations</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'marsupial'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'mammal'</span><span class="p">),</span>
-<a name="rest_code_d92949f692cc4583a3b3645d413fce3b-3"></a>             <span class="p">(</span><span class="s1">'gib'</span><span class="p">,</span> <span class="s1">'cat'</span><span class="p">)]</span>
-<a name="rest_code_d92949f692cc4583a3b3645d413fce3b-4"></a><span class="n">model</span> <span class="o">=</span> <span class="n">PoincareModel</span><span class="p">(</span><span class="n">relations</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<a name="rest_code_d92949f692cc4583a3b3645d413fce3b-5"></a><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_603535b5b9be42c79e17787bd84906ad-1"></a><span class="kn">from</span> <span class="nn">gensim.models.poincare</span> <span class="kn">import</span> <span class="n">PoincareModel</span>
+<a name="rest_code_603535b5b9be42c79e17787bd84906ad-2"></a><span class="n">relations</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'marsupial'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'mammal'</span><span class="p">),</span>
+<a name="rest_code_603535b5b9be42c79e17787bd84906ad-3"></a>             <span class="p">(</span><span class="s1">'gib'</span><span class="p">,</span> <span class="s1">'cat'</span><span class="p">)]</span>
+<a name="rest_code_603535b5b9be42c79e17787bd84906ad-4"></a><span class="n">model</span> <span class="o">=</span> <span class="n">PoincareModel</span><span class="p">(</span><span class="n">relations</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<a name="rest_code_603535b5b9be42c79e17787bd84906ad-5"></a><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 </pre>
 <p>I love it when there are nice clean open source implementations available.
 Coding these up from scratch invariably takes a huge amount of time, especially
@@ -888,23 +880,17 @@ to consciously break them up into smaller pieces, maybe do some "Agile" or
 <p><br></p>
 <h4> Further Reading </h4>
 <ul class="simple">
-<li>Previous posts: <a class="reference external" href="../tensors-tensors-tensors">Tensors, Tensors, Tensors</a>, <a class="reference external" href="../manifolds">Manifolds: A Gentle Introduction</a>
-</li>
-<li>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Riemannian_manifold">Riemannian Manifold</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Hyperbolic_space">Hyperbolic Space</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Sectional_curvature">Sectional Curvature</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Gaussian_curvature">Gaussian Curvature</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Parallel_transport">parallel transport</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Poincar%C3%A9_disk_model">Poincaré ball model</a>
-</li>
-<li>[1] <a class="reference external" href="https://arxiv.org/abs/1705.08039">Poincaré Embeddings for Learning Hierarchical Representations</a>, Maximilian Nickel, Douwe Kiela</li>
-<li>[2] <a class="reference external" href="https://rare-technologies.com/implementing-poincare-embeddings/">Implementing Poincaré Embeddings</a>, Jayant Jain</li>
+<li><p>Previous posts: <a class="reference external" href="../tensors-tensors-tensors/">Tensors, Tensors, Tensors</a>, <a class="reference external" href="../manifolds/">Manifolds: A Gentle Introduction</a></p></li>
+<li><p>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Riemannian_manifold">Riemannian Manifold</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Hyperbolic_space">Hyperbolic Space</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Sectional_curvature">Sectional Curvature</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Gaussian_curvature">Gaussian Curvature</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Parallel_transport">parallel transport</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Poincar%C3%A9_disk_model">Poincaré ball model</a></p></li>
+<li><p>[1] <a class="reference external" href="https://arxiv.org/abs/1705.08039">Poincaré Embeddings for Learning Hierarchical Representations</a>, Maximilian Nickel, Douwe Kiela</p></li>
+<li><p>[2] <a class="reference external" href="https://rare-technologies.com/implementing-poincare-embeddings/">Implementing Poincaré Embeddings</a>, Jayant Jain</p></li>
 </ul>
-<table class="docutils footnote" frame="void" id="id2" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
-<td>Both <span class="math">\(+\)</span> and <span class="math">\(-\)</span> make the math work out.  It's by convention you pick one or the other.  We'll be using a leading positive sign in this post.</td>
-</tr></tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd>
+<p>Both <span class="math">\(+\)</span> and <span class="math">\(-\)</span> make the math work out.  It's by convention you pick one or the other.  We'll be using a leading positive sign in this post.</p>
+</dd>
+</dl>
 </div>
     </div>
     <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
@@ -978,14 +964,14 @@ to consciously break them up into smaller pieces, maybe do some "Agile" or
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2019         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
 </div>
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

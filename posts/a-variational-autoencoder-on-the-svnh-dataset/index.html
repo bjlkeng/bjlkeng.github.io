@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="A write-up on using VAEs for the SVHN dataset.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>A Variational Autoencoder on the SVHN dataset | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -18,18 +14,6 @@
 <meta name="author" content="Brian Keng">
 <link rel="prev" href="../variational-autoencoders/" title="Variational Autoencoders" type="text/html">
 <link rel="next" href="../building-a-table-tennis-ranking-model/" title="Building A Table Tennis Ranking Model" type="text/html">
-<meta property="og:site_name" content="Bounded Rationality">
-<meta property="og:title" content="A Variational Autoencoder on the SVHN dataset">
-<meta property="og:url" content="http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset/">
-<meta property="og:description" content="A write-up on using VAEs for the SVHN dataset.">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2017-07-13T08:13:03-04:00">
-<meta property="article:tag" content="autoencoders">
-<meta property="article:tag" content="generative models">
-<meta property="article:tag" content="Kullback-Leibler">
-<meta property="article:tag" content="mathjax">
-<meta property="article:tag" content="svhn">
-<meta property="article:tag" content="variational calculus">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -84,10 +68,13 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">A Variational Autoencoder on the SVHN dataset</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
                     Brian Keng
             </span></p>
-            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2017-07-13T08:13:03-04:00" itemprop="datePublished" title="2017-07-13 08:13">2017-07-13 08:13</time></a></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2017-07-13T08:13:03-04:00" itemprop="datePublished" title="2017-07-13 08:13">2017-07-13 08:13</time></a>
+            </p>
             
         <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
 
@@ -100,7 +87,7 @@
 autoencoder (VAE) on the
 <a class="reference external" href="http://ufldl.stanford.edu/housenumbers/">Street View House Numbers</a>
 (SVHN) dataset.  My last post on
-<a class="reference external" href="../variational-autoencoders">variational autoencoders</a>
+<a class="reference external" href="../variational-autoencoders/">variational autoencoders</a>
 showed a simple example on the MNIST dataset but because it was so simple I
 thought I might have missed some of the subtler points of VAEs -- boy was I
 right!  The fact that I'm not really a computer vision guy nor a deep learning
@@ -110,7 +97,7 @@ points that are easy to gloss over if you're just reading someone else's
 tutorial.  I'll share with you some of the details in the math (that I
 initially got wrong) and also some of the implementation notes along with a
 notebook that I used to train the VAE.  Please check out my previous post
-on <a class="reference external" href="../variational-autoencoders">variational autoencoders</a> to
+on <a class="reference external" href="../variational-autoencoders/">variational autoencoders</a> to
 get some background.</p>
 <p><em>Update 2017-08-09: I actually found a bug in my original code where I was
 only using a small subset of the data!  I fixed it up in the notebooks and
@@ -160,7 +147,7 @@ z|X &amp;\approx \mathcal{N}(\mu_{z|X}, \Sigma_{z|X}) \\
 \tag{2}
 \end{align*}
 </div>
-<p>Check out my <a class="reference external" href="../variational-autoencoders">previous post</a> on this
+<p>Check out my <a class="reference external" href="../variational-autoencoders/">previous post</a> on this
 topic for more details and intuition.  Figure 2 shows an illustration of a
 typical variational autoencoder.</p>
 <div class="figure align-center">
@@ -220,7 +207,7 @@ L(\mu, \sigma^2 | X) &amp;= \log P(X|\mu, \sigma^2) \\
 and <span class="math">\(\mu_i, \sigma_i^2\)</span> is what our fitted neural network is going to produce.</p>
 <p>The big question here is what to do with <span class="math">\(\sigma^2\)</span>?  In Doersch's
 tutorial (see references below), he sets <span class="math">\(\sigma_i^2\)</span> to a constant
-hyperparameter that is the same across all dimensions of <span class="math">\(X\)</span> <a class="footnote-reference" href="#id3" id="id1">[1]</a>.  But
+hyperparameter that is the same across all dimensions of <span class="math">\(X\)</span> <a class="footnote-reference brackets" href="#id3" id="id1">1</a>.  But
 if you think about, why should the variance be the same across all dimensions?
 For example, the top left corner of an image might always be a dark pixel so
 its variance would be small.  In contrast, a pixel in the center might be very
@@ -282,7 +269,7 @@ to capture the variance of your smallest dimension (bigger variances can be
 generated by the "ReLU" function).  Along with this issue, you have to make
 sure that you're learning rate is small enough to allow your loss function to
 converge because we're still dividing by potentially small values that can vary
-widely <a class="footnote-reference" href="#id4" id="id2">[2]</a>.</p>
+widely <a class="footnote-reference brackets" href="#id4" id="id2">2</a>.</p>
 <p><strong>BK</strong> <em>: I actually was playing around with Kingma's method and I did get it to not
 blow up by using a combination of the initialization of weights on the variance
 output nodes and putting L2 regularization on it to keep it small.  It's still
@@ -315,7 +302,7 @@ regularly scheduled program.</p>
 <p>One of the first things I tried was just to adapt the
 <a class="reference external" href="https://github.com/bjlkeng/sandbox/blob/master/notebooks/variational-autoencoder.ipynb">example network</a>
 from Keras that I showed in my
-<a class="reference external" href="../variational-autoencoders">previous post</a>
+<a class="reference external" href="../variational-autoencoders/">previous post</a>
 and use it verbatim to train the SVHN dataset.  It didn't work very well.
 The network uses
 <a class="reference external" href="http://cs231n.github.io/convolutional-networks/#conv">convolution layers</a>
@@ -328,11 +315,10 @@ something that looked like "3" or an "8", nothing too impressive.</p>
 <p>I tried and failed for quite a while to get a CNN to fit properly but didn't
 get anywhere with it.  Some of the things I tried:</p>
 <ul class="simple">
-<li>Adding more or less convolutional layers (between 3-8) on each encoder/decoder</li>
-<li>Adding more or less dense layers to encode the latent variables</li>
-<li>Changing the stride of the convolutional layers higher or lower</li>
-<li>Using an identical architecture on the decoder to a <a class="reference external" href="https://en.wikipedia.org/wiki/Generative_adversarial_networks">generative adversarial network</a>
-</li>
+<li><p>Adding more or less convolutional layers (between 3-8) on each encoder/decoder</p></li>
+<li><p>Adding more or less dense layers to encode the latent variables</p></li>
+<li><p>Changing the stride of the convolutional layers higher or lower</p></li>
+<li><p>Using an identical architecture on the decoder to a <a class="reference external" href="https://en.wikipedia.org/wiki/Generative_adversarial_networks">generative adversarial network</a></p></li>
 </ul>
 <p>Nothing would quite work.  After searching the web for a while, I finally came
 across this
@@ -350,15 +336,15 @@ APIs like Keras), I was finally able to get PCA to work with the breakthrough
 being the correct modelling of the variance, per dimension, as described in the
 previous section.  As to why PCA seems to work, here's what I gathered:</p>
 <ul class="simple">
-<li>PCA transforms the RGB image into the <span class="math">\(K \leq N\)</span> dimensions, where
+<li><p>PCA transforms the RGB image into the <span class="math">\(K \leq N\)</span> dimensions, where
 <span class="math">\(N\)</span> is the original dimension of the image (e.g. For SVHN: 32x32x3 = 3072).
 In detail, we're rotating the data into an orthogonal basis defined
 by the eigenvectors of its covariance matrix.  The result it that the
 dimensions defined by the first <span class="math">\(K\)</span> eigenvectors define most of the
 covariability of the data (in proportion to their eigenvalues).  In simple
 terms, we capture most of the signal in the data just by taking the top
-principal components.</li>
-<li>Using a number a bit higher than Kingma (<span class="math">\(K=1000\)</span> vs <span class="math">\(600\)</span>), I
+principal components.</p></li>
+<li><p>Using a number a bit higher than Kingma (<span class="math">\(K=1000\)</span> vs <span class="math">\(600\)</span>), I
 was able to reduce dimensionality of the images without much corruption
 (there were a few occasional patches of image with discoloration but nothing
 major).  This indicates there is a lot "noise" that we can throw away that is
@@ -367,25 +353,24 @@ not really relevant to the actual "signal" of the image.
 quality to the naked eye. The corruption I was getting was simply due to a bit of
 precision loss when converting to/from PCA dimension and some pixels were getting
 an invalid value (e.g. &gt; 255), after clipping to a valid range there was no
-more visible corruption.</em>
-</li>
-<li>The components have large magnitude differences (another reason for
+more visible corruption.</em></p></li>
+<li><p>The components have large magnitude differences (another reason for
 per-dimension variances), with the first principal component being the
-largest.</li>
-<li>Due to the PCA transformation, the loss function could pay more "attention"
+largest.</p></li>
+<li><p>Due to the PCA transformation, the loss function could pay more "attention"
 to the largest principal component and capture more of the variance (i.e.
 signal) because the squared error term from this component would be huge if
-it were off even by a bit.</li>
-<li>However, after a while the loss function would also be able to find good
+it were off even by a bit.</p></li>
+<li><p>However, after a while the loss function would also be able to find good
 weights for even the smallest component by scaling the variance
 appropriately, making sure we capture the "detail" specified in these smaller
-components.</li>
-<li>Note: I couldn't get it to work with PCA whitening, where the PCA components
+components.</p></li>
+<li><p>Note: I couldn't get it to work with PCA whitening, where the PCA components
 are scaled to have unit variance.  I suspect it's because of this dynamic
 between different magnitudes, it doesn't "focus" the loss function well on
 the principal component and treats all components equally (perhaps this would
 work well with a constant variance?).  This could be another issue with the
-learning rate though, I didn't spend too much time going back to investigate.</li>
+learning rate though, I didn't spend too much time going back to investigate.</p></li>
 </ul>
 <p>In any case, fitting a variational autoencoder on a non-trivial dataset still
 required a few "tricks" like this PCA encoding.</p>
@@ -398,7 +383,7 @@ Some of these things are obvious to a seasoned deep learning expert but may
 help novices like me who are still learning about the "art" of fitting deep
 models.</p>
 <ul class="simple">
-<li>For the fully connected dense layers, I added <a class="reference external" href="https://arxiv.org/abs/1502.03167">batch normalization</a> before the activation, followed by a
+<li><p>For the fully connected dense layers, I added <a class="reference external" href="https://arxiv.org/abs/1502.03167">batch normalization</a> before the activation, followed by a
 <a class="reference external" href="https://en.wikipedia.org/wiki/Rectifier_(neural_networks)">"ReLU"</a>
 activation, followed by a <a class="reference external" href="https://en.wikipedia.org/wiki/Dropout_(neural_networks)">dropout layer</a>.  I did this
 because it seems to be the consensus for best practice: batch norm and "ReLU"
@@ -407,21 +392,20 @@ dropout to ensure that when we use huge networks we don't overfit.  I didn't
 try many alternatives (like a traditional sigmoid or "tanh" activation),
 although when playing doing the MNIST dataset I did have some problems
 (exploding gradients) deep nets without batch norm and "ReLU", so it's likely
-they were necessary.</li>
-<li>I didn't really tune the dropout, which was set at <span class="math">\(0.4\)</span> simply because I saw
+they were necessary.</p></li>
+<li><p>I didn't really tune the dropout, which was set at <span class="math">\(0.4\)</span> simply because I saw
 it used in someone else's post of variational autoencoders.  I just assumed
 that if my network was big enough, a big dropout wouldn't really matter.
 <strong>BK</strong> <em>: Arbitrarily changed it to 0.2 so the loss would converge a bit
-faster (wouldn't jump around so much in the beginning).</em>
-</li>
-<li>I followed the advice from the <a class="reference external" href="http://cs231n.github.io/neural-networks-1/">Stanford CNN course</a>, which says to favour bigger
+faster (wouldn't jump around so much in the beginning).</em></p></li>
+<li><p>I followed the advice from the <a class="reference external" href="http://cs231n.github.io/neural-networks-1/">Stanford CNN course</a>, which says to favour bigger
 networks with regularization instead of using smaller networks to prevent
 overfitting.  I ended up using 512 latent variables, and 5 dense layers on
 the encoder with 2048 neurons, and (roughly) 6-7 layers on the output for the
 mean and variance respectively.  Somehow it seems a bit of overkill but again
 it's easier to find good fits on bigger networks so I didn't want to spend
-that much time searching for a smaller network size.</li>
-<li>To speed up the iterations a bit, I used a bigger batch size (1000).  This
+that much time searching for a smaller network size.</p></li>
+<li><p>To speed up the iterations a bit, I used a bigger batch size (1000).  This
 was pretty arbitrary but I suppose I should increase it to the biggest batch
 size that can fit on my GPU.  This is because the network it loads onto your
 GPU is actually <cite>batch_size * network size</cite>, and it does <cite>batch_size</cite>
@@ -436,12 +420,11 @@ whereas smaller batches converge to "flat" ones.  The "flat" parts of the object
 function are probably where you want to be instead of spurious "sharp" ones.
 In my case, I converged to a loss of around -150 or so with a 6300 batch size but
 was able to get to around -250 with a batch of 1000.  So bigger is not always better!
-Definitely some trade-off though because batch size of 1 would converge too slowly.</em>
-</li>
-<li>On a related note, this would basically be impossible without a GPU.  The
+Definitely some trade-off though because batch size of 1 would converge too slowly.</em></p></li>
+<li><p>On a related note, this would basically be impossible without a GPU.  The
 fitting time would be ridiculous, which again is a testament to the
-advancements in computational power.</li>
-<li>I used a large number of epochs (1000) with a stopping condition on the
+advancements in computational power.</p></li>
+<li><p>I used a large number of epochs (1000) with a stopping condition on the
 training loss (not validation loss).  Interestingly, for this application I
 think we might want to "overfit" so we can memorize the distribution of the
 input images using our generative model (i.e. decoder network).  This should
@@ -452,34 +435,33 @@ learning, where you use the encoder network to map your input to a latent
 variable space, you probably do want to stop on validation loss.  Interestingly,
 I don't think that is the case here (please let me know if I'm wrong!).
 <strong>BK</strong> <em>: Changed this to 2000 epochs but it started learning so slowly after 1000
-or so that I probably could've stopped then.</em>
-</li>
-<li>As mentioned above, I lowered learning rate to 0.0001 using the "Adam" optimizer.
+or so that I probably could've stopped then.</em></p></li>
+<li><p>As mentioned above, I lowered learning rate to 0.0001 using the "Adam" optimizer.
 The optimizer choice was arbitrary, I saw it used somewhere else so I also used it.
 The learning rate was key, especially as I lowered the <span class="math">\(\epsilon\)</span> lower
 bound on the variance, otherwise the gradient would jump around like crazy
-and eventually blow up (i.e. "nan" loss).</li>
-<li>Initially, I only used a randomly selected 20% of the SVHN dataset to train in
+and eventually blow up (i.e. "nan" loss).</p></li>
+<li><p>Initially, I only used a randomly selected 20% of the SVHN dataset to train in
 order to speed my iterations up.  I couldn't get good results, so I
 eventually bumped it up to just about the entire dataset (rounded to be my
 <cite>batch_size</cite> to make the math easier).  Probably training with more data
 resulted in a better fit but I strongly suspect the reason I'm able to fit now
 is the PCA + variance trick.  I've been too lazy to go back to see if this
-contributed to the cause of my poor fits.</li>
-<li>To be able to fit the entire dataset, I had to use Keras <a class="reference external" href="https://keras.io/models/model/">fit_generator()</a> API so that I could fit everything in
+contributed to the cause of my poor fits.</p></li>
+<li><p>To be able to fit the entire dataset, I had to use Keras <a class="reference external" href="https://keras.io/models/model/">fit_generator()</a> API so that I could fit everything in
 memory.  I setup a generator that returns the next <cite>batch_size</cite> of images
 with PCA applied on the fly. The generator then cycles through the entire
 dataset indefinitely, which is what the Keras API expects.  Probably if I was
 a bit more careful, I could perform the PCA in memory without overloading my
 16GB of RAM but I was a bit lazy and didn't want to do any optimization.
 Alternatively, I'm sure I could of preprocessed everything with PCA and then
-saved the resulting PCA-transformed images.</li>
-<li>Keep in mind, to recover an human-interpretable image on the output of the
+saved the resulting PCA-transformed images.</p></li>
+<li><p>Keep in mind, to recover an human-interpretable image on the output of the
 network you have to apply the inverse transform of your PCA model.  Keras'
 own image processing API has a ZCA operation but no inverse, so I just ended
 up using Scikit's implementation, which has an nice API for inverting the
-PCA-transform.</li>
-<li>A small note on implementing the loss function: the tensor (i.e.
+PCA-transform.</p></li>
+<li><p>A small note on implementing the loss function: the tensor (i.e.
 multi-dimensional array) that is passed into the loss function is of dimension
 <cite>batch_size * data_size</cite>.  So for our 1000 dimension PCA transformed output with
 batch size 1000, we would have a tensor of 1000x1000.  So when computing the
@@ -487,7 +469,7 @@ loss, you want to perform the loss on each 1000 dimension slice of the tensor,
 and <em>then</em> average over your entire batch.  Keep this in mind when you're
 doing operations (which need the Keras specific versions so it knows how to
 compute the gradient) and make sure you're performing it across the right axis.
-Checkout my implementation for some examples.</li>
+Checkout my implementation for some examples.</p></li>
 </ul>
 <p><br></p>
 <h4> Variational Autoencoder SVHN Results </h4>
@@ -541,48 +523,28 @@ posts!</p>
 <p><br></p>
 <h4> Further Reading </h4>
 <ul class="simple">
-<li>Previous Posts: <a class="reference external" href="../variational-autoencoders">variational autoencoders</a>
-</li>
-<li>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Cross_entropy">Cross Entropy</a>
-</li>
-<li>Relevant Reddit Posts:  <a class="reference external" href="https://www.reddit.com/r/MachineLearning/comments/4eqifs/gaussian_observation_vae/">Gaussian observation VAE</a>, <a class="reference external" href="https://www.reddit.com/r/MachineLearning/comments/3wp5pc/results_on_svhn_with_vanilla_vae/">Results on SVHN with Vanilla VAE?</a>
-</li>
-<li>"Tutorial on Variational Autoencoders", Carl Doersch, <a class="reference external" href="https://arxiv.org/abs/1606.05908">https://arxiv.org/abs/1606.05908</a>
-</li>
-<li>"Auto-Encoding Variational Bayes", Diederik P. Kingma, Max Welling, <a class="reference external" href="https://arxiv.org/abs/1312.6114">https://arxiv.org/abs/1312.6114</a>
-</li>
-<li>"Code for reproducing results of NIPS 2014 paper "Semi-Supervised Learning with Deep Generative Models", Diederik P. Kingma, <a class="reference external" href="https://github.com/dpkingma/nips14-ssl/">https://github.com/dpkingma/nips14-ssl/</a>
-</li>
-<li>The Street View House Numbers (SVHN) Dataset, <a class="reference external" href="http://ufldl.stanford.edu/housenumbers/">http://ufldl.stanford.edu/housenumbers/</a>
-</li>
-<li>CS231n: Convolutional Neural Networks for Visual Recognition, Stanford University, <a class="reference external" href="http://cs231n.github.io/neural-networks-1/">http://cs231n.github.io/neural-networks-1/</a>
-</li>
-<li>PCA Whitening - UFLDL Tutorial, Stanford University, <a class="reference external" href="http://ufldl.stanford.edu/tutorial/unsupervised/PCAWhitening/">http://ufldl.stanford.edu/tutorial/unsupervised/PCAWhitening/</a>
-</li>
-<li>"Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift", Sergey Ioffe, Christian Szegedy, <a class="reference external" href="https://arxiv.org/abs/1502.03167">https://arxiv.org/abs/1502.03167</a>
-</li>
+<li><p>Previous Posts: <a class="reference external" href="../variational-autoencoders/">variational autoencoders</a></p></li>
+<li><p>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Cross_entropy">Cross Entropy</a></p></li>
+<li><p>Relevant Reddit Posts:  <a class="reference external" href="https://www.reddit.com/r/MachineLearning/comments/4eqifs/gaussian_observation_vae/">Gaussian observation VAE</a>, <a class="reference external" href="https://www.reddit.com/r/MachineLearning/comments/3wp5pc/results_on_svhn_with_vanilla_vae/">Results on SVHN with Vanilla VAE?</a></p></li>
+<li><p>"Tutorial on Variational Autoencoders", Carl Doersch, <a class="reference external" href="https://arxiv.org/abs/1606.05908">https://arxiv.org/abs/1606.05908</a></p></li>
+<li><p>"Auto-Encoding Variational Bayes", Diederik P. Kingma, Max Welling, <a class="reference external" href="https://arxiv.org/abs/1312.6114">https://arxiv.org/abs/1312.6114</a></p></li>
+<li><p>"Code for reproducing results of NIPS 2014 paper "Semi-Supervised Learning with Deep Generative Models", Diederik P. Kingma, <a class="reference external" href="https://github.com/dpkingma/nips14-ssl/">https://github.com/dpkingma/nips14-ssl/</a></p></li>
+<li><p>The Street View House Numbers (SVHN) Dataset, <a class="reference external" href="http://ufldl.stanford.edu/housenumbers/">http://ufldl.stanford.edu/housenumbers/</a></p></li>
+<li><p>CS231n: Convolutional Neural Networks for Visual Recognition, Stanford University, <a class="reference external" href="http://cs231n.github.io/neural-networks-1/">http://cs231n.github.io/neural-networks-1/</a></p></li>
+<li><p>PCA Whitening - UFLDL Tutorial, Stanford University, <a class="reference external" href="http://ufldl.stanford.edu/tutorial/unsupervised/PCAWhitening/">http://ufldl.stanford.edu/tutorial/unsupervised/PCAWhitening/</a></p></li>
+<li><p>"Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift", Sergey Ioffe, Christian Szegedy, <a class="reference external" href="https://arxiv.org/abs/1502.03167">https://arxiv.org/abs/1502.03167</a></p></li>
 </ul>
 <p><br></p>
-<table class="docutils footnote" frame="void" id="id3" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
-<td>I'm sure Doersch knows that this is not always the right thing to do.  He probably was just trying to simplify the explanation in the tutorial to make the flow smoother.</td>
-</tr></tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id4" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="#id2">[2]</a></td>
-<td>I'm sure the learning rate and initialization of weights is somehow related to how Kingma's implementation works.  I didn't really spend much time trying to figure this out after I got my implementation working though.</td>
-</tr></tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="id3"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd>
+<p>I'm sure Doersch knows that this is not always the right thing to do.  He probably was just trying to simplify the explanation in the tutorial to make the flow smoother.</p>
+</dd>
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd>
+<p>I'm sure the learning rate and initialization of weights is somehow related to how Kingma's implementation works.  I didn't really spend much time trying to figure this out after I got my implementation working though.</p>
+</dd>
+</dl>
 </div>
     </div>
     <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
@@ -656,14 +618,14 @@ posts!</p>
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2019         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
 </div>
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

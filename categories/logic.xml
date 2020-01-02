@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about logic)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/logic.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 27 Aug 2019 13:44:39 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Probability as Extended Logic</title><link>http://bjlkeng.github.io/posts/probability-the-logic-of-science/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Modern probability theory is typically derived from the
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about logic)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/logic.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Thu, 02 Jan 2020 21:59:59 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Probability as Extended Logic</title><link>http://bjlkeng.github.io/posts/probability-the-logic-of-science/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Modern probability theory is typically derived from the
 &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Probability_axioms"&gt;Kolmogorov axioms&lt;/a&gt;,
 using measure theory with concepts like events and sample space.
 In one way, it's intuitive to understand how this works as Laplace
 &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Classical_definition_of_probability"&gt;wrote&lt;/a&gt;:&lt;/p&gt;
 &lt;blockquote&gt;
-The probability of an event is the ratio of the number of cases favorable
+&lt;p&gt;The probability of an event is the ratio of the number of cases favorable
 to it, to the number of all cases possible, when [the cases are] equally
 possible. ... Probability is thus simply a fraction whose numerator is the
 number of favorable cases and whose denominator is the number of all the
-cases possible.&lt;/blockquote&gt;
+cases possible.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;However, the intuition of this view of probability breaks down when we want to
 do more complex reasoning.  After learning probability from the lens of coins,
 dice and urns full of red and white balls, I still didn't feel that I had
@@ -19,7 +20,7 @@ whose numerator is the number of favorable cases and whose denominator is the
 number of all the cases possible"&lt;/em&gt;.  And then I read &lt;a class="reference external" href="http://www.cambridge.org/gb/academic/subjects/physics/theoretical-physics-and-mathematical-physics/probability-theory-logic-science"&gt;Probability Theory: The Logic of Science&lt;/a&gt; by E. T. Jayne.&lt;/p&gt;
 &lt;p&gt;Jayne takes a drastically different approach to probability, not with events and
 sample spaces, but rather as an extension of Boolean logic.  Taking this view made
-a great deal of sense to me since I spent a lot of time &lt;a class="reference external" href="http://bjlkeng.github.io/posts/accessible-satisfiability"&gt;studying and reasoning&lt;/a&gt; in Boolean logic.  The following post
+a great deal of sense to me since I spent a lot of time &lt;a class="reference external" href="http://bjlkeng.github.io/posts/accessible-satisfiability/"&gt;studying and reasoning&lt;/a&gt; in Boolean logic.  The following post
 is my attempt to explain Jayne's view of probability theory, where he derives
 it from "common sense" extensions to Boolean logic.  (&lt;em&gt;Spoiler alert: he ends
 up with pretty much the same mathematical system as Kolmogorov's probability

@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="A write up on Masked Autoencoder for Distribution Estimation (MADE).">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Autoregressive Autoencoders | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -18,18 +14,6 @@
 <meta name="author" content="Brian Keng">
 <link rel="prev" href="../semi-supervised-learning-with-variational-autoencoders/" title="Semi-supervised Learning with Variational Autoencoders" type="text/html">
 <link rel="next" href="../variational-autoencoders-with-inverse-autoregressive-flows/" title="Variational Autoencoders with Inverse Autoregressive Flows" type="text/html">
-<meta property="og:site_name" content="Bounded Rationality">
-<meta property="og:title" content="Autoregressive Autoencoders">
-<meta property="og:url" content="http://bjlkeng.github.io/posts/autoregressive-autoencoders/">
-<meta property="og:description" content="A write up on Masked Autoencoder for Distribution Estimation (MADE).">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2017-10-14T10:02:15-04:00">
-<meta property="article:tag" content="autoencoders">
-<meta property="article:tag" content="autoregressive">
-<meta property="article:tag" content="generative models">
-<meta property="article:tag" content="MADE">
-<meta property="article:tag" content="mathjax">
-<meta property="article:tag" content="MNIST">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -84,10 +68,13 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Autoregressive Autoencoders</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
                     Brian Keng
             </span></p>
-            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2017-10-14T10:02:15-04:00" itemprop="datePublished" title="2017-10-14 10:02">2017-10-14 10:02</time></a></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2017-10-14T10:02:15-04:00" itemprop="datePublished" title="2017-10-14 10:02">2017-10-14 10:02</time></a>
+            </p>
             
         <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
 
@@ -104,9 +91,9 @@ Traditional autoencoders are great because they can perform unsupervised
 learning by mapping an input to a latent representation.  However, one
 drawback is that they don't have a solid probabilistic basis
 (of course there are other variants of autoencoders that do, see previous posts
-<a class="reference external" href="../variational-autoencoders">here</a>,
-<a class="reference external" href="../a-variational-autoencoder-on-the-svnh-dataset">here</a>, and
-<a class="reference external" href="../semi-supervised-learning-with-variational-autoencoders">here</a>).
+<a class="reference external" href="../variational-autoencoders/">here</a>,
+<a class="reference external" href="../a-variational-autoencoder-on-the-svnh-dataset/">here</a>, and
+<a class="reference external" href="../semi-supervised-learning-with-variational-autoencoders/">here</a>).
 By using what the authors define as the <em>autoregressive property</em>, we can
 transform the traditional autoencoder approach into a fully probabilistic model
 with very little modification! As usual, I'll provide some intuition, math and
@@ -144,7 +131,7 @@ we'll use cross entropy and for real-valued data we'll use the mean squared
 error.  These correspond to modelling <span class="math">\(x\)</span> as a Bernoulli and Gaussian
 respectively (see the box).</p>
 <div class="admonition admonition-negative-log-likelihoods-nll-and-loss-functions">
-<p class="first admonition-title">Negative Log-Likelihoods (NLL) and Loss Functions</p>
+<p class="admonition-title">Negative Log-Likelihoods (NLL) and Loss Functions</p>
 <p>The loss functions we typically use in training machine learning models are
 usually derived by an assumption on the probability distribution of each
 data point (typically assuming identically, independently distributed (IID)
@@ -201,10 +188,10 @@ simplify it (when optimizing) and still get the same point solution:</p>
 \\ \tag{7}
 \end{align*}
 </div>
-<p class="last">Here our observation is <span class="math">\(x\)</span> and our model would produce an
+<p>Here our observation is <span class="math">\(x\)</span> and our model would produce an
 estimate of the parameter <span class="math">\(\mu\)</span> i.e. <span class="math">\(\hat{x}\)</span> in this case.  I
 have some more details on this in one of my previous posts on
-<a class="reference external" href="../probabilistic-interpretation-of-regularization">regularization</a>.</p>
+<a class="reference external" href="../probabilistic-interpretation-of-regularization/">regularization</a>.</p>
 </div>
 <p></p>
 <h5> Losing Your Identity </h5>
@@ -227,7 +214,7 @@ might give it.  Again, this prevents the autoencoder from just learning the
 identify mapping (because your input is not the same as your output anymore).</p>
 <p>In both cases, you will eventually end up with a pretty good latent representation
 of <span class="math">\(x\)</span> that can be used in all sorts of applications such as
-<a class="reference external" href="../semi-supervised-learning-with-variational-autoencoders">semi-supervised learning</a>.</p>
+<a class="reference external" href="../semi-supervised-learning-with-variational-autoencoders/">semi-supervised learning</a>.</p>
 <p></p>
 <h5> Proper Probability Distributions </h5>
 <p>Although vanilla autoencoders do pretty well in learning a latent
@@ -293,10 +280,10 @@ no reason that each step needs to be a separate neural network, we can just put
 it all together in a single shared neural network so long as we follow a couple
 of rules:</p>
 <ol class="arabic simple">
-<li>Each output of the network <span class="math">\(\hat{x}_i\)</span> represents the probability
-distribution <span class="math">\(p(x_i|{\bf x_{&lt;i}})\)</span>.</li>
-<li>Each output <span class="math">\(\hat{x_i}\)</span> can only have connections (recursively) to
-smaller indexed inputs <span class="math">\(\bf x_{&lt;i}\)</span> and not any of the other ones.</li>
+<li><p>Each output of the network <span class="math">\(\hat{x}_i\)</span> represents the probability
+distribution <span class="math">\(p(x_i|{\bf x_{&lt;i}})\)</span>.</p></li>
+<li><p>Each output <span class="math">\(\hat{x_i}\)</span> can only have connections (recursively) to
+smaller indexed inputs <span class="math">\(\bf x_{&lt;i}\)</span> and not any of the other ones.</p></li>
 </ol>
 <p>Said another way, our neural net first learns <span class="math">\(p(x_1)\)</span> (just a single
 parameter value in the case of binarized data), then iteratively learns the
@@ -333,22 +320,14 @@ hidden layer autoencoder with input <span class="math">\(x\)</span>:</p>
 </div>
 <p>where:</p>
 <ul class="simple">
-<li>
-<span class="math">\(\odot\)</span> is an element wise product</li>
-<li>
-<span class="math">\(\bf x, \hat{x}\)</span> is our vectors of input/output respectively</li>
-<li>
-<span class="math">\(\bf h(x)\)</span> is the hidden layer</li>
-<li>
-<span class="math">\(\bf g(\cdot)\)</span> is the activation function of the hidden layer</li>
-<li>
-<span class="math">\(\text{sigm}(\cdot)\)</span> is the sigmoid activation function of the output layer</li>
-<li>
-<span class="math">\(\bf b, c\)</span> are the constant biases for the hidden/output layer respectively</li>
-<li>
-<span class="math">\(\bf W, V\)</span> are the weight matrices for the hidden/output layer respectively</li>
-<li>
-<span class="math">\(\bf M^W, M^V\)</span> are the weight mask matrices for the hidden/output layer respectively</li>
+<li><p><span class="math">\(\odot\)</span> is an element wise product</p></li>
+<li><p><span class="math">\(\bf x, \hat{x}\)</span> is our vectors of input/output respectively</p></li>
+<li><p><span class="math">\(\bf h(x)\)</span> is the hidden layer</p></li>
+<li><p><span class="math">\(\bf g(\cdot)\)</span> is the activation function of the hidden layer</p></li>
+<li><p><span class="math">\(\text{sigm}(\cdot)\)</span> is the sigmoid activation function of the output layer</p></li>
+<li><p><span class="math">\(\bf b, c\)</span> are the constant biases for the hidden/output layer respectively</p></li>
+<li><p><span class="math">\(\bf W, V\)</span> are the weight matrices for the hidden/output layer respectively</p></li>
+<li><p><span class="math">\(\bf M^W, M^V\)</span> are the weight mask matrices for the hidden/output layer respectively</p></li>
 </ul>
 <p>So long as our masks are set such that the autoregressive property is
 satisfied, the network can produce a proper probability distribution.
@@ -399,14 +378,13 @@ whole process pictorially.</p>
 </div>
 <p>A few things to notice:</p>
 <ul class="simple">
-<li>Output 1 is not connected to anything.  It will just be estimated with a
-single constant parameter derived from the bias node.</li>
-<li>Input 3 is not connected to anything because no node should depend on it
-(autoregressive property).</li>
-<li>
-<span class="math">\(m^l(k)\)</span> are more or less assigned randomly.</li>
-<li>If you trace back from output to input, you will see that the autoregressive
-property is maintained.</li>
+<li><p>Output 1 is not connected to anything.  It will just be estimated with a
+single constant parameter derived from the bias node.</p></li>
+<li><p>Input 3 is not connected to anything because no node should depend on it
+(autoregressive property).</p></li>
+<li><p><span class="math">\(m^l(k)\)</span> are more or less assigned randomly.</p></li>
+<li><p>If you trace back from output to input, you will see that the autoregressive
+property is maintained.</p></li>
 </ul>
 <p>So then implementing MADE is as simple as providing a weight mask
 and doing an extra element-wise product. Pretty simple, right?</p>
@@ -441,12 +419,12 @@ new samples.  Remember, we now have a fully generative probabilistic model for
 our autoencoder.  It turns out it's quite easy but a bit slow.  The main idea
 (for binary data):</p>
 <ol class="arabic simple">
-<li>Randomly generate vector <span class="math">\({\bf x}\)</span>, set <span class="math">\(i=1\)</span>.</li>
-<li>Feed <span class="math">\({\bf x}\)</span> into autoencoder and generate outputs
-<span class="math">\(\hat{\bf x}\)</span> for the network, set <span class="math">\(p=\hat{x_i}\)</span>.</li>
-<li>Sample from a Bernoulli distribution with parameter <span class="math">\(p\)</span>, set
-input <span class="math">\(x_{i}=\text{Bernoulli}(p)\)</span>.</li>
-<li>Increment <span class="math">\(i\)</span> and repeat steps 2-4 until <cite>i &gt; D</cite>.</li>
+<li><p>Randomly generate vector <span class="math">\({\bf x}\)</span>, set <span class="math">\(i=1\)</span>.</p></li>
+<li><p>Feed <span class="math">\({\bf x}\)</span> into autoencoder and generate outputs
+<span class="math">\(\hat{\bf x}\)</span> for the network, set <span class="math">\(p=\hat{x_i}\)</span>.</p></li>
+<li><p>Sample from a Bernoulli distribution with parameter <span class="math">\(p\)</span>, set
+input <span class="math">\(x_{i}=\text{Bernoulli}(p)\)</span>.</p></li>
+<li><p>Increment <span class="math">\(i\)</span> and repeat steps 2-4 until <cite>i &gt; D</cite>.</p></li>
 </ol>
 <p>Basically, we're iteratively calculating <span class="math">\(p(x_i|{\bf x_{&lt;i}})\)</span>
 by doing a forward pass on the autoencoder each time.  Along the way, we sample
@@ -493,20 +471,20 @@ just did some trial and error tuning.</p>
 <h5> Implementation Notes </h5>
 <p>Here are some random notes that I came across when building this MADE:</p>
 <ul class="simple">
-<li>Adding a direct (auto-regressive) connection between inputs and outputs
+<li><p>Adding a direct (auto-regressive) connection between inputs and outputs
 seemed to make a huge difference (150 vs. &lt; 100 loss).  For me, this
 basically was the make-or-break piece for implementing a MADE.  It's funny that
 it's just a throw-away paragraph in the actual paper.  Probably because the
 idea was from an earlier paper in 2000 and not the main contribution of the
 paper.  For some things, you really have to implement it to understand the
-important parts, papers don't tell the whole story!</li>
-<li>I had to be quite careful when coding up layers since getting the indexes for
+important parts, papers don't tell the whole story!</p></li>
+<li><p>I had to be quite careful when coding up layers since getting the indexes for
 selection exactly right is important.  I had a few false starts because I
 mixed up the indexes.  When using the high-level Keras API, there's not much
-of this detailed work, but when implementing your own layers it's important!</li>
-<li>I tried a random ordering (just a single one for the entire training, not
-one per batch) and it didn't really seem to do much.</li>
-<li>In their actual implementation, they also add dropout to all their layers.  I
+of this detailed work, but when implementing your own layers it's important!</p></li>
+<li><p>I tried a random ordering (just a single one for the entire training, not
+one per batch) and it didn't really seem to do much.</p></li>
+<li><p>In their actual implementation, they also add dropout to all their layers.  I
 added it too but didn't play around with it much except to try to tune it to
 get a lower NLL.  One curious thing I found out was about using the
 <a class="reference external" href="https://keras.io/backend/">set_learning_phase()</a> API.  When implementing
@@ -518,7 +496,7 @@ implementation uses <cite>in_train_phase(&lt;train_input&gt;, &lt;test_input&gt;
 switches between two behaviours for training/testing based on the status of
 this bit.  For some reason when using the regular dropout layer you don't
 have to do this but when doing it in a custom layer you do?  I suspect I
-missed something in my custom layer that happens in the dropout layer.</li>
+missed something in my custom layer that happens in the dropout layer.</p></li>
 </ul>
 <p><br></p>
 <h4> Conclusion </h4>
@@ -531,16 +509,11 @@ to come!</p>
 <p><br></p>
 <h4> Further Reading </h4>
 <ul class="simple">
-<li>Previous posts: <a class="reference external" href="../variational-autoencoders">Variational Autoencoders</a>, <a class="reference external" href="../a-variational-autoencoder-on-the-svnh-dataset">A Variational Autoencoder on the SVHN dataset</a>, <a class="reference external" href="../semi-supervised-learning-with-variational-autoencoders">Semi-supervised Learning with Variational Autoencoders</a>
-</li>
-<li>My implementation on Github: <a class="reference external" href="https://github.com/bjlkeng/sandbox/blob/master/notebooks/masked_autoencoders/made-mnist.ipynb">notebook</a>
-</li>
-<li>[1] "MADE: Masked Autoencoder for Distribution Estimation", Germain, Gregor, Murray, Larochelle, <a class="reference external" href="https://arxiv.org/pdf/1502.03509.pdf">ICML 2015</a>
-</li>
-<li>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Autoencoder">Autoencoder</a>
-</li>
-<li>Github code for "MADE: Masked Autoencoder for Distribution Estimation", <a class="reference external" href="https://github.com/mgermain/MADE">https://github.com/mgermain/MADE</a>
-</li>
+<li><p>Previous posts: <a class="reference external" href="../variational-autoencoders/">Variational Autoencoders</a>, <a class="reference external" href="../a-variational-autoencoder-on-the-svnh-dataset/">A Variational Autoencoder on the SVHN dataset</a>, <a class="reference external" href="../semi-supervised-learning-with-variational-autoencoders/">Semi-supervised Learning with Variational Autoencoders</a></p></li>
+<li><p>My implementation on Github: <a class="reference external" href="https://github.com/bjlkeng/sandbox/blob/master/notebooks/masked_autoencoders/made-mnist.ipynb">notebook</a></p></li>
+<li><p>[1] "MADE: Masked Autoencoder for Distribution Estimation", Germain, Gregor, Murray, Larochelle, <a class="reference external" href="https://arxiv.org/pdf/1502.03509.pdf">ICML 2015</a></p></li>
+<li><p>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Autoencoder">Autoencoder</a></p></li>
+<li><p>Github code for "MADE: Masked Autoencoder for Distribution Estimation", <a class="reference external" href="https://github.com/mgermain/MADE">https://github.com/mgermain/MADE</a></p></li>
 </ul>
 </div>
     </div>
@@ -615,14 +588,14 @@ to come!</p>
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2019         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
 </div>
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

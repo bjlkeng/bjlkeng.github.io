@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about MNIST)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mnist.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 27 Aug 2019 13:44:41 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders</title><link>http://bjlkeng.github.io/posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;It took a while but I'm back!  This post is kind of a digression (which seems
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about MNIST)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mnist.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Thu, 02 Jan 2020 21:59:57 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders</title><link>http://bjlkeng.github.io/posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;It took a while but I'm back!  This post is kind of a digression (which seems
 to happen a lot) along my journey of learning more about probabilistic
 generative models.  There's so much in ML that you can't help learning a lot
 of random things along the way.  That's why it's interesting, right?&lt;/p&gt;
@@ -22,7 +22,7 @@ series of invertible transformations.  This, in theory, will allow
 your variational autoencoder to fit better by concentrating the
 stochastic samples around a closer approximation to the true
 posterior.  The math works out so nicely while the results are kind of
-marginal &lt;a class="footnote-reference" href="http://bjlkeng.github.io/posts/variational-autoencoders-with-inverse-autoregressive-flows/#id3" id="id1"&gt;[1]&lt;/a&gt;.  As usual, I'll go through some intuition, some math,
+marginal &lt;a class="footnote-reference brackets" href="http://bjlkeng.github.io/posts/variational-autoencoders-with-inverse-autoregressive-flows/#id3" id="id1"&gt;1&lt;/a&gt;.  As usual, I'll go through some intuition, some math,
 and have an implementation with few experiments I ran.  Enjoy!&lt;/p&gt;
 &lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/variational-autoencoders-with-inverse-autoregressive-flows/"&gt;Read more…&lt;/a&gt; (18 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoencoders</category><category>autoregressive</category><category>CIFAR10</category><category>generative models</category><category>Kullback-Leibler</category><category>MADE</category><category>mathjax</category><category>MNIST</category><category>variational calculus</category><guid>http://bjlkeng.github.io/posts/variational-autoencoders-with-inverse-autoregressive-flows/</guid><pubDate>Tue, 19 Dec 2017 13:47:38 GMT</pubDate></item><item><title>Autoregressive Autoencoders</title><link>http://bjlkeng.github.io/posts/autoregressive-autoencoders/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;You might think that I'd be bored with autoencoders by now but I still
 find them extremely interesting!  In this post, I'm going to be explaining
@@ -32,9 +32,9 @@ Traditional autoencoders are great because they can perform unsupervised
 learning by mapping an input to a latent representation.  However, one
 drawback is that they don't have a solid probabilistic basis
 (of course there are other variants of autoencoders that do, see previous posts
-&lt;a class="reference external" href="http://bjlkeng.github.io/posts/variational-autoencoders"&gt;here&lt;/a&gt;,
-&lt;a class="reference external" href="http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset"&gt;here&lt;/a&gt;, and
-&lt;a class="reference external" href="http://bjlkeng.github.io/posts/semi-supervised-learning-with-variational-autoencoders"&gt;here&lt;/a&gt;).
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/variational-autoencoders/"&gt;here&lt;/a&gt;,
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/a-variational-autoencoder-on-the-svnh-dataset/"&gt;here&lt;/a&gt;, and
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/semi-supervised-learning-with-variational-autoencoders/"&gt;here&lt;/a&gt;).
 By using what the authors define as the &lt;em&gt;autoregressive property&lt;/em&gt;, we can
 transform the traditional autoencoder approach into a fully probabilistic model
 with very little modification! As usual, I'll provide some intuition, math and

@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="Probability as extended logic.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Probability as Extended Logic | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -18,16 +14,6 @@
 <meta name="author" content="Brian Keng">
 <link rel="prev" href="../accessible-satisfiability/" title="Accessible Satisfiability" type="text/html">
 <link rel="next" href="../gamblers-fallacy-and-the-law-of-small-numbers/" title="The Gambler's Fallacy and The Law of Small Numbers" type="text/html">
-<meta property="og:site_name" content="Bounded Rationality">
-<meta property="og:title" content="Probability as Extended Logic">
-<meta property="og:url" content="http://bjlkeng.github.io/posts/probability-the-logic-of-science/">
-<meta property="og:description" content="Probability as extended logic.">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2015-10-14T20:30:05-04:00">
-<meta property="article:tag" content="Jayne">
-<meta property="article:tag" content="logic">
-<meta property="article:tag" content="mathjax">
-<meta property="article:tag" content="probability">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -82,10 +68,13 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Probability as Extended Logic</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
                     Brian Keng
             </span></p>
-            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2015-10-14T20:30:05-04:00" itemprop="datePublished" title="2015-10-14 20:30">2015-10-14 20:30</time></a></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2015-10-14T20:30:05-04:00" itemprop="datePublished" title="2015-10-14 20:30">2015-10-14 20:30</time></a>
+            </p>
             
         <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
 
@@ -100,11 +89,12 @@ using measure theory with concepts like events and sample space.
 In one way, it's intuitive to understand how this works as Laplace
 <a class="reference external" href="https://en.wikipedia.org/wiki/Classical_definition_of_probability">wrote</a>:</p>
 <blockquote>
-The probability of an event is the ratio of the number of cases favorable
+<p>The probability of an event is the ratio of the number of cases favorable
 to it, to the number of all cases possible, when [the cases are] equally
 possible. ... Probability is thus simply a fraction whose numerator is the
 number of favorable cases and whose denominator is the number of all the
-cases possible.</blockquote>
+cases possible.</p>
+</blockquote>
 <p>However, the intuition of this view of probability breaks down when we want to
 do more complex reasoning.  After learning probability from the lens of coins,
 dice and urns full of red and white balls, I still didn't feel that I had
@@ -114,7 +104,7 @@ whose numerator is the number of favorable cases and whose denominator is the
 number of all the cases possible"</em>.  And then I read <a class="reference external" href="http://www.cambridge.org/gb/academic/subjects/physics/theoretical-physics-and-mathematical-physics/probability-theory-logic-science">Probability Theory: The Logic of Science</a> by E. T. Jayne.</p>
 <p>Jayne takes a drastically different approach to probability, not with events and
 sample spaces, but rather as an extension of Boolean logic.  Taking this view made
-a great deal of sense to me since I spent a lot of time <a class="reference external" href="../accessible-satisfiability">studying and reasoning</a> in Boolean logic.  The following post
+a great deal of sense to me since I spent a lot of time <a class="reference external" href="../accessible-satisfiability/">studying and reasoning</a> in Boolean logic.  The following post
 is my attempt to explain Jayne's view of probability theory, where he derives
 it from "common sense" extensions to Boolean logic.  (<em>Spoiler alert: he ends
 up with pretty much the same mathematical system as Kolmogorov's probability
@@ -341,7 +331,7 @@ useful) may not be ideal for us to include in our system of reasoning such as
 emotion and misunderstandings.  Here is where Jayne introduces a really neat
 concept, the robot, in order to make it clear what we're trying to achieve:</p>
 <blockquote>
-In order to direct attention to constructive things and away from
+<p>In order to direct attention to constructive things and away from
 controversial irrelevancies, we shall invent an imaginary being.  Its brain
 is to be designed <em>by us</em>, so that it reasons according to certain definite
 rules.  These rules will be deduced from simple desiderata which, it
@@ -352,19 +342,22 @@ desiderata, would wish to revise their thinking.
 To each proposition about which it reasons, our robot must assign some
 degree of plausibility, based on the evidence we have given it; and
 whenever it receives new evidence it must revise these assignments to take
-that new evidence into account.</blockquote>
+that new evidence into account.</p>
+</blockquote>
 <p>Sounds like a pretty cool robot!  So our goal now is to build a reasoning
 system for this hypothetical robot that that will be consistent with how an
 ideal rational person would reason.  Here are the three requirements
 (desiderata) that Jayne states for our robot:</p>
 <blockquote>
 <ol class="arabic simple">
-<li>Degrees of plausibility are represented by real numbers.</li>
-<li>Qualitative correspondence with common sense.</li>
-<li>Consistency:<ol class="loweralpha">
-<li>If a conclusion can be reasoned out in more than one way, then every possible way must lead to the same result.</li>
-<li>The robot always takes into account all of the evidence it has relevant to the question.  It does not arbitrarily, ignore some of the information, basing its conclusions only on what remains.  In other words, the robot is nonideological.</li>
-<li>The robot always represents equivalent states of knowledge by equivalent plausibility assignments.  That is, if in two problems the robot's state of knowledge is the same (except perhaps for the labeling of the propositions), then it must assign the same plausibilities in both.</li>
+<li><p>Degrees of plausibility are represented by real numbers.</p></li>
+<li><p>Qualitative correspondence with common sense.</p></li>
+<li>
+<p>Consistency:</p>
+<ol class="loweralpha simple">
+<li><p>If a conclusion can be reasoned out in more than one way, then every possible way must lead to the same result.</p></li>
+<li><p>The robot always takes into account all of the evidence it has relevant to the question.  It does not arbitrarily, ignore some of the information, basing its conclusions only on what remains.  In other words, the robot is nonideological.</p></li>
+<li><p>The robot always represents equivalent states of knowledge by equivalent plausibility assignments.  That is, if in two problems the robot's state of knowledge is the same (except perhaps for the labeling of the propositions), then it must assign the same plausibilities in both.</p></li>
 </ol>
 </li>
 </ol>
@@ -429,7 +422,7 @@ We know that <span class="math">\(P(B|C)=1\)</span>, this means that given backg
 certainty.
 When we add the additional information that A is plausible with absolute
 certainty (i.e. <span class="math">\(B|AC\)</span>), it doesn't have any affect on <span class="math">\(B\)</span> (because
-C is already telling us that <span class="math">\(B\)</span> is true) <a class="footnote-reference" href="#id2" id="id1">[1]</a>.
+C is already telling us that <span class="math">\(B\)</span> is true) <a class="footnote-reference brackets" href="#id2" id="id1">1</a>.
 From this, we can conclude that <span class="math">\(P(B|AC)=1\)</span> because the fact <span class="math">\(A\)</span>
 is irrelevant to our robot when computing <span class="math">\(P(B|AC)\)</span>.</p>
 <p>Plugging that along with <span class="math">\(P(A|C)=1\)</span> into the formula we get the desired
@@ -491,49 +484,49 @@ correspondence like the operators above.  However, treating A, B, C as
 propositions aids us in understanding these equations.  Given our major premise
 <span class="math">\(C \equiv A \implies B\)</span>, let's look at the truth table for the relevant
 propositions.</p>
-<table border="1" class="docutils">
+<table>
 <colgroup>
-<col width="7%">
-<col width="7%">
-<col width="41%">
-<col width="20%">
-<col width="25%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 41%">
+<col style="width: 20%">
+<col style="width: 25%">
 </colgroup>
-<thead valign="bottom"><tr>
-<th class="head">A</th>
-<th class="head">B</th>
-<th class="head"><span class="math">\(C \equiv A \implies B\)</span></th>
-<th class="head"><span class="math">\(AB | C\)</span></th>
-<th class="head"><span class="math">\(A\bar{B}|C\)</span></th>
+<thead><tr>
+<th class="head"><p>A</p></th>
+<th class="head"><p>B</p></th>
+<th class="head"><p><span class="math">\(C \equiv A \implies B\)</span></p></th>
+<th class="head"><p><span class="math">\(AB | C\)</span></p></th>
+<th class="head"><p><span class="math">\(A\bar{B}|C\)</span></p></th>
 </tr></thead>
-<tbody valign="top">
+<tbody>
 <tr>
-<td>False</td>
-<td>False</td>
-<td>True</td>
-<td>False</td>
-<td>False</td>
+<td><p>False</p></td>
+<td><p>False</p></td>
+<td><p>True</p></td>
+<td><p>False</p></td>
+<td><p>False</p></td>
 </tr>
 <tr>
-<td>False</td>
-<td>True</td>
-<td>True</td>
-<td>False</td>
-<td>False</td>
+<td><p>False</p></td>
+<td><p>True</p></td>
+<td><p>True</p></td>
+<td><p>False</p></td>
+<td><p>False</p></td>
 </tr>
 <tr>
-<td>True</td>
-<td>False</td>
-<td>False</td>
-<td><em>Impossible</em></td>
-<td><em>Impossible</em></td>
+<td><p>True</p></td>
+<td><p>False</p></td>
+<td><p>False</p></td>
+<td><p><em>Impossible</em></p></td>
+<td><p><em>Impossible</em></p></td>
 </tr>
 <tr>
-<td>True</td>
-<td>True</td>
-<td>True</td>
-<td>True</td>
-<td>False</td>
+<td><p>True</p></td>
+<td><p>True</p></td>
+<td><p>True</p></td>
+<td><p>True</p></td>
+<td><p>False</p></td>
 </tr>
 </tbody>
 </table>
@@ -624,24 +617,17 @@ lot better and, dare I say, even start to like the subject!</p>
 <p><br></p>
 <h4> Further Reading </h4>
 <ul class="simple">
-<li>
-<a class="reference external" href="http://bayes.wustl.edu/etj/prob/book.pdf">Probability Theory: The Logic of Science (Chapters 1-3)</a> by E. T. Jayne.</li>
-<li>
-<a class="reference external" href="http://bayes.wustl.edu/">Probability Theory As Extended Logic</a> at Washington University In St Louis.</li>
-<li>
-<a class="reference external" href="http://nbviewer.ipython.org/url/norvig.com/ipython/Probability.ipynb">Probability, Paradox, and the Reasonable Person Principle</a> by Peter Norvig</li>
+<li><p><a class="reference external" href="http://bayes.wustl.edu/etj/prob/book.pdf">Probability Theory: The Logic of Science (Chapters 1-3)</a> by E. T. Jayne.</p></li>
+<li><p><a class="reference external" href="http://bayes.wustl.edu/">Probability Theory As Extended Logic</a> at Washington University In St Louis.</p></li>
+<li><p><a class="reference external" href="http://nbviewer.ipython.org/url/norvig.com/ipython/Probability.ipynb">Probability, Paradox, and the Reasonable Person Principle</a> by Peter Norvig</p></li>
 </ul>
 <p><br></p>
-<table class="docutils footnote" frame="void" id="id2" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
-<td>You might wonder what happens when <span class="math">\(A\)</span> and <span class="math">\(C\)</span> are mutually exclusive propositions (i.e. impossible to happen at the same time).  In this case, <span class="math">\(P(B|AC)\)</span> is not defined but also our original question is ill formed because we couldn't have the case <span class="math">\(P(A|C)=1\)</span> (we would instead have <span class="math">\(P(A|C)=1\)</span>).</td>
-</tr></tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd>
+<p>You might wonder what happens when <span class="math">\(A\)</span> and <span class="math">\(C\)</span> are mutually exclusive propositions (i.e. impossible to happen at the same time).  In this case, <span class="math">\(P(B|AC)\)</span> is not defined but also our original question is ill formed because we couldn't have the case <span class="math">\(P(A|C)=1\)</span> (we would instead have <span class="math">\(P(A|C)=1\)</span>).</p>
+</dd>
+</dl>
 </div>
     </div>
     <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
@@ -713,14 +699,14 @@ lot better and, dare I say, even start to like the subject!</p>
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2019         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
 </div>
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

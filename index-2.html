@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="Understanding math, machine learning, and data to a satisfactory degree.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bounded Rationality (old posts, page 2) | Bounded Rationality</title>
-<link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
@@ -81,9 +77,9 @@ Traditional autoencoders are great because they can perform unsupervised
 learning by mapping an input to a latent representation.  However, one
 drawback is that they don't have a solid probabilistic basis
 (of course there are other variants of autoencoders that do, see previous posts
-<a class="reference external" href="posts/variational-autoencoders">here</a>,
-<a class="reference external" href="posts/a-variational-autoencoder-on-the-svnh-dataset">here</a>, and
-<a class="reference external" href="posts/semi-supervised-learning-with-variational-autoencoders">here</a>).
+<a class="reference external" href="posts/variational-autoencoders/">here</a>,
+<a class="reference external" href="posts/a-variational-autoencoder-on-the-svnh-dataset/">here</a>, and
+<a class="reference external" href="posts/semi-supervised-learning-with-variational-autoencoders/">here</a>).
 By using what the authors define as the <em>autoregressive property</em>, we can
 transform the traditional autoencoder approach into a fully probabilistic model
 with very little modification! As usual, I'll provide some intuition, math and
@@ -102,8 +98,8 @@ an implementation.</p>
     <div>
 <p>In this post, I'll be continuing on this variational autoencoder (VAE) line of
 exploration
-(previous posts: <a class="reference external" href="posts/variational-autoencoders">here</a> and
-<a class="reference external" href="posts/a-variational-autoencoder-on-the-svnh-dataset">here</a>) by
+(previous posts: <a class="reference external" href="posts/variational-autoencoders/">here</a> and
+<a class="reference external" href="posts/a-variational-autoencoder-on-the-svnh-dataset/">here</a>) by
 writing about how to use variational autoencoders to do semi-supervised
 learning.  In particular, I'll be explaining the technique used in
 "Semi-supervised Learning with Deep Generative Models" by Kingma et al.
@@ -127,7 +123,7 @@ with others such as PCA, CNNs, and pre-trained models.  Enjoy!</p>
 <p>I wrote a post on the hard parts about machine learning over
 at Rubikloud:</p>
 <ul class="simple">
-<li><a class="reference external" href="https://rubikloud.com/labs/data-science/hard-thing-machine-learning/">The Hard Thing about Machine Learning</a></li>
+<li><p><a class="reference external" href="https://rubikloud.com/labs/data-science/hard-thing-machine-learning/">The Hard Thing about Machine Learning</a></p></li>
 </ul>
 <p>Here's a blurb:</p>
 <blockquote>
@@ -165,7 +161,7 @@ predictions and building machine learning systems.</p>
     <div>
 <p>I wrote a post about building a table tennis ranking model over at Rubikloud:</p>
 <ul class="simple">
-<li><a class="reference external" href="https://rubikloud.com/labs/building-table-tennis-ranking-model/">Building A Table Tennis Ranking Model</a></li>
+<li><p><a class="reference external" href="https://rubikloud.com/labs/building-table-tennis-ranking-model/">Building A Table Tennis Ranking Model</a></p></li>
 </ul>
 <p>It uses
 <a class="reference external" href="https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model">Bradley-Terry</a>
@@ -207,7 +203,7 @@ and I built a model.</p>
 autoencoder (VAE) on the
 <a class="reference external" href="http://ufldl.stanford.edu/housenumbers/">Street View House Numbers</a>
 (SVHN) dataset.  My last post on
-<a class="reference external" href="posts/variational-autoencoders">variational autoencoders</a>
+<a class="reference external" href="posts/variational-autoencoders/">variational autoencoders</a>
 showed a simple example on the MNIST dataset but because it was so simple I
 thought I might have missed some of the subtler points of VAEs -- boy was I
 right!  The fact that I'm not really a computer vision guy nor a deep learning
@@ -217,7 +213,7 @@ points that are easy to gloss over if you're just reading someone else's
 tutorial.  I'll share with you some of the details in the math (that I
 initially got wrong) and also some of the implementation notes along with a
 notebook that I used to train the VAE.  Please check out my previous post
-on <a class="reference external" href="posts/variational-autoencoders">variational autoencoders</a> to
+on <a class="reference external" href="posts/variational-autoencoders/">variational autoencoders</a> to
 get some background.</p>
 <p><em>Update 2017-08-09: I actually found a bug in my original code where I was
 only using a small subset of the data!  I fixed it up in the notebooks and
@@ -294,14 +290,14 @@ because the dataset isn't so easy anymore.</em></p>
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2019         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
 </div>
 </div>
 
 
-            <script src="assets/js/jquery.min.js"></script><script src="assets/js/bootstrap.min.js"></script><script src="assets/js/moment-with-locales.min.js"></script><script src="assets/js/fancydates.js"></script><script src="assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

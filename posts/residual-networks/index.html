@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="A brief post on residual networks with some experiments on variational autoencoders.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Residual Networks | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -18,17 +14,6 @@
 <meta name="author" content="Brian Keng">
 <link rel="prev" href="../variational-autoencoders-with-inverse-autoregressive-flows/" title="Variational Autoencoders with Inverse Autoregressive Flows" type="text/html">
 <link rel="next" href="../tensors-tensors-tensors/" title="Tensors, Tensors, Tensors" type="text/html">
-<meta property="og:site_name" content="Bounded Rationality">
-<meta property="og:title" content="Residual Networks">
-<meta property="og:url" content="http://bjlkeng.github.io/posts/residual-networks/">
-<meta property="og:description" content="A brief post on residual networks with some experiments on variational autoencoders.">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2018-02-18T13:55:13-05:00">
-<meta property="article:tag" content="autoencoders">
-<meta property="article:tag" content="CIFAR10">
-<meta property="article:tag" content="mathjax">
-<meta property="article:tag" content="residual networks">
-<meta property="article:tag" content="ResNet">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -83,10 +68,13 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Residual Networks</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
                     Brian Keng
             </span></p>
-            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2018-02-18T13:55:13-05:00" itemprop="datePublished" title="2018-02-18 13:55">2018-02-18 13:55</time></a></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2018-02-18T13:55:13-05:00" itemprop="datePublished" title="2018-02-18 13:55">2018-02-18 13:55</time></a>
+            </p>
             
         <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
 
@@ -196,7 +184,7 @@ layers) as well as other state of the art architectures.</p>
 decided to see ResNet would help at all.  Using a vanilla autoencoder
 (diagonal Gaussian latent variables) on the CIFAR10 dataset didn't produce
 very good results from some previous experience
-(see post on <a class="reference external" href="../semi-supervised-learning-with-variational-autoencoders">Semi-supervised Learning with Variational Autoencoders</a>).
+(see post on <a class="reference external" href="../semi-supervised-learning-with-variational-autoencoders/">Semi-supervised Learning with Variational Autoencoders</a>).
 One thing I was wondering is if adding a high capacity encoder/decoder network
 like ResNet would benefit the model performance.</p>
 <p>You can find my implementation <a class="reference external" href="https://github.com/bjlkeng/sandbox/tree/master/notebooks/vae-resnet">here on Github</a>.</p>
@@ -207,44 +195,44 @@ like ResNet would benefit the model performance.</p>
 with a few modifications such as supporting transposed convolutions for the
 decoder.  It should be pretty straight forward to see in the code if you're
 curious.  The results for the different depths of ResNet are in Table 1.</p>
-<table border="1" class="colwidths-given docutils align-center">
+<table class="colwidths-given align-center">
 <caption>Table 1: CIFAR10 VAE Results</caption>
 <colgroup>
-<col width="33%">
-<col width="22%">
-<col width="22%">
-<col width="22%">
+<col style="width: 33%">
+<col style="width: 22%">
+<col style="width: 22%">
+<col style="width: 22%">
 </colgroup>
-<thead valign="bottom"><tr>
-<th class="head">Depth</th>
-<th class="head">Training Time (hrs)</th>
-<th class="head">Training Loss</th>
-<th class="head">Validation Loss</th>
+<thead><tr>
+<th class="head"><p>Depth</p></th>
+<th class="head"><p>Training Time (hrs)</p></th>
+<th class="head"><p>Training Loss</p></th>
+<th class="head"><p>Validation Loss</p></th>
 </tr></thead>
-<tbody valign="top">
+<tbody>
 <tr>
-<td>28</td>
-<td>79.2</td>
-<td>1790.4</td>
-<td>1794.7</td>
+<td><p>28</p></td>
+<td><p>79.2</p></td>
+<td><p>1790.4</p></td>
+<td><p>1794.7</p></td>
 </tr>
 <tr>
-<td>40</td>
-<td>61.9</td>
-<td>1787.5</td>
-<td>1795.7</td>
+<td><p>40</p></td>
+<td><p>61.9</p></td>
+<td><p>1787.5</p></td>
+<td><p>1795.7</p></td>
 </tr>
 <tr>
-<td>70</td>
-<td>80.0</td>
-<td>1784.8</td>
-<td>1799.0</td>
+<td><p>70</p></td>
+<td><p>80.0</p></td>
+<td><p>1784.8</p></td>
+<td><p>1799.0</p></td>
 </tr>
 <tr>
-<td>100</td>
-<td>164.7</td>
-<td>1782.3</td>
-<td>1804.0</td>
+<td><p>100</p></td>
+<td><p>164.7</p></td>
+<td><p>1782.3</p></td>
+<td><p>1804.0</p></td>
 </tr>
 </tbody>
 </table>
@@ -253,7 +241,7 @@ different runs but look at those depths!  The training loss seems to improve a
 bit but the validation loss seems to get slightly worse.  Of course the
 difference is so small you can't really make any conclusions.  All I really
 conclude from this is that this vanilla VAE setup isn't powerful enough to
-represent the CIFAR10 dataset <a class="footnote-reference" href="#id2" id="id1">[1]</a>.  Another thing to note is that visually
+represent the CIFAR10 dataset <a class="footnote-reference brackets" href="#id2" id="id1">1</a>.  Another thing to note is that visually
 the generated images from each of the runs all look similarly blurry.</p>
 <p>I used an early stopping condition for each run where it would stop if the
 validation loss hadn't improved for 50 runs.  Interestingly when looking at
@@ -267,15 +255,17 @@ case (probably a limitation of the VAE), but ResNet is really robust!</p>
 <h5> Implementation Notes </h5>
 <p>Here are some implementation notes:</p>
 <ul class="simple">
-<li>I used the Keras ResNet <code>identity_block</code> and <code>conv_block</code> as a base.  Modifying the latter to also support transposed convolutions.</li>
-<li>I finally took a bit of time to figure out how to use nested <code>Model</code>'s in Keras.  So basically I just have to make the encoder/decoder <code>Model</code> once, build the VAE by nesting those two <code>Model</code>'s to build a VAE <code>Model</code>.  This makes it much easier to build the "generator"/decoder by just instantiating the encoder <code>Model</code>.  I actually tried doing this a while back but came across some errors, so I just decided to duplicate code by recreating a new flat generator <code>Model</code> with the same layers.  This time it was too hard to do because of how the ResNet blocks are instantiated so I took the time to figure it out.  I forgot exactly what error I was getting but at least you can look at the code I put together to see an example of it working.</li>
-<li>The other "smarter" thing that I did was I wrote a script to run the notebook through command line.  This is great because when I'm just messing around I want to be able to see things in a UI but I also want to be able to batch run things (I only have 1 GPU after all).  This really allowed me to have the best of both worlds.  I'll just mention a few specific tricks I used:<ul>
-<li>Any variables I wanted to be able to modify from command-line I had to add
-something like <code>os.environ.get('LATENT_DIM', 256)</code>, which allows you to read command-line environment variables.</li>
-<li>In my run script, I had to define a <cite>CMDLINE</cite> var to not run certain
+<li><p>I used the Keras ResNet <code>identity_block</code> and <code>conv_block</code> as a base.  Modifying the latter to also support transposed convolutions.</p></li>
+<li><p>I finally took a bit of time to figure out how to use nested <code>Model</code>'s in Keras.  So basically I just have to make the encoder/decoder <code>Model</code> once, build the VAE by nesting those two <code>Model</code>'s to build a VAE <code>Model</code>.  This makes it much easier to build the "generator"/decoder by just instantiating the encoder <code>Model</code>.  I actually tried doing this a while back but came across some errors, so I just decided to duplicate code by recreating a new flat generator <code>Model</code> with the same layers.  This time it was too hard to do because of how the ResNet blocks are instantiated so I took the time to figure it out.  I forgot exactly what error I was getting but at least you can look at the code I put together to see an example of it working.</p></li>
+<li>
+<p>The other "smarter" thing that I did was I wrote a script to run the notebook through command line.  This is great because when I'm just messing around I want to be able to see things in a UI but I also want to be able to batch run things (I only have 1 GPU after all).  This really allowed me to have the best of both worlds.  I'll just mention a few specific tricks I used:</p>
+<ul>
+<li><p>Any variables I wanted to be able to modify from command-line I had to add
+something like <code>os.environ.get('LATENT_DIM', 256)</code>, which allows you to read command-line environment variables.</p></li>
+<li><p>In my run script, I had to define a <cite>CMDLINE</cite> var to not run certain
 UI-specific code such as <code>TQDMNotebookCallback()</code>, which is a delight
-to have in the UI but causes issues when running from the command line.</li>
-<li>In my run script, I used the Jupyter functionality to <a class="reference external" href="http://nbconvert.readthedocs.io/en/latest/execute_api.html">run from command line</a>.  The main thing to add is <code>--ExecutePreprocessor.timeout=-1</code> so that it will not timeout when you're doing the actual fitting (it has a default of something like 10 mins if a cell takes too long).</li>
+to have in the UI but causes issues when running from the command line.</p></li>
+<li><p>In my run script, I used the Jupyter functionality to <a class="reference external" href="http://nbconvert.readthedocs.io/en/latest/execute_api.html">run from command line</a>.  The main thing to add is <code>--ExecutePreprocessor.timeout=-1</code> so that it will not timeout when you're doing the actual fitting (it has a default of something like 10 mins if a cell takes too long).</p></li>
 </ul>
 </li>
 </ul>
@@ -293,22 +283,16 @@ them.  Expect the usual slow trickle instead of a flood.  See you next time!</p>
 <p><br></p>
 <h4> Further Reading </h4>
 <ul class="simple">
-<li><a class="reference external" href="https://github.com/bjlkeng/sandbox/tree/master/notebooks/vae-resnet">Implementation on Github</a></li>
-<li>Previous posts: <a class="reference external" href="../variational-autoencoders">Variational Autoencoders</a>, <a class="reference external" href="../a-variational-autoencoder-on-the-svnh-dataset">A Variational Autoencoder on the SVHN dataset</a>, <a class="reference external" href="../semi-supervised-learning-with-variational-autoencoders">Semi-supervised Learning with Variational Autoencoders</a>
-</li>
-<li>[1] "Deep Residual Learning for Image Recognition", Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun, <a class="reference external" href="https://arxiv.org/abs/1512.03385">CVPR 2016</a>
-</li>
+<li><p><a class="reference external" href="https://github.com/bjlkeng/sandbox/tree/master/notebooks/vae-resnet">Implementation on Github</a></p></li>
+<li><p>Previous posts: <a class="reference external" href="../variational-autoencoders/">Variational Autoencoders</a>, <a class="reference external" href="../a-variational-autoencoder-on-the-svnh-dataset/">A Variational Autoencoder on the SVHN dataset</a>, <a class="reference external" href="../semi-supervised-learning-with-variational-autoencoders/">Semi-supervised Learning with Variational Autoencoders</a></p></li>
+<li><p>[1] "Deep Residual Learning for Image Recognition", Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun, <a class="reference external" href="https://arxiv.org/abs/1512.03385">CVPR 2016</a></p></li>
 </ul>
-<table class="docutils footnote" frame="void" id="id2" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
-<td>Of course, I should be doing other "tricks" to improve generalization and performance such as data augmentation, which I didn't do at all.</td>
-</tr></tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd>
+<p>Of course, I should be doing other "tricks" to improve generalization and performance such as data augmentation, which I didn't do at all.</p>
+</dd>
+</dl>
 </div>
     </div>
     <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
@@ -381,14 +365,14 @@ them.  Expect the usual slow trickle instead of a flood.  See you next time!</p>
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2019         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
 </div>
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

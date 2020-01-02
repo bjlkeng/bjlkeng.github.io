@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="A primer on variational calculus.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Calculus of Variations | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -18,18 +14,6 @@
 <meta name="author" content="Brian Keng">
 <link rel="prev" href="../maximum-entropy-distributions/" title="Maximum Entropy Distributions" type="text/html">
 <link rel="next" href="../variational-bayes-and-the-mean-field-approximation/" title="Variational Bayes and The Mean-Field Approximation" type="text/html">
-<meta property="og:site_name" content="Bounded Rationality">
-<meta property="og:title" content="The Calculus of Variations">
-<meta property="og:url" content="http://bjlkeng.github.io/posts/the-calculus-of-variations/">
-<meta property="og:description" content="A primer on variational calculus.">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2017-02-26T10:08:38-05:00">
-<meta property="article:tag" content="differentials">
-<meta property="article:tag" content="entropy">
-<meta property="article:tag" content="lagrange multipliers">
-<meta property="article:tag" content="mathjax">
-<meta property="article:tag" content="probability">
-<meta property="article:tag" content="variational calculus">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -84,10 +68,13 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">The Calculus of Variations</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
                     Brian Keng
             </span></p>
-            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2017-02-26T10:08:38-05:00" itemprop="datePublished" title="2017-02-26 10:08">2017-02-26 10:08</time></a></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2017-02-26T10:08:38-05:00" itemprop="datePublished" title="2017-02-26 10:08">2017-02-26 10:08</time></a>
+            </p>
             
         <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
 
@@ -103,7 +90,7 @@ this one deals with functions <em>of functions</em> and how to
 minimize or maximize them.  It's used extensively in physics problems such as
 finding the minimum energy path a particle takes under certain conditions.  As
 you can also imagine, it's also used in machine learning/statistics where you
-want to find a density that optimizes an objective <a class="footnote-reference" href="#id4" id="id1">[1]</a>.  The explanation I'm
+want to find a density that optimizes an objective <a class="footnote-reference brackets" href="#id4" id="id1">1</a>.  The explanation I'm
 going to use (at least for the first part) is heavily based upon Svetitsky's
 <a class="reference external" href="http://julian.tau.ac.il/bqs/functionals/functionals.html">Notes on Functionals</a>, which so far is
 the most intuitive explanation I've read.  I'll try to follow Svetitsky's
@@ -168,37 +155,37 @@ the interval <span class="math">\([a,b]\)</span>, and outputs a value!</p>
 <p>Let's pause for a second and summarize:</p>
 <blockquote>
 <ul class="simple">
-<li>A function <span class="math">\(y(x)\)</span> takes as input a number <span class="math">\(x\)</span> and returns a number.</li>
-<li>A functional <span class="math">\(F[y]\)</span> takes as input a <em>function</em> <span class="math">\(y(x)\)</span> and returns
-a number.</li>
+<li><p>A function <span class="math">\(y(x)\)</span> takes as input a number <span class="math">\(x\)</span> and returns a number.</p></li>
+<li><p>A functional <span class="math">\(F[y]\)</span> takes as input a <em>function</em> <span class="math">\(y(x)\)</span> and returns
+a number.</p></li>
 </ul>
 </blockquote>
 <p>Another way to say this is <span class="math">\(F[y(x)]\)</span> takes <em>all</em> the values of <span class="math">\(y(x)\)</span>
 at all the values of <span class="math">\(x\)</span> (for that <span class="math">\(y\)</span>) and maps it to a single
 number.  Let's take a look at a few examples to make things concrete.</p>
 <div class="admonition admonition-example-1-a-simple-functional">
-<p class="first admonition-title">Example 1: A simple functional</p>
+<p class="admonition-title">Example 1: A simple functional</p>
 <p>The simplest functional just evaluates the input function at a particular value.</p>
 <p>Define <span class="math">\(F[y] = y(3)\)</span>.</p>
-<ul class="last simple">
-<li><span class="math">\(F[y=x] = 3\)</span></li>
-<li><span class="math">\(F[y=x^2] = (3)^2 = 9\)</span></li>
-<li><span class="math">\(F[y=\ln_3(x)] = \ln_3(3) = 1\)</span></li>
+<ul class="simple">
+<li><p><span class="math">\(F[y=x] = 3\)</span></p></li>
+<li><p><span class="math">\(F[y=x^2] = (3)^2 = 9\)</span></p></li>
+<li><p><span class="math">\(F[y=\ln_3(x)] = \ln_3(3) = 1\)</span></p></li>
 </ul>
 </div>
 <div class="admonition admonition-example-2-an-integral-functional">
-<p class="first admonition-title">Example 2: An integral functional</p>
+<p class="admonition-title">Example 2: An integral functional</p>
 <p>Many useful functionals will take a definite integral of the input function
 as a means to map it to a number.</p>
 <p>Define <span class="math">\(F[y] = \int_0^1  y(x) dx\)</span>.</p>
-<ul class="last simple">
-<li><span class="math">\(F[y=x] = \int_0^1  x dx = \frac{1}{2}\)</span></li>
-<li><span class="math">\(F[y=x^2] = \int_0^1  x^2 dx = \frac{1}{3}\)</span></li>
-<li><span class="math">\(F[y=e^x] = \int_0^1 e^x dx = e - 1\)</span></li>
+<ul class="simple">
+<li><p><span class="math">\(F[y=x] = \int_0^1  x dx = \frac{1}{2}\)</span></p></li>
+<li><p><span class="math">\(F[y=x^2] = \int_0^1  x^2 dx = \frac{1}{3}\)</span></p></li>
+<li><p><span class="math">\(F[y=e^x] = \int_0^1 e^x dx = e - 1\)</span></p></li>
 </ul>
 </div>
 <div class="admonition admonition-example-3-functionals-with-derivatives">
-<p class="first admonition-title">Example 3: Functionals with derivatives</p>
+<p class="admonition-title">Example 3: Functionals with derivatives</p>
 <p>Since we're dealing with functions as inputs, the functional can also
 involve the derivative of an input function.</p>
 <p>A functional that defines the <a class="reference external" href="http://tutorial.math.lamar.edu/Classes/CalcII/ArcLength.aspx">arc length of a curve</a>:</p>
@@ -209,7 +196,7 @@ L[y] = \int_a^b \sqrt{1 + (\frac{dy}{dx})^2} dx
 </div>
 <p>Notice that we're using the derivative of <span class="math">\(y(x)\)</span> instead of the
 function itself.  Solving for <span class="math">\(a=0, b=1, y=x\)</span>, we get:</p>
-<div class="last math">
+<div class="math">
 \begin{align*}
 L[y=x] &amp;= \int_0^1 \sqrt{1 + (\frac{d(x)}{dx})^2} dx \\
        &amp;= \sqrt{2} \int_0^1 dx \\
@@ -296,7 +283,7 @@ the scope of this post.  Also important to mention is that we can have higher or
 functional derivatives that can be defined in a very similar way.  For now,
 let's just focus on simple cases where everything plays nicely.</p>
 <div class="admonition admonition-why-the-name-variational-calculus">
-<p class="first admonition-title">Why the name <em>variational</em> calculus?</p>
+<p class="admonition-title">Why the name <em>variational</em> calculus?</p>
 <p>A variation of a functional is the small change in a functional's value
 due to a small change in the functional's input.  It's the analogous concept
 to a <a class="reference external" href="https://en.wikipedia.org/wiki/Differential_of_a_function">differential</a> for
@@ -311,14 +298,14 @@ variation of the functional <span class="math">\(F\)</span>:</p>
 <p>As mentioned above the term <span class="math">\(\epsilon \eta(x)\)</span> is also called a
 variation of input <span class="math">\(y\)</span>, which is analogous to the infinitesimally small
 <span class="math">\(\epsilon\)</span> in regular calculus.</p>
-<p class="last">The first variation and higher order variations define the respective
+<p>The first variation and higher order variations define the respective
 functional derivatives and can be derived by taking the coefficients of the
 Taylor series expansion of the functional.  More details can be found
 here <a class="reference external" href="http://www.colorado.edu/engineering/CAS/courses.d/AVMM.d/AVMM.Ch01.d/AVMM.Ch01.pdf">Advanced Variational Methods In Mechanics Chapter 1: Variational
 Calculus Overview</a>.</p>
 </div>
 <div class="admonition admonition-example-4-computing-a-simple-functional-derivative">
-<p class="first admonition-title">Example 4: Computing a simple functional derivative</p>
+<p class="admonition-title">Example 4: Computing a simple functional derivative</p>
 <p>Let's try to find the functional derivative of a simple functional:</p>
 <div class="math">
 \begin{equation*}
@@ -346,7 +333,7 @@ dF &amp;= F[y + \delta y] - F[y] \\
 \tag{11}
 \end{align*}
 </div>
-<p class="last">By inspection, we can see Equation 11 resembles Equation 5, thus our functional
+<p>By inspection, we can see Equation 11 resembles Equation 5, thus our functional
 derivative is <span class="math">\(\frac{\delta F}{\delta y(x)} = 2y(x)\)</span>.</p>
 </div>
 <p><br></p>
@@ -377,13 +364,13 @@ tricks) but I'll leave it as an exercise :)
 For simple functionals like Equation 12, this is a very handy way to compute functional
 derivatives.  Let's take a look at a couple more complicated examples.</p>
 <div class="admonition admonition-example-5-use-the-euler-lagrange-equation-to-find-the-functional-derivative-of-math-f-y-x-int-0-1-x-3-e-y-x-dx">
-<p class="first admonition-title">Example 5: Use the Euler-Lagrange Equation to find the
+<p class="admonition-title">Example 5: Use the Euler-Lagrange Equation to find the
 functional derivative of <span class="math">\(F[y(x)] = \int_0^1 x^3 e^{-y(x)} dx\)</span></p>
 <p>Notice the second term in Equation 13 involves only <span class="math">\(y'\)</span>, which we
 doesn't appear in our functional so that means it's 0.  Thus, the functional
 derivative in this case just treats <span class="math">\(y\)</span> as a variable and the usual rules
 of differentiation apply:</p>
-<div class="last math">
+<div class="math">
 \begin{equation*}
 \frac{\delta F}{\delta y(x)} = \frac{\partial L}{\partial y}
 = \frac{\partial ( x^3 e^{-y(x)})}{\partial y}
@@ -392,11 +379,11 @@ of differentiation apply:</p>
 </div>
 </div>
 <div class="admonition admonition-example-6-use-the-euler-lagrange-equation-to-find-the-functional-derivative-of-math-f-y-x-int-0-1-x-2-y-3-y-4-dx">
-<p class="first admonition-title">Example 6: Use the Euler-Lagrange Equation to find the
+<p class="admonition-title">Example 6: Use the Euler-Lagrange Equation to find the
 functional derivative of <span class="math">\(F[y(x)] = \int_0^1 x^2 y^3 y'^4 dx\)</span></p>
 <p>Here we have to use all terms from Equation 13 and treat <span class="math">\(y\)</span>
 and <span class="math">\(y'\)</span> as "independent" variables:</p>
-<div class="last math">
+<div class="math">
 \begin{align*}
 \frac{\delta F}{\delta y(x)} &amp;= \frac{\partial L}{\partial y}
         - \frac{d}{dx} \frac{\partial L}{\partial y'}\\
@@ -420,7 +407,7 @@ necessary condition for extrema, sometimes we might find a
 words, this is a place where the "slope" is zero.  Let's take a look at a
 classic example.</p>
 <div class="admonition admonition-example-7-find-the-shortest-possible-curve-between-the-points-math-a-c-and-math-b-d-for-which-the-path-length-along-the-curve-is-defined-by-math-ell-f-int-a-b-sqrt-1-f-x-2-dx">
-<p class="first admonition-title">Example 7: Find the shortest possible curve between
+<p class="admonition-title">Example 7: Find the shortest possible curve between
 the points <span class="math">\((a,c)\)</span> and <span class="math">\((b,d)\)</span> for which the path length
 along the curve is defined by <span class="math">\(\ell(f) = \int_a^b \sqrt{1 + f'(x)^2} dx\)</span></p>
 <p>First define our integrand functional:</p>
@@ -457,7 +444,7 @@ As you would expect the shortest distance between two points is a straight line
 <p>We can find the actual values of constants <span class="math">\(A\)</span> and <span class="math">\(B\)</span> by using
 our initial conditions <span class="math">\((a,c)\)</span> and <span class="math">\((b,d)\)</span> since we know the function
 has to pass through our points (i.e. compute the slope and intercept of the line):</p>
-<div class="last math">
+<div class="math">
 \begin{align*}
 A = \frac{d-c}{b-a} \\
 B = \frac{ad-bc}{a-b} \tag{19}
@@ -468,7 +455,7 @@ B = \frac{ad-bc}{a-b} \tag{19}
 functional, we can add constraints in the mix.  As you may have guessed, we
 can use the concept of
 <a class="reference external" href="https://en.wikipedia.org/wiki/Lagrange_multiplier">Lagrange multipliers</a>
-here (see my previous post on <a class="reference external" href="../lagrange-multipliers">Lagrange Multipliers</a>).</p>
+here (see my previous post on <a class="reference external" href="../lagrange-multipliers/">Lagrange Multipliers</a>).</p>
 <p>Given a functional in the form of Equation 12, we can add different types of constraints.
 The simplest type of constraint we can have is a functional constraint of the form:</p>
 <div class="math">
@@ -510,11 +497,11 @@ derivative with respect to both <span class="math">\(y(x)\)</span> and <span cla
 probability!  Let's take a look at a couple of examples of finding
 <a class="reference external" href="https://en.wikipedia.org/wiki/Maximum_entropy_probability_distribution">maximum entropy distributions</a>
 under different constraints (check out my previous
-post on <a class="reference external" href="../maximum-entropy-distributions">Maximum Entropy Distributions</a>).</p>
+post on <a class="reference external" href="../maximum-entropy-distributions/">Maximum Entropy Distributions</a>).</p>
 <div class="admonition admonition-example-8-find-the-continuous-maximum-entropy-distribution-with-support-math-a-b">
-<p class="first admonition-title">Example 8: Find the continuous maximum entropy distribution
+<p class="admonition-title">Example 8: Find the continuous maximum entropy distribution
 with support <span class="math">\([a,b]\)</span>.</p>
-<p>This is actually the same example as that appeared in my post on <a class="reference external" href="../maximum-entropy-distributions">Maximum Entropy Distributions</a>, but let's take another look.</p>
+<p>This is actually the same example as that appeared in my post on <a class="reference external" href="../maximum-entropy-distributions/">Maximum Entropy Distributions</a>, but let's take another look.</p>
 <p>First since we're finding the maximum entropy distribution, we define the
 <a class="reference external" href="https://en.wikipedia.org/wiki/Entropy_(information_theory)#Differential_entropy">differential entropy</a>
 functional (we use <span class="math">\(H\)</span> here to denote entropy):</p>
@@ -559,13 +546,13 @@ e^{-\lambda - 1} &amp;= \frac{1}{b-a} \tag{28}
 f(x) = \frac{1}{b-a} \tag{29}
 \end{equation*}
 </div>
-<p class="last">This is nothing more than a uniform distribution on the interval
+<p>This is nothing more than a uniform distribution on the interval
 <span class="math">\([a,b]\)</span>. This means that given no other knowledge of a distribution
 (except its support), the principle of maximum entropy says we should
 assume it's a uniform distribution.</p>
 </div>
 <div class="admonition admonition-example-9-find-the-continuous-maximum-entropy-distribution-with-support-math-infty-infty-math-e-x-mu-and-math-e-x-mu-2-sigma-2">
-<p class="first admonition-title">Example 9: Find the continuous maximum entropy distribution
+<p class="admonition-title">Example 9: Find the continuous maximum entropy distribution
 with support <span class="math">\([-\infty,\infty]\)</span>, <span class="math">\(E[x] = \mu\)</span> and <span class="math">\(E[(x-\mu)^2] = \sigma^2\)</span>.</p>
 <p>You may already be able to guess what kind of distribution we should end up with
 when we have the mean and variance specified, let's see if you're right.</p>
@@ -627,7 +614,7 @@ b &amp;= \mu \\
 c &amp;= \sigma^2  \tag{35}
 \end{align*}
 </div>
-<p class="last">So by the principle of maximum entropy, if we only know the mean and variance
+<p>So by the principle of maximum entropy, if we only know the mean and variance
 of a distribution with support along the real line, we should assume the distribution
 is normal.</p>
 </div>
@@ -646,33 +633,24 @@ out there.</p>
 <p><br></p>
 <h4> Further Reading </h4>
 <ul class="simple">
-<li>Previous Posts: <a class="reference external" href="../lagrange-multipliers">Lagrange Multipliers</a>, <a class="reference external" href="../maximum-entropy-distributions">Max Entropy Distributions</a>
-</li>
-<li>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Calculus_of_variations">Calculus of Variations</a>,
+<li><p>Previous Posts: <a class="reference external" href="../lagrange-multipliers/">Lagrange Multipliers</a>, <a class="reference external" href="../maximum-entropy-distributions/">Max Entropy Distributions</a></p></li>
+<li><p>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Calculus_of_variations">Calculus of Variations</a>,
 <a class="reference external" href="https://en.wikipedia.org/wiki/Functional_derivative">Functional Derivative</a>,
 <a class="reference external" href="https://en.wikipedia.org/wiki/Directional_derivative">Directional Derivative</a>,
 <a class="reference external" href="https://en.wikipedia.org/wiki/Differential_of_a_function">Differential of a function</a>,
-<a class="reference external" href="https://en.wikipedia.org/wiki/Lagrange_multiplier">Lagrange multipliers</a>
-</li>
-<li>
-<a class="reference external" href="http://tutorial.math.lamar.edu/Classes/CalcIII/DirectionalDeriv.aspx">Directional Derivatives</a>, Paul Dawkins, Paul's Online Math Notes.</li>
-<li>
-<a class="reference external" href="http://math.stackexchange.com/questions/23902/what-is-the-practical-difference-between-a-differential-and-a-derivative">What is the practical difference between a differential and a derivative?</a>, Arturo Magidin, Math.Stack Exchange.</li>
-<li>"<a class="reference external" href="http://julian.tau.ac.il/bqs/functionals/functionals.html">Notes on Functionals</a>", B. Svetitsky</li>
-<li>"Advanced Variational Methods In Mechanics", <a class="reference external" href="http://www.colorado.edu/engineering/CAS/courses.d/AVMM.d/AVMM.Ch01.d/AVMM.Ch01.pdf">Chapter 1: Variational Calculus Overview</a>, University of Colorado at Boulder</li>
-<li>
-<a class="reference external" href="http://www.vgu.edu.vn/fileadmin/pictures/studies/master/compeng/study_subjects/modules/math/notes/chapter-06.pdf">Variational Problems</a>, Vietnamese-German University.</li>
+<a class="reference external" href="https://en.wikipedia.org/wiki/Lagrange_multiplier">Lagrange multipliers</a></p></li>
+<li><p><a class="reference external" href="http://tutorial.math.lamar.edu/Classes/CalcIII/DirectionalDeriv.aspx">Directional Derivatives</a>, Paul Dawkins, Paul's Online Math Notes.</p></li>
+<li><p><a class="reference external" href="http://math.stackexchange.com/questions/23902/what-is-the-practical-difference-between-a-differential-and-a-derivative">What is the practical difference between a differential and a derivative?</a>, Arturo Magidin, Math.Stack Exchange.</p></li>
+<li><p>"<a class="reference external" href="http://julian.tau.ac.il/bqs/functionals/functionals.html">Notes on Functionals</a>", B. Svetitsky</p></li>
+<li><p>"Advanced Variational Methods In Mechanics", <a class="reference external" href="http://www.colorado.edu/engineering/CAS/courses.d/AVMM.d/AVMM.Ch01.d/AVMM.Ch01.pdf">Chapter 1: Variational Calculus Overview</a>, University of Colorado at Boulder</p></li>
+<li><p><a class="reference external" href="http://www.vgu.edu.vn/fileadmin/pictures/studies/master/compeng/study_subjects/modules/math/notes/chapter-06.pdf">Variational Problems</a>, Vietnamese-German University.</p></li>
 </ul>
-<table class="docutils footnote" frame="void" id="id4" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
-<td>As you have probably guessed, this is the primary reason I'm interested in this area of mathematics.  A lot of popular ML/statistics techniques have the word "variational", which they get because they are somehow related to variational calculus.</td>
-</tr></tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd>
+<p>As you have probably guessed, this is the primary reason I'm interested in this area of mathematics.  A lot of popular ML/statistics techniques have the word "variational", which they get because they are somehow related to variational calculus.</p>
+</dd>
+</dl>
 </div>
     </div>
     <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
@@ -746,14 +724,14 @@ out there.</p>
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2019         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
 </div>
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>

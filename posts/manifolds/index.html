@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="A quick introduction to manifolds.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Manifolds: A Gentle Introduction | Bounded Rationality</title>
-<link href="../../assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/rst.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/code.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/colorbox.css" rel="stylesheet" type="text/css">
-<link href="../../assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
@@ -18,15 +14,6 @@
 <meta name="author" content="Brian Keng">
 <link rel="prev" href="../tensors-tensors-tensors/" title="Tensors, Tensors, Tensors" type="text/html">
 <link rel="next" href="../hyperbolic-geometry-and-poincare-embeddings/" title="Hyperbolic Geometry and Poincaré Embeddings" type="text/html">
-<meta property="og:site_name" content="Bounded Rationality">
-<meta property="og:title" content="Manifolds: A Gentle Introduction">
-<meta property="og:url" content="http://bjlkeng.github.io/posts/manifolds/">
-<meta property="og:description" content="A quick introduction to manifolds.">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2018-04-17T06:24:57-05:00">
-<meta property="article:tag" content="manifolds">
-<meta property="article:tag" content="mathjax">
-<meta property="article:tag" content="metric tensor">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -81,10 +68,13 @@
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Manifolds: A Gentle Introduction</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
                     Brian Keng
             </span></p>
-            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2018-04-17T06:24:57-05:00" itemprop="datePublished" title="2018-04-17 06:24">2018-04-17 06:24</time></a></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2018-04-17T06:24:57-05:00" itemprop="datePublished" title="2018-04-17 06:24">2018-04-17 06:24</time></a>
+            </p>
             
         <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
 
@@ -93,7 +83,7 @@
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
     <div>
-<p>Following up on the math-y stuff from my <a class="reference external" href="../tensors-tensors-tensors">last post</a>,
+<p>Following up on the math-y stuff from my <a class="reference external" href="../tensors-tensors-tensors/">last post</a>,
 I'm going to be taking a look at another concept that pops up in ML: manifolds.
 It is most well-known in ML for its use in the
 <a class="reference external" href="https://www.quora.com/What-is-the-Manifold-Hypothesis-in-Deep-Learning">manifold hypothesis</a>.
@@ -109,9 +99,10 @@ depth or formalities.  I hope you mani-like it!</p>
 <p>The first place most ML people hear about this term is in the
 <a class="reference external" href="https://www.quora.com/What-is-the-Manifold-Hypothesis-in-Deep-Learning">manifold hypothesis</a>:</p>
 <blockquote>
-The manifold hypothesis is that real-world high dimensional data (such as
+<p>The manifold hypothesis is that real-world high dimensional data (such as
 images) lie on low-dimensional manifolds embedded in the high-dimensional
-space.</blockquote>
+space.</p>
+</blockquote>
 <p>The main idea here is that even though our real-world data is high-dimensional,
 there is actually some lower-dimensional representation.  For example, all "cat
 images" might lie on a lower-dimensional manifold compared to say their
@@ -203,12 +194,12 @@ neighbourhood <span class="math">\(U\)</span> of <span class="math">\(p\)</span>
 which maps the set <span class="math">\(U\)</span> onto an open set <span class="math">\(V \subset \mathbb{R}^n\)</span>.
 Additionally:</p>
 <ul class="simple">
-<li>The mapping <span class="math">\(\varphi: U \rightarrow V\)</span> is called a <strong>chart</strong> or <strong>coordinate system</strong>.</li>
-<li>The set <span class="math">\(U\)</span> is the <strong>domain</strong> or <strong>local coordinate neighbourhood</strong> of the chart.</li>
-<li>The image of the point <span class="math">\(p \in U\)</span>, denoted by <span class="math">\(\varphi(p) \in \mathbb{R}^n\)</span>,
-is called the <strong>coordinates</strong> or <strong>local coordinates</strong> of <span class="math">\(p\)</span> in the chart.</li>
-<li>A set of charts, <span class="math">\(\{\varphi_\alpha | \alpha \in \mathbb{N}\}\)</span>, with domains <span class="math">\(U_\alpha\)</span>
-is called the <strong>atlas</strong> of M, if <span class="math">\(\bigcup\limits_{\alpha \in \mathbb{N}} U_\alpha = M\)</span>.</li>
+<li><p>The mapping <span class="math">\(\varphi: U \rightarrow V\)</span> is called a <strong>chart</strong> or <strong>coordinate system</strong>.</p></li>
+<li><p>The set <span class="math">\(U\)</span> is the <strong>domain</strong> or <strong>local coordinate neighbourhood</strong> of the chart.</p></li>
+<li><p>The image of the point <span class="math">\(p \in U\)</span>, denoted by <span class="math">\(\varphi(p) \in \mathbb{R}^n\)</span>,
+is called the <strong>coordinates</strong> or <strong>local coordinates</strong> of <span class="math">\(p\)</span> in the chart.</p></li>
+<li><p>A set of charts, <span class="math">\(\{\varphi_\alpha | \alpha \in \mathbb{N}\}\)</span>, with domains <span class="math">\(U_\alpha\)</span>
+is called the <strong>atlas</strong> of M, if <span class="math">\(\bigcup\limits_{\alpha \in \mathbb{N}} U_\alpha = M\)</span>.</p></li>
 </ul>
 </blockquote>
 <p>This definition is hard to understand especially because a Hausdorff space is
@@ -240,8 +231,8 @@ such as charts, coordinate systems, and atlases.  The ideas are, on the
 surface, similar.  However, I'd probably still stick with Figure 4, which
 is much more accurate.</p>
 <div class="admonition admonition-manifolds-all-about-mapping">
-<p class="first admonition-title">Manifolds: All About Mapping</p>
-<p class="last">Wrapping your head around manifolds can be sometimes be hard because of all
+<p class="admonition-title">Manifolds: All About Mapping</p>
+<p>Wrapping your head around manifolds can be sometimes be hard because of all
 the symbols.  The key thing to remember is that <strong>manifolds are all about mappings</strong>.
 Mapping from the manifold to a local coordinate system in Euclidean space
 using a chart; mapping from one local coordinate system to another
@@ -275,15 +266,15 @@ analysis on a manifold embedded in a high dimensional space could be a major
 pain in the butt, but analysis in a lower-dimensional Euclidean space is easy
 (relatively)!</p>
 <div class="admonition admonition-example-1-euclidean-space-is-a-manifold">
-<p class="first admonition-title">Example 1: Euclidean Space is a Manifold</p>
-<p class="last">Standard Euclidean space in <span class="math">\(\mathbb{R}^n\)</span> is, of course, a manifold
+<p class="admonition-title">Example 1: Euclidean Space is a Manifold</p>
+<p>Standard Euclidean space in <span class="math">\(\mathbb{R}^n\)</span> is, of course, a manifold
 itself. It requires a single chart that it just the identity function,
 which also makes up its atlas.  We'll see below that many of concepts
 we've been learned in Euclidean space have analogues when discussing
 manifolds.</p>
 </div>
 <div class="admonition admonition-example-2-a-1d-manifold-with-multiple-charts">
-<p class="first admonition-title">Example 2: A 1D Manifold with Multiple Charts</p>
+<p class="admonition-title">Example 2: A 1D Manifold with Multiple Charts</p>
 <p>Let's take pretty much the simplest example we can think of: a circle.</p>
 <p>If we use <a class="reference external" href="https://en.wikipedia.org/wiki/Polar_coordinate_system#Conventions">polar coordinates</a>,
 the unit circle can be parameterized with <span class="math">\(r=1\)</span> and <span class="math">\(\theta\)</span>.</p>
@@ -362,11 +353,11 @@ u_2 &amp;= \varphi_{\alpha\beta}(u_1) \\
 \tag{5}
 \end{align*}
 </div>
-<p class="last">which is only defined for the points in the intersection (i.e. all points
+<p>which is only defined for the points in the intersection (i.e. all points
 on the circle except the "north" and "south" pole).</p>
 </div>
 <div class="admonition admonition-example-3-stereographic-projections-for-math-s-n">
-<p class="first admonition-title">Example 3: Stereographic Projections for <span class="math">\(S^n\)</span></p>
+<p class="admonition-title">Example 3: Stereographic Projections for <span class="math">\(S^n\)</span></p>
 <p>As you might have guessed, we can perform the same
 <a class="reference external" href="https://en.wikipedia.org/wiki/Stereographic_projection">stereographic projection</a>
 for <span class="math">\(S^2\)</span> as well.  Figure 6 shows a visualization (never mind the
@@ -386,13 +377,13 @@ and a n-dimensional sphere can be embedded in (n+1)-dimensional Euclidean space
 where each point is equidistant to the origin.</p>
 <p>This projection can generalized for <span class="math">\(S^n\)</span> using the same method:</p>
 <ol class="arabic simple">
-<li>Pick an arbitrary focal point on the sphere (not on the hyperplane you are
-projecting to) e.g. the "north" pole <span class="math">\(p_N = (0, \ldots, 0,1)\)</span>.</li>
-<li>Project a line from the focal point to any other point on the hypersphere.</li>
-<li>Pick a plane that intersects at the "equator" relative to the focal point.
+<li><p>Pick an arbitrary focal point on the sphere (not on the hyperplane you are
+projecting to) e.g. the "north" pole <span class="math">\(p_N = (0, \ldots, 0,1)\)</span>.</p></li>
+<li><p>Project a line from the focal point to any other point on the hypersphere.</p></li>
+<li><p>Pick a plane that intersects at the "equator" relative to the focal point.
 e.g. For the "north" pole focal point, the plane given by the first
 <span class="math">\(n\)</span> coordinates (remember the <span class="math">\(S^n\)</span> has n+1 coordinates because
-it's embedded in <span class="math">\(\mathbb{R}^{n+1}\)</span>).</li>
+it's embedded in <span class="math">\(\mathbb{R}^{n+1}\)</span>).</p></li>
 </ol>
 <p>From this, we can derive similar formulas (using the same similar triangle
 argument) as the previous example.  Using the north pole as an example to any
@@ -407,7 +398,7 @@ z = \frac{|{\bf u_N}|^2 - 1}{|{\bf u_N}|^2 + 1} \\
 \tag{6}
 \end{align*}
 </div>
-<p class="last">for vectors <span class="math">\({\bf u_N, x} \in \mathbb{R}^{n}\)</span>.  The symmetric equations
+<p>for vectors <span class="math">\({\bf u_N, x} \in \mathbb{R}^{n}\)</span>.  The symmetric equations
 can also be found for the "south" pole.</p>
 </div>
 <p><br></p>
@@ -568,7 +559,7 @@ here: <span class="math">\(\partial_x f := \frac{\partial f}{\partial x}\)</span
 bit more concise.)</p>
 <p>So starting from our summation in Equation 10 (and using <a class="reference external" href="https://en.wikipedia.org/wiki/Einstein_notation">Einstein summation
 notation</a>, see also previous
-my post on <a class="reference external" href="../tensors-tensors-tensors">Tensors</a>)
+my post on <a class="reference external" href="../tensors-tensors-tensors/">Tensors</a>)
 acting on our test function <span class="math">\(f\)</span>:</p>
 <div class="math">
 \begin{align*}
@@ -624,7 +615,7 @@ point <span class="math">\(p\)</span>).  In matrix notation, we would get someth
 \tag{13}
 \end{align*}
 </div>
-<p>For those of you who understand tensors (if not read my previous post <a class="reference external" href="../tensors-tensors-tensors">Tensors, Tensors, Tensors</a>), the tangent vector
+<p>For those of you who understand tensors (if not read my previous post <a class="reference external" href="../tensors-tensors-tensors/">Tensors, Tensors, Tensors</a>), the tangent vector
 transforms <em>contravariantly</em> with the change of coordinates (charts),
 that is, it transforms "against" the transformation of change of coordinates.
 A "with" change of coordinates transformation would be multiplying by the
@@ -632,7 +623,7 @@ inverse of the Jacobian, which we'll see below with the metric tensor.</p>
 <p>So after all that manipulation, let's take a look at an example on our
 sphere to make things a bit more concrete.</p>
 <div class="admonition admonition-example-4-tangent-vectors-on-a-sphere">
-<p class="first admonition-title">Example 4: Tangent Vectors on a Sphere</p>
+<p class="admonition-title">Example 4: Tangent Vectors on a Sphere</p>
 <p>Let us take the unit sphere, and define a curve <span class="math">\(\gamma(t)\)</span> parallel to
 the equator at a 45 degree angle from the equator.  Figure 8 shows a picture
 where <span class="math">\(\theta=\frac{\pi}{4}\)</span>.</p>
@@ -769,14 +760,14 @@ tangent vector by directly converting from our old chart, remembering that
 \tag{21}
 \end{align*}
 </div>
-<p class="last">which lines up exactly with our coordinates from Equation 19 above.</p>
+<p>which lines up exactly with our coordinates from Equation 19 above.</p>
 </div>
 <p><br></p>
 <h4> Riemannian Manifolds </h4>
 <p>Even though we now know how to find tangent vectors at each point on a smooth
 manifold, we still can't do anything interesting yet!  To do that we'll have to
 introduce another special tensor called -- you guess it -- the metric tensor!  In particular, the
-<strong>Riemannian metric (tensor)</strong> <a class="footnote-reference" href="#id2" id="id1">[1]</a> is a family of inner products:</p>
+<strong>Riemannian metric (tensor)</strong> <a class="footnote-reference brackets" href="#id2" id="id1">1</a> is a family of inner products:</p>
 <div class="math">
 \begin{equation*}
 g_p: T_pM \times T_pM \rightarrow \mathbb{R}, p \in M \tag{22}
@@ -916,26 +907,20 @@ time!</p>
 <p><br></p>
 <h4> Further Reading </h4>
 <ul class="simple">
-<li>Previous posts: <a class="reference external" href="../tensors-tensors-tensors">Tensors, Tensors, Tensors</a>
-</li>
-<li>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Manifold">Manifold</a>,
+<li><p>Previous posts: <a class="reference external" href="../tensors-tensors-tensors/">Tensors, Tensors, Tensors</a></p></li>
+<li><p>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Manifold">Manifold</a>,
 <a class="reference external" href="https://en.wikipedia.org/wiki/Metric_tensor">Metric Tensor</a>,
-<a class="reference external" href="https://en.wikipedia.org/wiki/Metric_space">Metric Space</a>,</li>
-<li>
-<a class="reference external" href="http://www.maths.manchester.ac.uk/~tv/Teaching/Differentiable%20Manifolds/2010-2011/1-manifolds.pdf">Differentiable manifolds and smooth maps</a>, Theodore Voronov.</li>
-<li>[1] <a class="reference external" href="https://www.youtube.com/playlist?list=PLeFwDGOexoe8cjplxwQFMvGLSxbOTUyLv">"Manifolds (playlist)"</a>, Robert Davie (YouTube)</li>
-<li>[2] <a class="reference external" href="https://www.youtube.com/playlist?list=PLRlVmXqzHjUQHEx63ZFxV-0Ortgf-rpJo">"What is a Manifold?"</a>, XylyXylyX (YouTube)</li>
+<a class="reference external" href="https://en.wikipedia.org/wiki/Metric_space">Metric Space</a>,</p></li>
+<li><p><a class="reference external" href="http://www.maths.manchester.ac.uk/~tv/Teaching/Differentiable%20Manifolds/2010-2011/1-manifolds.pdf">Differentiable manifolds and smooth maps</a>, Theodore Voronov.</p></li>
+<li><p>[1] <a class="reference external" href="https://www.youtube.com/playlist?list=PLeFwDGOexoe8cjplxwQFMvGLSxbOTUyLv">"Manifolds (playlist)"</a>, Robert Davie (YouTube)</p></li>
+<li><p>[2] <a class="reference external" href="https://www.youtube.com/playlist?list=PLRlVmXqzHjUQHEx63ZFxV-0Ortgf-rpJo">"What is a Manifold?"</a>, XylyXylyX (YouTube)</p></li>
 </ul>
-<table class="docutils footnote" frame="void" id="id2" rules="none">
-<colgroup>
-<col class="label">
-<col>
-</colgroup>
-<tbody valign="top"><tr>
-<td class="label"><a class="fn-backref" href="#id1">[1]</a></td>
-<td>The word "metric" is ambiguous here.  Sometimes it refers to the metric tensor (as we're using it), and sometimes it refers to a distance function as in metric spaces.  The confusing part is that a metric tensor can be used to define a metric (distance function)!</td>
-</tr></tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd>
+<p>The word "metric" is ambiguous here.  Sometimes it refers to the metric tensor (as we're using it), and sometimes it refers to a distance function as in metric spaces.  The confusing part is that a metric tensor can be used to define a metric (distance function)!</p>
+</dd>
+</dl>
 </div>
     </div>
     <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
@@ -1006,14 +991,14 @@ time!</p>
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2019         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
         </footer>
 </div>
 </div>
 
 
-            <script src="../../assets/js/jquery.min.js"></script><script src="../../assets/js/bootstrap.min.js"></script><script src="../../assets/js/moment-with-locales.min.js"></script><script src="../../assets/js/fancydates.js"></script><script src="../../assets/js/jquery.colorbox-min.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
+            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates --><script>
