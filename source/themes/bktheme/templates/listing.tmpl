@@ -1,9 +1,9 @@
 ## -*- coding: utf-8 -*-
 <%inherit file="base.tmpl"/>
-<%namespace name="ui" file="crumbs.tmpl" import="bar"/>
+<%namespace name="ui" file="ui_helper.tmpl" import="bar"/>
 
 <%block name="content">
-${ui.bar(crumbs)}
+${ui.bar(ui_helper)}
 %if folders or files:
 <ul class="list-unstyled">
 % for name in folders:
