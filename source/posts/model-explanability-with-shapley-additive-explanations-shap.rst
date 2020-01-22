@@ -352,8 +352,9 @@ which should clarify the idea.
         \tag{11}
 
     Let's suppose we wanted to look at the effect of :math:`x_1`, for these two
-    data points we would look at the vector :math:`{\bf z'} = [1, 0]` and
-    use their :math:`h` mapping to find the original values:
+    data points we would look at the vector :math:`{\bf z'} = [1, 0]` 
+    (where :math:`z \in {u, v}`) and use their :math:`h` mapping to find the
+    original values:
     
     .. math::
 
@@ -378,17 +379,76 @@ this type of model:
 
     .. math::
 
-        g({\bf z'}) = \phi_0 + \sum_{i=1}^M \phi_i z_i'
+        g({\bf z'}) = \phi_0 + \sum_{i=1}^M \phi_i z_i' \tag{13}
 
     where :math:`z' \in \{0,1\}^M`, :math:`M` is the number of simplified input
     features and :math:`\phi_i \in \mathbb{R}`.
 
+This essentially captures our intuition on how to explain (in this case) a data
+point: additive and independent.  Next, we'll look at some desirable properties
+that we want to maintain in this mapping.
 
 |h3| Desirable Properties and Shapely Values |h3e|
 
-* Explain Property 1, 2, 3
-* Show theorem 1, relate it back to our cooperative game
+The first property we would want from our point-wise explanation model :math:`g(\cdot)`
+is some guarantee of local accuracy:
 
+    **Property 1 (Local Accuracy)**
+
+    .. math::
+
+        f(x) = g({\bf x'}) = \phi_0 + \sum_{i=1}^M \phi_i x_i' \tag{14}
+
+    The explanation model :math:`g` matches the original model when :math:`x =
+    h_x(x')`, where :math:`\phi_0 = h_x({\bf 0})` represents the model output
+    with all simplified inputs toggled off.
+
+All this property is saying is that if you pass in the original data point
+with all features included (:math:`x`), your explanation model (:math:`g`) should
+return the original value of your model, seems reasonable.
+
+    **Property 2 (Missingness)**
+
+    .. math::
+
+        x_i' = 0 \implies \phi_i = 0 \tag{15}
+
+    Missing input features in the original data point (:math:`x_i`) have no
+    attributed impact.
+
+This property almost seems unnecessary because all it is saying is that if your
+original data point doesn't include the variable ("missing") then it shouldn't 
+show any attributed impact in your explanation model.  The idea of a "missing"
+input is still something we have to deal with because most models don't really
+support missing feature columns.  We'll get to it in the next section.
+
+    **Property 3 (Consistency)**: Let :math:`f_x(z') = f(h_x(z'))` and :math:`z' \backslash i` denote
+    setting :math:`z_i'=0`.  For any two models :math:`f` and :math:`f'`, if
+    
+    .. math::
+
+        f_x'(z')-f_x'(z' \backslash i) \geq f_x(z')-f_x(z' \backslash i) \tag{16}
+
+    for all inputs :math:`z'\in {0,1}^M` then :math:`\phi_i(f', x) \geq \phi_i(f,x)`.
+
+This is a more important property that essentially says: if we have two
+(point-wise) models (:math:`f, f'`) and :math:`f'` consistently overweights a
+certain feature :math:`i` in its prediction compared to :math:`f`, we would
+want the coefficient of our explanation model for :math:`f'` to be bigger than
+:math:`f` (i.e. :math:`\phi_i(f', x) \geq \phi_i(f,x)`).  It's a sensible
+requirement that allows us to fairly compare different models using the same
+explainability techniques.
+
+These three properties lead us to this theorem:
+
+    **Theorem 1** The only possible explanation model :math:`g` following a
+    additive feature attribution method and satisfying Properties 1, 2, and 3
+    are the shapely values from Equation 2.
+
+This is a bit of a surprising result since it's unique.  Interestingly, some
+previous methods (e.g. Lime) don't actually satisfy all of these conditions
+such as local accuracy and/or consistency.  That's why (at least theoretically)
+Shapely values are such a nice solution to this feature attribution problem.
 
 |h3| SHapely Additive exPlanations (SHAP) |h3e|
 
