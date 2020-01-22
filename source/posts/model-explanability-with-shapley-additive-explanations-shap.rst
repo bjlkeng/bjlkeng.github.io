@@ -56,7 +56,11 @@ and I'll *explain*.
 .. contents::
 
 
+
 |h2| Shapely Values and Cooperative Games |h2e|
+
+Shapely Values and Cooperative Games 1.1.1
+------------------------------------------
 
 |h3| Cooperative Games |h3e|
 
