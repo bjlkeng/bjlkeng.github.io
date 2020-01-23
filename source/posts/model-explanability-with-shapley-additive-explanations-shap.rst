@@ -443,8 +443,13 @@ These three properties lead us to this theorem:
 
     **Theorem 1** The only possible explanation model :math:`g` following a
     additive feature attribution method and satisfying Properties 1, 2, and 3
-    are the shapely values from Equation 2.
+    are the shapely values from Equation 2:
 
+    .. math::
+
+        \phi_i(f,x) = \sum_{z'\subseteq x'} 
+            \frac{|z'|!(M-|z'|-1)!}{M!}[f_x(z')-f_x(z' \backslash i)] \tag{17}
+    
 This is a bit of a surprising result since it's unique.  Interestingly, some
 previous methods (e.g. Lime) don't actually satisfy all of these conditions
 such as local accuracy and/or consistency.  That's why (at least theoretically)
@@ -452,8 +457,23 @@ Shapely values are such a nice solution to this feature attribution problem.
 
 |h3| SHapely Additive exPlanations (SHAP) |h3e|
 
-* Show Equation and simplifications
-* Explain how to deal with missingness
+If it wasn't clear already, we're going to use Shapely values as our feature
+attribution method called SHapely Additive exPlanations (SHAP).  From Theorem
+1, we know that Shapely values provide the only unique solution to Properties
+1-3 for a additive feature attribution model.  The big question is how do we
+calculate the Shapely values (and what do they intuitively mean)?
+
+Recall that Shapely rely on the value function, :math:`v(S)`, which determine
+a mapping from a subset of features to an expected "payoff".  In the case of
+Equation 17, our "payoff" is the model prediction :math:`f_x(z')` i.e.
+the prediction of our model at point :math:`x` with subset of features
+:math:`'z`.  Implicit in this definition is that we can evaluate our model with
+just a subset of features, which most models do *not* support.  So how does SHAP 
+deal with it?
+
+:math:`E[f(z)|z_S]`, where :math:`S` is the set
+of non-zero indexes.
+
 
 |h2| Computing SHAP |h2e|
 
