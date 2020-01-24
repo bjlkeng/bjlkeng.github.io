@@ -1,0 +1,150 @@
+## -*- coding: utf-8 -*-
+<%namespace name="base" file="base_helper.tmpl" import="*" />
+<%namespace name="notes" file="annotation_helper.tmpl" import="*" />
+${set_locale(lang)}
+${base.html_headstart()}
+<%block name="extra_head">
+### Leave this block alone.
+</%block>
+${template_hooks['extra_head']()}
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">${messages("Skip to main content")}</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-expand-md static-top mb-4
+% if theme_config.get('navbar_light'):
+navbar-light bg-light
+% else:
+navbar-dark bg-dark
+% endif
+">
+    <div class="container"><!-- This keeps the margins nice -->
+        <a class="navbar-brand" href="${abs_link(_link("root", None, lang))}">
+        %if logo_url:
+            <img src="${logo_url}" alt="${blog_title|h}" id="logo" class="d-inline-block align-top">
+        %endif
+
+        % if show_blog_title:
+            <span id="blog-title">${blog_title|h}</span>
+        % endif
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="bs-navbar">
+            <ul class="navbar-nav mr-auto">
+                ${base.html_navigation_links_entries(navigation_links)}
+                ${template_hooks['menu']()}
+            </ul>
+            %if search_form:
+                ${search_form}
+            %endif
+
+            <ul class="navbar-nav navbar-right">
+                ${base.html_navigation_links_entries(navigation_alt_links)}
+                <%block name="belowtitle">
+                %if len(translations) > 1:
+                    <li>${base.html_translations()}</li>
+                %endif
+                </%block>
+                % if show_sourcelink:
+                    <%block name="sourcelink"></%block>
+                %endif
+                ${template_hooks['menu_alt']()}
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container -->
+</nav>
+
+<!-- End of Menubar -->
+
+<div class="container" id="content" role="main">
+    <div class="body-content">
+        <div class="row">
+        <!--Body content-->
+            <div class="col-lg-9">
+                ${template_hooks['page_header']()}
+                <%block name="extra_header"></%block>
+                <%block name="content"></%block>
+            </div>
+            <div class="col-md-3 ">
+            <div class="card card-body bg-light">
+            <p>
+            I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
+            a former academic, current data scientist and engineer.  This is
+            <a href="/">the place</a>
+            where I write
+            about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br/>
+            </p>
+            </div>
+
+<!-- Begin MailChimp Signup Form -->
+<hr>
+<link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+    #mc_embed_signup{clear:left; font:13px Helvetica,Arial,sans-serif; }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+       We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="//briankeng.us10.list-manage.com/subscribe/post?u=cedf72ca8daa891e57f4379a0&amp;id=1f1563094f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <b>Signup for Email Blog Posts</b>
+    <div id="mc_embed_signup_scroll">
+<div >
+    <label for="mce-EMAIL">&nbsp;Email Address </label>
+    <input type="email" value="" name="EMAIL" class="required email form-control input-sm" id="mce-EMAIL">
+</div>
+    <div id="mce-responses" class="clear">
+        <div class="response" id="mce-error-response" style="display:none"></div>
+        <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_cedf72ca8daa891e57f4379a0_1f1563094f" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn btn-default btn-xs"></div>
+    </div>
+</form>
+</div>
+<script type='text/javascript' src='//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js'></script><script type='text/javascript'>(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script>
+<!--End mc_embed_signup-->
+            </div>
+            </div>
+        </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            ${content_footer}
+            ${template_hooks['page_footer']()}
+            <%block name="extra_footer"></%block>
+        </footer>
+    </div>
+</div>
+
+${base.late_load_js()}
+    %if date_fanciness != 0:
+        <!-- fancy dates -->
+        <script>
+        moment.locale("${momentjs_locales[lang]}");
+        fancydates(${date_fanciness}, ${js_date_format});
+        </script>
+        <!-- end fancy dates -->
+    %endif
+    <%block name="extra_js"></%block>
+    <script>
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element) {
+            return element.getElementsByTagName('img')[0].alt;
+    }});
+    </script>
+${body_end}
+${template_hooks['body_end']()}
+</body>
+</html>
