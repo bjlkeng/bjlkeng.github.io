@@ -469,10 +469,81 @@ Equation 17, our "payoff" is the model prediction :math:`f_x(z')` i.e.
 the prediction of our model at point :math:`x` with subset of features
 :math:`'z`.  Implicit in this definition is that we can evaluate our model with
 just a subset of features, which most models do *not* support.  So how does SHAP 
-deal with it?
+deal with it? Expectations!  
 
-:math:`E[f(z)|z_S]`, where :math:`S` is the set
-of non-zero indexes.
+To evaluate a model at point :math:`x` with a subset of features :math:`S`, it
+starts out with the **expectation** of the function (recall, :math:`z'` is our binary
+vector representing :math:`S` and :math:`h_x(\cdot)` is the mapping from the 
+binary vector to the actual feature in data point :math:`x`):
+
+.. math::
+
+    f(h_x(z')) &= E[f(z)|z_S] \\
+               &= E_{z_{\bar{S}}|z_S}[f(z)] \\
+    \tag{18}
+
+Of course, most models don't have an explicit probability density attached to them
+so we have to approximate it using our dataset.  However, since our dataset is probably
+not exhaustive, we probably won't be able to get a good estimate of
+:math:`E_{z_{\bar{S}}|z_S}[\cdot]` because this means for every missing value
+combination, we want to marginalize over the non-missing values.  For example,
+if our data point is describing a customer with and we had one missing
+dimension:
+
+.. math::
+    {\bf x}&={x_{sex}=M, x_{age=18}, x_{spending}=100, x_{recency}=2, x_{location}=City, \ldots} \\
+    {\bf x_{\overline{sex}}}&={x_{sex}=N/A, x_{age=18}, x_{spending}=100, x_{recency}=2, x_{location}=City, \ldots} \\ 
+    \tag{19}
+
+then we would need to marginalize over every dimension except that one.  We
+would likely not have enough data point to get a good estimate of
+:math:`x_{\overline{sex}}` in this case (it also might be computationally
+expensive).  Thus, we make some more simplifications, **independence** and
+**linearity**:
+
+.. math::
+
+    f(h_x(z')) &= E[f(z)|z_S] \\
+               &= E_{z_{\bar{S}}|z_S}[f(z)] \\
+               &\approx E_{z_{\bar{S}}}[f(z)] && \text{independence} \\
+               &\approx f(z_S, E[z_{\bar{S}}]) && \text{linear} \\
+               \tag{20}
+
+Independence allows us to treat each dimension separately and not care about the 
+conditional aspect of trying to find a data point that "matches" :math:`x` (such as
+in Equation 19}.
+Linearity allows us to simply compute the expectation (:math:`E[z_{\bar{S}}]`)
+over each dimension of :math:`x` separately and plug it into the model (as
+opposed to evaluating the model each time over every dimension combination in
+your dataset).
+
+To summarize, we can calculate feature importance by:
+
+1. Computing Shapely values as in Equation 17:
+
+   .. math::
+
+        \phi_i(f,x) = \sum_{z'\subseteq x'} 
+            \frac{|z'|!(M-|z'|-1)!}{M!}[f_x(z')-f_x(z' \backslash i)]
+
+2. To evaluate the model with "missing" values (:math:`f_x(z')`), we assume
+   independence and linearity, which allows us to simply use the expectation
+   (i.e. mean value) of each "missing" dimension and plug it into the model.
+
+Now this leaves us with two additional questions: how do we interpret these
+feature importances?  And how can we compute these values efficiently (without
+running through all possible subsets of features).  We'll get to the first
+question in the next subsection and the latter in the next section.
+
+|h3| Interpreting SHAP Feature Importances |h3e|
+
+.. figure:: /images/shap_values.png
+  :width: 800px
+  :alt: SHAP Values
+  :align: center
+
+  Figure 1: SHAP Values
+
 
 
 |h2| Computing SHAP |h2e|
