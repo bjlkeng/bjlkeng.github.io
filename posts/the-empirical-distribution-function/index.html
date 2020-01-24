@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#
+" lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="A short note on the empirical distribution function.">
@@ -8,49 +9,60 @@
 <link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
 <link rel="canonical" href="http://bjlkeng.github.io/posts/the-empirical-distribution-function/">
-<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="description" itemprop="description" content="A short note on the empirical distribution function.">
-<meta name="author" content="Brian Keng">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Brian Keng">
 <link rel="prev" href="../normal-difference-distribution/" title="Elementary Statistics for Direct Marketing" type="text/html">
 <link rel="next" href="../normal-approximations-to-the-posterior-distribution/" title="Normal Approximation to the Posterior Distribution" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="The Empirical Distribution Function">
+<meta property="og:url" content="http://bjlkeng.github.io/posts/the-empirical-distribution-function/">
+<meta property="og:description" content="A short note on the empirical distribution function.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2016-03-12T20:08:21-05:00">
+<meta property="article:tag" content="CDF">
+<meta property="article:tag" content="confidence bands">
+<meta property="article:tag" content="confidence intervals">
+<meta property="article:tag" content="empirical distribution function">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
 
 <!-- Menubar -->
 
-<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<nav class="navbar navbar-expand-md static-top mb-4
+navbar-dark bg-dark
+"><div class="container">
 <!-- This keeps the margins nice -->
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="http://bjlkeng.github.io/">
+        <a class="navbar-brand" href="http://bjlkeng.github.io/">
 
-                <span class="h1" id="blog-title">Bounded Rationality</span>
-            </a>
-        </div>
-<!-- /.navbar-header -->
-        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
-            <ul class="nav navbar-nav">
-<p class="lead">Understanding math, machine learning, and data to a satisfactory degree.</p>
-<!--
+            <span id="blog-title">Bounded Rationality</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="bs-navbar">
+            <ul class="navbar-nav mr-auto">
+<li class="nav-item">
+<a href="../../archive.html" class="nav-link">Archive</a>
+                </li>
+<li class="nav-item">
+<a href="../../categories/" class="nav-link">Tags</a>
+                </li>
+<li class="nav-item">
+<a href="../../rss.xml" class="nav-link">RSS feed</a>
+
                 
-                <li><a href="/archive.html">Archive</a>
-                <li><a href="/categories/">Tags</a>
-                <li><a href="/rss.xml">RSS feed</a>
-
-                 
--->
-            </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-    <a href="index.ipynb" id="sourcelink">Source</a>
+            </li>
+</ul>
+<ul class="navbar-nav navbar-right">
+<li class="nav-item">
+    <a href="index.ipynb" id="sourcelink" class="nav-link">Source</a>
     </li>
+
 
                 
             </ul>
@@ -60,9 +72,10 @@
 <!-- /.container -->
 </nav><!-- End of Menubar --><div class="container" id="content" role="main">
     <div class="body-content">
-        <!--Body content-->
         <div class="row">
+        <!--Body content-->
             <div class="col-lg-9">
+                
                 
                 
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">The Empirical Distribution Function</a></h1>
@@ -108,14 +121,16 @@ Some figures (courtesy of Wikipedia) will help explain it better:</p>
 <p><img src="../../images/Empirical_CDF.png" alt="Empirical CDF (Wikipedia)"></p>
 <p>This picture basically sums up the intuition about the empirical distribution function.  The blue line is our empirical CDF whereas the light grey one is our theoretical CDF.  Given just this picture you could probably figure out how to compute the empirical CDF but let's just state it formally.</p>
 <p>Let $X$ be a random variable with CDF $F(x) = P(X \leq x)$, and let $ x_1,\ldots,x_n $ be $n$ <a href="https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_vawiables">i.i.d.</a> random variables sampled from $X$.  Then, the <strong>empirical distribution function</strong>, $\hat{F}(x)$, is a CDF:</p>
-$$
+<p>$$
 \hat{F}(x) = \frac{\text{# of elements in sample} \leq x}{n} = \frac{1}{n} \Sigma_{i=1}^n I(x_i \leq x) \tag{1}
-$$<p>where $I(\cdot)$ is just the <a href="https://en.wikipedia.org/wiki/Indicator_function">indicator function</a>.</p>
+$$</p>
+<p>where $I(\cdot)$ is just the <a href="https://en.wikipedia.org/wiki/Indicator_function">indicator function</a>.</p>
 <p>From this definition, we can derive some nice properties about the empirical CDF. For a fixed value of $x$, $I(x_i \leq x)$ is equivalent to a Bernoulli random variable with parameter $p = F(t)$ (i.e. a coin flip with chance of heads $p$).  From this fact, the sum of these variables is equivalent to a binomial random variable, hence the mean and variance of $\hat{F}(x)$:</p>
-\begin{align}
+<p>\begin{align}
 E[\hat{F}(x)] &amp;= F(x) \\
 Var[\hat{F}(x)] &amp;= \frac{1}{n}F(x)(1-F(x)) \tag{2}
-\end{align}<p>Since the expected value of $\hat{F}$ converges to the value of the theoretical distribution ($F$), $\hat{F}$ is a consistent estimator for the CDF by definition.  Another nice result due to the strong law of large numbers is that $\hat{F}_n(x)$ converges to $F(x)$ almost surely for every value of $x$ as $n \rightarrow \infty$.  An even stronger result called the <a href="https://en.wikipedia.org/wiki/Glivenko%E2%80%93Cantelli_theorem">Glivenko-Cantelli theorem</a>, states that this convergence happens uniformly across all $x$.
+\end{align}</p>
+<p>Since the expected value of $\hat{F}$ converges to the value of the theoretical distribution ($F$), $\hat{F}$ is a consistent estimator for the CDF by definition.  Another nice result due to the strong law of large numbers is that $\hat{F}_n(x)$ converges to $F(x)$ almost surely for every value of $x$ as $n \rightarrow \infty$.  An even stronger result called the <a href="https://en.wikipedia.org/wiki/Glivenko%E2%80%93Cantelli_theorem">Glivenko-Cantelli theorem</a>, states that this convergence happens uniformly across all $x$.
 All these results boil down to the fact that $\hat{F}(x)$ is a good non-parametric estimator for the theoretical CDF $F$.</p>
 
 </div>
@@ -129,26 +144,31 @@ All these results boil down to the fact that $\hat{F}(x)$ is a good non-parametr
 <h3 id="Confidence-Intervals-and-Confidence-Bands">Confidence Intervals and Confidence Bands<a class="anchor-link" href="#Confidence-Intervals-and-Confidence-Bands">¶</a>
 </h3>
 <p>The definition of a confidence interval can be extended to a function by considering $x$ fixed and calculating a $1-\alpha$ <strong>pointwise confidence interval</strong> about $x$. Formally, $C(x)$ defines the region defined by the pointwise confidence interval, given by:</p>
-\begin{align}
+<p>\begin{align}
 P(\{F(x) \in C(x)\}) \geq 1-\alpha \tag{3}
-\end{align}<p>The issue with this pointwise definition is that each of the $x$ values are computed independently.  So if we computed the pointwise confidence interval for each $x$, any individual $x$ would obey the confidence interval.  However, it would not guarantee that for each $x$, $C(x)$ simultaneously would be a $1-\alpha$ confidence region because the guarantee is only for each point in isolation.</p>
+\end{align}</p>
+<p>The issue with this pointwise definition is that each of the $x$ values are computed independently.  So if we computed the pointwise confidence interval for each $x$, any individual $x$ would obey the confidence interval.  However, it would not guarantee that for each $x$, $C(x)$ simultaneously would be a $1-\alpha$ confidence region because the guarantee is only for each point in isolation.</p>
 <p>Due to this issue, we can instead define a $1 - \alpha$ <strong>confidence band or confidence envelope</strong> that is applied to all $x$ (denoted by $B(x)$):</p>
-\begin{align}
+<p>\begin{align}
 P(\{F(x) \in B(x), \forall x\}) \geq 1-\alpha \tag{4}
-\end{align}<p>Using a result called the <a href="https://en.wikipedia.org/wiki/Dvoretzky%E2%80%93Kiefer%E2%80%93Wolfowitz_inequality">Dvoretzky-Kiefer-Wolfowitz (DKW) inequality</a> <a href="#fn-1"><sup>[1]</sup></a>, a two sided confidence band is given by the following:</p>
-\begin{align}
+\end{align}</p>
+<p>Using a result called the <a href="https://en.wikipedia.org/wiki/Dvoretzky%E2%80%93Kiefer%E2%80%93Wolfowitz_inequality">Dvoretzky-Kiefer-Wolfowitz (DKW) inequality</a> <a href="#fn-1"><sup>[1]</sup></a>, a two sided confidence band is given by the following:</p>
+<p>\begin{align}
 P(sup_{x\in \mathbb{R}} |\hat{F}_n(x) - F(x)| &gt; \epsilon) \leq 2e^{-2n\epsilon^2}
-\end{align}<p>Notice that this defines the probability of being <em>outside</em> a particular band around $F(x)$.  So setting the RHS to $\alpha$, we can find an $\epsilon$ to create a confidence band:</p>
-\begin{align}
+\end{align}</p>
+<p>Notice that this defines the probability of being <em>outside</em> a particular band around $F(x)$.  So setting the RHS to $\alpha$, we can find an $\epsilon$ to create a confidence band:</p>
+<p>\begin{align}
 \alpha &amp;= 2e^{-2n\epsilon^2} \\
 log(\frac{\alpha}{2}) &amp;= -2n\epsilon^2 \\
 log(\frac{2}{\alpha}) &amp;= 2n\epsilon^2 \\
 \epsilon &amp;= \sqrt{\frac{1}{2n}log(\frac{2}{\alpha})} \tag{5}
-\end{align}<p>Thus, we can define our confidence bands as such:</p>
-\begin{align}
+\end{align}</p>
+<p>Thus, we can define our confidence bands as such:</p>
+<p>\begin{align}
 L(x) &amp;= max\{\hat{F}(x) - \epsilon, 0\} \\
 U(x) &amp;= min\{\hat{F}(x) + \epsilon, 1\} \tag{6}
-\end{align}<p>Now that we have the theory for generating confidence bands, let's simulate some situations to see it in action.</p>
+\end{align}</p>
+<p>Now that we have the theory for generating confidence bands, let's simulate some situations to see it in action.</p>
 
 </div>
 </div>
@@ -174,8 +194,8 @@ U(x) &amp;= min\{\hat{F}(x) + \epsilon, 1\} \tag{6}
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
-<span class="kn">from</span> <span class="nn">statsmodels.tools.tools</span> <span class="kn">import</span> <span class="n">ECDF</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
+<span class="kn">from</span> <span class="nn">statsmodels.tools.tools</span> <span class="k">import</span> <span class="n">ECDF</span>
 
 <span class="k">def</span> <span class="nf">epsilon</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.</span> <span class="o">/</span> <span class="n">alpha</span><span class="p">))</span>
@@ -201,7 +221,7 @@ U(x) &amp;= min\{\hat{F}(x) + \epsilon, 1\} \tag{6}
     <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">'</span><span class="si">%s</span><span class="s1"> ECDF (n=</span><span class="si">%d</span><span class="s1">)'</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)))</span>
 </pre></div>
 
-    </div>
+</div>
 </div>
 </div>
 
@@ -231,7 +251,7 @@ U(x) &amp;= min\{\hat{F}(x) + \epsilon, 1\} \tag{6}
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 
-    </div>
+</div>
 </div>
 </div>
 
@@ -241,7 +261,7 @@ U(x) &amp;= min\{\hat{F}(x) + \epsilon, 1\} \tag{6}
 
 <div class="output_area">
 
-    <div class="prompt"></div>
+<div class="prompt"></div>
 
 
 
@@ -271,7 +291,7 @@ U(x) &amp;= min\{\hat{F}(x) + \epsilon, 1\} \tag{6}
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 
-    </div>
+</div>
 </div>
 </div>
 
@@ -281,7 +301,7 @@ U(x) &amp;= min\{\hat{F}(x) + \epsilon, 1\} \tag{6}
 
 <div class="output_area">
 
-    <div class="prompt"></div>
+<div class="prompt"></div>
 
 
 
@@ -311,7 +331,7 @@ U(x) &amp;= min\{\hat{F}(x) + \epsilon, 1\} \tag{6}
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 
-    </div>
+</div>
 </div>
 </div>
 
@@ -321,7 +341,7 @@ U(x) &amp;= min\{\hat{F}(x) + \epsilon, 1\} \tag{6}
 
 <div class="output_area">
 
-    <div class="prompt"></div>
+<div class="prompt"></div>
 
 
 
@@ -389,21 +409,12 @@ U(x) &amp;= min\{\hat{F}(x) + \epsilon, 1\} \tag{6}
             <li class="next">
                 <a href="../normal-approximations-to-the-posterior-distribution/" rel="next" title="Normal Approximation to the Posterior Distribution">Next post</a>
             </li>
-        </ul></nav></aside><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
-                    MathJax.Hub.Config({
-                        tex2jax: {
-                            inlineMath: [ ['$','$'], ["\\\(","\\\)"] ],
-                            displayMath: [ ['$$','$$'], ["\\\[","\\\]"] ],
-                            processEscapes: true
-                        },
-                        displayAlign: 'left', // Change this to 'center' to center equations.
-                        "HTML-CSS": {
-                            styles: {'.MathJax_Display': {"margin": 0}}
-                        }
-                    });
-                    </script></article>
+        </ul></nav></aside><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha384-3lJUsx1TJHt7BA4udB5KPnDrlkO8T6J6v/op7ui0BbCjvZ9WqV4Xm6DTP6kQ/iBH" crossorigin="anonymous"></script><script type="text/x-mathjax-config">
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
+        </script></article>
 </div>
-            <div class="col-md-3 well">
+            <div class="col-md-3 ">
+            <div class="card card-body bg-light">
             <p>
             I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
             a former academic, current data scientist and engineer.  This is
@@ -415,15 +426,8 @@ U(x) &amp;= min\{\hat{F}(x) + \epsilon, 1\} \tag{6}
             Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
             </p>
 
-            <br><p>
-            <a href="../../archive.html">Archive</a>
-            </p>
-            <p>
-            <a href="../../categories/index.html">Tags</a>
-            </p>
-            <p>
-            <a href="../../rss.xml">RSS feed</a>
-            </p>
+            <br>
+</div>
 
 <!-- Begin MailChimp Signup Form -->
 <hr>
@@ -452,21 +456,26 @@ U(x) &amp;= min\{\hat{F}(x) + \epsilon, 1\} \tag{6}
 </div>
 <script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
 </div>
+            </div>
         </div>
         <!--End of body content-->
 
         <footer id="footer">
             Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
+            
         </footer>
 </div>
-</div>
 
 
-            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
-    moment.locale("en");
-    fancydates(0, "YYYY-MM-DD HH:mm");
-    </script><!-- end fancy dates --><script>
+
+        <script src="../../assets/js/all-nocdn.js"></script><script>
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element) {
+            return element.getElementsByTagName('img')[0].alt;
+    }});
+    </script><script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)

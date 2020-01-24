@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#
+" lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="A look at two basic types of subroutines.">
@@ -8,49 +9,62 @@
 <link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
 <link rel="canonical" href="http://bjlkeng.github.io/posts/functions-and-procedures/">
-<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="description" itemprop="description" content="A look at two basic types of subroutines.">
-<meta name="author" content="Brian Keng">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Brian Keng">
 <link rel="prev" href="../common-sense-and-investing/" title="Common Sense and Investing" type="text/html">
 <link rel="next" href="../accessible-satisfiability/" title="Accessible Satisfiability" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="Functions and Procedures">
+<meta property="og:url" content="http://bjlkeng.github.io/posts/functions-and-procedures/">
+<meta property="og:description" content="A look at two basic types of subroutines.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2015-09-06T03:04:05-04:00">
+<meta property="article:tag" content="functional programming">
+<meta property="article:tag" content="functions">
+<meta property="article:tag" content="fundamentals">
+<meta property="article:tag" content="Greg Ward">
+<meta property="article:tag" content="James Hague">
+<meta property="article:tag" content="procedures">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
 
 <!-- Menubar -->
 
-<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<nav class="navbar navbar-expand-md static-top mb-4
+navbar-dark bg-dark
+"><div class="container">
 <!-- This keeps the margins nice -->
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="http://bjlkeng.github.io/">
+        <a class="navbar-brand" href="http://bjlkeng.github.io/">
 
-                <span class="h1" id="blog-title">Bounded Rationality</span>
-            </a>
-        </div>
-<!-- /.navbar-header -->
-        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
-            <ul class="nav navbar-nav">
-<p class="lead">Understanding math, machine learning, and data to a satisfactory degree.</p>
-<!--
+            <span id="blog-title">Bounded Rationality</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="bs-navbar">
+            <ul class="navbar-nav mr-auto">
+<li class="nav-item">
+<a href="../../archive.html" class="nav-link">Archive</a>
+                </li>
+<li class="nav-item">
+<a href="../../categories/" class="nav-link">Tags</a>
+                </li>
+<li class="nav-item">
+<a href="../../rss.xml" class="nav-link">RSS feed</a>
+
                 
-                <li><a href="/archive.html">Archive</a>
-                <li><a href="/categories/">Tags</a>
-                <li><a href="/rss.xml">RSS feed</a>
-
-                 
--->
-            </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-    <a href="index.rst" id="sourcelink">Source</a>
+            </li>
+</ul>
+<ul class="navbar-nav navbar-right">
+<li class="nav-item">
+    <a href="index.rst" id="sourcelink" class="nav-link">Source</a>
     </li>
+
 
                 
             </ul>
@@ -60,9 +74,10 @@
 <!-- /.container -->
 </nav><!-- End of Menubar --><div class="container" id="content" role="main">
     <div class="body-content">
-        <!--Body content-->
         <div class="row">
+        <!--Body content-->
             <div class="col-lg-9">
+                
                 
                 
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Functions and Procedures</a></h1>
@@ -161,15 +176,15 @@ thumb that I came across by Greg Ward in his talk at Pycon 2015,
 violating it and have it come back to bite you in the arse.  Greg goes on to give
 a couple of great examples (from actual code reviews he has done).  Here's
 one of his examples where this rule of thumb is violated:</p>
-<pre class="code python"><a name="rest_code_b57f364b8ab94ef78728d84c0f5d4006-1"></a><span class="k">def</span> <span class="nf">get_foo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">foo</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<a name="rest_code_b57f364b8ab94ef78728d84c0f5d4006-2"></a>    <span class="sd">'''Query the server for foo values.</span>
-<a name="rest_code_b57f364b8ab94ef78728d84c0f5d4006-3"></a><span class="sd">    Return a dict mapping hostname to foo value.</span>
-<a name="rest_code_b57f364b8ab94ef78728d84c0f5d4006-4"></a>
-<a name="rest_code_b57f364b8ab94ef78728d84c0f5d4006-5"></a><span class="sd">    foo must be a dict or None; if supplied, the</span>
-<a name="rest_code_b57f364b8ab94ef78728d84c0f5d4006-6"></a><span class="sd">    foo values will additionally be stored there</span>
-<a name="rest_code_b57f364b8ab94ef78728d84c0f5d4006-7"></a><span class="sd">    by hostname, and foo will be returned instead</span>
-<a name="rest_code_b57f364b8ab94ef78728d84c0f5d4006-8"></a><span class="sd">    of a new dict.</span>
-<a name="rest_code_b57f364b8ab94ef78728d84c0f5d4006-9"></a><span class="sd">    '''</span>
+<pre class="code python"><a name="rest_code_fcbadfa1a65d453581a256aa2b82a4ff-1"></a><span class="k">def</span> <span class="nf">get_foo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">foo</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<a name="rest_code_fcbadfa1a65d453581a256aa2b82a4ff-2"></a>    <span class="sd">'''Query the server for foo values.</span>
+<a name="rest_code_fcbadfa1a65d453581a256aa2b82a4ff-3"></a><span class="sd">    Return a dict mapping hostname to foo value.</span>
+<a name="rest_code_fcbadfa1a65d453581a256aa2b82a4ff-4"></a>
+<a name="rest_code_fcbadfa1a65d453581a256aa2b82a4ff-5"></a><span class="sd">    foo must be a dict or None; if supplied, the</span>
+<a name="rest_code_fcbadfa1a65d453581a256aa2b82a4ff-6"></a><span class="sd">    foo values will additionally be stored there</span>
+<a name="rest_code_fcbadfa1a65d453581a256aa2b82a4ff-7"></a><span class="sd">    by hostname, and foo will be returned instead</span>
+<a name="rest_code_fcbadfa1a65d453581a256aa2b82a4ff-8"></a><span class="sd">    of a new dict.</span>
+<a name="rest_code_fcbadfa1a65d453581a256aa2b82a4ff-9"></a><span class="sd">    '''</span>
 </pre>
 <p>Gee, I'm already confused even after reading the documentation (don't even get
 me started on the mismatch with the function name).  Remember, we want to
@@ -180,23 +195,23 @@ but the fact that we need to think twice about it sure isn't helping the
 complexity.  Imagine if every subroutine you wrote had this issue -- I don't envy
 that code reviewer.</p>
 <p>Greg goes on to give a better way to implement <code class="docutils literal">get_foo()</code> as a pure function:</p>
-<pre class="code python"><a name="rest_code_2dce3186e87a4f068c1273ffca9cafd0-1"></a><span class="k">def</span> <span class="nf">get_foo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<a name="rest_code_2dce3186e87a4f068c1273ffca9cafd0-2"></a>    <span class="sd">'''Query the server for foo values.</span>
-<a name="rest_code_2dce3186e87a4f068c1273ffca9cafd0-3"></a><span class="sd">    Return a dict mapping hostname to foo value.</span>
-<a name="rest_code_2dce3186e87a4f068c1273ffca9cafd0-4"></a><span class="sd">    '''</span>
+<pre class="code python"><a name="rest_code_13d084a58f574d4aba6c0878e6a59d01-1"></a><span class="k">def</span> <span class="nf">get_foo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a name="rest_code_13d084a58f574d4aba6c0878e6a59d01-2"></a>    <span class="sd">'''Query the server for foo values.</span>
+<a name="rest_code_13d084a58f574d4aba6c0878e6a59d01-3"></a><span class="sd">    Return a dict mapping hostname to foo value.</span>
+<a name="rest_code_13d084a58f574d4aba6c0878e6a59d01-4"></a><span class="sd">    '''</span>
 </pre>
 <p>Much simpler and easy to understand: query the server, get back a <code class="docutils literal">dict</code>.
 No extraneous mental overhead with the <code class="docutils literal">foo</code> parameter.  It
 may only be a small improvement but when building a large system, these small
 things add up quickly (especially since complexity is likely multiplicative).</p>
 <p>There's also this example involving C:</p>
-<pre class="code c"><a name="rest_code_57d6c2d9ad184f85af7b90a7666fd484-1"></a><span class="cm">/**</span>
-<a name="rest_code_57d6c2d9ad184f85af7b90a7666fd484-2"></a><span class="cm"> * Replace all 'e' characters in str with 'E'. Return the number of</span>
-<a name="rest_code_57d6c2d9ad184f85af7b90a7666fd484-3"></a><span class="cm"> * characters replaced.</span>
-<a name="rest_code_57d6c2d9ad184f85af7b90a7666fd484-4"></a><span class="cm"> */</span>
-<a name="rest_code_57d6c2d9ad184f85af7b90a7666fd484-5"></a><span class="kt">int</span> <span class="nf">strmunge_v1</span><span class="p">(</span><span class="n">string</span> <span class="n">str</span><span class="p">)</span> <span class="p">{</span>
-<a name="rest_code_57d6c2d9ad184f85af7b90a7666fd484-6"></a>    <span class="p">...</span>
-<a name="rest_code_57d6c2d9ad184f85af7b90a7666fd484-7"></a><span class="p">}</span>
+<pre class="code c"><a name="rest_code_4526ad9b58334e529cfc2935baa77e1b-1"></a><span class="cm">/**</span>
+<a name="rest_code_4526ad9b58334e529cfc2935baa77e1b-2"></a><span class="cm"> * Replace all 'e' characters in str with 'E'. Return the number of</span>
+<a name="rest_code_4526ad9b58334e529cfc2935baa77e1b-3"></a><span class="cm"> * characters replaced.</span>
+<a name="rest_code_4526ad9b58334e529cfc2935baa77e1b-4"></a><span class="cm"> */</span>
+<a name="rest_code_4526ad9b58334e529cfc2935baa77e1b-5"></a><span class="kt">int</span> <span class="nf">strmunge_v1</span><span class="p">(</span><span class="n">string</span> <span class="n">str</span><span class="p">)</span> <span class="p">{</span>
+<a name="rest_code_4526ad9b58334e529cfc2935baa77e1b-6"></a>    <span class="p">...</span>
+<a name="rest_code_4526ad9b58334e529cfc2935baa77e1b-7"></a><span class="p">}</span>
 </pre>
 <p>He points out that this type of subroutine is pervasive in C and notes that the
 only valid reason for violating this rule is for performance (which is probably
@@ -204,14 +219,14 @@ why you're programming in C in the first place!).  For the rest of us who aren't
 writing performance critical code (come guys, that's most of you), a much
 cleaner solution is not to have the side-effect and convert it to a pure
 function:</p>
-<pre class="code c"><a name="rest_code_5d6c2b79a87649468224a0b65688fc45-1"></a><span class="cm">/**</span>
-<a name="rest_code_5d6c2b79a87649468224a0b65688fc45-2"></a><span class="cm"> * Return newstr, a copy of str with all 'e' characters replaced</span>
-<a name="rest_code_5d6c2b79a87649468224a0b65688fc45-3"></a><span class="cm"> * by 'E', and nreplaced, the number of characters replaced.</span>
-<a name="rest_code_5d6c2b79a87649468224a0b65688fc45-4"></a><span class="cm"> * (Assume language with multiple return values)</span>
-<a name="rest_code_5d6c2b79a87649468224a0b65688fc45-5"></a><span class="cm"> */</span>
-<a name="rest_code_5d6c2b79a87649468224a0b65688fc45-6"></a><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">)</span> <span class="n">strmunge_v2</span><span class="p">(</span><span class="n">string</span> <span class="n">str</span><span class="p">)</span> <span class="p">{</span>
-<a name="rest_code_5d6c2b79a87649468224a0b65688fc45-7"></a>    <span class="p">...</span>
-<a name="rest_code_5d6c2b79a87649468224a0b65688fc45-8"></a><span class="p">}</span>
+<pre class="code c"><a name="rest_code_55b14998725645c1acbc4d00db6394bc-1"></a><span class="cm">/**</span>
+<a name="rest_code_55b14998725645c1acbc4d00db6394bc-2"></a><span class="cm"> * Return newstr, a copy of str with all 'e' characters replaced</span>
+<a name="rest_code_55b14998725645c1acbc4d00db6394bc-3"></a><span class="cm"> * by 'E', and nreplaced, the number of characters replaced.</span>
+<a name="rest_code_55b14998725645c1acbc4d00db6394bc-4"></a><span class="cm"> * (Assume language with multiple return values)</span>
+<a name="rest_code_55b14998725645c1acbc4d00db6394bc-5"></a><span class="cm"> */</span>
+<a name="rest_code_55b14998725645c1acbc4d00db6394bc-6"></a><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">)</span> <span class="n">strmunge_v2</span><span class="p">(</span><span class="n">string</span> <span class="n">str</span><span class="p">)</span> <span class="p">{</span>
+<a name="rest_code_55b14998725645c1acbc4d00db6394bc-7"></a>    <span class="p">...</span>
+<a name="rest_code_55b14998725645c1acbc4d00db6394bc-8"></a><span class="p">}</span>
 </pre>
 <p>The pure function has many benefits over the side-effect-ridden one (functional
 programmers rejoice!) with the main one that it's easier to reason about: you
@@ -265,7 +280,8 @@ fundamentals.</p>
             </li>
         </ul></nav></aside></article>
 </div>
-            <div class="col-md-3 well">
+            <div class="col-md-3 ">
+            <div class="card card-body bg-light">
             <p>
             I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
             a former academic, current data scientist and engineer.  This is
@@ -277,15 +293,8 @@ fundamentals.</p>
             Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
             </p>
 
-            <br><p>
-            <a href="../../archive.html">Archive</a>
-            </p>
-            <p>
-            <a href="../../categories/index.html">Tags</a>
-            </p>
-            <p>
-            <a href="../../rss.xml">RSS feed</a>
-            </p>
+            <br>
+</div>
 
 <!-- Begin MailChimp Signup Form -->
 <hr>
@@ -314,21 +323,26 @@ fundamentals.</p>
 </div>
 <script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
 </div>
+            </div>
         </div>
         <!--End of body content-->
 
         <footer id="footer">
             Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
+            
         </footer>
 </div>
-</div>
 
 
-            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
-    moment.locale("en");
-    fancydates(0, "YYYY-MM-DD HH:mm");
-    </script><!-- end fancy dates --><script>
+
+        <script src="../../assets/js/all-nocdn.js"></script><script>
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element) {
+            return element.getElementsByTagName('img')[0].alt;
+    }});
+    </script><script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)

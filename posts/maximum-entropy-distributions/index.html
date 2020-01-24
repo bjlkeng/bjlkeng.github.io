@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#
+" lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="A introduction to maximum entropy distributions.">
@@ -8,49 +9,59 @@
 <link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
 <link rel="canonical" href="http://bjlkeng.github.io/posts/maximum-entropy-distributions/">
-<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="description" itemprop="description" content="A introduction to maximum entropy distributions.">
-<meta name="author" content="Brian Keng">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Brian Keng">
 <link rel="prev" href="../lagrange-multipliers/" title="Lagrange Multipliers" type="text/html">
 <link rel="next" href="../the-calculus-of-variations/" title="The Calculus of Variations" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="Maximum Entropy Distributions">
+<meta property="og:url" content="http://bjlkeng.github.io/posts/maximum-entropy-distributions/">
+<meta property="og:description" content="A introduction to maximum entropy distributions.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2017-01-27T09:05:00-05:00">
+<meta property="article:tag" content="entropy">
+<meta property="article:tag" content="mathjax">
+<meta property="article:tag" content="probability">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
 
 <!-- Menubar -->
 
-<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<nav class="navbar navbar-expand-md static-top mb-4
+navbar-dark bg-dark
+"><div class="container">
 <!-- This keeps the margins nice -->
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="http://bjlkeng.github.io/">
+        <a class="navbar-brand" href="http://bjlkeng.github.io/">
 
-                <span class="h1" id="blog-title">Bounded Rationality</span>
-            </a>
-        </div>
-<!-- /.navbar-header -->
-        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
-            <ul class="nav navbar-nav">
-<p class="lead">Understanding math, machine learning, and data to a satisfactory degree.</p>
-<!--
+            <span id="blog-title">Bounded Rationality</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="bs-navbar">
+            <ul class="navbar-nav mr-auto">
+<li class="nav-item">
+<a href="../../archive.html" class="nav-link">Archive</a>
+                </li>
+<li class="nav-item">
+<a href="../../categories/" class="nav-link">Tags</a>
+                </li>
+<li class="nav-item">
+<a href="../../rss.xml" class="nav-link">RSS feed</a>
+
                 
-                <li><a href="/archive.html">Archive</a>
-                <li><a href="/categories/">Tags</a>
-                <li><a href="/rss.xml">RSS feed</a>
-
-                 
--->
-            </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-    <a href="index.rst" id="sourcelink">Source</a>
+            </li>
+</ul>
+<ul class="navbar-nav navbar-right">
+<li class="nav-item">
+    <a href="index.rst" id="sourcelink" class="nav-link">Source</a>
     </li>
+
 
                 
             </ul>
@@ -60,9 +71,10 @@
 <!-- /.container -->
 </nav><!-- End of Menubar --><div class="container" id="content" role="main">
     <div class="body-content">
-        <!--Body content-->
         <div class="row">
+        <!--Body content-->
             <div class="col-lg-9">
+                
                 
                 
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Maximum Entropy Distributions</a></h1>
@@ -356,37 +368,37 @@ with parameter <span class="math">\(\lambda_1\)</span> and <span class="math">\(
 normalization constant to make sure the probabilities sum to 1.  Equation 16
 gives us the desired value of <span class="math">\(\lambda_1\)</span>.  We can easily find a solution
 using any root solver, such as the code below:</p>
-<pre class="code python"><a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-1"></a><span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">exp</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-2"></a><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">newton</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-3"></a>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-4"></a><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">B</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mf">4.5</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-5"></a>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-6"></a><span class="c1"># Equation 15</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-7"></a><span class="k">def</span> <span class="nf">z</span><span class="p">(</span><span class="n">lamb</span><span class="p">):</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-8"></a>    <span class="k">return</span> <span class="mf">1.</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">k</span><span class="o">*</span><span class="n">lamb</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-9"></a>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-10"></a><span class="c1"># Equation 16</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-11"></a><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">lamb</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">):</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-12"></a>    <span class="n">y</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">k</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">k</span><span class="o">*</span><span class="n">lamb</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-13"></a>    <span class="k">return</span> <span class="n">y</span> <span class="o">*</span> <span class="n">z</span><span class="p">(</span><span class="n">lamb</span><span class="p">)</span> <span class="o">-</span> <span class="n">B</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-14"></a>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-15"></a><span class="c1"># Equation 17</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-16"></a><span class="k">def</span> <span class="nf">p</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">lamb</span><span class="p">):</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-17"></a>    <span class="k">return</span> <span class="n">z</span><span class="p">(</span><span class="n">lamb</span><span class="p">)</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">k</span> <span class="o">*</span> <span class="n">lamb</span><span class="p">)</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-18"></a>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-19"></a><span class="n">lamb</span> <span class="o">=</span> <span class="n">newton</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-20"></a><span class="nb">print</span><span class="p">(</span><span class="s2">"Lambda = </span><span class="si">%.4f</span><span class="s2">"</span> <span class="o">%</span> <span class="n">lamb</span><span class="p">)</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-21"></a><span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-22"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"p_</span><span class="si">%d</span><span class="s2"> = </span><span class="si">%.4f</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">p</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">lamb</span><span class="p">)))</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-23"></a>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-24"></a><span class="c1"># Output:</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-25"></a><span class="c1">#   Lambda = -0.3710</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-26"></a><span class="c1">#   p_1 = 0.0544</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-27"></a><span class="c1">#   p_2 = 0.0788</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-28"></a><span class="c1">#   p_3 = 0.1142</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-29"></a><span class="c1">#   p_4 = 0.1654</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-30"></a><span class="c1">#   p_5 = 0.2398</span>
-<a name="rest_code_bf9c252e7f3f43489d72c533e3f793e6-31"></a><span class="c1">#   p_6 = 0.3475</span>
+<pre class="code python"><a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-1"></a><span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">exp</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-2"></a><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">newton</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-3"></a>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-4"></a><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">B</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mf">4.5</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-5"></a>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-6"></a><span class="c1"># Equation 15</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-7"></a><span class="k">def</span> <span class="nf">z</span><span class="p">(</span><span class="n">lamb</span><span class="p">):</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-8"></a>    <span class="k">return</span> <span class="mf">1.</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">k</span><span class="o">*</span><span class="n">lamb</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-9"></a>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-10"></a><span class="c1"># Equation 16</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-11"></a><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">lamb</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">):</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-12"></a>    <span class="n">y</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">k</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">k</span><span class="o">*</span><span class="n">lamb</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-13"></a>    <span class="k">return</span> <span class="n">y</span> <span class="o">*</span> <span class="n">z</span><span class="p">(</span><span class="n">lamb</span><span class="p">)</span> <span class="o">-</span> <span class="n">B</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-14"></a>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-15"></a><span class="c1"># Equation 17</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-16"></a><span class="k">def</span> <span class="nf">p</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">lamb</span><span class="p">):</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-17"></a>    <span class="k">return</span> <span class="n">z</span><span class="p">(</span><span class="n">lamb</span><span class="p">)</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">k</span> <span class="o">*</span> <span class="n">lamb</span><span class="p">)</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-18"></a>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-19"></a><span class="n">lamb</span> <span class="o">=</span> <span class="n">newton</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-20"></a><span class="k">print</span><span class="p">(</span><span class="s2">"Lambda = </span><span class="si">%.4f</span><span class="s2">"</span> <span class="o">%</span> <span class="n">lamb</span><span class="p">)</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-21"></a><span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-22"></a>    <span class="k">print</span><span class="p">(</span><span class="s2">"p_</span><span class="si">%d</span><span class="s2"> = </span><span class="si">%.4f</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">p</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">lamb</span><span class="p">)))</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-23"></a>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-24"></a><span class="c1"># Output:</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-25"></a><span class="c1">#   Lambda = -0.3710</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-26"></a><span class="c1">#   p_1 = 0.0544</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-27"></a><span class="c1">#   p_2 = 0.0788</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-28"></a><span class="c1">#   p_3 = 0.1142</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-29"></a><span class="c1">#   p_4 = 0.1654</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-30"></a><span class="c1">#   p_5 = 0.2398</span>
+<a name="rest_code_4c2dfd1cdc2149ecb77e70da3d42db77-31"></a><span class="c1">#   p_6 = 0.3475</span>
 </pre>
 <p>The distribution is skewed much more towards <span class="math">\(6\)</span>.  If you re-run the
 program with <span class="math">\(B=3.5\)</span>, you'll get a uniform distribution, which is
@@ -485,11 +497,12 @@ at night :)</p>
             <li class="next">
                 <a href="../the-calculus-of-variations/" rel="next" title="The Calculus of Variations">Next post</a>
             </li>
-        </ul></nav></aside><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
-                    MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
-                    </script></article>
+        </ul></nav></aside><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha384-3lJUsx1TJHt7BA4udB5KPnDrlkO8T6J6v/op7ui0BbCjvZ9WqV4Xm6DTP6kQ/iBH" crossorigin="anonymous"></script><script type="text/x-mathjax-config">
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
+        </script></article>
 </div>
-            <div class="col-md-3 well">
+            <div class="col-md-3 ">
+            <div class="card card-body bg-light">
             <p>
             I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
             a former academic, current data scientist and engineer.  This is
@@ -501,15 +514,8 @@ at night :)</p>
             Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
             </p>
 
-            <br><p>
-            <a href="../../archive.html">Archive</a>
-            </p>
-            <p>
-            <a href="../../categories/index.html">Tags</a>
-            </p>
-            <p>
-            <a href="../../rss.xml">RSS feed</a>
-            </p>
+            <br>
+</div>
 
 <!-- Begin MailChimp Signup Form -->
 <hr>
@@ -538,21 +544,26 @@ at night :)</p>
 </div>
 <script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
 </div>
+            </div>
         </div>
         <!--End of body content-->
 
         <footer id="footer">
             Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
+            
         </footer>
 </div>
-</div>
 
 
-            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
-    moment.locale("en");
-    fancydates(0, "YYYY-MM-DD HH:mm");
-    </script><!-- end fancy dates --><script>
+
+        <script src="../../assets/js/all-nocdn.js"></script><script>
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element) {
+            return element.getElementsByTagName('img')[0].alt;
+    }});
+    </script><script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)

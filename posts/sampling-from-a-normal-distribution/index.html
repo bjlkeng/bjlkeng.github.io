@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#
+" lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="Looking at a couple of ways to sample a normal distribution.">
@@ -8,49 +9,59 @@
 <link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
 <link rel="canonical" href="http://bjlkeng.github.io/posts/sampling-from-a-normal-distribution/">
-<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="description" itemprop="description" content="Looking at a couple of ways to sample a normal distribution.">
-<meta name="author" content="Brian Keng">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Brian Keng">
 <link rel="prev" href="../optimal-betting-and-the-kelly-criterion/" title="Optimal Betting Strategies and The Kelly Criterion" type="text/html">
 <link rel="next" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/" title="Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="Sampling from a Normal Distribution">
+<meta property="og:url" content="http://bjlkeng.github.io/posts/sampling-from-a-normal-distribution/">
+<meta property="og:description" content="Looking at a couple of ways to sample a normal distribution.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2015-11-28T21:57:02-05:00">
+<meta property="article:tag" content="normal distribution">
+<meta property="article:tag" content="probability">
+<meta property="article:tag" content="sampling">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
 
 <!-- Menubar -->
 
-<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<nav class="navbar navbar-expand-md static-top mb-4
+navbar-dark bg-dark
+"><div class="container">
 <!-- This keeps the margins nice -->
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="http://bjlkeng.github.io/">
+        <a class="navbar-brand" href="http://bjlkeng.github.io/">
 
-                <span class="h1" id="blog-title">Bounded Rationality</span>
-            </a>
-        </div>
-<!-- /.navbar-header -->
-        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
-            <ul class="nav navbar-nav">
-<p class="lead">Understanding math, machine learning, and data to a satisfactory degree.</p>
-<!--
+            <span id="blog-title">Bounded Rationality</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="bs-navbar">
+            <ul class="navbar-nav mr-auto">
+<li class="nav-item">
+<a href="../../archive.html" class="nav-link">Archive</a>
+                </li>
+<li class="nav-item">
+<a href="../../categories/" class="nav-link">Tags</a>
+                </li>
+<li class="nav-item">
+<a href="../../rss.xml" class="nav-link">RSS feed</a>
+
                 
-                <li><a href="/archive.html">Archive</a>
-                <li><a href="/categories/">Tags</a>
-                <li><a href="/rss.xml">RSS feed</a>
-
-                 
--->
-            </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-    <a href="index.ipynb" id="sourcelink">Source</a>
+            </li>
+</ul>
+<ul class="navbar-nav navbar-right">
+<li class="nav-item">
+    <a href="index.ipynb" id="sourcelink" class="nav-link">Source</a>
     </li>
+
 
                 
             </ul>
@@ -60,9 +71,10 @@
 <!-- /.container -->
 </nav><!-- End of Menubar --><div class="container" id="content" role="main">
     <div class="body-content">
-        <!--Body content-->
         <div class="row">
+        <!--Body content-->
             <div class="col-lg-9">
+                
                 
                 
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Sampling from a Normal Distribution</a></h1>
@@ -96,7 +108,9 @@
 <h4 id="Normal-Distribution">Normal Distribution<a class="anchor-link" href="#Normal-Distribution">¶</a>
 </h4>
 <p>Let's start off first by covering some basics.  A normal distribution (also known as a Gaussian distribution) $N \sim (\mu, \sigma)$ has probability density function (PDF) and cumulative density function (CDF) shown here parameterized by its mean ($\mu$) and standard deviation ($\sigma$) <a href="#fn-1"><sup>[1]</sup></a>:</p>
-$$ f_N(x) = \frac{1}{\sigma \sqrt{2\pi}}e^{-\frac{(x-\mu)^2}{2\sigma^2}} \tag{1}$$$$ F_N(x) = \int_{-\infty}^{x}f_N(t) dt  \tag{2}$$<p>The CDF doesn't have a nice closed form, so we'll just represent it here using the definition of CDF in terms of its PDF.  We can graph the PDF and CDF (images from <a href="https://en.wikipedia.org/wiki/Normal_distribution">Wikipedia</a>) using various values of the two parameters:</p>
+<p>$$ f_N(x) = \frac{1}{\sigma \sqrt{2\pi}}e^{-\frac{(x-\mu)^2}{2\sigma^2}} \tag{1}$$
+$$ F_N(x) = \int_{-\infty}^{x}f_N(t) dt  \tag{2}$$</p>
+<p>The CDF doesn't have a nice closed form, so we'll just represent it here using the definition of CDF in terms of its PDF.  We can graph the PDF and CDF (images from <a href="https://en.wikipedia.org/wiki/Normal_distribution">Wikipedia</a>) using various values of the two parameters:</p>
 <p><img src="../../images/normal_pdf_cdf.png" alt="PDF of Normal Distribution"></p>
 <p>The normal distribution is sometimes colloquially known as the "bell curve" because of a it's symmetric hump.  A very common thing to do with a probability distribution is to <em>sample</em> from it.  In other words, we want to randomly generate numbers (i.e. $x$ values) such that the values of $x$ are in proportion to the PDF.  So for the standard normal distribution, $N \sim (0, 1) $ (the red curve in the picture above), most of the values would fall close to somewhere around $x=0$.  In fact, 68% will fall within $[-1, 1]$, 95% will fall within $[-2,2]$ and 99.7% will fall within $[-3,3]$.  This corresponds to $\sigma, 2\sigma, 3\sigma$ from the mean, see this <a href="https://en.wikipedia.org/wiki/68%E2%80%9395%E2%80%9399.7_rule">article</a> for more details.</p>
 <h4 id="Central-Limit-Theorem">Central Limit Theorem<a class="anchor-link" href="#Central-Limit-Theorem">¶</a>
@@ -109,7 +123,8 @@ average. Then $S_n$ approximates a normal distribution with mean of $\mu$ and
 variance of $\frac{\sigma^2}{n}$ for large $n$ (i.e. $S_n \approx N(\mu, \frac{\sigma^2}{n})$).</p>
 </blockquote>
 <p>The surprising result is that $X_n$ can be <em>any</em> distribution.  It isn't restricted to just normal distributions.  We can also define the standard normal distribution in terms of $S_n$ by shifting and scaling it:</p>
-$$ N(0,1) \approx \frac{S_n - \mu}{\frac{\sigma}{\sqrt{n}}} = \frac{\sqrt{n}(S_n - \mu)}{\sigma} \tag{3} $$<h4 id="Comparing-Distributions">Comparing Distributions<a class="anchor-link" href="#Comparing-Distributions">¶</a>
+<p>$$ N(0,1) \approx \frac{S_n - \mu}{\frac{\sigma}{\sqrt{n}}} = \frac{\sqrt{n}(S_n - \mu)}{\sigma} \tag{3} $$</p>
+<h4 id="Comparing-Distributions">Comparing Distributions<a class="anchor-link" href="#Comparing-Distributions">¶</a>
 </h4>
 <p>Since our goal is to implement sampling from a normal distribution, it would be nice to know if we actually did it correctly!  One common way to test if two arbitrary distributions are the same is to use the <a href="https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test">Kolmogorov–Smirnov test</a>.  In the basic form, we can compare a sample of points with a reference distribution to find their similarity.</p>
 <p>The basic idea of the test is to first sort the points in the sample and the compute the <a href="https://en.wikipedia.org/wiki/Empirical_distribution_function">empirical CDF</a>. Next, find the largest absolute difference between any point in the empirical CDF and the theoretical reference distribution.  If the two are the same, this difference should be very small. If it's large then we can be confident that the distribution is different.  Further, this difference follows a certain distribution, which allows us to test our null hypothesis of whether our samples were drawn from the reference distribution.<br>
@@ -125,7 +140,7 @@ The following figure (from <a href="https://en.wikipedia.org/wiki/Kolmogorov%E2%
 <div class="prompt input_prompt">In [290]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span> 
@@ -149,7 +164,7 @@ The following figure (from <a href="https://en.wikipedia.org/wiki/Kolmogorov%E2%
 <span class="nb">print</span><span class="p">(</span><span class="s2">"N(0,1) vs. N(0, 1): KS=</span><span class="si">%.4f</span><span class="s2"> with p-value = </span><span class="si">%.4f</span><span class="s2">."</span> <span class="o">%</span> <span class="p">(</span><span class="n">test_stat</span><span class="p">,</span> <span class="n">pvalue</span><span class="p">))</span>
 </pre></div>
 
-    </div>
+</div>
 </div>
 </div>
 
@@ -159,7 +174,7 @@ The following figure (from <a href="https://en.wikipedia.org/wiki/Kolmogorov%E2%
 
 <div class="output_area">
 
-    <div class="prompt"></div>
+<div class="prompt"></div>
 
 
 <div class="output_subarea output_stream output_stdout output_text">
@@ -192,15 +207,17 @@ N(0,1) vs. N(0, 1): KS=0.0104 with p-value = 0.2288.
 <h3 id="Sampling-using-the-Central-Limit-Theorem">Sampling using the Central Limit Theorem<a class="anchor-link" href="#Sampling-using-the-Central-Limit-Theorem">¶</a>
 </h3>
 <p>Now let's try to use the Central Limit Theorem to sample from $N(0,1)$.  First let's define our i.i.d. variable $X_n$ to have a <a href="https://en.wikipedia.org/wiki/Bernoulli_distribution">Bernoulli distribution</a> with $p=0.5$, which we can intuitively think of tossing an unbiased coin:</p>
-$$ P(X_n=k) = \begin{cases} p=0.5 &amp; \text{if }k=1, \\[6pt] 1-p = 0.5 &amp; \text {if }k=0.\end{cases}&lt;/math&gt; \tag{4} $$<p>Recall, the Bernoulli distribution is closely relates to the <a href="https://en.wikipedia.org/wiki/Binomial_distribution">Binomial distribution</a> denoted by $B(n, p)$ by $Bernoulli(p) = B(n=1, p)$ .  The Binomial distribution can intuitively be thought of as counting the number of heads in $n$ tosses of a coin (i.e. Bernoulli trials).  If $n=1$, it reduces to a Bernoulli distribution (or single coin toss).</p>
+<p>$$ P(X_n=k) = \begin{cases} p=0.5 &amp; \text{if }k=1, \\[6pt] 1-p = 0.5 &amp; \text {if }k=0.\end{cases}&lt;/math&gt; \tag{4} $$</p>
+<p>Recall, the Bernoulli distribution is closely relates to the <a href="https://en.wikipedia.org/wiki/Binomial_distribution">Binomial distribution</a> denoted by $B(n, p)$ by $Bernoulli(p) = B(n=1, p)$ .  The Binomial distribution can intuitively be thought of as counting the number of heads in $n$ tosses of a coin (i.e. Bernoulli trials).  If $n=1$, it reduces to a Bernoulli distribution (or single coin toss).</p>
 <p>Let's now define our sample average for $n$ tosses of our unbiased coin:</p>
-$$ S_n = \frac{X_1 + X_2 + \ldots + X_n}{n} = \frac{B(n, p=0.5)}{n} $$<p>We know that a Bernoulli distribution has $\mu=\frac{1}{2}$ (we expect half our tosses to be heads), and $\sigma^2=p(1-p)=0.25$.</p>
+<p>$$ S_n = \frac{X_1 + X_2 + \ldots + X_n}{n} = \frac{B(n, p=0.5)}{n} $$</p>
+<p>We know that a Bernoulli distribution has $\mu=\frac{1}{2}$ (we expect half our tosses to be heads), and $\sigma^2=p(1-p)=0.25$.</p>
 <p>Shifting and scaling<a href="#fn-2"><sup>[2]</sup></a> this to get our standard normal distribution using Equation 3, we get:</p>
-\begin{align} 
+<p>\begin{align} 
 N(0,1) &amp;\approx \frac{\sqrt{n}(S_n - \mu)}{\sigma} \\
        &amp;= \frac{\sqrt{n}(\frac{X_1 + X_2 + \ldots + X_n}{n} - 0.5)}{\sqrt{0.25}} \\
        &amp;= 2\sqrt{n}(\frac{X_1 + X_2 + \ldots + X_n}{n} - 0.5) \tag{5}
-\end{align}<p></p>
+\end{align}</p>
 <p>Theoretically, this should give us an equation to roughly simulate a standard normal distribution.  Let's try it!</p>
 
 </div>
@@ -236,7 +253,7 @@ N(0,1) &amp;\approx \frac{\sqrt{n}(S_n - \mu)}{\sigma} \\
 <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">'sample_N'</span><span class="p">:</span> <span class="n">samples</span><span class="p">,</span> <span class="s1">'N(0,1)'</span><span class="p">:</span> <span class="n">reference</span><span class="p">})</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">'hist'</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
 </pre></div>
 
-    </div>
+</div>
 </div>
 </div>
 
@@ -246,7 +263,7 @@ N(0,1) &amp;\approx \frac{\sqrt{n}(S_n - \mu)}{\sigma} \\
 
 <div class="output_area">
 
-    <div class="prompt"></div>
+<div class="prompt"></div>
 
 
 <div class="output_subarea output_stream output_stdout output_text">
@@ -257,7 +274,7 @@ N(0,1) &amp;\approx \frac{\sqrt{n}(S_n - \mu)}{\sigma} \\
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[289]:</div>
+<div class="prompt output_prompt">Out[289]:</div>
 
 
 
@@ -270,7 +287,7 @@ N(0,1) &amp;\approx \frac{\sqrt{n}(S_n - \mu)}{\sigma} \\
 
 <div class="output_area">
 
-    <div class="prompt"></div>
+<div class="prompt"></div>
 
 
 
@@ -304,37 +321,42 @@ N(0,1) &amp;\approx \frac{\sqrt{n}(S_n - \mu)}{\sigma} \\
 <h3 id="Sampling-using-the-Box-Muller-Transform">Sampling using the Box-Muller Transform<a class="anchor-link" href="#Sampling-using-the-Box-Muller-Transform">¶</a>
 </h3>
 <p>The <a href="https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform">Box-Muller transform</a> is a neat little "trick" that allows us to sample from a pair of normally distributed variables using a source of only uniformly distributed variables.  The transform is actually pretty simple to compute.  Given two independent uniformly distributed random variables $U_1, U_2$ on the interval $(0,1)$, we define two new random variables, $R$ and $\Theta$, that intuitively representing <a href="https://en.wikipedia.org/wiki/Polar_coordinate_system">polar coordinates</a> as such:</p>
-\begin{align}
+<p>\begin{align}
 R    &amp;= \sqrt{-2lnU_1}   \tag{6}\\
 \Theta &amp;= 2\pi U_2  \tag{7}
-\end{align}<p>Now using the standard transformation from polar coordinates $R, \Theta$ to Cartesian ones $X, Y$, we claim that $X$ and $Y$ are independent standard normally distributed random variables:</p>
-\begin{align}
+\end{align}</p>
+<p>Now using the standard transformation from polar coordinates $R, \Theta$ to Cartesian ones $X, Y$, we claim that $X$ and $Y$ are independent standard normally distributed random variables:</p>
+<p>\begin{align}
 X &amp;= Rcos\Theta &amp;= \sqrt{-2lnU_1}cos(2\pi U_2) \tag{8}\\
 Y &amp;= Rsin\Theta &amp;= \sqrt{-2lnU_1}sin(2\pi U_2) \tag{9}
-\end{align}<p>Let's take a look at the proof to gain some intuition on how this works.</p>
+\end{align}</p>
+<p>Let's take a look at the proof to gain some intuition on how this works.</p>
 <h4 id="Proof">Proof<a class="anchor-link" href="#Proof">¶</a>
 </h4>
 <p>Starting with $U_1, U_2$, let's see what kind of distributions we have for $R, \Theta$.  From Equation 7, it should be clear that $\Theta$ is also uniformly distributed since it's just multiplying by a constant ($2\pi$), but let's go through the motions to explicitly see that.  From the CDF of $\Theta$:</p>
-\begin{align}
+<p>\begin{align}
 P(\Theta \leq \theta) &amp;= P(2\pi U_2 \leq \theta) \\
                       &amp;= P(U_2 \leq \frac{\theta}{2\pi}) \\
                \Theta &amp;\sim Uniform(0, 2\pi) \tag{10}
-\end{align}<p>So we have our first result that $\Theta$ is uniformly distributed on $(0, 2\pi)$ (as we would expect).  Using a more explicit method, we can find the distribution of $R$.  From Equation 7, we know that the mapping from $U_1$ to $R$ is one-to-one, which we'll call $g$ (i.e. $R=g(U_1)$).  So if we're trying to find the probability of R over $(r_1, r_2)$ (by integrating its PDF), there is some equivalent range over $(g^{-1}(r_1), g^{-1}(r_2))$ where we can integrate over the PDF of $U_1$.  Let's see how this works <a href="#fn-3"><sup>[3]</sup></a>:</p>
-\begin{align}
+\end{align}</p>
+<p>So we have our first result that $\Theta$ is uniformly distributed on $(0, 2\pi)$ (as we would expect).  Using a more explicit method, we can find the distribution of $R$.  From Equation 7, we know that the mapping from $U_1$ to $R$ is one-to-one, which we'll call $g$ (i.e. $R=g(U_1)$).  So if we're trying to find the probability of R over $(r_1, r_2)$ (by integrating its PDF), there is some equivalent range over $(g^{-1}(r_1), g^{-1}(r_2))$ where we can integrate over the PDF of $U_1$.  Let's see how this works <a href="#fn-3"><sup>[3]</sup></a>:</p>
+<p>\begin{align}
 P(r_1 \leq R \leq r_2) &amp;=  \int_{g^{-1}(r_2)}^{g^{-1}(r_1)} f_{U_1}(s) ds  &amp;&amp; \text{since } g(x) \text{ is strictly decreasing}\\
                        &amp;=  -\int_{g^{-1}(r_1)}^{g^{-1}(r_2)}  ds &amp;&amp; \text{since }f_{U_1}(u)=1 \\
                        &amp;=  -\int_{r_1}^{r_2} -t e^{\frac{-t^2}{2}} dt &amp;&amp; \text{change variables } t=\sqrt{-2\ln s}\tag{11} \\
                 f_R(r) &amp;=  r e^{\frac{-r^2}{2}}  \tag{12}
-\end{align}<p>giving us the PDF for $R$, $f_R(r)$<a href="#fn-4"><sup>[4]</sup></a>.  It should also be clear that $R$ and $\Theta$ are independent because $U_1$ and $U_2$ are independent.</p>
+\end{align}</p>
+<p>giving us the PDF for $R$, $f_R(r)$<a href="#fn-4"><sup>[4]</sup></a>.  It should also be clear that $R$ and $\Theta$ are independent because $U_1$ and $U_2$ are independent.</p>
 <p>Now that we have the distributions for both $R$ and $\Theta$, let's label Equation 8 and 9 as $X=g_x(R, \Theta)$ and $Y=g_y(R, \Theta)$, respectively.  Now we can apply the same procedure as above using variable substitution (for multiple variables) to derive the joint distribution of $X$ and $Y$ (we'll represent the 
 area in the transformed space by $A$<a href="#fn-5"><sup>[5]</sup></a>):</p>
-\begin{align}
+<p>\begin{align}
 P(x_1 &amp;\leq X \leq x_2, y_1 \leq Y \leq y_2) \\
     &amp;= \int \int_A f_{R,\Theta}(u, v) du dv \\
     &amp;= \int \int_A f_{R}(u)f_{\Theta}(v) du dv &amp;&amp; \text{since } R \text{ and } \Theta \text{ are independent} \\ 
     &amp;= \int \int_A ue^{\frac{-u^2}{2}}\frac{1}{2\pi} du dv \tag{13}
-\end{align}<p>At this point, we should remember that if $p=ucos(v), q=usin(v)$, then solving for $u,v$ results in $u=\sqrt{q^2+p^2}, v=arctan(\frac{q}{p})$.  Also, <a href="https://en.wikipedia.org/wiki/Integration_by_substitution#Substitution_for_multiple_variables">substitution for multiple variables</a> means that $du dv = |det(\frac{\partial(u,v)}{\partial(p, q)})| dp dq$, plugging our expressions for $u$ and $v$ in:</p>
-\begin{align}
+\end{align}</p>
+<p>At this point, we should remember that if $p=ucos(v), q=usin(v)$, then solving for $u,v$ results in $u=\sqrt{q^2+p^2}, v=arctan(\frac{q}{p})$.  Also, <a href="https://en.wikipedia.org/wiki/Integration_by_substitution#Substitution_for_multiple_variables">substitution for multiple variables</a> means that $du dv = |det(\frac{\partial(u,v)}{\partial(p, q)})| dp dq$, plugging our expressions for $u$ and $v$ in:</p>
+<p>\begin{align}
 du dv &amp;= |det(\frac{\partial(u,v)}{\partial(p, q)})| dp dq \\
       &amp;= 
 \left |
@@ -358,13 +380,15 @@ du dv &amp;= |det(\frac{\partial(u,v)}{\partial(p, q)})| dp dq \\
 \end{array}
 \right | dpdq \\
       &amp;= \frac{1}{\sqrt{p^2 + q^2}} dpdq \tag{14}
-\end{align}<p>Using the result from Equation 14 into Equation 13, we get:</p>
-\begin{align}
+\end{align}</p>
+<p>Using the result from Equation 14 into Equation 13, we get:</p>
+<p>\begin{align}
 P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variables} \\
     &amp;= \int_{x_1}^{x_2} \int_{y_1}^{y_2} \frac{\sqrt{p^2 + q^2}}{2\pi}\cdot e^{\frac{-(p^2 + q^2)}{2}} \cdot \frac{1}{\sqrt{p^2 + q^2}} dp dq  &amp;&amp; p=ucos(v)  \\
     &amp;                     &amp;&amp; q=usin(v) \\
     &amp;= \int_{x_1}^{x_2} \underbrace{\frac{1}{\sqrt{2\pi}} e^{\frac{-p^2}{2}}}_{f_X(x)} dp \int_{y_1}^{y_2} \underbrace{\frac{1}{\sqrt{2\pi}} e^{\frac{-q^2}{2}}}_{f_Y(y)} dq  \tag{15}
-\end{align}<p>Equation 15 shows that $X$ and $Y$ are independent each with PDF matching our standard normal distribution $N(0,1)$ as required.</p>
+\end{align}</p>
+<p>Equation 15 shows that $X$ and $Y$ are independent each with PDF matching our standard normal distribution $N(0,1)$ as required.</p>
 <h4 id="Implementing-Box-Muller-Transform">Implementing Box-Muller Transform<a class="anchor-link" href="#Implementing-Box-Muller-Transform">¶</a>
 </h4>
 <p>The implementation is a relatively straight forward application of Equation 8 and 9:</p>
@@ -404,7 +428,7 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
 <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">'sample_N'</span><span class="p">:</span> <span class="n">samples</span><span class="p">,</span> <span class="s1">'N(0,1)'</span><span class="p">:</span> <span class="n">reference</span><span class="p">})</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">'hist'</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
 </pre></div>
 
-    </div>
+</div>
 </div>
 </div>
 
@@ -414,7 +438,7 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
 
 <div class="output_area">
 
-    <div class="prompt"></div>
+<div class="prompt"></div>
 
 
 <div class="output_subarea output_stream output_stdout output_text">
@@ -425,7 +449,7 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[288]:</div>
+<div class="prompt output_prompt">Out[288]:</div>
 
 
 
@@ -438,7 +462,7 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
 
 <div class="output_area">
 
-    <div class="prompt"></div>
+<div class="prompt"></div>
 
 
 
@@ -525,21 +549,12 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
             <li class="next">
                 <a href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/" rel="next" title="Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm">Next post</a>
             </li>
-        </ul></nav></aside><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
-                    MathJax.Hub.Config({
-                        tex2jax: {
-                            inlineMath: [ ['$','$'], ["\\\(","\\\)"] ],
-                            displayMath: [ ['$$','$$'], ["\\\[","\\\]"] ],
-                            processEscapes: true
-                        },
-                        displayAlign: 'left', // Change this to 'center' to center equations.
-                        "HTML-CSS": {
-                            styles: {'.MathJax_Display': {"margin": 0}}
-                        }
-                    });
-                    </script></article>
+        </ul></nav></aside><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha384-3lJUsx1TJHt7BA4udB5KPnDrlkO8T6J6v/op7ui0BbCjvZ9WqV4Xm6DTP6kQ/iBH" crossorigin="anonymous"></script><script type="text/x-mathjax-config">
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
+        </script></article>
 </div>
-            <div class="col-md-3 well">
+            <div class="col-md-3 ">
+            <div class="card card-body bg-light">
             <p>
             I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
             a former academic, current data scientist and engineer.  This is
@@ -551,15 +566,8 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
             Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
             </p>
 
-            <br><p>
-            <a href="../../archive.html">Archive</a>
-            </p>
-            <p>
-            <a href="../../categories/index.html">Tags</a>
-            </p>
-            <p>
-            <a href="../../rss.xml">RSS feed</a>
-            </p>
+            <br>
+</div>
 
 <!-- Begin MailChimp Signup Form -->
 <hr>
@@ -588,21 +596,26 @@ P(&amp;x_1 \leq X \leq x_2, y_1 \leq Y \leq y_2) &amp;&amp; \text{change variabl
 </div>
 <script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
 </div>
+            </div>
         </div>
         <!--End of body content-->
 
         <footer id="footer">
             Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
+            
         </footer>
 </div>
-</div>
 
 
-            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
-    moment.locale("en");
-    fancydates(0, "YYYY-MM-DD HH:mm");
-    </script><!-- end fancy dates --><script>
+
+        <script src="../../assets/js/all-nocdn.js"></script><script>
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element) {
+            return element.getElementsByTagName('img')[0].alt;
+    }});
+    </script><script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)

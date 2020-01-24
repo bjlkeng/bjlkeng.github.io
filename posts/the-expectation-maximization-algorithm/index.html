@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#
+" lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="An overview of the expectation-maximization algorithm">
@@ -8,49 +9,60 @@
 <link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
 <link rel="canonical" href="http://bjlkeng.github.io/posts/the-expectation-maximization-algorithm/">
-<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="description" itemprop="description" content="An overview of the expectation-maximization algorithm">
-<meta name="author" content="Brian Keng">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Brian Keng">
 <link rel="prev" href="../probabilistic-interpretation-of-regularization/" title="A Probabilistic Interpretation of Regularization" type="text/html">
 <link rel="next" href="../lagrange-multipliers/" title="Lagrange Multipliers" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="The Expectation-Maximization Algorithm">
+<meta property="og:url" content="http://bjlkeng.github.io/posts/the-expectation-maximization-algorithm/">
+<meta property="og:description" content="An overview of the expectation-maximization algorithm">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2016-10-07T08:47:47-04:00">
+<meta property="article:tag" content="expectation-maximization">
+<meta property="article:tag" content="gaussian mixture models">
+<meta property="article:tag" content="latent variables">
+<meta property="article:tag" content="mathjax">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
 
 <!-- Menubar -->
 
-<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<nav class="navbar navbar-expand-md static-top mb-4
+navbar-dark bg-dark
+"><div class="container">
 <!-- This keeps the margins nice -->
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="http://bjlkeng.github.io/">
+        <a class="navbar-brand" href="http://bjlkeng.github.io/">
 
-                <span class="h1" id="blog-title">Bounded Rationality</span>
-            </a>
-        </div>
-<!-- /.navbar-header -->
-        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
-            <ul class="nav navbar-nav">
-<p class="lead">Understanding math, machine learning, and data to a satisfactory degree.</p>
-<!--
+            <span id="blog-title">Bounded Rationality</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="bs-navbar">
+            <ul class="navbar-nav mr-auto">
+<li class="nav-item">
+<a href="../../archive.html" class="nav-link">Archive</a>
+                </li>
+<li class="nav-item">
+<a href="../../categories/" class="nav-link">Tags</a>
+                </li>
+<li class="nav-item">
+<a href="../../rss.xml" class="nav-link">RSS feed</a>
+
                 
-                <li><a href="/archive.html">Archive</a>
-                <li><a href="/categories/">Tags</a>
-                <li><a href="/rss.xml">RSS feed</a>
-
-                 
--->
-            </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-    <a href="index.rst" id="sourcelink">Source</a>
+            </li>
+</ul>
+<ul class="navbar-nav navbar-right">
+<li class="nav-item">
+    <a href="index.rst" id="sourcelink" class="nav-link">Source</a>
     </li>
+
 
                 
             </ul>
@@ -60,9 +72,10 @@
 <!-- /.container -->
 </nav><!-- End of Menubar --><div class="container" id="content" role="main">
     <div class="body-content">
-        <!--Body content-->
         <div class="row">
+        <!--Body content-->
             <div class="col-lg-9">
+                
                 
                 
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">The Expectation-Maximization Algorithm</a></h1>
@@ -238,45 +251,45 @@ we've decided on using a GMM model, we also have to pick the hyper parameter
 <span class="math">\(K\)</span> that decides how many Gaussians we want in our model <a class="footnote-reference brackets" href="#id8" id="id4">4</a>.
 That's about all the information we have.  Given that, the next algorithm
 (using pseudo-Python) describes how we would estimate the relevant unknowns:</p>
-<pre class="code python"><a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-1"></a><span class="c1"># Assume we have function to compute density of Gaussian</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-2"></a><span class="c1"># at point x_i given mu, sigma: G(x_i, mu, sigma); and</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-3"></a><span class="c1"># a function to compute the log-likelihoods: L(x, mu, sigma, pi)</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-4"></a><span class="k">def</span> <span class="nf">estimate_gmm</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-5"></a>    <span class="sd">''' Estimate GMM parameters.</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-6"></a><span class="sd">        :param x: list of observed real-valued variables</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-7"></a><span class="sd">        :param K: integer for number of Gaussian</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-8"></a><span class="sd">        :param tol: tolerated change for log-likelihood</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-9"></a><span class="sd">        :return: mu, sigma, pi parameters</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-10"></a><span class="sd">    '''</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-11"></a>    <span class="c1"># 0. Initialize theta = (mu, sigma, pi)</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-12"></a>    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-13"></a>    <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="p">[</span><span class="n">rand</span><span class="p">()]</span> <span class="o">*</span> <span class="n">K</span><span class="p">,</span> <span class="p">[</span><span class="n">rand</span><span class="p">()]</span> <span class="o">*</span> <span class="n">K</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-14"></a>    <span class="n">pi</span> <span class="o">=</span> <span class="p">[</span><span class="n">rand</span><span class="p">()]</span> <span class="o">*</span> <span class="n">K</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-15"></a>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-16"></a>    <span class="n">curr_L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-17"></a>    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iter</span><span class="p">):</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-18"></a>        <span class="n">prev_L</span> <span class="o">=</span> <span class="n">curr_L</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-19"></a>        <span class="c1"># 1. E-step: responsibility = p(z_i = k | x_i, theta^(t-1))</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-20"></a>        <span class="n">r</span> <span class="o">=</span> <span class="p">{}</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-21"></a>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-22"></a>            <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">pi</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">G</span><span class="p">(</span><span class="n">x_i</span><span class="p">,</span> <span class="n">mu</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">sigma</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">)]</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-23"></a>            <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-24"></a>            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-25"></a>                <span class="n">r</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">)]</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="n">total</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-26"></a>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-27"></a>        <span class="c1"># 2. M-step: Update mu, sigma, pi values</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-28"></a>        <span class="n">rk</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">([</span><span class="n">r</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">)]</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-29"></a>        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-30"></a>            <span class="n">pi</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">rk</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="n">N</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-31"></a>            <span class="n">mu</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">)]</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">))</span> <span class="o">/</span> <span class="n">rk</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-32"></a>            <span class="n">sigma</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">)]</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">mu</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">rk</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-33"></a>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-34"></a>        <span class="c1"># 3. Check exit condition</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-35"></a>        <span class="n">curr_L</span> <span class="o">=</span> <span class="n">L</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">pi</span><span class="p">)</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-36"></a>        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">prev_L</span> <span class="o">-</span> <span class="n">curr_L</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-37"></a>            <span class="k">break</span>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-38"></a>
-<a name="rest_code_22347dbf30a34f4d9ac8764d0c455ebc-39"></a>    <span class="k">return</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">pi</span>
+<pre class="code python"><a name="rest_code_08a624c788f04aa49ae02c72bc272238-1"></a><span class="c1"># Assume we have function to compute density of Gaussian</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-2"></a><span class="c1"># at point x_i given mu, sigma: G(x_i, mu, sigma); and</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-3"></a><span class="c1"># a function to compute the log-likelihoods: L(x, mu, sigma, pi)</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-4"></a><span class="k">def</span> <span class="nf">estimate_gmm</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-5"></a>    <span class="sd">''' Estimate GMM parameters.</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-6"></a><span class="sd">        :param x: list of observed real-valued variables</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-7"></a><span class="sd">        :param K: integer for number of Gaussian</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-8"></a><span class="sd">        :param tol: tolerated change for log-likelihood</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-9"></a><span class="sd">        :return: mu, sigma, pi parameters</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-10"></a><span class="sd">    '''</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-11"></a>    <span class="c1"># 0. Initialize theta = (mu, sigma, pi)</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-12"></a>    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-13"></a>    <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="p">[</span><span class="n">rand</span><span class="p">()]</span> <span class="o">*</span> <span class="n">K</span><span class="p">,</span> <span class="p">[</span><span class="n">rand</span><span class="p">()]</span> <span class="o">*</span> <span class="n">K</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-14"></a>    <span class="n">pi</span> <span class="o">=</span> <span class="p">[</span><span class="n">rand</span><span class="p">()]</span> <span class="o">*</span> <span class="n">K</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-15"></a>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-16"></a>    <span class="n">curr_L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-17"></a>    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iter</span><span class="p">):</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-18"></a>        <span class="n">prev_L</span> <span class="o">=</span> <span class="n">curr_L</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-19"></a>        <span class="c1"># 1. E-step: responsibility = p(z_i = k | x_i, theta^(t-1))</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-20"></a>        <span class="n">r</span> <span class="o">=</span> <span class="p">{}</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-21"></a>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-22"></a>            <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">pi</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">G</span><span class="p">(</span><span class="n">x_i</span><span class="p">,</span> <span class="n">mu</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">sigma</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">)]</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-23"></a>            <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-24"></a>            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-25"></a>                <span class="n">r</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">)]</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="n">total</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-26"></a>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-27"></a>        <span class="c1"># 2. M-step: Update mu, sigma, pi values</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-28"></a>        <span class="n">rk</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">([</span><span class="n">r</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">)]</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-29"></a>        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-30"></a>            <span class="n">pi</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">rk</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="n">N</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-31"></a>            <span class="n">mu</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">)]</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">))</span> <span class="o">/</span> <span class="n">rk</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-32"></a>            <span class="n">sigma</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">)]</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">mu</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">rk</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-33"></a>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-34"></a>        <span class="c1"># 3. Check exit condition</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-35"></a>        <span class="n">curr_L</span> <span class="o">=</span> <span class="n">L</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">pi</span><span class="p">)</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-36"></a>        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">prev_L</span> <span class="o">-</span> <span class="n">curr_L</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-37"></a>            <span class="k">break</span>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-38"></a>
+<a name="rest_code_08a624c788f04aa49ae02c72bc272238-39"></a>    <span class="k">return</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">pi</span>
 </pre>
 <p>Caution: This is just an illustration of the algorithm, please don't use it!
 It probably suffers from a lot of real-world issues like floating point
@@ -614,11 +627,12 @@ understand the intuition and math behind the EM algorithm too.</p>
             <li class="next">
                 <a href="../lagrange-multipliers/" rel="next" title="Lagrange Multipliers">Next post</a>
             </li>
-        </ul></nav></aside><script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
-                    MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
-                    </script></article>
+        </ul></nav></aside><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha384-3lJUsx1TJHt7BA4udB5KPnDrlkO8T6J6v/op7ui0BbCjvZ9WqV4Xm6DTP6kQ/iBH" crossorigin="anonymous"></script><script type="text/x-mathjax-config">
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
+        </script></article>
 </div>
-            <div class="col-md-3 well">
+            <div class="col-md-3 ">
+            <div class="card card-body bg-light">
             <p>
             I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
             a former academic, current data scientist and engineer.  This is
@@ -630,15 +644,8 @@ understand the intuition and math behind the EM algorithm too.</p>
             Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
             </p>
 
-            <br><p>
-            <a href="../../archive.html">Archive</a>
-            </p>
-            <p>
-            <a href="../../categories/index.html">Tags</a>
-            </p>
-            <p>
-            <a href="../../rss.xml">RSS feed</a>
-            </p>
+            <br>
+</div>
 
 <!-- Begin MailChimp Signup Form -->
 <hr>
@@ -667,21 +674,26 @@ understand the intuition and math behind the EM algorithm too.</p>
 </div>
 <script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
 </div>
+            </div>
         </div>
         <!--End of body content-->
 
         <footer id="footer">
             Contents © 2020         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
+            
         </footer>
 </div>
-</div>
 
 
-            <script src="../../assets/js/all-nocdn.js"></script><!-- <script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script> --><!-- fancy dates --><script>
-    moment.locale("en");
-    fancydates(0, "YYYY-MM-DD HH:mm");
-    </script><!-- end fancy dates --><script>
+
+        <script src="../../assets/js/all-nocdn.js"></script><script>
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element) {
+            return element.getElementsByTagName('img')[0].alt;
+    }});
+    </script><script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
