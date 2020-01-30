@@ -134,7 +134,7 @@ NAVIGATION_LINKS = {
 }
 
 # Name of the theme to use.
-THEME = "bktheme"
+THEME = "bktheme2"
 
 # Below this point, everything is optional
 
