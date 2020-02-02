@@ -491,16 +491,15 @@ dimension:
 then we would need to marginalize over every dimension except that one.  We
 would likely not have enough data point to get a good estimate of
 :math:`x_{\overline{sex}}` in this case (it also might be computationally
-expensive).  Thus, we make some more simplifications, **independence** and
-**linearity**:
+expensive).  Thus, we make some more simplifications, **independence**
+and (optionally) **linearity**:
 
 .. math::
 
     f(h_x(z')) &= E[f(z)|z_S] \\
-               &= E_{z_{\bar{S}}|z_S}[f(z)] \\
-               &\approx E_{z_{\bar{S}}}[f(z)] && \text{independence} \\
-               &\approx f(z_S, E[z_{\bar{S}}]) && \text{linear} \\
-               \tag{20}
+               &= E_{z_{\bar{S}}|z_S}[f(z)] \tag{20} \\
+               &\approx E_{z_{\bar{S}}}[f(z)] && \text{independence} \tag{21} \\
+               &\approx f(z_S, E[z_{\bar{S}}]) && \text{linear} \tag{22}
 
 Independence allows us to treat each dimension separately and not care about the 
 conditional aspect of trying to find a data point that "matches" :math:`x` (such as
@@ -519,9 +518,10 @@ To summarize, we can calculate feature importance by:
         \phi_i(f,x) = \sum_{z'\subseteq x'} 
             \frac{|z'|!(M-|z'|-1)!}{M!}[f_x(z')-f_x(z' \backslash i)]
 
-2. To evaluate the model with "missing" values (:math:`f_x(z')`), we assume
-   independence and linearity, which allows us to simply use the expectation
-   (i.e. mean value) of each "missing" dimension and plug it into the model.
+2. To evaluate the model with "missing" values (:math:`f_x(z')`), we typically
+   will assume independence and (optionally) linearity, which allows us to
+   simply use the expectation (i.e. mean value) of each "missing" dimension and
+   plug it into the model.
 
 Now this leaves us with two additional questions: how do we interpret these
 feature importances?  And how can we compute these values efficiently (without
@@ -530,13 +530,116 @@ question in the next subsection and the latter in the next section.
 
 |h3| Interpreting SHAP Feature Importances |h3e|
 
+SHAP features get us close but not quite the simplicity of a linear model in
+Equation 8.  The big difference is that we are analyzing things *on a per data point*
+basis as opposed to Equation 8 where we are doing it over the entire dataset.
+Also recall that SHAP is based on Shapely values, which are always relative to
+case of "missing" values, leading us to comparisons with the expected value of
+that dimension.  Figure 1 from the SHAP paper shows a visualization of this concept.
+
 .. figure:: /images/shap_values.png
   :width: 800px
   :alt: SHAP Values
   :align: center
 
-  Figure 1: SHAP Values
+  Figure 1: SHAP Values [1]
 
+Here are some notes on interpreting this diagram:
+
+* Notice that :math:`\phi_0` is simply the expected value of the overall
+  function.  This is complete "missing"-ness.  If you are missing all features,
+  then the value you should use as a "starting point" is just the mean of the
+  prediction over the entire dataset.  Isn't this more logical (with respect to
+  the dataset) than starting at 0?
+* Looking at the calculated segments in the diagram, you can see that each
+  value is calculated as the difference between an expectation relative to some
+  conditional value and the same expectation less one variable.  This is a
+  realization of Equation 17 where 
+  :math:`f_x(z)-f_x(z \backslash i) = E[f(z) | z] - E[f(z) | z \backslash i]`.
+* The figure assumes independence and linearity because it associates 
+  :math:`\phi_i` with one particular ordering of variables 
+  (e.g. :math:`\phi_2 = E[f(z)|z_{1,2}=x_{1,2} - E[F(z)|z_1=x_1]`).  If 
+  we didn't have these assumptions, we would have to calculate :math:`\phi_i`
+  as in Equation 17 where :math:`\phi_2` would be averaged over all possible
+  subsets that include/exclude that variable.
+* The arrows corresponding to :math:`\phi_i` are sequenced additively to sum up
+  to the final prediction.  That is, SHAP generates an additive model where
+  each feature importance can be additively summed to generate the final
+  prediction (Property 1).  This is true regardless of whether you have
+  linearity or independence as shown in the diagram, or you have to sum
+  over all possible subsets as in Equation 17 (in the latter case the diagram
+  would look different).
+
+The SHAP values can be confusing because if you don't have the independence and
+linearity features it, it's not very intuitive the calculate (it's not easy visualizing
+averages over all possible subsets).  Let's take a look at the same visualization from
+the SHAP Python package [3] in Figure 2.
+
+.. figure:: /images/shap_values2.png
+  :width: 800px
+  :alt: SHAP Values
+  :align: center
+
+  Figure 2: SHAP Values from the SHAP Python package [3]
+
+We can see the same idea as Figure 1, however we don't assume any particular
+ordering, instead just stack all the positive feature importances to the left,
+and all negative to the right to arrive at our final model prediction of
+:math:`24.41`.  Rotating Figure 2 by 90 degrees and stacking all possible
+values side-by-side, we get Figure 3.
+
+.. figure:: /images/shap_values3.png
+  :width: 800px
+  :alt: SHAP Values
+  :align: center
+
+  Figure 3: SHAP Values from the SHAP Python package for entire dataset [3]
+
+Figure 3 shows all possible data points and their SHAP contributions relative to
+the overall mean (:math:`22.34`).  The plot is actually interactive so you can scroll
+over each data point and inspect the SHAP values.
+
+.. figure:: /images/shap_values4.png
+  :width: 800px
+  :alt: SHAP Values
+  :align: center
+
+  Figure 4: Summary of SHAP values over all features [3]
+
+Figure 4 shows a summary of the distribution of SHAP values over all features.
+For each feature (horizontal), you can see the distribution of feature importances.
+From the diagram we can see that :code:`LSTAT` and :code:`RM` have large effects on 
+the prediction over the entire dataset (high SHAP value shown on bottom axis).  
+High :code:`LSTAT` values affect the prediction negatively (red values on the
+left hand side), while high :code:`RM` values affect the prediction positively
+(red values on the right hand side), Similarly in the opposite direction for
+both variables.
+
+|h3| Summary |h3e|
+
+As we can see the SHAP values are very useful and have some clear advantages but
+also some limitations (a summary from [4], which has a great explanation of
+SHAP and many other techniques):
+
+* *Fairly distributed, Constrastive Explanations:* Each feature is treated the
+  same without any need for heuristics or special insight by the user.  However,
+  as mentioned above the explanations are contrastive (relative to the mean), 
+  so not exactly the same as a our simple linear regression model.
+* *Solid Theoretical Foundation*: As we can see from above, almost all of the
+  preamble was defining the theoretical foundation, culminating in Theorem 1.
+  This is nice since it also frames certain other techniques (e.g. LIME) in 
+  a new light.
+* *Global model interpretations*: Unlike other methods (e.g. LIME), SHAP can
+  provide you with global interpretations (as seen in the plots above) from the
+  individual Shapely values for each data point.  Moreover, due to the
+  theoretical foundations and the fact that Shapely values are fairly
+  distributed, we know that the global interpretation is consistent with each
+  other.
+* *Fast Implementations*: Practically, SHAP would only be useful if it were
+  fast enough to use.  Thankfully, there is a fast implementations if you are
+  using a tree-based model, which we'll discuss in the next section.  However,
+  the model agnostic versions utilize the independence assumption and compute
+  the TODO TODO TODO 
 
 
 |h2| Computing SHAP |h2e|
@@ -555,6 +658,7 @@ question in the next subsection and the latter in the next section.
 * [1] "A Unified Approach to Interpreting Model Predictions", Scott M. Lundberg, Su-In Lee, `<http://papers.nips.cc/paper/7062-a-unified-approach-to-interpreting-model-predictions>`__
 * [2] "Explainable AI for Trees: From Local Explanations to Global Understanding", Lundberg, et. al, `<https://arxiv.org/abs/1905.04610>`__
 * [3] SHAP Python Package, `<https://github.com/slundberg/shap>`__
+* [4] "Interpretable Machine Learning: A Guide for Making Black Box Models Explainable", Christoph Molnar, `<https://christophm.github.io/interpretable-ml-book/>`__
 * Wikipedia: `<https://en.wikipedia.org/wiki/Shapley_value>`__
 
 
