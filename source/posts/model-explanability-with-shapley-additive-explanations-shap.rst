@@ -638,17 +638,58 @@ SHAP and many other techniques):
 * *Fast Implementations*: Practically, SHAP would only be useful if it were
   fast enough to use.  Thankfully, there is a fast implementations if you are
   using a tree-based model, which we'll discuss in the next section.  However,
-  the model agnostic versions utilize the independence assumption and compute
-  the TODO TODO TODO 
-
+  the model agnostic versions utilize the independence assumption and can
+  be slow if you want to use it globally on the entire dataset.
 
 |h2| Computing SHAP |h2e|
 
-* Trees
-* Linear Models
-* Kernel Methods approximations
+Now that we've covered all the theoretical aspects, let's talk about how it
+works practically.  Practically, you don't need to do much: there is a great
+Python package ([3]) by the authors of the SHAP paper that takes care of
+everything.  But there are definitely nuances that you should probably know
+when using the different APIs.  Let's take a look at the common methods and see
+how they differ.
 
-|h2| Applications |h2e|
+|h3| Linear Models |h3e|
+
+For linear models, we can directly compute the SHAP values which are related to the 
+model coefficients.
+
+    **Corollary 1 (Linear SHAP)**: Given a model :math:`f(x) = \sum_{j=1}^M w_jx_j + b` then
+    :math:`\phi_0(f,x)=b` and :math:`\phi_i(f,x) = w_j(x_j-E[x_j])`.
+
+As you can see there is a direct mapping from linear coefficients to SHAP values.  The
+reason why it's not a direct mapping is that SHAP is *contrastive*, that is it's feature
+importance is compared to the mean.  That's why we have those extra terms in
+the expression.
+
+|h3| Kernel SHAP (Model Agnostic) |h3e|
+
+Many times we don't have the luxury of just using a linear model and have to use
+something more complex.  In this case, we can compute things using a model agnostic
+technique called Kernel SHAP, which is a combination of LIME ([5]) and Shapely values.
+
+The basic idea here is that *for each data point* under analysis, we will:
+
+1. Sample different *coalitions* of including the feature/not including the feature
+   i.e. :math:`z_k' \in {0,1}^M`, where :math:`M` is the number of features.
+2. Get the prediction for :math:`z_k'` by applying our mapping function :math:`f(h_x(z_k'))`,
+   using the assumption that the missing values are replaced with *randomly* sampled values
+   for that dimension (the independence assumption).  It's possible to additionally assume
+   linearity, where we would replace the value with the mean of that dimension or equivalent.
+   For example, you might do this in an image by replacing it with the mean of
+   the surrounding pixels (see [4] for more details).
+3. Compute a weight for each data point :math:`z_k'` using the SHAP kernel: 
+   :math:`\pi_{x'}(z')=\frac{(M-1)}{(M choose |z'|)|z'|(M-|z'|)}`.
+4. Fit a weighted linear model (see [1] for details)
+5. Return the coefficients of the linear model as the Shapely values (:math:`\phi_k`).
+
+The intuition here is that we can learn more about a feature if we study it in
+isolation.  That's why the SHAP kernel will weight having a single feature more
+heavily (the combination in the denominator is largest with small :math:`|z'|`).
+
+* Kernel Methods approximations
+* Trees
 
 |h2| Conclusion |h2e|
 
@@ -659,6 +700,7 @@ SHAP and many other techniques):
 * [2] "Explainable AI for Trees: From Local Explanations to Global Understanding", Lundberg, et. al, `<https://arxiv.org/abs/1905.04610>`__
 * [3] SHAP Python Package, `<https://github.com/slundberg/shap>`__
 * [4] "Interpretable Machine Learning: A Guide for Making Black Box Models Explainable", Christoph Molnar, `<https://christophm.github.io/interpretable-ml-book/>`__
+* [5] “Why should i trust you?: Explaining the predictions of any classifier”, Marco Tulio Ribeiro, Sameer Singh, and Carlos Guestrin, ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, 2016.
 * Wikipedia: `<https://en.wikipedia.org/wiki/Shapley_value>`__
 
 
