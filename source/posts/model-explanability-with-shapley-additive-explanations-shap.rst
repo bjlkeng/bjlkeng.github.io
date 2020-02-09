@@ -36,11 +36,11 @@
    </center>
 
 One of the big criticisms of modern machine learning is that it's essentially
-blackbox -- data in, prediction out, that's it.  And in some sense, how could
-it be any other way?  When you have highly non-linear with high degrees of
-interactions, how can you possibly hope to have a simple understanding of what
-the model is doing?  Well, turns out there is an interesting (and practical)
-line of research along these lines.
+a blackbox -- data in, prediction out, that's it.  And in some sense, how could
+it be any other way?  When you have a highly non-linear model with high degrees
+of interactions, how can you possibly hope to have a simple understanding of
+what the model is doing?  Well, turns out there is an interesting (and
+practical) line of research along these lines.
 
 This post will dive into the ideas of a popular technique published in the last
 few years call *SHapely Additive exPlanations* (or SHAP).  It builds upon
@@ -76,10 +76,10 @@ This is essentially the problem of a cooperative game from game theory (this is
 in contrast to the traditional non-cooperative games from game theory that most
 people are familiar with).  Formally: 
 
-    A **coalitional game** is a where there is a set :math:`P`
-    (consisting of :math:`N` players) and a *value function* :math:`v`
-    that maps subset of players to real numbers: :math:`v: 2^P \rightarrow
-    \mathbb{R}` with :math:`v(\emptyset)=0` (empty set is zero).
+    A **coalitional game** is a where there is a set :math:`N` players and a
+    *value function* :math:`v` that maps each subset of players to a payoff.
+    Formally, :math:`v: 2^N \rightarrow \mathbb{R}` with :math:`v(\emptyset)=0`
+    (empty set is zero).
 
 The value function :math:`v(S)` describes the total expected payoff
 for a subset of players :math:`S`.  For example, including a survivalist in
@@ -246,17 +246,18 @@ Let's take a look at a couple examples to get a feel for it.
 
     .. math::
          
-        \varphi_{o}(v) &= \frac{1}{N} \sum_{S \subseteq N \setminus \{i\}} 
-            {N-1 \choose |S|}^{-1} (v(S\cup \{i\}) - v(S)) \\ 
+        \varphi_{o}(v) &= \frac{1}{N} \sum_{S \subseteq N \setminus \{o\}} 
+            {N-1 \choose |S|}^{-1} (v(S\cup \{o\}) - v(S)) \\ 
         &= \frac{1}{N} \big[
             \sum_{m=1}^k
-            \sum_{S \subseteq N \setminus \{i\}, |S|=m} 
-            {N-1 \choose |S|}^{-1} (v(S\cup \{i\}) - v(S)) 
+            \sum_{S \subseteq N \setminus \{o\}, |S|=m} 
+            {N-1 \choose |S|}^{-1} (v(S\cup \{o\}) - v(S)) 
             \big] \\ 
         &= \frac{1}{N} \big[
             \sum_{m=1}^k
             {N-1 \choose |S|}^{-1} {N-1 \choose |S|} mp
-            \big] && \text{each of the inner summations is symmetric}\\ 
+            \big] && \text{each of the inner summations is symmetric}\\
+        & && \text{and } v(S)=0 \text{ since there is no owner}\\ 
         &= \frac{1}{N} \sum_{m=1}^k mp \\ 
         &= \frac{1}{k+1} \frac{k(k+1)p}{2} && \text{N=k+1}\\ 
         &= \frac{kp}{2} \\ 
@@ -288,7 +289,7 @@ to be explainable?  Take a simple linear regression for example:
 This model probably follows our intuition of an explainable model:
 each of the :math:`x_i` variables are *independent, additive*, and
 we can clearly point to a coefficient (:math:`\beta_i`) saying how it
-contributed to the overall result (:math:`y`).  But about more complex
+contributed to the overall result (:math:`y`).  But what about more complex
 models?  Even if we stick with linear models, as soon as we introduce any
 interactions, it gets much more messy:
 
@@ -313,10 +314,10 @@ explanations.  We'll get to all of that but first let's setup the problem and
 go through some definitions.
 
 What we are describing here are call **local methods** designed to explain a
-single input :math:`\bf` on a prediction model :math:`f({\bf x})`.
+single input :math:`\bf x` on a prediction model :math:`f({\bf x})`.
 When looking at a single data point, we don't really care about the level (i.e.
 value) of the feature, just how much it contributes to the overall prediction.
-To the end, let's define a binary vector of *simplified inputs* :math:`\bf x'`
+To that end, let's define a binary vector of **simplified inputs** :math:`\bf x'`
 (denoted by :math:`'`) that represents whether or not we want to include that
 feature's contribution to the overall prediction (analogous to our cooperative
 game above).  We also have a mapping function :math:`h_x({\bf x'}) = {\bf x}`
@@ -344,9 +345,9 @@ which should clarify the idea.
         {\bf v} &= (x_1, x_2) = (0.5, 1), &&y = 7 \\
         \tag{11}
 
-    Let's suppose we wanted to look at the effect of :math:`x_1`, for these two
-    data points we would look at the vector :math:`{\bf z'} = [1, 0]` 
-    (where :math:`z \in {u, v}`) and use their :math:`h` mapping to find the
+    Let's suppose we wanted to look at the effect of :math:`x_1` for these two
+    data points.  We would look at the vector :math:`{\bf z'} = [1, 0]` 
+    (where :math:`z \in \{u, v\}`) and use their :math:`h` mapping to find the
     original values:
     
     .. math::
@@ -356,7 +357,7 @@ which should clarify the idea.
         \tag{12}
 
     where we represent missing values with "n/a" (we'll get to this later).  As
-    you can see, this formalism is just to allow us to speak about whether we
+    you can see, this formalism allows us to speak about whether we
     should include a feature or not (:math:`\bf z'`) and their equivalent
     values (:math:`\bf u, v`).
 
@@ -434,7 +435,7 @@ explainability techniques.
 
 These three properties lead us to this theorem:
 
-    **Theorem 1** The only possible explanation model :math:`g` following a
+    **Theorem 1** The only possible explanation model :math:`g` following an
     additive feature attribution method and satisfying Properties 1, 2, and 3
     are the shapely values from Equation 2:
 
@@ -456,11 +457,11 @@ attribution method called SHapely Additive exPlanations (SHAP).  From Theorem
 1-3 for a additive feature attribution model.  The big question is how do we
 calculate the Shapely values (and what do they intuitively mean)?
 
-Recall that Shapely rely on the value function, :math:`v(S)`, which determine
+Recall that Shapely values rely on the value function, :math:`v(S)`, which determine
 a mapping from a subset of features to an expected "payoff".  In the case of
 Equation 17, our "payoff" is the model prediction :math:`f_x(z')` i.e.
 the prediction of our model at point :math:`x` with subset of features
-:math:`'z`.  Implicit in this definition is that we can evaluate our model with
+:math:`z'`.  Implicit in this definition is that we can evaluate our model with
 just a subset of features, which most models do *not* support.  So how does SHAP 
 deal with it? Expectations!  
 
@@ -475,24 +476,29 @@ binary vector to the actual feature in data point :math:`x`):
                &= E_{z_{\bar{S}}|z_S}[f(z)] \\
     \tag{18}
 
-Of course, most models don't have an explicit probability density attached to them
-so we have to approximate it using our dataset.  However, since our dataset is probably
-not exhaustive, we probably won't be able to get a good estimate of
-:math:`E_{z_{\bar{S}}|z_S}[\cdot]` because this means for every missing value
-combination, we want to marginalize over the non-missing values.  For example,
-if our data point is describing a customer with and we had one missing
-dimension:
+There are two main issues with this.  First, most models don't have an explicit
+probability density, nor do they know how to deal with missing values, so we
+have to approximate it using our dataset.  Depending on the model, this may be
+easy or hard to compute.  For example, if our data point is describing a
+customer and we had one missing dimension, it might look like this:
 
 .. math::
-    {\bf x}&={x_{sex}=M, x_{age=18}, x_{spending}=100, x_{recency}=2, x_{location}=City, \ldots} \\
-    {\bf x_{\overline{sex}}}&={x_{sex}=N/A, x_{age=18}, x_{spending}=100, x_{recency}=2, x_{location}=City, \ldots} \\ 
+    {\bf x}&=\{x_{sex}=M, x_{age=18}, x_{spending}=100, x_{recency}=2, x_{location}=City, \ldots\} \\
+    {\bf x_{\overline{sex}}}&=\{x_{sex}=N/A, x_{age=18}, x_{spending}=100, x_{recency}=2, x_{location}=City, \ldots\} \\ 
     \tag{19}
 
-then we would need to marginalize over every dimension except that one.  We
-would likely not have enough data point to get a good estimate of
-:math:`x_{\overline{sex}}` in this case (it also might be computationally
-expensive).  Thus, we make some more simplifications, **independence**
-and (optionally) **linearity**:
+To compute the value of the function missing the feature :math:`x_{sex}`, we
+could simply just average over all the data points that included it, holding
+all the other variables constant.  This would approximate the expectation
+:math:`E[f(z)|z_S]`. Of course, our estimate of this value could be wildly off
+if you don't have enough data.
+
+The second issue is that if you look back at Equation 17 you realize that we
+would have to compute this expectation for *every* subset of features, which is
+exponential in the number of features!  This is definitely a big barrier to 
+any practical application of this technique.  Thus, to deal with these two
+problems we will often make two simplifications: **independence** and
+**linearity**.
 
 .. math::
 
@@ -503,7 +509,8 @@ and (optionally) **linearity**:
 
 Independence allows us to treat each dimension separately and not care about the 
 conditional aspect of trying to find a data point that "matches" :math:`x` (such as
-in Equation 19}.
+in Equation 19).  This also solves the computation problem because we can compute
+each dimension separately, rather than computing every subset.
 Linearity allows us to simply compute the expectation (:math:`E[z_{\bar{S}}]`)
 over each dimension of :math:`x` separately and plug it into the model (as
 opposed to evaluating the model each time over every dimension combination in
@@ -518,24 +525,25 @@ To summarize, we can calculate feature importance by:
         \phi_i(f,x) = \sum_{z'\subseteq x'} 
             \frac{|z'|!(M-|z'|-1)!}{M!}[f_x(z')-f_x(z' \backslash i)]
 
-2. To evaluate the model with "missing" values (:math:`f_x(z')`), we typically
-   will assume independence and (optionally) linearity, which allows us to
-   simply use the expectation (i.e. mean value) of each "missing" dimension and
-   plug it into the model.
+2. To evaluate the model with "missing" values (:math:`f_x(z')`), we will use
+   our dataset to approximate the expectation :math:`f_x(z') = E[f(z)|z_S]`.
+   We will often assume independence and  linearity, which allows us to greatly
+   simplify the computation needed.
 
 Now this leaves us with two additional questions: how do we interpret these
-feature importances?  And how can we compute these values efficiently (without
-running through all possible subsets of features).  We'll get to the first
-question in the next subsection and the latter in the next section.
+feature importances?  And how can we compute these values efficiently for
+different types of models.  We'll get to the first question in the next
+subsection and the latter in the next section.
 
 |h3| Interpreting SHAP Feature Importances |h3e|
 
 SHAP features get us close but not quite the simplicity of a linear model in
 Equation 8.  The big difference is that we are analyzing things *on a per data point*
-basis as opposed to Equation 8 where we are doing it over the entire dataset.
-Also recall that SHAP is based on Shapely values, which are always relative to
-case of "missing" values, leading us to comparisons with the expected value of
-that dimension.  Figure 1 from the SHAP paper shows a visualization of this concept.
+basis as opposed to Equation 8 where we are doing it globally over the entire dataset.
+Also recall that SHAP is based on Shapely values, which are averages over situations
+with and without the variable, leading us to *contrastive* comparisons with the
+base case (no features/players).  Figure 1 from the SHAP paper shows a
+visualization of this concept.
 
 .. figure:: /images/shap_values.png
   :width: 800px
@@ -548,17 +556,20 @@ Here are some notes on interpreting this diagram:
 
 * Notice that :math:`\phi_0` is simply the expected value of the overall
   function.  This is complete "missing"-ness.  If you are missing all features,
-  then the value you should use as a "starting point" is just the mean of the
-  prediction over the entire dataset.  Isn't this more logical (with respect to
-  the dataset) than starting at 0?
-* Looking at the calculated segments in the diagram, you can see that each
+  then the value you should use as a "starting point" or base case is just the
+  mean of the prediction over the entire dataset.  Isn't this more logical
+  (with respect to the dataset) than starting at 0?  This is *sort of* analgous
+  to the linear regression case except the intercept in linear regression is
+  the mean when all inputs are zero.  We have to have a different definition
+  here because missing a features is not the same thing as zeroing it out.
+* Looking at the calculated line segments in the diagram, you can see that each
   value is calculated as the difference between an expectation relative to some
   conditional value and the same expectation less one variable.  This is a
   realization of Equation 17 where 
   :math:`f_x(z)-f_x(z \backslash i) = E[f(z) | z] - E[f(z) | z \backslash i]`.
 * The figure assumes independence and linearity because it associates 
   :math:`\phi_i` with one particular ordering of variables 
-  (e.g. :math:`\phi_2 = E[f(z)|z_{1,2}=x_{1,2} - E[F(z)|z_1=x_1]`).  If 
+  (e.g. :math:`\phi_2 = E[f(z)|z_{1,2}]=x_{1,2} - E[F(z)|z_1=x_1]`).  If 
   we didn't have these assumptions, we would have to calculate :math:`\phi_i`
   as in Equation 17 where :math:`\phi_2` would be averaged over all possible
   subsets that include/exclude that variable.
@@ -571,9 +582,22 @@ Here are some notes on interpreting this diagram:
   would look different).
 
 The SHAP values can be confusing because if you don't have the independence and
-linearity features it, it's not very intuitive the calculate (it's not easy visualizing
-averages over all possible subsets).  Let's take a look at the same visualization from
-the SHAP Python package [3] in Figure 2.
+linearity assumptions, it's not very intuitive the calculate (it's not easy
+visualizing averages over all possible subsets).  The important point here is
+that they are *contrastive*, which means we can compare their relative value to
+each other fairly *but* they don't have the same absolute interpretations as
+linear regression.  This is most clearly seen by the fact that every
+:math:`\phi_{i\neq0}` is relative to :math:`\phi_0`, the mean prediction of
+your dataset.  Having a feature importance of :math:`\phi_i=10` does not mean
+including the feature contributes :math:`10` to your prediction, it means
+*relative* to the average prediction, it adds :math:`10`.  I suspect that there
+is some manipulation you can do to approximately get that "absolute" type of
+feature importance that we see in linear regression but I haven't fully figured
+it out yet.
+
+
+Let's take a look at the same visualization as above from the SHAP Python
+package [3] in Figure 2.
 
 .. figure:: /images/shap_values2.png
   :width: 800px
