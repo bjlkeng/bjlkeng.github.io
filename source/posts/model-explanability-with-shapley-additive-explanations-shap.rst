@@ -114,7 +114,7 @@ every possible situation. Equation 1 shows this intuition the best.
 Equation 2 is a simplification that you might see more often, which is just
 expanding the combination and simplifying.
 
-Shapely vaules are also a very nice because they are the *only* solution with
+Shapely values are also a very nice because they are the *only* solution with
 these desirable properties:
 
 1. **Efficiency**: The sum of Shapely values of all agents is equal to the total for the grand coalition:
@@ -425,7 +425,7 @@ support missing feature columns.  We'll get to it in the next section.
     for all inputs :math:`z'\in {0,1}^M` then :math:`\phi_i(f', x) \geq \phi_i(f,x)`.
 
 This is a more important property that essentially says: if we have two
-(point-wise) models (:math:`f, f'`) and :math:`f'` consistently overweights a
+(point-wise) models (:math:`f, f'`) and :math:`f'` consistently over weights a
 certain feature :math:`i` in its prediction compared to :math:`f`, we would
 want the coefficient of our explanation model for :math:`f'` to be bigger than
 :math:`f` (i.e. :math:`\phi_i(f', x) \geq \phi_i(f,x)`).  It's a sensible
@@ -620,7 +620,7 @@ both variables.
 As we can see the SHAP values are very useful and have some clear advantages but
 also some limitations:
 
-* *Fairly distributed, Constrastive Explanations:* Each feature is treated the
+* *Fairly distributed, Contrastive Explanations:* Each feature is treated the
   same without any need for heuristics or special insight by the user.  However,
   as mentioned above the explanations are contrastive (relative to the mean), 
   so not exactly the same as a our simple linear regression model.
