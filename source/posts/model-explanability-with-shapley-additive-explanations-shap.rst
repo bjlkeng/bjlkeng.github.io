@@ -618,8 +618,7 @@ both variables.
 |h3| Summary |h3e|
 
 As we can see the SHAP values are very useful and have some clear advantages but
-also some limitations (a summary from [4], which has a great explanation of
-SHAP and many other techniques):
+also some limitations:
 
 * *Fairly distributed, Constrastive Explanations:* Each feature is treated the
   same without any need for heuristics or special insight by the user.  However,
@@ -640,6 +639,9 @@ SHAP and many other techniques):
   using a tree-based model, which we'll discuss in the next section.  However,
   the model agnostic versions utilize the independence assumption and can
   be slow if you want to use it globally on the entire dataset.
+
+If you want a more in-depth treatment, [4] is an amazing reference summarizing
+SHAP and many other techniques.
 
 |h2| Computing SHAP |h2e|
 
@@ -676,23 +678,95 @@ The basic idea here is that *for each data point* under analysis, we will:
 2. Get the prediction for :math:`z_k'` by applying our mapping function :math:`f(h_x(z_k'))`,
    using the assumption that the missing values are replaced with *randomly* sampled values
    for that dimension (the independence assumption).  It's possible to additionally assume
-   linearity, where we would replace the value with the mean of that dimension or equivalent.
-   For example, you might do this in an image by replacing it with the mean of
-   the surrounding pixels (see [4] for more details).
+   linearity too, where we would replace the value with the mean of that
+   dimension or equivalent.  For example, you might do this in an image by
+   replacing it with the mean of the surrounding pixels (see [4] for more
+   details).
 3. Compute a weight for each data point :math:`z_k'` using the SHAP kernel: 
    :math:`\pi_{x'}(z')=\frac{(M-1)}{(M choose |z'|)|z'|(M-|z'|)}`.
 4. Fit a weighted linear model (see [1] for details)
 5. Return the coefficients of the linear model as the Shapely values (:math:`\phi_k`).
 
 The intuition here is that we can learn more about a feature if we study it in
-isolation.  That's why the SHAP kernel will weight having a single feature more
-heavily (the combination in the denominator is largest with small :math:`|z'|`).
+isolation.  That's why the SHAP kernel will weight having a single feature,
+or correspondingly M-1 features, more heavily (the combination in the
+denominator is largest when :math:`M choose |z'|` is small).  When
+:math:`|z'|=1` or :math:`|z'|=M` the expression has a divide by zero, but you
+can just drop these terms in general (that's how I interpret what the paper
+says anyways).
 
-* Kernel Methods approximations
-* Trees
+The good part is that this technique works with *any* model.  However, it's relatively slow
+since we have to sample a bunch of values for each data point in our training set.  And
+we have to use the independence assumption, which can be violated when our actual model
+is not independent of the variables.  This might lead to violations in the local accuracy
+or consistency properties guarantees.
+
+|h3| TreeSHAP |h3e|
+
+TreeSHAP [2] is a decision tree-specific algorithm to compute SHAP.  Due to the
+nature of decision trees, it doesn't need to use the independence (or linear)
+assumptions.  Furthermore, due to some clever optimization, it can actually be
+computed in :math:`O(TLD^2)` time where :math:`T` is the number of trees,
+:math:`L` is the number of leaves and :math:`D` is the depth.  So as long as
+you don't have gigantic trees, it scales very well.
+
+The crux of the algorithm is computing precisely :math:`E[f(x)|x_s]` (Equation 20),
+which can be done recursively and shown below in Figure 5.  Vectors :math:`a` and :math:`b`
+represent the left and right node indexes for each internal node, :math:`t` the
+thresholds for each node, and :math:`d` is the vector of features used for
+splitting.  :math:`r` represents the cover for each vector i.e. how many data
+samples are in that sub-tree.  
+
+.. figure:: /images/shap_treeshap.png
+  :width: 800px
+  :alt: Naive TreeSHAP Algorithm
+  :align: center
+
+  Figure 5: Naive TreeSHAP Algorithm [2]
+
+This naive algorithm is pretty straight-forward to understand.  It recursively
+traverses the tree and either follows a branch if you are conditioning on a
+variable (:math:`x_s`), otherwise computes a weighted average of the two
+branches based on the number of data samples (the expectation).  It works
+because decision trees are explicitly sequential in how they compute their
+values, so "skipping" over a missing variable is easy: just ignore that level
+of the tree by doing a weighted average over it.
+
+One thing you'll notice is that computing SHAP values using Figure 5's
+algorithm is very expensive to calculate, on the order of :math:`O(TLM2^M)`.
+Exponential in the number of features!  The exponential part comes from the
+fact that we still need to compute all subsets of :math:`M` features, which
+means running the algorithm :math:`2^M` times.  It turns out we can do better.
+
+A more complex algorithm which is shown in [2] tries to keep track of all
+possible subsets as it traverses down the tree.  The algorithm is quite complex
+and, honestly, I don't quite understand (or care to understand) all the details
+at this point so I'll leave it as an exercise to the reader.  The more
+interesting thing about this algorithm is that it runs in :math:`O(TLD^2)` time
+and :math:`O(D^2+M)` memory.  Since we're only doing one traversal of the tree,
+we get rid of the exponential number of calls but require more computation to 
+account for all the different subsets.  The extension to simple ensembles
+of trees is pretty straight forward.  Since common algorithms like random
+forests or gradient boosted trees are additive, we can simply compute the SHAP
+value for each tree independently and add them up.
+
+|h3| Other SHAP Methods |h3e|
+
+The papers by the original authors in [1, 2] show a few other variations to
+deal with other model like neural networks (Deep SHAP), SHAP over the max
+function, and quantifying local interaction effects.
 
 |h2| Conclusion |h2e|
 
+With all the focus on deep learning in the recent years, it's refreshing to see
+really impactful research in other fields, especially the burgeoning field of
+explainable models.  It's especially important in this day and age of blackbox
+models.  I also like the fact that there was some proper algorithmic work on
+the TreeSHAP aspect of speeding up a naive algorithm from exponential to
+low-order polynomial, it reminds me of my grad school days.  Machine learning
+is definitely a very wide field and the reason why it's so interesting is that
+I have to constantly pull from so many different disciplines to understand (to
+a satisfactory degree).  See you next time!
 
 |h2| References |h2e|
 
@@ -702,7 +776,5 @@ heavily (the combination in the denominator is largest with small :math:`|z'|`).
 * [4] "Interpretable Machine Learning: A Guide for Making Black Box Models Explainable", Christoph Molnar, `<https://christophm.github.io/interpretable-ml-book/>`__
 * [5] “Why should i trust you?: Explaining the predictions of any classifier”, Marco Tulio Ribeiro, Sameer Singh, and Carlos Guestrin, ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, 2016.
 * Wikipedia: `<https://en.wikipedia.org/wiki/Shapley_value>`__
-
-
 
 .. [1] This treatment of Shapely values is primarily a re-hash of the corresponding Wikipedia article.  It's actually written quite well, so you should go check it out!
