@@ -596,8 +596,8 @@ feature importance that we see in linear regression but I haven't fully figured
 it out yet.
 
 
-Let's take a look at the same visualization as above from the SHAP Python
-package [3] in Figure 2.
+Let's take a look at the same visualization as above but from the visualization
+that the SHAP Python package [3] provides (Figure 2):
 
 .. figure:: /images/shap_values2.png
   :width: 800px
@@ -607,7 +607,7 @@ package [3] in Figure 2.
   Figure 2: SHAP Values from the SHAP Python package [3]
 
 We can see the same idea as Figure 1, however we don't assume any particular
-ordering, instead just stack all the positive feature importances to the left,
+ordering, instead we just stack all the positive feature importances to the left,
 and all negative to the right to arrive at our final model prediction of
 :math:`24.41`.  Rotating Figure 2 by 90 degrees and stacking all possible
 values side-by-side, we get Figure 3.
@@ -620,8 +620,9 @@ values side-by-side, we get Figure 3.
   Figure 3: SHAP Values from the SHAP Python package for entire dataset [3]
 
 Figure 3 shows all possible data points and their SHAP contributions relative to
-the overall mean (:math:`22.34`).  The plot is actually interactive so you can scroll
-over each data point and inspect the SHAP values.
+the overall mean (:math:`22.34`).  The plot is actually interactive (when
+created in a notebook) so you can scroll over each data point and inspect the
+SHAP values.
 
 .. figure:: /images/shap_values4.png
   :width: 800px
@@ -631,7 +632,7 @@ over each data point and inspect the SHAP values.
   Figure 4: Summary of SHAP values over all features [3]
 
 Figure 4 shows a summary of the distribution of SHAP values over all features.
-For each feature (horizontal), you can see the distribution of feature importances.
+For each feature (horizontal rows), you can see the distribution of feature importances.
 From the diagram we can see that :code:`LSTAT` and :code:`RM` have large effects on 
 the prediction over the entire dataset (high SHAP value shown on bottom axis).  
 High :code:`LSTAT` values affect the prediction negatively (red values on the
@@ -639,7 +640,7 @@ left hand side), while high :code:`RM` values affect the prediction positively
 (red values on the right hand side), Similarly in the opposite direction for
 both variables.
 
-|h3| Summary |h3e|
+|h3| SHAP Summary |h3e|
 
 As we can see the SHAP values are very useful and have some clear advantages but
 also some limitations:
@@ -647,7 +648,7 @@ also some limitations:
 * *Fairly distributed, Contrastive Explanations:* Each feature is treated the
   same without any need for heuristics or special insight by the user.  However,
   as mentioned above the explanations are contrastive (relative to the mean), 
-  so not exactly the same as a our simple linear regression model.
+  so not exactly the same as our simple linear regression model.
 * *Solid Theoretical Foundation*: As we can see from above, almost all of the
   preamble was defining the theoretical foundation, culminating in Theorem 1.
   This is nice since it also frames certain other techniques (e.g. LIME) in 
@@ -685,9 +686,9 @@ model coefficients.
     :math:`\phi_0(f,x)=b` and :math:`\phi_i(f,x) = w_j(x_j-E[x_j])`.
 
 As you can see there is a direct mapping from linear coefficients to SHAP values.  The
-reason why it's not a direct mapping is that SHAP is *contrastive*, that is it's feature
-importance is compared to the mean.  That's why we have those extra terms in
-the expression.
+reason why it's not a direct mapping is that SHAP is *contrastive*, that is its feature
+importance is compared to the mean.  That's why we have that extra term in
+the SHAP value :math:`\phi_i`.
 
 |h3| Kernel SHAP (Model Agnostic) |h3e|
 
@@ -698,14 +699,14 @@ technique called Kernel SHAP, which is a combination of LIME ([5]) and Shapely v
 The basic idea here is that *for each data point* under analysis, we will:
 
 1. Sample different *coalitions* of including the feature/not including the feature
-   i.e. :math:`z_k' \in {0,1}^M`, where :math:`M` is the number of features.
-2. Get the prediction for :math:`z_k'` by applying our mapping function :math:`f(h_x(z_k'))`,
-   using the assumption that the missing values are replaced with *randomly* sampled values
-   for that dimension (the independence assumption).  It's possible to additionally assume
-   linearity too, where we would replace the value with the mean of that
-   dimension or equivalent.  For example, you might do this in an image by
-   replacing it with the mean of the surrounding pixels (see [4] for more
-   details).
+   i.e. :math:`z_k' \in \{0,1\}^M`, where :math:`M` is the number of features.
+2. For each sample, get the prediction of :math:`z_k'` by applying our mapping
+   function on our model (i.e. :math:`f(h_x(z_k'))`), using the assumption
+   that the missing values are replaced with *randomly* sampled values for that
+   dimension (the independence assumption).  It's possible to additionally
+   assume linearity too, where we would replace the value with the mean of that
+   dimension or equivalent.  For example, in an image you might replace a pixel
+   with the mean of the surrounding pixels (see [4] for more details).
 3. Compute a weight for each data point :math:`z_k'` using the SHAP kernel: 
    :math:`\pi_{x'}(z')=\frac{(M-1)}{(M choose |z'|)|z'|(M-|z'|)}`.
 4. Fit a weighted linear model (see [1] for details)
@@ -722,8 +723,8 @@ says anyways).
 The good part is that this technique works with *any* model.  However, it's relatively slow
 since we have to sample a bunch of values for each data point in our training set.  And
 we have to use the independence assumption, which can be violated when our actual model
-is not independent of the variables.  This might lead to violations in the local accuracy
-or consistency properties guarantees.
+does not have feature independence.  This might lead to violations in the local
+accuracy or consistency properties guarantees.
 
 |h3| TreeSHAP |h3e|
 
@@ -753,11 +754,11 @@ traverses the tree and either follows a branch if you are conditioning on a
 variable (:math:`x_s`), otherwise computes a weighted average of the two
 branches based on the number of data samples (the expectation).  It works
 because decision trees are explicitly sequential in how they compute their
-values, so "skipping" over a missing variable is easy: just ignore that level
-of the tree by doing a weighted average over it.
+values, so "skipping" over a missing variable is easy: just jump over that
+level of the tree by doing a weighted average over it.
 
 One thing you'll notice is that computing SHAP values using Figure 5's
-algorithm is very expensive to calculate, on the order of :math:`O(TLM2^M)`.
+algorithm is very expensive, on the order of :math:`O(TLM2^M)`.
 Exponential in the number of features!  The exponential part comes from the
 fact that we still need to compute all subsets of :math:`M` features, which
 means running the algorithm :math:`2^M` times.  It turns out we can do better.
@@ -778,18 +779,20 @@ value for each tree independently and add them up.
 
 The papers by the original authors in [1, 2] show a few other variations to
 deal with other model like neural networks (Deep SHAP), SHAP over the max
-function, and quantifying local interaction effects.
+function, and quantifying local interaction effects.  Definitely worth a look
+if you have some of these specific cases.
 
 |h2| Conclusion |h2e|
 
 With all the focus on deep learning in the recent years, it's refreshing to see
 really impactful research in other fields, especially the burgeoning field of
 explainable models.  It's especially important in this day and age of blackbox
-models.  I also like the fact that there was some proper algorithmic work on
-the TreeSHAP aspect of speeding up a naive algorithm from exponential to
-low-order polynomial, it reminds me of my grad school days.  Machine learning
-is definitely a very wide field and the reason why it's so interesting is that
-I have to constantly pull from so many different disciplines to understand (to
+models.  I also like the fact that there was some proper algorithmic work with
+the TreeSHAP paper.  The work of speeding up a naive algorithm from exponential
+to low-order polynomial reminds me of my grad school days (not that I ever had
+a result like that, just the focus on algorithmic work).  Machine learning is
+definitely a very wide field and the reason why it's so interesting is that I
+have to constantly pull from so many different disciplines to understand it (to
 a satisfactory degree).  See you next time!
 
 |h2| References |h2e|
