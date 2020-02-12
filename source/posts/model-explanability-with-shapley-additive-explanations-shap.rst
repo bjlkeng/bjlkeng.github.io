@@ -1,6 +1,6 @@
 .. title: Model Explainability with SHapley Additive exPlanations (SHAP)
 .. slug: model-explanability-with-shapley-additive-explanations-shap
-.. date: 2019-11-01 07:24:22 UTC-04:00
+.. date: 2020-02-12 07:24:22 UTC-04:00
 .. tags: explainability, SHAP, game theory, mathjax
 .. category: 
 .. link: 
@@ -46,10 +46,9 @@ This post will dive into the ideas of a popular technique published in the last
 few years call *SHapely Additive exPlanations* (or SHAP).  It builds upon
 previous work in this area by providing a unified framework to think
 about explanation models as well as a new technique with this framework that
-uses Shapely values.  I'll go over the math, the intuition, and some of the
-more interesting applications. No need for an implementation because there is
-already a nice little Python package! Confused yet?  Keep reading
-and I'll *explain*.
+uses Shapely values.  I'll go over the math, the intuition, and how it works.
+No need for an implementation because there is already a nice little Python
+package! Confused yet?  Keep reading and I'll *explain*.
 
 .. TEASER_END
 
@@ -85,14 +84,14 @@ The value function :math:`v(S)` describes the total expected payoff
 for a subset of players :math:`S`.  For example, including a survivalist in
 your desert island coalition will likely result in better outcome (payoff) than
 including me.  This function answers the second question: what outcome can
-we reasonably expect (given a subset of players).
+we reasonably expect (given a subset of players)?
 
 So far we've just setup the problem though.  Now we want to answer the
 question: what should be everyone's "fair" distribution of the total payoff?
 In other words, the first question: how much does each person contribute to
 the overall goal.  Clearly, the survivalist should get more more of the payout
 than me, but how much more?  Is there only one "unique" solution?  The answer
-lies in shapely values.
+lies in Shapely values.
 
 |h3| Shapely Values [1]_ |h3e|
 
@@ -110,7 +109,9 @@ is defined as:
         \frac{|S|!(N-|S|-1)!}{N!} (v(S\cup \{i\}) - v(S)) \tag{2}
 
 This definition is quite intuitive: average over your marginal contribution in
-every possible situation. Equation 1 shows this intuition the best.
+every possible situation. Equation 1 shows this intuition the best where you 
+take the incremental benefit of including player :math:`i` and average over
+every possible subset that could include player :math:`i`.
 Equation 2 is a simplification that you might see more often, which is just
 expanding the combination and simplifying.
 
@@ -144,7 +145,7 @@ these desirable properties:
 
 All of these properties seem like pretty obvious things you would want to have:
 
-* **Efficiency**: Of course, you want your distribution to players to
+* **Efficiency**: Of course, you want your distribution across players to
   actually sum up to the total reward.
 * **Symmetry**: If two people contribute the same to the game, you want
   them to have the same payoff.
@@ -211,7 +212,7 @@ Let's take a look at a couple examples to get a feel for it.
         \varphi_3(v) = v(N) - \varphi_1(v) - \varphi_3(v) 
         = 1 - \frac{1}{6} - \frac{1}{6}
         = \frac{2}{3} \\
-        \tag{4}
+        \tag{5}
 
     As expected, since Player 3 has the only right handed glove, so their
     split of the profits should be 4 times bigger than the other players.
@@ -219,7 +220,7 @@ Let's take a look at a couple examples to get a feel for it.
 
 .. admonition:: Example 2: Business
 
-    Consider an owner of the business, denoted by :math:`o`, who provides the
+    Consider an owner of a business, denoted by :math:`o`, who provides the
     initial investment in the business.  If there is no initial investment,
     then there is no business (zero return).  The business also has :math:`k`
     workers :math:`w_1, \ldots, w_k`, each of whom contribute :math:`p` to the
@@ -227,7 +228,7 @@ Let's take a look at a couple examples to get a feel for it.
 
     .. math::
 
-        N = \{o, w_1, \ldots, w_k\} \tag{5}
+        N = \{o, w_1, \ldots, w_k\} \tag{6}
 
     The value function for this game is:
 
@@ -237,7 +238,7 @@ Let's take a look at a couple examples to get a feel for it.
             mp & \text{if } o \in S \\
             0 & \text{otherwise }
         \end{cases} \\
-        \tag{6}
+        \tag{7}
 
     where :math:`m` is the number of players in :math:`S \setminus o`.
 
@@ -261,7 +262,7 @@ Let's take a look at a couple examples to get a feel for it.
         &= \frac{1}{N} \sum_{m=1}^k mp \\ 
         &= \frac{1}{k+1} \frac{k(k+1)p}{2} && \text{N=k+1}\\ 
         &= \frac{kp}{2} \\ 
-        \tag{7}
+        \tag{8}
 
     By efficiency and symmetry, the rest of the k workers get the rest of the
     :math:`\frac{kp}{2}` profits (total profits is :math:`kp`), and thus each
@@ -284,20 +285,20 @@ to be explainable?  Take a simple linear regression for example:
 
 .. math::
 
-    y = \beta_0 + \beta_1 x_1 + \ldots + \beta_n x_n  \tag{8}
+    y = \beta_0 + \beta_1 x_1 + \ldots + \beta_n x_n  \tag{9}
 
 This model probably follows our intuition of an explainable model:
 each of the :math:`x_i` variables are *independent, additive*, and
 we can clearly point to a coefficient (:math:`\beta_i`) saying how it
 contributed to the overall result (:math:`y`).  But what about more complex
 models?  Even if we stick with linear models, as soon as we introduce any
-interactions, it gets much more messy:
+interactions, it gets messy:
 
 .. math::
 
     y = \beta_0 + \sum_{i=1}^n \beta_i x_i 
         + \sum_{i=1}^{n-1} \sum_{j>i}^{n} \beta_{i,j}x_i x_j
-    \tag{9}
+    \tag{10}
 
 In this case, how much has :math:`x_i` contributed to the overall prediction?
 I have no idea and the reason is that my intuition expects the variables to be
@@ -308,15 +309,15 @@ So far we've been trying to explain the model as a whole.  What if we did
 something simpler?  What if instead of trying to explain the entire model,
 we took on a simpler problem: explain a single data point.  Of course, we would
 want some additional properties, namely, that we can interpret it like the
-simple linear regression in Equation 8, that there is some guarantee of local
+simple linear regression in Equation 9, that there is some guarantee of local
 accuracy, and probably some guarantee that similar models would produce similar
 explanations.  We'll get to all of that but first let's setup the problem and
 go through some definitions.
 
-What we are describing here are call **local methods** designed to explain a
+What we are describing here are called **local methods** designed to explain a
 single input :math:`\bf x` on a prediction model :math:`f({\bf x})`.
-When looking at a single data point, we don't really care about the level (i.e.
-value) of the feature, just how much it contributes to the overall prediction.
+When looking to explain a single data point, we don't really care about the level (i.e.
+value) of a feature, just how much its presence contributes to the overall prediction.
 To that end, let's define a binary vector of **simplified inputs** :math:`\bf x'`
 (denoted by :math:`'`) that represents whether or not we want to include that
 feature's contribution to the overall prediction (analogous to our cooperative
@@ -325,7 +326,7 @@ that translates this binary vector to the equivalent values
 for the data point :math:`\bf x`.  Notice that this mapping function
 :math:`h_x(\cdot)` is *specific* to data point :math:`x` -- you'll have one of
 these functions for every data point.
-It's a bit confusing to write out in words so let's take a look at an example,
+It's a bit confusing to write out in words so let's take a look at an example
 which should clarify the idea.
 
 .. admonition:: Example 3: Simplified Inputs
@@ -335,7 +336,7 @@ which should clarify the idea.
 
     .. math::
 
-        y = 1 + 2 x_1 + 3 x_2 + 4 x_1 x_2  \tag{10}
+        y = 1 + 2 x_1 + 3 x_2 + 4 x_1 x_2  \tag{11}
 
     Let's look at two data points:
 
@@ -343,7 +344,7 @@ which should clarify the idea.
 
         {\bf u} &= (x_1, x_2) = (-1, -0.5), &&y = -0.5 \\
         {\bf v} &= (x_1, x_2) = (0.5, 1), &&y = 7 \\
-        \tag{11}
+        \tag{12}
 
     Let's suppose we wanted to look at the effect of :math:`x_1` for these two
     data points.  We would look at the vector :math:`{\bf z'} = [1, 0]` 
@@ -354,18 +355,18 @@ which should clarify the idea.
 
         h_{\bf u}({\bf z'}) = h_{\bf u}([1, 0]) = [-1, n/a] \\
         h_{\bf v}({\bf z'}) = h_{\bf v}([1, 0]) = [0.5, n/a] \\
-        \tag{12}
+        \tag{13}
 
     where we represent missing values with "n/a" (we'll get to this later).  As
     you can see, this formalism allows us to speak about whether we
-    should include a feature or not (:math:`\bf z'`) and their equivalent
-    values (:math:`\bf u, v`).
+    should include a feature or not and their equivalent
+    values.
 
 Now that we have these definitions, our end goal is to essentially build
 a new *explanation model*, :math:`g({\bf z'})` that ensures that 
 :math:`g({\bf z'}) \approx f(h_{\bf x}({\bf z'}))` whenever 
 :math:`{\bf z'} \approx {\bf x'}`.  In particular, we want this explanation
-model to be simple like our linear regression in Equation 8.  Thus, let's define
+model to be simple like our linear regression in Equation 9.  Thus, let's define
 this type of model:
 
     **Additive Feature Attribution Methods** have an explanation model that
@@ -373,12 +374,12 @@ this type of model:
 
     .. math::
 
-        g({\bf z'}) = \phi_0 + \sum_{i=1}^M \phi_i z_i' \tag{13}
+        g({\bf z'}) = \phi_0 + \sum_{i=1}^M \phi_i z_i' \tag{14}
 
     where :math:`z' \in \{0,1\}^M`, :math:`M` is the number of simplified input
     features and :math:`\phi_i \in \mathbb{R}`.
 
-This essentially captures our intuition on how to explain (in this case) a data
+This essentially captures our intuition on how to explain (in this case) a single data
 point: additive and independent.  Next, we'll look at some desirable properties
 that we want to maintain in this mapping.
 
@@ -391,7 +392,7 @@ is some guarantee of local accuracy:
 
     .. math::
 
-        f(x) = g({\bf x'}) = \phi_0 + \sum_{i=1}^M \phi_i x_i' \tag{14}
+        f(x) = g({\bf x'}) = \phi_0 + \sum_{i=1}^M \phi_i x_i' \tag{15}
 
     The explanation model :math:`g` matches the original model when :math:`x =
     h_x(x')`, where :math:`\phi_0 = h_x({\bf 0})` represents the model output
@@ -399,13 +400,13 @@ is some guarantee of local accuracy:
 
 All this property is saying is that if you pass in the original data point
 with all features included (:math:`x`), your explanation model (:math:`g`) should
-return the original value of your model, seems reasonable.
+return the original value of your model (:math:`f`), seems reasonable.
 
     **Property 2 (Missingness)**
 
     .. math::
 
-        x_i' = 0 \implies \phi_i = 0 \tag{15}
+        x_i' = 0 \implies \phi_i = 0 \tag{16}
 
     Missing input features in the original data point (:math:`x_i`) have no
     attributed impact.
@@ -421,13 +422,13 @@ support missing feature columns.  We'll get to it in the next section.
     
     .. math::
 
-        f_x'(z')-f_x'(z' \backslash i) \geq f_x(z')-f_x(z' \backslash i) \tag{16}
+        f_x'(z')-f_x'(z' \backslash i) \geq f_x(z')-f_x(z' \backslash i) \tag{17}
 
     for all inputs :math:`z'\in {0,1}^M` then :math:`\phi_i(f', x) \geq \phi_i(f,x)`.
 
 This is a more important property that essentially says: if we have two
-(point-wise) models (:math:`f, f'`) and :math:`f'` consistently over weights a
-certain feature :math:`i` in its prediction compared to :math:`f`, we would
+(point-wise) models (:math:`f, f'`) and feature :math:`i` consistently
+contributes more to the output in :math:`f'` compared to :math:`f`, we would
 want the coefficient of our explanation model for :math:`f'` to be bigger than
 :math:`f` (i.e. :math:`\phi_i(f', x) \geq \phi_i(f,x)`).  It's a sensible
 requirement that allows us to fairly compare different models using the same
@@ -437,12 +438,12 @@ These three properties lead us to this theorem:
 
     **Theorem 1** The only possible explanation model :math:`g` following an
     additive feature attribution method and satisfying Properties 1, 2, and 3
-    are the shapely values from Equation 2:
+    are the Shapely values from Equation 2:
 
     .. math::
 
         \phi_i(f,x) = \sum_{z'\subseteq x'} 
-            \frac{|z'|!(M-|z'|-1)!}{M!}[f_x(z')-f_x(z' \backslash i)] \tag{17}
+            \frac{|z'|!(M-|z'|-1)!}{M!}[f_x(z')-f_x(z' \backslash i)] \tag{18}
     
 This is a bit of a surprising result since it's unique.  Interestingly, some
 previous methods (e.g. Lime) don't actually satisfy all of these conditions
@@ -452,29 +453,29 @@ Shapely values are such a nice solution to this feature attribution problem.
 |h3| SHapely Additive exPlanations (SHAP) |h3e|
 
 If it wasn't clear already, we're going to use Shapely values as our feature
-attribution method called SHapely Additive exPlanations (SHAP).  From Theorem
-1, we know that Shapely values provide the only unique solution to Properties
-1-3 for a additive feature attribution model.  The big question is how do we
-calculate the Shapely values (and what do they intuitively mean)?
+attribution method, which is known as SHapely Additive exPlanations (SHAP).
+From Theorem 1, we know that Shapely values provide the only unique solution to
+Properties 1-3 for an additive feature attribution model.  The big question is
+how do we calculate the Shapely values (and what do they intuitively mean)?
 
 Recall that Shapely values rely on the value function, :math:`v(S)`, which determine
 a mapping from a subset of features to an expected "payoff".  In the case of
-Equation 17, our "payoff" is the model prediction :math:`f_x(z')` i.e.
+Equation 18, our "payoff" is the model prediction :math:`f_x(z')` i.e.
 the prediction of our model at point :math:`x` with subset of features
 :math:`z'`.  Implicit in this definition is that we can evaluate our model with
-just a subset of features, which most models do *not* support.  So how does SHAP 
-deal with it? Expectations!  
+just a subset of features (i.e. the value function), which most models do *not*
+support.  So how does SHAP deal with it? Expectations!  
 
 To evaluate a model at point :math:`x` with a subset of features :math:`S`, it
 starts out with the **expectation** of the function (recall, :math:`z'` is our binary
 vector representing :math:`S` and :math:`h_x(\cdot)` is the mapping from the 
-binary vector to the actual feature in data point :math:`x`):
+binary vector to the actual features in data point :math:`x`):
 
 .. math::
 
     f(h_x(z')) &= E[f(z)|z_S] \\
                &= E_{z_{\bar{S}}|z_S}[f(z)] \\
-    \tag{18}
+    \tag{19}
 
 There are two main issues with this.  First, most models don't have an explicit
 probability density, nor do they know how to deal with missing values, so we
@@ -485,45 +486,56 @@ customer and we had one missing dimension, it might look like this:
 .. math::
     {\bf x}&=\{x_{sex}=M, x_{age=18}, x_{spending}=100, x_{recency}=2, x_{location}=City, \ldots\} \\
     {\bf x_{\overline{sex}}}&=\{x_{sex}=N/A, x_{age=18}, x_{spending}=100, x_{recency}=2, x_{location}=City, \ldots\} \\ 
-    \tag{19}
+    \tag{20}
 
 To compute the value of the function missing the feature :math:`x_{sex}`, we
 could simply just average over all the data points that included it, holding
 all the other variables constant.  This would approximate the expectation
 :math:`E[f(z)|z_S]`. Of course, our estimate of this value could be wildly off
-if you don't have enough data.
+if you don't have enough data so we won't always do this explicitly.
 
-The second issue is that if you look back at Equation 17 you realize that we
+The second issue is that if you look back at Equation 18 you realize that we
 would have to compute this expectation for *every* subset of features, which is
 exponential in the number of features!  This is definitely a big barrier to 
-any practical application of this technique.  Thus, to deal with these two
-problems we will often make two simplifications: **independence** and
-**linearity**.
+any practical application of this technique.  Often times we will just sample
+from the power set of features to approximate it (see Kernel SHAP), in other
+cases we can calculate it precisely because of the type of model.  More on this
+later.
+
+We can also make two simplifications to deal with the missingness issue:
+**independence** and **linearity**.
 
 .. math::
 
     f(h_x(z')) &= E[f(z)|z_S] \\
-               &= E_{z_{\bar{S}}|z_S}[f(z)] \tag{20} \\
-               &\approx E_{z_{\bar{S}}}[f(z)] && \text{independence} \tag{21} \\
-               &\approx f(z_S, E[z_{\bar{S}}]) && \text{linear} \tag{22}
+               &= E_{z_{\bar{S}}|z_S}[f(z)] \tag{21} \\
+               &\approx E_{z_{\bar{S}}}[f(z)] && \text{independence} \tag{22} \\
+               &\approx f(z_S, E[z_{\bar{S}}]) && \text{linear} \tag{23}
 
 Independence allows us to treat each dimension separately and not care about the 
 conditional aspect of trying to find a data point that "matches" :math:`x` (such as
-in Equation 19).  This also solves the computation problem because we can compute
-each dimension separately, rather than computing every subset.
-Linearity allows us to simply compute the expectation (:math:`E[z_{\bar{S}}]`)
-over each dimension of :math:`x` separately and plug it into the model (as
-opposed to evaluating the model each time over every dimension combination in
-your dataset).
+in Equation 20).  We can simply sample values from the missing dimension(s)
+independently to fill the "N/A"s and average over them to estimate the
+expectation.  Of course, this will only really work out if we actually have
+feature independence, otherwise we're likely to sample values from the missing dimensions that
+create unlikely data points that don't really represent the underlying
+distribution.
+
+Linearity additionally allows us to simply compute the expectation
+(:math:`E[z_{\bar{S}}]`) over each dimension of :math:`x` separately and plug
+it into the model, removing the need to do sampling to estimate the expectation.
 
 To summarize, we can calculate feature importance by:
 
-1. Computing Shapely values as in Equation 17:
+1. Computing Shapely values as in Equation 18:
 
    .. math::
 
         \phi_i(f,x) = \sum_{z'\subseteq x'} 
             \frac{|z'|!(M-|z'|-1)!}{M!}[f_x(z')-f_x(z' \backslash i)]
+
+   which is often estimated by sample subsets from the power set of features
+   (Kernel SHAP).
 
 2. To evaluate the model with "missing" values (:math:`f_x(z')`), we will use
    our dataset to approximate the expectation :math:`f_x(z') = E[f(z)|z_S]`.
@@ -538,8 +550,8 @@ subsection and the latter in the next section.
 |h3| Interpreting SHAP Feature Importances |h3e|
 
 SHAP features get us close but not quite the simplicity of a linear model in
-Equation 8.  The big difference is that we are analyzing things *on a per data point*
-basis as opposed to Equation 8 where we are doing it globally over the entire dataset.
+Equation 9.  The big difference is that we are analyzing things *on a per data point*
+basis as opposed to Equation 9 where we are doing it globally over the entire dataset.
 Also recall that SHAP is based on Shapely values, which are averages over situations
 with and without the variable, leading us to *contrastive* comparisons with the
 base case (no features/players).  Figure 1 from the SHAP paper shows a
@@ -565,20 +577,20 @@ Here are some notes on interpreting this diagram:
 * Looking at the calculated line segments in the diagram, you can see that each
   value is calculated as the difference between an expectation relative to some
   conditional value and the same expectation less one variable.  This is a
-  realization of Equation 17 where 
+  realization of Equation 18 where 
   :math:`f_x(z)-f_x(z \backslash i) = E[f(z) | z] - E[f(z) | z \backslash i]`.
 * The figure assumes independence and linearity because it associates 
   :math:`\phi_i` with one particular ordering of variables 
   (e.g. :math:`\phi_2 = E[f(z)|z_{1,2}]=x_{1,2} - E[F(z)|z_1=x_1]`).  If 
   we didn't have these assumptions, we would have to calculate :math:`\phi_i`
-  as in Equation 17 where :math:`\phi_2` would be averaged over all possible
+  as in Equation 18 where :math:`\phi_i` would be averaged over all possible
   subsets that include/exclude that variable.
 * The arrows corresponding to :math:`\phi_i` are sequenced additively to sum up
   to the final prediction.  That is, SHAP generates an additive model where
   each feature importance can be additively summed to generate the final
   prediction (Property 1).  This is true regardless of whether you have
-  linearity or independence as shown in the diagram, or you have to sum
-  over all possible subsets as in Equation 17 (in the latter case the diagram
+  linearity and independence as shown in the diagram, or you have to sum
+  over all possible subsets as in Equation 18 (in the latter case the diagram
   would look different).
 
 The SHAP values can be confusing because if you don't have the independence and
@@ -619,10 +631,10 @@ values side-by-side, we get Figure 3.
 
   Figure 3: SHAP Values from the SHAP Python package for entire dataset [3]
 
-Figure 3 shows all possible data points and their SHAP contributions relative to
-the overall mean (:math:`22.34`).  The plot is actually interactive (when
-created in a notebook) so you can scroll over each data point and inspect the
-SHAP values.
+Figure 3 shows a global view of all possible data points and their SHAP
+contributions relative to the overall mean (:math:`22.34`).  The plot is
+actually interactive (when created in a notebook) so you can scroll over each
+data point and inspect the SHAP values.
 
 .. figure:: /images/shap_values4.png
   :width: 800px
@@ -631,14 +643,14 @@ SHAP values.
 
   Figure 4: Summary of SHAP values over all features [3]
 
-Figure 4 shows a summary of the distribution of SHAP values over all features.
-For each feature (horizontal rows), you can see the distribution of feature importances.
-From the diagram we can see that :code:`LSTAT` and :code:`RM` have large effects on 
-the prediction over the entire dataset (high SHAP value shown on bottom axis).  
-High :code:`LSTAT` values affect the prediction negatively (red values on the
-left hand side), while high :code:`RM` values affect the prediction positively
-(red values on the right hand side), Similarly in the opposite direction for
-both variables.
+Figure 4 shows another global summary of the distribution of SHAP values over
+all features.  For each feature (horizontal rows), you can see the distribution
+of feature importances.  From the diagram we can see that :code:`LSTAT` and
+:code:`RM` have large effects on the prediction over the entire dataset (high
+SHAP value shown on bottom axis).  High :code:`LSTAT` values affect the
+prediction negatively (red values on the left hand side), while high :code:`RM`
+values affect the prediction positively (red values on the right hand side),
+similarly in the opposite direction for both variables.
 
 |h3| SHAP Summary |h3e|
 
@@ -657,13 +669,13 @@ also some limitations:
   provide you with global interpretations (as seen in the plots above) from the
   individual Shapely values for each data point.  Moreover, due to the
   theoretical foundations and the fact that Shapely values are fairly
-  distributed, we know that the global interpretation is consistent with each
-  other.
+  distributed, we know that the global interpretation is consistent.
 * *Fast Implementations*: Practically, SHAP would only be useful if it were
   fast enough to use.  Thankfully, there is a fast implementations if you are
   using a tree-based model, which we'll discuss in the next section.  However,
   the model agnostic versions utilize the independence assumption and can
-  be slow if you want to use it globally on the entire dataset.
+  be slow if you want to use it globally on the entire dataset (but work well
+  enough on a single data point).
 
 If you want a more in-depth treatment, [4] is an amazing reference summarizing
 SHAP and many other techniques.
@@ -721,10 +733,11 @@ can just drop these terms in general (that's how I interpret what the paper
 says anyways).
 
 The good part is that this technique works with *any* model.  However, it's relatively slow
-since we have to sample a bunch of values for each data point in our training set.  And
-we have to use the independence assumption, which can be violated when our actual model
-does not have feature independence.  This might lead to violations in the local
-accuracy or consistency properties guarantees.
+since we have to sample a bunch of values for each data point in our training
+set and fit a linear regression.  We also have to use the independence
+assumption, which can be violated when our actual model does not have feature
+independence.  This might lead to violations in the local accuracy or
+consistency guarantees.
 
 |h3| TreeSHAP |h3e|
 
@@ -735,7 +748,7 @@ computed in :math:`O(TLD^2)` time where :math:`T` is the number of trees,
 :math:`L` is the number of leaves and :math:`D` is the depth.  So as long as
 you don't have gigantic trees, it scales very well.
 
-The crux of the algorithm is computing precisely :math:`E[f(x)|x_s]` (Equation 20),
+The crux of the algorithm is computing precisely :math:`E[f(x)|x_s]` (Equation 21),
 which can be done recursively and shown below in Figure 5.  Vectors :math:`a` and :math:`b`
 represent the left and right node indexes for each internal node, :math:`t` the
 thresholds for each node, and :math:`d` is the vector of features used for
@@ -780,7 +793,7 @@ value for each tree independently and add them up.
 The papers by the original authors in [1, 2] show a few other variations to
 deal with other model like neural networks (Deep SHAP), SHAP over the max
 function, and quantifying local interaction effects.  Definitely worth a look
-if you have some of these specific cases.
+if you have some of those specific cases.
 
 |h2| Conclusion |h2e|
 
@@ -791,7 +804,7 @@ models.  I also like the fact that there was some proper algorithmic work with
 the TreeSHAP paper.  The work of speeding up a naive algorithm from exponential
 to low-order polynomial reminds me of my grad school days (not that I ever had
 a result like that, just the focus on algorithmic work).  Machine learning is
-definitely a very wide field and the reason why it's so interesting is that I
+definitely a very wide field and the reason why it's so interesting is that you
 have to constantly pull from so many different disciplines to understand it (to
 a satisfactory degree).  See you next time!
 
