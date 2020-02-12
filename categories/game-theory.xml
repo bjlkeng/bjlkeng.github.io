@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about game theory)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/game-theory.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Wed, 12 Feb 2020 12:57:07 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Model Explainability with SHapley Additive exPlanations (SHAP)</title><link>http://bjlkeng.github.io/posts/model-explanability-with-shapley-additive-explanations-shap/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;One of the big criticisms of modern machine learning is that it's essentially
+a blackbox -- data in, prediction out, that's it.  And in some sense, how could
+it be any other way?  When you have a highly non-linear model with high degrees
+of interactions, how can you possibly hope to have a simple understanding of
+what the model is doing?  Well, turns out there is an interesting (and
+practical) line of research along these lines.&lt;/p&gt;
+&lt;p&gt;This post will dive into the ideas of a popular technique published in the last
+few years call &lt;em&gt;SHapely Additive exPlanations&lt;/em&gt; (or SHAP).  It builds upon
+previous work in this area by providing a unified framework to think
+about explanation models as well as a new technique with this framework that
+uses Shapely values.  I'll go over the math, the intuition, and how it works.
+No need for an implementation because there is already a nice little Python
+package! Confused yet?  Keep reading and I'll &lt;em&gt;explain&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/model-explanability-with-shapley-additive-explanations-shap/"&gt;Read more…&lt;/a&gt; (26 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>explainability</category><category>game theory</category><category>mathjax</category><category>SHAP</category><guid>http://bjlkeng.github.io/posts/model-explanability-with-shapley-additive-explanations-shap/</guid><pubDate>Wed, 12 Feb 2020 11:24:22 GMT</pubDate></item></channel></rss>

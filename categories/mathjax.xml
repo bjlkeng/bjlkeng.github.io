@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Fri, 24 Jan 2020 13:35:06 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>A Note on Using Log-Likelihood for Generative Models</title><link>http://bjlkeng.github.io/posts/a-note-on-using-log-likelihood-for-generative-models/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;One of the things that I find is usually missing from many ML papers is how
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Wed, 12 Feb 2020 12:57:07 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Model Explainability with SHapley Additive exPlanations (SHAP)</title><link>http://bjlkeng.github.io/posts/model-explanability-with-shapley-additive-explanations-shap/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;One of the big criticisms of modern machine learning is that it's essentially
+a blackbox -- data in, prediction out, that's it.  And in some sense, how could
+it be any other way?  When you have a highly non-linear model with high degrees
+of interactions, how can you possibly hope to have a simple understanding of
+what the model is doing?  Well, turns out there is an interesting (and
+practical) line of research along these lines.&lt;/p&gt;
+&lt;p&gt;This post will dive into the ideas of a popular technique published in the last
+few years call &lt;em&gt;SHapely Additive exPlanations&lt;/em&gt; (or SHAP).  It builds upon
+previous work in this area by providing a unified framework to think
+about explanation models as well as a new technique with this framework that
+uses Shapely values.  I'll go over the math, the intuition, and how it works.
+No need for an implementation because there is already a nice little Python
+package! Confused yet?  Keep reading and I'll &lt;em&gt;explain&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/model-explanability-with-shapley-additive-explanations-shap/"&gt;Read more…&lt;/a&gt; (26 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>explainability</category><category>game theory</category><category>mathjax</category><category>SHAP</category><guid>http://bjlkeng.github.io/posts/model-explanability-with-shapley-additive-explanations-shap/</guid><pubDate>Wed, 12 Feb 2020 11:24:22 GMT</pubDate></item><item><title>A Note on Using Log-Likelihood for Generative Models</title><link>http://bjlkeng.github.io/posts/a-note-on-using-log-likelihood-for-generative-models/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;One of the things that I find is usually missing from many ML papers is how
 they relate to the fundamentals.  There's always a throwaway line where it
 assumes something that is not at all obvious (see my post on
 &lt;a class="reference external" href="http://bjlkeng.github.io/posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/"&gt;Importance Sampling&lt;/a&gt;).  I'm the kind of person who likes to
@@ -112,14 +125,4 @@ really like these types of robust advances where it doesn't require fiddling
 with all sorts of hyper-parameters to make it work.  Anyways, I'll introduce
 the idea and show an implementation of ResNet on a few runs of a variational
 autoencoder that I put together on the CIFAR10 dataset.&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/residual-networks/"&gt;Read more…&lt;/a&gt; (9 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoencoders</category><category>CIFAR10</category><category>mathjax</category><category>residual networks</category><category>ResNet</category><guid>http://bjlkeng.github.io/posts/residual-networks/</guid><pubDate>Sun, 18 Feb 2018 18:55:13 GMT</pubDate></item><item><title>Variational Autoencoders with Inverse Autoregressive Flows</title><link>http://bjlkeng.github.io/posts/variational-autoencoders-with-inverse-autoregressive-flows/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;In this post, I'm going to be describing a really cool idea about how
-to improve variational autoencoders using inverse autoregressive
-flows.  The main idea is that we can generate more powerful posterior
-distributions compared to a more basic isotropic Gaussian by applying a
-series of invertible transformations.  This, in theory, will allow
-your variational autoencoder to fit better by concentrating the
-stochastic samples around a closer approximation to the true
-posterior.  The math works out so nicely while the results are kind of
-marginal &lt;a class="footnote-reference brackets" href="http://bjlkeng.github.io/posts/variational-autoencoders-with-inverse-autoregressive-flows/#id3" id="id1"&gt;1&lt;/a&gt;.  As usual, I'll go through some intuition, some math,
-and have an implementation with few experiments I ran.  Enjoy!&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/variational-autoencoders-with-inverse-autoregressive-flows/"&gt;Read more…&lt;/a&gt; (18 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoencoders</category><category>autoregressive</category><category>CIFAR10</category><category>generative models</category><category>Kullback-Leibler</category><category>MADE</category><category>mathjax</category><category>MNIST</category><category>variational calculus</category><guid>http://bjlkeng.github.io/posts/variational-autoencoders-with-inverse-autoregressive-flows/</guid><pubDate>Tue, 19 Dec 2017 13:47:38 GMT</pubDate></item></channel></rss>
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/residual-networks/"&gt;Read more…&lt;/a&gt; (9 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoencoders</category><category>CIFAR10</category><category>mathjax</category><category>residual networks</category><category>ResNet</category><guid>http://bjlkeng.github.io/posts/residual-networks/</guid><pubDate>Sun, 18 Feb 2018 18:55:13 GMT</pubDate></item></channel></rss>

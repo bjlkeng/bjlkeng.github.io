@@ -67,7 +67,34 @@ navbar-dark bg-dark
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/hyperbolic-geometry-and-poincare-embeddings/" class="u-url">Hyperbolic Geometry and Poincaré Embeddings</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/universal-resnet-the-one-neuron-approximator/" class="u-url">Universal ResNet: The One-Neuron Approximator</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="posts/universal-resnet-the-one-neuron-approximator/" rel="bookmark">
+            <time class="published dt-published" datetime="2018-08-03T08:03:28-04:00" itemprop="datePublished" title="2018-08-03 08:03">2018-08-03 08:03</time></a>
+            </p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p><em>"In theory, theory and practice are the same. In practice, they are not."</em></p>
+<p>I read a very interesting paper titled <em>ResNet with one-neuron hidden layers is
+a Universal Approximator</em> by Lin and Jegelka [1].
+The paper describes a simplified Residual Network as a universal approximator,
+giving some theoretical backing to the wildly successful ResNet architecture.
+In this post, I'm going to talk about this paper and a few of the related
+universal approximation theorems for neural networks.
+Instead of going through all the theoretical stuff, I'm simply going introduce
+some theorems and play around with some toy datasets to see if we can get close
+to the theoretical limits.</p>
+<p>(You might also want to checkout my previous post where I played around with
+ResNets: <a class="reference external" href="posts/residual-networks/">Residual Networks</a>)</p>
+<p class="more"><a href="posts/universal-resnet-the-one-neuron-approximator/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/hyperbolic-geometry-and-poincare-embeddings/" class="u-url">Hyperbolic Geometry and Poincaré Embeddings</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Brian Keng
@@ -176,31 +203,6 @@ with all sorts of hyper-parameters to make it work.  Anyways, I'll introduce
 the idea and show an implementation of ResNet on a few runs of a variational
 autoencoder that I put together on the CIFAR10 dataset.</p>
 <p class="more"><a href="posts/residual-networks/">Read more…</a></p>
-</div>
-    </div>
-    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/variational-autoencoders-with-inverse-autoregressive-flows/" class="u-url">Variational Autoencoders with Inverse Autoregressive Flows</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Brian Keng
-            </span></p>
-            <p class="dateline">
-            <a href="posts/variational-autoencoders-with-inverse-autoregressive-flows/" rel="bookmark">
-            <time class="published dt-published" datetime="2017-12-19T08:47:38-05:00" itemprop="datePublished" title="2017-12-19 08:47">2017-12-19 08:47</time></a>
-            </p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>In this post, I'm going to be describing a really cool idea about how
-to improve variational autoencoders using inverse autoregressive
-flows.  The main idea is that we can generate more powerful posterior
-distributions compared to a more basic isotropic Gaussian by applying a
-series of invertible transformations.  This, in theory, will allow
-your variational autoencoder to fit better by concentrating the
-stochastic samples around a closer approximation to the true
-posterior.  The math works out so nicely while the results are kind of
-marginal <a class="footnote-reference brackets" href="posts/variational-autoencoders-with-inverse-autoregressive-flows/#id3" id="id1">1</a>.  As usual, I'll go through some intuition, some math,
-and have an implementation with few experiments I ran.  Enjoy!</p>
-<p class="more"><a href="posts/variational-autoencoders-with-inverse-autoregressive-flows/">Read more…</a></p>
 </div>
     </div>
     </article>
