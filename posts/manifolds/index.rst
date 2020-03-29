@@ -732,7 +732,7 @@ sphere to make things a bit more concrete.
   .. math::
 
    {\bf T_{\varphi}} = 0 \cdot \big(\frac{\partial}{\partial u_1} \big)_p +
-         (\sqrt{2} + 1) \cdot \big(\frac{\partial}{\partial u_2} \big)_p \tag{17}
+         (\sqrt{2} + 1)\pi \cdot \big(\frac{\partial}{\partial u_2} \big)_p \tag{17}
 
   keeping in mind that the basis is actually in terms of the chart :math:`\varphi`
   (implied by the variable :math:`u_i`).
