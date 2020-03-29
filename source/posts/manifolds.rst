@@ -265,7 +265,7 @@ pain in the butt, but analysis in a lower-dimensional Euclidean space is easy
 .. admonition:: Example 1: Euclidean Space is a Manifold
 
   Standard Euclidean space in :math:`\mathbb{R}^n` is, of course, a manifold
-  itself. It requires a single chart that it just the identity function,
+  itself. It requires a single chart that is just the identity function,
   which also makes up its atlas.  We'll see below that many of concepts
   we've been learned in Euclidean space have analogues when discussing
   manifolds.
@@ -722,8 +722,8 @@ sphere to make things a bit more concrete.
       \frac{d \big((\sqrt{2} + 1)\cos\pi t\big)}{dt},
       \frac{d \big((\sqrt{2} + 1)\sin\pi t\big)}{dt}
       \Big]\Big|_{t=t_0}  \\
-      &= \Big[ (\sqrt{2}+1)(-\sin\pi t), (\sqrt{2}+1)\cos\pi t \Big]\Big|_{t=t_0}  \\      
-      &= (0, \sqrt{2}+1)
+      &= \Big[ (\sqrt{2}+1)\pi(-\sin\pi t), (\sqrt{2}+1)\pi\cos\pi t \Big]\Big|_{t=t_0}  \\      
+      &= (0, (\sqrt{2}+1)\pi) \\
       \tag{16}
 
   Combining with our differential operators as our basis, our tangent vector
@@ -731,8 +731,8 @@ sphere to make things a bit more concrete.
 
   .. math::
 
-    {\bf T_{\varphi}} = 0 \cdot \big(\frac{\partial}{\partial u_1} \big)_p +
-            (\sqrt{2} + 1) \cdot \big(\frac{\partial}{\partial u_2} \big)_p \tag{17}
+   {\bf T_{\varphi}} = 0 \cdot \big(\frac{\partial}{\partial u_1} \big)_p +
+         (\sqrt{2} + 1) \cdot \big(\frac{\partial}{\partial u_2} \big)_p \tag{17}
 
   keeping in mind that the basis is actually in terms of the chart :math:`\varphi`
   (implied by the variable :math:`u_i`).
@@ -758,7 +758,7 @@ sphere to make things a bit more concrete.
   .. math::
 
     {\bf T_{\vartheta}} = 0 \cdot \big(\frac{\partial}{\partial w_1} \big)_p +
-              (\sqrt{2} - 1) \cdot \big(\frac{\partial}{\partial w_2} \big)_p \tag{19}
+              (\sqrt{2} - 1)\pi \cdot \big(\frac{\partial}{\partial w_2} \big)_p \tag{19}
 
   We should also be able to find :math:`{\bf T_{\vartheta}}` directly by using
   Equation 13 and the Jacobian of :math:`\vartheta`.  To do this, we need to
@@ -788,22 +788,22 @@ sphere to make things a bit more concrete.
         \frac{\partial w_2}{\partial u_1}\big|_{u=\varphi(p)} 
           & \frac{\partial w_2}{\partial u_2}\big|_{u=\varphi(p)}
       \end{bmatrix}
-      \begin{bmatrix} 0 \\ \sqrt{2} + 1 \end{bmatrix}\\
+      \begin{bmatrix} 0 \\ (\sqrt{2} + 1)\pi \end{bmatrix}\\
     &= \begin{bmatrix} 
           \frac{u_2^2 - u_1^2}{(u_1^2+u_2^2)^2}\big|_{u=\varphi(p)}
         & -\frac{2u_1u_2}{(u_1^2+u_2^2)^2}\big|_{u=\varphi(p)} \\
           -\frac{2u_1u_2}{(u_1^2+u_2^2)^2}\big|_{u=\varphi(p)} 
         & \frac{u_1^2 - u_2^2}{(u_1^2+u_2^2)^2}\big|_{u=\varphi(p)} 
       \end{bmatrix}
-      \begin{bmatrix} 0 \\ \sqrt{2} + 1 \end{bmatrix}\\    
+      \begin{bmatrix} 0 \\ (\sqrt{2} + 1)\pi \end{bmatrix}\\    
     &= \begin{bmatrix} 
           \frac{- (\sqrt{2} + 1)^2}{(\sqrt{2} + 1)^4}
         & 0 \\
           0
         & \frac{(\sqrt{2} + 1)^2}{(\sqrt{2} + 1)^4}
       \end{bmatrix}
-      \begin{bmatrix} 0 \\ \sqrt{2} + 1 \end{bmatrix}\\    
-    &= \begin{bmatrix} 0 \\ \sqrt{2} - 1 \end{bmatrix}\\        
+      \begin{bmatrix} 0 \\ (\sqrt{2} + 1)\pi \end{bmatrix}\\    
+    &= \begin{bmatrix} 0 \\ (\sqrt{2} - 1)\pi \end{bmatrix}\\        
     \tag{21}
 
   which lines up exactly with our coordinates from Equation 19 above.
@@ -888,7 +888,7 @@ coordinate system:
 
 .. math::
 
-    g_M({\bf v_M},{\bf w_M}) &= {\bf v_M} \cdot {\bf v_M} && \text{Euclidean inner product}\\
+    g_M({\bf v_M},{\bf w_M}) &= {\bf v_M} \cdot {\bf w_M} && \text{Euclidean inner product}\\
     &= \begin{bmatrix} 
           \sum_{i=1}^d v(y^i) \cdot \frac{\partial x^1}{\partial y^i}\Big|_{y=\varphi(p)}
         & \ldots
