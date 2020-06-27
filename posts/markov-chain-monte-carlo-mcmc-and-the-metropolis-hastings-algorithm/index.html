@@ -11,7 +11,7 @@
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <meta name="theme-color" content="#5670d4">
 <meta name="generator" content="Nikola (getnikola.com)">
-<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
+<link rel="alternate" type="application/rss+xml" title="RSS" hreflang="en" href="../../rss.xml">
 <link rel="canonical" href="http://bjlkeng.github.io/posts/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/">
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
@@ -139,15 +139,14 @@ navbar-dark bg-dark
 <p><img src="../../images/weather_markov_chain.png" alt="simple markov chain"></p>
 <p>As you can see it looks just like a finite state machine except we've annotated the state transitions with probabilities.  For example, we can see if it's sunny today, there is a $0.9$ chance of being sunny tomorrow and a $0.1$ chance of being rainy.  Similarly starting in rainy state.  It should be clear that from a given state, all the outgoing transitions should total $1.0$ since it's a proper distribution.</p>
 <p>Another way to represent this information is via a transition matrix $P$:</p>
-<p>\begin{align}
+\begin{align}
 P = 
 \begin{bmatrix}
 0.9 &amp; 0.1 \\
 0.5 &amp; 0.5 \\
 \end{bmatrix}
-\end{align}</p>
-<p>The interesting thing about representing it as a matrix is that we can simulate the Markov Chain just by doing matrix multiplications.  For example, suppose we start in a sunny state, we can represent that as the row vector:  $ {\bf x}^{(0)} = \begin{bmatrix}1 &amp; 0\end{bmatrix}$.  This implicitly represents that we're in the sunny state with probability $1$, and thus in the rainy state with probability $0$.  Now, if we perform that matrix multiplication we can find out the probabilities of being in each state after one step:</p>
-<p>\begin{align}
+\end{align}<p>The interesting thing about representing it as a matrix is that we can simulate the Markov Chain just by doing matrix multiplications.  For example, suppose we start in a sunny state, we can represent that as the row vector:  $ {\bf x}^{(0)} = \begin{bmatrix}1 &amp; 0\end{bmatrix}$.  This implicitly represents that we're in the sunny state with probability $1$, and thus in the rainy state with probability $0$.  Now, if we perform that matrix multiplication we can find out the probabilities of being in each state after one step:</p>
+\begin{align}
 {\bf x}^{(1)} = 
 \begin{bmatrix}
 1 &amp; 0
@@ -159,9 +158,8 @@ P =
 \begin{bmatrix}
 0.9 &amp; 0.1 \\
 \end{bmatrix}
-\end{align}</p>
-<p>We can see that that there is a $0.9$ chance of being sunny tomorrow (according to our simple model), and a $0.1$ chance of being rainy.   We can actually keep multiplying the transition matrix through to find the chance of sun/rain $k$ steps later:</p>
-<p>\begin{align}
+\end{align}<p>We can see that that there is a $0.9$ chance of being sunny tomorrow (according to our simple model), and a $0.1$ chance of being rainy.   We can actually keep multiplying the transition matrix through to find the chance of sun/rain $k$ steps later:</p>
+\begin{align}
 {\bf x}^{(k)} = 
 \begin{bmatrix}
 1 &amp; 0
@@ -170,8 +168,7 @@ P =
 0.9 &amp; 0.1 \\
 0.5 &amp; 0.5 \\
 \end{bmatrix}^k
-\end{align}</p>
-<p>We can easily compute, ${\bf x}^{(k)}$ for various values of $k$ using <code>numpy</code>:</p>
+\end{align}<p>We can easily compute, ${\bf x}^{(k)}$ for various values of $k$ using <code>numpy</code>:</p>
 
 </div>
 </div>
@@ -182,7 +179,7 @@ P =
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">linalg</span> <span class="k">as</span> <span class="n">LA</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">linalg</span> <span class="k">as</span> <span class="n">LA</span>
 
 <span class="k">def</span> <span class="nf">simulate_markov</span><span class="p">(</span><span class="n">x_0</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
@@ -196,7 +193,7 @@ P =
 <span class="n">simulate_markov</span><span class="p">(</span><span class="n">istate</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 </pre></div>
 
-</div>
+    </div>
 </div>
 </div>
 
@@ -206,7 +203,7 @@ P =
 
 <div class="output_area">
 
-<div class="prompt"></div>
+    <div class="prompt"></div>
 
 
 <div class="output_subarea output_stream output_stdout output_text">
@@ -247,7 +244,7 @@ x^(9) = [0.8334 0.1666]
 <span class="n">simulate_markov</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">r</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">r</span><span class="p">]),</span> <span class="n">P</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 </pre></div>
 
-</div>
+    </div>
 </div>
 </div>
 
@@ -257,7 +254,7 @@ x^(9) = [0.8334 0.1666]
 
 <div class="output_area">
 
-<div class="prompt"></div>
+    <div class="prompt"></div>
 
 
 <div class="output_subarea output_stream output_stdout output_text">
@@ -285,15 +282,13 @@ x^(9) = [0.8332 0.1668]
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>This steady state distribution is called a <a href="https://en.wikipedia.org/wiki/Markov_chain#Steady-state_analysis_and_limiting_distributions">stationary distribution</a> usually denoted by ${\bf \pi}$.  This steady state vector $\bf \pi$ can be found in several ways.  The most straight forward is by taking the limit as $n$ approaches infinity.</p>
-<p>\begin{align}
+\begin{align}
 {\bf q} = lim_{n \rightarrow \infty} {\bf x}^{(n)}  \tag{1}
-\end{align}</p>
-<p>The next way is just by solving the equation.  Since $\bf q$ by definition is the steady state, then multiplying by $P$ should give the same value back:</p>
-<p>\begin{align}
+\end{align}<p>The next way is just by solving the equation.  Since $\bf q$ by definition is the steady state, then multiplying by $P$ should give the same value back:</p>
+\begin{align}
 {\bf \pi}P = {\bf \pi} \\
 {\bf \pi}(P - I) = {\bf 0} \tag{2}
-\end{align}</p>
-<p>where $I$ is the identity matrix.  If you expand out our vector/matrix notation, you'll see that this is just a system of equations along with the additional constraint that $\pi_1, \pi_2, ..., \pi_n$ all sum to $1$ (i.e. $\pi$ forms a probability distribution).  In our case with just two states: $\pi_1 + \pi_2 = 1$.</p>
+\end{align}<p>where $I$ is the identity matrix.  If you expand out our vector/matrix notation, you'll see that this is just a system of equations along with the additional constraint that $\pi_1, \pi_2, ..., \pi_n$ all sum to $1$ (i.e. $\pi$ forms a probability distribution).  In our case with just two states: $\pi_1 + \pi_2 = 1$.</p>
 <p>However, not every Markov Chain has a stationary distribution or even a unique one <a href="#fn-1"><sup>[1]</sup></a>.  But we can guarantee these properties if we add two additional constraints to the Markov Chain:</p>
 <ol>
 <li>
@@ -303,10 +298,9 @@ x^(9) = [0.8332 0.1668]
 </ol>
 <p>Together these two properties define the property <a href="http://nlp.stanford.edu/IR-book/html/htmledition/definition-1.html"><em>ergodic</em></a>.  An important theorem says that if a Markov Chain is ergodic then it has a unique steady state probability vector $\bf \pi$.  In the context of MCMC, we can jump from any state to any other state (with some finite probability), trivially satisfying irreducibility.</p>
 <p>Another useful definition we'll use is that of <a href="https://en.wikipedia.org/wiki/Markov_chain#Reversible_Markov_chain">detailed balance and reversible Markov Chains</a>.  A Markov Chain is said to be reversible (also known as the detailed balance condition) if there exists a probability distribution $\bf \pi$ that satisfies this condition:</p>
-<p>\begin{align}
+\begin{align}
 \pi_i P(X_{n+1} = j | X_{n} = i) = \pi_j P(X_{n+1} = i | X_{n} = j)  \tag{3}
-\end{align}</p>
-<p>In other words, in the long run, the proportion of times that you transition from state $i$ to state $j$ is the same as the proportion of times you transition from state $j$ to state $i$.  In fact, if a Markov Chain is reversible then we know that it has a stationary distribution (which is why we use the same notation $\bf \pi$).  We'll need Equation 3 when we derive the Metropolis-Hastings algorithm.</p>
+\end{align}<p>In other words, in the long run, the proportion of times that you transition from state $i$ to state $j$ is the same as the proportion of times you transition from state $j$ to state $i$.  In fact, if a Markov Chain is reversible then we know that it has a stationary distribution (which is why we use the same notation $\bf \pi$).  We'll need Equation 3 when we derive the Metropolis-Hastings algorithm.</p>
 <h4 id="Markov-Chain-Monte-Carlo-Methods">Markov Chain Monte Carlo Methods<a class="anchor-link" href="#Markov-Chain-Monte-Carlo-Methods">¶</a>
 </h4>
 <p>Markov Chain Monte Carlo (MCMC) methods are simply a class of algorithms that use Markov Chains to sample from a particular probability distribution (the Monte Carlo part).  They work by creating a Markov Chain where the limiting distribution (or stationary distribution) is simply the distribution we want to sample.</p>
@@ -341,10 +335,9 @@ In fact, if we simulate our Markov Chain long enough, the limiting distribution 
 <li>If $y &lt; f(x)$, then accept $x$ as a sample for $f(x)$, otherwise go to step 1.</li>
 </ol>
 <p>The reason this works is that the uniform distribution helps us "scale" the envelope provided by $Mg(x)$ down to the PDF of $f(x)$.  Another way to look at it is the probability that we sample a point $x_0$.  This is proportional to the probability of sampling $x_0$ from $g$ times the proportion of times we accept, which is simply given by the ratio between $f(x_0)$ and $Mg(x_0)$:</p>
-<p>\begin{align}
+\begin{align}
 P(\text{sampling } x_0) \propto g(x_0) * \frac{f(x_0)}{Mg(x_0)} = \frac{f(x_0)}{M} \tag{4}
-\end{align}</p>
-<p>Equation 4 tells us the probability of sampling an arbitrary point is proportional to $f(x_0)$.  After sampling many points and finding the proportion of times that we see $x_0$, the constant $M$ is normalized out and we get the correct result for the PDF $f(x)$.</p>
+\end{align}<p>Equation 4 tells us the probability of sampling an arbitrary point is proportional to $f(x_0)$.  After sampling many points and finding the proportion of times that we see $x_0$, the constant $M$ is normalized out and we get the correct result for the PDF $f(x)$.</p>
 <p>Let's take a look at it more visually with an example.  Our target distribution, $f(x)$, that we want to sample from is <a href="http://scipy.github.io/devdocs/tutorial/stats/continuous_dgamma.html">double gamma</a> distribution, basically a two-sided gamma distribution.  We'll be using a normal distribution, $g(x)$, as our envelope distribution.  From my last post, we know how to <a href="../sampling-from-a-normal-distribution/">sample from a normal distribution</a> using just only a couple of uniform random variables.  The code below shows us how to find the scaling constant $M$ as well as draws us a picture of how the rejection sampling conceptually works.</p>
 
 </div>
@@ -384,7 +377,7 @@ P(\text{sampling } x_0) \propto g(x_0) * \frac{f(x_0)}{Mg(x_0)} = \frac{f(x_0)}{
 <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="s1">'Accept'</span><span class="p">)</span>
 </pre></div>
 
-</div>
+    </div>
 </div>
 </div>
 
@@ -394,7 +387,7 @@ P(\text{sampling } x_0) \propto g(x_0) * \frac{f(x_0)}{Mg(x_0)} = \frac{f(x_0)}{
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[7]:</div>
+    <div class="prompt output_prompt">Out[7]:</div>
 
 
 
@@ -407,7 +400,7 @@ P(\text{sampling } x_0) \propto g(x_0) * \frac{f(x_0)}{Mg(x_0)} = \frac{f(x_0)}{
 
 <div class="output_area">
 
-<div class="prompt"></div>
+    <div class="prompt"></div>
 
 
 
@@ -459,7 +452,7 @@ P(\text{sampling } x_0) \propto g(x_0) * \frac{f(x_0)}{Mg(x_0)} = \frac{f(x_0)}{
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s1">'Target PDF'</span><span class="p">,</span> <span class="s1">'Rejection Sampling'</span><span class="p">])</span>
 </pre></div>
 
-</div>
+    </div>
 </div>
 </div>
 
@@ -469,7 +462,7 @@ P(\text{sampling } x_0) \propto g(x_0) * \frac{f(x_0)}{Mg(x_0)} = \frac{f(x_0)}{
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[8]:</div>
+    <div class="prompt output_prompt">Out[8]:</div>
 
 
 
@@ -482,7 +475,7 @@ P(\text{sampling } x_0) \propto g(x_0) * \frac{f(x_0)}{Mg(x_0)} = \frac{f(x_0)}{
 
 <div class="output_area">
 
-<div class="prompt"></div>
+    <div class="prompt"></div>
 
 
 
@@ -520,27 +513,22 @@ P(\text{sampling } x_0) \propto g(x_0) * \frac{f(x_0)}{Mg(x_0)} = \frac{f(x_0)}{
 </h4>
 <p>To derive the Metropolis-Hastings algorithm, we first start with our end goal: creating a Markov Chain where the steady state distribution is equal to our target distribution, $p(x)$.  In terms of the Markov Chain, we already know what the state space will be: the support of the probability distribution i.e. the x-values.  Thus (assuming correct construction of the Markov Chain) the steady-state distribution that we end up with will simply be $p(x)$.  What's left is determining the transition probabilities between these x-values such that we can achieve this steady-state behavior.</p>
 <p>Recall Equation 3, the detailed balance condition for Markov Chains, written here in another way:</p>
-<p>\begin{align}
+\begin{align}
 p(x) P(x \rightarrow x') = p(x') P(x' \rightarrow x)  \tag{5}
-\end{align}</p>
-<p>Here $p(x)$ is our target distribution, and $P(x \rightarrow x')$ is the transition probability going from point $x$ to point $x'$.  So our goal is to determine the form of $P(x \rightarrow x')$.  Since we get to construct the Markov Chain, let's start off by using Equation 5 as the basis for that construction.  Remember, the detailed balance condition guarantees that our Markov Chain will have a stationary distribution (that it exists).  Additionally, if we include ergodicity too (not repeating states at fixed intervals and every state much be able to reach any other state eventually), we will have built a Markov Chain that has a unique stationary distribution, $p(x)$.</p>
+\end{align}<p>Here $p(x)$ is our target distribution, and $P(x \rightarrow x')$ is the transition probability going from point $x$ to point $x'$.  So our goal is to determine the form of $P(x \rightarrow x')$.  Since we get to construct the Markov Chain, let's start off by using Equation 5 as the basis for that construction.  Remember, the detailed balance condition guarantees that our Markov Chain will have a stationary distribution (that it exists).  Additionally, if we include ergodicity too (not repeating states at fixed intervals and every state much be able to reach any other state eventually), we will have built a Markov Chain that has a unique stationary distribution, $p(x)$.</p>
 <p>We can we re-arrange Equation 5 as:</p>
-<p>\begin{align}
+\begin{align}
 \frac{P(x \rightarrow x')}{P(x' \rightarrow x)} = \frac{p(x')}{p(x)} = \frac{f(x')}{f(x)} \tag{6}
-\end{align}</p>
-<p>Here we use $f(x)$ to represent a function that is <em>proportional</em> to $p(x)$.  This is to emphasize that we don't explicitly need $p(x)$, just something proportional to it such that the ratios work out to the same thing.  Now the "trick" here is that we're going to break up $P(x \rightarrow x')$ into two independent steps: a proposal distribution $g(x \rightarrow x')$ and an acceptance distribution $A(x \rightarrow x')$ (similar to how rejection sampling works).  Since they're independent, our transition probability is just the multiplication of the two:</p>
-<p>\begin{align}
+\end{align}<p>Here we use $f(x)$ to represent a function that is <em>proportional</em> to $p(x)$.  This is to emphasize that we don't explicitly need $p(x)$, just something proportional to it such that the ratios work out to the same thing.  Now the "trick" here is that we're going to break up $P(x \rightarrow x')$ into two independent steps: a proposal distribution $g(x \rightarrow x')$ and an acceptance distribution $A(x \rightarrow x')$ (similar to how rejection sampling works).  Since they're independent, our transition probability is just the multiplication of the two:</p>
+\begin{align}
 P(x \rightarrow x') = g(x \rightarrow x') A(x \rightarrow x') \tag{7}
-\end{align}</p>
-<p>At this point, we have to figure out what an appropriate choice for $g(x)$ and $A(x)$ will be.  Since $g(x)$ is the "proposal distribution", it decides the next point we will potentially be sampling.  Thus, it's important that it have the same support as our target distribution $p(x)$ (ergodicity condition).  A typical choice here would be the normal distribution centered on the current state.  Now given a fixed proposal distribution $g(x)$, we wish to find an $A(x)$ that matches.  Re-writing Equation 6 and substituting in Equation 7:</p>
-<p>\begin{align}
+\end{align}<p>At this point, we have to figure out what an appropriate choice for $g(x)$ and $A(x)$ will be.  Since $g(x)$ is the "proposal distribution", it decides the next point we will potentially be sampling.  Thus, it's important that it have the same support as our target distribution $p(x)$ (ergodicity condition).  A typical choice here would be the normal distribution centered on the current state.  Now given a fixed proposal distribution $g(x)$, we wish to find an $A(x)$ that matches.  Re-writing Equation 6 and substituting in Equation 7:</p>
+\begin{align}
 \frac{A(x \rightarrow x')}{A(x' \rightarrow x)} = \frac{f(x')}{f(x)}\frac{g(x' \rightarrow x)}{g(x \rightarrow x')} \tag{8}
-\end{align}</p>
-<p>Although not obvious, a typical choice for $A(x)$ that satisfies Equation 8 is:</p>
-<p>\begin{align}
+\end{align}<p>Although not obvious, a typical choice for $A(x)$ that satisfies Equation 8 is:</p>
+\begin{align}
 A(x \rightarrow x') = min(1, \frac{f(x')g(x' \rightarrow x)}{f(x)g(x \rightarrow x')}) \tag{9}
-\end{align}</p>
-<p>We can see that by considering the cases where $\frac{f(x')g(x' \rightarrow x)}{f(x)g(x \rightarrow x')}$ is less than or equal to 1 and the cases when it is greater than 1.  When it's less than or equal to 1, it's inverse is greater than 1, thus the denominator of the LHS, $A(x' \rightarrow x)$, of Equation 8 is 1, while the numerator is equal to the RHS.  Alternatively, when $\frac{f(x')g(x' \rightarrow x)}{f(x)g(x \rightarrow x')}$ is greater than one the LHS numerator is 1, while the denominator is just the reciprocal of the RHS, resulting in the LHS equaling the RHS.</p>
+\end{align}<p>We can see that by considering the cases where $\frac{f(x')g(x' \rightarrow x)}{f(x)g(x \rightarrow x')}$ is less than or equal to 1 and the cases when it is greater than 1.  When it's less than or equal to 1, it's inverse is greater than 1, thus the denominator of the LHS, $A(x' \rightarrow x)$, of Equation 8 is 1, while the numerator is equal to the RHS.  Alternatively, when $\frac{f(x')g(x' \rightarrow x)}{f(x)g(x \rightarrow x')}$ is greater than one the LHS numerator is 1, while the denominator is just the reciprocal of the RHS, resulting in the LHS equaling the RHS.</p>
 <p>With that, we've shown that the steady state of the Markov Chain we've created will be equal to our target distribution ($p(x)$) because the detailed balance condition is satisfied (Equation 5) by construction.  So the overall algorithm would be (which matches closely to the MCMC algorithm above):</p>
 <ol>
 <li>Initialize the initial state by picking a random $x$.</li>
@@ -565,15 +553,13 @@ A(x \rightarrow x') = min(1, \frac{f(x')g(x' \rightarrow x)}{f(x)g(x \rightarrow
 <h4 id="Implementing-the-Metropolis-Hastings-Algorithm">Implementing the Metropolis-Hastings Algorithm<a class="anchor-link" href="#Implementing-the-Metropolis-Hastings-Algorithm">¶</a>
 </h4>
 <p>Let's use our example from above of a double gamma distribution.  And let's define our proposal distribution as a normal distribution centered at $x$ and standard deviation $2$, N(x, 2) (remember $x$ is given as the current state):</p>
-<p>\begin{align}
+\begin{align}
 g(x \rightarrow x') = f_{N(x,2)}(x) \tag{10}
-\end{align}</p>
-<p>Given $f(x)$ proportional to our underlying distribution $p(x)$ our accepting distribution looks like this:</p>
-<p>\begin{align}
+\end{align}<p>Given $f(x)$ proportional to our underlying distribution $p(x)$ our accepting distribution looks like this:</p>
+\begin{align}
 A(x \rightarrow x') = min(1, \frac{f(x')f_{N(x',2)}(x)}{f(x)f_{N(x,2)}(x')}) 
                     = min(1, \frac{f(x')}{f(x)}) \tag{11}
-\end{align}</p>
-<p>since the normal distribution is symmetric, the PDFs of the normal distributions cancel out when evaluated at their respective points. Now let's take a look at some code:</p>
+\end{align}<p>since the normal distribution is symmetric, the PDFs of the normal distributions cancel out when evaluated at their respective points. Now let's take a look at some code:</p>
 
 </div>
 </div>
@@ -584,7 +570,7 @@ A(x \rightarrow x') = min(1, \frac{f(x')f_{N(x',2)}(x)}{f(x)f_{N(x,2)}(x')})
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">from</span> <span class="nn">pandas.tools.plotting</span> <span class="k">import</span> <span class="n">autocorrelation_plot</span>
+<span class="kn">from</span> <span class="nn">pandas.tools.plotting</span> <span class="kn">import</span> <span class="n">autocorrelation_plot</span>
 
 <span class="c1"># Simulate a f(x) proportional to the double gamma distribution</span>
 <span class="n">f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span>
@@ -618,7 +604,7 @@ A(x \rightarrow x') = min(1, \frac{f(x')f_{N(x',2)}(x)}{f(x)f_{N(x,2)}(x')})
 <span class="n">autocorrelation_plot</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">samples</span><span class="p">))</span>
 </pre></div>
 
-</div>
+    </div>
 </div>
 </div>
 
@@ -628,7 +614,7 @@ A(x \rightarrow x') = min(1, \frac{f(x')f_{N(x',2)}(x)}{f(x)f_{N(x,2)}(x')})
 
 <div class="output_area">
 
-<div class="prompt"></div>
+    <div class="prompt"></div>
 
 
 
@@ -641,7 +627,7 @@ A(x \rightarrow x') = min(1, \frac{f(x')f_{N(x',2)}(x)}{f(x)f_{N(x,2)}(x')})
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[28]:</div>
+    <div class="prompt output_prompt">Out[28]:</div>
 
 
 
@@ -654,7 +640,7 @@ A(x \rightarrow x') = min(1, \frac{f(x')f_{N(x',2)}(x)}{f(x)f_{N(x,2)}(x')})
 
 <div class="output_area">
 
-<div class="prompt"></div>
+    <div class="prompt"></div>
 
 
 
