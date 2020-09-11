@@ -98,17 +98,26 @@ fall under is where then *entire* message is encoded as a single number (the
 smaller or less precise the number, the shorter the message).  This allows you
 to get closer to the theoretical compression limit.
 
+Speaking of theoretical compression limits, according to Shannon's
+`source coding theorem <https://en.wikipedia.org/wiki/Shannon%27s_source_coding_theorem>`__
+the theoretical limit you can (losslessly) compress data is equal 
+to its entropy.  In other words, the average number of bits per symbol
+cannot be smaller than:
+
+.. math::
+
+    H(X) = -\sum_{i=1}^n p_i \log_2 p_i  \tag{1}
+
+where it's presumed that you know the :math:`p_i` distribution of each of your :math:`n` symbols 
+ahead of time.  I wrote some details on how to think about entropy in my previous post on
+`maximum entropy distributions <link://slug/maximum-entropy-distributions>`__ so I won't
+go into much detail now.
 
 
 
+a class of lossless compression
+encoders are called `entropy encoders <https://en.wikipedia.org/wiki/Entropy_encoding>`__.
 
-transform a stream of data into another stream of
-data that more or less has the same semantic meaning
-
-
-encode some stream of data for many reasons such as
-compression, error correction, or encryption.  For compression, 
-the main tecjfdksj
 
 * Lossy ones
 * Entropy Coders
