@@ -135,7 +135,7 @@ go into much detail now.
 
     .. math::
 
-         \;\;\; H(X) &= -\sum_{i=1}^n p_i \log_2(p_i)  \\
+         H(X) &= -\sum_{i=1}^n p_i \log_2(p_i)  \\
               &= -p_a\log_2(p_a)  - p_b\log_2(p_b) - p_c\log_2(p_c) \\
               &= -\frac{4}{7}\log_2(\frac{4}{7})
                  - \frac{2}{7}\log_2(\frac{2}{7})
@@ -172,19 +172,109 @@ Finally, the metric we'll be using is compression ratio, defined as:
 
 Asymmetric Numeral Systems (ANS) is a entropy encoding method used in data
 compression developed by Jaroslaw Duda [2] in 2009.  It has a really simple
-idea: *encode a message into a single natural number* :math:`x`. If :math:`x`
-is small, it requires fewer bits to represent; if :math:`x` is large, then it
-requires more bits to represent.  Or to think about it the other way, if I can
-exploit the statistical properties of my message so that: the most likely
-messages get mapped to small natural numbers, and the least likely messages get
-mapped to larger natural numbers, I will have achieved good compression.
+idea: take a message as a sequence of symbols and *encode it as a single
+natural number* :math:`x`. 
+If :math:`x` is small, it requires fewer bits to represent; if :math:`x` is
+large, then it requires more bits to represent.  Or to think about it the other
+way, if I can exploit the statistical properties of my message so that: (a) the
+most likely messages get mapped to small natural numbers, and (b) the least likely
+messages get mapped to larger natural numbers, then I will have achieved good
+compression.  Let's explore this idea a bit more.
 
-|h3| Main Concept: Redefining Even and Odd |h3e|
+|h3| Converting a Binary String to a Natural Number |h3e|
 
-* Start out with how to encode binary uniform distribution 1/2 --> best way to
-  do that is regular coding, using mod, etc.
-* Introduce coding function C(x,s), D(x)
-* Example of using coding function
+First off, let's discuss how we can even map a sequence of symbols to a natural
+number.  To begin, we start with the simplest case: a sequence of binary symbols (0s and 1s).
+We all know how to convert a binary string to a natural number, but let's break
+it down into its fundamental parts.  We are particularly interested in how
+to *incrementally* build up to the natural number by reading one bit at a time.
+
+Suppose we have already converted some binary string :math:`b_1 b_2 b_3 \ldots b_i` 
+(:math:`b_1` being the most significant digit) into a natural number
+:math:`x_i` via the typical method of converting (unsigned) binary numbers to
+natural numbers.  If we get another another binary digit :math:`b_{i+1}`, we
+want to derive a coding function such that :math:`x_{i+1} = C(x_i, b_{i+1})`
+generates natural number representation of :math:`b_1 b_2 b_3 \ldots b_{i+1}`.
+If you remember from your discrete math courses, it should really just be
+multiplying the original number by 2 (shifting up a digit in binary), and then
+adding the new binary digit, which is just:
+
+.. math::
+
+    C(x_i, b_{i+1}) := 2x_i + b_{i+1} \tag{3}
+
+If we start with :math:`x_0=0`, you can see that we'll be able to convert any
+binary string iteratively (from MSB to LSB) to its natural number
+representation.  Inversely, we can convert from any natural number to
+iteratively recover the binary digit :math:`b_{i+1}` and the next resulting
+natural number without that idgit, we can use the following decoding function:
+
+.. math::
+
+    (x_i, b_{i+1}) = D(x_{i+1}) := (\lfloor\frac{x_{i+1}}{2}\rfloor, x_{i+1} \bmod 2) \tag{4}
+
+Nothing really new here but let's make a few observations:
+
+* We shouldn't start with :math:`x_0=0`, because we won't be able to
+  distinguish between "0", "00", "000" etc. because they all map to :math:`0`.
+  Instead, let's start at :math:`x_0=1`, which effectively adds a leading "1"
+  to each message we generate but now "0" and "00" can be distinguished as
+  ("10" and "100").
+* Let's look at how we're using :math:`b_{i+1}`.  In Equation 3, if
+  :math:`b_{i+1}` is odd, then we add 1, else if even we add 0.  In Equation 4,
+  we're doing the reverse, if the number :math:`x_{i+1}` is odd, we know we can
+  recover a "1", else when even, we recover an "odd".  We'll use this idea in
+  order to extend.
+* Finally, the encoding using Equations 3 and 4 are optimal if we have a uniform
+  distribution of "0"s and "1"s (i.e. :math:`p_0=p_1=\frac{1}{2}`).  Notice
+  that the entropy :math:`H(x) = 2 \cdot \frac{1}{2}\log_2(\frac{1}{2}) = 1`,
+  which results in 1 bit per binary digit -- exactly as we generate using these
+  equations (if you exclude the fact that we start at 1).
+
+The last two points are relevant because it gives us a hint as to how we might
+extend this to non-uniform binary messages.  Our encoding is optimal because we
+were able to spread the evens and odds (over any given range) in proportion to
+their probability.  We'll explore this idea a bit more in the next section.
+
+.. admonition:: Example 2: Converting a Binary String to/from a Natural Number
+
+    Using Equation 3 and 4, let's convert binary string 
+    :math:`b_1 b_2 b_3 b_4 b_5 = 10011` to a natural number. 
+    Starting with :math:`x_0=1`, we have:
+
+    .. math::
+
+        x_1 &= C(x_0, b_1) = 2x_0 + b_1 = 2(1) + 1 = 3 \\
+        x_2 &= C(x_1, b_2) = 2x_1 + b_1 = 2(3) + 0 = 6 \\
+        x_3 &= C(x_2, b_3) = 2x_2 + b_1 = 2(6) + 0 = 12 \\
+        x_4 &= C(x_3, b_4) = 2x_3 + b_1 = 2(12) + 1 = 25 \\
+        x_5 &= C(x_4, b_5) = 2x_4 + b_1 = 2(25) + 1 = 51 \\
+        \tag{5}
+
+    To recover our original messaage, we can use :math:`D(x_{i+1})`:
+
+    .. math::
+
+        (x_4, b_5) &= D(x_5) = (\lfloor\frac{x_{5}}{2}\rfloor, x_{5} \bmod 2) = 
+            (\lfloor \frac{51}{2} \rfloor, 51 \bmod 2) = (25, 1) \\
+        (x_3, b_4) &= D(x_4) = (\lfloor\frac{x_{4}}{2}\rfloor, x_{4} \bmod 2) = 
+            (\lfloor \frac{25}{2} \rfloor, 25 \bmod 2) = (12, 1) \\
+        (x_2, b_3) &= D(x_3) = (\lfloor\frac{x_{3}}{2}\rfloor, x_{3} \bmod 2) = 
+            (\lfloor \frac{12}{2} \rfloor, 12 \bmod 2) = (6, 0) \\
+        (x_1, b_2) &= D(x_2) = (\lfloor\frac{x_{2}}{2}\rfloor, x_{2} \bmod 2) = 
+            (\lfloor \frac{6}{2} \rfloor, 6 \bmod 2) = (3, 0) \\
+        (x_0, b_1) &= D(x_1) = (\lfloor\frac{x_{1}}{2}\rfloor, x_{1} \bmod 2) = 
+            (\lfloor \frac{3}{2} \rfloor, 3 \bmod 2) = (1, 1) \\
+        \tag{6}
+    
+    Notice that we recovered our original message in the reverse order.
+    The number of bits needed to represent our natural number is :math:`\lceil
+    \log_2(51) \rceil = 6` bits, which is just 1 bit above our ideal entropy of
+    5 bits (assuming a uniform distribution).
+
+|h3| Redefining the Odds (and Evens) |h3e|
+
+
 * What if not uniform distribution?
 * What are we really trying to do with this satisfy property?
     * Density assumption: C(x,p) \approx x/p_s
@@ -205,7 +295,6 @@ mapped to larger natural numbers, I will have achieved good compression.
 
 * tANS
 
-
 |h2| Experiments |h2e|
 
 
@@ -213,6 +302,8 @@ mapped to larger natural numbers, I will have achieved good compression.
 
 * [1] "Lecture I: data compression ... data encoding", Jaroslaw Duda, Nokia Krakow, `<http://ww2.ii.uj.edu.pl/~smieja/teaching/ti/3a.pdf>`__ 
 * [2] "Asymmetric numeral systems", Jarek Duda, `<https://arxiv.org/abs/0902.0271>`__
-* [3] Wikipedia: `<https://en.wikipedia.org/wiki/Asymmetric_numeral_systems`__
+* [3] Wikipedia: `<https://en.wikipedia.org/wiki/Asymmetric_numeral_systems>`__
 
 |h2| Appendix A: Proof of Floor/Ceil |h2e|
+
+
