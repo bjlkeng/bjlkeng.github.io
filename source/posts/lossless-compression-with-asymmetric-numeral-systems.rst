@@ -181,7 +181,7 @@ most likely messages get mapped to small natural numbers, and (b) the least like
 messages get mapped to larger natural numbers, then I will have achieved good
 compression.  Let's explore this idea a bit more.
 
-|h3| Converting a Binary String to a Natural Number |h3e|
+|h3| Encoding a Binary String to a Natural Number |h3e|
 
 First off, let's discuss how we can even map a sequence of symbols to a natural
 number.  To begin, we start with the simplest case: a sequence of binary symbols (0s and 1s).
@@ -236,7 +236,7 @@ extend this to non-uniform binary messages.  Our encoding is optimal because we
 were able to spread the evens and odds (over any given range) in proportion to
 their probability.  We'll explore this idea a bit more in the next section.
 
-.. admonition:: Example 2: Converting a Binary String to/from a Natural Number
+.. admonition:: Example 2: Encoding a Binary String to/from a Natural Number
 
     Using Equation 3 and 4, let's convert binary string 
     :math:`b_1 b_2 b_3 b_4 b_5 = 10011` to a natural number. 
@@ -274,17 +274,86 @@ their probability.  We'll explore this idea a bit more in the next section.
 
 |h3| Redefining the Odds (and Evens) |h3e|
 
+Let's think about why the naive encoding in the previous section might result
+in an optimal code for a uniform distribution.  For one, it spreads even and odd
+numbers (binary strings ending in "0"'s and "1"'s respectively) uniformly across
+any natural number range.  This kind of makes sense since they are uniformly
+distributed.  What's the analogy for a non-uniform distribution?
 
-* What if not uniform distribution?
-* What are we really trying to do with this satisfy property?
-    * Density assumption: C(x,p) \approx x/p_s
-    * Show how if density assumption satisfied, we have entropy coder
-* Summary:
-    * Mapping to natural numbers
-    * C(x,s), D(X), iteratively building to natural numbers
-    * Density assumption satisfied
+If we were going to map a non-uniform distribution with 
+:math:`p_1=p < 1-p = p_0`, then we would want the more frequent symbol (0 in
+this case) to appear more often in any given mapped natural number range.  More
+precisely, we would want even numbers to be mapped in a given range roughly 
+:math:`\frac{1-p}{p}` more often than odd numbers.  Or stated another way,
+in a given mapped natural number range from :math:`[1, x]` we would want to see
+roughly :math:`x\cdot p` evens and :math:`x\cdot (1-p)` odds.
+How can we achieve this?  Just define our coding function to do this! 
+
+**SHOW DIAGRAM of even/odds asymmetrically distributed**
+
+**Explain that if we didn't distribute it this way then **
+
+For coding function :math:`C(x_i,b_{i+1})`, similarly defined as Equation 3,
+we want: 
+
+.. math::
+
+    x_{i+1} = C(x_i,b_{i+1}) \approx \frac{x_i}{p_{b_{i+1}}} \tag{7}
+
+**QUESTION: WHY is this equivalent to the density assumption?**
+
+If we can guarantee this (with some reasonable approximation), then we can show that 
+the encoding is roughly equal to the entropy (or the lower bound theoretical limit)
+shown with the following reasoning:
+
+.. admonition:: Entropy of Incrementally Adding a New Bit
+
+    Assume natural number :math:`x_i` has :math:`\log_2(x_i)` bits of information
+    that encodes some binary message.
+    If we add a new bit :math:`b_{i+1}` to the message, then our encoding
+    function would generate a new natural number :math:`x_{i+1} = C(x_i, b_{i+1})`.
+    But the information contained in the new encoded message is:
+    
+    .. math::
+        \log_2(x_{i+1}) = \log_2(C(x_i, b_{i+1}))  
+                        \approx  \log_2(\frac{x_s}{p_{b_{i+1}}})
+                        =\log_2(x) + \log_2(\frac{1}{p_{b_{i+1}}}) \tag{8}
+    
+    Hence, we added approximately :math:`\log_2(\frac{1}{p_{b_{i+1}}})` bits of
+    information, which is precisely the entropy of the new bit.
+  
+As we can see, as long as we maintain the invariant of roughly :math:`x \cdot p` evens
+(or equivalently :math:`x \cdot (1-p)` odds) as we go along, then we will have achieved
+close to the theoretical compression limit.  In other words, if we "redefine" the frequency
+of evens and odds, then we can achieve our goal.
+
+In summary:
+
+* A binary message encoded and decoded to a single natural number.
+* Using this method, we can build an entropy encoder by defining a mapping of
+  even and odd binary numbers (those ending in "1'/"0"s) in proportion to their
+  probabilities (:math:`p, 1-p`) in a message.
+* We can incrementally generate this number bit by bit by using a coding 
+  function :math:`x_{i+1} = C(x_i, b_{i+1})` 
+  (decoding function :math:`(x_i, b_{i+1}) = D(x_{i+1})`) that will
+  iteratively generate a mapped natural number from (to) the previous mapped number
+  and the next bit.
+
+In the next sections, we'll discuss concrete implementations of these encoding
+and decoding functions.
 
 |h3| Uniform Binary Variant (uABS) |h3e|
+
+Show :math:`\lceil (x+1)\cdot p \rceil - \lceil x\cdot p \rceil` is equivalent to what we want
+of :math:`\lceil x\cdot p \rceil`
+
+Show picture example of 2/5, 3/5 running from x=0,15, and color coating of even/odds and arrows to/from them
+
+Describe mapping functions
+
+Say it's equivalent when p=1/2
+
+Add appendix of proof of mapping functions
 
 |h3| Range variants (rANS) |h3e|
 
@@ -297,6 +366,12 @@ their probability.  We'll explore this idea a bit more in the next section.
 
 |h2| Experiments |h2e|
 
+
+|h3| Implementation |h3e|
+
+* Need to be careful when implementing uABS -- floating point precision is not
+  good enough b/c of rounding, also limited to N bits due to use of int64
+* rANS, renormalization needs to pre-calculate lowerbound on compression
 
 |h2| References |h2e|
 
