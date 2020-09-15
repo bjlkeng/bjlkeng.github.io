@@ -281,51 +281,54 @@ any natural number range.  This kind of makes sense since they are uniformly
 distributed.  What's the analogy for a non-uniform distribution?
 
 If we were going to map a non-uniform distribution with 
-:math:`p_1=p < 1-p = p_0`, then we would want the more frequent symbol (0 in
-this case) to appear more often in any given mapped natural number range.  More
-precisely, we would want even numbers to be mapped in a given range roughly 
-:math:`\frac{1-p}{p}` more often than odd numbers.  Or stated another way,
-in a given mapped natural number range from :math:`[1, x]` we would want to see
-roughly :math:`x\cdot p` evens and :math:`x\cdot (1-p)` odds.
-How can we achieve this?  Just define our coding function to do this! 
+:math:`p_1=p < 1-p = p_0`, then we would want the more frequent symbol 
+(0 in this case) to appear more often in any given mapped natural number range.
+More precisely, we would want even numbers to be mapped in a given range
+roughly :math:`\frac{1-p}{p}` more often than odd numbers.  Or stated another
+way, in a given mapped natural number range from :math:`[1, x]` we would want
+to see roughly :math:`x\cdot p` evens and :math:`x\cdot (1-p)` odds.
+This may make some intuitive sense but we still haven't seen how we can get an
+optimal compression ratio.  Let's work backwards from an optimal compression
+scheme and figure out what we would need.
 
-**SHOW DIAGRAM of even/odds asymmetrically distributed**
-
-**Explain that if we didn't distribute it this way then **
-
-For coding function :math:`C(x_i,b_{i+1})`, similarly defined as Equation 3,
-we want: 
+We are trying to define the encoding function :math:`x_{i+1} = C(x_i, b_{i+1})`
+(similarly to Equation 3) such that each incremental bit generates the minimal 
+amount of entropy.  Assuming that :math:`x_i` has :math:`\log_2 (x_i)` bits of
+information, and we want to encode :math:`b_{i+1}` optimally with
+:math:`\log_2(p_{b_{i+1}})` bits, we have:
 
 .. math::
+    \log_2(C_{\text{opt}}(x_i, b_{i+1})) 
+        &= \log_2(x_i) + \log_2(\frac{1}{p_{b_{i+1}}})
+        = \log_2(\frac{x_i}{p_{b_{i+1}}}) \\
+    &\implies C_{\text{opt}}(x_i, b_{i+1}) \approx \frac{x_i}{p_{b_{i+1}}} 
+        \tag{8}
 
-    x_{i+1} = C(x_i,b_{i+1}) \approx \frac{x_i}{p_{b_{i+1}}} \tag{7}
+Therefore, if we can define :math:`C(x_i, b_{i+1}) \approx \frac{x_i}{p_{b_{i+1}}}`
+then we will have achieved an optimal code!  Let's try to understand what this
+mapping means.
 
-**QUESTION: WHY is this equivalent to the density assumption?**
+Starting with odd numbers, regardless of which number we are currently at :math:`x_i`,
+when we see the last bit is :math:`1`, we know we have an odd.  From Equation 8,
+this means we just need to divide by :math:`p`.  So odd numbers will be placed
+at (roughly), :math:`\frac{1}{p}, \frac{2}{p}, \frac{3}{p}, \ldots`, which
+basically means we'll see an odd number (roughly) every :math:`\frac{1}{p}`
+natural numbers.  But if we take a closer look, this is precisely the
+condition of having roughly :math:`x\cdot p` for the first :math:`x` natural numbers
+(:math:`\text{# of Odds} = x / \frac{1}{p} = x\cdot p`).  Similarly, we'll see
+even numbers (roughly) every :math:`\frac{1}{1-p}`, which also means we'll see
+(roughly) :math:`x \cdot (1-p)` in the first :math:`x` natural numbers.
+So our intuition does lead us towards the solution of an optimal code after all!
 
-If we can guarantee this (with some reasonable approximation), then we can show that 
-the encoding is roughly equal to the entropy (or the lower bound theoretical limit)
-shown with the following reasoning:
-
-.. admonition:: Entropy of Incrementally Adding a New Bit
-
-    Assume natural number :math:`x_i` has :math:`\log_2(x_i)` bits of information
-    that encodes some binary message.
-    If we add a new bit :math:`b_{i+1}` to the message, then our encoding
-    function would generate a new natural number :math:`x_{i+1} = C(x_i, b_{i+1})`.
-    But the information contained in the new encoded message is:
-    
-    .. math::
-        \log_2(x_{i+1}) = \log_2(C(x_i, b_{i+1}))  
-                        \approx  \log_2(\frac{x_s}{p_{b_{i+1}}})
-                        =\log_2(x) + \log_2(\frac{1}{p_{b_{i+1}}}) \tag{8}
-    
-    Hence, we added approximately :math:`\log_2(\frac{1}{p_{b_{i+1}}})` bits of
-    information, which is precisely the entropy of the new bit.
-  
-As we can see, as long as we maintain the invariant of roughly :math:`x \cdot p` evens
-(or equivalently :math:`x \cdot (1-p)` odds) as we go along, then we will have achieved
-close to the theoretical compression limit.  In other words, if we "redefine" the frequency
-of evens and odds, then we can achieve our goal.
+Thinking about this code a bit differently, we are essentially redefining the
+frequency of evens and odds with this new mapping.  An interesting thing that
+you may not have noticed is that this argument works (more or less) with *any*
+alphabet, not just binary ones.  Equation 8 would only need to reference
+symbol :math:`s_{i+1}` instead of :math:`b_{i+1}` and the same logic would
+work.  However, there is one big caveat that we need to address: we need to map
+to natural numbers but Equation 8 is in terms of reals! This makes things a
+bit more difficult because we'll need to discretize them, which we'll see in
+the concrete implementations below.
 
 In summary:
 
@@ -338,9 +341,8 @@ In summary:
   (decoding function :math:`(x_i, b_{i+1}) = D(x_{i+1})`) that will
   iteratively generate a mapped natural number from (to) the previous mapped number
   and the next bit.
-
-In the next sections, we'll discuss concrete implementations of these encoding
-and decoding functions.
+* If we can guarantee our coding function :math:`C(x_i, b_{i+1}) \approx \frac{x_i}{p_{b_{i+1}}}`
+  then we will have achieved an optimal code.
 
 |h3| Uniform Binary Variant (uABS) |h3e|
 
