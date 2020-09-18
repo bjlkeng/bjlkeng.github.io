@@ -285,8 +285,8 @@ If we were going to map a non-uniform distribution with
 (0 in this case) to appear more often in any given mapped natural number range.
 More precisely, we would want even numbers to be mapped in a given range
 roughly :math:`\frac{1-p}{p}` more often than odd numbers.  Or stated another
-way, in a given mapped natural number range from :math:`[1, x]` we would want
-to see roughly :math:`x\cdot p` evens and :math:`x\cdot (1-p)` odds.
+way, in a given mapped natural number range from :math:`[1, N]` we would want
+to see roughly :math:`N\cdot p` evens and :math:`N\cdot (1-p)` odds.
 This may make some intuitive sense but we still haven't seen how we can get an
 optimal compression ratio.  Let's work backwards from an optimal compression
 scheme and figure out what we would need.
@@ -314,21 +314,31 @@ this means we just need to divide by :math:`p`.  So odd numbers will be placed
 at (roughly), :math:`\frac{1}{p}, \frac{2}{p}, \frac{3}{p}, \ldots`, which
 basically means we'll see an odd number (roughly) every :math:`\frac{1}{p}`
 natural numbers.  But if we take a closer look, this is precisely the
-condition of having roughly :math:`x\cdot p` for the first :math:`x` natural numbers
-(:math:`\text{# of Odds} = x / \frac{1}{p} = x\cdot p`).  Similarly, we'll see
+condition of having roughly :math:`N\cdot p` for the first :math:`N` natural numbers
+(:math:`\text{# of Odds} = N / \frac{1}{p} = N\cdot p`).  Similarly, we'll see
 even numbers (roughly) every :math:`\frac{1}{1-p}`, which also means we'll see
-(roughly) :math:`x \cdot (1-p)` in the first :math:`x` natural numbers.
+(roughly) :math:`N \cdot (1-p)` in the first :math:`N` natural numbers.
 So our intuition does lead us towards the solution of an optimal code after all!
 
+.. figure:: /images/ans_even_odd.png
+  :height: 150px
+  :alt: Distribution of Evens and Odds for Various :math:`p`
+  :align: center
+
+  Figure 1: Distribution of Evens and Odds for Various :math:`p`
+
+
 Thinking about this code a bit differently, we are essentially redefining the
-frequency of evens and odds with this new mapping.  An interesting thing that
-you may not have noticed is that this argument works (more or less) with *any*
-alphabet, not just binary ones.  Equation 8 would only need to reference
-symbol :math:`s_{i+1}` instead of :math:`b_{i+1}` and the same logic would
-work.  However, there is one big caveat that we need to address: we need to map
-to natural numbers but Equation 8 is in terms of reals! This makes things a
-bit more difficult because we'll need to discretize them, which we'll see in
-the concrete implementations below.
+frequency of evens and odds with this new mapping.  We can see this more
+clearly in Figure 1.  For different values of :math:`p`, we can see a repeating
+pattern of where the evens and odds fall.  When math:`p=1/2`, we see an
+alternating pattern (never mind that :math:`2` is mapped to an odd, this is an
+unimportant quirk of the implementation) as we usually expect.  However,
+when we go to non-uniform distributions, we can see repeating but
+non-alternating patterns.  One thing you may notice is that the above equations
+are in :math:`\mathbb{R}` but we need them to mapped to natural numbers!
+Figure 1 implicitly does some of the required rounding and we'll see more of
+that in the implementations below.
 
 In summary:
 
@@ -346,18 +356,59 @@ In summary:
 
 |h3| Uniform Binary Variant (uABS) |h3e|
 
-Show :math:`\lceil (x+1)\cdot p \rceil - \lceil x\cdot p \rceil` is equivalent to what we want
-of :math:`\lceil x\cdot p \rceil`
+Without loss of generality, let's a binary alphabet with end in "1" and evens
+in "0" with :math:`p_1 = p < 1-p = p_0` (odds are always less frequent than evens).
+We know we want approximately :math:`N\cdot p` odd numbers mapped in the first
+:math:`N` mapped natural numbers.  Since we have to have a non-fractional
+number of odds, let's pick :math:`\lceil N \cdot p \rceil` odds in the first
+:math:`N` mapped natural numbers.  From this, we get this relationship for
+any given :math:`N` and :math:`N+1`:
 
-Show picture example of 2/5, 3/5 running from x=0,15, and color coating of even/odds and arrows to/from them
+.. math::
 
-Describe mapping functions
+    \lceil (N+1)\cdot p \rceil - \lceil N\cdot p \rceil 
+    = \left\{
+        \begin{array}{ll}
+            1 && \text{ if } (N+1) \text{ has an odd mapped} \\
+            0 && \text{otherwise} \\
+        \end{array}
+    \right. \tag{9}
 
-Say it's equivalent when p=1/2
+Another way to think about it is: if we're at :math:`N` and we've filled our :math:`\lceil N \cdot p\rceil`
+odd number "quota" then we don't need to see another odd at :math:`N+1` (:math:`0` case).
+Conversely, if going to :math:`N+1` makes it so we're behind our odd number
+"quota" then we should make sure that we map an odd at :math:`N` (:math:`1` case).
 
-Add appendix of proof of mapping functions
+Now here's the tricky part: what coding function :math:`x_{i+1} = C(x_i, b_{i+1})` 
+satisfies Equation 9 (where :math:`x_i` is our mapped natural number)?
+It turns out this one does:
+
+.. math::
+    
+    C(x_i, b_{i+1})
+    = \left\{
+        \begin{array}{ll}
+            \lceil \frac{x_i+1}{1-p} \rceil - 1 && \text{if } b_{i+1} = 0 \\
+            \lfloor \frac{x_i}{p} \rfloor && \text{otherwise} \\
+        \end{array}
+    \right. \tag{10}
+
+I couldn't quite figure out a sensible derivation of why this particular
+function works but I think it's not trivial.  The main problem is
+that we're working with natural numbers so working with floor and ceil
+operators is not so obvious.  Additionally, Equation 10 kind of looks like a 
+some kind of `difference equation <https://en.wikipedia.org/wiki/Linear_difference_equation>`__,
+which are generally very difficult to solve.  However, I did manage to
+prove that Equation 10 is consistent with Equation 9.  See Appendix A for the proof.
 
 |h3| Range variants (rANS) |h3e|
+
+An interesting thing that
+you may not have noticed is that this argument works (more or less) with *any*
+alphabet, not just binary ones.  Equation 8 would only need to reference
+symbol :math:`s_{i+1}` instead of :math:`b_{i+1}` and the same logic would
+work.  
+
 
 * rANS
 * Renormalization
@@ -381,6 +432,86 @@ Add appendix of proof of mapping functions
 * [2] "Asymmetric numeral systems", Jarek Duda, `<https://arxiv.org/abs/0902.0271>`__
 * [3] Wikipedia: `<https://en.wikipedia.org/wiki/Asymmetric_numeral_systems>`__
 
-|h2| Appendix A: Proof of Floor/Ceil |h2e|
+|h2| Appendix A: Proof of uABS Coding Function |h2e|
+
+(*As an aside: I spent longer than I'd like to admit trying to figure out this proof.
+It turns out that trying to prove things involving floor and ceil functions wasn't
+so obvious for a computer engineer by training.
+I tried looking up a bunch of identities and going in circles using modulo 
+notation without much success.  It was only after going back to the definition
+of the floor/ceil operators, did I figure out the proof below.  There's
+probably some lesson here about first principles but I'll let you take what you 
+want from this digression.*)
+
+Let's start out by assuming that :math:`p = \frac{a}{b}` can be represented as
+a rational number for some relatively prime :math:`a, b \in \mathbb{Z}^{+}`.
+Practically, we're working with non-infinite precision, so it's not too big of
+a stretch.  To verify that Equation 10 is consistent with Equation 9, we'll use
+substitution and show that the two equations are consistent.
+
+**Case 1: N is odd**
+
+Re-write Equation 9 odd case:
+
+.. math::
+
+    x_{i+1} = \lfloor \frac{x_i}{p} \rfloor = \lfloor \frac{bx_i}{a} \rfloor = \frac{bx_i}{a} - \frac{m}{a} && \text{for some } 0 \leq m < a, m \in \mathbb{Z} \\
+    \tag{A.1}
+
+Substitute Equation A.1 into Equation 9:
+
+.. math::
+
+    \lceil (N+1)\cdot p \rceil - \lceil N\cdot p \rceil 
+    &= \lceil (\frac{bx}{a} - \frac{m}{a} + 1)\frac{a}{b} \rceil - \lceil (\frac{bx}{a} - \frac{m}{a})\frac{a}{b}  \rceil \\
+    &= \lceil x - \frac{m}{b} + \frac{a}{b} \rceil -  \lceil x - \frac{m}{b} \rceil \\
+    &= x + \lceil - \frac{m}{b} + \frac{a}{b} \rceil -  x - \lceil - \frac{m}{b} \rceil && \text{ since } x \in \mathbb{Z} \\
+    &= \lceil \frac{a-m}{b} \rceil -  \lceil - \frac{m}{b} \rceil  && \text{ since } 0 \leq m < a < b \\
+    &= 1 - 0 = 1
+    \tag{A.2}
+
+**Case 2: N is even**
+
+Re-write define :math:`m \in \mathbb{Z}^{+}` to be:
+
+.. math::
+
+    m := \lceil \frac{x+1}{1-p} \rceil \tag{A.3}
+
+Substitute Equation 9 and A.3 into Equation 9:
+
+.. math::
+
+    \lceil (N+1)\cdot p \rceil - \lceil N\cdot p \rceil 
+    &= \lceil (\lceil \frac{x+1}{1-p} \rceil - 1 + 1)\cdot p \rceil - 
+        \lceil (\lceil \frac{x+1}{1-p} \rceil - 1) \cdot p \rceil \\
+    &= \lceil \lceil \frac{(x+1)b}{b-a} \rceil \cdot \frac{a}{b} \rceil 
+        - \lceil (\lceil \frac{(x+1)b}{b-a}\rceil - 1) \cdot \frac{a}{b} \rceil \\
+    &= \lceil (m\cdot (b-a) - \frac{i}{b-a}) \cdot \frac{a}{b} \rceil 
+        - \lceil (m\cdot (b-a) - \frac{i}{b-a} - 1) \cdot \frac{a}{b} \rceil 
+        && \text{for some } 0 \leq i < b-a, i \in \mathbb{Z}; m \in \mathbb{Z} \\
+    &= m\cdot (b-a) + \lceil - \frac{i}{b-a} \cdot \frac{a}{b} \rceil 
+        - m\cdot (b-a) - \lceil (- \frac{i}{b-a} - 1) \cdot \frac{a}{b} \rceil 
+        && \text{ since } m\cdot(b-a) \in \mathbb{Z} \\
+    &= \lceil - \frac{i}{b-a} \cdot \frac{a}{b} \rceil 
+       - \lceil (- \frac{i}{b-a} - 1) \cdot \frac{a}{b} \rceil \\
+    &= 0 - \lceil (- \frac{i}{b-a} - 1) \cdot \frac{a}{b} \rceil 
+       && \text{ since } 0 \leq \frac{i}{b-a} < 1; 0 < \frac{a}{b} < 1 \\
+    \tag{A.4}
+
+Now looking at the last line and looking at the expression the ceil function,
+we can see that:
+
+.. math::
+
+    (- \frac{i}{b-a} - 1) \cdot \frac{a}{b} & > -\frac{2a}{b} 
+        && \text {since } \frac{i}{b-a} < 1 \\
+    &\geq -1
+        && \text {since } \frac{a}{b} \leq 0.5 \text{ using assumption } p < 1-p \\
+    \tag{A.5}
+
+So :math:`(- \frac{i}{b-a} - 1)\cdot \frac{a}{b} > -1` (and obviously :math:`< 0`), therefore
+Equation A.4 resolves to :math:`- \lceil (- \frac{i}{b-a} - 1) \cdot \frac{a}{b} \rceil = 0` as required.
 
 
+    
