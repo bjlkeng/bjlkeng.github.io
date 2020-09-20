@@ -245,10 +245,10 @@ their probability.  We'll explore this idea a bit more in the next section.
     .. math::
 
         x_1 &= C(x_0, b_1) = 2x_0 + b_1 = 2(1) + 1 = 3 \\
-        x_2 &= C(x_1, b_2) = 2x_1 + b_1 = 2(3) + 0 = 6 \\
-        x_3 &= C(x_2, b_3) = 2x_2 + b_1 = 2(6) + 0 = 12 \\
-        x_4 &= C(x_3, b_4) = 2x_3 + b_1 = 2(12) + 1 = 25 \\
-        x_5 &= C(x_4, b_5) = 2x_4 + b_1 = 2(25) + 1 = 51 \\
+        x_2 &= C(x_1, b_2) = 2x_1 + b_2 = 2(3) + 0 = 6 \\
+        x_3 &= C(x_2, b_3) = 2x_2 + b_3 = 2(6) + 0 = 12 \\
+        x_4 &= C(x_3, b_4) = 2x_3 + b_4 = 2(12) + 1 = 25 \\
+        x_5 &= C(x_4, b_5) = 2x_4 + b_5 = 2(25) + 1 = 51 \\
         \tag{5}
 
     To recover our original messaage, we can use :math:`D(x_{i+1})`:
@@ -394,24 +394,273 @@ It turns out this one does:
     \right. \tag{10}
 
 I couldn't quite figure out a sensible derivation of why this particular
-function works but I think it's not trivial.  The main problem is
+function works but it's probably not trivial.  The main problem is
 that we're working with natural numbers so working with floor and ceil
 operators is not so obvious.  Additionally, Equation 10 kind of looks like a 
 some kind of `difference equation <https://en.wikipedia.org/wiki/Linear_difference_equation>`__,
 which are generally very difficult to solve.  However, I did manage to
-prove that Equation 10 is consistent with Equation 9.  See Appendix A for the proof.
+prove that Equation 10 is consistent with Equation 9.  See Appendix A for the
+proof.
 
-|h3| Range variants (rANS) |h3e|
+Using Equation 10, we can now code any binary message using the same method we used
+in the previous section with Equation 3: iteratively applying Equation 10 one
+bit at a time.  The matching decoding function is essentially the reverse calculation:
 
-An interesting thing that
-you may not have noticed is that this argument works (more or less) with *any*
-alphabet, not just binary ones.  Equation 8 would only need to reference
-symbol :math:`s_{i+1}` instead of :math:`b_{i+1}` and the same logic would
-work.  
+.. math::
+    
+    (x_i, b_{i+1}) &= D(x_{i+1}) \\
+    b_{i+1} &= \lceil (x_{i+1}+1)\cdot p \rceil - \lceil x_{i+1}\cdot p \rceil  \\
+    x_i &= \left\{
+        \begin{array}{ll}
+            x_{i+1} - \lceil x_{i+1} \cdot p \rceil && \text{if } b_{i+1} = 0 \\
+            \lceil x_{i+1} \cdot p \rceil && \text{otherwise} \\
+        \end{array}
+    \right. \tag{11}
+
+The decoding of a bit is calculated exactly as we have designed it in Equation 9,
+and depending on which bit was decoded, we perform the reverse calculation of
+Equation 10.  For the :math:`b_{i+1} = 0` case, it may not look like the reverse
+calculation but the math should work out (haven't proven it, but my
+implementation works).  Working with these ceil/floor functions is strange.
+In the end, the equations to encode/decode are straight forward but the logic
+of arriving at them is far from it.
+
+.. admonition:: Example 3: Encoding a Binary String to/from a Natural Number using uABS
+
+    Using the same binary string as Example 2, 
+    :math:`b_1 b_2 b_3 b_4 b_5 = 10011`, let's encode it using uABS but
+    with :math:`p=\frac{7}{10}` (recall we assume that :math:`p=p_1 < p_0=1-p`).
+    Using Equation 10 and starting with :math:`x_0=1`, we get:
+
+    .. math::
+
+        x_1 &= C(x_0, b_1) = \lfloor \frac{x_0}{p} \rfloor = \lfloor 1\cdot \frac{10}{3} \rfloor = 3 \\
+        x_2 &= C(x_1, b_2) = \lceil \frac{x_i+1}{1-p} \rceil - 1 = \lceil (3+1)\frac{10}{7} \rceil - 1 = 5 \\
+        x_3 &= C(x_2, b_3) = \lceil \frac{x_i+1}{1-p} \rceil - 1 = \lceil (5+1)\frac{10}{7} \rceil - 1 = 8 \\
+        x_4 &= C(x_3, b_4) = \lfloor \frac{x_0}{p} \rfloor = \lfloor 8\cdot \frac{10}{3} \rfloor = 26 \\
+        x_5 &= C(x_4, b_5) = \lfloor \frac{x_0}{p} \rfloor = \lfloor 26\cdot \frac{10}{3} \rfloor = 86 \\
+        \tag{12}
+
+    Decoding can be applied in a similar way with Equation 11, which recovers
+    our original message of "10011" (but in reverse order):
+
+    .. math::
+
+        b_5 &= \lceil (x_5+1)\cdot p \rceil - \lceil x_5\cdot p \rceil 
+             = \lceil (86+1)\cdot \frac{3}{10} \rceil - \lceil 86\cdot \frac{3}{10} \rceil 
+             = 1 \\
+        x_4 &= \lceil x_5 \cdot p \rceil 
+             = \lceil 86\cdot \frac{3}{10} \rceil 
+             = 26 \\
+        b_4 &= \lceil (x_4+1)\cdot p \rceil - \lceil x_4\cdot p \rceil 
+             = \lceil (26+1)\cdot \frac{3}{10} \rceil - \lceil 26\cdot \frac{3}{10} \rceil 
+             = 1 \\
+        x_3 &= \lceil x_4 \cdot p \rceil 
+             = \lceil 26\cdot \frac{3}{10} \rceil 
+             = 8 \\
+        b_3 &= \lceil (x_3+1)\cdot p \rceil - \lceil x_3\cdot p \rceil 
+             = \lceil (8+1)\cdot \frac{3}{10} \rceil - \lceil 8\cdot \frac{3}{10} \rceil 
+             = 0 \\
+        x_2 &= x_3 - \lceil x_3 \cdot p \rceil 
+             = 8 - \lceil 8\cdot \frac{3}{10} \rceil 
+             = 5 \\
+        b_2 &= \lceil (x_2+1)\cdot p \rceil - \lceil x_2\cdot p \rceil 
+             = \lceil (5+1)\cdot \frac{3}{10} \rceil - \lceil 5\cdot \frac{3}{10} \rceil 
+             = 0 \\
+        x_1 &= x_2 - \lceil x_2 \cdot p \rceil 
+             = 5 - \lceil 5\cdot \frac{3}{10} \rceil 
+             = 3 \\
+        b_1 &= \lceil (x_1+1)\cdot p \rceil - \lceil x_1\cdot p \rceil 
+             = \lceil (3+1)\cdot \frac{3}{10} \rceil - \lceil 3\cdot \frac{3}{10} \rceil 
+             = 1 \\
+        x_0 &= \lceil x_1 \cdot p \rceil 
+             = \lceil 3\cdot \frac{3}{10} \rceil 
+             = 1 \\
+        \tag{13}
+
+    Another popular way to visualize this is using a tabular method in Figure 2.
+    In the top row, we have the same visualization of evens/odds as Figure 1 for :math:`p=\frac{3}{10}`,
+    which is essentially :math:`C(x_i, b_{i+1})`.
+    In the second and third row, respectively, for each :math:`C(x_i,
+    b_{i+1})`, it shows the number of evens/odds up to that natural number.
+    So for :math:`C(x_i, b_{i+1})=3`, it is the first odd we have seen, and for 
+    :math:`C(x_i, b_{i+1})=26`, it's the eighth odd we have seen and so on.  The
+    same thing happens on the even side.  
+
+    .. figure:: /images/ans_ex3.png
+      :height: 150px
+      :alt: Tabular Visualization of uABS Encoding
+      :align: center
+    
+      Figure 2: Tabular Visualization of uABS Encoding
+
+    This turns out to be precisely what Equation 10 is doing.  The yellow lines
+    trace out what an encoding for "10011" would like like.  For a given
+    :math:`x_i`, we apply Equation 10 to "jump" (the yellow "up" arrows) to the
+    next natural number depending on whether we have a even or an odd (the
+    yellow "diagonal" arrows).  Decoding would follow a similar process but in
+    reverse.
+
+|h3| Range Variant (rANS) |h3e|
+
+We saw that uABS works on a binary alphabet, but we can also apply the same concept
+to an alphabet of any size (with some modifications). The first thing to notice
+is that that the argument from Equation 8 works (more or less) with *any*
+alphabet, not just binary ones (just replace the bit :math:`b_{i+1}` with symbol :math:`s_{i+1}`).
+That is, adding an incremental symbol (instead of a bit) should only increase
+the total entropy of the message by the entropy of that symbol.  Equation 8
+would only need to reference symbol and the same logic would work.  
+
+Another problem are those pesky real numbers.  Theoretically, we can have
+arbitrary real numbers for the probability distribution of our alphabet.  We
+"magically" found a nice formula in Equation 10/11 that encodes/decodes any
+arbitrary :math:`p`, but in the case of a larger alphabet, it's a bit tougher.
+Instead, a restriction that we'll place is that we'll quantize the probability
+distribution in :math:`2^n` chunks.  So :math:`p_s\approx \frac{f_s}{2^n}`,
+where :math:`f_s` is a natural number.
+This quantization of the probability distribution, simplifies things for us by
+allowing us to have a simpler and more efficient coding/decoding function
+(although it's not clear to me if it's possible to do it without quantization).
+
+Instead of our previous idea of even and odds, what we'll be doing is extending this idea 
+and "coloring" each number.  So for an alphabet of size 3, we might color
+things red, green and blue.  Figure 3 shows a few examples with this alphabet
+with :math:`n=3` quantization for a few different examples (this is analogous
+to Figure 1).
+
+.. figure:: /images/ans_rans.png
+  :height: 200px
+  :alt: Distribution of "blue", "green" and "red" symbols
+  :align: center
+
+  Figure 3: Distribution of "blue", "green" and "red" symbols
+
+So how does it work?  It's not too far off from uABS, we use the following equations to encode/decode:
+
+.. math::
+
+    C(x_i, s_{i+1}) &= \lfloor \frac{x_i}{f_s} \rfloor \cdot 2^n + (x_i \bmod f_s) + CDF[s]  \tag{14} \\
+    s_{i+1} &= \text{symbol}(x_{i+1} \bmod 2^n) \text{ such that } CDF[s] \leq x_{i+1} \bmod 2^n < CDF[s+1] \tag{15} \\
+    x_i = D(x_{i+1}) &= f_s \cdot \lfloor x_{i+1} / 2^n \rfloor + (x_{i+1} \bmod 2^n) - CDF[s] \tag{16}
+
+Where :math:`CDF[s] := f_0 + f_1 + \ldots + f_{s-1}`, essentially the
+cumulative distribution function for a given ordering of the symbols.  You'll notice
+that since we've quantized the distribution in terms of powers of 2, we can replace
+the multiplications, divisions and modulo with left shifting, right shifting
+and logical masking, respectively, which makes this much more efficient computationally.
+
+The intuition for Equation 14-16 isn't too far from from uABS: for a given
+:math:`x_i`, we want to maintain the property that we roughly see 
+:math:`x_i\cdot  p_s = x_i \cdot \frac{f_s}{2^n}` of symbols :math:`s`. Looking
+at Equation 14, we can see how it accomplishes this:
+
+* :math:`\lfloor \frac{x_i}{f_s} \rfloor \cdot 2^n`: finds the right :math:`2^n` range
+  (recall that we have a repeating pattern every :math:`2^n` natural numbers).
+* :math:`CDF[s]` finds the offset within the :math:`2^n` range for the current
+  symbol :math:`s` -- all :math:`s` symbols will be grouped together within
+  this range starting here.
+* :math:`(x_i \bmod f_s)` finds the precise location within this sub-range
+  (which has precisely :math:`f_s` spaces allocated for it).
+
+Since we maintain this repeating pattern, we implicitly are maintaining the
+property that we'll see :math:`x_i \cdot p_s` ":math:`s`" symbols within the
+first :math:`x_i` natural numbers.  The decoding is basically just the reverse
+operation of the encoding.
+
+.. admonition:: Example 4: Encoding a Ternary String to/from a Natural Number using rANS
+
+    Using the alphabet ['a', 'b', 'c'] with quantization :math:`n=3` and distribution
+    :math:`[f_a, f_b, f_c]=[5, 2, 1]` (:math:`CDF[s] = [0, 5, 7, 8]`), let's encode the string "abc".
+    We need to start with :math:`x_0=8` or we won't be able to encode repeated
+    values of 'a' (similar to how we start uABS at 1). In fact, we just need to
+    start with the :math:`\max f_s` but to be safe, we'll use :math:`2^n`.
+    Using Equation 14:
+
+    .. math::
+
+       x_1 &= C(x_0, a) 
+            = \lfloor \frac{x_0}{f_a} \rfloor \cdot 2^3 + (x_0 \bmod f_a) + CDF[a]
+            = \lfloor \frac{8}{5} \rfloor \cdot 8 + (8 \bmod 5) + 0
+            = 11 \\
+       x_2 &= C(x_0, b)
+            = \lfloor \frac{x_1}{f_b} \rfloor \cdot 2^3 + (x_1 \bmod f_b) + CDF[b]
+            = \lfloor \frac{11}{2} \rfloor \cdot 8 + (11 \bmod 2) + 5
+            = 46  \\
+       x_3 &= C(x_0, c)
+            = \lfloor \frac{x_2}{f_c} \rfloor \cdot 2^3 + (x_2 \bmod f_c) + CDF[c]
+            = \lfloor \frac{46}{1} \rfloor \cdot 8 + (46 \bmod 1) + 7
+            = 375 \\
+        \tag{17}
+
+    Decoding, works similarly using Equation 15-16:
+
+    .. math::
+
+        s_2 &= \text{symbol}(x_3 \bmod 8) = \text{symbol}(375 \bmod 8) = 'c' \\
+        x_2 &= D(x_3) 
+             = f_c \cdot \lfloor x_3 / 8 \rfloor + (x_3 \bmod 8) - CDF['c']
+             = 1 \cdot \lfloor 375 / 8 \rfloor + (375 \bmod 8) - 7 
+             = 46 \\
+        s_1 &= \text{symbol}(x_2 \bmod 8) = \text{symbol}(46 \bmod 8) = 'b' \\
+        x_1 &= D(x_2) 
+             = f_b \cdot \lfloor x_2 / 8 \rfloor + (x_2 \bmod 8) - CDF['b']
+             = 2 \cdot \lfloor 46 / 8 \rfloor + (46 \bmod 8) - 5 
+             = 11 \\
+        s_0 &= \text{symbol}(x_1 \bmod 8) = \text{symbol}(11 \bmod 8) = 'a' \\
+        x_0 &= D(x_1) 
+             = f_a \cdot \lfloor x_1 / 8 \rfloor + (x_1 \bmod 8) - CDF['a']
+             = 5 \cdot \lfloor 11 / 8 \rfloor + (11 \bmod 8) - 0
+             = 8 \\
+        \tag{18}
+
+    We can build the same table as Figure 2 except we'll have four rows:
+    for :math:`C(x_i, s_{i+1}), a, b, c`.  Building the table is left as
+    an exercise for the reader :).
+
+.. admonition:: Note about the starting value :math:`x_0`
+
+    In Example 4, we started on :math:`x_0=2^n`.  This is because if we didn't,
+    we could get into the situation where we couldn't distinguish certain
+    repetitions of strings such as: ['a', 'a', 'a'], for example.  Using Example 4, 
+    let's see what we'd get starting with :math:`x_0=1`:
+
+    .. math::
+
+       x_1 &= C(x_0, a) 
+            = \lfloor \frac{x_0}{f_a} \rfloor \cdot 2^3 + (x_0 \bmod f_a) + CDF[a]
+            = \lfloor \frac{1}{5} \rfloor \cdot 8 + (1 \bmod 5) + 0
+            = 1 \\ 
+       x_2 &= C(x_1, a) 
+            = \lfloor \frac{x_0}{f_a} \rfloor \cdot 2^3 + (x_0 \bmod f_a) + CDF[a]
+            = \lfloor \frac{1}{5} \rfloor \cdot 8 + (1 \bmod 5) + 0
+            = 1 \\     
+       x_3 &= C(x_2, a) 
+            = \lfloor \frac{x_0}{f_a} \rfloor \cdot 2^3 + (x_0 \bmod f_a) + CDF[a]
+            = \lfloor \frac{1}{5} \rfloor \cdot 8 + (1 \bmod 5) + 0
+            = 1 \\
+        \tag{19}
+
+    As you can see we get nowhere fast.  The reason is that the first term
+    always rounds down, resulting in the exact same value.  Similarly, the
+    second term always resolves the same thing (since 'a' is the first symbol
+    in our ordering), and the third term as well.
+    
+    I think (haven't really proven it) that the safest option is to have
+    :math:`\max f_s` as your starting value.  This will ensure that the first
+    term will always be >= 0, resulting in a different number than you started
+    with.  To be safe, :math:`8 > \max f_s`, which is just a bit nicer.
+    In some sense, were "wasting" the initial numbers here starting :math:`x_0`
+    larger but it's necessary in order to encode repeated strings and handle
+    these corner cases.  
+    
+    Another way you could go about it, is that do a fixed mapping for the first
+    :math:`2^n` numbers (a base case of sorts), and then from there you can
+    apply the formula.  I didn't try this but I think that this is also
+    possible.
+
+|h3| Renormalization |h3e|
 
 
-* rANS
-* Renormalization
 
 |h3| Other variants |h3e|
 
@@ -499,7 +748,7 @@ Substitute Equation 9 and A.3 into Equation 9:
        && \text{ since } 0 \leq \frac{i}{b-a} < 1; 0 < \frac{a}{b} < 1 \\
     \tag{A.4}
 
-Now looking at the last line and looking at the expression the ceil function,
+Now looking at the last line and looking at the expression in the ceil function,
 we can see that:
 
 .. math::
@@ -507,7 +756,7 @@ we can see that:
     (- \frac{i}{b-a} - 1) \cdot \frac{a}{b} & > -\frac{2a}{b} 
         && \text {since } \frac{i}{b-a} < 1 \\
     &\geq -1
-        && \text {since } \frac{a}{b} \leq 0.5 \text{ using assumption } p < 1-p \\
+        && \text {since } \frac{a}{b} \leq 0.5 \text{ using assumption } p=\frac{a}{b} < \frac{b-a}{b} = 1-p \\
     \tag{A.5}
 
 So :math:`(- \frac{i}{b-a} - 1)\cdot \frac{a}{b} > -1` (and obviously :math:`< 0`), therefore
