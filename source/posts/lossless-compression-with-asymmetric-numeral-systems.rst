@@ -617,7 +617,7 @@ operation of the encoding.
     for :math:`C(x_i, s_{i+1}), a, b, c`.  Building the table is left as
     an exercise for the reader :).
 
-.. admonition:: Note about the starting value :math:`x_0`
+.. admonition:: Note about the starting value of :math:`x_0`
 
     In Example 4, we started on :math:`x_0=2^n`.  This is because if we didn't,
     we could get into the situation where we couldn't distinguish certain
@@ -660,20 +660,180 @@ operation of the encoding.
 
 |h3| Renormalization |h3e|
 
+The astute reader may have already been wondering how this can work in practice.
+It works great when you only have a message of length five or so, but what about a
+1 MB file?  If we use a 1-byte=256-length alphabet, we could potentially be
+getting a number on the order of :math:`2^{1000000n}` over this 1M-length string.
+Surely no integer type will be able to efficiently handle that!
+It turns out there is a simple trick to ensure that :math:`x^i \in [2^M, 2^{2M} - 1]`.
 
+The idea is that during encoding once :math:`x_i` gets too big, we simply write
+out the lower :math:`M` bits to ensure it stays between :math:`[2^M, 2^{2M} - 1]`
+(e.g. :math:`M=16` bits).
+Similarly, during decoding, if :math:`x_i` is too small, shift out number up
+and read in :math:`M` bits into the lower bits.  As long as you take care to
+make sure each operation is symmetric, it should allow you to always play with
+a number that fits within an integer type.
+    
+**Listing 1: Encoding and Decoding rANS Python Pseudocode with Renormalization**
+
+.. code:: python 
+    :linenos:
+
+    MASK = 2**M - 1 
+    BOUND = 2**(2*M) - 1
+
+    # Encoding
+    s = readSymbol()
+    x_test = (x / f[s]) << n + (x % f[s]) + c[s]
+    if (x_test > BOUND):
+        write16bits(x & MASK); x >>= M
+    x = (x / f[s]) << n + (x % f[s]) + c[s]
+
+    # Decoding
+    s = symbol[x & MASK]
+    writeSymbol(s)
+    x = f[s] (x >> n) + (x & MASK) - c[s]
+    if (x < 2**M):
+        x = x << M + read16bits()
+
+Listing 1 shows the Python pseudo code for rANS encoding and decoding with
+renormalization.  Notice that we use Equation 14-16 but with more efficient
+bit-wise operations.
 
 |h3| Other variants |h3e|
 
-* tANS
+As you can imagine, there are numerous variants of the above
+algorithms/concepts, especially as it relates to efficient implementations.
+One of the most practical is one called 
+`tANS <https://en.wikipedia.org/wiki/Asymmetric_numeral_systems#Tabled_variant_(tANS)>`__ 
+or the tabled variant.  In this variation, we build a finite state machine
+(i.e. table) to pre-compute all the calculations we would have done in rANS.
+This has a bit more upfront cost but will make the encoding/decoding much faster,
+the need for multiplications.
+
+Another extension of tANS is the ability to encrypt in the algorithm.  Since
+we're building a table, we don't really need to maintain Equation 14-16 but
+rather can pick any repeating pattern.  So instead of the typical rANS repeating
+pattern, we can scramble it based on some random number. See [1] for more details.
+
+|h2| Implementation Details |h2e|
+
+I implemented some toy versions of uABS and rANS in Python which you can find on my 
+`Github <https://github.com/bjlkeng/sandbox/tree/master/ans>`__.
+Surprisingly, it was a bit tricker than I thought due to a few gotchas.
+Here are some notes for implementing uABS:
+
+* Python's integer type is theoretically unlimited but I used some `numpy`
+  functions, which *do* have a limited range (64-bit integer).  You can see
+  this when using uABS with large binary strings, particularly with close to
+  uniform distributions, where the code encodes/decodes string incorrectly.
+* The other "gotcha" is that with uABS, we are actually (sort of) dealing with
+  real numbers, which is a poor match for floating point data types.  Python's
+  floating point type definitely *has* limited precision, so the usual problems
+  of being not represent real numbers exactly become a problem.  Especially
+  when we need to apply ceil/floor where a `0.000001` difference is meaningful.
+  To hack around this, I simply just wrapped everything in Python's `Decimal`
+  type.
+* Finally, to ensure that the smaller :math:`p` was always mapped to the "1",
+  I had do some swapping of the characters and probabilities.
+
+For rANS, it was a bit easier, except for the renormalization, where I had to
+play around a bit:
+
+* I decided to simplify my life, I would just directly take the frequencies
+  (:math:`f_s`) along with the quantization bits (:math:`n`) instead of 
+  introducing errors quantizing things myself.
+* As mentioned above, I kept having errors until I figured out that :math:`x_0`
+  needed to start at a large enough value.  With renormalization, I start
+  it at :math:`x_0=2^M-1` since we want :math:`x_i \in [2^M, 2^{2M}-1]`.
+  Turns out you need to have minus one there or else you get into a corner case
+  where the decoding logic stops decoding early (or at least my implementation did).
+* The other thing I had to "figure out" was the `BOUND` in Listing 1.  I initially
+  thought it was simply just :math:`2^{2M}-1` but I was wrong.  In [1], they 
+  reference a `bound[s]` variable that is never defined, so I had to reverse
+  engineer it.  I'm almost positive there is a better way to do it than what
+  I have in Listing 1, but I think my way is the most straight forward.
+* In the decoding, there is a step where you have to lookup which symbol was
+  decoded.  I simply used `numpy.argmax`, which I presume does a linear search.
+  Apparently, this is one place where you can do something smarter but I wasn't
+  too interested in this part.
+* I didn't have to do any of the funny wrapping using `Decimal` that I did with
+  uABS because of the quantization to :math:`n` bits.  There is still a
+  division and call to `floor()` but since we're dealing with integers in the
+  division, the chances of causing issues is pretty small I think (at least I
+  haven't seen it yet).
+
+Finally, none of my toy implementation, nor the compression values are quite
+realistic because you also need to include the encoding of the probability
+distribution itself!  Something that you would surely include as metadata in a
+file.  However, if we're compression a file that's relatively big, this constant
+amount of data *should* be negligible.
 
 |h2| Experiments |h2e|
 
+The setup for uABS and rANS experiments were roughly the same.  First, a
+random strings of varying length was generated based on the alphabet,
+distribution and quantization bits (for rANS).  Next, the compression algorithm
+is run against the string and the original message size, ideal (Shannon limit) size,
+and actual size were measured.  For each uABS experiment, each setting was run
+with 100 different strings and averaged, while for rANS it was run 50 times and averaged.
 
-|h3| Implementation |h3e|
+Figure 4 shows the results for uABS.  First off, more skewed distributions (lower :math:`p`)
+result in higher compression.  This is sensible because we can exploit the fact that odd
+numbers appear much more often.  Next, it's clear that as the message length
+increase, we get a better compression ratio (closer to ideal).  This expected
+as the asymptotic behavior of the code starts paying off.  Interesting, for
+more skewed distributions (:math:`p=0.01`), it takes much longer message
+lengths for us to get close to the theoretical limit.  We would probably need a
+message length of :math:`1 / p` to start approaching that limit.
+Unfortunately, since I didn't implement renormalization, I couldn't push the
+message length too much further since the numbers got too big.
 
-* Need to be careful when implementing uABS -- floating point precision is not
-  good enough b/c of rounding, also limited to N bits due to use of int64
-* rANS, renormalization needs to pre-calculate lowerbound on compression
+.. figure:: /images/ans_uabs.png
+  :alt: Experimental Results
+  :align: center
+
+  Figure 4: Experimental Results for uABS (dashed lines are the ideal compression ratio)
+
+Figure 5 show the first set of results for rANS.  Here we used an 256 character
+alphabet (8-bits = 1byte) with 15 quantization bits and 24 renormalization
+bits.   Figure 5 shows various distributions for varying message lengths.
+Uniform is self explanatory, `power_X` are normalized power distributions with
+exponent :math:`X`.  We see the same pattern of more skewed distributions
+having higher compression and reaching close to theoretical limit with longer
+message sizes.
+
+.. figure:: /images/rans_msg_len.png
+  :alt: Experimental Results
+  :align: center
+
+  Figure 5: Experimental Results for rANS varying message length and distribution (dashed lines are the ideal compression ratio)
+
+Figure 6 shows an ablation study for rANS on quantization bits.  I held constant
+`power_50` distribution with message length 100 and varied quantization bits
+and renormalization bits.  `renormalization_bits = add_renorm_bits + quantization_bits`.
+We can see that more precise quantization yields better compression, as
+expected.  It can get closer to the actual `power_50` distribution instead of
+being a coarse approximation. Varying the renormalization bits relative to quantization
+doesn't seem to have much effect in terms of compression ratio (I suspect there's more to 
+it here but I didn't want to spend too much time investigating it).
+
+.. figure:: /images/rans_quantization.png
+  :alt: Experimental Results
+  :align: center
+
+  Figure 6: Experimental Results for rANS varying quantization bits and renormalization bits
+
+|h2| Conclusion |h2e|
+
+Well this post was definitely another tangent that I went off on.  In fact, the
+post I actually wanted to write was ML related but I got side tracked trying to
+understand ANS.  It just was so interesting that I thought I should learn it
+more in depth and write a post on it.  I keep trying to make more time for
+writing on this blog but I always seem to have more and more things keeping
+busy professionally and personally (which is a good thing!).  Anyways, look out
+for a future post where I will make reference to ANS.  Thanks for reading!
 
 |h2| References |h2e|
 
