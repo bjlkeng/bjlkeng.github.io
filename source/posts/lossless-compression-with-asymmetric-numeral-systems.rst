@@ -1,6 +1,6 @@
 .. title: Lossless Compression with Asymmetric Numeral Systems
 .. slug: lossless-compression-with-asymmetric-numeral-systems
-.. date: 2020-09-01 18:37:43 UTC-04:00
+.. date: 2020-09-25 08:37:43 UTC-04:00
 .. tags: compression, entropy, asymmetric numeral systems, Huffman coding, Arithmetic Coding, mathjax
 .. category: 
 .. link: 
@@ -35,34 +35,32 @@
 
    </center>
 
-During my undergraduate, one of the most interesting courses I took was on
+During my undergraduate schooling, one of the most interesting courses I took was on
 coding and compression.  Here was a course that combined algorithms,
-probability and secret messages, what's not to like?  (I actually like most of
-the communication theory courses, it was interesting to learn the basics of how
-wired/wireless signals are transmitted)  I ended up not going down this career
-path, at least partially because communications systems had its heyday around
-the 2000s with companies like Nortel and Blackberry (and its predecessors).
-Some like to joke that all the major theoretical breakthroughs were done by
-Shannon with his discovery of information theory.
-Fortunately, I eventually wound up studying industrial applications of
-classical AI techniques and then machine learning, which has really grown like
-crazy in the last 10 years or so.  Which is exactly why I was so surprised that
-a *new* and *better* method of lossless compression was developed in 2009
-*after* I finished my undergraduate when I was well into my PhD.  It's a bit
-mind boggling that something as well-studied as entropy-based lossless
-compression still had (have?) totally new methods to discover, but I digress.
+probability and secret messages, what's not to like? [1]_ I ended up not going
+down that career path, at least partially because communications systems had
+its heyday around the 2000s with companies like Nortel and Blackberry and its
+predecessors (some like to joke that all the major theoretical breakthroughs
+were done by Shannon and his discovery of information theory).  Fortunately, I
+eventually wound up studying industrial applications of classical AI techniques
+and then machine learning, which has really grown like crazy in the last 10
+years or so.  Which is exactly why I was so surprised that a *new* and *better*
+method of lossless compression was developed in 2009 *after* I finished my
+undergraduate degree when I was well into my PhD.  It's a bit mind boggling that
+something as well-studied as entropy-based lossless compression still had
+(have?) totally new methods to discover, but I digress.
 
 In this post, I'm going to write about a relatively new entropy based encoding
 method called Asymmetrical Numeral Systems (ANS) developed by Jaroslaw (Jarek)
 Duda [2].  If you've ever heard of Arithmetic Coding (probably best known for
 its use in JPEG compression), ANS runs in a very similar vein.  It can
-theoretically codes that are close to the theoretical compression limit
-(similar to Arithmetic coding) but is *much* faster.  It's been used in 
+generate codes that are close to the theoretical compression limit
+(similar to Arithmetic coding) but is *much* more efficient.  It's been used in 
 modern compression algorithms since 2014 including compressors developed
 by Facebook, Apple and Google [3].  As usual, I'm going to go over some
-background, some intuition backed by math, examples to help with intuition and
-finally some experiments I ran with a toy ANS implementation I wrote.  I
-hope you're as excited as I am, let's begin!
+background, some math, examples to help with intuition and finally some
+experiments with a toy ANS implementation I wrote.  I hope you're as
+excited as I am, let's begin!
 
 .. TEASER_END
 
@@ -76,7 +74,7 @@ An **alphabet** is the set of all symbols that you can transmit.
 A **message** is a sequence of symbols that you want to transmit.
 
 Often you will want to **code** a message (such as a file) for storage or
-transmission on communication channel by specifying some rules on how to
+transmission on a communication channel by specifying some rules on how to
 transform it into another form.  The usual reasons why you want to code a message is
 compression (fewer bits), redundancy (error correction/detection), or
 encryption (confidentiality).  For compression, we generally have two main
@@ -86,7 +84,7 @@ reduction in size.  This trick is used extensively in things like image
 (e.g. JPEG) or audio (e.g. MP3) compression.  Lossless schemes on the other
 hand aim to retain the exact message reducing the file size by exploiting some
 statistical redundancies in the data.  We're mainly talking about lossless
-schemes today.
+compression schemes today.
 
 Lossless schemes come in many forms such as
 `Run Length Encoding <https://en.wikipedia.org/wiki/Run-length_encoding>`__,
@@ -98,7 +96,7 @@ discussing today).  Most of the ones above work by reading one or more symbols
 (think bytes) from the data stream and replacing it with some compact bit
 representation.  For example, in Huffman Coding, the most frequent symbol is
 replaced with a single bit, or Run Length Encoding, which replaces a repeated
-sequence of a character by a character and how many times it repeats.  In both
+sequence of a character by the character and how many times it repeats.  In both
 these examples, it works on a subset of the sequence and replaces them.  The
 other variant which both Arithmetic coding and Asymmetrical Numeral Systems
 fall under is where then *entire* message is encoded as a single number (the
@@ -184,7 +182,7 @@ compression.  Let's explore this idea a bit more.
 |h3| Encoding a Binary String to a Natural Number |h3e|
 
 First off, let's discuss how we can even map a sequence of symbols to a natural
-number.  To begin, we start with the simplest case: a sequence of binary symbols (0s and 1s).
+number.  We can start with the simplest case: a sequence of binary symbols (0s and 1s).
 We all know how to convert a binary string to a natural number, but let's break
 it down into its fundamental parts.  We are particularly interested in how
 to *incrementally* build up to the natural number by reading one bit at a time.
@@ -195,7 +193,7 @@ Suppose we have already converted some binary string :math:`b_1 b_2 b_3 \ldots b
 natural numbers.  If we get another another binary digit :math:`b_{i+1}`, we
 want to derive a coding function such that :math:`x_{i+1} = C(x_i, b_{i+1})`
 generates natural number representation of :math:`b_1 b_2 b_3 \ldots b_{i+1}`.
-If you remember from your discrete math courses, it should really just be
+If you remember your discrete math courses, it should really just be
 multiplying the original number by 2 (shifting up a digit in binary), and then
 adding the new binary digit, which is just:
 
@@ -207,7 +205,7 @@ If we start with :math:`x_0=0`, you can see that we'll be able to convert any
 binary string iteratively (from MSB to LSB) to its natural number
 representation.  Inversely, we can convert from any natural number to
 iteratively recover the binary digit :math:`b_{i+1}` and the next resulting
-natural number without that idgit, we can use the following decoding function:
+natural number without that digit, we can use the following decoding function:
 
 .. math::
 
@@ -223,13 +221,13 @@ Nothing really new here but let's make a few observations:
 * Let's look at how we're using :math:`b_{i+1}`.  In Equation 3, if
   :math:`b_{i+1}` is odd, then we add 1, else if even we add 0.  In Equation 4,
   we're doing the reverse, if the number :math:`x_{i+1}` is odd, we know we can
-  recover a "1", else when even, we recover an "odd".  We'll use this idea in
-  order to extend.
+  recover a "1", else when even, we recover an "0".  We'll use this idea in
+  order to extend to more complicated cases.
 * Finally, the encoding using Equations 3 and 4 are optimal if we have a uniform
   distribution of "0"s and "1"s (i.e. :math:`p_0=p_1=\frac{1}{2}`).  Notice
   that the entropy :math:`H(x) = 2 \cdot \frac{1}{2}\log_2(\frac{1}{2}) = 1`,
-  which results in 1 bit per binary digit -- exactly as we generate using these
-  equations (if you exclude the fact that we start at 1).
+  which results in 1 bit per binary digit, which is exactly what these
+  equations generate  (if you exclude the fact that we start at 1).
 
 The last two points are relevant because it gives us a hint as to how we might
 extend this to non-uniform binary messages.  Our encoding is optimal because we
@@ -308,20 +306,22 @@ Therefore, if we can define :math:`C(x_i, b_{i+1}) \approx \frac{x_i}{p_{b_{i+1}
 then we will have achieved an optimal code!  Let's try to understand what this
 mapping means.
 
-Starting with odd numbers, regardless of which number we are currently at :math:`x_i`,
-when we see the last bit is :math:`1`, we know we have an odd.  From Equation 8,
-this means we just need to divide by :math:`p`.  So odd numbers will be placed
-at (roughly), :math:`\frac{1}{p}, \frac{2}{p}, \frac{3}{p}, \ldots`, which
-basically means we'll see an odd number (roughly) every :math:`\frac{1}{p}`
-natural numbers.  But if we take a closer look, this is precisely the
-condition of having roughly :math:`N\cdot p` for the first :math:`N` natural numbers
-(:math:`\text{# of Odds} = N / \frac{1}{p} = N\cdot p`).  Similarly, we'll see
-even numbers (roughly) every :math:`\frac{1}{1-p}`, which also means we'll see
-(roughly) :math:`N \cdot (1-p)` in the first :math:`N` natural numbers.
-So our intuition does lead us towards the solution of an optimal code after all!
+From Equation 8, if we are starting at some :math:`x_i` and get a new bit
+:math:`b_{i+1}=1` (an odd number), then :math:`x_{i+1}\approx\frac{x_i}{p}`.
+But we know :math:`x_i` can be any natural number, so this implies that 
+odd numbers will be placed at (roughly), :math:`\frac{1}{p}, \frac{2}{p},
+\frac{3}{p}, \ldots` intervals for any given natural number.
+This also means, we'll see an odd number
+(roughly) every :math:`\frac{1}{p}` natural numbers.  
+But if we take a closer look, this is precisely the condition of having roughly
+:math:`N\cdot p` for the first :math:`N` natural numbers (:math:`\text{# of
+Odds} = N / \frac{1}{p} = N\cdot p`).  Similarly, we'll see even numbers
+(roughly) every :math:`\frac{1}{1-p}`, which also means we'll see (roughly)
+:math:`N \cdot (1-p)` in the first :math:`N` natural numbers.  So our intuition
+does lead us towards the solution of an optimal code after all!
 
 .. figure:: /images/ans_even_odd.png
-  :height: 150px
+  :height: 200px
   :alt: Distribution of Evens and Odds for Various :math:`p`
   :align: center
 
@@ -331,7 +331,7 @@ So our intuition does lead us towards the solution of an optimal code after all!
 Thinking about this code a bit differently, we are essentially redefining the
 frequency of evens and odds with this new mapping.  We can see this more
 clearly in Figure 1.  For different values of :math:`p`, we can see a repeating
-pattern of where the evens and odds fall.  When math:`p=1/2`, we see an
+pattern of where the evens and odds fall.  When :math:`p=1/2`, we see an
 alternating pattern (never mind that :math:`2` is mapped to an odd, this is an
 unimportant quirk of the implementation) as we usually expect.  However,
 when we go to non-uniform distributions, we can see repeating but
@@ -356,8 +356,8 @@ In summary:
 
 |h3| Uniform Binary Variant (uABS) |h3e|
 
-Without loss of generality, let's a binary alphabet with end in "1" and evens
-in "0" with :math:`p_1 = p < 1-p = p_0` (odds are always less frequent than evens).
+Without loss of generality, let's use a binary alphabet with odds ending in "1" and evens
+ending in "0", and :math:`p_1 = p < 1-p = p_0` (odds are always less frequent than evens).
 We know we want approximately :math:`N\cdot p` odd numbers mapped in the first
 :math:`N` mapped natural numbers.  Since we have to have a non-fractional
 number of odds, let's pick :math:`\lceil N \cdot p \rceil` odds in the first
@@ -375,9 +375,9 @@ any given :math:`N` and :math:`N+1`:
     \right. \tag{9}
 
 Another way to think about it is: if we're at :math:`N` and we've filled our :math:`\lceil N \cdot p\rceil`
-odd number "quota" then we don't need to see another odd at :math:`N+1` (:math:`0` case).
+odd number "quota" then we don't need to see another odd at :math:`N+1` (the :math:`0` case).
 Conversely, if going to :math:`N+1` makes it so we're behind our odd number
-"quota" then we should make sure that we map an odd at :math:`N` (:math:`1` case).
+"quota" then we should make sure that we map an odd at :math:`N` (the :math:`1` case).
 
 Now here's the tricky part: what coding function :math:`x_{i+1} = C(x_i, b_{i+1})` 
 satisfies Equation 9 (where :math:`x_i` is our mapped natural number)?
@@ -395,8 +395,8 @@ It turns out this one does:
 
 I couldn't quite figure out a sensible derivation of why this particular
 function works but it's probably not trivial.  The main problem is
-that we're working with natural numbers so working with floor and ceil
-operators is not so obvious.  Additionally, Equation 10 kind of looks like a 
+that we're working with natural numbers, so dealing with floor and ceil
+operators is tricky.  Additionally, Equation 10 kind of looks like a 
 some kind of `difference equation <https://en.wikipedia.org/wiki/Linear_difference_equation>`__,
 which are generally very difficult to solve.  However, I did manage to
 prove that Equation 10 is consistent with Equation 9.  See Appendix A for the
@@ -421,9 +421,8 @@ The decoding of a bit is calculated exactly as we have designed it in Equation 9
 and depending on which bit was decoded, we perform the reverse calculation of
 Equation 10.  For the :math:`b_{i+1} = 0` case, it may not look like the reverse
 calculation but the math should work out (haven't proven it, but my
-implementation works).  Working with these ceil/floor functions is strange.
-In the end, the equations to encode/decode are straight forward but the logic
-of arriving at them is far from it.
+implementation works).  In the end, the equations to encode/decode are straight
+forward but the logic of arriving at them is far from it.
 
 .. admonition:: Example 3: Encoding a Binary String to/from a Natural Number using uABS
 
@@ -525,7 +524,7 @@ allowing us to have a simpler and more efficient coding/decoding function
 Instead of our previous idea of even and odds, what we'll be doing is extending this idea 
 and "coloring" each number.  So for an alphabet of size 3, we might color
 things red, green and blue.  Figure 3 shows a few examples with this alphabet
-with :math:`n=3` quantization for a few different examples (this is analogous
+with :math:`n=3` quantization for a few different distributions (this is analogous
 to Figure 1).
 
 .. figure:: /images/ans_rans.png
@@ -550,12 +549,15 @@ the multiplications, divisions and modulo with left shifting, right shifting
 and logical masking, respectively, which makes this much more efficient computationally.
 
 The intuition for Equation 14-16 isn't too far from from uABS: for a given
-:math:`x_i`, we want to maintain the property that we roughly see 
-:math:`x_i\cdot  p_s = x_i \cdot \frac{f_s}{2^n}` of symbols :math:`s`. Looking
+:math:`N`, we want to maintain the property that we roughly see 
+:math:`N\cdot  p_s = N \cdot \frac{f_s}{2^n}` of symbols :math:`s`. Looking
 at Equation 14, we can see how it accomplishes this:
 
 * :math:`\lfloor \frac{x_i}{f_s} \rfloor \cdot 2^n`: finds the right :math:`2^n` range
   (recall that we have a repeating pattern every :math:`2^n` natural numbers).
+  If :math:`f_s` is small, say :math:`f_s=1`, then it only appears once every
+  :math:`2^n` range.  If :math:`f_s` is large, then roughly a range of :math:`f_s` 
+  numbers about :math:`x_i` will get mapped to the same :math:`2^n` range.
 * :math:`CDF[s]` finds the offset within the :math:`2^n` range for the current
   symbol :math:`s` -- all :math:`s` symbols will be grouped together within
   this range starting here.
@@ -596,19 +598,19 @@ operation of the encoding.
 
     .. math::
 
-        s_2 &= \text{symbol}(x_3 \bmod 8) = \text{symbol}(375 \bmod 8) = 'c' \\
+        s_2 &= \text{symbol}(x_3 \bmod 8) = \text{symbol}(375 \bmod 8) = c \\
         x_2 &= D(x_3) 
-             = f_c \cdot \lfloor x_3 / 8 \rfloor + (x_3 \bmod 8) - CDF['c']
+             = f_c \cdot \lfloor x_3 / 8 \rfloor + (x_3 \bmod 8) - CDF[c]
              = 1 \cdot \lfloor 375 / 8 \rfloor + (375 \bmod 8) - 7 
              = 46 \\
-        s_1 &= \text{symbol}(x_2 \bmod 8) = \text{symbol}(46 \bmod 8) = 'b' \\
+        s_1 &= \text{symbol}(x_2 \bmod 8) = \text{symbol}(46 \bmod 8) = b \\
         x_1 &= D(x_2) 
-             = f_b \cdot \lfloor x_2 / 8 \rfloor + (x_2 \bmod 8) - CDF['b']
+             = f_b \cdot \lfloor x_2 / 8 \rfloor + (x_2 \bmod 8) - CDF[b]
              = 2 \cdot \lfloor 46 / 8 \rfloor + (46 \bmod 8) - 5 
              = 11 \\
-        s_0 &= \text{symbol}(x_1 \bmod 8) = \text{symbol}(11 \bmod 8) = 'a' \\
+        s_0 &= \text{symbol}(x_1 \bmod 8) = \text{symbol}(11 \bmod 8) = a \\
         x_0 &= D(x_1) 
-             = f_a \cdot \lfloor x_1 / 8 \rfloor + (x_1 \bmod 8) - CDF['a']
+             = f_a \cdot \lfloor x_1 / 8 \rfloor + (x_1 \bmod 8) - CDF[a]
              = 5 \cdot \lfloor 11 / 8 \rfloor + (11 \bmod 8) - 0
              = 8 \\
         \tag{18}
@@ -621,7 +623,7 @@ operation of the encoding.
 
     In Example 4, we started on :math:`x_0=2^n`.  This is because if we didn't,
     we could get into the situation where we couldn't distinguish certain
-    repetitions of strings such as: ['a', 'a', 'a'], for example.  Using Example 4, 
+    repetitions of strings such as: [a, aa, aaa], for example.  Using Example 4, 
     let's see what we'd get starting with :math:`x_0=1`:
 
     .. math::
@@ -709,8 +711,8 @@ One of the most practical is one called
 `tANS <https://en.wikipedia.org/wiki/Asymmetric_numeral_systems#Tabled_variant_(tANS)>`__ 
 or the tabled variant.  In this variation, we build a finite state machine
 (i.e. table) to pre-compute all the calculations we would have done in rANS.
-This has a bit more upfront cost but will make the encoding/decoding much faster,
-the need for multiplications.
+This has a bit more upfront cost but will make the encoding/decoding much faster
+without the need for multiplications.
 
 Another extension of tANS is the ability to encrypt in the algorithm.  Since
 we're building a table, we don't really need to maintain Equation 14-16 but
@@ -776,8 +778,9 @@ The setup for uABS and rANS experiments were roughly the same.  First, a
 random strings of varying length was generated based on the alphabet,
 distribution and quantization bits (for rANS).  Next, the compression algorithm
 is run against the string and the original message size, ideal (Shannon limit) size,
-and actual size were measured.  For each uABS experiment, each setting was run
-with 100 different strings and averaged, while for rANS it was run 50 times and averaged.
+and actual size were measured or calculated.  For each uABS experiment, each
+setting was run with 100 different strings and averaged, while for rANS it was
+run 50 times and averaged.
 
 Figure 4 shows the results for uABS.  First off, more skewed distributions (lower :math:`p`)
 result in higher compression.  This is sensible because we can exploit the fact that odd
@@ -867,7 +870,7 @@ Re-write Equation 9 odd case:
     x_{i+1} = \lfloor \frac{x_i}{p} \rfloor = \lfloor \frac{bx_i}{a} \rfloor = \frac{bx_i}{a} - \frac{m}{a} && \text{for some } 0 \leq m < a, m \in \mathbb{Z} \\
     \tag{A.1}
 
-Substitute Equation A.1 into Equation 9:
+Substitute Equation A.1 into Equation 9 (where we're taking :math:`N=x_{i+1}`):
 
 .. math::
 
@@ -880,12 +883,6 @@ Substitute Equation A.1 into Equation 9:
     \tag{A.2}
 
 **Case 2: N is even**
-
-Re-write define :math:`m \in \mathbb{Z}^{+}` to be:
-
-.. math::
-
-    m := \lceil \frac{x+1}{1-p} \rceil \tag{A.3}
 
 Substitute Equation 9 and A.3 into Equation 9:
 
@@ -922,5 +919,7 @@ we can see that:
 So :math:`(- \frac{i}{b-a} - 1)\cdot \frac{a}{b} > -1` (and obviously :math:`< 0`), therefore
 Equation A.4 resolves to :math:`- \lceil (- \frac{i}{b-a} - 1) \cdot \frac{a}{b} \rceil = 0` as required.
 
+|h2| Notes |h2e|
 
+.. [1] I actually liked most of the communication theory courses, it was interesting to learn the basics of how wired/wireless signals are transmitted and how they could be modelled using math.
     
