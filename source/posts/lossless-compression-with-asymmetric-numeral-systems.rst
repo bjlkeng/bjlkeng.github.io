@@ -129,7 +129,7 @@ go into much detail now.
     
     The entropy and minimum average number of bits per symbol we can achieve
     for messages with this distribution (according the the source coding
-    theorm) is:
+    theorem) is:
 
     .. math::
 
@@ -249,7 +249,7 @@ their probability.  We'll explore this idea a bit more in the next section.
         x_5 &= C(x_4, b_5) = 2x_4 + b_5 = 2(25) + 1 = 51 \\
         \tag{5}
 
-    To recover our original messaage, we can use :math:`D(x_{i+1})`:
+    To recover our original message, we can use :math:`D(x_{i+1})`:
 
     .. math::
 
@@ -723,7 +723,7 @@ pattern, we can scramble it based on some random number. See [1] for more detail
 
 I implemented some toy versions of uABS and rANS in Python which you can find on my 
 `Github <https://github.com/bjlkeng/sandbox/tree/master/ans>`__.
-Surprisingly, it was a bit tricker than I thought due to a few gotchas.
+Surprisingly, it was a bit trickier than I thought due to a few gotchas.
 Here are some notes for implementing uABS:
 
 * Python's integer type is theoretically unlimited but I used some `numpy`
