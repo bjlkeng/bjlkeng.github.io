@@ -23,8 +23,9 @@ MathJax.Hub.Config({
         processEscapes: true
     },
     displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
     "HTML-CSS": {
-        styles: {'.MathJax_Display': {"margin": 0}}
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
     }
 });
 </script><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
@@ -79,7 +80,29 @@ navbar-dark bg-dark
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/sampling-from-a-normal-distribution/" class="u-url">Sampling from a Normal Distribution</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/" class="u-url">Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="posts/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/" rel="bookmark">
+            <time class="published dt-published" datetime="2015-12-13T15:05:56-05:00" itemprop="datePublished" title="2015-12-13 15:05">2015-12-13 15:05</time></a>
+            </p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In this post, I'm going to continue on the same theme from the last post: <a href="posts/sampling-from-a-normal-distribution/">random sampling</a>.  We're going to look at two methods for sampling a distribution: rejection sampling and Markov Chain Monte Carlo Methods (MCMC) using the Metropolis Hastings algorithm.  As usual, I'll be providing a mix of intuitive explanations, theory and some examples with code.  Hopefully, this will help explain a relatively straight-forward topic that is frequently presented in a complex way.</p>
+<p class="more"><a href="posts/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/">Read more…</a></p>
+</div>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/sampling-from-a-normal-distribution/" class="u-url">Sampling from a Normal Distribution</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Brian Keng
@@ -193,28 +216,6 @@ useful.</p>
 <p class="more"><a href="posts/probability-the-logic-of-science/">Read more…</a></p>
 </div>
     </div>
-    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/accessible-satisfiability/" class="u-url">Accessible Satisfiability</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Brian Keng
-            </span></p>
-            <p class="dateline">
-            <a href="posts/accessible-satisfiability/" rel="bookmark">
-            <time class="published dt-published" datetime="2015-10-03T20:28:04-04:00" itemprop="datePublished" title="2015-10-03 20:28">2015-10-03 20:28</time></a>
-            </p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>Even though it was just a scant few years ago, my research in grad school seems
-like it was from another lifetime.  Nowadays I deal with data and most of my
-code revolves around manipulating and extracting interesting insights from it.
-However in my previous life I spent quite a bit of time dealing with
-satisfiability problems.  So before I start writing about data and related
-topics, I thought I'd kick it old school and write about some topics from my
-formative years.</p>
-<p class="more"><a href="posts/accessible-satisfiability/">Read more…</a></p>
-</div>
-    </div>
     </article>
 </div>
 
@@ -230,8 +231,9 @@ MathJax.Hub.Config({
         processEscapes: true
     },
     displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
     "HTML-CSS": {
-        styles: {'.MathJax_Display': {"margin": 0}}
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
     }
 });
 </script>

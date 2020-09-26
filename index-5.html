@@ -23,8 +23,9 @@ MathJax.Hub.Config({
         processEscapes: true
     },
     displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
     "HTML-CSS": {
-        styles: {'.MathJax_Display': {"margin": 0}}
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
     }
 });
 </script><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
@@ -79,7 +80,33 @@ navbar-dark bg-dark
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/normal-approximations-to-the-posterior-distribution/" class="u-url">Normal Approximation to the Posterior Distribution</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/a-probabilistic-view-of-regression/" class="u-url">A Probabilistic View of Linear Regression</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="posts/a-probabilistic-view-of-regression/" rel="bookmark">
+            <time class="published dt-published" datetime="2016-05-14T20:43:05-04:00" itemprop="datePublished" title="2016-05-14 20:43">2016-05-14 20:43</time></a>
+            </p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>One thing that I always disliked about introductory material to linear
+regression is how randomness is explained.  The explanations always
+seemed unintuitive because, as I have frequently seen it, they appear as an
+after thought rather than the central focus of the model.
+In this post, I'm going to try to
+take another approach to building an ordinary linear regression model starting
+from a probabilistic point of view (which is pretty much just a Bayesian view).
+After the general idea is established, I'll modify the model a bit and end up
+with a Poisson regression using the exact same principles showing how
+generalized linear models aren't any more complicated.  Hopefully, this will
+help explain the "randomness" in linear regression in a more intuitive way.</p>
+<p class="more"><a href="posts/a-probabilistic-view-of-regression/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/normal-approximations-to-the-posterior-distribution/" class="u-url">Normal Approximation to the Posterior Distribution</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Brian Keng
@@ -167,28 +194,6 @@ is a result of my re-education on these topics.  Enjoy!</p>
 <p class="more"><a href="posts/hypothesis-testing/">Read more…</a></p>
 </div>
     </div>
-    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/" class="u-url">Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Brian Keng
-            </span></p>
-            <p class="dateline">
-            <a href="posts/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/" rel="bookmark">
-            <time class="published dt-published" datetime="2015-12-13T15:05:56-05:00" itemprop="datePublished" title="2015-12-13 15:05">2015-12-13 15:05</time></a>
-            </p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>In this post, I'm going to continue on the same theme from the last post: <a href="posts/sampling-from-a-normal-distribution/">random sampling</a>.  We're going to look at two methods for sampling a distribution: rejection sampling and Markov Chain Monte Carlo Methods (MCMC) using the Metropolis Hastings algorithm.  As usual, I'll be providing a mix of intuitive explanations, theory and some examples with code.  Hopefully, this will help explain a relatively straight-forward topic that is frequently presented in a complex way.</p>
-<p class="more"><a href="posts/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/">Read more…</a></p>
-</div>
-</div>
-</div>
-    </div>
     </article>
 </div>
 
@@ -204,8 +209,9 @@ MathJax.Hub.Config({
         processEscapes: true
     },
     displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
     "HTML-CSS": {
-        styles: {'.MathJax_Display': {"margin": 0}}
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
     }
 });
 </script>

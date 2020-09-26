@@ -22,11 +22,12 @@ MathJax.Hub.Config({
         processEscapes: true
     },
     displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
     "HTML-CSS": {
-        styles: {'.MathJax_Display': {"margin": 0}}
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
     }
 });
-</script><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/model-explanability-with-shapley-additive-explanations-shap/" type="text/html">
+</script><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/lossless-compression-with-asymmetric-numeral-systems/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -78,7 +79,47 @@ navbar-dark bg-dark
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/model-explanability-with-shapley-additive-explanations-shap/" class="u-url">Model Explainability with SHapley Additive exPlanations (SHAP)</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/lossless-compression-with-asymmetric-numeral-systems/" class="u-url">Lossless Compression with Asymmetric Numeral Systems</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="posts/lossless-compression-with-asymmetric-numeral-systems/" rel="bookmark">
+            <time class="published dt-published" datetime="2020-09-26T10:37:43-04:00" itemprop="datePublished" title="2020-09-26 10:37">2020-09-26 10:37</time></a>
+            </p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>During my undergraduate days, one of the most interesting courses I took was on
+coding and compression.  Here was a course that combined algorithms,
+probability and secret messages, what's not to like? <a class="footnote-reference brackets" href="posts/lossless-compression-with-asymmetric-numeral-systems/#id2" id="id1">1</a> I ended up not going
+down that career path, at least partially because communications systems had
+its heyday around the 2000s with companies like Nortel and Blackberry and its
+predecessors (some like to joke that all the major theoretical breakthroughs
+were done by Shannon and his discovery of information theory around 1950).  Fortunately, I
+eventually wound up studying industrial applications of classical AI techniques
+and then machine learning, which has really grown like crazy in the last 10
+years or so.  Which is exactly why I was so surprised that a <em>new</em> and <em>better</em>
+method of lossless compression was developed in 2009 <em>after</em> I finished my
+undergraduate degree when I was well into my PhD.  It's a bit mind boggling that
+something as well-studied as entropy-based lossless compression still had
+(have?) totally new methods to discover, but I digress.</p>
+<p>In this post, I'm going to write about a relatively new entropy based encoding
+method called Asymmetrical Numeral Systems (ANS) developed by Jaroslaw (Jarek)
+Duda [2].  If you've ever heard of Arithmetic Coding (probably best known for
+its use in JPEG compression), ANS runs in a very similar vein.  It can
+generate codes that are close to the theoretical compression limit
+(similar to Arithmetic coding) but is <em>much</em> more efficient.  It's been used in
+modern compression algorithms since 2014 including compressors developed
+by Facebook, Apple and Google [3].  As usual, I'm going to go over some
+background, some math, some examples to help with intuition, and finally some
+experiments with a toy ANS implementation I wrote.  I hope you're as
+excited as I am, let's begin!</p>
+<p class="more"><a href="posts/lossless-compression-with-asymmetric-numeral-systems/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/model-explanability-with-shapley-additive-explanations-shap/" class="u-url">Model Explainability with SHapley Additive exPlanations (SHAP)</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Brian Keng
@@ -195,27 +236,6 @@ Enjoy!</p>
 <p class="more"><a href="posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/">Read more…</a></p>
 </div>
     </div>
-    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/label-refinery/" class="u-url">Label Refinery: A Softer Approach</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Brian Keng
-            </span></p>
-            <p class="dateline">
-            <a href="posts/label-refinery/" rel="bookmark">
-            <time class="published dt-published" datetime="2018-09-04T07:26:02-04:00" itemprop="datePublished" title="2018-09-04 07:26">2018-09-04 07:26</time></a>
-            </p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>This post is going to be about a really simple idea that is surprisingly effective
-from a paper by Bagherinezhad et al. called <a class="reference external" href="https://arxiv.org/abs/1805.02641">Label Refinery: Improving ImageNet
-Classification through Label Progression</a>.
-The title pretty much says it all but I'll also discuss some intuition and show
-some experiments on the CIFAR10 and SVHN datasets.  The idea is both simple and
-surprising, my favourite kind of idea!  Let's take a look.</p>
-<p class="more"><a href="posts/label-refinery/">Read more…</a></p>
-</div>
-    </div>
     </article>
 </div>
 
@@ -230,8 +250,9 @@ MathJax.Hub.Config({
         processEscapes: true
     },
     displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
     "HTML-CSS": {
-        styles: {'.MathJax_Display': {"margin": 0}}
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
     }
 });
 </script>

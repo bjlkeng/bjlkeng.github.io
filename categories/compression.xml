@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about compression)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/compression.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sat, 26 Sep 2020 15:09:32 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Lossless Compression with Asymmetric Numeral Systems</title><link>http://bjlkeng.github.io/posts/lossless-compression-with-asymmetric-numeral-systems/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;During my undergraduate days, one of the most interesting courses I took was on
+coding and compression.  Here was a course that combined algorithms,
+probability and secret messages, what's not to like? &lt;a class="footnote-reference brackets" href="http://bjlkeng.github.io/posts/lossless-compression-with-asymmetric-numeral-systems/#id2" id="id1"&gt;1&lt;/a&gt; I ended up not going
+down that career path, at least partially because communications systems had
+its heyday around the 2000s with companies like Nortel and Blackberry and its
+predecessors (some like to joke that all the major theoretical breakthroughs
+were done by Shannon and his discovery of information theory around 1950).  Fortunately, I
+eventually wound up studying industrial applications of classical AI techniques
+and then machine learning, which has really grown like crazy in the last 10
+years or so.  Which is exactly why I was so surprised that a &lt;em&gt;new&lt;/em&gt; and &lt;em&gt;better&lt;/em&gt;
+method of lossless compression was developed in 2009 &lt;em&gt;after&lt;/em&gt; I finished my
+undergraduate degree when I was well into my PhD.  It's a bit mind boggling that
+something as well-studied as entropy-based lossless compression still had
+(have?) totally new methods to discover, but I digress.&lt;/p&gt;
+&lt;p&gt;In this post, I'm going to write about a relatively new entropy based encoding
+method called Asymmetrical Numeral Systems (ANS) developed by Jaroslaw (Jarek)
+Duda [2].  If you've ever heard of Arithmetic Coding (probably best known for
+its use in JPEG compression), ANS runs in a very similar vein.  It can
+generate codes that are close to the theoretical compression limit
+(similar to Arithmetic coding) but is &lt;em&gt;much&lt;/em&gt; more efficient.  It's been used in
+modern compression algorithms since 2014 including compressors developed
+by Facebook, Apple and Google [3].  As usual, I'm going to go over some
+background, some math, some examples to help with intuition, and finally some
+experiments with a toy ANS implementation I wrote.  I hope you're as
+excited as I am, let's begin!&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/lossless-compression-with-asymmetric-numeral-systems/"&gt;Read more…&lt;/a&gt; (32 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Arithmetic Coding</category><category>asymmetric numeral systems</category><category>compression</category><category>entropy</category><category>Huffman coding</category><category>mathjax</category><guid>http://bjlkeng.github.io/posts/lossless-compression-with-asymmetric-numeral-systems/</guid><pubDate>Sat, 26 Sep 2020 14:37:43 GMT</pubDate></item></channel></rss>

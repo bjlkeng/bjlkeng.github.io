@@ -21,8 +21,9 @@ MathJax.Hub.Config({
         processEscapes: true
     },
     displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
     "HTML-CSS": {
-        styles: {'.MathJax_Display': {"margin": 0}}
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
     }
 });
 </script><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Brian Keng">
@@ -884,11 +885,11 @@ a technical post by the authors of Gensim describing how they implemented these
 embeddings.</p>
 <p>The model is trivial to run using Gensim.  Here's some sample code from their
 documentation:</p>
-<pre class="code python"><a name="rest_code_75313e03fafe453ba4376d02a6128ce5-1"></a><span class="kn">from</span> <span class="nn">gensim.models.poincare</span> <span class="kn">import</span> <span class="n">PoincareModel</span>
-<a name="rest_code_75313e03fafe453ba4376d02a6128ce5-2"></a><span class="n">relations</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'marsupial'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'mammal'</span><span class="p">),</span>
-<a name="rest_code_75313e03fafe453ba4376d02a6128ce5-3"></a>             <span class="p">(</span><span class="s1">'gib'</span><span class="p">,</span> <span class="s1">'cat'</span><span class="p">)]</span>
-<a name="rest_code_75313e03fafe453ba4376d02a6128ce5-4"></a><span class="n">model</span> <span class="o">=</span> <span class="n">PoincareModel</span><span class="p">(</span><span class="n">relations</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<a name="rest_code_75313e03fafe453ba4376d02a6128ce5-5"></a><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_497318bf9c934065b7e6a445dfcd51cc-1"></a><span class="kn">from</span> <span class="nn">gensim.models.poincare</span> <span class="kn">import</span> <span class="n">PoincareModel</span>
+<a name="rest_code_497318bf9c934065b7e6a445dfcd51cc-2"></a><span class="n">relations</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'marsupial'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'mammal'</span><span class="p">),</span>
+<a name="rest_code_497318bf9c934065b7e6a445dfcd51cc-3"></a>             <span class="p">(</span><span class="s1">'gib'</span><span class="p">,</span> <span class="s1">'cat'</span><span class="p">)]</span>
+<a name="rest_code_497318bf9c934065b7e6a445dfcd51cc-4"></a><span class="n">model</span> <span class="o">=</span> <span class="n">PoincareModel</span><span class="p">(</span><span class="n">relations</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<a name="rest_code_497318bf9c934065b7e6a445dfcd51cc-5"></a><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 </pre>
 <p>I love it when there are nice clean open source implementations available.
 Coding these up from scratch invariably takes a huge amount of time, especially
@@ -942,8 +943,9 @@ MathJax.Hub.Config({
         processEscapes: true
     },
     displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
     "HTML-CSS": {
-        styles: {'.MathJax_Display': {"margin": 0}}
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
     }
 });
 </script></article>

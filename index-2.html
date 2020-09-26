@@ -23,8 +23,9 @@ MathJax.Hub.Config({
         processEscapes: true
     },
     displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
     "HTML-CSS": {
-        styles: {'.MathJax_Display': {"margin": 0}}
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
     }
 });
 </script><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
@@ -79,7 +80,32 @@ navbar-dark bg-dark
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/variational-autoencoders-with-inverse-autoregressive-flows/" class="u-url">Variational Autoencoders with Inverse Autoregressive Flows</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/residual-networks/" class="u-url">Residual Networks</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="posts/residual-networks/" rel="bookmark">
+            <time class="published dt-published" datetime="2018-02-18T13:55:13-05:00" itemprop="datePublished" title="2018-02-18 13:55">2018-02-18 13:55</time></a>
+            </p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>Taking a small break from some of the heavier math, I thought I'd write a post
+(aka learn more about) a very popular neural network architecture called
+Residual Networks aka ResNet.  This architecture is being very widely used
+because it's so simple yet so powerful at the same time.  The architecture's
+performance is due its ability to add hundreds of layers (talk about deep
+learning!) without degrading performance or adding difficulty to training.  I
+really like these types of robust advances where it doesn't require fiddling
+with all sorts of hyper-parameters to make it work.  Anyways, I'll introduce
+the idea and show an implementation of ResNet on a few runs of a variational
+autoencoder that I put together on the CIFAR10 dataset.</p>
+<p class="more"><a href="posts/residual-networks/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/variational-autoencoders-with-inverse-autoregressive-flows/" class="u-url">Variational Autoencoders with Inverse Autoregressive Flows</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Brian Keng
@@ -203,49 +229,6 @@ predictions and building machine learning systems.</p>
 <p>Enjoy!</p>
 </div>
     </div>
-    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/building-a-table-tennis-ranking-model/" class="u-url">Building A Table Tennis Ranking Model</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Brian Keng
-            </span></p>
-            <p class="dateline">
-            <a href="posts/building-a-table-tennis-ranking-model/" rel="bookmark">
-            <time class="published dt-published" datetime="2017-07-19T08:51:41-04:00" itemprop="datePublished" title="2017-07-19 08:51">2017-07-19 08:51</time></a>
-            </p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>I wrote a post about building a table tennis ranking model over at Rubikloud:</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://rubikloud.com/labs/building-table-tennis-ranking-model/">Building A Table Tennis Ranking Model</a></p></li>
-</ul>
-<p>It uses
-<a class="reference external" href="https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model">Bradley-Terry</a>
-probability model to predict the outcome of pair-wise comparisons (e.g. games
-or matches).  I describe an easy algorithm for fitting the model (via
-MM-algorithms) as well as adding a simple Bayesian prior to handle ill-defined
-cases.  I even have some
-<a class="reference external" href="https://github.com/bjlkeng/Bradley-Terry-Model">code on Github</a>
-so you can build your own ranking system using Google sheets.</p>
-<p>Here's a blurb:</p>
-<blockquote>
-<p>Many of our Rubikrew are big fans of table tennis, in fact, we’ve held an
-annual table tennis tournament for all the employees for three years
-running (and I’m the reigning champion). It’s an incredibly fun event where
-everyone in the company gets involved from the tournament participants to
-the spectators who provide lively play-by-play commentary.</p>
-<p>Unfortunately, not everyone gets to participate either due to travel and
-scheduling issues, or by the fact that they miss the actual tournament
-period in the case of our interns and co-op students. Another downside is
-that the event is a single-elimination tournament, so while it has a clear
-winner the ranking of the participants is not clear.</p>
-<p>Being a data scientist, I identified this as a thorny issue for our
-Rubikrew table tennis players. So, I did what any data scientist would do
-and I built a model.</p>
-</blockquote>
-<p>Enjoy!</p>
-</div>
-    </div>
     </article>
 </div>
 
@@ -261,8 +244,9 @@ MathJax.Hub.Config({
         processEscapes: true
     },
     displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
     "HTML-CSS": {
-        styles: {'.MathJax_Display': {"margin": 0}}
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
     }
 });
 </script>
