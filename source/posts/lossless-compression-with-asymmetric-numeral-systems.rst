@@ -1,6 +1,6 @@
 .. title: Lossless Compression with Asymmetric Numeral Systems
 .. slug: lossless-compression-with-asymmetric-numeral-systems
-.. date: 2020-09-25 08:37:43 UTC-04:00
+.. date: 2020-09-26 10:37:43 UTC-04:00
 .. tags: compression, entropy, asymmetric numeral systems, Huffman coding, Arithmetic Coding, mathjax
 .. category: 
 .. link: 
@@ -35,13 +35,13 @@
 
    </center>
 
-During my undergraduate schooling, one of the most interesting courses I took was on
+During my undergraduate days, one of the most interesting courses I took was on
 coding and compression.  Here was a course that combined algorithms,
 probability and secret messages, what's not to like? [1]_ I ended up not going
 down that career path, at least partially because communications systems had
 its heyday around the 2000s with companies like Nortel and Blackberry and its
 predecessors (some like to joke that all the major theoretical breakthroughs
-were done by Shannon and his discovery of information theory).  Fortunately, I
+were done by Shannon and his discovery of information theory around 1950).  Fortunately, I
 eventually wound up studying industrial applications of classical AI techniques
 and then machine learning, which has really grown like crazy in the last 10
 years or so.  Which is exactly why I was so surprised that a *new* and *better*
@@ -58,7 +58,7 @@ generate codes that are close to the theoretical compression limit
 (similar to Arithmetic coding) but is *much* more efficient.  It's been used in 
 modern compression algorithms since 2014 including compressors developed
 by Facebook, Apple and Google [3].  As usual, I'm going to go over some
-background, some math, examples to help with intuition and finally some
+background, some math, some examples to help with intuition, and finally some
 experiments with a toy ANS implementation I wrote.  I hope you're as
 excited as I am, let's begin!
 
@@ -192,7 +192,7 @@ Suppose we have already converted some binary string :math:`b_1 b_2 b_3 \ldots b
 :math:`x_i` via the typical method of converting (unsigned) binary numbers to
 natural numbers.  If we get another another binary digit :math:`b_{i+1}`, we
 want to derive a coding function such that :math:`x_{i+1} = C(x_i, b_{i+1})`
-generates natural number representation of :math:`b_1 b_2 b_3 \ldots b_{i+1}`.
+generates the natural number representation of :math:`b_1 b_2 b_3 \ldots b_{i+1}`.
 If you remember your discrete math courses, it should really just be
 multiplying the original number by 2 (shifting up a digit in binary), and then
 adding the new binary digit, which is just:
@@ -204,8 +204,9 @@ adding the new binary digit, which is just:
 If we start with :math:`x_0=0`, you can see that we'll be able to convert any
 binary string iteratively (from MSB to LSB) to its natural number
 representation.  Inversely, we can convert from any natural number to
-iteratively recover the binary digit :math:`b_{i+1}` and the next resulting
-natural number without that digit, we can use the following decoding function:
+iteratively recover both the binary digit :math:`b_{i+1}` and the next
+resulting natural number without that digit using the following decoding
+function:
 
 .. math::
 
@@ -285,20 +286,21 @@ More precisely, we would want even numbers to be mapped in a given range
 roughly :math:`\frac{1-p}{p}` more often than odd numbers.  Or stated another
 way, in a given mapped natural number range from :math:`[1, N]` we would want
 to see roughly :math:`N\cdot p` evens and :math:`N\cdot (1-p)` odds.
-This may make some intuitive sense but we still haven't seen how we can get an
-optimal compression ratio.  Let's work backwards from an optimal compression
-scheme and figure out what we would need.
+This is the right intuition but doesn't really show how it might generate an
+optimal code.  Let's work backwards from an optimal compression scheme and
+figure out what we would need.
 
 We are trying to define the encoding function :math:`x_{i+1} = C(x_i, b_{i+1})`
 (similarly to Equation 3) such that each incremental bit generates the minimal 
 amount of entropy.  Assuming that :math:`x_i` has :math:`\log_2 (x_i)` bits of
 information, and we want to encode :math:`b_{i+1}` optimally with
-:math:`\log_2(p_{b_{i+1}})` bits, we have:
+:math:`-\log_2(p_{b_{i+1}})` bits, we have (with a bit of abuse of entropy notation):
 
 .. math::
-    \log_2(C_{\text{opt}}(x_i, b_{i+1})) 
-        &= \log_2(x_i) + \log_2(\frac{1}{p_{b_{i+1}}})
-        = \log_2(\frac{x_i}{p_{b_{i+1}}}) \\
+    H(x_{i+1}) &= H(C_{\text{opt}}(x_i, b_{i+1})) \\
+               &= H(x_i) + H(b_{i+1})\\
+               &= \log_2(x_i) - \log_2(p_{b_{i+1}})\\
+               &= \log_2(\frac{x_i}{p_{b_{i+1}}}) \\
     &\implies C_{\text{opt}}(x_i, b_{i+1}) \approx \frac{x_i}{p_{b_{i+1}}} 
         \tag{8}
 
@@ -325,7 +327,7 @@ does lead us towards the solution of an optimal code after all!
   :alt: Distribution of Evens and Odds for Various :math:`p`
   :align: center
 
-  Figure 1: Distribution of Evens and Odds for Various :math:`p`
+  **Figure 1: Distribution of Evens and Odds for Various :math:`p`**
 
 
 Thinking about this code a bit differently, we are essentially redefining the
@@ -362,14 +364,14 @@ We know we want approximately :math:`N\cdot p` odd numbers mapped in the first
 :math:`N` mapped natural numbers.  Since we have to have a non-fractional
 number of odds, let's pick :math:`\lceil N \cdot p \rceil` odds in the first
 :math:`N` mapped natural numbers.  From this, we get this relationship for
-any given :math:`N` and :math:`N+1`:
+any given :math:`N` and :math:`N+1` (try to validate it against Figure 1):
 
 .. math::
 
     \lceil (N+1)\cdot p \rceil - \lceil N\cdot p \rceil 
     = \left\{
         \begin{array}{ll}
-            1 && \text{ if } (N+1) \text{ has an odd mapped} \\
+            1 && \text{ if } N \text{ has an odd mapped} \\
             0 && \text{otherwise} \\
         \end{array}
     \right. \tag{9}
@@ -394,9 +396,9 @@ It turns out this one does:
     \right. \tag{10}
 
 I couldn't quite figure out a sensible derivation of why this particular
-function works but it's probably not trivial.  The main problem is
+function works but it's probably non-trivial.  The main problem is
 that we're working with natural numbers, so dealing with floor and ceil
-operators is tricky.  Additionally, Equation 10 kind of looks like a 
+operators is tricky.  Additionally, Equation 9 kind of looks like a 
 some kind of `difference equation <https://en.wikipedia.org/wiki/Linear_difference_equation>`__,
 which are generally very difficult to solve.  However, I did manage to
 prove that Equation 10 is consistent with Equation 9.  See Appendix A for the
@@ -480,10 +482,11 @@ forward but the logic of arriving at them is far from it.
     Another popular way to visualize this is using a tabular method in Figure 2.
     In the top row, we have the same visualization of evens/odds as Figure 1 for :math:`p=\frac{3}{10}`,
     which is essentially :math:`C(x_i, b_{i+1})`.
-    In the second and third row, respectively, for each :math:`C(x_i,
-    b_{i+1})`, it shows the number of evens/odds up to that natural number.
-    So for :math:`C(x_i, b_{i+1})=3`, it is the first odd we have seen, and for 
-    :math:`C(x_i, b_{i+1})=26`, it's the eighth odd we have seen and so on.  The
+    In the second and third row, it shows which numbers are mapped to
+    evens/odds and counts the number of "slots" of evens/odds we have see up to
+    that point.
+    So for :math:`C(x_i, b_{i+1})=3`, it's mapped to the first odd "slot", and
+    for :math:`C(x_i, b_{i+1})=26`, it's mapped to the eighth odd "slot".  The
     same thing happens on the even side.  
 
     .. figure:: /images/ans_ex3.png
@@ -491,14 +494,16 @@ forward but the logic of arriving at them is far from it.
       :alt: Tabular Visualization of uABS Encoding
       :align: center
     
-      Figure 2: Tabular Visualization of uABS Encoding
+      **Figure 2: Tabular Visualization of uABS Encoding**
 
-    This turns out to be precisely what Equation 10 is doing.  The yellow lines
-    trace out what an encoding for "10011" would like like.  For a given
-    :math:`x_i`, we apply Equation 10 to "jump" (the yellow "up" arrows) to the
-    next natural number depending on whether we have a even or an odd (the
-    yellow "diagonal" arrows).  Decoding would follow a similar process but in
-    reverse.
+    This turns out to be precisely what Equation 10 is doing: for any given
+    :math:`x_i` it's trying to find the next even/odd "slot" to put
+    :math:`x_{i+1}` in.
+    The yellow lines trace out what an encoding for "10011" would look like.
+    Our current number :math:`x_i` along with the incoming bit :math:`b_{i+1}`
+    defines which "slot" we should go in (the diagonal arrows), and Equation 10
+    calculates the next natural number associated with it (the "up" arrows).
+    Decoding would follow a similar process but in reverse.
 
 |h3| Range Variant (rANS) |h3e|
 
@@ -521,7 +526,7 @@ This quantization of the probability distribution, simplifies things for us by
 allowing us to have a simpler and more efficient coding/decoding function
 (although it's not clear to me if it's possible to do it without quantization).
 
-Instead of our previous idea of even and odds, what we'll be doing is extending this idea 
+Instead of our previous idea of evens and odds, what we'll be doing is extending this idea 
 and "coloring" each number.  So for an alphabet of size 3, we might color
 things red, green and blue.  Figure 3 shows a few examples with this alphabet
 with :math:`n=3` quantization for a few different distributions (this is analogous
@@ -532,15 +537,15 @@ to Figure 1).
   :alt: Distribution of "blue", "green" and "red" symbols
   :align: center
 
-  Figure 3: Distribution of "blue", "green" and "red" symbols
+  **Figure 3: Distribution of "blue", "green" and "red" symbols**
 
 So how does it work?  It's not too far off from uABS, we use the following equations to encode/decode:
 
 .. math::
 
-    C(x_i, s_{i+1}) &= \lfloor \frac{x_i}{f_s} \rfloor \cdot 2^n + (x_i \bmod f_s) + CDF[s]  \tag{14} \\
+    C(x_i, s_{i+1}) &= \lfloor \frac{x_i}{f_s} \rfloor \cdot 2^n + CDF[s]  \tag{14} + (x_i \bmod f_s)  \\
     s_{i+1} &= \text{symbol}(x_{i+1} \bmod 2^n) \text{ such that } CDF[s] \leq x_{i+1} \bmod 2^n < CDF[s+1] \tag{15} \\
-    x_i = D(x_{i+1}) &= f_s \cdot \lfloor x_{i+1} / 2^n \rfloor + (x_{i+1} \bmod 2^n) - CDF[s] \tag{16}
+    x_i = D(x_{i+1}) &= f_s \cdot \lfloor x_{i+1} / 2^n \rfloor - CDF[s] + (x_{i+1} \bmod 2^n) \tag{16}
 
 Where :math:`CDF[s] := f_0 + f_1 + \ldots + f_{s-1}`, essentially the
 cumulative distribution function for a given ordering of the symbols.  You'll notice
@@ -556,18 +561,19 @@ at Equation 14, we can see how it accomplishes this:
 * :math:`\lfloor \frac{x_i}{f_s} \rfloor \cdot 2^n`: finds the right :math:`2^n` range
   (recall that we have a repeating pattern every :math:`2^n` natural numbers).
   If :math:`f_s` is small, say :math:`f_s=1`, then it only appears once every
-  :math:`2^n` range.  If :math:`f_s` is large, then roughly a range of :math:`f_s` 
-  numbers about :math:`x_i` will get mapped to the same :math:`2^n` range.
+  :math:`2^n` range.  If :math:`f_s` is large, then we would expect to see
+  :math:`f_s` numbers mapped to every :math:`2^n` range.
 * :math:`CDF[s]` finds the offset within the :math:`2^n` range for the current
   symbol :math:`s` -- all :math:`s` symbols will be grouped together within
   this range starting here.
 * :math:`(x_i \bmod f_s)` finds the precise location within this sub-range
   (which has precisely :math:`f_s` spaces allocated for it).
 
+The decoding is basically just the reverse operation of the encoding.
+
 Since we maintain this repeating pattern, we implicitly are maintaining the
 property that we'll see :math:`x_i \cdot p_s` ":math:`s`" symbols within the
-first :math:`x_i` natural numbers.  The decoding is basically just the reverse
-operation of the encoding.
+first :math:`x_i` natural numbers.  
 
 .. admonition:: Example 4: Encoding a Ternary String to/from a Natural Number using rANS
 
@@ -581,16 +587,16 @@ operation of the encoding.
     .. math::
 
        x_1 &= C(x_0, a) 
-            = \lfloor \frac{x_0}{f_a} \rfloor \cdot 2^3 + (x_0 \bmod f_a) + CDF[a]
-            = \lfloor \frac{8}{5} \rfloor \cdot 8 + (8 \bmod 5) + 0
+            = \lfloor \frac{x_0}{f_a} \rfloor \cdot 2^3 + CDF[a] + (x_0 \bmod f_a) 
+            = \lfloor \frac{8}{5} \rfloor \cdot 8 + 0 + (8 \bmod 5) 
             = 11 \\
        x_2 &= C(x_0, b)
-            = \lfloor \frac{x_1}{f_b} \rfloor \cdot 2^3 + (x_1 \bmod f_b) + CDF[b]
-            = \lfloor \frac{11}{2} \rfloor \cdot 8 + (11 \bmod 2) + 5
+            = \lfloor \frac{x_1}{f_b} \rfloor \cdot 2^3 + CDF[b] + (x_1 \bmod f_b) 
+            = \lfloor \frac{11}{2} \rfloor \cdot 8 + 5 + (11 \bmod 2)
             = 46  \\
        x_3 &= C(x_0, c)
-            = \lfloor \frac{x_2}{f_c} \rfloor \cdot 2^3 + (x_2 \bmod f_c) + CDF[c]
-            = \lfloor \frac{46}{1} \rfloor \cdot 8 + (46 \bmod 1) + 7
+            = \lfloor \frac{x_2}{f_c} \rfloor \cdot 2^3 + CDF[c] + (x_2 \bmod f_c)
+            = \lfloor \frac{46}{1} \rfloor \cdot 8 + 7 + (46 \bmod 1)
             = 375 \\
         \tag{17}
 
@@ -600,24 +606,24 @@ operation of the encoding.
 
         s_2 &= \text{symbol}(x_3 \bmod 8) = \text{symbol}(375 \bmod 8) = c \\
         x_2 &= D(x_3) 
-             = f_c \cdot \lfloor x_3 / 8 \rfloor + (x_3 \bmod 8) - CDF[c]
-             = 1 \cdot \lfloor 375 / 8 \rfloor + (375 \bmod 8) - 7 
+             = f_c \cdot \lfloor x_3 / 8 \rfloor - CDF[c] + (x_3 \bmod 8)
+             = 1 \cdot \lfloor 375 / 8 \rfloor - 7  + (375 \bmod 8)
              = 46 \\
         s_1 &= \text{symbol}(x_2 \bmod 8) = \text{symbol}(46 \bmod 8) = b \\
         x_1 &= D(x_2) 
-             = f_b \cdot \lfloor x_2 / 8 \rfloor + (x_2 \bmod 8) - CDF[b]
-             = 2 \cdot \lfloor 46 / 8 \rfloor + (46 \bmod 8) - 5 
+             = f_b \cdot \lfloor x_2 / 8 \rfloor - CDF[b] + (x_2 \bmod 8)
+             = 2 \cdot \lfloor 46 / 8 \rfloor - 5  + (46 \bmod 8)
              = 11 \\
         s_0 &= \text{symbol}(x_1 \bmod 8) = \text{symbol}(11 \bmod 8) = a \\
         x_0 &= D(x_1) 
-             = f_a \cdot \lfloor x_1 / 8 \rfloor + (x_1 \bmod 8) - CDF[a]
-             = 5 \cdot \lfloor 11 / 8 \rfloor + (11 \bmod 8) - 0
+             = f_a \cdot \lfloor x_1 / 8 \rfloor - CDF[a] + (x_1 \bmod 8)
+             = 5 \cdot \lfloor 11 / 8 \rfloor - 0 + (11 \bmod 8)
              = 8 \\
         \tag{18}
 
     We can build the same table as Figure 2 except we'll have four rows:
     for :math:`C(x_i, s_{i+1}), a, b, c`.  Building the table is left as
-    an exercise for the reader :).
+    an exercise for the reader :)
 
 .. admonition:: Note about the starting value of :math:`x_0`
 
@@ -629,16 +635,16 @@ operation of the encoding.
     .. math::
 
        x_1 &= C(x_0, a) 
-            = \lfloor \frac{x_0}{f_a} \rfloor \cdot 2^3 + (x_0 \bmod f_a) + CDF[a]
-            = \lfloor \frac{1}{5} \rfloor \cdot 8 + (1 \bmod 5) + 0
+            = \lfloor \frac{x_0}{f_a} \rfloor \cdot 2^3 + CDF[a] + (x_0 \bmod f_a)
+            = \lfloor \frac{1}{5} \rfloor \cdot 8 + 0 + (1 \bmod 5)
             = 1 \\ 
        x_2 &= C(x_1, a) 
-            = \lfloor \frac{x_0}{f_a} \rfloor \cdot 2^3 + (x_0 \bmod f_a) + CDF[a]
-            = \lfloor \frac{1}{5} \rfloor \cdot 8 + (1 \bmod 5) + 0
+            = \lfloor \frac{x_0}{f_a} \rfloor \cdot 2^3 + CDF[a] + (x_0 \bmod f_a)
+            = \lfloor \frac{1}{5} \rfloor \cdot 8 + 0 + (1 \bmod 5)
             = 1 \\     
        x_3 &= C(x_2, a) 
-            = \lfloor \frac{x_0}{f_a} \rfloor \cdot 2^3 + (x_0 \bmod f_a) + CDF[a]
-            = \lfloor \frac{1}{5} \rfloor \cdot 8 + (1 \bmod 5) + 0
+            = \lfloor \frac{x_0}{f_a} \rfloor \cdot 2^3 + CDF[a] + (x_0 \bmod f_a)
+            = \lfloor \frac{1}{5} \rfloor \cdot 8 + 0 + (1 \bmod 5)
             = 1 \\
         \tag{19}
 
@@ -650,8 +656,8 @@ operation of the encoding.
     I think (haven't really proven it) that the safest option is to have
     :math:`\max f_s` as your starting value.  This will ensure that the first
     term will always be >= 0, resulting in a different number than you started
-    with.  To be safe, :math:`8 > \max f_s`, which is just a bit nicer.
-    In some sense, were "wasting" the initial numbers here starting :math:`x_0`
+    with.  To be safe, :math:`2^n > \max f_s`, which is just a bit nicer.
+    In some sense, we're "wasting" the initial numbers here starting :math:`x_0`
     larger but it's necessary in order to encode repeated strings and handle
     these corner cases.  
     
@@ -672,10 +678,10 @@ It turns out there is a simple trick to ensure that :math:`x^i \in [2^M, 2^{2M} 
 The idea is that during encoding once :math:`x_i` gets too big, we simply write
 out the lower :math:`M` bits to ensure it stays between :math:`[2^M, 2^{2M} - 1]`
 (e.g. :math:`M=16` bits).
-Similarly, during decoding, if :math:`x_i` is too small, shift out number up
-and read in :math:`M` bits into the lower bits.  As long as you take care to
-make sure each operation is symmetric, it should allow you to always play with
-a number that fits within an integer type.
+Similarly, during decoding, if :math:`x_i` is too small, shift the current
+number up and read in :math:`M` bits into the lower bits.  As long as you take
+care to make sure each operation is symmetric, it should allow you to always
+play with a number that fits within an integer type.
     
 **Listing 1: Encoding and Decoding rANS Python Pseudocode with Renormalization**
 
@@ -689,7 +695,8 @@ a number that fits within an integer type.
     s = readSymbol()
     x_test = (x / f[s]) << n + (x % f[s]) + c[s]
     if (x_test > BOUND):
-        write16bits(x & MASK); x >>= M
+        write16bits(x & MASK)
+        x = x >> M
     x = (x / f[s]) << n + (x % f[s]) + c[s]
 
     # Decoding
@@ -714,10 +721,11 @@ or the tabled variant.  In this variation, we build a finite state machine
 This has a bit more upfront cost but will make the encoding/decoding much faster
 without the need for multiplications.
 
-Another extension of tANS is the ability to encrypt in the algorithm.  Since
-we're building a table, we don't really need to maintain Equation 14-16 but
-rather can pick any repeating pattern.  So instead of the typical rANS repeating
-pattern, we can scramble it based on some random number. See [1] for more details.
+Another extension of tANS is the ability to encrypt the message directly in the
+tANS algorithm.  Since we're building a table, we don't really need to maintain
+Equation 14-16 but rather can pick any repeating pattern.  So instead of the
+typical rANS repeating pattern, we can scramble it based on some random number.
+See [1] for more details.
 
 |h2| Implementation Details |h2e|
 
@@ -782,22 +790,23 @@ and actual size were measured or calculated.  For each uABS experiment, each
 setting was run with 100 different strings and averaged, while for rANS it was
 run 50 times and averaged.
 
-Figure 4 shows the results for uABS.  First off, more skewed distributions (lower :math:`p`)
-result in higher compression.  This is sensible because we can exploit the fact that odd
-numbers appear much more often.  Next, it's clear that as the message length
-increase, we get a better compression ratio (closer to ideal).  This expected
-as the asymptotic behavior of the code starts paying off.  Interesting, for
-more skewed distributions (:math:`p=0.01`), it takes much longer message
-lengths for us to get close to the theoretical limit.  We would probably need a
-message length of :math:`1 / p` to start approaching that limit.
-Unfortunately, since I didn't implement renormalization, I couldn't push the
-message length too much further since the numbers got too big.
+Figure 4 shows the results for uABS where "actual_ratio" stands for compression
+ratio.  First off, more skewed distributions (lower :math:`p`) result in higher
+compression.  This is sensible because we can exploit the fact that odd numbers
+appear much more often.  Next, it's clear that as the message length increase,
+we get a better compression ratio (closer to ideal).  This expected as the
+asymptotic behavior of the code starts paying off.  Interesting, for more
+skewed distributions (:math:`p=0.01`), it takes much longer message lengths for
+us to get close to the theoretical limit.  We would probably need a message
+length of :math:`N * 1 / p` to start approaching that limit.  Unfortunately, since
+I didn't implement renormalization, I couldn't push the message length too much
+further since the numbers got too big.
 
 .. figure:: /images/ans_uabs.png
   :alt: Experimental Results
   :align: center
 
-  Figure 4: Experimental Results for uABS (dashed lines are the ideal compression ratio)
+  **Figure 4: Experimental Results for uABS (dashed lines are the ideal compression ratio)**
 
 Figure 5 show the first set of results for rANS.  Here we used an 256 character
 alphabet (8-bits = 1byte) with 15 quantization bits and 24 renormalization
@@ -811,10 +820,10 @@ message sizes.
   :alt: Experimental Results
   :align: center
 
-  Figure 5: Experimental Results for rANS varying message length and distribution (dashed lines are the ideal compression ratio)
+  **Figure 5: Experimental Results for rANS varying message length and distribution (dashed lines are the ideal compression ratio)**
 
 Figure 6 shows an ablation study for rANS on quantization bits.  I held constant
-`power_50` distribution with message length 100 and varied quantization bits
+`power_50` distribution with message length 1000 and varied quantization bits
 and renormalization bits.  `renormalization_bits = add_renorm_bits + quantization_bits`.
 We can see that more precise quantization yields better compression, as
 expected.  It can get closer to the actual `power_50` distribution instead of
@@ -826,7 +835,7 @@ it here but I didn't want to spend too much time investigating it).
   :alt: Experimental Results
   :align: center
 
-  Figure 6: Experimental Results for rANS varying quantization bits and renormalization bits
+  **Figure 6: Experimental Results for rANS varying quantization bits and renormalization bits**
 
 |h2| Conclusion |h2e|
 
@@ -834,7 +843,7 @@ Well this post was definitely another tangent that I went off on.  In fact, the
 post I actually wanted to write was ML related but I got side tracked trying to
 understand ANS.  It just was so interesting that I thought I should learn it
 more in depth and write a post on it.  I keep trying to make more time for
-writing on this blog but I always seem to have more and more things keeping
+writing on this blog but I always seem to have more and more things keeping me
 busy professionally and personally (which is a good thing!).  Anyways, look out
 for a future post where I will make reference to ANS.  Thanks for reading!
 
@@ -853,7 +862,7 @@ I tried looking up a bunch of identities and going in circles using modulo
 notation without much success.  It was only after going back to the definition
 of the floor/ceil operators, did I figure out the proof below.  There's
 probably some lesson here about first principles but I'll let you take what you 
-want from this digression.*)
+want from this story.*)
 
 Let's start out by assuming that :math:`p = \frac{a}{b}` can be represented as
 a rational number for some relatively prime :math:`a, b \in \mathbb{Z}^{+}`.

@@ -143,7 +143,7 @@ of the information of :math:`X`:
     &= \sum_{i=1}^n p_i \log(1/p_i) \\
     &= -\sum_{i=1}^n p_i \log(p_i) \tag{2}
 
-Eh voila!  The usual (non-intuitive) definition of entropy we all know and
+Et voila!  The usual (non-intuitive) definition of entropy we all know and
 love.  Note: When any of the probabilities are :math:`p_i=0`, you replace
 :math:`0\log(0)` with :math:`0`, which is consistent with the limit as
 :math:`p` approaches to 0 from the right.
