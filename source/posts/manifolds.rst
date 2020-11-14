@@ -523,7 +523,7 @@ inverse (:math:`\varphi^{-1}`) into this measure of "velocity":
     &= \sum_i \frac{\partial (f \circ \varphi^{-1})(x)}{\partial x_i}\Big|_{x=\varphi \circ \gamma(t_0)}
        \frac{d(\varphi \circ \gamma)^i(t)}{dt}\Big|_{t=t_0} && \text{chain rule} \\
     &= \sum_i \frac{\partial (f \circ \varphi^{-1})(x)}{\partial x_i}\Big|_{x=\varphi(p)}
-       \frac{d(\varphi \circ \gamma)^i(t)}{dt}\Big|_{t=t_0} && \text{since }\varphi(p) = \gamma(t_0) \\
+       \frac{d(\varphi \circ \gamma)^i(t)}{dt}\Big|_{t=t_0} && \text{since }p = \gamma(t_0) \\
     &= \sum_i (\text{basis for component }i)(\text{"velocity" of component i wrt to } \varphi) \\
     \tag{8}
 
