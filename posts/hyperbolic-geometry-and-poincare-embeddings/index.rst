@@ -708,7 +708,7 @@ variables :math:`y_1, y_2`:
     \begin{bmatrix} 
         \frac{\partial x_1}{\partial y_1} & \frac{\partial x_1}{\partial y_2} \\
         \frac{\partial x_2}{\partial y_1} & \frac{\partial x_2}{\partial y_2} \\ 
-        \frac{\partial z}{\partial x_2} & \frac{\partial z}{\partial y_2}
+        \frac{\partial z}{\partial y_1} & \frac{\partial z}{\partial y_2}
     \end{bmatrix} 
     \begin{bmatrix}
         dy_1 \\ dy_2
@@ -720,13 +720,13 @@ variables :math:`y_1, y_2`:
     dy_1 & dy_2
     \end{bmatrix}
     \begin{bmatrix} 
-        \frac{4}{1 - y_1^2 - y_2^2} & 0 \\
+        \frac{4}{(1 - y_1^2 - y_2^2)^2} & 0 \\
         0 & \frac{4}{(1 - y_1^2 - y_2^2)^2}
     \end{bmatrix} 
     \begin{bmatrix}
         dy_1 \\ dy_2
     \end{bmatrix} \\
-    &= \frac{4 \lVert{\bf dy}^2\rVert}{(1-\lVert{\bf y}^2\rVert)^2}
+    &= \frac{4 \lVert{\bf dy}\rVert^2}{(1-\lVert{\bf y}\rVert^2)^2}
     \\
     \tag{11}  
 
