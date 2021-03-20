@@ -697,8 +697,8 @@ model coefficients.
     **Corollary 1 (Linear SHAP)**: Given a model :math:`f(x) = \sum_{j=1}^M w_jx_j + b` then
     :math:`\phi_0(f,x)=b` and :math:`\phi_i(f,x) = w_j(x_j-E[x_j])`.
 
-As you can see there is a direct mapping from linear coefficients to SHAP values.  The
-reason why it's not a direct mapping is that SHAP is *contrastive*, that is its feature
+As you can see there is a simple mapping from linear coefficients to SHAP values.  The
+reason why they are not equal is that SHAP is *contrastive*, that is its feature
 importance is compared to the mean.  That's why we have that extra term in
 the SHAP value :math:`\phi_i`.
 
@@ -720,15 +720,15 @@ The basic idea here is that *for each data point* under analysis, we will:
    dimension or equivalent.  For example, in an image you might replace a pixel
    with the mean of the surrounding pixels (see [4] for more details).
 3. Compute a weight for each data point :math:`z_k'` using the SHAP kernel: 
-   :math:`\pi_{x'}(z')=\frac{(M-1)}{(M choose |z'|)|z'|(M-|z'|)}`.
+   :math:`\pi_{x'}(z')=\frac{(M-1)}{{M \choose |z'|}|z'|(M-|z'|)}`.
 4. Fit a weighted linear model (see [1] for details)
 5. Return the coefficients of the linear model as the Shapely values (:math:`\phi_k`).
 
 The intuition here is that we can learn more about a feature if we study it in
 isolation.  That's why the SHAP kernel will weight having a single feature,
-or correspondingly M-1 features, more heavily (the combination in the
-denominator is largest when :math:`M choose |z'|` is small).  When
-:math:`|z'|=1` or :math:`|z'|=M` the expression has a divide by zero, but you
+or correspondingly M-1 features, more heavily (the denominator is largest when
+:math:`M \choose |z'|` is small).  When
+:math:`|z'|=0` or :math:`|z'|=M` the expression has a divide by zero, but you
 can just drop these terms in general (that's how I interpret what the paper
 says anyways).
 
