@@ -1,7 +1,7 @@
 .. title: Probability as Extended Logic
 .. slug: probability-the-logic-of-science
 .. date: 2015-10-14 20:30:05 UTC-04:00
-.. tags: probability, Jayne, logic, mathjax
+.. tags: probability, Jaynes, logic, mathjax
 .. category: 
 .. link: 
 .. description: Probability as extended logic.
@@ -46,13 +46,13 @@ dice and urns full of red and white balls, I still didn't feel that I had
 have a strong grasp about how to apply it to other situations -- especially
 ones where it was difficult or too abstract to apply the idea of *"a fraction
 whose numerator is the number of favorable cases and whose denominator is the
-number of all the cases possible"*.  And then I read `Probability Theory: The Logic of Science <http://www.cambridge.org/gb/academic/subjects/physics/theoretical-physics-and-mathematical-physics/probability-theory-logic-science>`_ by E. T. Jayne.
+number of all the cases possible"*.  And then I read `Probability Theory: The Logic of Science <http://www.cambridge.org/gb/academic/subjects/physics/theoretical-physics-and-mathematical-physics/probability-theory-logic-science>`_ by E. T. Jaynes.
 
-Jayne takes a drastically different approach to probability, not with events and
+Jaynes takes a drastically different approach to probability, not with events and
 sample spaces, but rather as an extension of Boolean logic.  Taking this view made
 a great deal of sense to me since I spent a lot of time `studying and reasoning
 <link://slug/accessible-satisfiability>`_ in Boolean logic.  The following post
-is my attempt to explain Jayne's view of probability theory, where he derives
+is my attempt to explain Jaynes' view of probability theory, where he derives
 it from "common sense" extensions to Boolean logic.  (*Spoiler alert: he ends
 up with pretty much the same mathematical system as Kolmogorov's probability
 theory.*) I'll stay away from any heavy derivations and stick with the
@@ -251,10 +251,10 @@ what we would expect a smart rational person to conclude.
 |h3| Introducing the Robot |h3e|
 
 In all of the above discussion about plausible reasoning, we've been trying to
-build "a mathematical model of human common sense" as Jayne puts it.  However,
+build "a mathematical model of human common sense" as Jaynes puts it.  However,
 we need to be careful because human judgment has many properties (that while
 useful) may not be ideal for us to include in our system of reasoning such as
-emotion and misunderstandings.  Here is where Jayne introduces a really neat
+emotion and misunderstandings.  Here is where Jaynes introduces a really neat
 concept, the robot, in order to make it clear what we're trying to achieve:
 
     In order to direct attention to constructive things and away from
@@ -273,7 +273,7 @@ concept, the robot, in order to make it clear what we're trying to achieve:
 Sounds like a pretty cool robot!  So our goal now is to build a reasoning
 system for this hypothetical robot that that will be consistent with how an
 ideal rational person would reason.  Here are the three requirements
-(desiderata) that Jayne states for our robot:
+(desiderata) that Jaynes states for our robot:
 
  1. Degrees of plausibility are represented by real numbers.
  2. Qualitative correspondence with common sense.
@@ -293,7 +293,7 @@ exercise.
 The last requirement is obvious since if we're trying to build a robot
 to reason, it has to be consistent (or what use is it?).
 
-What is surprising is that from these three desiderata, Jayne goes on
+What is surprising is that from these three desiderata, Jaynes goes on
 to derive probability theory (extending it from Boolean logic)!  If you're
 interested, I encourage you to check out his book Probability Theory: The Logic
 of Science  (see link below), where in Chapter 2 he goes over all the gory
@@ -508,7 +508,7 @@ lot better and, dare I say, even start to like the subject!
 
 |h2| Further Reading |h2e|
 
-* `Probability Theory: The Logic of Science (Chapters 1-3) <http://bayes.wustl.edu/etj/prob/book.pdf>`_ by E. T. Jayne.
+* `Probability Theory: The Logic of Science (Chapters 1-3) <http://bayes.wustl.edu/etj/prob/book.pdf>`_ by E. T. Jaynes.
 * `Probability Theory As Extended Logic <http://bayes.wustl.edu/>`_ at Washington University In St Louis.
 * `Probability, Paradox, and the Reasonable Person Principle <http://nbviewer.ipython.org/url/norvig.com/ipython/Probability.ipynb>`_ by Peter Norvig
 

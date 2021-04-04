@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about Jayne)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/jayne.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sat, 20 Mar 2021 13:44:15 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Probability as Extended Logic</title><link>http://bjlkeng.github.io/posts/probability-the-logic-of-science/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Modern probability theory is typically derived from the
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about Jaynes)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/jaynes.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sun, 04 Apr 2021 19:01:49 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Probability as Extended Logic</title><link>http://bjlkeng.github.io/posts/probability-the-logic-of-science/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Modern probability theory is typically derived from the
 &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Probability_axioms"&gt;Kolmogorov axioms&lt;/a&gt;,
 using measure theory with concepts like events and sample space.
 In one way, it's intuitive to understand how this works as Laplace
@@ -17,14 +17,14 @@ dice and urns full of red and white balls, I still didn't feel that I had
 have a strong grasp about how to apply it to other situations -- especially
 ones where it was difficult or too abstract to apply the idea of &lt;em&gt;"a fraction
 whose numerator is the number of favorable cases and whose denominator is the
-number of all the cases possible"&lt;/em&gt;.  And then I read &lt;a class="reference external" href="http://www.cambridge.org/gb/academic/subjects/physics/theoretical-physics-and-mathematical-physics/probability-theory-logic-science"&gt;Probability Theory: The Logic of Science&lt;/a&gt; by E. T. Jayne.&lt;/p&gt;
-&lt;p&gt;Jayne takes a drastically different approach to probability, not with events and
+number of all the cases possible"&lt;/em&gt;.  And then I read &lt;a class="reference external" href="http://www.cambridge.org/gb/academic/subjects/physics/theoretical-physics-and-mathematical-physics/probability-theory-logic-science"&gt;Probability Theory: The Logic of Science&lt;/a&gt; by E. T. Jaynes.&lt;/p&gt;
+&lt;p&gt;Jaynes takes a drastically different approach to probability, not with events and
 sample spaces, but rather as an extension of Boolean logic.  Taking this view made
 a great deal of sense to me since I spent a lot of time &lt;a class="reference external" href="http://bjlkeng.github.io/posts/accessible-satisfiability/"&gt;studying and reasoning&lt;/a&gt; in Boolean logic.  The following post
-is my attempt to explain Jayne's view of probability theory, where he derives
+is my attempt to explain Jaynes' view of probability theory, where he derives
 it from "common sense" extensions to Boolean logic.  (&lt;em&gt;Spoiler alert: he ends
 up with pretty much the same mathematical system as Kolmogorov's probability
 theory.&lt;/em&gt;) I'll stay away from any heavy derivations and stick with the
 intuition, which is exactly where I think this view of probability theory is most
 useful.&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/probability-the-logic-of-science/"&gt;Read more…&lt;/a&gt; (14 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Jayne</category><category>logic</category><category>mathjax</category><category>probability</category><guid>http://bjlkeng.github.io/posts/probability-the-logic-of-science/</guid><pubDate>Thu, 15 Oct 2015 00:30:05 GMT</pubDate></item></channel></rss>
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/probability-the-logic-of-science/"&gt;Read more…&lt;/a&gt; (14 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Jaynes</category><category>logic</category><category>mathjax</category><category>probability</category><guid>http://bjlkeng.github.io/posts/probability-the-logic-of-science/</guid><pubDate>Thu, 15 Oct 2015 00:30:05 GMT</pubDate></item></channel></rss>
