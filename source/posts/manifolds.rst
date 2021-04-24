@@ -109,7 +109,7 @@ one dimensional line segment.
 
 Of course, there is a much more 
 `precise definition <https://en.wikipedia.org/wiki/Topological_manifold#Formal_definition>`__ 
-from topology in which a manifold is defined as a set that is 
+from topology in which a manifold is defined as a special set that is locally
 `homeomorphic <https://en.wikipedia.org/wiki/Homeomorphism>`__ 
 to Euclidean space.  A homeomorphism is a special kind of continuous one-to-one 
 and onto mapping that preserves topological properties.  The definition is quite
