@@ -266,11 +266,11 @@ in the previous subsection:
 .. math::
 
    &\arg\max_{\bf \beta} \Big[ \log \prod_{i=1}^{n} \frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{(y_i- (\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p}))^2}{2\sigma^2}}  
-   + \log \prod_{j=0}^{p} \frac{1}{2b}e^{-\frac{|\beta_j|}{2b}} \Big] \\
+   + \log \prod_{j=0}^{p} \frac{1}{2b}e^{-\frac{|\beta_j|}{b}} \Big] \\
   &= \arg\max_{\bf \beta} \Big[- \sum_{i=1}^{n} {\frac{(y_i- (\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p}))^2}{2\sigma^2}}
-   - \sum_{j=0}^{p} {\frac{|\beta_j|}{2b}} \Big]\\
+   - \sum_{j=0}^{p} {\frac{|\beta_j|}{b}} \Big]\\
   &= \arg\min_{\bf \beta} \frac{1}{2\sigma^2} \big[ \sum_{i=1}^{n} (y_i-(\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p}))^2
-   + \frac{\sigma^2}{b} \sum_{j=0}^{p} |\beta_j| \big] \\
+   + \frac{2\sigma^2}{b} \sum_{j=0}^{p} |\beta_j| \big] \\
   &= \arg\min_{\bf \beta} \big[ \sum_{i=1}^{n} (y_i-(\beta_0 + \beta_1 x_{i,1} + ... + \beta_p x_{i,p}))^2 + \lambda \sum_{j=0}^{p} |\beta_j| \big]
    \tag{9} 
 
