@@ -108,6 +108,11 @@ Suppose we wanted to perform lossless compression on datum
    given input symbols and their probability distributions call it: 
    :math:`B=\text{CODE}({\bf x}, P_x)`.
 
+Note: Here we are distinguishing between data points (denoted by a bold :math:`\bf x`),
+and the different components of that data point (not bolded :math:`x_i`).
+Usually we will want to encode *multiple* data points (e.g. images), each of which contains
+multiple components (e.g. pixels).
+
 Compression is pretty straight forward by just calling :math:`\text{CODE}`
 with the input datum and its respective probability distribution to get
 your compressed stream of bits :math:`B`. To decode, simply call the
@@ -118,14 +123,17 @@ bits.  Notice that our compressed bit stream needs to be paired with
 "Model" here can be really simple, we could just do a simple histogram of each
 symbol in our data stream, and this could serve as our probability
 distribution.  You would expect that this simple approach would not do very well
-for complex data, for example, trying to compress 1M images.  A histogram
+for complex data, for example, trying to compress images.  A histogram
 for each pixels (i.e. symbols) across all the images would be very dispersed,
-have relatively small probabilities, and thus have poor compression (recall
-the higher the probability the better entropy compression methods work).
+have relatively small probabilities for any given pixel, and thus have poor
+compression (recall the higher the probability of a symbol the better entropy
+compression methods work).  
 
-More complicated models though require a bit more thought on how to apply it
-due to the various conditioning of models.  Let's take a look at a couple of
-examples.
+So the intuition here is that we want a model that can accurately predict (via
+a probability) our datum and its corresponding symbols to allow the entropy
+encoder to efficiently compress.  However, using more complicated models with
+entropy encoding that treat each datum differently require a bit more thought
+on how to apply them.  Let's take a look at a couple of examples.
 
 |h3| Autoregressive Models |h3e|
 
@@ -139,35 +147,41 @@ Each indexed component of :math:`\bf x` (i.e. pixel) is dependent only on the
 previous ones, using whatever indexing makes sense.  See my post on `PixelCNN <link://slug/pixelcnn>`__
 for more details.
 
-When using this type of model with the ANS entropy encoder, we have to be a bit
+When using this type of model with an ANS entropy encoder, we have to be a bit
 careful because it decompresses symbols in the last-in-first-out (stack) order.
-For example, we should compress in reverse order:
+Let's take a closer look in Figure 1.
 
-.. math::
 
-    \text{CODE}(x_n, P_x(x_n|x_{n-1}\ldots x_1)), \ldots, \text{CODE}(x_1, P_x(x_1)) \tag{2}
- 
-Notice that when compressing, you have access to the entire :math:`x` vector so
-there's no issue there.  When decompressing, you only have access to the
-model and any symbols you decoded so far, so you must decode in the appropriate order:
+.. figure:: /images/bbans_autoregressive.png
+  :width: 700px
+  :alt: Entropy Encoding and Decoding with an Autoregressive Model
+  :align: center
 
-.. math::
+  Figure 1: Entropy Encoding and Decoding with an Autoregressive Model
 
-    \text{DECODE}(B_1, P_x(x_1)), \ldots, \text{DECODE}(B_n, P_x(x_n|x_{n-1}\ldots x_1)) \tag{3}
+First looking at encoding from the left side of Figure 1, notice that we have to
+reverse the order of the input data to the ANS encoder (the autoregressive
+model receives the input in the usual order).  This is needed because we need
+to decode the data in the ascending order for the autoregressive conditions
+(see decoding below).  Next, notice that our ANS encoder requires both the
+(reversed) input data and the appropriate distributions for each symbol (i.e.
+each :math:`x_j` component).  Finally, the compressed data is output, which
+(hopefully) is shorter than the original input.
 
-where I'm just using a convenience notation for the bitstream :math:`B_i` to
-represent the partial bit stream at that point in the decoding.  Overall, it's
-pretty straight forward using an autoregressive model so long as you keep in mind
-the order of encoding.  
+Decoding is shown on the right hand side of Figure 1.  It's a bit more
+complicated because we must *iteratively* generate the distributions for each
+symbol.  Initially, we'll just decode :math:`x_1` since our model can
+unconditionally generate its distribution.  This is the reason why we needed
+to reverse our input during encoding.  Then, we generate :math:`x_2|x_1` and so
+on for each :math:`x_i|x_{1,\ldots,i-1}` until we've recovered the original
+data.  Notice that this is quite inefficient since we have to call the model
+:math:`n` times for each component of :math:`\bf x`.
 
 I haven't tried this but it seems like something pretty reasonable to do
 (assuming you have a good model and I haven't made a serious logical error).
-The only problem with autoregressive models is that they are slow!  During
-encoding, it should be quick because you can call the model in parallel by
-applying :math:`x` on the input.  But on decoding, you have to iteratively call
-the model with each new piece of data decoded (e.g. once for each of
-:math:`P_x(x_1)`, :math:`P_x(x_2|x1)`, :math:`P_x(x3|x_2,x_1)`, etc.) Perhaps
-that's why no one is interested in this?
+The only problem with autoregressive models is that they are slow!  Perhaps
+that's why no one is interested in this?  Anyways, the next method overcomes
+this slowness problem.
 
 |h3| Latent Variable Models |h3e|
 
@@ -175,38 +189,50 @@ Latent variable models have a set of unobserved variables :math:`\bf z` in
 addition to the observed ones :math:`\bf x`, giving us a likelihood function
 of :math:`P(\bf x|\bf z)`.  We'll usually have a prior distribution for :math:`\bf z`
 (implicitly or explicitly), and depending on the model, we may or may not have
-access to a posterior distribution (or an estimate of it) as well: :math:`P(\bf z| \bf x)`.
+access to a posterior distribution (more likely an estimate of it) as well: 
+:math:`q(\bf z| \bf x)`.
 
-To start, let's think about how we would encode :math:`\bf x` with just the
-likelihood.  First, we would need some value of :math:`\bf z` so that we can
-get a distribution using :math:`P(\bf x|\bf z)`.  This can be obtained either
-by sampling the prior, or using its mean, or any other method you wish.
-After that, it's pretty straight forward to encode:
+The major difference with latent variable model is that we need to encode the
+latent variables (or else we won't be able to generate the required distributions
+for :math:`\bf x`).  Let's take a look at Figure 2 to see how the encoding works.
 
-.. math::
+.. figure:: /images/bbans_latent_encode.png
+  :width: 600px
+  :alt: Entropy Encoding with a Latent Variable Model
+  :align: center
 
-    \text{CODE}(x_1, P(x_1|{\bf z}), \ldots, \text{CODE}(x_n, P(x_n|{\bf z})), 
-    \text{CODE}({\bf z}, P({\bf z})) \tag{4}
+  Figure 2: Entropy Encoding with a Latent Variable Model
 
-Notice the big difference here is that we need to encode the latent variables
-at the end.  We can use the prior distribution to encode the latent variables
-using ANS since that the best guess as to how they are distributed.  The main
-issue with this method is that it's probably not very good.  Recall, we're
-using a generic :math:`\bf z` that's sampled from the prior, it's unlikely that
-our sample :math:`\bf x` is going to be probable under that :math:`\bf z`, thus
-poor compression.  There are some other issues as well around discretizing
-:math:`z` if it's continuous but we'll cover that below.
+Starting from the input data, we need to first generate some value for our
+latent variable :math:`\bf z` so that we can use it for our model :math:`P(\bf x|\bf z)`.
+This can be obtained either by sampling the prior (or posterior if available),
+or really any other method that would generate an accurate distribution for :math:`\bf x`.
+Once we have :math:`\bf z`, we we can encode the input data as usual.  The one
+big difference is that we also have to encode our latent variable where we can
+use the prior distribution.  Notice that we cannot use the posterior here because
+we won't have access to :math:`\bf x` at decompression time, therefore, would
+not be able to decompress :math:`\bf z`.
 
-Things change though if we do have access to a posterior.  Instead of our
-generic :math:`\bf z`, we can draw from our posterior distribution (or point
-estimate) using :math:`P({\bf z|x})`.  The encoding would be the same as
-Equation 4 but most likely with better compression due higher probabilities
-from our likelihood.  
 
-This is all relatively straight forward if you took time to think about it but
-!he question is can we do better?  Yes!  And that's what this post is all
-about.  Using a very clever trick you can get "bits back" which we'll cover
-below.
+.. figure:: /images/bbans_latent_decode.png
+  :width: 600px
+  :alt: Entropy Decoding with a Latent Variable Model
+  :align: center
+
+  Figure 2: Entropy Decoding with a Latent Variable Model
+
+Decoding is shown in Figure 2 and works basically as the reverse of encoding.
+The major thing to notice is that we have to do operations in a
+last-in-first-out order.  That is, first decode :math:`\bf z`, use it to
+generate distributional outputs for the components of :math:`\bf x`, then
+use those outputs to decode the compressed to recover our original message.
+
+This is all relatively straight forward if you took time to think about it.
+There are some other issues as well around discretizing :math:`z` if it's
+continuous but we'll cover that below.  The more interesting question is can we
+do better?  The answer is a resounding "Yes!", and that's what this post is all
+about.  By using a very clever trick you can get some "bits back" to improve
+your compression performance.  Read on to find out more!
 
 |h2| Bits Back Coding |h2e|
 
