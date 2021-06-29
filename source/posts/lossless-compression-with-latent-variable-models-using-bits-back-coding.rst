@@ -219,9 +219,9 @@ not be able to decompress :math:`\bf z`.
   :alt: Entropy Decoding with a Latent Variable Model
   :align: center
 
-  Figure 2: Entropy Decoding with a Latent Variable Model
+  Figure 3: Entropy Decoding with a Latent Variable Model
 
-Decoding is shown in Figure 2 and works basically as the reverse of encoding.
+Decoding is shown in Figure 3 and works basically as the reverse of encoding.
 The major thing to notice is that we have to do operations in a
 last-in-first-out order.  That is, first decode :math:`\bf z`, use it to
 generate distributional outputs for the components of :math:`\bf x`, then
@@ -236,15 +236,134 @@ your compression performance.  Read on to find out more!
 
 |h2| Bits Back Coding |h2e|
 
+From the previous section, we know that we can encode and decode data using a
+latent variable model with relative ease.  The big downside is that we're
+"wasting" space by encoding the latent variables.  They're necessary to
+generate the distributions for our data, but otherwise are not encoding any of
+our signal.  It turns out we can use a clever trick to recover some of
+this "waste".
 
-The most straight forward approach for lossless c
+Notice in Figure 2, we randomly sample from (an estimate of) the posterior distribution.
+In some sense, we're introducing new information from the random sample here
+that we must encode.  Instead, why don't we utilize some of the existing bits
+we've encoded to get a pseudo-random sample?  Figure 4 shows the encoding
+process in more detail.
+
+.. figure:: /images/bbans_bb_encode.png
+  :width: 600px
+  :alt: Bits Back Encoding with a Latent Variable Model
+  :align: center
+
+  Figure 4: Bits Back Encoding with a Latent Variable Model
+
+The key difference here is that we're decoding the existing bitstream (from
+previous data that we've compressed) to generate a (pseudo-) random sample :math:`\bf z`
+using the posterior distribution.  Since the existing bitstream was encoded using
+a different distribution, the sample we decode should *sort of* random.  The nice part
+about this trick is that we're still going to encode :math:`\bf z` as usual so any
+bits we've popped off the bitstream we get "back" (that is, don't require to be
+on the bitstream anymore).  This *reduces* the effective average size of encoding
+each datum + latent variables.
+
+.. figure:: /images/bbans_bb_decode.png
+  :width: 600px
+  :alt: Bits Back Decoding with a Latent Variable Model
+  :align: center
+
+  Figure 5: Bits Back Decoding with a Latent Variable Model
+
+Figure 5 shows decoding with Bits Back.  It is the same as latent variable
+decoding with the exception that we have to "put back" the bits we took off
+originally.  Since our ANS encoding and decoding are lossless, the bits we
+put back should be exactly the bits we took off.  The number of bits we remove
+will be dependent on the posterior distribution and which bits are in the
+stream.
+
+.. figure:: /images/bbans_bitstream_view.png
+  :width: 600px
+  :alt: Visualization of Bitstream for Bits Back Coding
+  :align: center
+
+  Figure 6: Visualization of Bitstream for Bits Back Coding
+
+To get a better sense of how it works, Figure 6 shows a visualization of
+encoding and decoding two data points.  Colors represent the different
+data: green for existing bitstream, blue for :math:`\bf x^1`, and orange for :math:`\bf x^2` 
+(superscript represents data point index).  The different shades represent either
+observed data :math:`\bf x` or latent variable :math:`\bf z`.
+
+From Figure 6, the first step in the process is to *reduce* the bitstream length
+by (pseudo-)randomly sampling :math:`\bf z`.  This is followed by encoding
+:math:`\bf x` and :math:`\bf z` as usual.  Even though we have to encode :math:`\bf z`,
+the effective size of the encoding is shorter because of the initial "bits back" we got.
+The decoding process the reverse operation of the encoding, including putting
+the "bits back" onto the bitstream.
+
+|h3| Theoretical Limit of Bits Back Coding |h3e|
+
+Turning back to some more detailed mathematical analysis, let's see how good
+Bits Back is theoretically.  We'll start off with a few assumptions:
+
+1. Our data :math:`\bf x` and latent variables :math:`\bf z` are sampled from
+   the true joint distribution math:`P({\bf x, z})=P({\bf x|z})P({\bf z})`,
+   which we have access to.  Of course in the real world, we don't have the
+   true distribution, just an approximation.  But if our model is very good, it
+   will hopefully be very close to the true distribution.
+2. We have access to an approximate posterior :math:`q({\bf z|x})`.
+3. Assume we have an entropy coder so that we can optimally code any data point.
+4. The pseudo-random sample we get from Bits Back coding is drawn from the approximate posterior :math:`q({\bf z|x})`.
+
+As noted above, if we naively use the latent variable encoding from Figure 2,
+given a sample :math:`(x^1, z^1)`, our expected message length should be 
+:math:`-(\log P({\bf z^1}) + \log P({\bf x^1|z^1}))` bits long.  This uses the fact
+(roughly speaking) that the theoretical limit of the number of bits needed to
+represent a symbol (in the context of its probability distribution) is its
+`information <https://en.wikipedia.org/wiki/Information_content>`__ :math:`-log p_i`.
+
+However using Bits Back with an approximate posterior :math:`q({\bf z|x^1})`
+for a given data point :math:`\bf x^1`, we can calculate the expected message
+length over all possible :math:`\bf z` drawn from :math:`q({\bf z|x})`.  The
+idea is that we're (pseudo-)randomly drawing :math:`\bf z` values, which affect
+each part of the process (bits back, encoding :math:`x`, and encoding
+:math:`z`) so we must average (i.e. take the expectation) over it:
+
+.. math::
+
+   L(q) &= E_{q({\bf z|x^1})}(-\log P({\bf z}) - \log P({\bf x^1|z}) + \log q({\bf z|x^1})) \\
+        &= \sum_y q({\bf z|x})(-\log P({\bf z}) - \log P({\bf x^1|z}) + \log q({\bf z|x^1}))  \\
+        &= -\sum_y q({\bf z|x^1})\log \frac{P({\bf x^1, z})}{q({\bf z|x^1})}  \\
+        &= -E_{q({\bf z|x^1})}\big[\log \frac{P({\bf x^1, z})}{q({\bf z|x^1})}\big]  \\
+        \tag{2}
+
+Equation 2 is also known as the evidence lower bound (ELBO) (see my previous 
+`post on VAE <link://slug/semi-supervised-learning-with-variational-autoencoders>`__ 
+for more details).  The nice thing about the ELBO is that many ML models (including
+the variational autoencoder) use it as its objective function.  So by optimizing our
+model, we're simultaneously optimizing our message length.
+
+From Equation 2, we can also see that it is optimized when :math:`q({\bf z|x})` equals
+to the true posterior :math:`P({\bf z|x})`:
+
+.. math::
+
+    -E_{q({\bf z|x^1})}\big[\log \frac{P({\bf x^1, z})}{q({\bf z|x^1})}\big]
+    &= -E_{q({\bf z|x^1})}\big[\log \frac{P({\bf z|x^1})P({\bf x^1})}{P({\bf z|x^1})}\big]  && \text{since } 
+    P({\bf x^1, z}) = P({\bf z|x^1})P({\bf x^1}) \text{ and } q({\bf z|x})=P({\bf z|x}) \\
+    &= -E_{q({\bf z|x^1})}\big[\log P({\bf x^1})\big] \\
+    &= -\log P({\bf x^1}) \\
+    \tag{3}
+
+Which is the optimal code length for sending our data :math:`x^1` across.
 
 
-* Can't directly use the latent representation
-* Instead use it to define probability distribution to use for entropy encoder
-* Show how to map
-* Make a figure to show progression
-* Show some equations
+
+
+|h3| Issues Affecting The Efficiency of Bits Back Coding |h3e|
+
+* Discretization
+* "Clean Bits"
+* Communicating the Model
+
 
 |h2| Implementation Details |h2e|
 
