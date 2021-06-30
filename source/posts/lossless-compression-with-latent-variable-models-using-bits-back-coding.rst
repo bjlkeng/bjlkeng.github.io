@@ -305,7 +305,7 @@ Turning back to some more detailed mathematical analysis, let's see how good
 Bits Back is theoretically.  We'll start off with a few assumptions:
 
 1. Our data :math:`\bf x` and latent variables :math:`\bf z` are sampled from
-   the true joint distribution math:`P({\bf x, z})=P({\bf x|z})P({\bf z})`,
+   the true joint distribution :math:`P({\bf x, z})=P({\bf x|z})P({\bf z})`,
    which we have access to.  Of course in the real world, we don't have the
    true distribution, just an approximation.  But if our model is very good, it
    will hopefully be very close to the true distribution.
@@ -314,25 +314,25 @@ Bits Back is theoretically.  We'll start off with a few assumptions:
 4. The pseudo-random sample we get from Bits Back coding is drawn from the approximate posterior :math:`q({\bf z|x})`.
 
 As noted above, if we naively use the latent variable encoding from Figure 2,
-given a sample :math:`(x^1, z^1)`, our expected message length should be 
-:math:`-(\log P({\bf z^1}) + \log P({\bf x^1|z^1}))` bits long.  This uses the fact
+given a sample :math:`(x, z)`, our expected message length should be 
+:math:`-(\log P({\bf z}) + \log P({\bf x|z}))` bits long.  This uses the fact
 (roughly speaking) that the theoretical limit of the number of bits needed to
 represent a symbol (in the context of its probability distribution) is its
-`information <https://en.wikipedia.org/wiki/Information_content>`__ :math:`-log p_i`.
+`information <https://en.wikipedia.org/wiki/Information_content>`__.
 
-However using Bits Back with an approximate posterior :math:`q({\bf z|x^1})`
-for a given data point :math:`\bf x^1`, we can calculate the expected message
-length over all possible :math:`\bf z` drawn from :math:`q({\bf z|x})`.  The
-idea is that we're (pseudo-)randomly drawing :math:`\bf z` values, which affect
-each part of the process (bits back, encoding :math:`x`, and encoding
+However using Bits Back with an approximate posterior :math:`q({\bf z|x})`
+for a given *fixed* data point :math:`\bf x`, we can calculate the expected
+message length over all possible :math:`\bf z` drawn from :math:`q({\bf z|x})`.
+The idea is that we're (pseudo-)randomly drawing :math:`\bf z` values, which
+affect each part of the process (bits back, encoding :math:`x`, and encoding
 :math:`z`) so we must average (i.e. take the expectation) over it:
 
 .. math::
 
-   L(q) &= E_{q({\bf z|x^1})}(-\log P({\bf z}) - \log P({\bf x^1|z}) + \log q({\bf z|x^1})) \\
-        &= \sum_y q({\bf z|x})(-\log P({\bf z}) - \log P({\bf x^1|z}) + \log q({\bf z|x^1}))  \\
-        &= -\sum_y q({\bf z|x^1})\log \frac{P({\bf x^1, z})}{q({\bf z|x^1})}  \\
-        &= -E_{q({\bf z|x^1})}\big[\log \frac{P({\bf x^1, z})}{q({\bf z|x^1})}\big]  \\
+   L(q) &= E_{q({\bf z|x})}(-\log P({\bf z}) - \log P({\bf x|z}) + \log q({\bf z|x})) \\
+        &= \sum_y q({\bf z|x})(-\log P({\bf z}) - \log P({\bf x|z}) + \log q({\bf z|x}))  \\
+        &= -\sum_y q({\bf z|x})\log \frac{P({\bf x, z})}{q({\bf z|x})}  \\
+        &= -E_{q({\bf z|x})}\big[\log \frac{P({\bf x, z})}{q({\bf z|x})}\big]  \\
         \tag{2}
 
 Equation 2 is also known as the evidence lower bound (ELBO) (see my previous 
@@ -346,24 +346,81 @@ to the true posterior :math:`P({\bf z|x})`:
 
 .. math::
 
-    -E_{q({\bf z|x^1})}\big[\log \frac{P({\bf x^1, z})}{q({\bf z|x^1})}\big]
-    &= -E_{q({\bf z|x^1})}\big[\log \frac{P({\bf z|x^1})P({\bf x^1})}{P({\bf z|x^1})}\big]  && \text{since } 
-    P({\bf x^1, z}) = P({\bf z|x^1})P({\bf x^1}) \text{ and } q({\bf z|x})=P({\bf z|x}) \\
-    &= -E_{q({\bf z|x^1})}\big[\log P({\bf x^1})\big] \\
-    &= -\log P({\bf x^1}) \\
+    -E_{q({\bf z|x})}\big[\log \frac{P({\bf x, z})}{q({\bf z|x})}\big]
+    &= -E_{q({\bf z|x})}\big[\log \frac{P({\bf z|x})P({\bf x})}{P({\bf z|x})}\big]  && \text{since } 
+    P({\bf x, z}) = P({\bf z|x})P({\bf x}) \text{ and } q({\bf z|x})=P({\bf z|x}) \\
+    &= -E_{q({\bf z|x})}\big[\log P({\bf x^1})\big] \\
+    &= -\log P({\bf x}) \\
     \tag{3}
 
-Which is the optimal code length for sending our data :math:`x^1` across.
-
-
-
+Which is the optimal code length for sending our data point :math:`x` across.
+So *theoretically* if we're able to satisfy all the assumptions then we'll have a
+really good encoder!  Of course, we'll never be in this theoretic ideal
+situation, we'll discuss some of the issues that reduce it this efficiency.
 
 |h3| Issues Affecting The Efficiency of Bits Back Coding |h3e|
 
-* Discretization
-* "Clean Bits"
-* Communicating the Model
+**Transmitting the Model**: All the above discussion assumes that the sender
+and receiver have access to the latent variable model but that needs to be sent
+as well!  The assumption here is that the model would be so generally applicable
+that the compression package would include it by default (or have a plugin) to
+download the model.  For example, photos are so common that we conceivably have
+a single latent variable model for photos (e.g. something along the lines of
+ImageNet).  This would enable the compression encoder/decoder package to include
+it and encode images or whatever data distribution it is trained on.  For the
+experiments below, I don't include the model size but if I did, it would be
+much worse.  I think the benefits are only realized if you can amortize the
+cost of sending the model over a huge dataset.
 
+**Discretization**: Another thing that the above discussion glossed over is how
+to encoder/decode continuous variables.  ANS (and similar entropy coders) work
+on discrete symbols -- not continuous values.  Many popular latent variable
+models also have continuous latent variables (e.g. normally distributed), so there
+needs to be a discretization step to be able to send them over the wire (we're
+assuming the data is discretized already but the same principles would apply).  
+
+Discretization is needed for both the approximate posterior encoding/decoding 
+where we (pseudo-)randomly sample our :math:`\bf z` value ("bits back") and for
+when we encode/decoder the latent variables using the prior distribution.
+Discretization of a sample from the distribution is a relatively simple
+operation:
+
+0. Select how many bits you want to use to represent your sample.  This will
+   create :math:`2^n` buckets for :math:`n` bits.
+1. Partition the distribution's support into :math:`2^n` buckets.  [1] proposed
+   equi-probable mass buckets, which is what I implemented.
+2. Find the corresponding bucket index (:math:`i`) the point falls in, set the
+   discretized value to some value relative to the bucket interval (e.g.
+   mid-point of the bucket interval).
+3. You can use ANS to encode the discretized value as the symbol :math:`i` with
+   an alphabet of :math:`2^n` symbols.  Note: If you use an equi-probable mass
+   buckets each symbol will have the same probability, so entropy encoding
+   shouldn't do much.
+
+To decode, you essentially can do the reverse operation.  However, there is a
+subtlety: you need the sender and receiver to have access to the distribution
+in step 1.  The natural choice the prior, which is what is available throughout
+the process (assuming you have the model).  You wouldn't be able to use the
+posterior because when you are trying to decode :math:`\bf z`, you would need access
+to :math:`\bf x`, which you don't have available.  Additionally, you need
+to have the same discretization step when you're sampling via "bits back" and
+when sending :math:`\bf z` across the wire, or else you lose some precision in
+the process.  So the prior is used throughout.
+
+The paper [1] shows that the additional overhead is really just the cost of
+discretization.  Since many continuous ML operations work fine with 32-bits
+anyways, it shouldn't be a problem.  As the paper suggests, I used a 16-bit
+discretization.
+
+**Clean Bits**: The last issue to discuss is the how the bits back operation
+samples the :math:`\bf z` value.  Since we're sampling from the bits from the
+top of the existing bitstream, which is essentially the previous prior-encoded
+posterior sample, we would not expect it to be a true random sample (which
+would require a uniform random stream of bits).  Only in the base-case with 
+the first sample, can we achieve this either by seeding the bitstream with
+truly uniform random bits or by just directly directly sample from the
+posterior.  It seems to me like there's not too much to do about this
+inefficiency because the whole point of this method is to get "bits back".
 
 |h2| Implementation Details |h2e|
 
