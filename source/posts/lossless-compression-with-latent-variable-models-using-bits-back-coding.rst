@@ -506,10 +506,12 @@ bit careful in a few areas.  Here are some of the notable point:
 |h2| Experiments |h2e|
 
 My compression results for MNIST (regular, non-binarized) are shown in Table 1.
-Very unimpressive if you ask me.  I wasn't really able to get close to the implementation
-in [1].  Didn't really try to hard to make it work but I was hoping that I would be
-able to at least beat the standard compressors (`bz2` and `gzip`), unfortunately that
-didn't happen either.
+My implementation can achieve 1.94 bits/pixel (i.e. on average a pixel uses
+1.94 bits to represent it) vs. other implementations of 1.4 or less.  Very
+unimpressive if you ask me.  I wasn't really able to get close to the
+implementation in [1].  Didn't really try to hard to make it work but I was
+hoping that I would be able to at least beat the standard compressors (`bz2`
+and `gzip`), unfortunately that didn't happen either.
 
 .. csv-table:: Table 1: Compression Rates for MNIST (bits/pixel)
    :header: "Compressor", "Compression Rates (bits/pixel)"
@@ -521,7 +523,7 @@ didn't happen either.
    "Bits-Swap [2]", 1.29
    "bz2", 1.64
    "gzip", 1.42
-   "Uncompressed", 8
+   "Uncompressed", 8.00
 
 Interestingly [1] was using a simpler model (a single feed-forward layer for each of the encoder/decoder)
 with a Beta-Binomial output distribution for each pixel.  This is obviously is obviously simpler than
@@ -555,5 +557,5 @@ posts on that subject.  Hope everyone is staying safe!
 
 * Previous posts: `Variational Autoencoders <link://slug/variational-autoencoders>`__, `Lossless Compression with Asymmetric Numeral Systems <link://slug/lossless-compression-with-asymmetric-numeral-systems>`__, `Expectation Maximization Algorithm <link://slug/the-expectation-maximization-algorithm>`__
 * My implementation on Github: `notebooks <https://github.com/bjlkeng/sandbox/tree/master/bitsback>`__
-* [1] "Practical Lossless Compression with Latent Variables using Bits Back Coding", Townsend, Bird, Barber, `ICLR 2019 <https://arxiv.org/abs/1901.04866>`__
+* [1] "Practical Lossless Compression with Latent Variables using Bits Back Coding", Townsend, Bird, Barber, `ICLR 2019 <https://arxiv.org/abs/1901.04866>`__.
 * [2] "Bit-Swap: Recursive Bits-Back Coding for Lossless Compression with Hierarchical Latent Variables", Kingma, Abbeel, Ho, `ICML 2019 <https://arxiv.org/abs/1905.06845>`__
