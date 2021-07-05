@@ -424,12 +424,132 @@ inefficiency because the whole point of this method is to get "bits back".
 
 |h2| Implementation Details |h2e|
 
+There were three main parts to my toy implementatin: ANS algorithm, variational
+autoencoder, and the bitsback algorithm.  Below are some details on each.  You 
+can find the code I used here in my `Github <https://github.com/bjlkeng/sandbox/tree/master/bitsback>`__.
+
+**ANS**: The implementation I used was almost identical to the toy implementation I used
+from my `previous post on ANS <link://slug/lossless-compression-with-asymmetric-numeral-systems>`__
+(which I wrote while travelling down the rabbit hole to understand bitsback algorithm).
+That post has some details on the toy implementation that I used for it.  These are
+notes for the incremental changes I made:
+
+* I had to fix some slow parts of my implementation or else my experiments
+  would have taken forever.  For example, I was calculating the CDF in a slow way using
+  native Python data structures.  Switching to numpy `cusum` fixed some of
+  that.  Additionally, I had to make sure that all my arrays were in numypy objects
+  and not slow native Python lists.
+* As part of the algorithm, you have to calculate very big numbers that could
+  exceed 64 bits (especially with an alphabet size of 256 and renormalization
+  factor of 32).  Python integers are great for this because they have arbitrary size. The
+  only thing I had to be careful of was converting between my numpy operations and Python integers.
+  It was mostly just wrapping most expressions in the main calculation with `int` but took a bit
+  to get it all sorted out.
+* Also had to factor the code so that it could code symbols incrementally, instead of having the
+  entire message available so it could be used in the bitsback algorithm.
+* I used 16 bits of quantization to model the distribution of the 256 pixel values and
+  32 bit renormalization.
+
+**Variational Autoencoder**: I just used a vanilla VAE as the latent model since I was just
+experimenting on MNIST.  In an effort to modernize, I started with the basic `VAE Keras 2.0 example
+<https://raw.githubusercontent.com/keras-team/keras-io/master/examples/generative/vae.py>`__
+and added a few modifications:
+
+* I added some ResNet identity blocks to beef up the representation power.  Still not sure
+  it really made much of a difference.
+* Outputs of the decoder used my implementation of mixture of logistics to model the distributional
+  outputs per pixel with 3 components.  I wrote about it a bit in my `PixelCNN
+  <http://localhost:8000/posts/pixelcnn/>`__ post.  I'm also wary about whether
+  or not this actually made it better.  The original paper [1] just used a Beta-Binomial distribution.
+* I used 50 latent dimensions to match [1].
+
+**Bitsback Algorithm**: The bitsback algorithm is conceptually pretty simple but requires you to be a
+bit careful in a few areas.  Here are some of the notable point:
+
+* Since the quantization was always using equi-probable bins for a standard normal
+  distribution, it made sense to cache the ranges for speeding it up.
+* Quantizing the continuous values of the latent variable distributions was
+  pain.  For the case of quantizing a standard normal distribution, it was easy
+  because, by construction, each bin is equi-probable.  So the distribution is just uniform
+  across however many buckets we're using (16-bits in my experiments to match the paper).
+* However, if you're trying to quantize a non-standard :math:`\bf z` normal
+  distributions using equi-probable bins from a *standard* normal distribution,
+  you have to be a bit more careful:
+
+  1. I sampled **2^n** (n=14 in my case) equi-probable values per variable
+     from the original :math:`\bf z` distributions using the inverse CDF function from SciPy.
+  2. From those sampled values, I made a frequency histogram where the
+     buckets correspond to a *standard* normal distribution equi-probable
+     buckets.  This represents the quantized distribution, and I coded the ANS algorithm
+     to directly use a frequency histogram, which internally is converted to a frequency-CDF.
+
+  I'm not sure if there's a better way to do it but it seemed work well enough.
+  You can increase the number of samples to get a more accurate frequency
+  distribution but it slows down the algorithm as you might expect.
+* Encoding/decoding the :math:`x` pixel values was much easier because they are
+  already discretized as 256 pixel values.  It's still a bit slow though since
+  I just loop through each pixel value and encode it sequentially. 
+* The only tricky part for the pixel values was that I had to translate the probability
+  distribution (real numbers) over discrete pixels into a frequency distribution (integers).
+  The sum of the frequency distribution also needs to sum to :math:`2^(\text{ANS quant bits})`.
+  Additionally, I wanted to ensure that no bin had zero probability, or else if
+  you try to encode it, ANS gets super confused.  To pull this off, I just
+  multiplied each bin's probability by :math:`2^(\text{ANS quant bits})`, added
+  one to each bin, then calculate any excess I have beyond :math:`2^(\text{ANS
+  quant bits})` and shave it off the largest frequency bin.  This is obviously
+  not an optimal way to do it.  I do wonder if that's why I got results that were worse
+  than the paper, but I didn't spend too much time checking.
+* Again, I had to be careful not to implicitly convert some of the integer values to floats.
+  So in some places, I do some explicit casting of `astype(np.uint64)` so the values don't
+  get all mixed up when I send them into ANS.
+  
 |h2| Experiments |h2e|
 
-Note that the idea is that the probabilistic model will be widely applicable within a domain
-(e.g. trained on ImageNet) so that the compression algorithm will package it so it doesn't need
-to be distributed along with the compressed message each time.
+My compression results for MNIST (regular, non-binarized) are shown in Table 1.
+Very unimpressive if you ask me.  I wasn't really able to get close to the implementation
+in [1].  Didn't really try to hard to make it work but I was hoping that I would be
+able to at least beat the standard compressors (`bz2` and `gzip`), unfortunately that
+didn't happen either.
 
+.. csv-table:: Table 1: Compression Rates for MNIST (bits/pixel)
+   :header: "Compressor", "Compression Rates (bits/pixel)"
+   :widths: 15, 10
+   :align: center
+
+   "My Implementation (Bits Back w/ ANS)", 1.94
+   "Bitsback w/ ANS [1]", 1.41
+   "Bits-Swap [2]", 1.29
+   "bz2", 1.64
+   "gzip", 1.42
+   "Uncompressed", 8
+
+Interestingly [1] was using a simpler model (a single feed-forward layer for each of the encoder/decoder)
+with a Beta-Binomial output distribution for each pixel.  This is obviously is obviously simpler than
+my complex ResNet/multi-logistic method.  It's possible that I'm just not able to get a good fit with
+my VAE model.  If you take a look in the notebook you'll see that the generated digits I can make
+with the decoder look pretty bad.  So this is probably at least part of the reason why I was unable
+to achieve good results.
+
+The second reason is that I suspect my quantization isn't so great.  As mentioned above, I did so
+funky rounding to ensure no zero-probability buckets, as well as a awkward way to discretize the
+latent variables.  I suspect there are some differences from [1]'s implementation 
+(which is open source by the way) but I didn't spend too much time trying to
+figure out the differences.
+
+In any case, at least my implementation is able to *correctly* encode and decode and somewhat 
+approach the proper implementations.  As a toy implementation, I will make the bold assertion
+that I coded it in a way that's  a bit more clear than [1]'s implementation so
+maybe it's better for educational purposes?  I'll let you be the judge of that.
+
+|h2| Conclusion |h2e|
+
+So there you have it, a method for lossless compression using ML!  This mix of discrete
+problems (e.g. compression) and ML is an incredibly interesting direction.  If
+I get some time (and who knows when that will be), I'm definitely going to be
+looking into some more of these topics.  But on this lossless compression topic, I'm
+probably done for now.  There's another topic that I've been excited about recently
+and have already started to go down that rabbit hole, so expect one (probably more)
+posts on that subject.  Hope everyone is staying safe!
 
 |h2| References |h2e|
 
