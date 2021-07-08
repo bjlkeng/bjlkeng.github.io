@@ -1,7 +1,7 @@
 .. title: Lossless Compression with Latent Variable Models using Bits-Back Coding
 .. slug: lossless-compression-with-latent-variable-models-using-bits-back-coding
 .. date: 2021-01-24 11:34:54 UTC-05:00
-.. tags: bits back, lossless, compression, asymmetric numeral systems, variational autoencoder, MNIST, mathjax
+.. tags: Bits Back, lossless, compression, asymmetric numeral systems, variational autoencoder, MNIST, mathjax
 .. category: 
 .. link: 
 .. description: A post on using bits-back coding with latent variable models to do lossless compression.
@@ -37,18 +37,18 @@
 
 A lot of modern machine learning is related to this idea of "compression", or
 maybe to use a fancier term "representations".  Taking a huge dimensional space
-(e.g. images of 256 x 256 x 3 pixels = 196608) and somehow compressing it into
+(e.g. images of 256 x 256 x 3 pixels = 196608 dimensions) and somehow compressing it into
 a 1000 or so dimensional representation seems like pretty good compression to
 me!  Unfortunately, it's not a lossless compression (or representation).
 It seems intuitive though, that there must be a way to use what is learned in
-these powerful lossy representation to help us better perform *lossless*
+these powerful lossy representations to help us better perform *lossless*
 compression, right?  Of course there is! (It would be too anti-climatic of a
 setup otherwise.)
 
 This post is going to introduce a method to perform lossless compression that
 leverages the learned "compression" of a machine learning latent variable
 model using the Bits-Back coding algorithm.  Depending on how you first think
-about it, this *seems* like it should either be really easy or not possible at
+about it, this *seems* like it should either be (a) really easy or (b) not possible at
 all.  The reality is kind of in between with an elegant theoretical algorithm
 that is brought down by the realities of discretization and imperfect learning
 by the model.  In today's post, I'll skim over some preliminaries (mostly
@@ -60,12 +60,12 @@ I did when trying to write a toy version of the algorithm.
 
 |h2| Background |h2e|
 
-A **latent (or hidden) variable model** is statistical model where
+A **latent (or hidden) variable model** is a statistical model where
 you *don't* observe some of the variables (or in many cases, you create additional
 intermediate unobserved variables to make the problem more tractable).  This
 creates a relationship graph (usually a DAG) between observed (either input or
 output, if applicable) and latent variables.  Often times the modeller will
-have an explicit intuition about the meaning of these latent variables.  Other
+have an explicit intuition about the meaning of these latent variables; other
 times (especially for deep learning models), the modeller doesn't explicitly
 give these latent variables meaning, and instead they are learned to represent
 whatever the optimization procedure deems necessary.  See the background
@@ -95,7 +95,7 @@ predictable) characters/strings get mapped to smaller numbers, while infrequent
 ones get mapped to larger ones.  One key feature of this algorithm is that
 the compressed data stream is generated in last-in-first-out order (i.e. in
 stack order).  This means when decompressing, you want to read the compressed data
-stream from back-to-front (this will be useful for our discussion below).
+from back-to-front (this will be useful for our discussion below).
 My post on `Lossless Compression with Asymmetric Numeral Systems
 <link://slug/lossless-compression-with-asymmetric-numeral-systems>`__ gives a
 much better intuition on the whole process and discusses a few variations and
@@ -130,22 +130,27 @@ bits.  Notice that our compressed bit stream needs to be paired with
 symbol in our input data stream, and this could serve as our probability
 distribution.  You would expect that this simple approach would not do very well
 for complex data, for example, trying to compress various images.  A histogram
-for each pixels (i.e. symbols) across all the images would be very dispersed,
-have relatively small probabilities for any given pixel value, and thus have
-poor compression (recall the higher the probability of a symbol the better
-entropy compression methods work).  
+for pixel values (i.e. symbols) across all images would be very dispersed
+because images are so varied in their pixel values.  This implies any given
+pixel would have small probabilities, and thus have poor compression (recall
+the higher the probability of a symbol the better entropy compression methods
+work).  
 
-So the intuition here is that we want a model that can both accurately and
-generally predict (via a probability) our datum and its corresponding symbols
-to allow the entropy encoder to efficiently compress.  For example, for a given
-image, we want our model to be able to accurately generate a tight distribution
-around the actual pixel values, but will generate *different* distributions
-values for each image.  However, theoretically, our model could memorize all the
-training data, which is undesirable for new unseen data points.  So we would
-also want the model to generalize so it could be used with any input datum
-(within reason).  However, using more complicated models with entropy encoding
-that treat each datum differently require a bit more thought on how to apply
-them.  Let's take a look at a couple of examples.
+So the intuition here is that we want a model that can *accurately* predict
+(via a probability) our datum and its corresponding symbols to allow the
+entropy encoder to efficiently compress.  For example, we want our model to be
+able to *accurately* generate a tight distribution around each of an image's
+pixel values.  This would allow our entropy encoder to achieve a high
+compression rate.  But there's a small problem here: to generate a tight
+distribution around each symbol within a datum, we would need a different
+distribution for each datum, otherwise any distribution we generate will be too
+dispersed (e.g. not accurate) because it has to apply to any generic datum.
+Following this logic, we need a probability distribution to encode and decode
+our datum but that distribution is conditional on the actual datum.  This means
+when we're trying to decode the datum, we need to have the datum!  This
+circular dependency can be resolved by using specific types of models and
+encoding things in a particular order, which is the topic of the next
+two subsections.
 
 |h3| Autoregressive Models |h3e|
 
@@ -170,26 +175,28 @@ Let's take a closer look in Figure 1.
 
   Figure 1: Entropy Encoding and Decoding with an Autoregressive Model
 
-First looking at encoding from the left side of Figure 1, notice that we have to
+From the left side of Figure 1, notice that we have to
 reverse the order of the input data to the ANS encoder (the autoregressive
-model receives the input in the usual order).  This is needed because we need
-to decode the data in the ascending order for the autoregressive conditions
-(see decoding below).  Next, notice that our ANS encoder requires both the
-(reversed) input data and the appropriate distributions for each symbol (i.e.
-each :math:`x_j` component).  Finally, the compressed data is output, which
-(hopefully) is shorter than the original input.
+model receives the input in the usual parallel order though).  This is needed
+because we need to decode the data in the ascending order for the
+autoregressive model to work (see decoding below).  Next, notice that our ANS
+encoder requires both the (reversed) input data and the appropriate
+distributions for each symbol (i.e.  each :math:`x_j` component).  Finally, the
+compressed data is output, which (hopefully) is shorter than the original
+input.
 
 Decoding is shown on the right hand side of Figure 1.  It's a bit more
 complicated because we must *iteratively* generate the distributions for each
-symbol.  Initially, we'll just decode :math:`x_1` since our model can
-unconditionally generate its distribution.  This is the reason why we needed
-to reverse our input during encoding.  Then, we generate :math:`x_2|x_1` and so
-on for each :math:`x_i|x_{1,\ldots,i-1}` until we've recovered the original
-data.  Notice that this is quite inefficient since we have to call the model
-:math:`n` times for each component of :math:`\bf x`.
+symbol.  Starting by reversing the compressed data, we decode :math:`x_1` since
+our model can unconditionally generate its distribution.
+This is the reason why we needed to reverse our input during encoding.  Then,
+we generate :math:`x_2|x_1` and so on for each :math:`x_i|x_{1,\ldots,i-1}`
+until we've recovered the original data.  Notice that this is quite inefficient
+since we have to call the model :math:`n` times for each component of
+:math:`\bf x`.
 
 I haven't tried this but it seems like something pretty reasonable to do
-(assuming you have a good model and I haven't made a serious logical error).
+(assuming you have a good model *and* I haven't made a serious logical error).
 The only problem with autoregressive models is that they are slow!  Perhaps
 that's why no one is interested in this?  In any case, the next method overcomes
 this problem.
@@ -198,10 +205,10 @@ this problem.
 
 Latent variable models have a set of unobserved variables :math:`\bf z` in
 addition to the observed ones :math:`\bf x`, giving us a likelihood function
-of :math:`P(\bf x|\bf z)`.  We'll usually have a prior distribution for :math:`\bf z`
-(implicitly or explicitly), and depending on the model, we may or may not have
-access to a posterior distribution (more likely an estimate of it) as well: 
-:math:`q(\bf z| \bf x)`.
+of :math:`P(\bf x|\bf z)`.  We'll usually have a prior distribution
+:math:`P({\bf z})` for :math:`\bf z` (implicitly or explicitly), and depending
+on the model, we may or may not have access to a posterior distribution (more
+likely an estimate of it) as well: :math:`q(\bf z| \bf x)`.
 
 The key idea with latent variable models is that we need to encode the latent
 variables (or else we won't be able to generate the required distributions for
@@ -218,12 +225,13 @@ Starting from the input data, we need to first generate some value for our
 latent variable :math:`\bf z` so that we can use it for our model :math:`P(\bf x|\bf z)`.
 This can be obtained either by sampling the prior (or posterior if available),
 or really any other method that would generate an accurate distribution for :math:`\bf x`.
-Once we have :math:`\bf z`, we we can encode the input data as usual.  The one
-big difference is that we also have to encode our latent variable.  The latent variables
-*should* be distributed according to our prior distribution, so we can use it with the
-ANS coder to compress :math:`\bf z`.  Notice that we cannot use the posterior
-here because we won't have access to :math:`\bf x` at decompression time,
-therefore, would not be able to decompress :math:`\bf z`.
+Once we have :math:`\bf z`, we can run it through our model, get distributions
+for each :math:`x_i` and encode the input data as usual.  The one big
+difference is that we also have to encode our latent variables.  The latent
+variables *should* be distributed according to our prior distribution, so we
+can use it with the ANS coder to compress :math:`\bf z`.  Notice that we cannot
+use the posterior here because we won't have access to :math:`\bf x` at
+decompression time, therefore, would not be able to decompress :math:`\bf z`.
 
 
 .. figure:: /images/bbans_latent_decode.png
@@ -237,10 +245,10 @@ Decoding is shown in Figure 3 and works basically as the reverse of encoding.
 The major thing to notice is that we have to do operations in a
 last-in-first-out order.  That is, first decode :math:`\bf z`, use it to
 generate distributional outputs for the components of :math:`\bf x`, then
-use those outputs to decode the compressed to recover our original message.
+use those outputs to decode the compressed data to recover our original message.
 
 This is all relatively straight forward if you took time to think about it.
-There are some other issues as well around discretizing :math:`z` if it's
+There are some other issues as well around discretizing :math:`\bf z` if it's
 continuous but we'll cover that below.  The more interesting question is can we
 do better?  The answer is a resounding "Yes!", and that's what this post is all
 about.  By using a very clever trick you can get some "bits back" to improve
@@ -258,7 +266,7 @@ this "waste".
 Notice in Figure 2, we randomly sample from (an estimate of) the posterior distribution.
 In some sense, we're introducing new information from the random sample here
 that we must encode.  Instead, why don't we utilize some of the existing bits
-we've encoded to get a pseudo-random sample?  Figure 4 shows the encoding
+we've encoded to get a "pseudo-random" sample [1]_ ?  Figure 4 shows the encoding
 process in more detail.
 
 .. figure:: /images/bbans_bb_encode.png
@@ -287,7 +295,7 @@ each datum + latent variables.
 Figure 5 shows decoding with Bits Back.  It is the same as latent variable
 decoding with the exception that we have to "put back" the bits we took off
 originally.  Since our ANS encoding and decoding are lossless, the bits we
-put back should be exactly the bits we took off.  The number of bits we remove
+put back should be exactly the bits we took off.  The number of bits we removed
 will be dependent on the posterior distribution and which bits are on the
 stream.
 
@@ -306,10 +314,14 @@ observed data :math:`\bf x` or latent variable :math:`\bf z`.
 
 From Figure 6, the first step in the process is to *reduce* the bitstream length
 by (pseudo-)randomly sampling :math:`\bf z`.  This is followed by encoding
-:math:`\bf x` and :math:`\bf z` as usual.  Even though we have to encode :math:`\bf z`,
-the effective size of the encoding is shorter because of the initial "bits back" we got.
-The decoding process the reverse operation of the encoding, including putting
-the "bits back" onto the bitstream.
+:math:`\bf x` and :math:`\bf z` as usual.  This process repeats for each
+additional datum.  Even though we have to encode :math:`\bf z`, the effective
+size of the encoding is shorter because of the initial "bits back" we get each
+time.  Decoding is the reverse operation of encoding: decode :math:`\bf z` and
+:math:`\bf x`, put back the removed bits by utilizing the posterior
+distribution (which is conditional on the :math:`\bf x` we just decoded).
+And this repeats until all data has been decoded.
+
 
 |h3| Theoretical Limit of Bits Back Coding |h3e|
 
@@ -336,7 +348,7 @@ However using Bits Back with an approximate posterior :math:`q({\bf z|x})`
 for a given *fixed* data point :math:`\bf x`, we can calculate the expected
 message length over all possible :math:`\bf z` drawn from :math:`q({\bf z|x})`.
 The idea is that we're (pseudo-)randomly drawing :math:`\bf z` values, which
-affect each part of the process (bits back, encoding :math:`x`, and encoding
+affect each part of the process (Bits Back, encoding :math:`x`, and encoding
 :math:`z`) so we must average (i.e. take the expectation) over it:
 
 .. math::
@@ -367,7 +379,7 @@ to the true posterior :math:`P({\bf z|x})`:
 
 Which is the optimal code length for sending our data point :math:`x` across.
 So *theoretically* if we're able to satisfy all the assumptions and have an
-exact posterior then we'll have a really good encoder!  Of course, we'll never
+exact posterior then we'll have a really good compressor!  Of course, we'll never
 be in this theoretic ideal situation, we'll discuss some of the issues that
 reduce it this efficiency in the next subsection.
 
@@ -379,7 +391,7 @@ as well!  The assumption here is that the model would be so generally applicable
 that the compression package would include it by default (or have a plugin) to
 download the model.  For example, photos are so common that we conceivably have
 a single latent variable model for photos (e.g. something along the lines of
-ImageNet model).  This would enable the compression encoder/decoder package to include
+an ImageNet model).  This would enable the compression encoder/decoder package to include
 it and encode images or whatever data distribution it is trained on.  For the
 experiments below, I don't include the model size but if I did, it would be
 much worse.  I think the benefits are only realized if you can amortize the
@@ -412,7 +424,7 @@ operation:
 
 To decode, you essentially can do the reverse operation.  However, there is a
 subtlety: you need the sender and receiver to have access to the distribution
-in step 1.  The natural choice the prior, which is what is available throughout
+in step 1.  The natural choice is the prior, which is what is available throughout
 the process (assuming you have the model).  You wouldn't be able to use the
 posterior because when you are trying to decode :math:`\bf z`, you would need access
 to :math:`\bf x`, which you don't have available.  Additionally, you need
@@ -425,7 +437,7 @@ discretization.  Since many continuous ML operations work fine with 32-bits
 anyways, it shouldn't be a problem.  As the paper suggests, I used a 16-bit
 discretization.
 
-**Clean Bits**: The last issue to discuss is the how the bits back operation
+**Clean Bits**: The last issue to discuss is the how the Bits Back operation
 pseudo-randomly samples the :math:`\bf z` value.  Since we're sampling from the
 bits from the top of the existing bitstream, which is essentially the previous
 prior-encoded posterior sample, we would not expect it to be a true random
@@ -441,12 +453,12 @@ prior work.
 |h2| Implementation Details |h2e|
 
 There were three main parts to my toy implementation: the ANS algorithm, a variational
-autoencoder, and the bitsback algorithm.  Below are some details on each.  You 
+autoencoder, and the Bits Back algorithm.  Below are some details on each.  You 
 can find the code I used here on my `Github <https://github.com/bjlkeng/sandbox/tree/master/bitsback>`__.
 
 **ANS**: The implementation I used was almost identical to the toy implementation I used
 from my `previous post on ANS <link://slug/lossless-compression-with-asymmetric-numeral-systems>`__
-(which I wrote while travelling down the rabbit hole to understand the bitsback algorithm).
+(which I wrote while travelling down the rabbit hole to understand the Bits Back algorithm).
 That post has some details on the toy implementation that I used for it.  These are
 notes for the incremental changes I made:
 
@@ -463,7 +475,7 @@ notes for the incremental changes I made:
   to get it all sorted out.
 * The code needed to be refactored a bit so that it could code symbols
   incrementally, instead of having the entire message available so it could be
-  used in the bitsback algorithm.
+  used in the Bits Back algorithm.
 * I used 16 bits of quantization to model the distribution of the 256 pixel values and
   32 bit renormalization.
 
@@ -480,7 +492,7 @@ and added a few modifications:
   or not this actually made it better.  The original paper [1] just used a Beta-Binomial distribution.
 * I used 50 latent dimensions to match [1].
 
-**Bitsback Algorithm**: The bitsback algorithm is conceptually pretty simple but requires you to be a
+**Bits Back Algorithm**: The Bits Back algorithm is conceptually pretty simple but requires you to be a
 bit careful in a few areas.  Here are some of the notable points:
 
 * Since the quantization was always using equi-probable bins from a standard normal
@@ -488,7 +500,7 @@ bit careful in a few areas.  Here are some of the notable points:
 * Quantizing the continuous values of the latent variable distributions was
   pain.  For the case of quantizing a standard normal distribution, it was easy
   because, by construction, each bin is equi-probable.  So the distribution is just uniform
-  across however many buckets we're using (16-bits in my experiments to match the paper).
+  across however many buckets we are using (16-bits in my experiments to match the paper).
 * However, if you're trying to quantize a non-standard :math:`\bf z` normal
   distributions using equi-probable bins from a *standard* normal distribution
   (e.g. when we're trying to sample the pseudo-random :math:`\bf z` value),
@@ -543,7 +555,7 @@ and `gzip`), unfortunately that didn't happen either.
    :align: center
 
    "My Implementation (Bits Back w/ ANS)", 1.94
-   "Bitsback w/ ANS [1]", 1.41
+   "Bits Back w/ ANS [1]", 1.41
    "Bits-Swap [2]", 1.29
    "bz2", 1.64
    "gzip", 1.42
@@ -583,3 +595,6 @@ posts on that subject.  Hope everyone is staying safe!
 * My implementation on Github: `notebooks <https://github.com/bjlkeng/sandbox/tree/master/bitsback>`__
 * [1] "Practical Lossless Compression with Latent Variables using Bits Back Coding", Townsend, Bird, Barber, `ICLR 2019 <https://arxiv.org/abs/1901.04866>`__.
 * [2] "Bit-Swap: Recursive Bits-Back Coding for Lossless Compression with Hierarchical Latent Variables", Kingma, Abbeel, Ho, `ICML 2019 <https://arxiv.org/abs/1905.06845>`__
+
+
+.. [1] I'll be using this term "pseudo-random" to describe this faux random sampling process.  I know it's probably not accurate to even call it pseudo-random, but I'm using it colloquially to mean not truly random.
