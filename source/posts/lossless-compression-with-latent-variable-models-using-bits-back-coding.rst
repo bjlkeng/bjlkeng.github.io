@@ -1,6 +1,6 @@
 .. title: Lossless Compression with Latent Variable Models using Bits-Back Coding
 .. slug: lossless-compression-with-latent-variable-models-using-bits-back-coding
-.. date: 2021-01-24 11:34:54 UTC-05:00
+.. date: 2021-07-06 11:00:00 UTC-05:00
 .. tags: Bits-Back, lossless, compression, asymmetric numeral systems, variational autoencoder, MNIST, mathjax
 .. category: 
 .. link: 
