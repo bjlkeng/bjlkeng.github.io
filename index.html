@@ -27,7 +27,7 @@ MathJax.Hub.Config({
         styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
     }
 });
-</script><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/lossless-compression-with-asymmetric-numeral-systems/" type="text/html">
+</script><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/lossless-compression-with-latent-variable-models-using-bits-back-coding/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -79,7 +79,41 @@ navbar-dark bg-dark
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/lossless-compression-with-asymmetric-numeral-systems/" class="u-url">Lossless Compression with Asymmetric Numeral Systems</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/lossless-compression-with-latent-variable-models-using-bits-back-coding/" class="u-url">Lossless Compression with Latent Variable Models using Bits-Back Coding</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="posts/lossless-compression-with-latent-variable-models-using-bits-back-coding/" rel="bookmark">
+            <time class="published dt-published" datetime="2021-01-24T11:34:54-05:00" itemprop="datePublished" title="2021-01-24 11:34">2021-01-24 11:34</time></a>
+            </p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>A lot of modern machine learning is related to this idea of "compression", or
+maybe to use a fancier term "representations".  Taking a huge dimensional space
+(e.g. images of 256 x 256 x 3 pixels = 196608 dimensions) and somehow compressing it into
+a 1000 or so dimensional representation seems like pretty good compression to
+me!  Unfortunately, it's not a lossless compression (or representation).
+Somehow though, it seems intuitive that there must be a way to use what is learned in
+these powerful lossy representations to help us better perform <em>lossless</em>
+compression, right?  Of course there is! (It would be too anti-climatic of a
+setup otherwise.)</p>
+<p>This post is going to introduce a method to perform lossless compression that
+leverages the learned "compression" of a machine learning latent variable
+model using the Bits-Back coding algorithm.  Depending on how you first think
+about it, this <em>seems</em> like it should either be (a) really easy or (b) not possible at
+all.  The reality is kind of in between with an elegant theoretical algorithm
+that is brought down by the realities of discretization and imperfect learning
+by the model.  In today's post, I'll skim over some preliminaries (mostly
+referring you to previous posts), go over the main Bits-Back coding algorithm
+in detail, and discuss some of the implementation details and experiments that
+I did while trying to write a toy version of the algorithm.</p>
+<p class="more"><a href="posts/lossless-compression-with-latent-variable-models-using-bits-back-coding/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/lossless-compression-with-asymmetric-numeral-systems/" class="u-url">Lossless Compression with Asymmetric Numeral Systems</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Brian Keng
@@ -204,36 +238,6 @@ I'm jumping ahead of myself here.  We'll go over some background material, the
 method, and my painstaking attempts at an implementation (and what I learned
 from it).  Let's get started!</p>
 <p class="more"><a href="posts/pixelcnn/">Read more…</a></p>
-</div>
-    </div>
-    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/" class="u-url">Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Brian Keng
-            </span></p>
-            <p class="dateline">
-            <a href="posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/" rel="bookmark">
-            <time class="published dt-published" datetime="2019-02-06T08:20:11-04:00" itemprop="datePublished" title="2019-02-06 08:20">2019-02-06 08:20</time></a>
-            </p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>It took a while but I'm back!  This post is kind of a digression (which seems
-to happen a lot) along my journey of learning more about probabilistic
-generative models.  There's so much in ML that you can't help learning a lot
-of random things along the way.  That's why it's interesting, right?</p>
-<p>Today's topic is <em>importance sampling</em>.  It's a really old idea that you may
-have learned in a statistics class (I didn't) but somehow is useful in deep learning,
-what's old is new right?  How this is relevant to the discussion is that when
-we have a large latent variable model (e.g. a variational
-autoencoder), we want to be able to efficiently estimate the marginal likelihood
-given data.  The marginal likelihood is kind of taken for granted in the
-experiments of some VAE papers when comparing different models.  I was curious
-how it was actually computed and it took me down this rabbit hole.  Turns out
-it's actually pretty interesting!  As usual, I'll have a mix of background
-material, examples, math and code to build some intuition around this topic.
-Enjoy!</p>
-<p class="more"><a href="posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/">Read more…</a></p>
 </div>
     </div>
     </article>
