@@ -645,9 +645,9 @@ However, for the metric tensor :math:`g` this can we re-written as:
 .. math::
 
     {\bf u}\cdot{\bf v} = g({\bf u},{\bf v}) = g_{ij}u^iv^j 
-        = [u^1, u^2] 
+        = [u^0, u^1] 
         \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} 
-        \begin{bmatrix} v^1 \\ v^0 \end{bmatrix} \tag{31}
+        \begin{bmatrix} v^0 \\ v^1 \end{bmatrix} \tag{31}
 
 where in the last expression I substituted the metric tensor in standard
 Euclidean space.  That is, the metric tensor in the standard Euclidean basis is
@@ -663,9 +663,9 @@ vectors and angle between two vectors:
 
 .. math::
 
-    ||u|| = \sqrt{g_{ij} u^i u^j} \\
-    d(u, v) = \sqrt{g_{ij} u^i v^j} \\
-    cos(\theta) = \frac{g_{ij} u^i v^j}{||{\bf u}|| ||{\bf v}||} \\
+    ||u|| &= \sqrt{g_{ij} u^i u^j} \\
+    d(u, v) &= ||u-v|| = \sqrt{g_{ij} (u-v)^i (u-v)^j} \\
+    cos(\theta) &= \frac{g_{ij} u^i v^j}{||{\bf u}|| ||{\bf v}||} \\
     \tag{33}
 
 The next example shows that the distance and angle are truly invariant between
@@ -750,11 +750,11 @@ a change in basis if we use our new metric tensor definition.
     .. math::
 
         d(\tilde{\bf u}, \tilde{\bf v})
-        &= \sqrt{\tilde{g_{ij}} \tilde{u}^i \tilde{v}^j }
+        &= \sqrt{\tilde{g_{ij}} (\tilde{\bf u} - \tilde{\bf v})^i(\tilde{\bf u} - \tilde{\bf v})^j }
         = \sqrt{
-                \begin{bmatrix} \frac{3}{4} & 1 \end{bmatrix}
+                \begin{bmatrix} \frac{1}{4} & 3 \end{bmatrix}
                 \begin{bmatrix} 5 & -\frac{3}{4} \\ -\frac{3}{4} & \frac{5}{16} \end{bmatrix}
-                \begin{bmatrix} \frac{1}{2} \\ -2 \end{bmatrix}
+                \begin{bmatrix} \frac{1}{4} \\ 3 \end{bmatrix}
             }
         = \sqrt{2} \\
         ||\tilde{\bf u}||

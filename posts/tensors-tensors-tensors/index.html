@@ -685,9 +685,9 @@ for two vectors <span class="math">\({\bf u}, {\bf v}\)</span> is defined as:</p
 <div class="math">
 \begin{equation*}
 {\bf u}\cdot{\bf v} = g({\bf u},{\bf v}) = g_{ij}u^iv^j
-    = [u^1, u^2]
+    = [u^0, u^1]
     \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix}
-    \begin{bmatrix} v^1 \\ v^0 \end{bmatrix} \tag{31}
+    \begin{bmatrix} v^0 \\ v^1 \end{bmatrix} \tag{31}
 \end{equation*}
 </div>
 <p>where in the last expression I substituted the metric tensor in standard
@@ -703,9 +703,9 @@ basis-independent definition of length of a vector, distance between two
 vectors and angle between two vectors:</p>
 <div class="math">
 \begin{align*}
-||u|| = \sqrt{g_{ij} u^i u^j} \\
-d(u, v) = \sqrt{g_{ij} u^i v^j} \\
-cos(\theta) = \frac{g_{ij} u^i v^j}{||{\bf u}|| ||{\bf v}||} \\
+||u|| &amp;= \sqrt{g_{ij} u^i u^j} \\
+d(u, v) &amp;= ||u-v|| = \sqrt{g_{ij} (u-v)^i (u-v)^j} \\
+cos(\theta) &amp;= \frac{g_{ij} u^i v^j}{||{\bf u}|| ||{\bf v}||} \\
 \tag{33}
 \end{align*}
 </div>
@@ -788,11 +788,11 @@ basis" transform (switching to Einstein notation):</p>
 <div class="math">
 \begin{align*}
 d(\tilde{\bf u}, \tilde{\bf v})
-&amp;= \sqrt{\tilde{g_{ij}} \tilde{u}^i \tilde{v}^j }
+&amp;= \sqrt{\tilde{g_{ij}} (\tilde{\bf u} - \tilde{\bf v})^i(\tilde{\bf u} - \tilde{\bf v})^j }
 = \sqrt{
-        \begin{bmatrix} \frac{3}{4} &amp; 1 \end{bmatrix}
+        \begin{bmatrix} \frac{1}{4} &amp; 3 \end{bmatrix}
         \begin{bmatrix} 5 &amp; -\frac{3}{4} \\ -\frac{3}{4} &amp; \frac{5}{16} \end{bmatrix}
-        \begin{bmatrix} \frac{1}{2} \\ -2 \end{bmatrix}
+        \begin{bmatrix} \frac{1}{4} \\ 3 \end{bmatrix}
     }
 = \sqrt{2} \\
 ||\tilde{\bf u}||
