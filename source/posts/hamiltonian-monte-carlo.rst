@@ -1,7 +1,7 @@
 .. title: Hamiltonian Monte Carlo
 .. slug: hamiltonian-monte-carlo
 .. date: 2021-09-11 20:47:05 UTC-04:00
-.. tags: 
+.. tags: Hamiltonian, Monte Carlo, MCMC, Bayesian, mathjax
 .. category: 
 .. link: 
 .. description: 
@@ -67,7 +67,99 @@ with some toy experiments.
 
 .. TEASER_END
 
-|h2| Motivation and Background: Markov Chain Monte Carlo |h2e|
+|h2| Background: Markov Chain Monte Carlo |h2e|
+
+This section is going to give a brief overview of MCMC and the
+Metropolis-Hastings algorithm.  For a more detailed treatment, see my 
+`previous post <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__,
+which goes much more in depth.  I'm only going to review some of the main
+relevant ideas in this section.
+
+Markov Chain Monte Carlo (MCMC) are a class of algorithms that use Markov Chains to
+sample from a particular probability distribution ("Monte Carlo").  The idea is that
+you traverse states in a Markov Chain so that (assuming you constructed it correctly)
+it approximates your target distribution.
+
+.. figure:: /images/mcmc.png
+  :height: 270px
+  :alt: Visualization of a Markov Chain Monte Carlo
+  :align: center
+
+  **Figure 1: Visualization of a Markov Chain Monte Carlo.**
+
+Figure 1 shows a crude visualization of the idea.  The "states" of the Markov Chain
+are the support of your probability distribution (the figure only shows
+states with discrete values for simplicity but they can also be continuous).
+The goal is to construct a Markov Chain such that randomly traversing the
+states your target distribution.
+
+One of the earliest algorithms to accomplish this is called the `Metropolis-Hastings Algorithm <https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm>`__.
+This algorithm is nice because you don't need the actual probability
+distribution, call it :math:`p(x)`, but rather only a function :math:`f(x)
+\propto p(x)`.  Assuming that the state space of the Markov Chain is the
+support of your target probability distribution, the algorithm gives a method
+to select the next state to traverse.  It does this by introducing two new
+distributions: a *proposal distribution* :math:`g(x)` and an *acceptance
+distribution* :math:`A(x)`.  The proposal distribution only needs to have the
+same support as your target distribution, although it's much more efficient if
+it has a similar shape.  The acceptance distribution is defined as:
+
+.. math::
+    A(x \rightarrow x') = min(1, \frac{f(x')g(x' \rightarrow x)}{f(x)g(x \rightarrow x')}) \tag{1}
+
+with :math:`x'` being the newly proposed state sampled from :math:`g(x)`.  
+The :math:`x \rightarrow x'` (and vice versa) symbol means that the
+proposal distribution is conditioned on the current state i.e., :math:`x' | x`.
+The idea is that the proposal distribution will change depending on the current
+state.  A common choice is a normal distribution centered on :math:`x` with
+a variance dependent on the problem.
+
+The algorithm can be summarized as such:
+
+1. Initialize the initial state by picking a random :math:`x`.
+2. Find new :math:`x'` according to :math:`g(x \rightarrow x')`.
+3. Accept :math:`x'` with uniform probability according to :math:`A(x \rightarrow x')`.  If accepted transition to :math:`x'`, otherwise stay in state :math:`x`.
+4. Go to step 2, :math:`T` times.
+5. Save state :math:`x` as a sample, go to step 2 to sample another point.
+
+To make MH efficient, you want your proposal distribution to be accepting with
+a high probability, otherwise you get stuck in the same state and it takes a
+very long time for the algorithm to converge.  This means you want 
+:math:`g(x \rightarrow x') \approx f(x')` (and vice versa).  If they are
+approximately equal, then the fraction in Equation 1 is approximately 1.
+
+|h2| Motivation for Hamiltonian Monte Carlo |h2e|
+
+Let's take a look at the basic case of using a normal distribution as our
+proposal distribution (in 1D).  We can see that 
+:math:`g(x \rightarrow x') = g(x' \rightarrow x)` since it is symmetric.
+In other words, the probability of jumping from :math:`x` to :math:`x'` 
+(with :math:`g` centered on :math:`x`) is the same as jumping from
+:math:`x'` to :math:`x` (with :math:`g` centered on :math:`x'`).  So
+the fraction in Equation 1 then becomes simply :math:`\frac{f(x')}{f(x)}`.
+This implies that you're more than likely to stick around in state :math:`x`
+if it has a high density, and unlikely to move to state :math:`x'` if it has
+low density (and vice versa).
+
+This method is typically called the "random walk" Metropolis-Hastings because
+you're randomly selecting a point from your current location.  It works but
+it's not without its problems.  The main issue is that it doesn't very
+efficiently explore the state space.  Figure 2 shows a visualization of this
+idea.
+
+.. figure:: /images/hmc_motivation.png
+  :height: 270px
+  :alt: Bimodal distribution
+  :align: center
+
+  **Figure 2: Bimodal distribution.**
+
+From Figure 2, consider a bimodal distribution with a random walk MH algorithm.
+If you start in one of the modes, you may get "stuck" in that mode without
+visiting the other mode, especially if your proposal distribution has a small
+variance.  Theoretically, you'll eventually end up in the other mode but
+practically you might not get there with the finite MCMC run.  
+
 
 
 |h2| Hamiltonian Dynamics |h2e|
@@ -82,5 +174,5 @@ with some toy experiments.
 |h2| Further Reading |h2e|
 
 * Previous posts: `Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__, 
-* Wikipedia: 
+* Wikipedia: `Metropolis-Hastings Algorithm <https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm>`__
 * [1] Radford M. Neal, MCMC Using Hamiltonian dynamics, `arXiv:1206.1901 <https://arxiv.org/abs/1206.1901>`__, 2012.
