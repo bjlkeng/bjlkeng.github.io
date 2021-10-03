@@ -122,11 +122,22 @@ The algorithm can be summarized as such:
 4. Go to step 2, :math:`T` times.
 5. Save state :math:`x` as a sample, go to step 2 to sample another point.
 
+Notice step 4 where we throw away a bunch of samples before we return one.
+This is because typically sequential samples will be correlated, which is the
+opposite of what we want.  So we throw away a bunch of samples in hopes that
+the sample we pick is sufficiently independent.  Theoretically as we approach
+an infinite number of samples this doesn't make a difference but practically
+we need it in order to generate random samples.
+
 To make MH efficient, you want your proposal distribution to be accepting with
 a high probability, otherwise you get stuck in the same state and it takes a
 very long time for the algorithm to converge.  This means you want 
 :math:`g(x \rightarrow x') \approx f(x')` (and vice versa).  If they are
-approximately equal, then the fraction in Equation 1 is approximately 1.
+approximately equal, then the fraction in Equation 1 is approximately 1. 
+But this isn't so easy to do because if you could sample from the original
+distribution then why would you need MCMC in the first place?  We'll see
+how we can get pretty close though later on.
+
 
 |h2| Motivation for Hamiltonian Monte Carlo |h2e|
 
@@ -152,15 +163,25 @@ idea.
   :alt: Bimodal distribution
   :align: center
 
-  **Figure 2: Bimodal distribution.**
+  **Figure 2: Difficult to reach other modes with a random walk MH algorithm.**
 
 From Figure 2, consider a bimodal distribution with a random walk MH algorithm.
-If you start in one of the modes, you may get "stuck" in that mode without
-visiting the other mode, especially if your proposal distribution has a small
-variance.  Theoretically, you'll eventually end up in the other mode but
-practically you might not get there with the finite MCMC run.  
+If you start in one of the modes (left side), you may get "stuck" in that mode
+without visiting the other mode, especially if your proposal distribution has a
+small variance.  Theoretically, you'll eventually end up in the other mode but
+practically you might not get there with the finite MCMC run.
+On the other hand, if you make the variance large then in many cases you'll end
+up in places where :math:`f(x')` is small, making the acceptance rate from
+Equation 1 small.  There's no easy way around it and finding the right variance
+will have to be tuned to your specific problem.
 
-
+However, we've just been talking about random walk proposal distributions.
+What if there was a better way?  Perhaps one where you can theoretically
+approach a 100% acceptance rate?  How about one where you don't need to throw
+away any samples (Step 4 from MH algorithm above)?  Sounds too good to be
+doesn't it?  Yes it does but we can sort of get there with Hamiltonian Monte
+Carlo where we can usually do much better random walk MH.  But first an
+explanation of Hamiltonian Dynamics.
 
 |h2| Hamiltonian Dynamics |h2e|
 
