@@ -11,3 +11,5 @@ _site/
 nikola
 .ipynb_checkpoints/
 state_data.json
+*.DS_Store
+*~*.*
