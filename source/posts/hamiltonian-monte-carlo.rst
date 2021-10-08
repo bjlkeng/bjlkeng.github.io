@@ -151,7 +151,9 @@ idea.
   :alt: Bimodal distribution
   :align: center
 
-  **Figure 2: Difficult to reach other modes with a random walk MH algorithm.**
+  **Figure 2: It's difficult to calibrate random walk MH algorithms**
+
+**TODO**: ADD LOW ACCETPANCE RATE HERE
 
 From Figure 2, consider a bimodal distribution with a random walk MH algorithm.
 If you start in one of the modes (left side), you may get "stuck" in that mode
