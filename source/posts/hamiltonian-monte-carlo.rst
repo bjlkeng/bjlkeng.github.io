@@ -7,38 +7,6 @@
 .. description: 
 .. type: text
 
-.. |br| raw:: html
-
-   <br />
-
-.. |H2| raw:: html
-
-   <br/><h3>
-
-.. |H2e| raw:: html
-
-   </h3>
-
-.. |H3| raw:: html
-
-   <h4>
-
-.. |H3e| raw:: html
-
-   </h4>
-
-.. |center| raw:: html
-
-   <center>
-
-.. |centere| raw:: html
-
-   </center>
-
-.. |hr| raw:: html
-
-   <hr>
-
 Here's a topic that I thought I was too complex that I would never
 come back to it.  When I first started learning about Bayesian methods, I was
 aware enough that I should know something about MCMC since that's the backbone
@@ -50,9 +18,9 @@ that is used to solve Bayesian inference, it always seemed too daunting because
 it required "advanced physics" to understand.  As usual, things only seem hard
 because you don't know them yet.  After having some time to digest MCMC
 methods, getting comfortable learning more maths (see 
-`here <link://slug/tensors-tensors-tensors/>`__,
-`here <link://slug/manifolds/>`__, and
-`here <link://slug/hyperbolic-geometry-and-poincare-embeddings/>`__), 
+`here <link://slug/tensors-tensors-tensors>`__,
+`here <link://slug/manifolds>`__, and
+`here <link://slug/hyperbolic-geometry-and-poincare-embeddings>`__), 
 all of a sudden learning "advanced physics" doesn't seem so tough (especially
 with all the amazing lectures and material online, it's actually easier than
 ever)!
@@ -66,8 +34,27 @@ Hamiltonian dynamics (i.e., the "advanced physics"), and finally discuss HMC
 with some toy experiments.
 
 .. TEASER_END
+.. section-numbering::
+.. raw:: html
 
-|h2| Background: Markov Chain Monte Carlo |h2e|
+    <div class="card card-body bg-light">
+    <h1>Table of Contents</h1>
+
+.. contents:: 
+    :depth: 2
+    :local:
+
+.. raw:: html
+
+    </div>
+    <p>
+    
+
+Background
+==========
+
+Markov Chain Monte Carlo
+------------------------
 
 This section is going to give a brief overview of MCMC and the
 Metropolis-Hastings algorithm.  For a more detailed treatment, see my 
@@ -139,7 +126,8 @@ distribution then why would you need MCMC in the first place?  We'll see
 how we can get pretty close though later on.
 
 
-|h2| Motivation for Hamiltonian Monte Carlo |h2e|
+Motivation
+--------------------------------------
 
 Let's take a look at the basic case of using a normal distribution as our
 proposal distribution (in 1D).  We can see that 
@@ -183,16 +171,22 @@ doesn't it?  Yes it does but we can sort of get there with Hamiltonian Monte
 Carlo where we can usually do much better random walk MH.  But first an
 explanation of Hamiltonian Dynamics.
 
-|h2| Hamiltonian Dynamics |h2e|
-
-|h2| Hamiltonian Monte Carlo |h2e|
-
-|h2| Experiments |h2e|
-
-|h2| Conclusion |h2e|
+Hamiltonian Dynamics
+====================
 
 
-|h2| Further Reading |h2e|
+Hamiltonian Monte Carlo
+=======================
+
+Experiments
+===========
+
+Conclusion
+==========
+
+
+Further Reading
+===============
 
 * Previous posts: `Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__, 
 * Wikipedia: `Metropolis-Hastings Algorithm <https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm>`__
