@@ -153,29 +153,75 @@ idea.
 
   **Figure 2: It's difficult to calibrate random walk MH algorithms**
 
-**TODO**: ADD LOW ACCETPANCE RATE HERE
-
 From Figure 2, consider a bimodal distribution with a random walk MH algorithm.
-If you start in one of the modes (left side), you may get "stuck" in that mode
-without visiting the other mode, especially if your proposal distribution has a
-small variance.  Theoretically, you'll eventually end up in the other mode but
-practically you might not get there with the finite MCMC run.
-On the other hand, if you make the variance large then in many cases you'll end
-up in places where :math:`f(x')` is small, making the acceptance rate from
-Equation 1 small.  There's no easy way around it and finding the right variance
-will have to be tuned to your specific problem.
+If you start in one of the modes (left side) with a very tight proposal distribution (Proposal A), 
+you may get "stuck" in that mode without visiting the other mode.
+Theoretically, you'll eventually end up in the other mode but practically you
+might not get there with a finite MCMC run.  
+On the other hand, if you make the variance large (Proposal B) then in many
+cases you'll end up in places where :math:`f(x')` is small, making the
+acceptance rate from Equation 1 small.  There's no easy way around it and
+finding the right variance will have to be tuned to your specific problem.
 
 However, we've just been talking about random walk proposal distributions.
-What if there was a better way?  Perhaps one where you can theoretically
-approach a 100% acceptance rate?  How about one where you don't need to throw
-away any samples (Step 4 from MH algorithm above)?  Sounds too good to be
-doesn't it?  Yes it does but we can sort of get there with Hamiltonian Monte
-Carlo where we can usually do much better random walk MH.  But first an
-explanation of Hamiltonian Dynamics.
+What if there was a better way?  Perhaps one where you can (theoretically)
+get close to a 100% acceptance rate?  How about one where you don't need to throw
+away any samples (Step 4 from MH algorithm above)?  Sounds too good to be true
+doesn't it?  Yes, yes it is too good to be true, but we can *sort of* get there
+with Hamiltonian Monte Carlo!  But first an explanation of Hamiltonian
+Dynamics.
 
-Hamiltonian Dynamics
-====================
+Hamiltonian Mechanics
+=====================
 
+Before we dive into Hamiltonian dynamics, let's do a quick review of high
+school physics with Newton's second of motion to understand how we can use
+it to describe the motion of (macroscopic) objects.  Then we'll move onto
+a more abstract method of describing these systems with Lagrangian mechanics.
+Finally, we'll move on to Hamiltonian mechanics, which can be considered as a
+modification of Lagrangian mechanics.  We'll see that these concepts are not
+as scary as they sound as long as we remember some calculus and how to solve
+relatively simple differential equations.
+
+Classical Mechanics
+-------------------
+
+`Classical mechanics <https://en.wikipedia.org/wiki/Classical_mechanics>`__ 
+(or Newtonian mechanics) is the physical theory that describes the motion
+macroscopic objects like a ball, spaceship or even planetary bodies. 
+I'll won't go much into detail on classical mechanics and assume
+you are familiar with the basic concepts from a first course in physics.
+
+One of the main tools we use to describe motion in classical mechanics
+is Newton's second law of motion:
+
+.. math::
+
+    {\bf F_{net}} = m{\bf a(t)} = m\frac{d^2\bf x(t)}{dt^2} \tag{2}
+
+Where :math:`\bf F_{net}` is the net force on an object, :math:`m` is the mass
+of the object, :math:`\bf a(t)` is the acceleration, :math:`\bf x(t)` is the
+position (with respect a reference), and **bold** quantities are vectors.
+
+Notice that Equation 2 is a differential equation, where :math:`x(t)` describe
+the equation of motion of the object over time.  In high school physics, you
+may not have had to solve differential equations and were given equations to
+solve for :math:`x(t)` assuming a constant force, but now that we know better,
+we can directly solve for it.
+
+I won't spend too much more time on this except to give a running example that
+we'll use throughout the rest of this section.
+
+.. admonition:: Example 1: A Simple Harmonic Oscillator
+
+  .. figure:: /images/hmc_mass_spring.gif
+    :height: 200px
+    :alt: Simple Harmonic Oscillator
+    :align: center
+  
+    **Figure 3: Simple Harmonic Oscillator (source: [2])**
+
+  Consider a mass 
 
 Hamiltonian Monte Carlo
 =======================
@@ -191,5 +237,9 @@ Further Reading
 ===============
 
 * Previous posts: `Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__, 
-* Wikipedia: `Metropolis-Hastings Algorithm <https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm>`__
+* Wikipedia: `Metropolis-Hastings Algorithm <https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm>`__, 
+  `Classical Mechanics <https://en.wikipedia.org/wiki/Classical_mechanics>`__,
+  `Lagrangian Mechanics <https://en.wikipedia.org/wiki/Lagrangian_mechanics>`__,
+  `Hamiltonian Mechanics <https://en.wikipedia.org/wiki/Hamiltonian_mechanics>`__
 * [1] Radford M. Neal, MCMC Using Hamiltonian dynamics, `arXiv:1206.1901 <https://arxiv.org/abs/1206.1901>`__, 2012.
+* [2] `HyperPhysics <http://hyperphysics.phy-astr.gsu.edu/hbase/shm2.html>`__
