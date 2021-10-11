@@ -221,7 +221,56 @@ we'll use throughout the rest of this section.
   
     **Figure 3: Simple Harmonic Oscillator (source: [2])**
 
-  Consider a mass 
+  Consider a mass (:math:`m`) suspended from a spring in Figure 3, where
+  :math:`k` is the force constant of the spring and positive :math:`x` is the
+  downward direction with :math:`x=0` set at the spring's equilibrium.
+  Using Newton's second law (Equation 2), we get the following differential equation:
+
+  .. math::
+
+    {\bf F_{net}} = -kx + mg = m{\bf a(t)} = m\frac{d^2\bf x(t)}{dt^2} \tag{3}
+
+  Rearranging:
+
+  .. math::
+
+     \frac{d^2\bf x(t)}{dt^2} &= -\frac{k}{m}x(t) + g \\
+                              &= -\frac{k}{m}(x(t) - x_0) && \text{rename }x_0 = g \\
+                              &= -\frac{k}{m}x'(t)  && \text{define } x'(t) = x(t) - x_0 \\
+     \tag{4}
+
+  Here we are defining a new function :math:`x'(t)` that is shifted by :math:`-x_0`.
+  This is basically the same as defining a new coordinate system shifted by
+  :math:`-x_0` from our original one.
+  Notice that :math:`\frac{d^2\bf x'(t)}{dt^2} = \frac{d^2\bf x(t)}{dt^2}`
+  since the constant vanishes with the derivative.  And so we end up with the
+  simplified differential equation:
+
+  .. math::
+
+    \frac{d^2\bf x'(t)}{dt^2} = -\frac{k}{m}x'(t) \tag{5}
+
+  In this case, it's a second order differential equation with complex roots.
+  I'll spare you solving it from scratch and just point you to this excellent
+  `set of notes <https://tutorial.math.lamar.edu/Classes/DE/ComplexRoots.aspx>`__
+  by Paul Dawkins.  However, we can also just see by observation that a solution
+  is:
+
+  .. math::
+
+    x'(t) = Acos(\frac{k}{m}t + \phi) \tag{6}
+
+  Given an initial position and it velocity, we can solve Equation 6 for the
+  particular constants.
+
+Example 1 gives the general idea of how to find the motion of an object:
+
+1. Calculate the net forces.
+2. Solve the (typically second order) differential equation from Equation 2 (Newton's second law).
+3. Apply initial conditions (usually position and velocity) to find the constants.
+
+It turns out this is not the only way to find the equation of motion.  The next section
+gives us an alternative that is *sometimes* more convenient to use.
 
 Hamiltonian Monte Carlo
 =======================
