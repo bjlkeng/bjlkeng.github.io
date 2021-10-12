@@ -23,7 +23,8 @@ methods, getting comfortable learning more maths (see
 `here <link://slug/hyperbolic-geometry-and-poincare-embeddings>`__), 
 all of a sudden learning "advanced physics" doesn't seem so tough (especially
 with all the amazing lectures and material online, it's actually easier than
-ever)!
+ever)! Most of the material is based on [1] and [2], which I've found
+area great sources for their respective areas.
 
 This post is the culmination of many different rabbit holes (many much deeper
 than I needed to go) where I'm going to try to explain HMC in simple and
@@ -219,7 +220,7 @@ we'll use throughout the rest of this section.
     :alt: Simple Harmonic Oscillator
     :align: center
   
-    **Figure 3: Simple Harmonic Oscillator (source: [2])**
+    **Figure 3: Simple Harmonic Oscillator (source: [3])**
 
   Consider a mass (:math:`m`) suspended from a spring in Figure 3, where
   :math:`k` is the force constant of the spring and positive :math:`x` is the
@@ -260,7 +261,7 @@ we'll use throughout the rest of this section.
 
     x'(t) = Acos(\frac{k}{m}t + \phi) \tag{6}
 
-  Given an initial position and it velocity, we can solve Equation 6 for the
+  Given an initial position and its velocity, we can solve Equation 6 for the
   particular constants.
 
 Example 1 gives the general idea of how to find the motion of an object:
@@ -271,6 +272,70 @@ Example 1 gives the general idea of how to find the motion of an object:
 
 It turns out this is not the only way to find the equation of motion.  The next section
 gives us an alternative that is *sometimes* more convenient to use.
+
+Lagrangian Mechanics
+--------------------
+
+Instead of using the classical formulation to solve the equation, we can use 
+the Lagrangian method.  It starts out by defining this strange quantity
+called the *Lagrangian*:
+
+.. math::
+
+    L(x(t), \frac{dx(t)}{dt}, t) = T - V = \text{Kinetic Energy} - \text{Potential Energy} \tag{7}
+
+Where the Lagrangian is (typically) a function of the position :math:`x(t)`,
+its velocity :math:`\frac{dx(t)}{dt}` and time :math:`t`.
+It is kind of strange that we have a minus sign here and not a plus (which would give
+the total energy).  We're going to show that we can use the Lagrangian to
+arrive the same mathematical statement as Newton's second law by way of a
+different method.  It's going to be a bit round about but we'll go through
+several mathematical useful tools along the way (and will eventually lead us to
+the Hamiltonian).
+
+We'll start off by defining what is called the *action* that uses the Lagrangian:
+
+.. math::
+   
+   S[x(t)] &= \int_{t_1}^{t_2} L(x(t),\frac{dx(t)}{dt}, t) dt \\
+           &= \int_{t_1}^{t_2} L(x(t),x'(t), t) dt && \text{denote }  x'(t) := \frac{dx(t)}{dt} \\
+   \tag{8}
+
+The astute reader will notice that Equation 8 is a functional.  Moreover, it's precisely
+the functional defined by the 
+`Euler-Lagrange equation <https://en.wikipedia.org/wiki/Euler%E2%80%93Lagrange_equation#Statement>`__.
+For those who have not studied this topic, I'll give a brief overview here but 
+direct you to my blog post on `the calculus of variations <link://slug/the-calculus-of-variations>`__
+for more details.
+
+Equation 8 is what is called a *functional*: a function (:math:`S[x(t)]`) of a function (:math:`x(t)`),
+where we use the square bracket to indicate a functional.
+Equation 8 depends only on the function :math:`x(t)` (and it's derivative)
+since :math:`t` gets integrated out.  Functionals have a lot of similarities to the traditional
+functions we are used to in calculus, in particular they have the analogous concept of derivatives
+called functional derivatives (denoted by :math:`\frac{\delta S}{\delta x}`).
+One simple way to compute the functional derivative is to use the Euler-Lagrange equation:
+
+.. math::
+
+   \frac{\delta S[x]}{\delta x} 
+   = \frac{\partial L}{\partial x} - \frac{d}{dt} \frac{\partial L}{\partial x'} \tag{9}
+
+Here I'm dropping the parameters of :math:`L` and :math:`x` to make things a
+bit more readable.  Equation 9 can be computed using our usual rules of
+calculus since :math:`L` is just a multivariate function of :math:`t` (and not
+a functional).
+
+.. admonition Historical Remark
+
+   As with a lot of mathematics, the Euler-Lagrange equation has its roots in physics.
+   A young Lagrange at the age of 19 
+   solved the `tautochrone problem <https://en.wikipedia.org/wiki/Tautochrone_curve>`__
+   in 1755 developing many of the mathematics ideas described here.  He later
+   sent it to Euler and they both developed the ideas further which led to
+   Lagrangian mechanics.  Euler saw the potential in Lagrang's work realizing the method could extend beyond mechanics
+   also  **TODO TODO TODO**
+
 
 Hamiltonian Monte Carlo
 =======================
@@ -285,10 +350,11 @@ Conclusion
 Further Reading
 ===============
 
-* Previous posts: `Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__, 
+* Previous posts: `Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__, `The Calculus of Variations <link://slug/the-calculus-of-variations>`__
 * Wikipedia: `Metropolis-Hastings Algorithm <https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm>`__, 
   `Classical Mechanics <https://en.wikipedia.org/wiki/Classical_mechanics>`__,
   `Lagrangian Mechanics <https://en.wikipedia.org/wiki/Lagrangian_mechanics>`__,
   `Hamiltonian Mechanics <https://en.wikipedia.org/wiki/Hamiltonian_mechanics>`__
 * [1] Radford M. Neal, MCMC Using Hamiltonian dynamics, `arXiv:1206.1901 <https://arxiv.org/abs/1206.1901>`__, 2012.
-* [2] `HyperPhysics <http://hyperphysics.phy-astr.gsu.edu/hbase/shm2.html>`__
+* [2] David Morin, `Introduction to Classical Mechanics <https://scholar.harvard.edu/david-morin/classical-mechanics>`__, 2008.
+* [3] `HyperPhysics <http://hyperphysics.phy-astr.gsu.edu/hbase/shm2.html>`__
