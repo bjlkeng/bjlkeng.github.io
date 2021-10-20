@@ -176,7 +176,7 @@ Hamiltonian Mechanics
 =====================
 
 Before we dive into Hamiltonian dynamics, let's do a quick review of high
-school physics with Newton's second of motion to understand how we can use
+school physics with Newton's second law of motion to understand how we can use
 it to describe the motion of (macroscopic) objects.  Then we'll move onto
 a more abstract method of describing these systems with Lagrangian mechanics.
 Finally, we'll move on to Hamiltonian mechanics, which can be considered as a
@@ -213,7 +213,7 @@ we can directly solve for it.
 I won't spend too much more time on this except to give a running example that
 we'll use throughout the rest of this section.
 
-.. admonition:: Example 1: A Simple Harmonic Oscillator
+.. admonition:: Example 1: A Simple Harmonic Oscillator using classical mechanics.
 
   .. figure:: /images/hmc_mass_spring.gif
     :height: 200px
@@ -282,7 +282,7 @@ called the *Lagrangian*:
 
 .. math::
 
-    L(x(t), \frac{dx(t)}{dt}, t) = T - V = \text{Kinetic Energy} - \text{Potential Energy} \tag{7}
+    L(x(t), \frac{dx(t)}{dt}, t) = K - U = \text{Kinetic Energy} - \text{Potential Energy} \tag{7}
 
 Where the Lagrangian is (typically) a function of the position :math:`x(t)`,
 its velocity :math:`\frac{dx(t)}{dt}` and time :math:`t`.
@@ -308,8 +308,11 @@ For those who have not studied this topic, I'll give a brief overview here but
 direct you to my blog post on `the calculus of variations <link://slug/the-calculus-of-variations>`__
 for more details.
 
-Equation 8 is what is called a *functional*: a function (:math:`S[x(t)]`) of a function (:math:`x(t)`),
-where we use the square bracket to indicate a functional.
+Equation 8 is what is called a *functional*: a function :math:`S[x(t)]` of a function :math:`x(t)`,
+where we use the square bracket to indicate a functional.  That is, if you plug in one function :math:`x_1(t)`
+you get a scalar out; if you plug in another function :math:`x_t(t)`, you get another scalar out.  It's a mapping
+from functions to scalars (as opposed to scalars to scalars in a normal single input function).
+
 Equation 8 depends only on the function :math:`x(t)` (and it's derivative)
 since :math:`t` gets integrated out.  Functionals have a lot of similarities to the traditional
 functions we are used to in calculus, in particular they have the analogous concept of derivatives
@@ -324,18 +327,75 @@ One simple way to compute the functional derivative is to use the Euler-Lagrange
 Here I'm dropping the parameters of :math:`L` and :math:`x` to make things a
 bit more readable.  Equation 9 can be computed using our usual rules of
 calculus since :math:`L` is just a multivariate function of :math:`t` (and not
-a functional).
+a functional).  The proof of Equation 9 is pretty interesting but I'll refer
+you to Chapter 6 of [2] if you're interested (which you can find online as a
+sample chapter).
 
-.. admonition Historical Remark
+.. admonition:: Historical Remark
 
    As with a lot of mathematics, the Euler-Lagrange equation has its roots in physics.
    A young Lagrange at the age of 19 
    solved the `tautochrone problem <https://en.wikipedia.org/wiki/Tautochrone_curve>`__
    in 1755 developing many of the mathematics ideas described here.  He later
    sent it to Euler and they both developed the ideas further which led to
-   Lagrangian mechanics.  Euler saw the potential in Lagrang's work realizing the method could extend beyond mechanics
-   also  **TODO TODO TODO**
+   Lagrangian mechanics.  Euler saw the potential in Lagrange's work and realized 
+   that the method could extend beyond mechanics, so he worked with Lagrange to
+   generalize it to apply to *any* functionals of that form, developing
+   variational calculus in the process.
 
+So why did we introduce all of these seemingly random expressions?  Well it turns
+out that it's because of the 
+`principle of least action <https://en.wikipedia.org/wiki/Stationary-action_principle>`__:
+
+    The path taken by the system between times :math:`t_1` and :math:`t_2` and
+    configurations :math:`x_1` and :math:`x_2` is the one for which the *action* is stationary (no
+    change) to first order.
+
+where :math:`t_1` and :math:`t_2` are the initial and final times, and
+:math:`x_1` and :math:`x_2` are the initial and final position.  It's sounds
+fancy but what it's saying is that if you find a stationary function of Equation 8
+(where the first functional derivative is zero) then it describes the motion of an object.
+The classical mechanics result relies on quantum mechanics, which is beyond the
+scope of this post (and my investigation on the subject).
+
+However, if the principle of least action describe the motion then it should be equivalent
+to the classical mechanics approach from the previous subsection -- and it indeed is equivalent!
+We'll show this in the simple 1D case but it works in multiple dimensions and
+with different coordinate basis as well.  Starting with a general Lagrangian (Equation 7)
+for an object:
+
+.. math::
+
+    L(x(t), x'(t), t) = K - U = \frac{1}{2}mx'^2(t) - U(x(t)) \tag{10}
+
+Here we're using the standard kinetic energy formula (:math:`K=\frac{1}{2}mv^2`, where velocity :math:`v=x'(t)`) and a 
+generalized potential function :math:`-U(x(t))` that depends on the object's
+position such as gravity.  Plugging :math:`L` into the Euler-Lagrange (Equation
+8) and setting to zero to find the stationary point, we get:
+
+.. math::
+
+   \frac{\partial L}{\partial x} - \frac{d}{dt} \frac{\partial L}{\partial x'} &= 0 \\ 
+   \frac{\partial L}{\partial x} &= \frac{d}{dt} \frac{\partial L}{\partial x'} \\ 
+   \frac{\partial [\frac{1}{2}mx'^2(t) - U(x(t))]}{\partial x} &= \frac{d}{dt} \frac{\partial [\frac{1}{2}mx'^2(t) - U(x(t))]}{\partial x'} \\ 
+   -\frac{\partial - U(x(t))}{\partial x} &= \frac{d[mx'(t)]}{dt} \\ 
+   -\frac{\partial U(x(t))}{\partial x} &= mx''(t) \\ 
+   F = ma(t) && a(t) = \frac{d^2x}{dx^2} \text{ and F}= -\frac{\partial U(x(t))}{\partial x} \\ 
+   \tag{11}
+
+So we can see that we end up with Newton's second law of motion as we expected.
+The negative sign comes in because if we decrease the potential (change in
+potential is negative), we're moving in direction of the potential field, thus
+we have a positive force.  
+
+So we went through all of that to derive the same equation?  Pretty much but in
+certain cases the Lagrangian is easier to formulate and solve than the
+classical approach (although not in our simple example).  Additionally, it is
+going to be useful to help us derive the Hamiltonian.
+
+.. admonition:: Example 2: A Simple Harmonic Oscillator using Lagrangian mechanics.
+
+    TODO
 
 Hamiltonian Monte Carlo
 =======================
