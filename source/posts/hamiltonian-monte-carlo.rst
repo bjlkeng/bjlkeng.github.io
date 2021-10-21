@@ -343,8 +343,8 @@ sample chapter).
    generalize it to apply to *any* functionals of that form, developing
    variational calculus in the process.
 
-So why did we introduce all of these seemingly random expressions?  Well it turns
-out that it's because of the 
+So why did we introduce all of these seemingly random expressions?  It turns
+out that they are useful for the 
 `principle of least action <https://en.wikipedia.org/wiki/Stationary-action_principle>`__:
 
     The path taken by the system between times :math:`t_1` and :math:`t_2` and
@@ -385,17 +385,41 @@ position such as gravity.  Plugging :math:`L` into the Euler-Lagrange (Equation
 
 So we can see that we end up with Newton's second law of motion as we expected.
 The negative sign comes in because if we decrease the potential (change in
-potential is negative), we're moving in direction of the potential field, thus
-we have a positive force.  
+potential is negative), we're moving in the direction of the potential field,
+thus we have a positive force.  
 
-So we went through all of that to derive the same equation?  Pretty much but in
+So we went through all of that to derive the same equation?  Pretty much, but in
 certain cases the Lagrangian is easier to formulate and solve than the
-classical approach (although not in our simple example).  Additionally, it is
-going to be useful to help us derive the Hamiltonian.
+classical approach (although not in the simple example below).  Additionally,
+it is going to be useful to help us derive the Hamiltonian.
 
 .. admonition:: Example 2: A Simple Harmonic Oscillator using Lagrangian mechanics.
 
-    TODO
+    Using the same problem in Example 1, let's solve it using the Lagrangian.
+    We can define the Lagrangian as (omitting the parameters for cleanliness):
+
+    .. math::
+
+        L = K - U = \frac{1}{2}mx'^2 - (mgx + \frac{1}{2}kx^2) \tag{12}
+
+    where each term represents the velocity, gravitational potential and
+    elastic potential of the spring respectively.  Using the Euler-Lagrange
+    equation (and setting it to 0):
+   
+    .. math:: 
+
+        \frac{\partial L}{\partial x} &= \frac{d}{dt} \frac{\partial L}{\partial x'} \\
+        \frac{\partial [\frac{1}{2}mx'^2 - (mgx + \frac{1}{2}kx^2)]}{\partial x} &= \frac{d}{dt} \frac{\partial [\frac{1}{2}mx'^2 - (mgx + \frac{1}{2}kx^2)]}{\partial x'} \\
+        -mg - kx &= mx'' \\
+        -g - \frac{k}{m}x &= x''  \\
+        \frac{d^2x}{dt^2} &= -\frac{k}{m}(x - x_0) && \text{rename } x_0 = g \\
+        \tag{13}
+
+    And we see we end up with the same second order differential equation as
+    Equation 4, which yields the same solution :math:`x'(t) = Acos(\frac{k}{m}t + \phi)`.
+    As you can see, we didn't really gain anything by using the Lagrangian but 
+    often times in multiple dimensions, potentially with a different coordinate
+    basis, the Lagrangian method is easier to use.
 
 Hamiltonian Monte Carlo
 =======================
