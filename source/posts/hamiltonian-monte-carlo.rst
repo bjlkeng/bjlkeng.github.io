@@ -421,8 +421,68 @@ it is going to be useful to help us derive the Hamiltonian.
     often times in multiple dimensions, potentially with a different coordinate
     basis, the Lagrangian method is easier to use.
 
+
+One last note before we move on to the next section.  It turns out the
+Euler-Lagrange from Equation 9 is agnostic to the coordinate system we are using.
+In other words, for another coordinate system :math:`q_i:= q_i(x_1,\ldots,x_N;t)`
+(with the appropriate inverse mapping :math:`x_i:= x_i(q_1,\ldots,q_N;t)`),
+then the Euler-Lagrange equation works with the new coordinate system as well
+(at the stationary point):
+
+.. math::
+
+   \frac{d}{dt} \frac{\partial L}{\partial q'_m} = \frac{\partial L}{\partial q_m} && 1 \leq m \leq N \\
+   \tag{14}
+
+From here on out instead of assuming Cartesian coordinates (denoted with
+:math:`x`'s), we'll be using the generic :math:`q` to denote position
+with its corresponding first (:math:`q'`) and second derivatives (:math:`q''`)
+for velocity and acceleration, respectively.
+
+Hamiltonian Mechanics
+---------------------
+
+We're slowly making our way towards HMC and we're almost there!  Finally,
+let's discuss how we can solve the equation of motion using Hamiltonian mechanics.
+We first start off with another esoteric quantity:
+
+.. math::
+
+    E := \big(\sum_{i=1}^N \frac{\partial L}{\partial q'_i} q'_i \big) - L \tag{15}
+
+where we have potentially :math:`N` particles and/or coordinates.  The symbol
+:math:`E` is used because *usually* Equation 15 is the total energy of the
+system.  Let's show that in 1D using the fact that
+:math:`L=K-U=\frac{1}{2}mq'^2 - U(q)` for potential energy :math:`U(q)`:
+
+.. math::
+
+   E &:= \frac{\partial L}{\partial q'} q' - L \\
+     &= \frac{\partial (\frac{1}{2}mq'^2 - U(q))}{\partial q'} q' - L \\
+     &= mq' \cdot q'_i - L \\
+     &= 2K - (K - U) \\
+     &= K + U \\
+     \tag{16}
+
+where we can see that it's the kinetic energy *plus* the potential energy of
+the system.  If the coordinate system you are using are Cartesian, then it is
+always the total energy.  Otherwise, you have to ensure the change of basis
+does not have a time dependence or else there's not guarantee.  See 15.1 from
+[2] for more details.
+
+Now we're almost at the Hamiltonian with Equation 15 but we want to do a
+variable substitution:
+
+.. math::
+
+    p := \
+
+
 Hamiltonian Monte Carlo
 =======================
+
+
+
 
 Experiments
 ===========
