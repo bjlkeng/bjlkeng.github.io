@@ -278,7 +278,7 @@ Lagrangian Mechanics
 
 Instead of using the classical formulation to solve the equation, we can use 
 the Lagrangian method.  It starts out by defining this strange quantity
-called the *Lagrangian*:
+called the *Lagrangian* [1]_:
 
 .. math::
 
@@ -471,11 +471,77 @@ does not have a time dependence or else there's not guarantee.  See 15.1 from
 [2] for more details.
 
 Now we're almost at the Hamiltonian with Equation 15 but we want to do a
-variable substitution:
+variable substitution by getting rid of :math:`q'` and replacing it with
+something called the *generalized momentum*:
 
 .. math::
 
-    p := \
+    p := \frac{\partial L}{\partial q'} \tag{17}
+
+This is *sometimes* the same as the usual linear momentum (usually denoted by :math:`p`)
+you learn about in a first physics class.  Assuming we have the usual equation for kinetic
+energy with Cartesian coordinates:
+
+.. math::
+
+    p &:= \frac{\partial L}{\partial q'} \\
+      &= \frac{\partial (\frac{1}{2}mq'^2 - U(q))}{\partial q'}
+      &= mq'    && \text{linear momentum}\\
+    \tag{18}
+
+However, for example, if you are dealing with angular kinetic energy (such as a
+swinging pendulum) and using those coordinates then you'll end up with 
+`angular momentum <https://en.wikipedia.org/wiki/Angular_momentum>`__ instead.
+In any case, all we need to know is Equation 17.  Substituting it into our
+(often) total energy equation (Equation 15) and re-writing in terms of only
+:math:`q` and :math:`p` (no explicit :math:`q'`), we get the Hamiltonian:
+
+.. math::
+
+    H({\bf q, p}) &= \big(\sum_{i=1}^N \frac{\partial L}{\partial q'_i} q'_i \big) - L  && \text{definition of } E \\
+            &= \big(\sum_{i=1}^N p_i q'_i(q, p_i) \big) - L({\bf q, q'(q,p)})  && p_i := \frac{\partial L}{\partial q'_i}\\
+    \tag{19}
+
+where I've used bold to indicate vector quantities.  Notice that we didn't
+explicitly eliminate :math:`q'_i`, we just wrote it as a function of :math:`q`
+and :math:`p`.  
+
+Now Equation 19 by itself maybe isn't that interesting but let's see what happens
+when we analyze how it changes with respect to its inputs :math:`q` and :math:`p`
+(in 1D to keep things cleaner).  Starting with :math:`p`:
+
+.. math::
+
+   \frac{\partial H}{\partial p} &= \frac{\partial (p q'(q, p))}{\partial p}  - \frac{\partial L(q, q'(q,p))}{\partial p} \\
+                                 &= [q'(q, p) + p\frac{\partial (q'(q, p))}{\partial p}] 
+                                    - \frac{\partial L(q, q'(q,p))}{\partial q'} \frac{\partial q'(q,p)}{\partial p} \\
+                                 &= [q'(q, p) + p\frac{\partial q'(q, p)}{\partial p}] 
+                                    - p \frac{\partial q'(q, p)}{\partial p} && p := \frac{\partial L}{\partial q'} \\
+                                 &= q'(q, p) = q'
+                                \tag{20} 
+
+Now isn't that nice?  The partial derivative with respect to the generalized momentum of the Hamiltonian simplifies to the velocity.
+Let's see what happens when we take it with respect to the position :math:`q`:
+
+.. math::
+
+   \frac{\partial H}{\partial q} &= \frac{\partial (p q'(q, p))}{\partial q}  - \frac{\partial L(q, q'(q,p))}{\partial q} \\
+                                 &= p\frac{\partial q'(q, p)}{\partial q}  - 
+                                    [\frac{\partial L(q, q')}{\partial q}  
+                                     + \frac{\partial L(q, q')}{\partial q'} \frac{\partial q'(q,p)}{\partial q} ]
+                                    && \text{See remark below} \\
+                                 &= p\frac{\partial q'(q, p)}{\partial q}  
+                                    - [\frac{d}{dt}\big( \frac{\partial L(q, q')}{\partial q'} \big) 
+                                     + \frac{\partial L(q, q')}{\partial q'} \frac{\partial q'(q,p)}{\partial q} ]
+                                    && \text{Euler-Lagrange equation} \frac{d}{dt}\big(\frac{\partial L}{\partial q'}\big) = \frac{\partial L}{\partial q} \\
+                                 &= p\frac{\partial q'(q, p)}{\partial q}  
+                                    - [\frac{dp}{dt} + p \frac{\partial q'(q,p)}{\partial q}]
+                                    && p := \frac{\partial L}{\partial q'} \\
+                                 &= p'
+                                \tag{21}
+
+
+TODO: Explain why partial above is true
 
 
 Hamiltonian Monte Carlo
@@ -502,3 +568,5 @@ Further Reading
 * [1] Radford M. Neal, MCMC Using Hamiltonian dynamics, `arXiv:1206.1901 <https://arxiv.org/abs/1206.1901>`__, 2012.
 * [2] David Morin, `Introduction to Classical Mechanics <https://scholar.harvard.edu/david-morin/classical-mechanics>`__, 2008.
 * [3] `HyperPhysics <http://hyperphysics.phy-astr.gsu.edu/hbase/shm2.html>`__
+
+.. [1] The usual symbols they use for the Lagrangian are :math:`L = T - U` representing the kinetic and potential energy respectively.  However, :math:`T` makes no sense to me, so since we're not really talking about physics here, I'll just use :math:`K` to make it clear for the rest of us.
