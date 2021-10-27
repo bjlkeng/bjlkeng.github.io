@@ -210,6 +210,12 @@ may not have had to solve differential equations and were given equations to
 solve for :math:`x(t)` assuming a constant force, but now that we know better,
 we can directly solve for it.
 
+Note that I use the notation :math:`x'(t) := \frac{dx}{dt}` to always represent
+the time derivative of the function :math:`x(t)` (or later on :math:`p` and
+:math:`q`).  Most physics sources use the "dot" (:math:`\dot{x}(t)`) notation to
+represent time derivatives but I'll use the apostrophe because I think it's probably 
+more familiar to non-physics readers.
+
 I won't spend too much more time on this except to give a running example that
 we'll use throughout the rest of this section.
 
@@ -528,21 +534,51 @@ Let's see what happens when we take it with respect to the position :math:`q`:
    \frac{\partial H}{\partial q} &= \frac{\partial (p q'(q, p))}{\partial q}  - \frac{\partial L(q, q'(q,p))}{\partial q} \\
                                  &= p\frac{\partial q'(q, p)}{\partial q}  - 
                                     [\frac{\partial L(q, q')}{\partial q}  
-                                     + \frac{\partial L(q, q')}{\partial q'} \frac{\partial q'(q,p)}{\partial q} ]
+                                     + \frac{\partial L(q, q')}{\partial q'} \frac{\partial q'(q, p)}{\partial q} ]
                                     && \text{See remark below} \\
                                  &= p\frac{\partial q'(q, p)}{\partial q}  
                                     - [\frac{d}{dt}\big( \frac{\partial L(q, q')}{\partial q'} \big) 
-                                     + \frac{\partial L(q, q')}{\partial q'} \frac{\partial q'(q,p)}{\partial q} ]
+                                     + \frac{\partial L(q, q')}{\partial q'} \frac{\partial q'(q, p)}{\partial q} ]
                                     && \text{Euler-Lagrange equation} \frac{d}{dt}\big(\frac{\partial L}{\partial q'}\big) = \frac{\partial L}{\partial q} \\
                                  &= p\frac{\partial q'(q, p)}{\partial q}  
                                     - [\frac{dp}{dt} + p \frac{\partial q'(q,p)}{\partial q}]
                                     && p := \frac{\partial L}{\partial q'} \\
-                                 &= p'
+                                 &= -p'
                                 \tag{21}
 
 
-TODO: Explain why partial above is true
+.. admonition:: Explanation of :math:`\frac{\partial L(q, q'(q, p))}{\partial q} = \frac{\partial L(q, q')}{\partial q} + \frac{\partial L(q, q')}{\partial q'} \frac{\partial q'(q, p)}{\partial q}`
 
+    This expression is *partially* (get it?) confusing because of the notation and partially confusing because
+    it's not typically seen when discussing the chain rule for partial differentiation.  Notice that the LHS looks
+    *almost* identical to the first term in the RHS.  The difference being that
+    :math:`q'(q, p)` is a function of :math:`q` on the LHS, while on the RHS it's constant with respect to :math:`q`.
+    To see that, let's re-write the LHS using some dummy functions.
+
+    Define :math:`f(q) = q` and :math:`g(q, p) = q'(q,p)`, and then substitute into the LHS and apply the 
+    `chain rule for partial differentiation <https://tutorial.math.lamar.edu/classes/calciii/chainrule.aspx>`__:
+
+    .. math::
+
+        \frac{\partial L(f(q), g(q, p))}{\partial q} &= 
+            \frac{\partial L(f(q), g)}{\partial f}\Big|_{g=q'(q,p)}\frac{df(q)}{dq}
+            + \frac{\partial L(f(q), g(q, p))}{\partial g}\frac{\partial g(q, p)}{\partial q} \\
+            &= \frac{\partial L(q, g)}{\partial q}\Big|_{g=q'(q,p)}(1)
+            + \frac{\partial L(q, g)}{\partial g}\frac{\partial g(q, p)}{\partial q} \\
+            &= \frac{\partial L(q, q')}{\partial q}
+            + \frac{\partial L(q, q')}{\partial q'}\frac{\partial q'(q, p)}{\partial q} \\
+        \tag{22}
+
+    As you can see the first term on the RHS has a "constant" :math:`q'` from
+    the partial differentiation of :math:`f(q) = q`.  The notation seems a bit messy,
+    I did a double take when I first saw it, but hopefully this makes it clear as mud.
+    
+* Preamble -> Go through example.
+
+* If we just end up same place, why H?
+* Multiple dimensions, easier to analyze but also ...
+* Phase space (q, p), symmetry of q' and p', uniquely determine trajectory
+* Louisville theorem (needed later)
 
 Hamiltonian Monte Carlo
 =======================
