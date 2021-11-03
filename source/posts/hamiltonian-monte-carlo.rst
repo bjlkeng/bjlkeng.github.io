@@ -406,18 +406,22 @@ it is going to be useful to help us derive the Hamiltonian.
 
     .. math::
 
-        L = K - U = \frac{1}{2}mx'^2 - (mgx + \frac{1}{2}kx^2) \tag{12}
+        L = K - U = \frac{1}{2}mx'^2 - (-mgx + \frac{1}{2}kx^2) \tag{12}
 
     where each term represents the velocity, gravitational potential and
-    elastic potential of the spring respectively.  Using the Euler-Lagrange
-    equation (and setting it to 0):
+    elastic potential of the spring respectively.  Recall :math:`x=0` is defined
+    to be where the spring is at rest and positive :math:`x` is the downward
+    direction.  Thus, the gravitational potential is negative of the :math:`x`
+    direction while the spring has potential with any deviation from :math:`x=0`.
+
+    Using the Euler-Lagrange equation (and setting it to 0):
    
     .. math:: 
 
         \frac{\partial L}{\partial x} &= \frac{d}{dt} \frac{\partial L}{\partial x'} \\
-        \frac{\partial [\frac{1}{2}mx'^2 - (mgx + \frac{1}{2}kx^2)]}{\partial x} &= \frac{d}{dt} \frac{\partial [\frac{1}{2}mx'^2 - (mgx + \frac{1}{2}kx^2)]}{\partial x'} \\
-        -mg - kx &= mx'' \\
-        -g - \frac{k}{m}x &= x''  \\
+        \frac{\partial [\frac{1}{2}mx'^2 - (-mgx + \frac{1}{2}kx^2)]}{\partial x} &= \frac{d}{dt} \frac{\partial [\frac{1}{2}mx'^2 - (-mgx + \frac{1}{2}kx^2)]}{\partial x'} \\
+        mg - kx &= mx'' \\
+        g - \frac{k}{m}x &= x''  \\
         \frac{d^2x}{dt^2} &= -\frac{k}{m}(x - x_0) && \text{rename } x_0 = g \\
         \tag{13}
 
@@ -445,8 +449,8 @@ From here on out instead of assuming Cartesian coordinates (denoted with
 with its corresponding first (:math:`q'`) and second derivatives (:math:`q''`)
 for velocity and acceleration, respectively.
 
-Hamiltonian Mechanics
----------------------
+The Hamiltonian and Hamilton's Equations
+----------------------------------------
 
 We're slowly making our way towards HMC and we're almost there!  Finally,
 let's discuss how we can solve the equation of motion using Hamiltonian mechanics.
@@ -512,6 +516,14 @@ where I've used bold to indicate vector quantities.  Notice that we didn't
 explicitly eliminate :math:`q'_i`, we just wrote it as a function of :math:`q`
 and :math:`p`.  
 
+The :math:`2n` dimensional coordinates :math:`({\bf p, q})` are called the
+*phase space coordinates* (also known as canonical coordinates).  Intuitively,
+we can just think of this as the position (:math:`x`) and linear momentum
+(:math:`mv = mx'`), which is what you would expect if you were asked for the
+current state of a system (alternatively you could use velocity instead of
+momentum).  However, as we'll see later, phase space coordinates have
+certain nice properties that we'll utilize when trying to perform MCMC.
+
 Now Equation 19 by itself maybe isn't that interesting but let's see what happens
 when we analyze how it changes with respect to its inputs :math:`q` and :math:`p`
 (in 1D to keep things cleaner).  Starting with :math:`p`:
@@ -526,8 +538,9 @@ when we analyze how it changes with respect to its inputs :math:`q` and :math:`p
                                  &= q'(q, p) = q'
                                 \tag{20} 
 
-Now isn't that nice?  The partial derivative with respect to the generalized momentum of the Hamiltonian simplifies to the velocity.
-Let's see what happens when we take it with respect to the position :math:`q`:
+Now isn't that nice?  The partial derivative with respect to the generalized
+momentum of the Hamiltonian simplifies to the velocity.  Let's see what happens
+when we take it with respect to the position :math:`q`:
 
 .. math::
 
@@ -546,6 +559,9 @@ Let's see what happens when we take it with respect to the position :math:`q`:
                                  &= -p'
                                 \tag{21}
 
+Similarly, we get a (sort of) symmetrical result where the partial derivative
+with respect to the position is the negative first time derivative of the
+generalized momentum.
 
 .. admonition:: Explanation of :math:`\frac{\partial L(q, q'(q, p))}{\partial q} = \frac{\partial L(q, q')}{\partial q} + \frac{\partial L(q, q')}{\partial q'} \frac{\partial q'(q, p)}{\partial q}`
 
@@ -572,13 +588,120 @@ Let's see what happens when we take it with respect to the position :math:`q`:
     As you can see the first term on the RHS has a "constant" :math:`q'` from
     the partial differentiation of :math:`f(q) = q`.  The notation seems a bit messy,
     I did a double take when I first saw it, but hopefully this makes it clear as mud.
-    
-* Preamble -> Go through example.
+   
+Equations 20 and 21 are called *Hamtilton's equations*, which will allow us to
+compute the equation of motion as we did in the previous two methods.  
+The next example shows this in more detail.
 
-* If we just end up same place, why H?
-* Multiple dimensions, easier to analyze but also ...
-* Phase space (q, p), symmetry of q' and p', uniquely determine trajectory
-* Louisville theorem (needed later)
+
+.. admonition:: Example 3: A Simple Harmonic Oscillator using Hamiltonian mechanics.
+
+    Using the same problem in Example 1 and 2, let's solve it using Hamiltonian
+    mechanics.  We start by writing the Lagrangian (repeating Equation 12):
+
+    .. math::
+
+        L = K - U = \frac{1}{2}mx'^2 - (-mgx + \frac{1}{2}kx^2)
+
+    Next, calculate the generalized momentum (Equation 17):
+
+    .. math::
+
+        p &:= \frac{\partial L}{\partial x'} \\
+          &= mx' \\ \tag{23}
+
+    Which turns out to just be the linear momentum.  Note, we'll
+    be using :math:`x` instead of :math:`q` in this example since
+    we'll be using standard cartesian coordinates.  
+    
+    From Equation 23, solve for the velocities (:math:`x'`) so we can re-write
+    in terms of momentum, we get:
+
+    .. math::
+
+        p &= mx' \\
+        x' &= \frac{p}{m} \\ tag{24}
+
+    Write down the Hamiltonian (Equation 19) in terms of its phase
+    space coordinates :math:`(x, p)`, eliminating all velocities
+    using Equation 24:
+
+    .. math::
+
+        H({\bf x, p}) &= p x'(x, p) - L({\bf x, x'(x,p)}) \\
+                      &= p \frac{p}{m} - [\frac{1}{2}mx'^2 - (-mgx + \frac{1}{2}kx^2)] \\
+                      &= \frac{p^2}{m} - [\frac{1}{2}m(\frac{p}{m})^2 - (-mgx + \frac{1}{2}kx^2)] \\
+                      &= \frac{p^2}{2m} - mgx + \frac{1}{2}kx^2 \\
+        \tag{25}
+
+    Write down Hamilton's equation (Equation 20 and 21):
+
+    .. math::
+    
+        \frac{\partial H}{\partial x} &= -p' \\
+        -mg + kx &= -p'  \\
+        \frac{dp}{dt} &= -kx + mg \tag{26} \\
+        \\
+        \frac{\partial H}{\partial p} &= x' \\
+        \frac{p}{m} &= x'  \\
+        \frac{dx}{dt} &= \frac{p}{m} \tag{27}
+
+    Finally, we just need to solve these differential equations for :math:`x(t)`.
+    In general, this involves eliminating :math:`p` in favor of :math:`q'`. 
+    In this case it's quite simple.  Notice that Equation 26 is exactly
+    Newton's second law (where :math:`\frac{dp}{dt} = \frac{mx'}{dt} = ma`) and
+    mirrors Equation 4, while Equation 27 is just the definition of velocity
+    (where :math:`p=ma`).  As a result, we'll end up with exactly the same
+    solution for :math:`x(t)` as the previous examples.
+
+Properties of Hamiltonian Mechanics
+-----------------------------------
+
+After going through example 3, you may wonder what was the point of all of this
+manipulation?  We essentially just ended with Newton's second law, which
+required an even more round about way via writing the Lagrangian, Hamiltonian,
+Hamilton's equations and then essentially converting back to where we started.
+These are all very good observations and the simple examples shown so far don't
+do Hamiltonian mechanics justice.  One typically does not use the
+Hamiltonian method for standard mechanics problems involving a small number of
+particles.  It really starts to shine when using it for analysis with a large
+number of particles (e.g. thermodynamics) or with no particles at all (e.g.
+quantum mechanics where everything is a wave function).  These two applications
+are beyond the scope of this post. 
+
+The Hamiltonian also has some nice properties that aren't obvious at first
+glance.  An interesting result is that for a particle given its initial point
+in phase space :math:`(q_0, p_0)` at a point in time, its motion is completely
+determined for all time.  That is, we can use Hamiltonian's equations to find
+its instantaneous rate of change (:math:`q', p'`), which we can use to find its
+nearby position after a delta of time, and then repeat this process to find its
+trajectory.  This hints at the application we're going to use it for: using a
+numerical method to find its trajectory (next subsection).
+
+This also implies *reversability* :math:`\TODO{STUFF HERE}`
+
+
+The next important property is that the Hamiltonian is *conserved*:
+:math:`\TODO{STUFF HERE}`.
+
+
+The last important property we'll use it called Liouville's theorem
+(from [2]):
+
+    **Liouville's Theorem**: Given a system of :math:`N` coordinates :math:`q_i`,
+    the :math:`2N` dimentional "volume" enclosed by a given :math:`(2N-1)`
+    dimensional "surface" in phase space is conserved (that is, independent of
+    time) as the surface moves through phase space.
+   
+I'll refer to [2] if you want to see the proof.  This is an important result
+that we'll use so that we can avoid accounting for the change in volume 
+(via Jacobians) in our HMC algorithm since the multi-dimensional "volume" is
+preserved.  More on this later.
+
+Discretizing Hamiltonian's Equations
+------------------------------------
+
+Leapfrog
 
 Hamiltonian Monte Carlo
 =======================
