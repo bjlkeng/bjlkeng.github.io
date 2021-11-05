@@ -81,7 +81,26 @@ states with discrete values for simplicity but they can also be continuous).
 The goal is to construct a Markov Chain such that randomly traversing the
 states your target distribution.
 
-One of the earliest algorithms to accomplish this is called the `Metropolis-Hastings Algorithm <https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm>`__.
+Three important conditions that are required for a Markov chain to be used for MCMC:
+
+1. **Irreducible**: we must be able to reach any one state from any other state
+   eventually (i.e. the expected number of steps is finite)
+2. **Aperiodic**: the system never returns to the same state with a fixed
+   period (e.g. not returning to start "sunny" deterministically every 5
+   steps)
+3. **Reversible**: a Markov chain is called `reversible <https://en.wikipedia.org/wiki/Detailed_balance#Reversible_Markov_chains>`__
+   if the Markov chain has a stationary distribution :math:`\pi` such that
+   :math:`\pi_iP_{ij} = \pi_jP{ji}` where :math:`P_ij` is the transition
+   probability from state :math:`i` to :math:`j` and :math:`\pi_i` and
+   :math:`\pi_j` are the equilibrium probabilities for their respective states.
+
+The first two properties define a Markov chain which is `ergodic <https://nlp.stanford.edu/IR-book/html/htmledition/definition-1.html>`__,
+which implies that a that there is a steady state distribution.
+The third property is used to derive the MCMC algorithm defined below.
+See my `previous post <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__,
+for a derivation.
+
+One of the earliest MCMC algorithms is called the `Metropolis-Hastings Algorithm <https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm>`__.
 This algorithm is nice because you don't need the actual probability
 distribution, call it :math:`p(x)`, but rather only a function :math:`f(x)
 \propto p(x)`.  Assuming that the state space of the Markov Chain is the
@@ -561,7 +580,9 @@ when we take it with respect to the position :math:`q`:
 
 Similarly, we get a (sort of) symmetrical result where the partial derivative
 with respect to the position is the negative first time derivative of the
-generalized momentum.
+generalized momentum. Equations 20 and 21 are called *Hamilton's equations*,
+which will allow us to compute the equation of motion as we did in the previous
+two methods.  The next example shows this in more detail.
 
 .. admonition:: Explanation of :math:`\frac{\partial L(q, q'(q, p))}{\partial q} = \frac{\partial L(q, q')}{\partial q} + \frac{\partial L(q, q')}{\partial q'} \frac{\partial q'(q, p)}{\partial q}`
 
@@ -589,10 +610,6 @@ generalized momentum.
     the partial differentiation of :math:`f(q) = q`.  The notation seems a bit messy,
     I did a double take when I first saw it, but hopefully this makes it clear as mud.
    
-Equations 20 and 21 are called *Hamtilton's equations*, which will allow us to
-compute the equation of motion as we did in the previous two methods.  
-The next example shows this in more detail.
-
 
 .. admonition:: Example 3: A Simple Harmonic Oscillator using Hamiltonian mechanics.
 
@@ -667,26 +684,40 @@ Hamiltonian method for standard mechanics problems involving a small number of
 particles.  It really starts to shine when using it for analysis with a large
 number of particles (e.g. thermodynamics) or with no particles at all (e.g.
 quantum mechanics where everything is a wave function).  These two applications
-are beyond the scope of this post. 
+are beyond the scope of this post.
 
 The Hamiltonian also has some nice properties that aren't obvious at first
-glance.  An interesting result is that for a particle given its initial point
-in phase space :math:`(q_0, p_0)` at a point in time, its motion is completely
-determined for all time.  That is, we can use Hamiltonian's equations to find
-its instantaneous rate of change (:math:`q', p'`), which we can use to find its
-nearby position after a delta of time, and then repeat this process to find its
-trajectory.  This hints at the application we're going to use it for: using a
-numerical method to find its trajectory (next subsection).
+glance.  There are three properties that we'll care about:
 
-This also implies *reversability* :math:`\TODO{STUFF HERE}`
+**Reversability**: An interesting result is that for a particle given its
+initial point in phase space :math:`(q_0, p_0)` at a point in time, its motion
+is completely determined for all time.  That is, we can use Hamiltonian's
+equations to find its instantaneous rate of change (:math:`(q', p')`), which we
+can use to find its nearby position after a delta of time, and then repeat this
+process to find its trajectory.  This hints at the application we're going to
+use it for: using a numerical method to find its trajectory (next subsection).
+Equally important though is the fact that we can reverse this process to find
+where it came from.  If you have a path from :math:`(q(t), p(t))` to 
+:math:`(q(t+s), p(t+s)` then you can find the reverse path by applying the negative
+time derivative (:math:`(-q', -p')`) because the path is unique.
+We'll use this property when constructing the Markov chain transitions for HMC.
 
+**Conservation of the Hamiltonian**: Another important property is that it
+keeps the Hamiltonian conserved.  We can see this by taking the time derivative
+of the Hamiltonian (in 1D to keep things simple):
 
-The next important property is that the Hamiltonian is *conserved*:
-:math:`\TODO{STUFF HERE}`.
+.. math::
 
+   \frac{dH}{dt} &= \frac{dq}{dt}\frac{\partial H}{\partial q} + \frac{dp}{dt}\frac{\partial H}{\partial p} \\
+    &= \frac{dq}{dt}\frac{dp}{dt} - \frac{dp}{dt}\frac{dq}{dt} && \text{Hamilton's equations} \\
+    &= 0 \\
+    \tag{28}
 
-The last important property we'll use it called Liouville's theorem
-(from [2]):
+This important property lets us *almost* get to a 100% acceptance rate for HMC.
+We'll see later that this ideal is not always maintained.
+
+**Volume preservation**: The last important property we'll use it called
+Liouville's theorem (from [2]):
 
     **Liouville's Theorem**: Given a system of :math:`N` coordinates :math:`q_i`,
     the :math:`2N` dimentional "volume" enclosed by a given :math:`(2N-1)`
