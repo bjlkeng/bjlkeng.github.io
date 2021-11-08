@@ -112,11 +112,11 @@ same support as your target distribution, although it's much more efficient if
 it has a similar shape.  The acceptance distribution is defined as:
 
 .. math::
-    A(x \rightarrow x') = min(1, \frac{f(x')g(x' \rightarrow x)}{f(x)g(x \rightarrow x')}) \tag{1}
+    A(x \rightarrow y) = min(1, \frac{f(y)g(y \rightarrow x)}{f(x)g(x \rightarrow y)}) \tag{1}
 
-with :math:`x'` being the newly proposed state sampled from :math:`g(x)`.  
-The :math:`x \rightarrow x'` (and vice versa) symbol means that the
-proposal distribution is conditioned on the current state i.e., :math:`x' | x`.
+with :math:`y` being the newly proposed state sampled from :math:`g(x)`.  
+The :math:`x \rightarrow y` (and vice versa) symbol means that the
+proposal distribution is conditioned on the current state i.e., :math:`y | x`.
 The idea is that the proposal distribution will change depending on the current
 state.  A common choice is a normal distribution centered on :math:`x` with
 a variance dependent on the problem.
@@ -124,8 +124,8 @@ a variance dependent on the problem.
 The algorithm can be summarized as such:
 
 1. Initialize the initial state by picking a random :math:`x`.
-2. Find new :math:`x'` according to :math:`g(x \rightarrow x')`.
-3. Accept :math:`x'` with uniform probability according to :math:`A(x \rightarrow x')`.  If accepted transition to :math:`x'`, otherwise stay in state :math:`x`.
+2. Find new :math:`y` according to :math:`g(x \rightarrow y)`.
+3. Accept :math:`y` with uniform probability according to :math:`A(x \rightarrow y)`.  If accepted transition to :math:`y`, otherwise stay in state :math:`x`.
 4. Go to step 2, :math:`T` times.
 5. Save state :math:`x` as a sample, go to step 2 to sample another point.
 
@@ -262,19 +262,19 @@ we'll use throughout the rest of this section.
 
      \frac{d^2\bf x(t)}{dt^2} &= -\frac{k}{m}x(t) + g \\
                               &= -\frac{k}{m}(x(t) - x_0) && \text{rename }x_0 = g \\
-                              &= -\frac{k}{m}x'(t)  && \text{define } x'(t) = x(t) - x_0 \\
+                              &= -\frac{k}{m}y(t)  && \text{define } y(t) = x(t) - x_0 \\
      \tag{4}
 
-  Here we are defining a new function :math:`x'(t)` that is shifted by :math:`-x_0`.
+  Here we are defining a new function :math:`y(t)` that is shifted by :math:`-x_0`.
   This is basically the same as defining a new coordinate system shifted by
   :math:`-x_0` from our original one.
-  Notice that :math:`\frac{d^2\bf x'(t)}{dt^2} = \frac{d^2\bf x(t)}{dt^2}`
+  Notice that :math:`\frac{d^2\bf y(t)}{dt^2} = \frac{d^2\bf x(t)}{dt^2}`
   since the constant vanishes with the derivative.  And so we end up with the
   simplified differential equation:
 
   .. math::
 
-    \frac{d^2\bf x'(t)}{dt^2} = -\frac{k}{m}x'(t) \tag{5}
+    \frac{d^2\bf y(t)}{dt^2} = -\frac{k}{m}y(t) \tag{5}
 
   In this case, it's a second order differential equation with complex roots.
   I'll spare you solving it from scratch and just point you to this excellent
@@ -284,7 +284,7 @@ we'll use throughout the rest of this section.
 
   .. math::
 
-    x'(t) = Acos(\frac{k}{m}t + \phi) \tag{6}
+    y(t) = Acos(\frac{k}{m}t + \phi) \tag{6}
 
   Given an initial position and its velocity, we can solve Equation 6 for the
   particular constants.
@@ -732,7 +732,13 @@ preserved.  More on this later.
 Discretizing Hamiltonian's Equations
 ------------------------------------
 
-Leapfrog
+.. figure:: /images/hmc_leapfrog.png
+  :width: 100%
+  :alt: Visualization of a Markov Chain Monte Carlo
+  :align: center
+
+  **Figure 4: Methods to approximate Hamiltonian dynamics. TODO TODO TODO**
+
 
 Hamiltonian Monte Carlo
 =======================
