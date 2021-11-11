@@ -732,12 +732,72 @@ preserved.  More on this later.
 Discretizing Hamiltonian's Equations
 ------------------------------------
 
+The simple examples we saw in the last subsections worked out nicely where
+we had a closed form solution to the equations of motion.  As you can imagine,
+in most cases we won't have such a nice closed form analytic solution.  In these
+cases, we turn to approximate methods to compute our desired result.
+
+One way to approach this is to iteratively simulate Hamilton's equation by
+discretizing time using some small :math:`\epsilon`.  Starting at time 0,
+we can iteratively compute the trajectory in phase space :math:`(p, q)`
+through time using Hamilton's equations.  We'll look at 2.5 methods to
+accomplish this.
+
+**Euler's Method**: `Euler's method <https://en.wikipedia.org/wiki/Euler_method>`__ 
+is a technique to solve first order differential equations.  Notice that 
+Hamilton's equations produce 2N first order differential equations (as opposed
+to the Lagrangian, which produces second order differential equations).
+It uses the simple observation that starting at a point of the curve,
+if we take a small step in the direction of the slope/gradient (i.e. first
+derivative), we'll likely be very close to the original curve.
+
+More precisely, for a given step size :math:`\epsilon`, we can approximate the
+curve :math:`y(t)` given an initial point :math:`y_0` and a first order
+differential equation using the formula:
+
+.. math::
+
+    y(t+\epsilon) = y(t) + \epsilon y'(t, y(t))  \tag{29}
+    
+where :math:`y(t_0)=y_0`.  This is simply taking small step sizes along the
+gradient of of our curve where the gradient is computed from our differential
+equation using the :math:`t` and the previous values of `y`.  We can
+iteratively generate points of arbitrarily small steps sizes to match the curve
+well.  
+
+Translating this to Hamilton's equations, we have:
+
+.. math::
+
+   p(t+\epsilon) = p(t) + \epsilon \frac{dp}{dt}(t) = p(t) - \epsilon \frac{\partial H}{\partial q}(q(t)) && \text{by Hamilton's Equation} \\
+   q(t+\epsilon) = q(t) + \epsilon \frac{dq}{dt}(t) = q(t) + \epsilon \frac{\partial H}{\partial p}(p(t)) && \text{by Hamilton's Equation} \\
+   \tag{30}
+
+Notice that the equations are dependent on each other, to calculate
+:math:`p(t+\epsilon)`, we need both of :math:`(p, q)` and vice versa.
+
+The main problem with Euler's method is that it quickly diverges from the 
+actual curve because of the accumulation of errors.  The error propagates
+because we assume we start from the somewhere on the curve whereas we're always
+some delta away from the curve after the first iteration.  Figure 4 shows
+how the method quickly spirals out of control towards infinity even with a
+small epsilon with our simple harmonic oscillator from Examples 1-3.
+
+
+**Modified Euler's Method**: 
+
+**Leapfrog Method**: 
+
+
 .. figure:: /images/hmc_leapfrog.png
   :width: 100%
   :alt: Visualization of a Markov Chain Monte Carlo
   :align: center
 
-  **Figure 4: Methods to approximate Hamiltonian dynamics. TODO TODO TODO**
+  **Figure 4: Methods to approximate Hamiltonian dynamics: Euler's method, modified Euler's method, and Leapfrog
+  using the harmonic oscillator from Examples 1-3.**
+
+
 
 
 Hamiltonian Monte Carlo
