@@ -747,9 +747,8 @@ accomplish this.
 is a technique to solve first order differential equations.  Notice that 
 Hamilton's equations produce 2N first order differential equations (as opposed
 to the Lagrangian, which produces second order differential equations).
-It uses the simple observation that starting at a point of the curve,
-if we take a small step in the direction of the slope/gradient (i.e. first
-derivative), we'll likely be very close to the original curve.
+It's essentially just applying a first order Taylor series approximation
+at each iteration about the current point.
 
 More precisely, for a given step size :math:`\epsilon`, we can approximate the
 curve :math:`y(t)` given an initial point :math:`y_0` and a first order
@@ -760,12 +759,10 @@ differential equation using the formula:
     y(t+\epsilon) = y(t) + \epsilon y'(t, y(t))  \tag{29}
     
 where :math:`y(t_0)=y_0`.  This is simply taking small step sizes along the
-gradient of of our curve where the gradient is computed from our differential
-equation using the :math:`t` and the previous values of `y`.  We can
-iteratively generate points of arbitrarily small steps sizes to match the curve
-well.  
+gradient of our curve where the gradient is computed from our differential
+equation using the :math:`t` and the previous values of `y`.
 
-Translating this to Hamilton's equations, we have:
+Translating this to phase space and using Hamilton's equations, we have:
 
 .. math::
 
@@ -783,12 +780,6 @@ some delta away from the curve after the first iteration.  Figure 4 shows
 how the method quickly spirals out of control towards infinity even with a
 small epsilon with our simple harmonic oscillator from Examples 1-3.
 
-
-**Modified Euler's Method**: 
-
-**Leapfrog Method**: 
-
-
 .. figure:: /images/hmc_leapfrog.png
   :width: 100%
   :alt: Visualization of a Markov Chain Monte Carlo
@@ -796,6 +787,75 @@ small epsilon with our simple harmonic oscillator from Examples 1-3.
 
   **Figure 4: Methods to approximate Hamiltonian dynamics: Euler's method, modified Euler's method, and Leapfrog
   using the harmonic oscillator from Examples 1-3.**
+
+**Modified Euler's Method**: A simple modification to Euler's method is to
+update :math:`p` and :math:`q` separately.  First update :math:`p`,
+then use that result to update :math:`q` and repeat (the other way around also
+works).  More precisely, we get this approximation in phase space:
+
+.. math::
+
+   p(t+\epsilon) = p(t) + \epsilon \frac{dp}{dt}(t) = p(t) - \epsilon \frac{\partial H}{\partial q}(q(t)) \tag{31}\\
+   q(t+\epsilon) = q(t) + \epsilon \frac{dq}{dt}(t) = q(t) + \epsilon \frac{\partial H}{\partial p}(p(t+\epsilon)) \tag{32}
+
+The results can be seen in Figure 4: it more closely tracks the underlying
+curve without tendencies to diverge.  This is because the pair of equations
+preserves volume just like the result from Liouville's theorem above.  Let's
+show how that is the case in two dimensions but this result holds for multiple
+dimensions. (In fact, the argument in the following sketch 
+can be used to prove Liouville's theorem albeit with more complexity.)
+
+First note that Equation 31 can be viewed as a transformation mapping
+:math:`(p(t), q(t))` to :math:`(p(t+\epsilon), q(t))` (same for Equation 32).
+Denote this mapping as :math:`\bf f` and let's see how the differentials of the
+above change (I'll change all the parameters to superscripts to make the
+notation a bit nicer).  First, we can see the transformation for Equation 31 as:
+
+.. math::
+
+    \begin{bmatrix}
+    p^{t+\epsilon} \\
+    q^t \\
+    \end{bmatrix} = {\bf f}\big(
+    \begin{bmatrix}
+    p^t \\
+    q^t \\
+    \end{bmatrix}\big) \tag{32}
+
+Next, let's calculate the Jacobian of :math:`\bf f`:
+
+.. math::
+
+    {\bf J_f} &= \begin{bmatrix}
+    \frac{\partial \bf f}{\partial p^t} & \frac{\partial \bf f}{\partial q^t}
+    \end{bmatrix} \\
+    &= \begin{bmatrix}
+    \frac{\partial [p^t - \epsilon \frac{\partial H}{\partial q^t}(q^t)]}{\partial p^t} &
+    \frac{\partial [p^t - \epsilon \frac{\partial H}{\partial q^t}(q^t)]}{\partial q^t} \\
+    \frac{\partial q^t}{\partial p^t} &
+    \frac{\partial q^t}{\partial q^t}
+    \end{bmatrix} \\
+    &= \begin{bmatrix}
+    1 &
+    -\frac{\partial [\epsilon \frac{\partial H}{\partial q^t}(q^t)]}{\partial q^t} \\
+    0 & 1
+    \end{bmatrix} \\ \tag{33}
+
+We can clearly see the determinant of the Jacobian is 1.
+Next we can see how the infinitesimal volume (or area in this case) changes 
+using the `substitution rule <https://en.wikipedia.org/wiki/Integration_by_substitution#Substitution_for_multiple_variables>`__
+(this is usually not shown since the determinant of the Jacobian already implies this):
+
+.. math::
+
+    dp^{t+\epsilon} dq^t = det({\bf J_f}) dp^t dq^t = dp^t dq^t \tag{34}
+
+So we see that the volume is preserved when we take a single step (Equation 31).
+We can use the same logic when applying Equation 32 and every alternative
+application of those equations using Euler's modified method.
+
+**Leapfrog Method**: 
+
 
 
 
