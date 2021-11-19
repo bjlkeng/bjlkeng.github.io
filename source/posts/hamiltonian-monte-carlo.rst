@@ -782,7 +782,7 @@ small epsilon with our simple harmonic oscillator from Examples 1-3.
 
 .. figure:: /images/hmc_leapfrog.png
   :width: 100%
-  :alt: Visualization of a Markov Chain Monte Carlo
+  :alt: Leapfrog method to approximate Hamiltonian dynamics
   :align: center
 
   **Figure 4: Methods to approximate Hamiltonian dynamics: Euler's method, modified Euler's method, and Leapfrog
@@ -799,7 +799,9 @@ works).  More precisely, we get this approximation in phase space:
    q(t+\epsilon) = q(t) + \epsilon \frac{dq}{dt}(t) = q(t) + \epsilon \frac{\partial H}{\partial p}(p(t+\epsilon)) \tag{32}
 
 The results can be seen in Figure 4: it more closely tracks the underlying
-curve without tendencies to diverge.  This is because the pair of equations
+curve without tendencies to diverge. 
+
+This is because the pair of equations
 preserves volume just like the result from Liouville's theorem above.  Let's
 show how that is the case in two dimensions but this result holds for multiple
 dimensions. (In fact, the argument in the following sketch 
@@ -842,22 +844,62 @@ Next, let's calculate the Jacobian of :math:`\bf f`:
     \end{bmatrix} \\ \tag{33}
 
 We can clearly see the determinant of the Jacobian is 1.
-Next we can see how the infinitesimal volume (or area in this case) changes 
+Next let's see how the infinitesimal volume (or area in this case) changes 
 using the `substitution rule <https://en.wikipedia.org/wiki/Integration_by_substitution#Substitution_for_multiple_variables>`__
 (this is usually not shown since the determinant of the Jacobian already implies this):
 
 .. math::
 
-    dp^{t+\epsilon} dq^t = det({\bf J_f}) dp^t dq^t = dp^t dq^t \tag{34}
+    dp^{t+\epsilon} dq^t = |det({\bf J_f})| dp^t dq^t = dp^t dq^t \tag{34}
 
 So we see that the volume is preserved when we take a single step (Equation 31).
-We can use the same logic when applying Equation 32 and every alternative
-application of those equations using Euler's modified method.
+We can use the same logic when applying Equation 32 and every subsequent
+application of those equations using modified Euler's method.
 
-**Leapfrog Method**: 
+Figure 5 shows this visually by drawing a small region near the starting points
+and then running Euler's method and modified Euler's method.  For the vanilla
+Euler's method, you can see the region growing larger with each iteration. This
+has the tendency to cause points to spiral out to infinity (since the area of this region
+grows, so do the points that define it).  Modified Euler's doesn't have this problem.
 
+.. figure:: /images/hmc_vol_preserve.png
+  :width: 100%
+  :alt: Visualization of volume presenvation of modified Euler's method
+  :align: center
 
+  **Figure 5: Contrasting volume preservation nature of the modified Euler's method vs. Euler's method.**
 
+It's not clear to me that volume preservation in general guarantees that it
+won't spiral to infinite, nor that non-volume preservation necessarily
+guarantees it will spiral to infinite but it does sure seem to help empirically.
+The guarantees (if any) are likely related to the `symplectic nature <https://en.wikipedia.org/wiki/Symplectic_integrator>`__
+but I didn't really look into it much further than that.
+
+**Leapfrog Method**: The final method uses the same idea but with an extra *leapfrog* step:
+
+.. math::
+
+   p(t+\epsilon/2) = p(t) - \epsilon/2 \frac{\partial H}{\partial q}(q(t)) \tag{35}\\
+   q(t+\epsilon) = q(t) + \epsilon \frac{\partial H}{\partial p}(p(t+\epsilon/2)) \tag{36} \\
+   p(t+\epsilon) = p(t+\epsilon/2) - \epsilon/2 \frac{\partial H}{\partial q}(q(t+\epsilon)) \tag{37}
+
+where we iteratively apply these equations sequentially similar to modified Euler's method.
+The idea is that instead of taking a "full step" for :math:`p`, we take a "half step". 
+This half step is used to update :math:`q`, which is then used to update
+:math:`p` using another "half step".  The last subplot in Figure 4 shows Leapfrog, which
+empirically performs much better than the other methods.
+
+Using the same logic as above, each transform individually is volume
+preserving, ensuring similar "nice" behaviour as modified Euler's method.
+Notice we're doing slightly more "work" in that we're evaluating Hamilton's
+equations an additional time but the trade-off is good in this case.
+
+Another nice property of both modified Euler's and Leapfrog is that it is also
+reversible.  Simply negate :math:`p`, and run the algorithm, then negate
+:math:`p` to get back where you started.  Since we're only updating either
+:math:`p` or :math:`q`, it allows us to essentially run the algorithm in
+reverse.  As we might expect in MCMC (see background section), this
+reversibility condition is important to guarantee a stationary distribution.
 
 
 Hamiltonian Monte Carlo
