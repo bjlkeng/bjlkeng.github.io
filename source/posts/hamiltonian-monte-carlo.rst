@@ -905,6 +905,91 @@ reversibility condition is important to guarantee a stationary distribution.
 Hamiltonian Monte Carlo
 =======================
 
+Finally we get to the good stuff: Hamiltonian Monte Carlo (HMC)!  
+The main idea behind HMC is that we're going to use Hamiltonian dynamics to
+simulate moving around our target distribution's density.  The analogy
+used in [1] is imagine a puck moving along a frictionless 2D surface [2]_.  It
+slides up and down hills, losing or gaining velocity (i.e. kinetic energy)
+based on the gradient of the hill (i.e. potential energy).  Sound familiar?
+This analogy with a physical system is precisely the reason why Hamiltonian
+dynamics is such a good fit.
+
+The mapping from the physical situation to our MCMC procedure will be such
+that the variables in our target distribution will correspond to the position
+(:math:`q`), the potential energy will be the negative log probability density
+of our target distribution, and the momentum variables (:math:`p`) will be
+artificially introduced to allow us to sample properly.  So without further
+adieu, let's get into the details!
+
+From Thermodynamics to HMC
+--------------------------
+
+The base physical system we're going to base this on is from thermodynamics
+(which is only slightly more complex than the mechanical systems we're been
+looking at).  A commonly studied situation in thermodynamics is the one of
+a closed system of fixed volume (e.g. gas molecules in a box) that is in 
+thermal equilibrium with a heat bath, also known as the
+`canonical ensemble <https://en.wikipedia.org/wiki/Canonical_ensemble>`__.
+The basic idea is the heat bath is much, much larger than our closed system so
+it can keep it at a constant temperature.  Note that even though closed system
+is at a constant temperature, the particles in the box have different energies,
+thus each one can have a different position and momentum (see how the
+Hamiltonian becomes useful?).
+
+One of the fundamental concepts is the idea of a 
+`microstate <https://en.wikipedia.org/wiki/Microstate_(statistical_mechanics)>`__, 
+which defines (for classical systems) a single point in phase space.  That is,
+the position (:math:`q`) and momentum variables (:math:`p`) for all particles
+defines the microstate of the entire system.
+We're typically are not interested in the movement of any one particle
+(although will be for MCMC), instead we will usually want to measure the
+probability of the entire system being in a microstate at a certain energy
+level. One point to note is that although our system is in a heat bath
+at thermal equilibrium, energy is still being transferred back and forth
+between the heat bath and the system.  Thus, it's possible for the total energy
+of the system to vary (if it didn't you would use another model call the
+`microcanonical ensemble <https://en.wikipedia.org/wiki/Microcanonical_ensemble>`__), 
+although it's unlikely to change significantly from the average energy defined
+by the heat bath temperature.
+
+* Introduce Boltzman equation as solution
+* Explain you can divide particles into smaller parts, and then canonical ensemble
+
+
+HMC Algorithm
+-------------
+
+* Use Metropolis-Hastings except instead of a random walk (e.g. Normal), utilize Hamiltonian dynamics to
+  generate a proposal
+* Formulate a hypothetical system where the potential energy :math:`U(x(t)) \propto f(x)` where our
+  generalized position variables :math:`q` are exactly the variables of our target distribution
+* Introduce random variables for the momentum that we randomly sample on each proposal we make to
+  "move" around the target distribution to find a new proposal
+* To construct a system like this, we need a probability distribution that we can relate to the total energy
+* :math:`P(x) = \frac{1}{Z}e^{\frac{-E(x)}{kT}}` `Boltzmann distribution <https://en.wikipedia.org/wiki/Boltzmann_distribution>` 
+  (also known as Gibbs distribution) is this distribution.  It's used often in
+  what's called the `canonical ensemble
+  <https://en.wikipedia.org/wiki/Canonical_ensemble>`__ from thermodynamics,
+  which is used to model a mechanical system (e.g. think a closed
+  system of particles) in thermal equilibrium with a heat bath at a fixed
+  temperature.
+* Since the Hamiltonian is the total energy in our case (it's not always the case), we can plug it into the equation.
+  :math:`P(q, p) = \frac{1}{Z}e^{-H(q, p)}` for :math:`kT=1`.
+* Notice that :math:`P(q,p)=\frac{1}{Z}e^{-U(q)}e^{-K(p)}`, and see that :math:`q` and :math:`p` are independent
+* For a given :math:`(q, p)`, :math:`H(q,p)` is time invariant (:math:`\frac{dH}{dt}=1`), so we're essentially
+  simulating Hamiltonian dynamics at energy state :math:`H(q,p)`
+* The idea is that :math:`q` will be our variables of interest in our target dist, and :math:`p` will be
+  random variables, which allow us to explore different energy states.
+* It's like we're moving a puck (our particle) along the surface defined by our target distribution.
+  Give more in depth explanation of this puck analogy... maybe above?
+* We'll naturally spend more time when :math:`f(q)` is large (and :math:`U(q)`
+  is small) because the Hamiltonian dynamics will "move" our particle to places with
+  low potential
+* We can set :math:`U(q) = -log[\pi(q)p(D|q)]` with prior and likelihood respectively
+* The canonical distribution is always invariant.
+* :math:`P(x)` is our target distribution, but what should :math:`E(x)` be?
+  Work backwards: Set :math:`kT=1` to simplify things,  and solve for it.  Get: `E(x) = -\logP(x) - \logZ`
+
 
 
 
@@ -928,3 +1013,4 @@ Further Reading
 * [3] `HyperPhysics <http://hyperphysics.phy-astr.gsu.edu/hbase/shm2.html>`__
 
 .. [1] The usual symbols they use for the Lagrangian are :math:`L = T - U` representing the kinetic and potential energy respectively.  However, :math:`T` makes no sense to me, so since we're not really talking about physics here, I'll just use :math:`K` to make it clear for the rest of us.
+.. [2] This physical analogy is not exactly accurate because gravity, which affects the velocity of the puck, doesn't quite match our target density.  Instead, a better analogy would be a particle moving around in a vector field (e.g. an electron moving around in an electric field defined by our target density).  Although more accurate, it's less intuitive than a puck sliding along a surface so I get why the other analogy is better.
