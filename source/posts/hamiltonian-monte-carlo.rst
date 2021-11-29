@@ -927,33 +927,51 @@ From Thermodynamics to HMC
 The base physical system we're going to base this on is from thermodynamics
 (which is only slightly more complex than the mechanical systems we're been
 looking at).  A commonly studied situation in thermodynamics is the one of
-a closed system of fixed volume (e.g. gas molecules in a box) that is in 
-thermal equilibrium with a heat bath, also known as the
-`canonical ensemble <https://en.wikipedia.org/wiki/Canonical_ensemble>`__.
-The basic idea is the heat bath is much, much larger than our closed system so
-it can keep it at a constant temperature.  Note that even though closed system
-is at a constant temperature, the particles in the box have different energies,
-thus each one can have a different position and momentum (see how the
-Hamiltonian becomes useful?).
+a closed system of fixed volume and number of particles (e.g. gas molecules in
+a box) that is "submerged" in a heat bath at thermal equilibrium.
+The basic idea is the heat bath is much, much larger than our internal system so
+it can keep it the system at a constant temperature.  
+Note that even though internal system is at a constant temperature, its energy
+will fluctuate because of the mechanical contact with the heat bath, so energy
+is not conserved (i.e., constant). The overall system including the heat bath
+*and* internal system is conserved though.  The statistical ensemble of this type of
+system , also known as the `canonical ensemble <https://en.wikipedia.org/wiki/Canonical_ensemble>`__.
 
-One of the fundamental concepts is the idea of a 
+One of the fundamental concepts in this study is the idea of a 
 `microstate <https://en.wikipedia.org/wiki/Microstate_(statistical_mechanics)>`__, 
 which defines (for classical systems) a single point in phase space.  That is,
 the position (:math:`q`) and momentum variables (:math:`p`) for all particles
 defines the microstate of the entire system.
-We're typically are not interested in the movement of any one particle
-(although will be for MCMC), instead we will usually want to measure the
-probability of the entire system being in a microstate at a certain energy
-level. One point to note is that although our system is in a heat bath
-at thermal equilibrium, energy is still being transferred back and forth
-between the heat bath and the system.  Thus, it's possible for the total energy
-of the system to vary (if it didn't you would use another model call the
-`microcanonical ensemble <https://en.wikipedia.org/wiki/Microcanonical_ensemble>`__), 
-although it's unlikely to change significantly from the average energy defined
-by the heat bath temperature.
+We're typically are that interested in the actual movement of particles
+(although will be for MCMC), instead we will usually want to measure other
+macro thermodynamic quantities such as average energy or pressure of the internal system.
 
-* Introduce Boltzman equation as solution
-* Explain you can divide particles into smaller parts, and then canonical ensemble
+An important quantity we need to compute is the probability of the entire
+system being in a microstate i.e., a given configuration of :math:`p`'s and
+:math:`q`'s.  Without going into the entire derivation, which would take us on
+a larger tangent into thermodynamics, I'll just give the result, which is known
+as the Boltzman distribution:
+
+.. math::
+
+   p_i    &= \frac{1}{Z} e^{\frac{E_i}{kT}} && \text{general form}\\
+   P(p,q) &= \frac{1}{Z} e^{\frac{H(p, q)}{kT}} && \text{Hamiltonian form} \\
+          \tag{38}
+
+where :math:`p_i`  is the probability of being in state :math:`i`, :math:`P(p,q)`
+is the same probability but explicitly labeling the state with its phase state coordinates
+:math:`(p,q)`, :math:`E_i` is the energy state of state :math:`i`, :math:`k` is the
+Boltzmann constant, and :math:`T` is the temperature.  It turns out that it
+doesn't matter how many particles you have in your internal system, it could be
+a googleplex or a single particle.  As long as you have the heat bath and some assumptions
+about the transfer of heat between the two systems, the result holds.
+
+In the single particle case, the particle is going to be moving around in your
+closed system but randomly interacting with the heat bath, which basically
+translates to changing its velocity (or momentum).  This is an important idea
+that we're going to use momentarily.
+
+* Now setup the problem with U(x) and ...
 
 
 HMC Algorithm
