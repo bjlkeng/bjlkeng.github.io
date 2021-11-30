@@ -961,17 +961,72 @@ as the Boltzman distribution:
 where :math:`p_i`  is the probability of being in state :math:`i`, :math:`P(p,q)`
 is the same probability but explicitly labeling the state with its phase state coordinates
 :math:`(p,q)`, :math:`E_i` is the energy state of state :math:`i`, :math:`k` is the
-Boltzmann constant, and :math:`T` is the temperature.  It turns out that it
-doesn't matter how many particles you have in your internal system, it could be
-a googleplex or a single particle.  As long as you have the heat bath and some assumptions
-about the transfer of heat between the two systems, the result holds.
+Boltzmann constant, and :math:`T` is the temperature.  As we know from the previous
+section, the total energy of a system is (in this case) equal to the Hamiltonian so
+we can easily re-write :math:`E_i` as :math:`H(p,q)` to get the second form.  
 
-In the single particle case, the particle is going to be moving around in your
-closed system but randomly interacting with the heat bath, which basically
-translates to changing its velocity (or momentum).  This is an important idea
-that we're going to use momentarily.
+It turns out that it doesn't matter how many particles you have in your
+internal system, it could be a googleplex or a single particle.  As long as you
+have the heat bath and some assumptions about the transfer of heat between the
+two systems, the result holds.  In the single particle case, the particle is
+going to be moving around in your closed system but randomly interacting with
+the heat bath, which basically translates to changing its velocity (or
+momentum).  This is an important idea that we're going to use momentarily.
 
-* Now setup the problem with U(x) and ...
+
+.. admonition:: Example 4: Example of canonical ensemble for a classical system with a particle in a potential well.
+
+    .. figure:: /images/hmc_canonical_ensemble.png
+      :width: 50%
+      :alt: Example of canonical ensemble for a classical system with a particle in a potential well.
+      :align: center
+    
+      **Figure 6: Example of canonical ensemble for a classical system with a
+      particle in a potential well. (source: Wikipedia)**
+   
+    Figure 6 shows a simple 1 dimensional classical (i.e., non-quantum) system
+    where a particle is trapped inside a potential well.  The system is
+    submerged in a heat bath (not-shown) to keep it in thermal equilibrium with
+    the heat bath.  The top diagram shows the momentum vs. position in other words
+    it plots the phase space coordinates :math:`(p, x)`.  The bottom left plot shows
+    the energy of the system vs. position with the red line indicating the potential
+    energy at each :math:`x` value.  The bottom right plot shows the distribution
+    of states across energy levels.
+    
+    A few things to point out:
+     
+    * The particle moves along a single axis denoted by the position :math:`x`.
+      So it essentially just moves left and right.
+    * The velocity (or momentum) changes in two ways: (a) As it moves left and
+      right, it gains or loses potential energy. This translates into kinetic
+      energy affecting the velocity (and momentum).  As it approaches an
+      potential "uphill" its movement along the 1D axis slows in that
+      direction, similarly when on a potential "downhill" its movement speeds
+      up along the 1D axis in that direction.
+      (b) The heat bath will be constantly exchanging energy with the system,
+      which translates to changing the momentum of the particle.  This happens
+      randomly as a function of the equilibrium temperature.
+    * The top phase space plot clearly shows the particle spending most of its
+      paths (blue) in the dips in the potential function with varying momentum values.
+      This is as expected because the particle will get "pulled" into the dips
+      while the momentum could vary by the interaction with the heat bath.
+    * The bottom left plot shows something similar where the particle is more concentrated
+      in the dips of the potential function.  Additionally, most of the time
+      the system energy is close to the green dotted line, which represents the average
+      energy of the particle system.
+    * The bottom right plot shows the distribution of states by energy.  Note that the
+      energy states are not a simple exponential distribution as you may think
+      from Equation 38.  The distribution in Equation 38 is a function of the
+      microstates :math:`(p,q)`, *not* the system energy.  
+      This is hidden in the normalization constant :math:`Z`, which sums over all
+      microstates to normalize the probabilities to 1.  As a result, the distribution
+      over energy states can be quite complex as shown.
+   
+As we can see from Equation 38 and Example 4, we have related the Hamiltonian
+to a probability distribution.  We now (finally!) have everything we need to
+setup the HMC method.
+
+
 
 
 HMC Algorithm
