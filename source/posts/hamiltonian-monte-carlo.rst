@@ -528,14 +528,14 @@ In any case, all we need to know is Equation 17.  Substituting it into our
 .. math::
 
     H({\bf q, p}) &= \big(\sum_{i=1}^N \frac{\partial L}{\partial q'_i} q'_i \big) - L  && \text{definition of } E \\
-            &= \big(\sum_{i=1}^N p_i q'_i(q, p_i) \big) - L({\bf q, q'(q,p)})  && p_i := \frac{\partial L}{\partial q'_i}\\
+            &= \big(\sum_{i=1}^N p_i q'_i(q, p_i) \big) - L({\bf q, q'(q, p)})  && p_i := \frac{\partial L}{\partial q'_i}\\
     \tag{19}
 
 where I've used bold to indicate vector quantities.  Notice that we didn't
 explicitly eliminate :math:`q'_i`, we just wrote it as a function of :math:`q`
 and :math:`p`.  
 
-The :math:`2n` dimensional coordinates :math:`({\bf p, q})` are called the
+The :math:`2n` dimensional coordinates :math:`({\bf q, p})` are called the
 *phase space coordinates* (also known as canonical coordinates).  Intuitively,
 we can just think of this as the position (:math:`x`) and linear momentum
 (:math:`mv = mx'`), which is what you would expect if you were asked for the
@@ -549,9 +549,9 @@ when we analyze how it changes with respect to its inputs :math:`q` and :math:`p
 
 .. math::
 
-   \frac{\partial H}{\partial p} &= \frac{\partial (p q'(q, p))}{\partial p}  - \frac{\partial L(q, q'(q,p))}{\partial p} \\
+   \frac{\partial H}{\partial p} &= \frac{\partial (p q'(q, p))}{\partial p}  - \frac{\partial L(q, q'(q, p))}{\partial p} \\
                                  &= [q'(q, p) + p\frac{\partial (q'(q, p))}{\partial p}] 
-                                    - \frac{\partial L(q, q'(q,p))}{\partial q'} \frac{\partial q'(q,p)}{\partial p} \\
+                                    - \frac{\partial L(q, q'(q, p))}{\partial q'} \frac{\partial q'(q, p)}{\partial p} \\
                                  &= [q'(q, p) + p\frac{\partial q'(q, p)}{\partial p}] 
                                     - p \frac{\partial q'(q, p)}{\partial p} && p := \frac{\partial L}{\partial q'} \\
                                  &= q'(q, p) = q'
@@ -563,7 +563,7 @@ when we take it with respect to the position :math:`q`:
 
 .. math::
 
-   \frac{\partial H}{\partial q} &= \frac{\partial (p q'(q, p))}{\partial q}  - \frac{\partial L(q, q'(q,p))}{\partial q} \\
+   \frac{\partial H}{\partial q} &= \frac{\partial (p q'(q, p))}{\partial q}  - \frac{\partial L(q, q'(q, p))}{\partial q} \\
                                  &= p\frac{\partial q'(q, p)}{\partial q}  - 
                                     [\frac{\partial L(q, q')}{\partial q}  
                                      + \frac{\partial L(q, q')}{\partial q'} \frac{\partial q'(q, p)}{\partial q} ]
@@ -573,7 +573,7 @@ when we take it with respect to the position :math:`q`:
                                      + \frac{\partial L(q, q')}{\partial q'} \frac{\partial q'(q, p)}{\partial q} ]
                                     && \text{Euler-Lagrange equation} \frac{d}{dt}\big(\frac{\partial L}{\partial q'}\big) = \frac{\partial L}{\partial q} \\
                                  &= p\frac{\partial q'(q, p)}{\partial q}  
-                                    - [\frac{dp}{dt} + p \frac{\partial q'(q,p)}{\partial q}]
+                                    - [\frac{dp}{dt} + p \frac{\partial q'(q, p)}{\partial q}]
                                     && p := \frac{\partial L}{\partial q'} \\
                                  &= -p'
                                 \tag{21}
@@ -592,15 +592,15 @@ two methods.  The next example shows this in more detail.
     :math:`q'(q, p)` is a function of :math:`q` on the LHS, while on the RHS it's constant with respect to :math:`q`.
     To see that, let's re-write the LHS using some dummy functions.
 
-    Define :math:`f(q) = q` and :math:`g(q, p) = q'(q,p)`, and then substitute into the LHS and apply the 
+    Define :math:`f(q) = q` and :math:`g(q, p) = q'(q, p)`, and then substitute into the LHS and apply the 
     `chain rule for partial differentiation <https://tutorial.math.lamar.edu/classes/calciii/chainrule.aspx>`__:
 
     .. math::
 
         \frac{\partial L(f(q), g(q, p))}{\partial q} &= 
-            \frac{\partial L(f(q), g)}{\partial f}\Big|_{g=q'(q,p)}\frac{df(q)}{dq}
+            \frac{\partial L(f(q), g)}{\partial f}\Big|_{g=q'(q, p)}\frac{df(q)}{dq}
             + \frac{\partial L(f(q), g(q, p))}{\partial g}\frac{\partial g(q, p)}{\partial q} \\
-            &= \frac{\partial L(q, g)}{\partial q}\Big|_{g=q'(q,p)}(1)
+            &= \frac{\partial L(q, g)}{\partial q}\Big|_{g=q'(q, p)}(1)
             + \frac{\partial L(q, g)}{\partial g}\frac{\partial g(q, p)}{\partial q} \\
             &= \frac{\partial L(q, q')}{\partial q}
             + \frac{\partial L(q, q')}{\partial q'}\frac{\partial q'(q, p)}{\partial q} \\
@@ -739,7 +739,7 @@ cases, we turn to approximate methods to compute our desired result.
 
 One way to approach this is to iteratively simulate Hamilton's equation by
 discretizing time using some small :math:`\epsilon`.  Starting at time 0,
-we can iteratively compute the trajectory in phase space :math:`(p, q)`
+we can iteratively compute the trajectory in phase space :math:`(q, p)`
 through time using Hamilton's equations.  We'll look at 2.5 methods to
 accomplish this.
 
@@ -771,7 +771,7 @@ Translating this to phase space and using Hamilton's equations, we have:
    \tag{30}
 
 Notice that the equations are dependent on each other, to calculate
-:math:`p(t+\epsilon)`, we need both of :math:`(p, q)` and vice versa.
+:math:`p(t+\epsilon)`, we need both of :math:`(q, p)` and vice versa.
 
 The main problem with Euler's method is that it quickly diverges from the 
 actual curve because of the accumulation of errors.  The error propagates
@@ -955,15 +955,15 @@ as the Boltzman distribution:
 .. math::
 
    p_i    &= \frac{1}{Z} e^{\frac{E_i}{kT}} && \text{general form}\\
-   P(p,q) &= \frac{1}{Z} e^{\frac{H(p, q)}{kT}} && \text{Hamiltonian form} \\
+   P(q, p) &= \frac{1}{Z} e^{\frac{H(q, p)}{kT}} && \text{Hamiltonian form} \\
           \tag{38}
 
-where :math:`p_i`  is the probability of being in state :math:`i`, :math:`P(p,q)`
+where :math:`p_i`  is the probability of being in state :math:`i`, :math:`P(q, p)`
 is the same probability but explicitly labeling the state with its phase state coordinates
-:math:`(p,q)`, :math:`E_i` is the energy state of state :math:`i`, :math:`k` is the
+:math:`(q, p)`, :math:`E_i` is the energy state of state :math:`i`, :math:`k` is the
 Boltzmann constant, and :math:`T` is the temperature.  As we know from the previous
 section, the total energy of a system is (in this case) equal to the Hamiltonian so
-we can easily re-write :math:`E_i` as :math:`H(p,q)` to get the second form.  
+we can easily re-write :math:`E_i` as :math:`H(q, p)` to get the second form.  
 
 It turns out that it doesn't matter how many particles you have in your
 internal system, it could be a googleplex or a single particle.  As long as you
@@ -986,8 +986,8 @@ momentum).  This is an important idea that we're going to use momentarily.
    
     Figure 6 shows a simple 1 dimensional classical (i.e., non-quantum) system
     where a particle is trapped inside a potential well.  The system is
-    submerged in a heat bath (not-shown) to keep it in thermal equilibrium with
-    the heat bath.  The top diagram shows the momentum vs. position in other words
+    submerged in a heat bath (not-shown) to keep it in thermal equilibrium.
+    The top diagram shows the momentum vs. position, in other words
     it plots the phase space coordinates :math:`(p, x)`.  The bottom left plot shows
     the energy of the system vs. position with the red line indicating the potential
     energy at each :math:`x` value.  The bottom right plot shows the distribution
@@ -1017,7 +1017,7 @@ momentum).  This is an important idea that we're going to use momentarily.
     * The bottom right plot shows the distribution of states by energy.  Note that the
       energy states are not a simple exponential distribution as you may think
       from Equation 38.  The distribution in Equation 38 is a function of the
-      microstates :math:`(p,q)`, *not* the system energy.  
+      microstates :math:`(q, p)`, *not* the system energy.  
       This is hidden in the normalization constant :math:`Z`, which sums over all
       microstates to normalize the probabilities to 1.  As a result, the distribution
       over energy states can be quite complex as shown.
@@ -1026,39 +1026,86 @@ As we can see from Equation 38 and Example 4, we have related the Hamiltonian
 to a probability distribution.  We now (finally!) have everything we need to
 setup the HMC method.
 
+This whole digression into thermodynamics is not for naught!  We are in fact
+going to use the canonical ensemble to model in order to sample our target
+distribution.  Here's the setup for target density :math:`f({\bf x})` with
+:math:`D` variable in its support:
+
+* **Position variables** (:math:`q`): The :math:`D` variables of our target
+  distribution (the one we want to sample from) will correspond to our position
+  variables :math:`\bf q`.  Instead of our canonical distribution existing in
+  (usually) 3 dimensions, we'll be using :math:`D` position dimensions.
+* **Momentum variables** (:math:`p`): :math:`D` corresponding momentum
+  variables will be introduced artificially in order for the Hamiltonian
+  dynamics to operate.  They will allow us to simulate the particle moving
+  around as well as it randomly changing position when it interacts with the
+  heat bath.
+* **Potential energy** (:math:`U(q)`): The potential energy will be the
+  negative logarithm of our target density:
+
+  .. math::
+
+        U({\bf q}) = -log[f({\bf q})] \tag{39}
+* **Kinetic energy** (:math:`K(p)`): There can be many choices in how to define
+  the kinetic energy, but the current practice is to assume that it is independent
+  of :math:`q`, and its quadratic in each of the dimensions.  This naturally
+  translates to a zero-mean multivariate Gaussian (see below), which is usually
+  specified to be independent with variance :math:`m_i`.  This produces the
+  kinetic energy:
+
+  .. math::
+
+        K({\bf p}) = \sum_{i=1}^D \frac{p_i^2}{2m_i} \tag{40}
+* **Hamiltonian** (:math:`H({\bf q, p})`): Equation 39 and 40 imply that this Hamiltonian:
+
+  .. math::
+
+        H({\bf q, p}) = -log[f({\bf q})] + \sum_{i=1}^D \frac{p_i^2}{2m_i} \tag{41}
+* **Canonical distribution** (:math:`P({\bf q, p})`): The canonical ensemble
+  yields the Boltzmann equation from Equation 38 where we will set :math:`kT=1`
+  and plug in our Hamiltonian from Equation 40:
+
+  .. math::
+
+        P({\bf q, p}) &= \frac{1}{Z}\exp(\frac{H({\bf q, p})}{kT}) && \text{set } kT=1\\
+                      &= \frac{1}{Z}\exp(-log[f({\bf q})] + \sum_{i=1}^D \frac{p_i^2}{2m_i}) \\
+                      &= \frac{1}{Z_1}\exp(-log[f({\bf q})])\cdot\frac{1}{Z_2}\exp(\sum_{i=1}^D \frac{p_i^2}{2m_i}) \\
+                      &= P(q)P(p)
+        \tag{42}
+
+where :math:`Z_1, Z_2` are normalizing constants, and :math:`P(q), P(p)` are
+independent distributions involving only those variables.  Taking a closer
+look at those two distributions, we have:
+
+.. math::
 
 
+    P({\bf q}) = \frac{1}{Z_1}\exp(-log[f({\bf q})]) = \frac{1}{Z_1} f({\bf q}) \propto f({\bf q}) \\
+    P({\bf p}) = \cdot\frac{1}{Z_2}\exp(\sum_{i=1}^D \frac{p_i^2}{2m_i}) \\
+    \tag{43}
+
+So our canonical distribution is made up of two independent parts: our target distribution
+and a zero mean Gaussian!  So how does this help us?  Recall that the canonical distribution
+models the distribution of microstates (:math:`\bf q,p`), so if we can *exactly* simulate the
+dynamics of the system (via the Hamilton's equations + random interactions with
+the heat bath), we would essentially be simulating exactly :math:`P({\bf q,p})`, which
+leads us directly to simulating :math:`P({\bf q})`!
+
+.. admonition Why do we need to model the random interactions with the heat bath?
+
+   TODO TODO TODO Hamiltonian hyper-surface of constant probability density
+
+In this hypothetical scenario, we would just need to simulate this system, record
+our :math:`q` values, and out would pop samples of our target distribution.
+Unfortunately, this is not possible.  The main reason is that we cannot *exactly*
+simulate this system because, in general, Hamilton's equations do not yield a
+closed form solution.  So we'll have to discretize Hamiltoninan dynamics and add 
+in an Metrpolis-Hastings update step to make sure we're faithfully simulating our
+target distribution.  The next subsection describes the HMC algorithm in more detail.
 
 HMC Algorithm
 -------------
 
-* Use Metropolis-Hastings except instead of a random walk (e.g. Normal), utilize Hamiltonian dynamics to
-  generate a proposal
-* Formulate a hypothetical system where the potential energy :math:`U(x(t)) \propto f(x)` where our
-  generalized position variables :math:`q` are exactly the variables of our target distribution
-* Introduce random variables for the momentum that we randomly sample on each proposal we make to
-  "move" around the target distribution to find a new proposal
-* To construct a system like this, we need a probability distribution that we can relate to the total energy
-* :math:`P(x) = \frac{1}{Z}e^{\frac{-E(x)}{kT}}` `Boltzmann distribution <https://en.wikipedia.org/wiki/Boltzmann_distribution>` 
-  (also known as Gibbs distribution) is this distribution.  It's used often in
-  what's called the `canonical ensemble
-  <https://en.wikipedia.org/wiki/Canonical_ensemble>`__ from thermodynamics,
-  which is used to model a mechanical system (e.g. think a closed
-  system of particles) in thermal equilibrium with a heat bath at a fixed
-  temperature.
-* Since the Hamiltonian is the total energy in our case (it's not always the case), we can plug it into the equation.
-  :math:`P(q, p) = \frac{1}{Z}e^{-H(q, p)}` for :math:`kT=1`.
-* Notice that :math:`P(q,p)=\frac{1}{Z}e^{-U(q)}e^{-K(p)}`, and see that :math:`q` and :math:`p` are independent
-* For a given :math:`(q, p)`, :math:`H(q,p)` is time invariant (:math:`\frac{dH}{dt}=1`), so we're essentially
-  simulating Hamiltonian dynamics at energy state :math:`H(q,p)`
-* The idea is that :math:`q` will be our variables of interest in our target dist, and :math:`p` will be
-  random variables, which allow us to explore different energy states.
-* It's like we're moving a puck (our particle) along the surface defined by our target distribution.
-  Give more in depth explanation of this puck analogy... maybe above?
-* We'll naturally spend more time when :math:`f(q)` is large (and :math:`U(q)`
-  is small) because the Hamiltonian dynamics will "move" our particle to places with
-  low potential
-* We can set :math:`U(q) = -log[\pi(q)p(D|q)]` with prior and likelihood respectively
 * The canonical distribution is always invariant.
 * :math:`P(x)` is our target distribution, but what should :math:`E(x)` be?
   Work backwards: Set :math:`kT=1` to simplify things,  and solve for it.  Get: `E(x) = -\logP(x) - \logZ`
