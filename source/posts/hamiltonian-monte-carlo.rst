@@ -968,10 +968,15 @@ we can easily re-write :math:`E_i` as :math:`H(q, p)` to get the second form.
 It turns out that it doesn't matter how many particles you have in your
 internal system, it could be a googleplex or a single particle.  As long as you
 have the heat bath and some assumptions about the transfer of heat between the
-two systems, the result holds.  In the single particle case, the particle is
-going to be moving around in your closed system but randomly interacting with
-the heat bath, which basically translates to changing its velocity (or
-momentum).  This is an important idea that we're going to use momentarily.
+two systems, the Boltzmann distribution holds for the system.  The most intuitive
+way to think about it is (as an ML person) as a "softmax" over all the microstates,
+where the energy of the microstate is the "logit" value.  Importantly, it is
+*not* just an exponential distribution.
+
+In the single particle case, the particle is going to be moving around in your
+closed system but randomly interacting with the heat bath, which basically
+translates to changing its velocity (or momentum).  This is an important idea
+that we're going to use momentarily.
 
 
 .. admonition:: Example 4: Example of canonical ensemble for a classical system with a particle in a potential well.
@@ -1041,7 +1046,7 @@ distribution.  Here's the setup for target density :math:`f({\bf x})` with
   around as well as it randomly changing position when it interacts with the
   heat bath.
 * **Potential energy** (:math:`U(q)`): The potential energy will be the
-  negative logarithm of our target density:
+  negative logarithm of our target density (up to a normalizing constant):
 
   .. math::
 
@@ -1093,7 +1098,20 @@ leads us directly to simulating :math:`P({\bf q})`!
 
 .. admonition Why do we need to model the random interactions with the heat bath?
 
-   TODO TODO TODO Hamiltonian hyper-surface of constant probability density
+   There are two ways to think about this problem.  The first is that if want
+   to use the Boltzmann distribution, the assumptions only hold either for a
+   system enclosed in a heat bath *or* if it's a closed system with a very large
+   number of particles.  Obviously our single particle model only fits into the
+   former.  If we exclude the heat bath then there is an alternate distribution
+   specified by the `microcanonical ensemble <https://en.wikipedia.org/wiki/Microcanonical_ensemble>`__.
+
+   Another way to understand it is from the perspective using MCMC to sample
+   our target distribution.  If we didn't model the random interactions, the
+   total energy of the system would be fixed (:math:`H(q,p)` is constant).
+   Therefore, there is a possibility that we would never be able to reach
+   certain states with a greater energy level, resulting in the procedure not
+   able to sample parts of the target distribution's support.  Obviously, this
+   would not lead to a correct sampling procedure.
 
 In this hypothetical scenario, we would just need to simulate this system, record
 our :math:`q` values, and out would pop samples of our target distribution.
@@ -1106,12 +1124,60 @@ target distribution.  The next subsection describes the HMC algorithm in more de
 HMC Algorithm
 -------------
 
-* The canonical distribution is always invariant.
-* :math:`P(x)` is our target distribution, but what should :math:`E(x)` be?
-  Work backwards: Set :math:`kT=1` to simplify things,  and solve for it.  Get: `E(x) = -\logP(x) - \logZ`
+Before we get to the algorithm, let's cover some of the assumptions of the algorithm:
+
+* We can only sample from continuous distributions on :math:`\mathcal{R}^D`
+  because otherwise our Hamiltonian dynamics could not operate. 
+* We need to be able to evaluate the density up to a normalizing constant
+  (same constraint as vanilla Metroplis-Hastings).
+* We must be able to compute the partial derivative of the log density in order
+  to compute Hamilton's equations.  Thus, these derivatives must exist everywhere the
+  density is non-zero.
+* In the simplified version presented, the density should be non-zero everywhere, but
+  that can be relaxed. See [1] for more details.
+
+The algorithm is relatively simple:
+
+1. Draw a new value of :math:`p` from our zero mean Gaussian.  This simulates
+   a random interaction with the heat bath.
+2. Starting in state :math:`(q,p)`, run Hamiltonian dynamics for :math:`L` steps
+   with stepsize :math:`\epsilon` using the Leapfrog method presented in
+   Section 2.6.  :math:`L` and :math:`\epsilon` are hyperparameters of the
+   algorithm.  This simulates the particle moving without interactions with the heat bath.
+3. After running :math:`L` steps, negate the momentum variables, giving a proposed
+   state of :math:`(q*, p*)`.  The negation is necessary for our MCMC proof below
+   but the :math:`p*` value is never actually used.
+4. The proposed state :math:`(q*, p*)` is accepted as the next state using a
+   Metropolis-Hastings-like update with probability:
+
+   .. math::
+
+       A((q*, p*)) &= \min[1, \frac{\exp(-H(q*, p*))}{H(q,p))}] \\
+                   &= \min[1, \frac{\exp(-U(q*) + U(q) -K(p*)+K(p))}] \\
+                   \tag{44}
+  
+   If the next state is not accepted (i.e. rejected), then the current state
+   becomes the next state.  This MH step is needed to offset the approximation
+   of our discretized Hamiltonian.  If we could exactly simulate Hamiltonian
+   dynamics this acceptance probability would be exactly :math:`1` because the
+   Hamiltonian is conserved (i.e. constant).
+
+Pseudo-code for the algorithm is listed below, which is pretty straightforward to implement.
+You can also take a look at a toy implementation I did as well TODO TODO TODO TODO here.
+
+**Algorithm 1: Hamiltonian Monte Carlo Pseudocode**
+
+.. code-block:: python
+   :number-lines:
+
+   print("Our virtues and our failings are inseparable")
 
 
+It's not obvious that the above algorithm would be correct.  We'll examine its
+correctness the next subsection.
 
+HMC Algorithm Correctness
+-------------------------
 
 Experiments
 ===========
