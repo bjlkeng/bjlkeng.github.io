@@ -1124,19 +1124,11 @@ target distribution.  The next subsection describes the HMC algorithm in more de
 HMC Algorithm
 -------------
 
-Before we get to the algorithm, let's cover some of the assumptions of the algorithm:
-
-* We can only sample from continuous distributions on :math:`\mathcal{R}^D`
-  because otherwise our Hamiltonian dynamics could not operate. 
-* We need to be able to evaluate the density up to a normalizing constant
-  (same constraint as vanilla Metroplis-Hastings).
-* We must be able to compute the partial derivative of the log density in order
-  to compute Hamilton's equations.  Thus, these derivatives must exist everywhere the
-  density is non-zero.
-* In the simplified version presented, the density should be non-zero everywhere, but
-  that can be relaxed. See [1] for more details.
-
-The algorithm is relatively simple:
+The core part of the HMC algorithm follows essentially the same structure as
+the Metropolis-Hastings algorithm: propose a new sample, accept with some
+probability.  The difference is that Hamiltonian dynamics are used to find a
+new proposal sample, and the acceptance criteria is slightly modified.
+Here's a run-down of the major steps:
 
 1. Draw a new value of :math:`p` from our zero mean Gaussian.  This simulates
    a random interaction with the heat bath.
@@ -1145,15 +1137,17 @@ The algorithm is relatively simple:
    Section 2.6.  :math:`L` and :math:`\epsilon` are hyperparameters of the
    algorithm.  This simulates the particle moving without interactions with the heat bath.
 3. After running :math:`L` steps, negate the momentum variables, giving a proposed
-   state of :math:`(q*, p*)`.  The negation is necessary for our MCMC proof below
-   but the :math:`p*` value is never actually used.
+   state of :math:`(q*, p*)`.  This makes the proposed state symmetric i.e.  if
+   we run :math:`L` steps again, we get back to the same original state.  The
+   negation is necessary for our MCMC proof below but the :math:`p*` value is
+   never actually used.
 4. The proposed state :math:`(q*, p*)` is accepted as the next state using a
    Metropolis-Hastings-like update with probability:
 
    .. math::
 
        A((q*, p*)) &= \min[1, \frac{\exp(-H(q*, p*))}{H(q,p))}] \\
-                   &= \min[1, \frac{\exp(-U(q*) + U(q) -K(p*)+K(p))}] \\
+                   &= \min[1, \exp(-U(q*) + U(q) -K(p*)+K(p))] \\
                    \tag{44}
   
    If the next state is not accepted (i.e. rejected), then the current state
@@ -1162,19 +1156,80 @@ The algorithm is relatively simple:
    dynamics this acceptance probability would be exactly :math:`1` because the
    Hamiltonian is conserved (i.e. constant).
 
-Pseudo-code for the algorithm is listed below, which is pretty straightforward to implement.
-You can also take a look at a toy implementation I did as well TODO TODO TODO TODO here.
+It's all relatively straight forward (assuming you have the requisite
+background knowledge above).  It's generally converges faster than
+a random walk-based MH algorithm, but it does have some key assumptions.
+First, we can only sample from continuous distributions on
+:math:`\mathcal{R}^D` because otherwise our Hamiltonian dynamics could not
+operate.  Second, similarly to MH, we need to be able to evaluate the density
+up to a normalizing constant.  Finally, we must be able to compute the partial
+derivative of the log density in order to compute Hamilton's equations.  Thus,
+these derivatives must exist everywhere the density is non-zero.
+There are a couple of other details you can look up in [1] if you are interested.
 
-**Algorithm 1: Hamiltonian Monte Carlo Pseudocode**
+What's nice is that all that math reduces down to quite a simple algorithm.
+Listing 1 shows pseudo-code for one iteration of the algorithm, which is pretty
+straightforward to implement (see the next section where I implement a toy
+version of HMC).
+
+**Listing 1: Hamiltonian Monte Carlo Python-like Pseudocode**
 
 .. code-block:: python
    :number-lines:
 
-   print("Our virtues and our failings are inseparable")
+   def hmc_iteration(U, grad_U, epsilon, L, current_Q, std_dev):
+   '''
+        U: function returns the potential energy given a state q
+        grad_u: function returns gradient of U given q
+        epsilon: step size
+        L: number of leapfrog steps
+        current_Q: current generalized state trajectory starts from
+        std_dev: vector of standard deviations for Gaussian (hyperparameter)
+   '''
+       q = current_q
+       p = sample_normal(length(q), 0, std_dev) # sample zero-mean Gaussian
+       current_p = p
 
+       # Leapfrog: half step for momentum
+       p = p - epsilon * grad_U(q) / 2
 
-It's not obvious that the above algorithm would be correct.  We'll examine its
-correctness the next subsection.
+       for i in range(0, L):
+           # Leapfrog: full step for position
+           q = q + epsilon * p
+
+           # Leapfrog: combine 2 half-steps for momentum across iterations
+           if (i != L-1):
+               p = p - epsilon * grad_U(q)
+
+       # Leapfrog: final half step for momentum
+       p = p - epsilon * grad_U(q)
+
+       # Negate trajectory to make proposal symmetric (a no-op)
+       p = -p
+
+       # Compute potential and kinetic energies
+       current_U = U(current_q)
+       current_K = sum(current_p^2) / 2
+       proposed_U = U(q)
+       proposed_K = sum(p^2) / 2
+
+       # Accept with probability specified using Equation 44:
+       if rand(0, 1) < exp(current_U - proposed_U + current_K - proposed_K):
+           return q
+       else:
+           return current_q
+
+Listing 1 is a straight forward implementation of leapfrog combined with a
+simple acceptance step. One big of optimization is on line 23 to combine 
+the two half momentum steps from Equation 35 and 37.  In the leapfrog algorithm,
+every half momentum step except the first and last can be combined into a full
+step.  A bit of the magic is hidden behind the potential and gradient of the
+potential function but those depend fully on your target distribution so it
+can't be helped.
+
+It's not obvious that the above algorithm would be correct, particularly the
+acceptance step, which we simply stated without much reasoning.  We'll examine
+its correctness the next subsection.
 
 HMC Algorithm Correctness
 -------------------------
