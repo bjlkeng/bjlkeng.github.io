@@ -88,11 +88,13 @@ Three important conditions that are required for a Markov chain to be used for M
 2. **Aperiodic**: the system never returns to the same state with a fixed
    period (e.g. not returning to start "sunny" deterministically every 5
    steps)
-3. **Reversible**: a Markov chain is called `reversible <https://en.wikipedia.org/wiki/Detailed_balance#Reversible_Markov_chains>`__
+3. **Reversible (aka Detailed Balance)**: a Markov chain is called `reversible
+   <https://en.wikipedia.org/wiki/Detailed_balance#Reversible_Markov_chains>`__
    if the Markov chain has a stationary distribution :math:`\pi` such that
-   :math:`\pi_iP_{ij} = \pi_jP{ji}` where :math:`P_ij` is the transition
+   :math:`\pi_i T(i|j) = \pi_j T(j|i)` where :math:`T(i|j)` is the transition
    probability from state :math:`i` to :math:`j` and :math:`\pi_i` and
    :math:`\pi_j` are the equilibrium probabilities for their respective states.
+   This condition is known as the *detailed balance* condition.
 
 The first two properties define a Markov chain which is `ergodic <https://nlp.stanford.edu/IR-book/html/htmledition/definition-1.html>`__,
 which implies that a that there is a steady state distribution.
@@ -1233,6 +1235,36 @@ its correctness the next subsection.
 
 HMC Algorithm Correctness
 -------------------------
+
+To show that that HMC correctly produces samples, we will show that the algorithm
+correctly samples from the *joint* canonical ensemble distribution :math:`P(q, p)`.
+Since we already identified that this joint distribution can be factored into independent
+distributions across :math:`P(q)` and :math:`P(p)` (Equation 42), our final output
+can just take the :math:`q` part of each sample we generate to get our desired result.
+
+We ultimately want to show that that the next state returned in Listing 1
+occurs with the correct probability according to the canonical distribution.
+First, we'll look at sampling of our momentum.  Assume that you have sampled
+:math:`q` properly (up to this point) according to our canonical distribution
+(the input to Listing 1).  Since our momentum factor is independent, we can 
+simply sample the momentum from the independent normal we defined and the
+resulting sample :math:`(q, p)` will distributed according to canonical
+ensemble as required.
+
+Next, we'll look at the rest of the algorithm, which runs leapfrog for L steps
+and does an MH update.  Assume you have sampled the current state 
+:math:`(q, p)` according to the canonical distribution.
+The probability that the next state is in some (infinitesimally) small region
+:math:`B_k` is the sum of probabilities that it's already in :math:`B_k` and it gets rejected
+(:code:`else` statement in Listing 1) *plus* the probability that it's in some other state
+and moves into state :math:`B_k`.  Given canonical distribution :math:`P(x)`, rejection
+probability :math:`R(x)`, and transition probability :math:`T(A|B)`, we can see that:
+
+.. math::
+
+    \text{probability of ending up in state } B_k = 
+
+
 
 Experiments
 ===========

@@ -79,7 +79,7 @@ examples.  For example, if your number of dimensions is :math:`D=1`,
 you might need to sample roughly :math:`(10)^1=10` points per image,
 making your dataset 10x.  If :math:`D=10`, you'll probably need
 :math:`(10)^{10}` points per image, making your dataset too big to
-practically train.  Not only that, most the sampled points will not contribute
+practically train.  Not only that, most of the sampled points will not contribute
 much to training your network because they'll be in parts of the latent space
 that are very low probability (with respect to the current image), contributing
 almost nothing to your network weights.
