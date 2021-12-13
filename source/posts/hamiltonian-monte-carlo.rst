@@ -877,7 +877,7 @@ guarantees it will spiral to infinite but it does sure seem to help empirically.
 The guarantees (if any) are likely related to the `symplectic nature <https://en.wikipedia.org/wiki/Symplectic_integrator>`__
 but I didn't really look into it much further than that.
 
-**Leapfrog Method**: The final method uses the same idea but with an extra *leapfrog* step:
+**Leapfrog Method**: The final method uses the same idea but with an extra *Leapfrog* step:
 
 .. math::
 
@@ -1184,7 +1184,7 @@ version of HMC).
         U: function returns the potential energy given a state q
         grad_u: function returns gradient of U given q
         epsilon: step size
-        L: number of leapfrog steps
+        L: number of Leapfrog steps
         current_Q: current generalized state trajectory starts from
         std_dev: vector of standard deviations for Gaussian (hyperparameter)
    '''
@@ -1221,9 +1221,9 @@ version of HMC).
        else:
            return current_q
 
-Listing 1 is a straight forward implementation of leapfrog combined with a
+Listing 1 is a straight forward implementation of Leapfrog combined with a
 simple acceptance step. One big of optimization is on line 23 to combine 
-the two half momentum steps from Equation 35 and 37.  In the leapfrog algorithm,
+the two half momentum steps from Equation 35 and 37.  In the Leapfrog algorithm,
 every half momentum step except the first and last can be combined into a full
 step.  A bit of the magic is hidden behind the potential and gradient of the
 potential function but those depend fully on your target distribution so it
@@ -1251,19 +1251,95 @@ simply sample the momentum from the independent normal we defined and the
 resulting sample :math:`(q, p)` will distributed according to canonical
 ensemble as required.
 
-Next, we'll look at the rest of the algorithm, which runs leapfrog for L steps
-and does an MH update.  Assume you have sampled the current state 
-:math:`(q, p)` according to the canonical distribution.
+Next, we'll look at the rest of the algorithm, which runs Leapfrog for L steps
+and does an MH update.  We'll be talking more informally in terms of
+arbitrarily small partitions of phase space (:math:`(q, p)`).  Since these are
+arbitrarily small, the probability and other associated quantities are constant
+within those region.  The idea is that these finite regions can be shrunk down
+to infinitesimally small sizes that we would need to prove the general result.
+Since we're just sketching the proof here, no need for all that formality
+and we'll use region and state interchangeably here.
+
+Assume you have sampled the current state :math:`(q, p)` according to the
+canonical distribution, which follows from the previous step.  
 The probability that the next state is in some (infinitesimally) small region
-:math:`B_k` is the sum of probabilities that it's already in :math:`B_k` and it gets rejected
+:math:`X_k` is the sum of probabilities that it's already in :math:`X_k` and it gets rejected
 (:code:`else` statement in Listing 1) *plus* the probability that it's in some other state
-and moves into state :math:`B_k`.  Given canonical distribution :math:`P(x)`, rejection
-probability :math:`R(x)`, and transition probability :math:`T(A|B)`, we can see that:
+and moves into state :math:`X_k`.  Given canonical distribution :math:`P(X_k)`, rejection
+probability :math:`R(X_k)`, and transition probability :math:`T(X_k|X_i)` from
+region :math:`i` to :math:`k`, we can see that:
 
 .. math::
 
-    \text{probability of ending up in state } B_k = 
+    P(\text{ending up in state } X_k)
+      &= P(X_k)R(X_k) + \sum_i P(X_i)T(X_k|X_i) && \text{Assume current state sampled correctly} \\
+      &= P(X_k)R(X_k) + \sum_i P(X_k)T(X_i|X_k) && \text{Detailed balance condition} \\
+      &= P(X_k)R(X_k) + P(X_k) \sum_i T(X_i|X_k)  \\
+      &= P(X_k)R(X_k) + P(X_k) (1 - R(X_k))  \\
+      &= P(X_k) \\
+    \tag{45}
 
+Thus, we see that our procedure will have correctly sampled state our next
+state :math:`X_k` according to the target distribution.  As we can see detailed
+balance (aka reversibility) is one of the key properties that we must have for
+MH to work properly.  The other thing to notice is that the probability of
+*leaving* state :math:`X_k` to *any given* state is precisely the probability
+of *not* rejecting.
+
+Now we will show the three conditions needed for a Markov chain described in
+the background.  First, our procedure trivially can reach any state due to
+the normally distributed momentums, which span the real line, thus it is
+*irreducible* (practically though it is critically important to set the variance
+on the normal distributions well).  Second, we need to ensure that the system
+never returns to the same state with a fixed period (aperiodic).  Theoretically,
+this may be possible in certain setups but can be avoided by randomly choosing
+:math:`\epsilon` or :math:`L` within a narrow interval.  Practically though,
+this is pretty rare on any non trivial problems, although it is still possible
+that things may be very slow to converge.
+
+Lastly, all that is left is to show that detailed balance is satisfied.
+Assume we start our Leapfrog operation in state :math:`X_k` and run it for
+:math:`L` steps plus reverse the momentum, and end in state :math:`Y_k`.  We
+need to show detailed balance holds for all :math:`i,j` such that:
+
+.. math::
+
+   P(X_i)T(Y_j|X_i) = P(Y_j)T(X_i|Y_j) \tag{46}
+
+Let's break it down into two cases:
+
+**Case 1** :math:`i \neq j`: Recall that the Leapfrog algorithm is deterministic,
+therefore :math:`Y_i = \text{Leapfrog+Reverse}(X_i)` for any given :math:`k`.  So if you
+have any other :math:`Y_{j\neq i}` then it is impossible to transition to this state.
+Thus :math:`T(X_i|y_j) = 0` in this case and Equation 46 is trivially satisfied.
+
+**Case 2** :math:`i = j`: In this case, let's plug in our transition probability
+condition (Equation 44) and see what happens.  Note that in addition to the probability
+being constant within a region, we also have the Hamiltonian too.  Let :math:`H_{X_k}, H_{Y_k}`
+be the value of the Hamiltonian at each region, and without loss of generality assume
+:math:`H_{X_k} > H_{Y_k}` (due to symmetry of problem). From Equation 46:
+
+.. math::
+
+   LHS &= \frac{exp(-H_{X_k})\min{(1, exp(-H_{Y_k}+H_{X_k}))}}{Z} \\
+       &= \frac{exp(-H_{X_k})exp(-H_{Y_k}+H_{X_k})}{Z} && \text{assumption } H_{X_k} > H_{Y_k} \\
+       &= \frac{exp(-H_{Y_k})}{Z} \\
+       \tag{47} \\
+   RHS &= \frac{exp(-H_{Y_k})\min{(1, exp(-H_{X_k}+H_{Y_k}))}}{Z} \\
+       &= \frac{exp(-H_{Y_k})(1)}{Z} && \text{assumption } H_{X_k} > H_{Y_k} \\
+       &= \frac{exp(-H_{Y_k})}{Z} \\
+       \tag{48}
+
+which shows that detailed balance is satisfied.  Two subtle points to mention.
+First, if we were able to simulate Hamiltonian dynamics exactly, :math:`H_{X_k} = H_{Y_k}`
+(recall the Hamiltonian is constant along a trajectory), which would get us to
+a 100% acceptance rate.  Unfortunately, Leapfrog or any other approximation method
+doesn't quite get us there.  Second, the reason why we need the negate the
+momentum at the end is so that our transition probabilities are symmetric, i.e.
+:math:`T(X_k|Y_k) = T(Y_k|X_k)` (Equation 44), which follows from the fact that we
+can get to where we started by reversing momentum and re-running leapfrog that
+many steps.  If we didn't include this step, then we would have to include another
+adjustment factor (:math:`g(y|x) / g(x|y)) to the MH update step in Equation 1.
 
 
 Experiments
