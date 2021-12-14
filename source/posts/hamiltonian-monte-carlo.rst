@@ -1257,8 +1257,12 @@ arbitrarily small partitions of phase space (:math:`(q, p)`).  Since these are
 arbitrarily small, the probability and other associated quantities are constant
 within those region.  The idea is that these finite regions can be shrunk down
 to infinitesimally small sizes that we would need to prove the general result.
-Since we're just sketching the proof here, no need for all that formality
-and we'll use region and state interchangeably here.
+Additionally, this is where the volume-preserving nature of the Leapfrog algorithm
+comes in (and negation of the momentum, which is also volume-preserving).
+We don't need to worry about our small regions ever growing (or shrinking) and
+thus, we can treat any region (before or after a Leapfrog step) similarly.
+Since we're just sketching the proof here, there's no need for all the
+formality so we'll use region and state interchangeably here.
 
 Assume you have sampled the current state :math:`(q, p)` according to the
 canonical distribution, which follows from the previous step.  
@@ -1315,31 +1319,41 @@ Thus :math:`T(X_i|y_j) = 0` in this case and Equation 46 is trivially satisfied.
 
 **Case 2** :math:`i = j`: In this case, let's plug in our transition probability
 condition (Equation 44) and see what happens.  Note that in addition to the probability
-being constant within a region, we also have the Hamiltonian too.  Let :math:`H_{X_k}, H_{Y_k}`
-be the value of the Hamiltonian at each region, and without loss of generality assume
-:math:`H_{X_k} > H_{Y_k}` (due to symmetry of problem). From Equation 46:
+being constant within a region, we also have the Hamiltonian too.  Let :math:`V` be the
+volume of the region, :math:`H_{X_k}, H_{Y_k}` be the value of the Hamiltonian
+at each region, and without loss of generality assume
+:math:`H_{X_k} > H_{Y_k}` (due to symmetry of problem). Plugging this all into Equation 46,
+we see that it satisfies the detailed balance condition:
 
 .. math::
 
-   LHS &= \frac{exp(-H_{X_k})\min{(1, exp(-H_{Y_k}+H_{X_k}))}}{Z} \\
-       &= \frac{exp(-H_{X_k})exp(-H_{Y_k}+H_{X_k})}{Z} && \text{assumption } H_{X_k} > H_{Y_k} \\
-       &= \frac{exp(-H_{Y_k})}{Z} \\
+   LHS &= P(X_i)T(Y_j|X_i) \\
+       &= \frac{V exp(-H_{X_k})\min{(1, exp(-H_{Y_k}+H_{X_k}))}}{Z} \\
+       &= \frac{V exp(-H_{X_k})exp(-H_{Y_k}+H_{X_k})}{Z} && \text{assumption } H_{X_k} > H_{Y_k} \\
+       &= \frac{V exp(-H_{Y_k})}{Z} \\
        \tag{47} \\
-   RHS &= \frac{exp(-H_{Y_k})\min{(1, exp(-H_{X_k}+H_{Y_k}))}}{Z} \\
-       &= \frac{exp(-H_{Y_k})(1)}{Z} && \text{assumption } H_{X_k} > H_{Y_k} \\
-       &= \frac{exp(-H_{Y_k})}{Z} \\
+   RHS &= P(Y_j)T(X_i|Y_j) \\
+       &= \frac{V exp(-H_{Y_k})\min{(1, exp(-H_{X_k}+H_{Y_k}))}}{Z} \\
+       &= \frac{V exp(-H_{Y_k})(1)}{Z} && \text{assumption } H_{X_k} > H_{Y_k} \\
+       &= \frac{V exp(-H_{Y_k})}{Z} \\
        \tag{48}
 
-which shows that detailed balance is satisfied.  Two subtle points to mention.
+where the probability of being in state :math:`P(X_i)` is the volume of the
+region (:math:`V`) multiplied by the density (Boltzman distribution).  This works
+because of our infinitesimally small regions where we assume the density is
+constant throughout.
+
+Two subtle points to mention.
 First, if we were able to simulate Hamiltonian dynamics exactly, :math:`H_{X_k} = H_{Y_k}`
 (recall the Hamiltonian is constant along a trajectory), which would get us to
 a 100% acceptance rate.  Unfortunately, Leapfrog or any other approximation method
-doesn't quite get us there.  Second, the reason why we need the negate the
-momentum at the end is so that our transition probabilities are symmetric, i.e.
-:math:`T(X_k|Y_k) = T(Y_k|X_k)` (Equation 44), which follows from the fact that we
-can get to where we started by reversing momentum and re-running leapfrog that
-many steps.  If we didn't include this step, then we would have to include another
-adjustment factor (:math:`g(y|x) / g(x|y)) to the MH update step in Equation 1.
+doesn't quite get us there so we need the MH step.  Second, the reason why we
+need the negate the momentum at the end is so that our transition probabilities
+are symmetric, i.e.  :math:`T(X_k|Y_k) = T(Y_k|X_k)` (Equation 44), which
+follows from the fact that we can reverse our Leapfrog steps by negating the momentum
+and running it back the same number of steps.  If we didn't include this step,
+then we would have to include another adjustment factor (:math:`g(y|x) / g(x|y)), 
+which comes from the more generic MH step described in Equation 1.
 
 
 Experiments
