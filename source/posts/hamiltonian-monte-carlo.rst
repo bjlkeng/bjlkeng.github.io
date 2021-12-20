@@ -13,18 +13,18 @@ aware enough that I should know something about MCMC since that's the backbone
 of most Bayesian analysis; so I learned something about it
 (see my `previous post <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__).
 But I didn't dare try to go to the depths of trying to learn about the
-notorious Hamiltonian Monte Carlo (HMC). Even though it is **the** standard algorithm
-that is used to solve Bayesian inference, it always seemed too daunting because
+notorious Hamiltonian Monte Carlo (HMC). Even though it is among the standard algorithms
+used to solve Bayesian inference, it always seemed too daunting because
 it required "advanced physics" to understand.  As usual, things only seem hard
 because you don't know them yet.  After having some time to digest MCMC
 methods, getting comfortable learning more maths (see 
 `here <link://slug/tensors-tensors-tensors>`__,
 `here <link://slug/manifolds>`__, and
 `here <link://slug/hyperbolic-geometry-and-poincare-embeddings>`__), 
-all of a sudden learning "advanced physics" doesn't seem so tough (especially
-with all the amazing lectures and material online, it's actually easier than
-ever)! Most of the material is based on [1] and [2], which I've found
-area great sources for their respective areas.
+all of a sudden learning "advanced physics" doesn't seem so tough (but maybe
+just wide in terms of breadth of knowledge needed)!
+Most of the material is based on [1] and [2], which I've found area great
+sources for their respective areas.
 
 This post is the culmination of many different rabbit holes (many much deeper
 than I needed to go) where I'm going to try to explain HMC in simple and
@@ -926,9 +926,9 @@ adieu, let's get into the details!
 From Thermodynamics to HMC
 --------------------------
 
-The base physical system we're going to base this on is from thermodynamics
+The physical system we're going to base this on is from thermodynamics
 (which is only slightly more complex than the mechanical systems we're been
-looking at).  A commonly studied situation in thermodynamics is the one of
+looking at).  A commonly studied situation in thermodynamics is one of
 a closed system of fixed volume and number of particles (e.g. gas molecules in
 a box) that is "submerged" in a heat bath at thermal equilibrium.
 The basic idea is the heat bath is much, much larger than our internal system so
@@ -1179,15 +1179,15 @@ version of HMC).
 .. code-block:: python
    :number-lines:
 
-   def hmc_iteration(U, grad_U, epsilon, L, current_Q, std_dev):
-   '''
-        U: function returns the potential energy given a state q
-        grad_u: function returns gradient of U given q
-        epsilon: step size
-        L: number of Leapfrog steps
-        current_Q: current generalized state trajectory starts from
-        std_dev: vector of standard deviations for Gaussian (hyperparameter)
-   '''
+   def hmc_iteration(U, grad_U, epsilon, L, current_q, std_dev):
+       '''
+            U: function returns the potential energy given a state q
+            grad_u: function returns gradient of U given q
+            epsilon: step size
+            L: number of Leapfrog steps
+            current_q: current generalized state trajectory starts from
+            std_dev: vector of standard deviations for Gaussian (hyperparameter)
+       '''
        q = current_q
        p = sample_normal(length(q), 0, std_dev) # sample zero-mean Gaussian
        current_p = p
@@ -1352,15 +1352,133 @@ need the negate the momentum at the end is so that our transition probabilities
 are symmetric, i.e.  :math:`T(X_k|Y_k) = T(Y_k|X_k)` (Equation 44), which
 follows from the fact that we can reverse our Leapfrog steps by negating the momentum
 and running it back the same number of steps.  If we didn't include this step,
-then we would have to include another adjustment factor (:math:`g(y|x) / g(x|y)), 
+then we would have to include another adjustment factor (:math:`g(y|x) / g(x|y)`), 
 which comes from the more generic MH step described in Equation 1.
 
+Additional Notes
+----------------
+
+It should be pretty obvious that the explanation above only presents the core
+math behind HMC.  To make it practically work, there are a lot more details.
+Here are just a few of the issues that make a real world implementation complex
+(for all of these [1] has some additional discussion if you want to dive into
+more detail):
+
+* Tuning stepsize (:math:`\epsilon`) and number of steps (:math:`L`) is so critically important
+  that it can make or break your HMC implementation (see discussion in
+  experiments below).  You can get into all sorts of incorrect sampling
+  behaviors if you get it wrong such as highly correlated samples to low
+  acceptance rates.  You got to be very careful!
+* Similarly, tuning the momentum hyperparameters (the standard deviation for
+  our independent Gaussians in our case) is also very important to getting proper samples.
+  If your momentum is too low, then you won't be able to explore the tails of your distribution.
+  If your momentum is too high, then you'll have a very low acceptance rate.
+  To add to complexity, the momentum distribution is related to the stepsize
+  and number of steps too.  In general, it's best if you can tune each dimension
+  of the momentum distribution to fit your problem but that is typically non-trivial.
+* In general, you'll have a mix of discrete and continuous variables.  In those cases,
+  you can mix and match MCMC methods and use HMC only for a subset of
+  continuous variables.  Similarly, there are adaptations of HMC to continuous
+  variables that don't span the real line.
+* A practical technique to use HMC was the discovery of the 
+  `No U-Turn Sampler <https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo#No_U-Turn_Sampler>`__
+  (NUTS).  Roughly, the algorithm adaptively sets the path length by running
+  Leapfrog both backwards and forwards in time, and then seeing where the
+  trajectory "changes direction" (a "U-Turn").  At this point, you randomly
+  sample a point from your path.  In this way, you likely have seen enough of
+  the local landscape to not double back on your path (which wastes
+  computation).  As far as I can tell, most implementations of HMC will have a
+  NUTS sampler.
 
 Experiments
 ===========
 
+As I usually do, I implemented a toy version of HMC to better understand how it works.
+You can take a look at code on `Github <https://github.com/bjlkeng/sandbox/blob/master/hmc/hmc.ipynb>`__
+(note: I didn't spend much time to clean up the code).  It's a pretty simple implementation
+of HMC and MH MCMC algorithms, which pretty much mirrors the pseudocode above.
+
+I ran it for two very simple examples.  The first is a standard normal
+distribution, where you can see the run summary in Figure 7.  The two left and
+two right panels show the HMC and MH results, respectively.  Both methods use
+a standard normal distribution for the momentum distribution and the proposal
+distribution, respectively.  I show the histogram of 1000 samples (overlaid
+with the actual density) with its associated autocorrelation plot.  You can see
+that the HMC algorithm has a higher acceptance rate (97% vs. 70%), which
+results in fewer steps needed to sample.
+
+.. figure:: /images/hmc_experiment1.png
+  :width: 100%
+  :alt: Histogram of samples from toy implementation of HMC and MH for a standard normal distribution
+  :align: center
+
+  **Figure 7: Histogram of samples from toy implementation of HMC and MH for a standard normal distribution**
+
+Overall the samples look more or less reasonable.  This is backed up by the
+autocorrelation (AC) plots, which shows little to no correlation between
+samples (i.e. independence), which is what you want from an MCMC sampler.  I
+had to (manually) tune both algorithms in order to get to a point where the AC
+plots didn't show significant correlation.  For MH, I had to increase the step
+size sufficiently.  For HMC, I had to tune between the stepsize and number of
+steps to get that result.
+
+Adding another dimension, I also ran HMC and MH for a 
+`bivariate normal distribution <https://en.wikipedia.org/wiki/Multivariate_normal_distribution#Bivariate_case>`__
+with standard deviation in both dimension of :math:`1.0`, and a correlation of :math:`0.9`.
+The samples are plotted (from top to bottom, left to right) in Figure 8 for two
+HMC runs, a MH run, and a comparison to the results of directly sampling from
+it (with Numpy).  I plotted the unit circle to give a sense of scale of the
+standard deviation of two dimensions (multivariate normal distributions with
+non-diagonal covariance matrices don't typically look spherical though).
+I also tuned all of them (except for Numpy) to have a relatively
+low autocorrelation plot.  In the plot titles, "Acc" stands for acceptance rate,
+"eps" is epsilon, "st" is steps, "pstd" is standard deviation for momentum
+normal distribution (same for both dimensions), "prop" is proposal distribution
+(same standard deviation for both dimensions).
+
+.. figure:: /images/hmc_experiment2.png
+  :width: 100%
+  :alt: Histogram of samples from toy implementation of HMC, MH, and Numpy for a bivariate normal distribution
+  :align: center
+
+  **Figure 8: Histogram of samples from toy implementation of HMC, MH, and Numpy for a bivariate normal distribution**
+
+Looking at the top left HMC samples and the bottom right Numpy direct sampling,
+we can see they are visually very similar.  This is a good case of being able 
+to generate good samples.  I ran another HMC example but with a 
+smaller standard deviation (top right), and you can see all the samples are
+concentrated in the middle.  This shows that setting the momentum properly is
+critical for generating proper samples.  In this case, we see that the
+distribution doesn't have enough "energy" to reach far away points so we never
+sample from there.
+
+Turning to the MH sampler, visually it also looks relatively similar to the
+Numpy samples. Similar to HMC, I had to set the standard deviation of the 
+proposal distribution (independent Gaussians) to a relatively large value.  If
+not, then it would be extremely unlikely to reach distant points (unless you
+had many more steps).  The large random jumps result in a very low acceptance
+rate, which means we need more proposal jumps in between samples to get
+independent samples.
+
+I considered doing a more complex example such as a Bayesian linear regression
+or hierarchical model, but after all the fiddling with the two simple examples
+above, I thought it wasn't worth it.  I'll leave the MCMC implementations to
+the pros and I'm quite satisfied with the level of understanding (not to mention
+my newfound appreciation for its complexity) that I've gained going through
+this exercise.
+
 Conclusion
 ==========
+
+It's really rewarding to finally understand (to a satisfactory degree) a topic
+that you thought was "too difficult" just a few years ago.  It's quite
+interesting that I originally wasn't looking to do a post on HMC but went down
+this rabbit hole trying to understand another topic that slightly overlaps with
+it.  This is part of the joy of being able to independently study things, too
+bad time is so limited.  In any case, I hoping to *eventually* get back to the
+topic that I was originally interested in at some point, and hopefully be able
+to find time to post more often.  In the meantime, stay safe and have a happy
+holidays!
 
 
 Further Reading
