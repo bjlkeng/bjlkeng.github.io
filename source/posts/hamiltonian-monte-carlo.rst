@@ -12,7 +12,7 @@ When I first started learning about Bayesian methods, I knew enough that I
 should learn a thing or two about MCMC since that's the backbone
 of most Bayesian analysis; so I learned something about it
 (see my `previous post <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__).
-But I didn't dare try to learn about the infamous Hamiltonian Monte Carlo (HMC). 
+But I didn't dare attempt to learn about the infamous Hamiltonian Monte Carlo (HMC). 
 Even though it is among the standard algorithms used in Bayesian inference, it
 always seemed too daunting because it required "advanced physics" to
 understand.  As usual, things only seem hard because you don't know them yet.
@@ -25,13 +25,13 @@ all of a sudden learning "advanced physics" didn't seem so tough (but there
 sure was a lot of background needed)!
 
 This post is the culmination of many different rabbit holes (many much deeper
-than I needed to go) where I'm going to try to explain HMC in simple and
+than I needed to go) where I'm going to attempt to explain HMC in simple and
 intuitive terms to a satisfactory degree (that's the tag line of this blog
 after all).  I'm going to begin by briefly motivating the topic by reviewing
-MCMC and the Metroplis Hastings algorithm then move on to explaining
+MCMC and the Metropolis-Hastings algorithm then move on to explaining
 Hamiltonian dynamics (i.e., the "advanced physics"), and finally discuss the HMC
 algorithm along with some toy experiments I put together.  Most of the material
-is based on [1] and [2], which I've found area great sources for their
+is based on [1] and [2], which I've found to be great sources for their
 respective areas.
 
 
@@ -61,9 +61,8 @@ Markov Chain Monte Carlo
 This section is going to give a brief overview of MCMC and the
 Metropolis-Hastings algorithm.  For a more detailed treatment, see my 
 `previous post <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__.
-I'm only going to review some of the main relevant ideas in this section.
 
-Markov Chain Monte Carlo (MCMC) algorithms are a class of technique that use
+Markov Chain Monte Carlo (MCMC) algorithms are a class of techniques that use
 Markov chains to sample from a target probability distribution ("Monte Carlo"). 
 The main idea is that you construct a Markov Chain such that the steady state
 distribution of the Markov Chain approximates your target distribution.
@@ -80,8 +79,8 @@ traversing that Markov Chain.
 Figure 1 shows a crude visualization of the idea.  The "states" of the Markov Chain
 are the support of your probability distribution (the figure only shows
 states with discrete values for simplicity but they can also be continuous).
-Three important conditions that are required for to construct a Markov chain
-that can be used for MCMC:
+Three important conditions that are required to construct a Markov chain
+that can be used for MCMC are:
 
 1. **Irreducible**: We must be able to reach any one state from any other state
    eventually (i.e. the expected number of steps is finite).
@@ -96,14 +95,14 @@ that can be used for MCMC:
 
 The first two properties define a Markov chain which is 
 `ergodic <https://nlp.stanford.edu/IR-book/html/htmledition/definition-1.html>`__,
-which implies that a that there is a steady state distribution.
-The third property is used to define the particular MCMC algorithm.
+which implies that there is a steady state distribution.
+The third property is used to ensure that the Markov chain can be used in an MCMC algorithm.
 
-One of the earliest MCMC algorithms was the `Metropolis-Hastings Algorithm <https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm>`__ 
-(see my `previous post <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__ for a derivation)
+One of the earliest MCMC algorithms was the `Metropolis-Hastings algorithm <https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm>`__ 
+(see my `previous post <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__ for a derivation).
 This algorithm is nice because you don't need the actual probability
-distribution, call it :math:`p(x)`, but rather only a function that is
-proportional :math:`f(x) \propto p(x)`. 
+density, call it :math:`p(x)`, but rather only a function that is
+proportional to it (:math:`f(x) \propto p(x)`). 
 Assuming that the state space of the Markov Chain is the support of your target
 probability distribution, the algorithm gives a method to select the next state
 to traverse.  It does this by introducing two new distributions: a *proposal
@@ -115,7 +114,7 @@ acceptance distribution is defined as:
 .. math::
     A(y | x) = min(1, \frac{f(y)g(x | y)}{f(x)g(y | x)}) \tag{1}
 
-with :math:`y` being the newly proposed state sampled from :math:`g(x)`.
+with :math:`y` being the newly proposed state sampled from your proposal distribution :math:`g(x)`.
 The :math:`y | x` notation means that the proposal distribution is conditioned
 on the current state (:math:`x`) with a proposed transition to the next state (:math:`y`).
 The idea is that the proposal distribution will change depending on the current
@@ -128,25 +127,26 @@ The algorithm can be summarized as such:
 2. Propose a new state :math:`y` according to :math:`g(y | x)`.
 3. Accept state :math:`y` with uniform probability according to :math:`A(y | x)`. 
    If accepted transition to state :math:`y`, otherwise stay in state :math:`x`.
-4. Go to step 2, :math:`T` times.
-5. Save state :math:`x` as a sample, go to step 2 to sample another point.
+4. Go to step 2 (repeat :math:`T` times).
+5. Save the current state as a sample, repeat steps 2-4 to sample another point.
 
 Notice that in step 4 we throw away a bunch of samples before we return one in step 5.
-This is because typically sequential samples will be usually be correlated,
+This is because sequential samples will be typically be correlated,
 which is the opposite of what we want.  So we throw away a bunch of samples in
-hopes that the sample we pick is sufficiently independent.  Theoretically as we
-approach an infinite number of samples this doesn't make a difference but
-practically we need it in order to generate random samples with a finite run.
+hopes that the sample we pick is sufficiently independent.  Theoretically, as we
+approach an infinite number of samples this doesn't make a difference, but
+practically we need it in order to generate random independent samples with a finite run.
 
 To make MH efficient, you want your proposal distribution to accept with
 a high probability (so that you can make :math:`T` small),
 otherwise you get stuck in the same state and it takes a very long time for the
-algorithm to converge.  This means you want :math:`g(x | y) \approx f(y)`.
+algorithm to converge.  This means you want :math:`g(y|x) \approx f(y)`.
 If they are approximately equal, then the fraction in Equation 1 is approximately 1
-ensuring the acceptance rate (step 3) is relatively high.
-But this isn't so easy to do, if we had a closed form for the density then
-we could just sample from the original distribution, which would negate the need
-for MCMC in the first place!  We'll see how we can improve on this later on though.
+ensuring the acceptance rate (step 3) is relatively high,
+but this isn't so easy to do. If we had a closed form for the density then we
+could just sample from the original distribution directly, which would negate
+the need for MCMC in the first place!  Fortunately, there are other algorithms
+like HMC that can do better (in most cases).
 
 Motivation
 --------------------------------------
@@ -158,7 +158,7 @@ In other words, the probability of jumping from :math:`x` to :math:`y`
 is equal to the probability of jumping from :math:`y` to :math:`x`.  
 So the fraction in Equation 1 then becomes simply :math:`\frac{f(y)}{f(x)}`.
 This implies that you're more than likely to stick around in state :math:`x` if
-it has a high density, and unlikely to move to state :math:`x'` if it has low
+it has a high density, and unlikely to move to state :math:`y` if it has low
 density, which matches our intuition of what should happen.
 
 This method is typically called "random walk" Metropolis-Hastings because
@@ -180,7 +180,7 @@ you may get "stuck" in that mode without visiting the other mode.
 Theoretically, you'll eventually end up in the other mode but practically you
 might not get there with a finite MCMC run.  
 On the other hand, if you make the variance large (Proposal B) then in many
-cases you'll end up in places where :math:`f(y)` is small, making the
+cases you'll end up proposing states where :math:`f(y)` is small, making the
 acceptance rate from Equation 1 small.  There's no easy way around it, 
 there will always be this sort of trade-off and it's only exacerbated in higher
 dimensions.
@@ -190,19 +190,19 @@ What if there was a better way?  Perhaps one where you can (theoretically)
 get close to a 100% acceptance rate?  How about one where you don't need to throw
 away any samples (Step 4 from MH algorithm above)?  Sounds too good to be true
 doesn't it?  Yes, yes it is too good to be true, but we can *sort of* get there
-with Hamiltonian Monte Carlo!  But first an explanation of Hamiltonian
-Dynamics.
+with Hamiltonian Monte Carlo!  But let's not get ahead of ourselves, let's first
+start with an explanation of Hamiltonian Dynamics.
 
 Hamiltonian Mechanics
 =====================
 
 Before we dive into Hamiltonian dynamics, let's do a quick review of high
 school physics with Newton's second law of motion to understand how we can use
-it to describe the motion of (macroscopic) objects.  Then we'll move onto
+it to describe the motion of (macroscopic) objects.  Then we'll move on to
 a more abstract method of describing these systems with Lagrangian mechanics.
 Finally, we'll move on to Hamiltonian mechanics (and its approximations), which
 can be considered as a modification of Lagrangian mechanics.  We'll see that
-these concepts are not as scary as they sound as long as we remember some
+these concepts are not as scary as they sound, as long as we remember some
 calculus and how to solve some relatively simple differential equations.
 
 Classical Mechanics
@@ -227,9 +227,10 @@ position (with respect a reference), and **bold** quantities are vectors.
 
 Notice that Equation 2 is a differential equation, where :math:`\bf x(t)`
 describes the equation of motion of the object over time.  In high school
-physics, you may not have had to solve differential equations and were given
-equations to solve for :math:`x(t)` assuming a constant acceleration, but now
-that we know better we can remove that simplification.
+physics you may not have had to solve differential equations.  Instead, you may
+have been given equations to solve for :math:`x(t)` assuming a constant
+acceleration.  Now that we know better though, we can remove that
+simplification and write things in terms of differential equations.
 
 Note that I use the notation :math:`x'(t) := \frac{dx}{dt}` to always represent
 the time derivative of the function :math:`x(t)` (or later on :math:`p` and
@@ -250,7 +251,7 @@ we'll use throughout the rest of this section.
     **Figure 3: Simple Harmonic Oscillator (source: [3])**
 
   Consider a mass (:math:`m`) suspended from a spring in Figure 3, where
-  :math:`k` is the force constant of the spring and positive :math:`x` is the
+  :math:`k` is the force constant of the spring, and positive :math:`x` is the
   downward direction with :math:`x=0` set at the spring's equilibrium.
   Using Newton's second law (Equation 2), we get the following differential equation
   (where acceleration is the second time derivative of position):
@@ -264,8 +265,8 @@ we'll use throughout the rest of this section.
   .. math::
 
      \frac{d^2 x(t)}{dt^2} &= -\frac{k}{m}x(t) + g \\
-                           &= -\frac{k}{m}(x(t) - x_0) && \text{rename }x_0 = \frac{mg}{k} \\
-                           &= -\frac{k}{m}y(t)  && \text{define } y(t) = x(t) - x_0 \\
+                           &= -\frac{k}{m}(x(t) - x_0) && \text{rename }x_0 := \frac{mg}{k} \\
+                           &= -\frac{k}{m}y(t)  && \text{define } y(t) := x(t) - x_0 \\
      \tag{4}
 
   Here we are defining a new function :math:`y(t)` that is shifted by :math:`x_0`.
@@ -282,14 +283,14 @@ we'll use throughout the rest of this section.
   In this case, it's a second order differential equation with complex roots.
   I'll spare you solving it from scratch and just point you to this excellent
   `set of notes <https://tutorial.math.lamar.edu/Classes/DE/ComplexRoots.aspx>`__
-  by Paul Dawkins.  However, we can also just see by observation that a solution
+  by Paul Dawkins.  However, we can also just see by inspection that a solution
   is:
 
   .. math::
 
     y(t) = Acos(\frac{k}{m}t + \phi) \tag{6}
 
-  Given an initial position and its velocity, we can solve Equation 6 for the
+  Given an initial position and velocity, we can solve Equation 6 for the
   particular constants.
 
 Example 1 gives the general idea of how to find the motion of an object:
@@ -298,7 +299,7 @@ Example 1 gives the general idea of how to find the motion of an object:
 2. Solve the (typically second order) differential equation from Equation 2 (Newton's second law).
 3. Apply initial conditions (usually position and velocity) to find the constants.
 
-It turns out this is not the only way to find the equation of motion.  The next section
+It turns out this is not the only way to find the equation(s) of motion.  The next section
 gives us an alternative that is *sometimes* more convenient to use.
 
 Lagrangian Mechanics
@@ -313,9 +314,10 @@ called the *Lagrangian* [1]_:
     L\big(x(t), \frac{dx(t)}{dt}, t\big) = K - U = \text{Kinetic Energy} - \text{Potential Energy} \tag{7}
 
 Where the Lagrangian is (typically) a function of the position :math:`x(t)`,
-its velocity :math:`\frac{dx(t)}{dt}` and time :math:`t`.
+its velocity :math:`\frac{dx(t)}{dt}`, and time :math:`t`.
 It is kind of strange that we have a minus sign here and not a plus (which would give
-the total energy).  We're going to show that we can use the Lagrangian to
+the total energy) but it turns out that's what we want here.  We're going to
+show that we can use the Lagrangian to
 arrive at the same mathematical statement as Newton's second law by way of a
 different method.  It's going to be a bit round about but we'll go through
 several useful mathematical tools along the way (which will eventually lead us to
@@ -340,8 +342,7 @@ Equation 8 is what is called a *functional*: a function :math:`S[x(t)]` of a fun
 where we use the square bracket to indicate a functional.  That is, if you plug in a function :math:`x_1(t)`
 you get a scalar out :math:`S[x_1(t)]`; 
 if you plug in another function :math:`x_2(t)`, you get another scalar out :math:`S[x_2(t)]`.
-It's a mapping from functions to scalars (as opposed to scalars to scalars in a
-normal single input function).
+It's a mapping from functions to scalars (as opposed to scalars to scalars).
 
 Equation 8 depends only on the function :math:`x(t)` (and it's derivative)
 since :math:`t` gets integrated out.  Functionals have a lot of similarities to the traditional
@@ -366,7 +367,7 @@ sample chapter).
    As with a lot of mathematics, the Euler-Lagrange equation has its roots in physics.
    A young Lagrange at the age of 19 (!)
    solved the `tautochrone problem <https://en.wikipedia.org/wiki/Tautochrone_curve>`__
-   in 1755 developing many of the mathematics ideas described here.  He later
+   in 1755 developing many of the mathematical ideas described here.  He later
    sent it to Euler and they both developed the ideas further which led to
    Lagrangian mechanics.  Euler saw the potential in Lagrange's work and realized 
    that the method could extend beyond mechanics, so he worked with Lagrange to
@@ -391,7 +392,7 @@ this post (and my investigation on the subject).
 However, if the principle of least action describes the motion then it should be equivalent
 to the classical mechanics approach from the previous subsection -- and it indeed is equivalent!
 We'll show this in the simple 1D case but it works in multiple dimensions and
-with different coordinate basis as well.  Starting with a general Lagrangian (Equation 7)
+with different coordinate bases as well.  Starting with a general Lagrangian (Equation 7)
 for an object:
 
 .. math::
@@ -401,7 +402,7 @@ for an object:
 Here we're using the standard kinetic energy formula (:math:`K=\frac{1}{2}mv^2`, where velocity :math:`v=x'(t)`) and a 
 generalized potential function :math:`U(x(t))` that depends on the object's
 position (e.g. gravity).  Plugging :math:`L` into the Euler-Lagrange (Equation 9) 
-and setting to zero to find the stationary point, we get:
+and setting it to zero to find the stationary point, we get:
 
 .. math::
 
@@ -410,7 +411,7 @@ and setting to zero to find the stationary point, we get:
    \frac{\partial [\frac{1}{2}mx'^2(t) - U(x(t))]}{\partial x} &= \frac{d}{dt} \frac{\partial [\frac{1}{2}mx'^2(t) - U(x(t))]}{\partial x'} \\ 
    -\frac{\partial U(x(t))}{\partial x} &= \frac{d[mx'(t)]}{dt} \\ 
    -\frac{\partial U(x(t))}{\partial x} &= mx''(t) \\ 
-   F = ma(t) && a(t) = \frac{d^2x}{dx^2} \text{ and F}= -\frac{\partial U(x(t))}{\partial x} \\ 
+   F = ma(t) && \text{where }a(t) = \frac{d^2x}{dx^2} \text{ and F}= -\frac{\partial U(x(t))}{\partial x} \\ 
    \tag{11}
 
 So we can see that we end up with Newton's second law of motion as we expected.
@@ -451,17 +452,15 @@ it is going to be useful to help us derive the Hamiltonian.
 
     And we see we end up with the same second order differential equation as
     Equation 4, which yields the same solution :math:`x(t) = Acos(\frac{k}{m}t + \phi)`.
-    As you can see, we didn't really gain anything by using the Lagrangian but 
-    often times in multiple dimensions, potentially with a different coordinate
-    basis, the Lagrangian method is easier to use.
-
+    We didn't really gain anything by using the Lagrangian but often times in
+    multiple dimensions, potentially with a different coordinate basis, the
+    Lagrangian method is easier to use.
 
 One last note before we move on to the next section.  It turns out the
-Euler-Lagrange from Equation 9 is agnostic to the coordinate system we are using.
+Euler-Lagrange equation from Equation 9 is agnostic to the coordinate system we are using.
 In other words, for another coordinate system :math:`q_i:= q_i(x_1,\ldots,x_N;t)`
 (with the appropriate inverse mapping :math:`x_i:= x_i(q_1,\ldots,q_N;t)`),
-then the Euler-Lagrange equation works with the new coordinate system as well
-(at the stationary point):
+the Euler-Lagrange equation still works:
 
 .. math::
 
@@ -493,20 +492,20 @@ system.  Let's show that in 1D using the fact that
 
    E &:= \frac{\partial L}{\partial q'} q' - L \\
      &= \frac{\partial (\frac{1}{2}mq'^2 - U(q))}{\partial q'} q' - L \\
-     &= mq' \cdot q'_i - L \\
+     &= mq' \cdot q' - L \\
      &= 2K - (K - U) \\
      &= K + U \\
      \tag{16}
 
 where we can see that it's the kinetic energy *plus* the potential energy of
-the system.  If the coordinate system you are using are Cartesian, then it is
+the system.  If the coordinate system you are using is Cartesian, then it is
 always the total energy.  Otherwise, you have to ensure the change of basis
 does not have a time dependence or else there's no guarantee.  See 15.1 from
 [2] for more details.
 
 Now we're almost at the Hamiltonian with Equation 15 but we want to do a
 variable substitution by getting rid of :math:`q'` and replacing it with
-something called the *generalized momentum*:
+something called the *generalized momentum* (to match our generalized position :math:`q`):
 
 .. math::
 
@@ -548,14 +547,14 @@ current state of a system (alternatively you could use velocity instead of
 momentum).  However, as we'll see later, phase space coordinates have
 certain nice properties that we'll utilize when trying to perform MCMC.
 
-Now Equation 19 by itself maybe isn't that interesting but let's see what happens
+Now Equation 19 by itself maybe isn't that interesting, but let's see what happens
 when we analyze how it changes with respect to its inputs :math:`q` and :math:`p`
 (in 1D to keep things cleaner).  Starting with :math:`p`:
 
 .. math::
 
    \frac{\partial H}{\partial p} &= \frac{\partial (p q'(q, p))}{\partial p}  - \frac{\partial L(q, q'(q, p))}{\partial p} \\
-                                 &= [q'(q, p) + p\frac{\partial (q'(q, p))}{\partial p}] 
+                                 &= [q'(q, p) + p\frac{\partial q'(q, p)}{\partial p}] 
                                     - \frac{\partial L(q, q'(q, p))}{\partial q'} \frac{\partial q'(q, p)}{\partial p} \\
                                  &= [q'(q, p) + p\frac{\partial q'(q, p)}{\partial p}] 
                                     - p \frac{\partial q'(q, p)}{\partial p} && p := \frac{\partial L}{\partial q'} \\
