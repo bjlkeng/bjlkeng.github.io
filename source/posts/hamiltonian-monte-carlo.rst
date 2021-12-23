@@ -681,30 +681,32 @@ Properties of Hamiltonian Mechanics
 After going through example 3, you may wonder what was the point of all of this
 manipulation?  We essentially just ended with Newton's second law, which
 required an even more round about way via writing the Lagrangian, Hamiltonian,
-Hamilton's equations and then essentially converting back to where we started.
+Hamilton's equations and then converting it back to where we started.
 These are all very good observations and the simple examples shown so far don't
 do Hamiltonian mechanics justice.  We usually do not use the
 Hamiltonian method for standard mechanics problems involving a small number of
-particles.  It really starts to shine when using it for analysis with a large
+particles.  It really starts to shine when using it for analyses with a large
 number of particles (e.g. thermodynamics) or with no particles at all (e.g.
 quantum mechanics where everything is a wave function).  We won't get into
 these two applications because they are beyond the scope of this post.
 
-The Hamiltonian also has some nice properties that aren't obvious at first
-glance.  There are three properties that we'll care about:
+However, another nice thing about the Hamiltonian form is that it has nice some
+properties that aren't obvious at first glance.  There are three properties
+that we'll care about:
 
-**Reversability**: An interesting result is that for a particle given its
+**Reversability**: For a particle, given its
 initial point in phase space :math:`(q_0, p_0)` at a point in time, its motion
-is completely determined for all time.  That is, we can use Hamilton's
-equations to find its instantaneous rate of change (:math:`(q', p')`), which we
-can use to find its nearby position after a delta of time, and then repeat this
-process to find its trajectory.  This hints at the application we're going to
+is completely (and uniquely) determined for all time.  That is, we can use Hamilton's
+equations to find its instantaneous rate of change (:math:`(q', p')`), which
+can be used to find its nearby position after a delta of time, and repeated to
+find its complete trajectory.  This hints at the application we're going to
 use it for: using a numerical method to find its trajectory (next subsection).
 Equally important though is the fact that we can reverse this process to find
-where it came from.  If you have a path from :math:`(q(t), p(t))` to 
-:math:`(q(t+s), p(t+s)` then you can find the reverse path by applying the negative
-time derivative (:math:`(-q', -p')`) because the path is unique.
-We'll use this property when constructing the Markov chain transitions for HMC.
+where it came from.  If you have a path from :math:`(q(t), p(t))` to
+:math:`(q(t+s), p(t+s)` then you can reverse the operation by negating its time
+derivative (:math:`(-q', -p')`) and move backwards along its trajectory.  This
+is because each trajectory is unique in phase space.  We'll use this property
+when constructing the Markov chain transitions for HMC.
 
 **Conservation of the Hamiltonian**: Another important property is that the
 Hamiltonian is conserved.  We can see this by taking the time derivative
@@ -729,30 +731,30 @@ Liouville's theorem (from [2]):
     time) as the surface moves through phase space.
    
 I'll refer to [2] if you want to see the proof.  This is an important result
-that we'll use so that we can avoid accounting for the change in volume 
-(via Jacobians) in our HMC algorithm since the multi-dimensional "volume" is
-preserved.  More on this later.
+that will be used to avoid accounting for the change in volume (via Jacobians)
+in our HMC algorithm since the multi-dimensional "volume" is preserved.  More
+on this later.
 
 Discretizing Hamiltonian's Equations
 ------------------------------------
 
-The simple examples we saw in the last subsections worked out nicely where
-we had a closed form solution to the equations of motion.  As you can imagine,
-in most cases we won't have such a nice closed form analytic solution.  In these
-cases, we turn to approximate methods to compute our desired result.
+The simple examples we saw in the last subsections worked out nicely because we
+could solve the differential equations for a closed form solution.  As you can
+imagine in most cases, we won't have such a nice closed form solution.  Thus,
+we turn to approximate methods to compute our desired result (the equations of motion).
 
-One way to approach this is to iteratively simulate Hamilton's equation by
+One way to approach it is to iteratively simulate Hamilton's equation by
 discretizing time using some small :math:`\epsilon`.  Starting at time 0,
 we can iteratively compute the trajectory in phase space :math:`(q, p)`
-through time using Hamilton's equations.  We'll look at 2.5 methods to
+through time using Hamilton's equations.  We'll look at two and a half methods to
 accomplish this.
 
 **Euler's Method**: `Euler's method <https://en.wikipedia.org/wiki/Euler_method>`__ 
 is a technique to solve first order differential equations.  Notice that 
 Hamilton's equations produce 2N first order differential equations (as opposed
 to the Lagrangian, which produces second order differential equations).
-It's essentially just applying a first order Taylor series approximation
-at each iteration about the current point.
+Euler's method works by applying a first order Taylor series approximation at
+each iteration about the current point.
 
 More precisely, for a given step size :math:`\epsilon`, we can approximate the
 curve :math:`y(t)` given an initial point :math:`y_0` and a first order
@@ -762,9 +764,10 @@ differential equation using the formula:
 
     y(t+\epsilon) = y(t) + \epsilon y'(t, y(t))  \tag{29}
     
-where :math:`y(t_0)=y_0`.  This is simply taking small step sizes along the
+where :math:`y(t_0)=y_0` and :math:`y'(t, y(t))` is our first order
+differential equation.  This method simply takes small step sizes along the
 gradient of our curve where the gradient is computed from our differential
-equation using the :math:`t` and the previous values of `y`.
+equation using :math:`t` and the previous values of `y`.
 
 Translating this to phase space and using Hamilton's equations, we have:
 
@@ -775,14 +778,15 @@ Translating this to phase space and using Hamilton's equations, we have:
    \tag{30}
 
 Notice that the equations are dependent on each other, to calculate
-:math:`p(t+\epsilon)`, we need both of :math:`(q, p)` and vice versa.
+:math:`p(t+\epsilon)` or :math:`q(t+\epsilon)`, we need both :math:`(q(t), p(t))`.
 
 The main problem with Euler's method is that it quickly diverges from the 
 actual curve because of the accumulation of errors.  The error propagates
-because we assume we start from the somewhere on the curve whereas we're always
+because we assume we start from somewhere on the curve, whereas we're always
 some delta away from the curve after the first iteration.  Figure 4 (top left)
 shows how the method quickly spirals out of control towards infinity even with
-a small epsilon with our simple harmonic oscillator from Examples 1-3.
+a small epsilon with our simple harmonic oscillator from Examples 1-3 
+(the black line shows the exact trajectory).
 
 .. figure:: /images/hmc_leapfrog.png
   :width: 100%
@@ -799,23 +803,24 @@ works).  More precisely, we get this approximation in phase space:
 
 .. math::
 
-   p(t+\epsilon) = p(t) + \epsilon \frac{dp}{dt}(t) = p(t) - \epsilon \frac{\partial H}{\partial q}(q(t)) \tag{31}\\
-   q(t+\epsilon) = q(t) + \epsilon \frac{dq}{dt}(t) = q(t) + \epsilon \frac{\partial H}{\partial p}(p(t+\epsilon)) \tag{32}
+   p(t+\epsilon) &= p(t) + \epsilon \frac{dp}{dt} = p(t) - \epsilon \frac{\partial H}{\partial q}(q(t)) \tag{31}\\
+   q(t+\epsilon) &= q(t) + \epsilon \frac{dq}{dt} = q(t) + \epsilon \frac{\partial H}{\partial p}(p(t+\epsilon)) \tag{32}
 
-The results can be seen in Figure 4: it more closely tracks the underlying
-curve without tendencies to diverge. 
+The results can be seen in Figure 4 (top right) where it much more closely
+tracks the underlying curve without tendencies to diverge. 
 
-This is because the pair of equations
-preserves volume just like the result from Liouville's theorem above.  Let's
-show how that is the case in two dimensions but this result holds for multiple
-dimensions. (In fact, the argument in the following sketch 
-can be used to prove Liouville's theorem albeit with more complexity.)
+This reason for this is because the pair of equations preserves volume just
+like the result from Liouville's theorem above.  Let's show how that is the
+case in two dimensions but this result also holds for multiple dimensions. (In
+fact, a similar idea used in the following argument can be used to prove
+Liouville's theorem.)
 
 First note that Equation 31 can be viewed as a transformation mapping
 :math:`(p(t), q(t))` to :math:`(p(t+\epsilon), q(t))` (same for Equation 32).
-Denote this mapping as :math:`\bf f` and let's see how the differentials of the
-above change (I'll change all the parameters to superscripts to make the
-notation a bit nicer).  First, we can see the transformation for Equation 31 as:
+Denote this mapping as :math:`\bf f` and let's analyze how the differentials of the
+above equation change. Note: I'll change all the parameters to superscripts to
+make the notation a bit cleaner. First, we can see the transformation for
+Equation 31 as:
 
 .. math::
 
@@ -856,9 +861,9 @@ using the `substitution rule <https://en.wikipedia.org/wiki/Integration_by_subst
 
     dp^{t+\epsilon} dq^t = |det({\bf J_f})| dp^t dq^t = dp^t dq^t \tag{34}
 
-So we see that the volume is preserved when we take a single step (Equation 31).
-We can use the same logic when applying Equation 32 and every subsequent
-application of those equations using modified Euler's method.
+So we see that the volume is preserved when we take an arbitrarily small step
+(Equation 31).  We can use the same logic for Equation 32 and thus every
+subsequent application of those equations also preserves volume.
 
 Figure 5 shows this visually by drawing a small region near the starting points
 and then running Euler's method and modified Euler's method.  For the vanilla
@@ -876,8 +881,7 @@ grows, so do the points that define it).  Modified Euler's doesn't have this pro
 It's not clear to me that volume preservation in general guarantees that it
 won't spiral to infinite, nor that non-volume preservation necessarily
 guarantees it will spiral to infinite but it does sure seem to help empirically.
-The guarantees (if any) are likely related to the `symplectic nature <https://en.wikipedia.org/wiki/Symplectic_integrator>`__
-but I didn't really look into it much further than that.
+The guarantees (if any) are likely related to the `symplectic nature <https://en.wikipedia.org/wiki/Symplectic_integrator>`__ of the method but I didn't really look into it much further than that.
 
 **Leapfrog Method**: The final method uses the same idea but with an extra *Leapfrog* step:
 
@@ -887,11 +891,12 @@ but I didn't really look into it much further than that.
    q(t+\epsilon) = q(t) + \epsilon \frac{\partial H}{\partial p}(p(t+\epsilon/2)) \tag{36} \\
    p(t+\epsilon) = p(t+\epsilon/2) - \epsilon/2 \frac{\partial H}{\partial q}(q(t+\epsilon)) \tag{37}
 
-where we iteratively apply these equations sequentially similar to modified Euler's method.
-The idea is that instead of taking a "full step" for :math:`p`, we take a "half step". 
-This half step is used to update :math:`q`, which is then used to update
-:math:`p` using another "half step".  The last subplot in Figure 4 shows Leapfrog, which
-empirically performs much better than the other methods.
+where we iteratively apply these equations in sequence similar to modified Euler's method.
+The idea is that instead of taking a "full step" for :math:`p`, we take a "half
+step" (Equation 35).  This half step is used to update :math:`q` with a full
+step (Equation 36), which is then used to update :math:`p` using another "half
+step" (Equation 37).  The last two subplots (bottom left and right) in Figure 4
+show Leapfrog in action, which empirically performs much better than the other methods.
 
 Using the same logic as above, each transform individually is volume
 preserving, ensuring similar "nice" behaviour as modified Euler's method.
@@ -900,10 +905,11 @@ equations an additional time but the trade-off is good in this case.
 
 Another nice property of both modified Euler's and Leapfrog is that it is also
 reversible.  Simply negate :math:`p`, and run the algorithm, then negate
-:math:`p` to get back where you started.  Since we're only updating either
-:math:`p` or :math:`q`, it allows us to essentially run the algorithm in
-reverse.  As you might guess, this reversibility condition is going to be
-helpful for use in MCMC.
+:math:`p` to get back where you started.  This works because the momentum is the
+only thing causing motion, so negating :math:`p` essentially reverses our direction.
+Since we're only updating either :math:`p` or :math:`q`, it allows us to
+essentially run the algorithm in reverse.  As you might guess, this
+reversibility condition is going to be helpful for use in MCMC.
 
 
 Hamiltonian Monte Carlo
@@ -933,29 +939,30 @@ The physical system we're going to base this on is from thermodynamics
 looking at).  A commonly studied situation in thermodynamics is one of
 a closed system of fixed volume and number of particles (e.g. gas molecules in
 a box) that is "submerged" in a heat bath at thermal equilibrium.
-The basic idea is the heat bath is much, much larger than our internal system so
-it can keep it the system at a constant temperature.  
+The idea is the heat bath is much, much larger than our internal system so it
+can keep it the system at a constant temperature.  
 Note that even though internal system is at a constant temperature, its energy
 will fluctuate because of the mechanical contact with the heat bath, so the
-internal system energy is *not* conserved (i.e., constant). The overall system
-including the heat bath *and* internal system is conserved though.  This 
-type of system is usually called the
-`canonical ensemble <https://en.wikipedia.org/wiki/Canonical_ensemble>`__.
+internal system energy is *not* conserved (i.e., constant). The overall energy
+of the combined system (heat bath *and* internal system) is conserved though.
+This setup is called the `canonical ensemble
+<https://en.wikipedia.org/wiki/Canonical_ensemble>`__.
 
 One of the fundamental concepts in thermodynamics is the idea of a 
 `microstate <https://en.wikipedia.org/wiki/Microstate_(statistical_mechanics)>`__, 
 which defines (for classical systems) a single point in phase space.  That is,
-the position (:math:`q`) and momentum variables (:math:`p`) for all particles
+the position (:math:`q`) and momentum (:math:`p`) variables for all particles
 defines the microstate of the entire system.
-We're typically not interested in the actual movement of particles
-(although will be for MCMC), instead we will usually want to measure other
-macro thermodynamic quantities such as average energy or pressure of the internal system.
+In thermodynamics, we are typically not interested in the detailed movement of
+each particle (although will be for MCMC), instead usually want to measure
+other macro thermodynamic quantities such as average energy or pressure of the
+internal system.
 
-An important quantity we need to compute is the probability of the entire
-system being in a microstate i.e., a given configuration of :math:`p`'s and
-:math:`q`'s.  Without going into the entire derivation, which would take us on
-a larger tangent into thermodynamics, I'll just give the result, which is known
-as the Boltzman distribution:
+An important quantity we need to compute is the probability of the internal
+system being in a particular microstate i.e., a given configuration of
+:math:`p`'s and :math:`q`'s.  Without going into the entire derivation, which
+would take us on a larger tangent into thermodynamics, I'll just give the
+result, which is known as the Boltzman distribution:
 
 .. math::
 
@@ -974,10 +981,10 @@ It turns out that it doesn't matter how many particles you have in your
 internal system, it could be a googolplex or a single particle.  As long as you
 have the heat bath and some assumptions about the transfer of heat between the
 two systems, the Boltzmann distribution holds.  The most intuitive
-way to think about it is (as an ML person) as a "softmax" over all the microstates,
-where the energy of the microstate is the "logit" value and :math:`Z` is the
-normalizing summation over all exponentials.  Importantly, it is *not* just an
-exponentially distributed variable.
+way (as an ML person) to interpret Equation 38 is as a "softmax" over all the
+microstates, where the energy of the microstate is the "logit" value and
+:math:`Z` is the normalizing summation over all exponentials.  Importantly, it
+is *not* just an exponentially distributed variable.
 
 In the single particle case, the particle is going to be moving around in your
 closed system but randomly interacting with the heat bath, which basically
@@ -1040,17 +1047,18 @@ setup the HMC method.
 This whole digression into thermodynamics is not for naught!  We are in fact
 going to use the canonical ensemble to model and sample from our target
 distribution.  Here's the setup for target density (or something proportional
-to it) :math:`f({\bf x})` with :math:`D` variable in its support:
+to it) :math:`f({\bf x})` with :math:`D` variables in its support:
 
 * **Position variables** (:math:`q`): The :math:`D` variables of our target
   distribution (the one we want to sample from) will correspond to our position
   variables :math:`\bf q`.  Instead of our canonical distribution existing in
-  (usually) 3 dimensions, we'll be using :math:`D` position dimensions.
+  (usually) 3 dimensions for a physical system, we'll be using :math:`D`
+  position dimensions for HMC.
 * **Momentum variables** (:math:`p`): :math:`D` corresponding momentum
   variables will be introduced artificially in order for the Hamiltonian
-  dynamics to operate.  They will allow us to simulate the particle moving
-  around as well as it randomly changing position when it interacts with the
-  heat bath.
+  dynamics to operate.  They will allow us to simulate both the particle moving
+  around as well as the random changes in direction that occur when it
+  interacts with the heat bath.
 * **Potential energy** (:math:`U(q)`): The potential energy will be the
   negative logarithm of our target density (up to a normalizing constant):
 
@@ -1059,9 +1067,9 @@ to it) :math:`f({\bf x})` with :math:`D` variable in its support:
         U({\bf q}) = -log[f({\bf q})] \tag{39}
 * **Kinetic energy** (:math:`K(p)`): There can be many choices in how to define
   the kinetic energy, but the current practice is to assume that it is independent
-  of :math:`q`, and its quadratic in each of the dimensions.  This naturally
+  of :math:`q`, and quadratic in each of the dimensions.  This naturally
   translates to a zero-mean multivariate Gaussian (see below) with independent
-  with variances :math:`m_i`.  This produces the kinetic energy:
+  variances :math:`m_i`.  This produces the kinetic energy:
 
   .. math::
 
@@ -1095,8 +1103,9 @@ look at those two distributions, we have:
     \tag{43}
 
 So our canonical distribution is made up of two independent parts: our target distribution
-and some zero mean independent Gaussians!  So how does this help us?  Recall that the canonical distribution
-models the distribution of microstates (:math:`\bf q,p`), so if we can *exactly* simulate the
+and some zero mean independent Gaussians!  So how does this help us?  Recall
+that the canonical distribution models the distribution of microstates
+(:math:`\bf q,p`). So if we can *exactly* simulate the
 dynamics of the system (via the Hamilton's equations + random interactions with
 the heat bath), we would essentially be simulating exactly :math:`P({\bf q,p})`, which
 leads us directly to simulating :math:`P({\bf q})`!
@@ -1132,29 +1141,33 @@ HMC Algorithm
 The core part of the HMC algorithm follows essentially the same structure as
 the Metropolis-Hastings algorithm: propose a new sample, accept with some
 probability.  The difference is that Hamiltonian dynamics are used to find a
-new proposal sample, and the acceptance criteria is slightly modified.
+new proposal sample, and the acceptance criteria is simplified because of a
+symmetric proposal distribution.
 Here's a run-down of the major steps:
 
 1. Draw a new value of :math:`p` from our zero mean Gaussian.  This simulates
    a random interaction with the heat bath.
 2. Starting in state :math:`(q,p)`, run Hamiltonian dynamics for :math:`L` steps
    with stepsize :math:`\epsilon` using the Leapfrog method presented in
-   Section 2.6.  :math:`L` and :math:`\epsilon` are hyperparameters of the
+   Section 2.5.  :math:`L` and :math:`\epsilon` are hyperparameters of the
    algorithm.  This simulates the particle moving without interactions with the heat bath.
 3. After running :math:`L` steps, negate the momentum variables, giving a proposed
-   state of :math:`(q^*, p^*)`.  This makes the proposed state symmetric i.e.  if
-   we run :math:`L` steps again, we get back to the same original state.  The
-   negation is necessary for our MCMC proof below but the :math:`p^*` value is
-   never actually used.
+   state of :math:`(q^*, p^*)`.  The negation makes the proposal distribution
+   symmetric i.e. if we run :math:`L` steps again, we get back to the original
+   state.  The negation is necessary for our MCMC proof below but the
+   negation is unimportant because we always square the momentum before using
+   it in the Hamiltonian.
 4. The proposed state :math:`(q^*, p^*)` is accepted as the next state using a
    Metropolis-Hastings update with probability:
 
    .. math::
 
-       A((q^*, p^*)) &= \min[1, \frac{\exp(-H(q^*, p^*))}{\exp(-H(q,p))}] \\
-                   &= \min[1, \exp(-U(q^*) + U(q) -K(p^*)+K(p))] \\
-                   \tag{44}
-  
+       A(q^*, p^*) &= \min\big[1, \frac{f(q^*, p^*)g(q, p | q^*, p^*)}{f(q, p)g(q^*, p^* | q, p)}\big] \\
+                     &= \min\big[1, \frac{f(q^*, p^*)}{f(q, p)}\big] && \text{symmetry of proposal distribution} \\
+                     &= \min[1, \frac{\exp(-H(q^*, p^*))}{\exp(-H(q,p))}] \\
+                     &= \min[1, \exp(-U(q^*) + U(q) -K(p^*)+K(p))] \\
+                     \tag{44}
+ 
    If the next state is not accepted (i.e. rejected), then the current state
    becomes the next state.  This MH step is needed to offset the approximation
    of our discretized Hamiltonian.  If we could exactly simulate Hamiltonian
@@ -1166,11 +1179,12 @@ background knowledge above).  It generally converges faster than
 a random walk-based MH algorithm, but it does have some key assumptions.
 First, we can only sample from continuous distributions on
 :math:`\mathcal{R}^D` because otherwise our Hamiltonian dynamics could not
-operate.  Second, similarly to MH, we need to be able to evaluate the density
+operate.  Second, similar to MH, we need to be able to evaluate the density
 up to a normalizing constant.  Finally, we must be able to compute the partial
 derivative of the log density in order to compute Hamilton's equations.  Thus,
 these derivatives must exist everywhere the density is non-zero.
-There are a couple of other details you can look up in [1] if you are interested.
+There are several other detailed assumptions you can look up in [1] if you are
+interested.
 
 What's nice is that all that math reduces down to quite a simple algorithm.
 Listing 1 shows pseudo-code for one iteration of the algorithm, which is pretty
@@ -1209,7 +1223,7 @@ version of HMC).
        # Leapfrog: final half step for momentum
        p = p - epsilon * grad_U(q)
 
-       # Negate trajectory to make proposal symmetric (a no-op)
+       # Negate trajectory to make proposal symmetric
        p = -p
 
        # Compute potential and kinetic energies
@@ -1226,11 +1240,9 @@ version of HMC).
 
 Listing 1 is a straight forward implementation of Leapfrog combined with a
 simple acceptance step. An optimization is done on line 23 to combine 
-the two half momentum steps from Equation 35 and 37.  In the Leapfrog algorithm,
-every half momentum step except the first and last can be combined into a full
-step.  A bit of the magic is hidden behind the potential and gradient of the
-potential function but those depend fully on your target distribution so it
-can't be helped.
+the two half momentum steps from Equation 35 and 37.  A bit of the magic is
+hidden behind the potential and gradient of the potential function but those
+depend fully on your target distribution so it can't be helped.
 
 It's not obvious that the above algorithm would be correct, particularly the
 acceptance step, which we simply stated without much reasoning.  We'll examine
