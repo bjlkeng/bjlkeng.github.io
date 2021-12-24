@@ -633,7 +633,7 @@ two methods.  The next example shows this in more detail.
 
     Which turns out to just be the linear momentum.  Note, we'll
     be using :math:`x` instead of :math:`q` in this example since
-    we'll be using standard cartesian coordinates.  
+    we'll be using standard Cartesian coordinates.  
     
     From Equation 23, solve for the velocities (:math:`x'`) so we can re-write
     in terms of momentum, we get:
@@ -726,7 +726,7 @@ We'll see later that this ideal is not always maintained.
 Liouville's theorem (from [2]):
 
     **Liouville's Theorem**: Given a system of :math:`N` coordinates :math:`q_i`,
-    the :math:`2N` dimentional "volume" enclosed by a given :math:`(2N-1)`
+    the :math:`2N` dimensional "volume" enclosed by a given :math:`(2N-1)`
     dimensional "surface" in phase space is conserved (that is, independent of
     time) as the surface moves through phase space.
    
@@ -873,7 +873,7 @@ grows, so do the points that define it).  Modified Euler's doesn't have this pro
 
 .. figure:: /images/hmc_vol_preserve.png
   :width: 100%
-  :alt: Visualization of volume presenvation of modified Euler's method
+  :alt: Visualization of volume preservation of modified Euler's method
   :align: center
 
   **Figure 5: Contrasting volume preservation nature of the modified Euler's method vs. Euler's method.**
@@ -971,7 +971,7 @@ result, which is known as the Boltzman distribution:
           \tag{38}
 
 where :math:`p_i`  is the probability of being in state :math:`i`, :math:`P(q, p)`
-is the same probability but explicitly labeling the state with its phase state coordinates
+is the same probability but explicitly labelling the state with its phase state coordinates
 :math:`(q, p)`, :math:`E_i` is the energy state of state :math:`i`, :math:`k` is the
 Boltzmann constant, and :math:`T` is the temperature.  As we know from the previous
 section, the total energy of a system is (in this case) equal to the Hamiltonian so
@@ -1148,7 +1148,7 @@ Here's a run-down of the major steps:
 1. Draw a new value of :math:`p` from our zero mean Gaussian.  This simulates
    a random interaction with the heat bath.
 2. Starting in state :math:`(q,p)`, run Hamiltonian dynamics for :math:`L` steps
-   with stepsize :math:`\epsilon` using the Leapfrog method presented in
+   with step size :math:`\epsilon` using the Leapfrog method presented in
    Section 2.5.  :math:`L` and :math:`\epsilon` are hyperparameters of the
    algorithm.  This simulates the particle moving without interactions with the heat bath.
 3. After running :math:`L` steps, negate the momentum variables, giving a proposed
@@ -1383,7 +1383,7 @@ math behind HMC.  To make it practically work, there are a lot more details.
 Here are just a few of the issues that make a real world implementation complex
 (for all these points, [1] has some additional discussion if you want more detail):
 
-* Tuning stepsize (:math:`\epsilon`) and number of steps (:math:`L`) is so critically important
+* Tuning step size (:math:`\epsilon`) and number of steps (:math:`L`) is so critically important
   that it can make or break your HMC implementation (see discussion in
   the experiments below).  You can get into all sorts of incorrect sampling
   behaviors if you get it wrong from highly correlated samples to low
@@ -1392,7 +1392,7 @@ Here are just a few of the issues that make a real world implementation complex
   our independent Gaussians in our case) is also very important to getting proper samples.
   If your momentum is too low, then you won't be able to explore the tails of your distribution.
   If your momentum is too high, then you'll have a very low acceptance rate.
-  To add to the complexity, the momentum distribution is related to the stepsize
+  To add to the complexity, the momentum distribution is related to the step size
   and number of steps too.  In general, it's best if you can tune each dimension
   of the momentum distribution to fit your problem but that is typically non-trivial.
 * In general, you'll have a mix of discrete and continuous variables.  In those cases,
@@ -1438,7 +1438,7 @@ autocorrelation (AC) plots, which shows little to no correlation between
 samples (i.e. independence).  I had to (manually) tune both algorithms in order
 to get to a point where the AC plots didn't show significant correlation.  For
 MH, I had to increase the step size sufficiently.  For HMC, I had to tune
-between the stepsize and number of steps to get that result.
+between the step size and number of steps to get that result.
 
 Adding another dimension, I also ran HMC and MH for a 
 `bivariate normal distribution <https://en.wikipedia.org/wiki/Multivariate_normal_distribution#Bivariate_case>`__
