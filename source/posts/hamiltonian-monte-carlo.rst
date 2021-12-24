@@ -1251,42 +1251,43 @@ its correctness the next subsection.
 HMC Algorithm Correctness
 -------------------------
 
-To show that that HMC correctly produces samples, we will show that the algorithm
+To show that HMC correctly produces samples, we will show that the algorithm
 correctly samples from the *joint* canonical ensemble distribution :math:`P(q, p)`.
 Since we already identified that this joint distribution can be factored into independent
-distributions across :math:`P(q)` and :math:`P(p)` (Equation 42), our final output
-can just take the :math:`q` part of each sample we generate to get our desired result.
+distributions :math:`P(q)` and :math:`P(p)` (Equation 42), our final output
+can just take the :math:`q` samples to get our desired result.
 
-We ultimately want to show that that the next state returned in Listing 1
+We ultimately want to show that the next state returned in Listing 1
 occurs with the correct probability according to the canonical distribution.
-First, we'll look at sampling of our momentum.  Assume that you have sampled
-:math:`q` properly (up to this point) according to our canonical distribution
-(the input to Listing 1).  Since our momentum factor is independent, we can 
-simply sample the momentum from the independent normal we defined and the
-resulting sample :math:`(q, p)` will distributed according to canonical
-ensemble as required.
+First, we'll look at the very first operation: sampling of the momentum (Line 11 from Listing 1).
+Assume that you have sampled :math:`q` properly (up to this point) according to
+our canonical distribution (the input to Listing 1).  Since our momentum factor
+is independent, we can simply sample the momentum from its correct distribution
+(an independent normal distribution) and the resulting sample :math:`(q, p)`
+will distributed according to the canonical ensemble as required.
 
 Next, we'll look at the rest of the algorithm, which runs Leapfrog for L steps
-and does an MH update.  We'll be talking more informally in terms of
-arbitrarily small partitions of phase space (:math:`(q, p)`).  Since these are
-arbitrarily small, the probability and other associated quantities are constant
-within those region.  The idea is that these finite regions can be shrunk down
-to infinitesimally small sizes that we would need to prove the general result.
-Additionally, this is where the volume-preserving nature of the Leapfrog algorithm
-comes in (and negation of the momentum, which is also volume-preserving).
-We don't need to worry about our small regions ever growing (or shrinking) and
-thus, we can treat any region (before or after a Leapfrog step) similarly.
-Since we're just sketching the proof here, there's no need for all the
-formality so we'll use region and state interchangeably here.
+and does an MH update (Line 15-41).  We'll only be sketching the idea here and
+will not go into too many formalities.  To start, let's divide up phase space
+(:math:`(q, p)`) into arbitrarily small partitions.  Since these are
+arbitrarily small regions, the probability density, Hamiltonian and other
+associated quantities are constant within those region.  The idea is that these
+finite regions can be shrunk down to infinitesimally small sizes that we would
+need to prove the general result.  Additionally, this is where the
+volume-preserving nature of the Leapfrog algorithm comes in (and negation of
+the momentum, which is also volume-preserving).  We don't need to worry about
+our small regions ever growing (or shrinking) and thus, we can treat any region
+(before or after a Leapfrog step) similarly.
 
 Assume you have sampled the current state :math:`(q, p)` according to the
-canonical distribution, which follows from the previous step.  
+canonical distribution i.e., :math:`(q, p)` after you sample the momentum.
 The probability that the next state is in some (infinitesimally) small region
-:math:`X_k` is the sum of probabilities that it's already in :math:`X_k` and it gets rejected
-(:code:`else` statement in Listing 1) *plus* the probability that it's in some other state
-and moves into state :math:`X_k`.  Given canonical distribution :math:`P(X_k)`, rejection
-probability :math:`R(X_k)`, and transition probability :math:`T(X_k|X_i)` from
-region :math:`i` to :math:`k`, we can see that:
+:math:`X_k` is the sum of probabilities that it's (a) already in :math:`X_k` and it gets rejected
+(:code:`else` statement in Listing 1) *plus* (b) the probability that it's in some other state
+and moves into state :math:`X_k`.  Given canonical distribution probability state
+:math:`P(X_k)`, rejection probability :math:`R(X_k)`, and
+transition probability :math:`T(X_k|X_i)` from region :math:`i` to :math:`k`,
+we can see that:
 
 .. math::
 
@@ -1303,23 +1304,27 @@ state :math:`X_k` according to the target distribution.  From the second line,
 detailed balance (aka reversibility) is one of the key properties
 that we must have for this to work properly.  The other thing to notice is that
 the probability of *leaving* state :math:`X_k` to *any given* state is
-precisely the probability of *not* rejecting.
+precisely the probability of *not* rejecting.  So if we satisfy detailed
+balance (and the Markov chain has a steady state), we will have shown that
+we correctly sampled from the canonical distribution.
 
 Now we will show the three conditions needed for a Markov chain described in
-the background.  First, our procedure trivially can reach any state due to
+the background to show that it does converge to a steady state and has the
+detailed balance condition.  First, our procedure trivially can reach any state
+due to
 the normally distributed momentums, which span the real line, thus it is
-*irreducible* (practically though it is critically important to set the variance
-on the normal distributions well due to finite runs).  Second, we need to
+*irreducible* (practically though it is critically important to tune the variance
+on the normal distributions due to finite runs).  Second, we need to
 ensure that the system never returns to the same state with a fixed period
-(aperiodic).  Theoretically, this may be possible in certain setups but can be
+(i.e., it is aperiodic).  Theoretically, this may be possible in certain setups but can be
 avoided by randomly choosing :math:`\epsilon` or :math:`L` within a narrow
 interval.  Practically though, this is pretty rare on any non-trivial problem,
 although this may lead to other problems like very slow to converge.
 
 Lastly, all that is left to show is that detailed balance is satisfied.
 Assume we start our Leapfrog operation in state :math:`X_k` and run it for
-:math:`L` steps plus reverse the momentum, and end in state :math:`Y_k`.  We
-need to show detailed balance holds for all :math:`i,j` such that:
+:math:`L` steps plus reverse the momentum, and end in state :math:`Y_k`.
+We need to show detailed balance holds for all :math:`i,j` such that:
 
 .. math::
 
@@ -1328,16 +1333,16 @@ need to show detailed balance holds for all :math:`i,j` such that:
 Let's break it down into two cases:
 
 **Case 1** :math:`i \neq j`: Recall that the Leapfrog algorithm is deterministic,
-therefore :math:`Y_i = \text{Leapfrog+Reverse}(X_i)` for any given :math:`k`.  So if you
+therefore :math:`Y_i = \text{Leapfrog_Plus_Reverse}(X_i)` for any given :math:`k`.  So if you
 have any other :math:`Y_{j\neq i}` then it is impossible to transition to this state.
-Thus :math:`T(X_i|y_j) = 0` in this case and Equation 46 is trivially satisfied.
+Thus, :math:`T(X_i|y_j) = 0` and Equation 46 is trivially satisfied.
 
-**Case 2** :math:`i = j`: In this case, let's plug in our transition probability
+**Case 2** :math:`i = j`: In this case, let's plug in our transition/acceptance probability
 condition (Equation 44) and see what happens.  Note that in addition to the probability
 being constant within a region, we also have the Hamiltonian constant too.  Let :math:`V` be the
 volume of the region, :math:`H_{X_k}, H_{Y_k}` be the value of the Hamiltonian
 in each region, and without loss of generality assume
-:math:`H_{X_k} > H_{Y_k}` (due to symmetry of problem). Plugging this all into Equation 46,
+:math:`H_{X_k} > H_{Y_k}` (due to symmetry of the problem). Plugging this all into Equation 46,
 we see that it satisfies the detailed balance condition:
 
 .. math::
@@ -1360,10 +1365,10 @@ constant throughout.
 
 Two subtle points to mention.
 First, if we were able to simulate Hamiltonian dynamics exactly, :math:`H_{X_k} = H_{Y_k}`
-(recall the Hamiltonian is constant along a trajectory), which would get us to
+(recall the Hamiltonian is constant along a trajectory), then that would get us to
 a 100% acceptance rate.  Unfortunately, Leapfrog or any other approximation method
 doesn't quite get us there so we need the MH step.  Second, the reason why we
-need the negate the momentum at the end is so that our transition probabilities
+need to negate the momentum at the end is so that our transition probabilities
 are symmetric, i.e.  :math:`T(X_k|Y_k) = T(Y_k|X_k)` (Equation 44), which
 follows from the fact that we can reverse our Leapfrog steps by negating the momentum
 and running it back the same number of steps.  If we didn't include this step,
@@ -1376,8 +1381,7 @@ Additional Notes
 It should be pretty obvious that the explanation above only presents the core
 math behind HMC.  To make it practically work, there are a lot more details.
 Here are just a few of the issues that make a real world implementation complex
-(for all of these [1] has some additional discussion if you want to dive into
-more detail):
+(for all these points, [1] has some additional discussion if you want more detail):
 
 * Tuning stepsize (:math:`\epsilon`) and number of steps (:math:`L`) is so critically important
   that it can make or break your HMC implementation (see discussion in
@@ -1408,9 +1412,9 @@ more detail):
 Experiments
 ===========
 
-As I usually do, I implemented a toy version of HMC to better understand how it works.
+As usual, I implemented a toy version of HMC to better understand how it works.
 You can take a look at the code on `Github <https://github.com/bjlkeng/sandbox/blob/master/hmc/hmc.ipynb>`__
-(note: I didn't spend much time to clean up the code).  It's a pretty simple implementation
+(note: I didn't spend much time cleaning up the code).  It's a pretty simple implementation
 of HMC and MH MCMC algorithms, which pretty much mirrors the pseudocode above.
 
 I ran it for two very simple examples.  The first is a standard normal
@@ -1438,10 +1442,11 @@ between the stepsize and number of steps to get that result.
 
 Adding another dimension, I also ran HMC and MH for a 
 `bivariate normal distribution <https://en.wikipedia.org/wiki/Multivariate_normal_distribution#Bivariate_case>`__
-with standard deviation in both dimension of :math:`1.0`, and a correlation of :math:`0.9`.
+with standard deviation in both dimension of :math:`1.0`, and a correlation of :math:`0.9`
+for 1000 samples.
 The samples are plotted (from left to right, top to bottom) in Figure 8 for two
-HMC runs, a MH run, and a comparison to the results of directly sampling from
-it (with Numpy).  I plotted the unit circle to give a sense of scale of the
+HMC runs, a MH run, and directly sampling from the distribution (via Numpy).  I
+plotted the unit circle to give a sense of scale of the
 standard deviation of two dimensions (multivariate normal distributions with
 non-diagonal covariance matrices don't typically look spherical though).
 I also tuned all of them (except for Numpy) to have a relatively
@@ -1464,7 +1469,7 @@ smaller standard deviation (top right), and you can see all the samples are
 concentrated in the middle.  This shows that setting the momentum properly is
 critical for generating proper samples.  In this case, we see that the
 distribution doesn't have enough "energy" to reach far away points so we never
-sample from there.
+sample from there (for this particular finite run).
 
 Turning to the MH sampler, visually it also looks relatively similar to the
 Numpy samples. Similar to HMC, I had to set the standard deviation of the 
