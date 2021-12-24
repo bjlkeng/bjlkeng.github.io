@@ -1,5 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sun, 29 Aug 2021 15:25:20 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Lossless Compression with Latent Variable Models using Bits-Back Coding</title><link>http://bjlkeng.github.io/posts/lossless-compression-with-latent-variable-models-using-bits-back-coding/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;A lot of modern machine learning is related to this idea of "compression", or
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Fri, 24 Dec 2021 01:41:17 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Hamiltonian Monte Carlo</title><link>http://bjlkeng.github.io/posts/hamiltonian-monte-carlo/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Here's a topic I thought that I would never get around to learning because it was "too hard".
+When I first started learning about Bayesian methods, I knew enough that I
+should learn a thing or two about MCMC since that's the backbone
+of most Bayesian analysis; so I learned something about it
+(see my &lt;a class="reference external" href="http://bjlkeng.github.io/posts/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/"&gt;previous post&lt;/a&gt;).
+But I didn't dare attempt to learn about the infamous Hamiltonian Monte Carlo (HMC).
+Even though it is among the standard algorithms used in Bayesian inference, it
+always seemed too daunting because it required "advanced physics" to
+understand.  As usual, things only seem hard because you don't know them yet.
+After having some time to digest MCMC methods, getting comfortable learning
+more maths (see
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/tensors-tensors-tensors/"&gt;here&lt;/a&gt;,
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/manifolds/"&gt;here&lt;/a&gt;, and
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/"&gt;here&lt;/a&gt;),
+all of a sudden learning "advanced physics" didn't seem so tough (but there
+sure was a lot of background needed)!&lt;/p&gt;
+&lt;p&gt;This post is the culmination of many different rabbit holes (many much deeper
+than I needed to go) where I'm going to attempt to explain HMC in simple and
+intuitive terms to a satisfactory degree (that's the tag line of this blog
+after all).  I'm going to begin by briefly motivating the topic by reviewing
+MCMC and the Metropolis-Hastings algorithm then move on to explaining
+Hamiltonian dynamics (i.e., the "advanced physics"), and finally discuss the HMC
+algorithm along with some toy experiments I put together.  Most of the material
+is based on [1] and [2], which I've found to be great sources for their
+respective areas.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/hamiltonian-monte-carlo/"&gt;Read more…&lt;/a&gt; (52 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Bayesian</category><category>Hamiltonian</category><category>mathjax</category><category>MCMC</category><category>Monte Carlo</category><guid>http://bjlkeng.github.io/posts/hamiltonian-monte-carlo/</guid><pubDate>Fri, 24 Dec 2021 00:07:05 GMT</pubDate></item><item><title>Lossless Compression with Latent Variable Models using Bits-Back Coding</title><link>http://bjlkeng.github.io/posts/lossless-compression-with-latent-variable-models-using-bits-back-coding/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;A lot of modern machine learning is related to this idea of "compression", or
 maybe to use a fancier term "representations".  Taking a huge dimensional space
 (e.g. images of 256 x 256 x 3 pixels = 196608 dimensions) and somehow compressing it into
 a 1000 or so dimensional representation seems like pretty good compression to
@@ -137,14 +162,4 @@ promises though).&lt;/p&gt;
 overview with my previous two posts:
 &lt;a class="reference external" href="http://bjlkeng.github.io/posts/tensors-tensors-tensors/"&gt;Tensors, Tensors, Tensors&lt;/a&gt; and
 &lt;a class="reference external" href="http://bjlkeng.github.io/posts/manifolds/"&gt;Manifolds: A Gentle Introduction&lt;/a&gt;)&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/"&gt;Read more…&lt;/a&gt; (34 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>embeddings</category><category>geometry</category><category>hyperbolic</category><category>manifolds</category><category>mathjax</category><category>Poincaré</category><guid>http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/</guid><pubDate>Sun, 17 Jun 2018 12:20:18 GMT</pubDate></item><item><title>Manifolds: A Gentle Introduction</title><link>http://bjlkeng.github.io/posts/manifolds/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Following up on the math-y stuff from my &lt;a class="reference external" href="http://bjlkeng.github.io/posts/tensors-tensors-tensors/"&gt;last post&lt;/a&gt;,
-I'm going to be taking a look at another concept that pops up in ML: manifolds.
-It is most well-known in ML for its use in the
-&lt;a class="reference external" href="https://www.quora.com/What-is-the-Manifold-Hypothesis-in-Deep-Learning"&gt;manifold hypothesis&lt;/a&gt;.
-Manifolds belong to the branches of mathematics of topology and differential
-geometry.  I'll be focusing more on the study of manifolds from the latter
-category, which fortunately is a bit less abstract, more well behaved, and more
-intuitive than the former.  As usual, I'll go through some intuition,
-definitions, and examples to help clarify the ideas without going into too much
-depth or formalities.  I hope you mani-like it!&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/manifolds/"&gt;Read more…&lt;/a&gt; (30 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>manifolds</category><category>mathjax</category><category>metric tensor</category><guid>http://bjlkeng.github.io/posts/manifolds/</guid><pubDate>Tue, 17 Apr 2018 11:24:57 GMT</pubDate></item></channel></rss>
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/"&gt;Read more…&lt;/a&gt; (34 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>embeddings</category><category>geometry</category><category>hyperbolic</category><category>manifolds</category><category>mathjax</category><category>Poincaré</category><guid>http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/</guid><pubDate>Sun, 17 Jun 2018 12:20:18 GMT</pubDate></item></channel></rss>

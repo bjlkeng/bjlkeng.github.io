@@ -379,9 +379,9 @@ classic example.
 
 .. admonition:: Example 7: Find the shortest possible curve between
     the points :math:`(a,c)` and :math:`(b,d)` for which the path length
-    along the curve is defined by :math:`\ell(f) = \int_a^b \sqrt{1 + f'(x)^2} dx`
+    along the curve is defined by :math:`L(f) = \int_a^b \sqrt{1 + f'(x)^2} dx`
 
-    First define our integrand functional:
+    First define the integrand of our functional:
     
     .. math::
     
@@ -401,7 +401,7 @@ classic example.
     .. math::
 
         \frac{d}{dx} \frac{f'(x)}{\sqrt{1 + f'(x)^2}} &= 0 \\
-        \frac{f'(x)}{\sqrt{1 + f'(x)^2}} &= C \\
+        \frac{f'(x)}{\sqrt{1 + f'(x)^2}} &= C && \text{by integrating both sides w.r.t. } x\\
         f'(x) &= C\sqrt{1 + f'(x)^2} \\
         f'(x)^2 &= \frac{C^2}{1 - C^2} \\
         f'(x) &= \frac{C}{\sqrt{1 - C^2}} := A \\

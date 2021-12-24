@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#
+" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hamiltonian Monte Carlo | Bounded Rationality</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
+<link rel="alternate" type="application/rss+xml" title="RSS" hreflang="en" href="../../rss.xml">
+<link rel="canonical" href="http://bjlkeng.github.io/posts/hamiltonian-monte-carlo/">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
+    }
+});
+</script><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Brian Keng">
+<link rel="prev" href="../lossless-compression-with-latent-variable-models-using-bits-back-coding/" title="Lossless Compression with Latent Variable Models using Bits-Back Coding" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="Hamiltonian Monte Carlo">
+<meta property="og:url" content="http://bjlkeng.github.io/posts/hamiltonian-monte-carlo/">
+<meta property="og:description" content="Here's a topic I thought that I would never get around to learning because it was &quot;too hard&quot;.
+When I first started learning about Bayesian methods, I knew enough that I
+should learn a thing or two abo">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2021-12-23T20:07:05-04:00">
+<meta property="article:tag" content="Bayesian">
+<meta property="article:tag" content="Hamiltonian">
+<meta property="article:tag" content="mathjax">
+<meta property="article:tag" content="MCMC">
+<meta property="article:tag" content="Monte Carlo">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-expand-md static-top mb-4
+navbar-dark bg-dark
+"><div class="container">
+<!-- This keeps the margins nice -->
+        <a class="navbar-brand" href="http://bjlkeng.github.io/">
+
+            <span id="blog-title">Bounded Rationality</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="bs-navbar">
+            <ul class="navbar-nav mr-auto">
+<li class="nav-item">
+<a href="../../archive.html" class="nav-link">Archive</a>
+                </li>
+<li class="nav-item">
+<a href="../../categories/" class="nav-link">Tags</a>
+                </li>
+<li class="nav-item">
+<a href="../../rss.xml" class="nav-link">RSS feed</a>
+
+                
+            </li>
+</ul>
+<ul class="navbar-nav navbar-right">
+<li class="nav-item">
+    <a href="index.rst" id="sourcelink" class="nav-link">Source</a>
+    </li>
+
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <div class="row">
+        <!--Body content-->
+            <div class="col-lg-9">
+                
+                
+                
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Hamiltonian Monte Carlo</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
+                    Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2021-12-23T20:07:05-04:00" itemprop="datePublished" title="2021-12-23 20:07">2021-12-23 20:07</time></a>
+            </p>
+            
+        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>Here's a topic I thought that I would never get around to learning because it was "too hard".
+When I first started learning about Bayesian methods, I knew enough that I
+should learn a thing or two about MCMC since that's the backbone
+of most Bayesian analysis; so I learned something about it
+(see my <a class="reference external" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/">previous post</a>).
+But I didn't dare attempt to learn about the infamous Hamiltonian Monte Carlo (HMC).
+Even though it is among the standard algorithms used in Bayesian inference, it
+always seemed too daunting because it required "advanced physics" to
+understand.  As usual, things only seem hard because you don't know them yet.
+After having some time to digest MCMC methods, getting comfortable learning
+more maths (see
+<a class="reference external" href="../tensors-tensors-tensors/">here</a>,
+<a class="reference external" href="../manifolds/">here</a>, and
+<a class="reference external" href="../hyperbolic-geometry-and-poincare-embeddings/">here</a>),
+all of a sudden learning "advanced physics" didn't seem so tough (but there
+sure was a lot of background needed)!</p>
+<p>This post is the culmination of many different rabbit holes (many much deeper
+than I needed to go) where I'm going to attempt to explain HMC in simple and
+intuitive terms to a satisfactory degree (that's the tag line of this blog
+after all).  I'm going to begin by briefly motivating the topic by reviewing
+MCMC and the Metropolis-Hastings algorithm then move on to explaining
+Hamiltonian dynamics (i.e., the "advanced physics"), and finally discuss the HMC
+algorithm along with some toy experiments I put together.  Most of the material
+is based on [1] and [2], which I've found to be great sources for their
+respective areas.</p>
+<!-- TEASER_END -->
+<div class="card card-body bg-light">
+<h2>Table of Contents</h2>
+<div class="contents local topic" id="contents">
+<ul class="auto-toc simple">
+<li>
+<p><a class="reference internal" href="#background" id="id5"><span class="sectnum">1</span> Background</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#markov-chain-monte-carlo" id="id6"><span class="sectnum">1.1</span> Markov Chain Monte Carlo</a></p></li>
+<li><p><a class="reference internal" href="#motivation" id="id7"><span class="sectnum">1.2</span> Motivation</a></p></li>
+</ul>
+</li>
+<li>
+<p><a class="reference internal" href="#hamiltonian-mechanics" id="id8"><span class="sectnum">2</span> Hamiltonian Mechanics</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#classical-mechanics" id="id9"><span class="sectnum">2.1</span> Classical Mechanics</a></p></li>
+<li><p><a class="reference internal" href="#lagrangian-mechanics" id="id10"><span class="sectnum">2.2</span> Lagrangian Mechanics</a></p></li>
+<li><p><a class="reference internal" href="#the-hamiltonian-and-hamilton-s-equations" id="id11"><span class="sectnum">2.3</span> The Hamiltonian and Hamilton's Equations</a></p></li>
+<li><p><a class="reference internal" href="#properties-of-hamiltonian-mechanics" id="id12"><span class="sectnum">2.4</span> Properties of Hamiltonian Mechanics</a></p></li>
+<li><p><a class="reference internal" href="#discretizing-hamiltonian-s-equations" id="id13"><span class="sectnum">2.5</span> Discretizing Hamiltonian's Equations</a></p></li>
+</ul>
+</li>
+<li>
+<p><a class="reference internal" href="#hamiltonian-monte-carlo" id="id14"><span class="sectnum">3</span> Hamiltonian Monte Carlo</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#from-thermodynamics-to-hmc" id="id15"><span class="sectnum">3.1</span> From Thermodynamics to HMC</a></p></li>
+<li><p><a class="reference internal" href="#hmc-algorithm" id="id16"><span class="sectnum">3.2</span> HMC Algorithm</a></p></li>
+<li><p><a class="reference internal" href="#hmc-algorithm-correctness" id="id17"><span class="sectnum">3.3</span> HMC Algorithm Correctness</a></p></li>
+<li><p><a class="reference internal" href="#additional-notes" id="id18"><span class="sectnum">3.4</span> Additional Notes</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#experiments" id="id19"><span class="sectnum">4</span> Experiments</a></p></li>
+<li><p><a class="reference internal" href="#conclusion" id="id20"><span class="sectnum">5</span> Conclusion</a></p></li>
+<li><p><a class="reference internal" href="#further-reading" id="id21"><span class="sectnum">6</span> Further Reading</a></p></li>
+</ul>
+</div>
+</div>
+<p></p>
+<div class="section" id="background">
+<h2><a class="toc-backref" href="#id5"><span class="sectnum">1</span> Background</a></h2>
+<div class="section" id="markov-chain-monte-carlo">
+<h3><a class="toc-backref" href="#id6"><span class="sectnum">1.1</span> Markov Chain Monte Carlo</a></h3>
+<p>This section is going to give a brief overview of MCMC and the
+Metropolis-Hastings algorithm.  For a more detailed treatment, see my
+<a class="reference external" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/">previous post</a>.</p>
+<p>Markov Chain Monte Carlo (MCMC) algorithms are a class of techniques that use
+Markov chains to sample from a target probability distribution ("Monte Carlo").
+The main idea is that you construct a Markov Chain such that the steady state
+distribution of the Markov Chain approximates your target distribution.
+The samples from your target distribution can then be generated just by
+traversing that Markov Chain.</p>
+<div class="figure align-center">
+<img alt="Visualization of a Markov Chain Monte Carlo" src="../../images/mcmc.png" style="height: 270px;"><p class="caption"><strong>Figure 1: Visualization of a Markov Chain Monte Carlo.</strong></p>
+</div>
+<p>Figure 1 shows a crude visualization of the idea.  The "states" of the Markov Chain
+are the support of your probability distribution (the figure only shows
+states with discrete values for simplicity but they can also be continuous).
+Three important conditions that are required to construct a Markov chain
+that can be used for MCMC are:</p>
+<ol class="arabic simple">
+<li><p><strong>Irreducible</strong>: We must be able to reach any one state from any other state
+eventually (i.e. the expected number of steps is finite).</p></li>
+<li><p><strong>Aperiodic</strong>: The system never returns to the same state with a fixed
+period.</p></li>
+<li><p><strong>Reversible (aka Detailed Balance)</strong>: A Markov chain is called <a class="reference external" href="https://en.wikipedia.org/wiki/Detailed_balance#Reversible_Markov_chains">reversible</a>
+if the Markov chain has a stationary distribution <span class="math">\(\pi\)</span> such that
+<span class="math">\(\pi_i T(i|j) = \pi_j T(j|i)\)</span> where <span class="math">\(T(i|j)\)</span> is the transition
+probability from state <span class="math">\(i\)</span> to <span class="math">\(j\)</span> and <span class="math">\(\pi_i\)</span> and
+<span class="math">\(\pi_j\)</span> are the equilibrium probabilities for their respective states.
+This condition is known as the <em>detailed balance</em> condition.</p></li>
+</ol>
+<p>The first two properties define a Markov chain which is
+<a class="reference external" href="https://nlp.stanford.edu/IR-book/html/htmledition/definition-1.html">ergodic</a>,
+which implies that there is a steady state distribution.
+The third property is used to ensure that the Markov chain can be used in an MCMC algorithm.</p>
+<p>One of the earliest MCMC algorithms was the <a class="reference external" href="https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm">Metropolis-Hastings algorithm</a>
+(see my <a class="reference external" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/">previous post</a> for a derivation).
+This algorithm is nice because you don't need the actual probability
+density, call it <span class="math">\(p(x)\)</span>, but rather only a function that is
+proportional to it (<span class="math">\(f(x) \propto p(x)\)</span>).
+Assuming that the state space of the Markov Chain is the support of your target
+probability distribution, the algorithm gives a method to select the next state
+to traverse.  It does this by introducing two new distributions: a <em>proposal
+distribution</em> <span class="math">\(g(x)\)</span> and an <em>acceptance distribution</em> <span class="math">\(A(x)\)</span>.  The
+proposal distribution only needs to have the same support as your target
+distribution, although it's much more efficient if it has a similar shape.  The
+acceptance distribution is defined as:</p>
+<div class="math">
+\begin{equation*}
+A(y | x) = min(1, \frac{f(y)g(x | y)}{f(x)g(y | x)}) \tag{1}
+\end{equation*}
+</div>
+<p>with <span class="math">\(y\)</span> being the newly proposed state sampled from your proposal distribution <span class="math">\(g(x)\)</span>.
+The <span class="math">\(y | x\)</span> notation means that the proposal distribution is conditioned
+on the current state (<span class="math">\(x\)</span>) with a proposed transition to the next state (<span class="math">\(y\)</span>).
+The idea is that the proposal distribution will change depending on the current
+state.  A common choice is a normal distribution centered on <span class="math">\(x\)</span> with a
+standard deviation dependent on the problem instance.</p>
+<p>The algorithm can be summarized as such:</p>
+<ol class="arabic simple">
+<li><p>Initialize the initial state by picking a random <span class="math">\(x\)</span>.</p></li>
+<li><p>Propose a new state <span class="math">\(y\)</span> according to <span class="math">\(g(y | x)\)</span>.</p></li>
+<li><p>Accept state <span class="math">\(y\)</span> with uniform probability according to <span class="math">\(A(y | x)\)</span>.
+If accepted transition to state <span class="math">\(y\)</span>, otherwise stay in state <span class="math">\(x\)</span>.</p></li>
+<li><p>Go to step 2 (repeat <span class="math">\(T\)</span> times).</p></li>
+<li><p>Save the current state as a sample, repeat steps 2-4 to sample another point.</p></li>
+</ol>
+<p>Notice that in step 4 we throw away a bunch of samples before we return one in step 5.
+This is because sequential samples will be typically be correlated,
+which is the opposite of what we want.  So we throw away a bunch of samples in
+hopes that the sample we pick is sufficiently independent.  Theoretically, as we
+approach an infinite number of samples this doesn't make a difference, but
+practically we need it in order to generate random independent samples with a finite run.</p>
+<p>To make MH efficient, you want your proposal distribution to accept with
+a high probability (so that you can make <span class="math">\(T\)</span> small),
+otherwise you get stuck in the same state and it takes a very long time for the
+algorithm to converge.  This means you want <span class="math">\(g(y|x) \approx f(y)\)</span>.
+If they are approximately equal, then the fraction in Equation 1 is approximately 1
+ensuring the acceptance rate (step 3) is relatively high,
+but this isn't so easy to do. If we had a closed form for the density then we
+could just sample from the original distribution directly, which would negate
+the need for MCMC in the first place!  Fortunately, there are other algorithms
+like HMC that can do better (in most cases).</p>
+</div>
+<div class="section" id="motivation">
+<h3><a class="toc-backref" href="#id7"><span class="sectnum">1.2</span> Motivation</a></h3>
+<p>Let's take a look at the basic case of using a normal distribution as our
+proposal distribution centered on our current state (in 1D).  We can see that
+<span class="math">\(g(x | y) = g(y | x)\)</span> making our proposal symmetric.
+In other words, the probability of jumping from <span class="math">\(x\)</span> to <span class="math">\(y\)</span>
+is equal to the probability of jumping from <span class="math">\(y\)</span> to <span class="math">\(x\)</span>.
+So the fraction in Equation 1 then becomes simply <span class="math">\(\frac{f(y)}{f(x)}\)</span>.
+This implies that you're more than likely to stick around in state <span class="math">\(x\)</span> if
+it has a high density, and unlikely to move to state <span class="math">\(y\)</span> if it has low
+density, which matches our intuition of what should happen.</p>
+<p>This method is typically called "random walk" Metropolis-Hastings because
+you're randomly selecting a point from your current location.  It works well in
+some situations but it's not without its problems.  The main issue is that it
+doesn't very efficiently explore the state space.  Figure 2 shows a
+visualization of this idea.</p>
+<div class="figure align-center">
+<img alt="Bimodal distribution" src="../../images/hmc_motivation.png" style="height: 270px;"><p class="caption"><strong>Figure 2: It's difficult to calibrate random walk MH algorithms</strong></p>
+</div>
+<p>From Figure 2, consider a bimodal distribution with a random walk MH algorithm.
+If you start in one of the modes (left side) with a very tight proposal distribution (Proposal A),
+you may get "stuck" in that mode without visiting the other mode.
+Theoretically, you'll eventually end up in the other mode but practically you
+might not get there with a finite MCMC run.
+On the other hand, if you make the variance large (Proposal B) then in many
+cases you'll end up proposing states where <span class="math">\(f(y)\)</span> is small, making the
+acceptance rate from Equation 1 small.  There's no easy way around it,
+there will always be this sort of trade-off and it's only exacerbated in higher
+dimensions.</p>
+<p>However, we've just been talking about random walk proposal distributions.
+What if there was a better way?  Perhaps one where you can (theoretically)
+get close to a 100% acceptance rate?  How about one where you don't need to throw
+away any samples (Step 4 from MH algorithm above)?  Sounds too good to be true
+doesn't it?  Yes, yes it is too good to be true, but we can <em>sort of</em> get there
+with Hamiltonian Monte Carlo!  But let's not get ahead of ourselves, let's first
+start with an explanation of Hamiltonian Dynamics.</p>
+</div>
+</div>
+<div class="section" id="hamiltonian-mechanics">
+<h2><a class="toc-backref" href="#id8"><span class="sectnum">2</span> Hamiltonian Mechanics</a></h2>
+<p>Before we dive into Hamiltonian dynamics, let's do a quick review of high
+school physics with Newton's second law of motion to understand how we can use
+it to describe the motion of (macroscopic) objects.  Then we'll move on to
+a more abstract method of describing these systems with Lagrangian mechanics.
+Finally, we'll move on to Hamiltonian mechanics (and its approximations), which
+can be considered as a modification of Lagrangian mechanics.  We'll see that
+these concepts are not as scary as they sound, as long as we remember some
+calculus and how to solve some relatively simple differential equations.</p>
+<div class="section" id="classical-mechanics">
+<h3><a class="toc-backref" href="#id9"><span class="sectnum">2.1</span> Classical Mechanics</a></h3>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Classical_mechanics">Classical mechanics</a>
+(or Newtonian mechanics) is the physical theory that describes the motion
+of macroscopic objects like a ball, spaceship or even planetary bodies.
+I won't go much into detail on classical mechanics and assume
+you are familiar with the basic concepts from a first course in physics.</p>
+<p>One of the main tools we use to describe motion in classical mechanics
+is Newton's second law of motion:</p>
+<div class="math">
+\begin{equation*}
+{\bf F_{net}} = m{\bf a(t)} = m\frac{d^2\bf x(t)}{dt^2} \tag{2}
+\end{equation*}
+</div>
+<p>Where <span class="math">\(\bf F_{net}\)</span> is the net force on an object, <span class="math">\(m\)</span> is the mass
+of the object, <span class="math">\(\bf a(t)\)</span> is the acceleration, <span class="math">\(\bf x(t)\)</span> is the
+position (with respect a reference), and <strong>bold</strong> quantities are vectors.</p>
+<p>Notice that Equation 2 is a differential equation, where <span class="math">\(\bf x(t)\)</span>
+describes the equation of motion of the object over time.  In high school
+physics you may not have had to solve differential equations.  Instead, you may
+have been given equations to solve for <span class="math">\(x(t)\)</span> assuming a constant
+acceleration.  Now that we know better though, we can remove that
+simplification and write things in terms of differential equations.</p>
+<p>Note that I use the notation <span class="math">\(x'(t) := \frac{dx}{dt}\)</span> to always represent
+the time derivative of the function <span class="math">\(x(t)\)</span> (or later on <span class="math">\(p\)</span> and
+<span class="math">\(q\)</span>).  Most physics sources use the "dot" (<span class="math">\(\dot{x}(t)\)</span>) notation to
+represent time derivatives but I'll use the apostrophe because I think it's probably
+more familiar to non-physics readers.</p>
+<p>I won't spend too much more time on this except to give a running example that
+we'll use throughout the rest of this section.</p>
+<div class="admonition admonition-example-1-a-simple-harmonic-oscillator-using-classical-mechanics">
+<p class="admonition-title">Example 1: A Simple Harmonic Oscillator using classical mechanics.</p>
+<div class="figure align-center">
+<img alt="Simple Harmonic Oscillator" src="../../images/hmc_mass_spring.gif" style="height: 200px;"><p class="caption"><strong>Figure 3: Simple Harmonic Oscillator (source: [3])</strong></p>
+</div>
+<p>Consider a mass (<span class="math">\(m\)</span>) suspended from a spring in Figure 3, where
+<span class="math">\(k\)</span> is the force constant of the spring, and positive <span class="math">\(x\)</span> is the
+downward direction with <span class="math">\(x=0\)</span> set at the spring's equilibrium.
+Using Newton's second law (Equation 2), we get the following differential equation
+(where acceleration is the second time derivative of position):</p>
+<div class="math">
+\begin{equation*}
+{F_{net}} = -kx + mg = m{a(t)} = m\frac{d^2 x(t)}{dt^2} \tag{3}
+\end{equation*}
+</div>
+<p>Rearranging:</p>
+<div class="math">
+\begin{align*}
+\frac{d^2 x(t)}{dt^2} &amp;= -\frac{k}{m}x(t) + g \\
+                      &amp;= -\frac{k}{m}(x(t) - x_0) &amp;&amp; \text{rename }x_0 := \frac{mg}{k} \\
+                      &amp;= -\frac{k}{m}y(t)  &amp;&amp; \text{define } y(t) := x(t) - x_0 \\
+\tag{4}
+\end{align*}
+</div>
+<p>Here we are defining a new function <span class="math">\(y(t)\)</span> that is shifted by <span class="math">\(x_0\)</span>.
+This is basically the same as defining a new coordinate system shifted by
+<span class="math">\(x_0\)</span> from our original one.
+Notice that <span class="math">\(\frac{d^2 y(t)}{dt^2} = \frac{d^2 x(t)}{dt^2}\)</span>
+since the constant vanishes with the derivative.  And so we end up with the
+simplified differential equation:</p>
+<div class="math">
+\begin{equation*}
+\frac{d^2 y(t)}{dt^2} = -\frac{k}{m}y(t) \tag{5}
+\end{equation*}
+</div>
+<p>In this case, it's a second order differential equation with complex roots.
+I'll spare you solving it from scratch and just point you to this excellent
+<a class="reference external" href="https://tutorial.math.lamar.edu/Classes/DE/ComplexRoots.aspx">set of notes</a>
+by Paul Dawkins.  However, we can also just see by inspection that a solution
+is:</p>
+<div class="math">
+\begin{equation*}
+y(t) = Acos(\frac{k}{m}t + \phi) \tag{6}
+\end{equation*}
+</div>
+<p>Given an initial position and velocity, we can solve Equation 6 for the
+particular constants.</p>
+</div>
+<p>Example 1 gives the general idea of how to find the motion of an object:</p>
+<ol class="arabic simple">
+<li><p>Calculate the net forces.</p></li>
+<li><p>Solve the (typically second order) differential equation from Equation 2 (Newton's second law).</p></li>
+<li><p>Apply initial conditions (usually position and velocity) to find the constants.</p></li>
+</ol>
+<p>It turns out this is not the only way to find the equation(s) of motion.  The next section
+gives us an alternative that is <em>sometimes</em> more convenient to use.</p>
+</div>
+<div class="section" id="lagrangian-mechanics">
+<h3><a class="toc-backref" href="#id10"><span class="sectnum">2.2</span> Lagrangian Mechanics</a></h3>
+<p>Instead of using the classical formulation to solve the equation, we can use
+the Lagrangian method.  It starts out by defining this strange quantity
+called the <em>Lagrangian</em> <a class="footnote-reference brackets" href="#id3" id="id1">1</a>:</p>
+<div class="math">
+\begin{equation*}
+L\big(x(t), \frac{dx(t)}{dt}, t\big) = K - U = \text{Kinetic Energy} - \text{Potential Energy} \tag{7}
+\end{equation*}
+</div>
+<p>Where the Lagrangian is (typically) a function of the position <span class="math">\(x(t)\)</span>,
+its velocity <span class="math">\(\frac{dx(t)}{dt}\)</span>, and time <span class="math">\(t\)</span>.
+It is kind of strange that we have a minus sign here and not a plus (which would give
+the total energy) but it turns out that's what we want here.  We're going to
+show that we can use the Lagrangian to
+arrive at the same mathematical statement as Newton's second law by way of a
+different method.  It's going to be a bit round about but we'll go through
+several useful mathematical tools along the way (which will eventually lead us to
+the Hamiltonian).</p>
+<p>We'll start off by defining what is called the <em>action</em> that uses the Lagrangian:</p>
+<div class="math">
+\begin{align*}
+S[x(t)] &amp;= \int_{t_1}^{t_2} L\big(x(t),\frac{dx(t)}{dt}, t\big) dt \\
+        &amp;= \int_{t_1}^{t_2} L(x(t),x'(t), t) dt &amp;&amp; \text{denote }  x'(t) := \frac{dx(t)}{dt} \\
+\tag{8}
+\end{align*}
+</div>
+<p>The astute reader will notice that Equation 8 is a functional.  Moreover, it's
+precisely the functional defined by the <a class="reference external" href="https://en.wikipedia.org/wiki/Euler%E2%80%93Lagrange_equation#Statement">Euler-Lagrange equation</a>.
+For those who have not studied this topic, I'll give a brief overview here but
+direct you to my blog post on <a class="reference external" href="../the-calculus-of-variations/">the calculus of variations</a> for more details.</p>
+<p>Equation 8 is what is called a <em>functional</em>: a function <span class="math">\(S[x(t)]\)</span> of a function <span class="math">\(x(t)\)</span>,
+where we use the square bracket to indicate a functional.  That is, if you plug in a function <span class="math">\(x_1(t)\)</span>
+you get a scalar out <span class="math">\(S[x_1(t)]\)</span>;
+if you plug in another function <span class="math">\(x_2(t)\)</span>, you get another scalar out <span class="math">\(S[x_2(t)]\)</span>.
+It's a mapping from functions to scalars (as opposed to scalars to scalars).</p>
+<p>Equation 8 depends only on the function <span class="math">\(x(t)\)</span> (and it's derivative)
+since <span class="math">\(t\)</span> gets integrated out.  Functionals have a lot of similarities to the traditional
+functions we are used to in calculus, in particular they have the analogous concept of derivatives
+called functional derivatives (denoted by <span class="math">\(\frac{\delta S}{\delta x}\)</span>).
+One simple way to compute the functional derivative is to use the Euler-Lagrange equation:</p>
+<div class="math">
+\begin{equation*}
+\frac{\delta S[x]}{\delta x}
+= \frac{\partial L}{\partial x} - \frac{d}{dt} \frac{\partial L}{\partial x'} \tag{9}
+\end{equation*}
+</div>
+<p>Here I'm dropping the parameters of <span class="math">\(L\)</span> and <span class="math">\(x\)</span> to make things a
+bit more readable.  Equation 9 can be computed using our usual rules of
+calculus since <span class="math">\(L\)</span> is just a multivariate function of <span class="math">\(t\)</span> (and not
+a functional).  The proof of Equation 9 is pretty interesting but I'll refer
+you to Chapter 6 of [2] if you're interested (which you can find online as a
+sample chapter).</p>
+<div class="admonition admonition-historical-remark">
+<p class="admonition-title">Historical Remark</p>
+<p>As with a lot of mathematics, the Euler-Lagrange equation has its roots in physics.
+A young Lagrange at the age of 19 (!)
+solved the <a class="reference external" href="https://en.wikipedia.org/wiki/Tautochrone_curve">tautochrone problem</a>
+in 1755 developing many of the mathematical ideas described here.  He later
+sent it to Euler and they both developed the ideas further which led to
+Lagrangian mechanics.  Euler saw the potential in Lagrange's work and realized
+that the method could extend beyond mechanics, so he worked with Lagrange to
+generalize it to apply to <em>any</em> functionals of that form, developing
+variational calculus in the process.</p>
+</div>
+<p>So why did we introduce all of these seemingly random expressions?  It turns
+out that they are useful in the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Stationary-action_principle">principle of least action</a>:</p>
+<blockquote>
+<p>The path taken by the system between times <span class="math">\(t_1\)</span> and <span class="math">\(t_2\)</span> and
+configurations <span class="math">\(x_1\)</span> and <span class="math">\(x_2\)</span> is the one for which the <strong>action</strong> is <strong>stationary (i.e. no
+change)</strong> to <strong>first order</strong>.</p>
+</blockquote>
+<p>where <span class="math">\(t_1\)</span> and <span class="math">\(t_2\)</span> are the initial and final times, and
+<span class="math">\(x_1\)</span> and <span class="math">\(x_2\)</span> are the initial and final position.  It's sounds
+fancy but what it's saying is that if you find a stationary function of Equation 8
+(where the first functional derivative is zero) then it describes the motion of an object.
+The derivation of it relies on quantum mechanics, which is beyond the scope of
+this post (and my investigation on the subject).</p>
+<p>However, if the principle of least action describes the motion then it should be equivalent
+to the classical mechanics approach from the previous subsection -- and it indeed is equivalent!
+We'll show this in the simple 1D case but it works in multiple dimensions and
+with different coordinate bases as well.  Starting with a general Lagrangian (Equation 7)
+for an object:</p>
+<div class="math">
+\begin{equation*}
+L(x(t), x'(t), t) = K - U = \frac{1}{2}mx'^2(t) - U(x(t)) \tag{10}
+\end{equation*}
+</div>
+<p>Here we're using the standard kinetic energy formula (<span class="math">\(K=\frac{1}{2}mv^2\)</span>, where velocity <span class="math">\(v=x'(t)\)</span>) and a
+generalized potential function <span class="math">\(U(x(t))\)</span> that depends on the object's
+position (e.g. gravity).  Plugging <span class="math">\(L\)</span> into the Euler-Lagrange (Equation 9)
+and setting it to zero to find the stationary point, we get:</p>
+<div class="math">
+\begin{align*}
+\frac{\partial L}{\partial x} - \frac{d}{dt} \frac{\partial L}{\partial x'} &amp;= 0 \\
+\frac{\partial L}{\partial x} &amp;= \frac{d}{dt} \frac{\partial L}{\partial x'} \\
+\frac{\partial [\frac{1}{2}mx'^2(t) - U(x(t))]}{\partial x} &amp;= \frac{d}{dt} \frac{\partial [\frac{1}{2}mx'^2(t) - U(x(t))]}{\partial x'} \\
+-\frac{\partial U(x(t))}{\partial x} &amp;= \frac{d[mx'(t)]}{dt} \\
+-\frac{\partial U(x(t))}{\partial x} &amp;= mx''(t) \\
+F = ma(t) &amp;&amp; \text{where }a(t) = \frac{d^2x}{dx^2} \text{ and F}= -\frac{\partial U(x(t))}{\partial x} \\
+\tag{11}
+\end{align*}
+</div>
+<p>So we can see that we end up with Newton's second law of motion as we expected.
+The negative sign comes in because if we decrease the potential (change in
+potential is negative), we're moving in the direction of the potential field,
+thus we have a positive force.</p>
+<p>So we went through all of that to derive the same equation?  Pretty much, but in
+certain cases the Lagrangian is easier to formulate and solve than the
+classical approach (although not in the simple example below).  Additionally,
+it is going to be useful to help us derive the Hamiltonian.</p>
+<div class="admonition admonition-example-2-a-simple-harmonic-oscillator-using-lagrangian-mechanics">
+<p class="admonition-title">Example 2: A Simple Harmonic Oscillator using Lagrangian mechanics.</p>
+<p>Using the same problem in Example 1, let's solve it using the Lagrangian.
+We can define the Lagrangian as (omitting the parameters for cleanliness):</p>
+<div class="math">
+\begin{equation*}
+L = K - U = \frac{1}{2}mx'^2 - (-mgx + \frac{1}{2}kx^2) \tag{12}
+\end{equation*}
+</div>
+<p>where each term represents the velocity, gravitational potential and
+elastic potential of the spring respectively.  Recall <span class="math">\(x=0\)</span> is defined
+to be where the spring is at rest and positive <span class="math">\(x\)</span> is the downward
+direction.  Thus, the gravitational potential is negative of the <span class="math">\(x\)</span>
+direction while the spring has potential with any deviation from <span class="math">\(x=0\)</span>.</p>
+<p>Using the Euler-Lagrange equation (and setting it to 0):</p>
+<div class="math">
+\begin{align*}
+\frac{\partial L}{\partial x} &amp;= \frac{d}{dt} \frac{\partial L}{\partial x'} \\
+\frac{\partial [\frac{1}{2}mx'^2 - (-mgx + \frac{1}{2}kx^2)]}{\partial x} &amp;= \frac{d}{dt} \frac{\partial [\frac{1}{2}mx'^2 - (-mgx + \frac{1}{2}kx^2)]}{\partial x'} \\
+mg - kx &amp;= mx'' \\
+g - \frac{k}{m}x &amp;= x''  \\
+\frac{d^2x}{dt^2} &amp;= -\frac{k}{m}(x - x_0) &amp;&amp; \text{rename } x_0 = \frac{mg}{k} \\
+\tag{13}
+\end{align*}
+</div>
+<p>And we see we end up with the same second order differential equation as
+Equation 4, which yields the same solution <span class="math">\(x(t) = Acos(\frac{k}{m}t + \phi)\)</span>.
+We didn't really gain anything by using the Lagrangian but often times in
+multiple dimensions, potentially with a different coordinate basis, the
+Lagrangian method is easier to use.</p>
+</div>
+<p>One last note before we move on to the next section.  It turns out the
+Euler-Lagrange equation from Equation 9 is agnostic to the coordinate system we are using.
+In other words, for another coordinate system <span class="math">\(q_i:= q_i(x_1,\ldots,x_N;t)\)</span>
+(with the appropriate inverse mapping <span class="math">\(x_i:= x_i(q_1,\ldots,q_N;t)\)</span>),
+the Euler-Lagrange equation still works:</p>
+<div class="math">
+\begin{align*}
+\frac{d}{dt} \frac{\partial L}{\partial q'_m} = \frac{\partial L}{\partial q_m} &amp;&amp; 1 \leq m \leq N \\
+\tag{14}
+\end{align*}
+</div>
+<p>From here on out instead of assuming Cartesian coordinates (denoted with
+<span class="math">\(x\)</span>'s), we'll be using the generic <span class="math">\(q\)</span> to denote position
+with its corresponding first (<span class="math">\(q'\)</span>) and second derivatives (<span class="math">\(q''\)</span>)
+for velocity and acceleration, respectively.</p>
+</div>
+<div class="section" id="the-hamiltonian-and-hamilton-s-equations">
+<h3><a class="toc-backref" href="#id11"><span class="sectnum">2.3</span> The Hamiltonian and Hamilton's Equations</a></h3>
+<p>We're slowly making our way towards HMC and we're almost there!  Let's discuss
+how we can solve the equations of motion using Hamiltonian mechanics.  We first
+start off with another esoteric quantity:</p>
+<div class="math">
+\begin{equation*}
+E := \big(\sum_{i=1}^N \frac{\partial L}{\partial q'_i} q'_i \big) - L \tag{15}
+\end{equation*}
+</div>
+<p>where we have potentially <span class="math">\(N\)</span> particles and/or coordinates.  The symbol
+<span class="math">\(E\)</span> is used because <em>usually</em> Equation 15 is the total energy of the
+system.  Let's show that in 1D using the fact that
+<span class="math">\(L=K-U=\frac{1}{2}mq'^2 - U(q)\)</span> for potential energy <span class="math">\(U(q)\)</span>:</p>
+<div class="math">
+\begin{align*}
+E &amp;:= \frac{\partial L}{\partial q'} q' - L \\
+  &amp;= \frac{\partial (\frac{1}{2}mq'^2 - U(q))}{\partial q'} q' - L \\
+  &amp;= mq' \cdot q' - L \\
+  &amp;= 2K - (K - U) \\
+  &amp;= K + U \\
+  \tag{16}
+\end{align*}
+</div>
+<p>where we can see that it's the kinetic energy <em>plus</em> the potential energy of
+the system.  If the coordinate system you are using is Cartesian, then it is
+always the total energy.  Otherwise, you have to ensure the change of basis
+does not have a time dependence or else there's no guarantee.  See 15.1 from
+[2] for more details.</p>
+<p>Now we're almost at the Hamiltonian with Equation 15 but we want to do a
+variable substitution by getting rid of <span class="math">\(q'\)</span> and replacing it with
+something called the <em>generalized momentum</em> (to match our generalized position <span class="math">\(q\)</span>):</p>
+<div class="math">
+\begin{equation*}
+p := \frac{\partial L}{\partial q'} \tag{17}
+\end{equation*}
+</div>
+<p>This is <em>sometimes</em> the same as the usual linear momentum (usually denoted by <span class="math">\(p\)</span>)
+you learn about in a first physics class.  Assuming we have the usual equation for kinetic
+energy with Cartesian coordinates:</p>
+<div class="math">
+\begin{align*}
+p &amp;:= \frac{\partial L}{\partial q'} \\
+  &amp;= \frac{\partial (\frac{1}{2}mq'^2 - U(q))}{\partial q'}
+  &amp;= mq'    &amp;&amp; \text{linear momentum}\\
+\tag{18}
+\end{align*}
+</div>
+<p>However, for example, if you are dealing with angular kinetic energy (such as a
+swinging pendulum) and using those coordinates, then you'll end up with
+<a class="reference external" href="https://en.wikipedia.org/wiki/Angular_momentum">angular momentum</a> instead.
+In any case, all we need to know is Equation 17.  Substituting it into our
+(often) total energy equation (Equation 15) and re-writing in terms of only
+<span class="math">\(q\)</span> and <span class="math">\(p\)</span> (no explicit <span class="math">\(q'\)</span>), we get the Hamiltonian:</p>
+<div class="math">
+\begin{align*}
+H({\bf q, p}) &amp;= \big(\sum_{i=1}^N \frac{\partial L}{\partial q'_i} q'_i \big) - L  &amp;&amp; \text{definition of } E \\
+        &amp;= \big(\sum_{i=1}^N p_i q'_i(q_i, p_i) \big) - L({\bf q, q'(q, p)})  &amp;&amp; p_i := \frac{\partial L}{\partial q'_i}\\
+\tag{19}
+\end{align*}
+</div>
+<p>where I've used bold to indicate vector quantities.  Notice that we didn't
+explicitly eliminate <span class="math">\(q'_i\)</span>, we just wrote it as a function of <span class="math">\(q\)</span>
+and <span class="math">\(p\)</span>.</p>
+<p>The <span class="math">\(2n\)</span> dimensional coordinates <span class="math">\(({\bf q, p})\)</span> are called the
+<em>phase space coordinates</em> (also known as canonical coordinates).  Intuitively,
+we can just think of this as the position (<span class="math">\(x\)</span>) and linear momentum
+(<span class="math">\(mv = mx'\)</span>), which is what you would expect if you were asked for the
+current state of a system (alternatively you could use velocity instead of
+momentum).  However, as we'll see later, phase space coordinates have
+certain nice properties that we'll utilize when trying to perform MCMC.</p>
+<p>Now Equation 19 by itself maybe isn't that interesting, but let's see what happens
+when we analyze how it changes with respect to its inputs <span class="math">\(q\)</span> and <span class="math">\(p\)</span>
+(in 1D to keep things cleaner).  Starting with <span class="math">\(p\)</span>:</p>
+<div class="math">
+\begin{align*}
+\frac{\partial H}{\partial p} &amp;= \frac{\partial (p q'(q, p))}{\partial p}  - \frac{\partial L(q, q'(q, p))}{\partial p} \\
+                              &amp;= [q'(q, p) + p\frac{\partial q'(q, p)}{\partial p}]
+                                 - \frac{\partial L(q, q'(q, p))}{\partial q'} \frac{\partial q'(q, p)}{\partial p} \\
+                              &amp;= [q'(q, p) + p\frac{\partial q'(q, p)}{\partial p}]
+                                 - p \frac{\partial q'(q, p)}{\partial p} &amp;&amp; p := \frac{\partial L}{\partial q'} \\
+                              &amp;= q'(q, p) = q'
+                             \tag{20}
+\end{align*}
+</div>
+<p>Now isn't that nice?  The partial derivative with respect to the generalized
+momentum of the Hamiltonian simplifies to the velocity.  Let's see what happens
+when we take it with respect to the position <span class="math">\(q\)</span>:</p>
+<div class="math">
+\begin{align*}
+\frac{\partial H}{\partial q} &amp;= \frac{\partial (p q'(q, p))}{\partial q}  - \frac{\partial L(q, q'(q, p))}{\partial q} \\
+                              &amp;= p\frac{\partial q'(q, p)}{\partial q}  -
+                                 [\frac{\partial L(q, q')}{\partial q}
+                                  + \frac{\partial L(q, q')}{\partial q'} \frac{\partial q'(q, p)}{\partial q} ]
+                                 &amp;&amp; \text{See remark below} \\
+                              &amp;= p\frac{\partial q'(q, p)}{\partial q}
+                                 - [\frac{d}{dt}\big( \frac{\partial L(q, q')}{\partial q'} \big)
+                                  + \frac{\partial L(q, q')}{\partial q'} \frac{\partial q'(q, p)}{\partial q} ]
+                                 &amp;&amp; \text{Euler-Lagrange equation} \frac{d}{dt}\big(\frac{\partial L}{\partial q'}\big) = \frac{\partial L}{\partial q} \\
+                              &amp;= p\frac{\partial q'(q, p)}{\partial q}
+                                 - [\frac{dp}{dt} + p \frac{\partial q'(q, p)}{\partial q}]
+                                 &amp;&amp; p := \frac{\partial L}{\partial q'} \\
+                              &amp;= -p'
+                             \tag{21}
+\end{align*}
+</div>
+<p>Similarly, we get a (sort of) symmetrical result where the partial derivative
+with respect to the position is the negative first time derivative of the
+generalized momentum. Equations 20 and 21 are called <em>Hamilton's equations</em>,
+which will allow us to compute the equation of motion as we did in the previous
+two methods.  The next example shows this in more detail.</p>
+<div class="admonition admonition-explanation-of-math-frac-partial-l-q-q-q-p-partial-q-frac-partial-l-q-q-partial-q-frac-partial-l-q-q-partial-q-frac-partial-q-q-p-partial-q">
+<p class="admonition-title">Explanation of <span class="math">\(\frac{\partial L(q, q'(q, p))}{\partial q} = \frac{\partial L(q, q')}{\partial q} + \frac{\partial L(q, q')}{\partial q'} \frac{\partial q'(q, p)}{\partial q}\)</span></p>
+<p>This expression is <em>partially</em> (get it?) confusing because of the notation and partially confusing because
+it's not typically seen when discussing the chain rule for partial differentiation.  Notice that the LHS looks
+<em>almost</em> identical to the first term in the RHS.  The difference being that
+<span class="math">\(q'(q, p)\)</span> is a function of <span class="math">\(q\)</span> on the LHS, while on the RHS it's constant with respect to <span class="math">\(q\)</span>.
+To see that, let's re-write the LHS using some dummy functions.</p>
+<p>Define <span class="math">\(f(q) = q\)</span> and <span class="math">\(g(q, p) = q'(q, p)\)</span>, and then substitute into the LHS and apply the
+<a class="reference external" href="https://tutorial.math.lamar.edu/classes/calciii/chainrule.aspx">chain rule for partial differentiation</a>:</p>
+<div class="math">
+\begin{align*}
+\frac{\partial L(f(q), g(q, p))}{\partial q} &amp;=
+    \frac{\partial L(f(q), g)}{\partial f}\Big|_{g=q'(q, p)}\frac{df(q)}{dq}
+    + \frac{\partial L(f(q), g(q, p))}{\partial g}\frac{\partial g(q, p)}{\partial q} \\
+    &amp;= \frac{\partial L(q, g)}{\partial q}\Big|_{g=q'(q, p)}(1)
+    + \frac{\partial L(q, g)}{\partial g}\frac{\partial g(q, p)}{\partial q} \\
+    &amp;= \frac{\partial L(q, q')}{\partial q}
+    + \frac{\partial L(q, q')}{\partial q'}\frac{\partial q'(q, p)}{\partial q} \\
+\tag{22}
+\end{align*}
+</div>
+<p>As you can see the first term on the RHS has a "constant" <span class="math">\(q'\)</span> from
+the partial differentiation of <span class="math">\(f(q) = q\)</span>.  The notation seems a bit messy,
+I did a double take when I first saw it, but hopefully this makes it clear as mud.</p>
+</div>
+<div class="admonition admonition-example-3-a-simple-harmonic-oscillator-using-hamiltonian-mechanics">
+<p class="admonition-title">Example 3: A Simple Harmonic Oscillator using Hamiltonian mechanics.</p>
+<p>Using the same problem in Example 1 and 2, let's solve it using Hamiltonian
+mechanics.  We start by writing the Lagrangian (repeating Equation 12):</p>
+<div class="math">
+\begin{equation*}
+L = K - U = \frac{1}{2}mx'^2 - (-mgx + \frac{1}{2}kx^2)
+\end{equation*}
+</div>
+<p>Next, calculate the generalized momentum (Equation 17):</p>
+<div class="math">
+\begin{align*}
+p &amp;:= \frac{\partial L}{\partial x'} \\
+  &amp;= mx' \\ \tag{23}
+\end{align*}
+</div>
+<p>Which turns out to just be the linear momentum.  Note, we'll
+be using <span class="math">\(x\)</span> instead of <span class="math">\(q\)</span> in this example since
+we'll be using standard Cartesian coordinates.</p>
+<p>From Equation 23, solve for the velocities (<span class="math">\(x'\)</span>) so we can re-write
+in terms of momentum, we get:</p>
+<div class="math">
+\begin{align*}
+p &amp;= mx' \\
+x' &amp;= \frac{p}{m} \tag{24}
+\end{align*}
+</div>
+<p>Write down the Hamiltonian (Equation 19) in terms of its phase
+space coordinates <span class="math">\((x, p)\)</span>, eliminating all velocities
+using Equation 24:</p>
+<div class="math">
+\begin{align*}
+H({\bf x, p}) &amp;= p x'(x, p) - L({\bf x, x'(x,p)}) \\
+              &amp;= p \frac{p}{m} - [\frac{1}{2}mx'^2 - (-mgx + \frac{1}{2}kx^2)] \\
+              &amp;= \frac{p^2}{m} - [\frac{1}{2}m(\frac{p}{m})^2 - (-mgx + \frac{1}{2}kx^2)] \\
+              &amp;= \frac{p^2}{2m} - mgx + \frac{1}{2}kx^2 \\
+\tag{25}
+\end{align*}
+</div>
+<p>Write down Hamilton's equation (Equation 20 and 21):</p>
+<div class="math">
+\begin{align*}
+\frac{\partial H}{\partial x} &amp;= -p' \\
+-mg + kx &amp;= -p'  \\
+\frac{dp}{dt} &amp;= -kx + mg \tag{26} \\
+\\
+\frac{\partial H}{\partial p} &amp;= x' \\
+\frac{p}{m} &amp;= x'  \\
+\frac{dx}{dt} &amp;= \frac{p}{m} \tag{27}
+\end{align*}
+</div>
+<p>Finally, we just need to solve these differential equations for <span class="math">\(x(t)\)</span>.
+In general, this involves eliminating <span class="math">\(p\)</span> in favor of <span class="math">\(x'\)</span>.
+In this case it's quite simple.  Notice that Equation 26 is exactly
+Newton's second law (where <span class="math">\(\frac{dp}{dt} = m\frac{dx'}{dt} = ma\)</span>) and
+mirrors Equation 3, while Equation 27 is just the definition of velocity
+(where <span class="math">\(p=mv\)</span>).  As a result, we'll end up with exactly the same
+solution for <span class="math">\(x(t)\)</span> as the previous examples.</p>
+</div>
+</div>
+<div class="section" id="properties-of-hamiltonian-mechanics">
+<h3><a class="toc-backref" href="#id12"><span class="sectnum">2.4</span> Properties of Hamiltonian Mechanics</a></h3>
+<p>After going through example 3, you may wonder what was the point of all of this
+manipulation?  We essentially just ended with Newton's second law, which
+required an even more round about way via writing the Lagrangian, Hamiltonian,
+Hamilton's equations and then converting it back to where we started.
+These are all very good observations and the simple examples shown so far don't
+do Hamiltonian mechanics justice.  We usually do not use the
+Hamiltonian method for standard mechanics problems involving a small number of
+particles.  It really starts to shine when using it for analyses with a large
+number of particles (e.g. thermodynamics) or with no particles at all (e.g.
+quantum mechanics where everything is a wave function).  We won't get into
+these two applications because they are beyond the scope of this post.</p>
+<p>However, another nice thing about the Hamiltonian form is that it has nice some
+properties that aren't obvious at first glance.  There are three properties
+that we'll care about:</p>
+<p><strong>Reversability</strong>: For a particle, given its
+initial point in phase space <span class="math">\((q_0, p_0)\)</span> at a point in time, its motion
+is completely (and uniquely) determined for all time.  That is, we can use Hamilton's
+equations to find its instantaneous rate of change (<span class="math">\((q', p')\)</span>), which
+can be used to find its nearby position after a delta of time, and repeated to
+find its complete trajectory.  This hints at the application we're going to
+use it for: using a numerical method to find its trajectory (next subsection).
+Equally important though is the fact that we can reverse this process to find
+where it came from.  If you have a path from <span class="math">\((q(t), p(t))\)</span> to
+<span class="math">\((q(t+s), p(t+s)\)</span> then you can reverse the operation by negating its time
+derivative (<span class="math">\((-q', -p')\)</span>) and move backwards along its trajectory.  This
+is because each trajectory is unique in phase space.  We'll use this property
+when constructing the Markov chain transitions for HMC.</p>
+<p><strong>Conservation of the Hamiltonian</strong>: Another important property is that the
+Hamiltonian is conserved.  We can see this by taking the time derivative
+of the Hamiltonian (in 1D to keep things simple):</p>
+<div class="math">
+\begin{align*}
+\frac{dH}{dt} &amp;= \frac{\partial H}{\partial q}\frac{dq}{dt} + \frac{\partial H}{\partial p}\frac{dp}{dt} \\
+ &amp;= -\frac{dp}{dt}\frac{dq}{dt} + \frac{dq}{dt}\frac{dp}{dt} &amp;&amp; \text{Hamilton's equations} \\
+ &amp;= 0 \\
+ \tag{28}
+\end{align*}
+</div>
+<p>This important property lets us <em>almost</em> get to a 100% acceptance rate for HMC.
+We'll see later that this ideal is not always maintained.</p>
+<p><strong>Volume preservation</strong>: The last important property we'll use it called
+Liouville's theorem (from [2]):</p>
+<blockquote>
+<p><strong>Liouville's Theorem</strong>: Given a system of <span class="math">\(N\)</span> coordinates <span class="math">\(q_i\)</span>,
+the <span class="math">\(2N\)</span> dimensional "volume" enclosed by a given <span class="math">\((2N-1)\)</span>
+dimensional "surface" in phase space is conserved (that is, independent of
+time) as the surface moves through phase space.</p>
+</blockquote>
+<p>I'll refer to [2] if you want to see the proof.  This is an important result
+that will be used to avoid accounting for the change in volume (via Jacobians)
+in our HMC algorithm since the multi-dimensional "volume" is preserved.  More
+on this later.</p>
+</div>
+<div class="section" id="discretizing-hamiltonian-s-equations">
+<h3><a class="toc-backref" href="#id13"><span class="sectnum">2.5</span> Discretizing Hamiltonian's Equations</a></h3>
+<p>The simple examples we saw in the last subsections worked out nicely because we
+could solve the differential equations for a closed form solution.  As you can
+imagine in most cases, we won't have such a nice closed form solution.  Thus,
+we turn to approximate methods to compute our desired result (the equations of motion).</p>
+<p>One way to approach it is to iteratively simulate Hamilton's equation by
+discretizing time using some small <span class="math">\(\epsilon\)</span>.  Starting at time 0,
+we can iteratively compute the trajectory in phase space <span class="math">\((q, p)\)</span>
+through time using Hamilton's equations.  We'll look at two and a half methods to
+accomplish this.</p>
+<p><strong>Euler's Method</strong>: <a class="reference external" href="https://en.wikipedia.org/wiki/Euler_method">Euler's method</a>
+is a technique to solve first order differential equations.  Notice that
+Hamilton's equations produce 2N first order differential equations (as opposed
+to the Lagrangian, which produces second order differential equations).
+Euler's method works by applying a first order Taylor series approximation at
+each iteration about the current point.</p>
+<p>More precisely, for a given step size <span class="math">\(\epsilon\)</span>, we can approximate the
+curve <span class="math">\(y(t)\)</span> given an initial point <span class="math">\(y_0\)</span> and a first order
+differential equation using the formula:</p>
+<div class="math">
+\begin{equation*}
+y(t+\epsilon) = y(t) + \epsilon y'(t, y(t))  \tag{29}
+\end{equation*}
+</div>
+<p>where <span class="math">\(y(t_0)=y_0\)</span> and <span class="math">\(y'(t, y(t))\)</span> is our first order
+differential equation.  This method simply takes small step sizes along the
+gradient of our curve where the gradient is computed from our differential
+equation using <span class="math">\(t\)</span> and the previous values of <cite>y</cite>.</p>
+<p>Translating this to phase space and using Hamilton's equations, we have:</p>
+<div class="math">
+\begin{align*}
+p(t+\epsilon) = p(t) + \epsilon \frac{dp}{dt}(t) = p(t) - \epsilon \frac{\partial H}{\partial q}(q(t)) &amp;&amp; \text{by Hamilton's Equation} \\
+q(t+\epsilon) = q(t) + \epsilon \frac{dq}{dt}(t) = q(t) + \epsilon \frac{\partial H}{\partial p}(p(t)) &amp;&amp; \text{by Hamilton's Equation} \\
+\tag{30}
+\end{align*}
+</div>
+<p>Notice that the equations are dependent on each other, to calculate
+<span class="math">\(p(t+\epsilon)\)</span> or <span class="math">\(q(t+\epsilon)\)</span>, we need both <span class="math">\((q(t), p(t))\)</span>.</p>
+<p>The main problem with Euler's method is that it quickly diverges from the
+actual curve because of the accumulation of errors.  The error propagates
+because we assume we start from somewhere on the curve, whereas we're always
+some delta away from the curve after the first iteration.  Figure 4 (top left)
+shows how the method quickly spirals out of control towards infinity even with
+a small epsilon with our simple harmonic oscillator from Examples 1-3
+(the black line shows the exact trajectory).</p>
+<div class="figure align-center">
+<img alt="Leapfrog method to approximate Hamiltonian dynamics" src="../../images/hmc_leapfrog.png" style="width: 100%;"><p class="caption"><strong>Figure 4: Methods to approximate Hamiltonian dynamics: Euler's method, modified Euler's method, and Leapfrog
+using the harmonic oscillator from Examples 1-3.</strong></p>
+</div>
+<p><strong>Modified Euler's Method</strong>: A simple modification to Euler's method is to
+update <span class="math">\(p\)</span> and <span class="math">\(q\)</span> separately.  First update <span class="math">\(p\)</span>,
+then use that result to update <span class="math">\(q\)</span> and repeat (the other way around also
+works).  More precisely, we get this approximation in phase space:</p>
+<div class="math">
+\begin{align*}
+p(t+\epsilon) &amp;= p(t) + \epsilon \frac{dp}{dt} = p(t) - \epsilon \frac{\partial H}{\partial q}(q(t)) \tag{31}\\
+q(t+\epsilon) &amp;= q(t) + \epsilon \frac{dq}{dt} = q(t) + \epsilon \frac{\partial H}{\partial p}(p(t+\epsilon)) \tag{32}
+\end{align*}
+</div>
+<p>The results can be seen in Figure 4 (top right) where it much more closely
+tracks the underlying curve without tendencies to diverge.</p>
+<p>This reason for this is because the pair of equations preserves volume just
+like the result from Liouville's theorem above.  Let's show how that is the
+case in two dimensions but this result also holds for multiple dimensions. (In
+fact, a similar idea used in the following argument can be used to prove
+Liouville's theorem.)</p>
+<p>First note that Equation 31 can be viewed as a transformation mapping
+<span class="math">\((p(t), q(t))\)</span> to <span class="math">\((p(t+\epsilon), q(t))\)</span> (same for Equation 32).
+Denote this mapping as <span class="math">\(\bf f\)</span> and let's analyze how the differentials of the
+above equation change. Note: I'll change all the parameters to superscripts to
+make the notation a bit cleaner. First, we can see the transformation for
+Equation 31 as:</p>
+<div class="math">
+\begin{equation*}
+\begin{bmatrix}
+p^{t+\epsilon} \\
+q^t \\
+\end{bmatrix} = {\bf f}\big(
+\begin{bmatrix}
+p^t \\
+q^t \\
+\end{bmatrix}\big) \tag{32}
+\end{equation*}
+</div>
+<p>Next, let's calculate the Jacobian of <span class="math">\(\bf f\)</span>:</p>
+<div class="math">
+\begin{align*}
+{\bf J_f} &amp;= \begin{bmatrix}
+\frac{\partial \bf f}{\partial p^t} &amp; \frac{\partial \bf f}{\partial q^t}
+\end{bmatrix} \\
+&amp;= \begin{bmatrix}
+\frac{\partial [p^t - \epsilon \frac{\partial H}{\partial q^t}(q^t)]}{\partial p^t} &amp;
+\frac{\partial [p^t - \epsilon \frac{\partial H}{\partial q^t}(q^t)]}{\partial q^t} \\
+\frac{\partial q^t}{\partial p^t} &amp;
+\frac{\partial q^t}{\partial q^t}
+\end{bmatrix} \\
+&amp;= \begin{bmatrix}
+1 &amp;
+-\frac{\partial [\epsilon \frac{\partial H}{\partial q^t}(q^t)]}{\partial q^t} \\
+0 &amp; 1
+\end{bmatrix} \\ \tag{33}
+\end{align*}
+</div>
+<p>We can clearly see the determinant of the Jacobian is 1.
+Next let's see how the infinitesimal volume (or area in this case) changes
+using the <a class="reference external" href="https://en.wikipedia.org/wiki/Integration_by_substitution#Substitution_for_multiple_variables">substitution rule</a>
+(this is usually not shown since having a unit Jacobian determinant already implies this):</p>
+<div class="math">
+\begin{equation*}
+dp^{t+\epsilon} dq^t = |det({\bf J_f})| dp^t dq^t = dp^t dq^t \tag{34}
+\end{equation*}
+</div>
+<p>So we see that the volume is preserved when we take an arbitrarily small step
+(Equation 31).  We can use the same logic for Equation 32 and thus every
+subsequent application of those equations also preserves volume.</p>
+<p>Figure 5 shows this visually by drawing a small region near the starting points
+and then running Euler's method and modified Euler's method.  For the vanilla
+Euler's method, you can see the region growing larger with each iteration. This
+has the tendency to cause points to spiral out to infinity (since the area of this region
+grows, so do the points that define it).  Modified Euler's doesn't have this problem.</p>
+<div class="figure align-center">
+<img alt="Visualization of volume preservation of modified Euler's method" src="../../images/hmc_vol_preserve.png" style="width: 100%;"><p class="caption"><strong>Figure 5: Contrasting volume preservation nature of the modified Euler's method vs. Euler's method.</strong></p>
+</div>
+<p>It's not clear to me that volume preservation in general guarantees that it
+won't spiral to infinite, nor that non-volume preservation necessarily
+guarantees it will spiral to infinite but it does sure seem to help empirically.
+The guarantees (if any) are likely related to the <a class="reference external" href="https://en.wikipedia.org/wiki/Symplectic_integrator">symplectic nature</a> of the method but I didn't really look into it much further than that.</p>
+<p><strong>Leapfrog Method</strong>: The final method uses the same idea but with an extra <em>Leapfrog</em> step:</p>
+<div class="math">
+\begin{align*}
+p(t+\epsilon/2) = p(t) - \epsilon/2 \frac{\partial H}{\partial q}(q(t)) \tag{35}\\
+q(t+\epsilon) = q(t) + \epsilon \frac{\partial H}{\partial p}(p(t+\epsilon/2)) \tag{36} \\
+p(t+\epsilon) = p(t+\epsilon/2) - \epsilon/2 \frac{\partial H}{\partial q}(q(t+\epsilon)) \tag{37}
+\end{align*}
+</div>
+<p>where we iteratively apply these equations in sequence similar to modified Euler's method.
+The idea is that instead of taking a "full step" for <span class="math">\(p\)</span>, we take a "half
+step" (Equation 35).  This half step is used to update <span class="math">\(q\)</span> with a full
+step (Equation 36), which is then used to update <span class="math">\(p\)</span> using another "half
+step" (Equation 37).  The last two subplots (bottom left and right) in Figure 4
+show Leapfrog in action, which empirically performs much better than the other methods.</p>
+<p>Using the same logic as above, each transform individually is volume
+preserving, ensuring similar "nice" behaviour as modified Euler's method.
+Notice we're doing slightly more "work" in that we're evaluating Hamilton's
+equations an additional time but the trade-off is good in this case.</p>
+<p>Another nice property of both modified Euler's and Leapfrog is that it is also
+reversible.  Simply negate <span class="math">\(p\)</span>, and run the algorithm, then negate
+<span class="math">\(p\)</span> to get back where you started.  This works because the momentum is the
+only thing causing motion, so negating <span class="math">\(p\)</span> essentially reverses our direction.
+Since we're only updating either <span class="math">\(p\)</span> or <span class="math">\(q\)</span>, it allows us to
+essentially run the algorithm in reverse.  As you might guess, this
+reversibility condition is going to be helpful for use in MCMC.</p>
+</div>
+</div>
+<div class="section" id="hamiltonian-monte-carlo">
+<h2><a class="toc-backref" href="#id14"><span class="sectnum">3</span> Hamiltonian Monte Carlo</a></h2>
+<p>Finally we get to the good stuff: Hamiltonian Monte Carlo (HMC)!
+The main idea behind HMC is that we're going to use Hamiltonian dynamics to
+simulate moving around our target distribution's density.  The analogy
+used in [1] is imagine a puck moving along a frictionless 2D surface <a class="footnote-reference brackets" href="#id4" id="id2">2</a>.  It
+slides up and down hills, losing or gaining velocity (i.e. kinetic energy)
+based on the gradient of the hill (i.e. potential energy).  Sound familiar?
+This analogy with a physical system is precisely the reason why Hamiltonian
+dynamics is such a good fit.</p>
+<p>The mapping from the physical situation to our MCMC procedure will be such
+that the variables in our target distribution will correspond to the position
+(<span class="math">\(q\)</span>), the potential energy will be the negative log probability density
+of our target distribution, and the momentum variables (<span class="math">\(p\)</span>) will be
+artificially introduced to allow us to sample properly.  So without further
+adieu, let's get into the details!</p>
+<div class="section" id="from-thermodynamics-to-hmc">
+<h3><a class="toc-backref" href="#id15"><span class="sectnum">3.1</span> From Thermodynamics to HMC</a></h3>
+<p>The physical system we're going to base this on is from thermodynamics
+(which is only slightly more complex than the mechanical systems we're been
+looking at).  A commonly studied situation in thermodynamics is one of
+a closed system of fixed volume and number of particles (e.g. gas molecules in
+a box) that is "submerged" in a heat bath at thermal equilibrium.
+The idea is the heat bath is much, much larger than our internal system so it
+can keep it the system at a constant temperature.
+Note that even though internal system is at a constant temperature, its energy
+will fluctuate because of the mechanical contact with the heat bath, so the
+internal system energy is <em>not</em> conserved (i.e., constant). The overall energy
+of the combined system (heat bath <em>and</em> internal system) is conserved though.
+This setup is called the <a class="reference external" href="https://en.wikipedia.org/wiki/Canonical_ensemble">canonical ensemble</a>.</p>
+<p>One of the fundamental concepts in thermodynamics is the idea of a
+<a class="reference external" href="https://en.wikipedia.org/wiki/Microstate_(statistical_mechanics)">microstate</a>,
+which defines (for classical systems) a single point in phase space.  That is,
+the position (<span class="math">\(q\)</span>) and momentum (<span class="math">\(p\)</span>) variables for all particles
+defines the microstate of the entire system.
+In thermodynamics, we are typically not interested in the detailed movement of
+each particle (although will be for MCMC), instead usually want to measure
+other macro thermodynamic quantities such as average energy or pressure of the
+internal system.</p>
+<p>An important quantity we need to compute is the probability of the internal
+system being in a particular microstate i.e., a given configuration of
+<span class="math">\(p\)</span>'s and <span class="math">\(q\)</span>'s.  Without going into the entire derivation, which
+would take us on a larger tangent into thermodynamics, I'll just give the
+result, which is known as the Boltzman distribution:</p>
+<div class="math">
+\begin{align*}
+p_i    &amp;= \frac{1}{Z} e^{\frac{E_i}{kT}} &amp;&amp; \text{general form}\\
+P(q, p) &amp;= \frac{1}{Z} e^{\frac{H(q, p)}{kT}} &amp;&amp; \text{Hamiltonian form} \\
+       \tag{38}
+\end{align*}
+</div>
+<p>where <span class="math">\(p_i\)</span>  is the probability of being in state <span class="math">\(i\)</span>, <span class="math">\(P(q, p)\)</span>
+is the same probability but explicitly labelling the state with its phase state coordinates
+<span class="math">\((q, p)\)</span>, <span class="math">\(E_i\)</span> is the energy state of state <span class="math">\(i\)</span>, <span class="math">\(k\)</span> is the
+Boltzmann constant, and <span class="math">\(T\)</span> is the temperature.  As we know from the previous
+section, the total energy of a system is (in this case) equal to the Hamiltonian so
+we can easily re-write <span class="math">\(E_i\)</span> as <span class="math">\(H(q, p)\)</span> to get the second form.</p>
+<p>It turns out that it doesn't matter how many particles you have in your
+internal system, it could be a googolplex or a single particle.  As long as you
+have the heat bath and some assumptions about the transfer of heat between the
+two systems, the Boltzmann distribution holds.  The most intuitive
+way (as an ML person) to interpret Equation 38 is as a "softmax" over all the
+microstates, where the energy of the microstate is the "logit" value and
+<span class="math">\(Z\)</span> is the normalizing summation over all exponentials.  Importantly, it
+is <em>not</em> just an exponentially distributed variable.</p>
+<p>In the single particle case, the particle is going to be moving around in your
+closed system but randomly interacting with the heat bath, which basically
+translates to changing its velocity (or momentum).  This is an important idea
+that we're going to use momentarily.</p>
+<div class="admonition admonition-example-4-example-of-canonical-ensemble-for-a-classical-system-with-a-particle-in-a-potential-well">
+<p class="admonition-title">Example 4: Example of canonical ensemble for a classical system with a particle in a potential well.</p>
+<div class="figure align-center">
+<img alt="Example of canonical ensemble for a classical system with a particle in a potential well." src="../../images/hmc_canonical_ensemble.png" style="width: 50%;"><p class="caption"><strong>Figure 6: Example of canonical ensemble for a classical system with a
+particle in a potential well (source: Wikipedia)</strong></p>
+</div>
+<p>Figure 6 shows a simple 1 dimensional classical (i.e., non-quantum) system
+where a particle is trapped inside a potential well.  The system is
+submerged in a heat bath (not-shown) to keep it in thermal equilibrium.
+The top diagram shows the momentum vs. position, in other words
+it plots the phase space coordinates <span class="math">\((p, x)\)</span>.  The bottom left plot shows
+the energy of the system vs. position with the red line indicating the potential
+energy at each <span class="math">\(x\)</span> value.  The bottom right plot shows the distribution
+of states across energy levels.</p>
+<p>A few things to point out:</p>
+<ul class="simple">
+<li><p>The particle moves along a single axis denoted by the position <span class="math">\(x\)</span>.
+So it essentially just moves left and right.</p></li>
+<li><p>The velocity (or momentum) changes in two ways: (a) As it moves left and
+right, it gains or loses potential energy. This translates into kinetic
+energy affecting the velocity (and momentum).  As it approaches an
+potential "uphill" its movement along the 1D axis slows in that
+direction, similarly when on a potential "downhill" its movement speeds
+up along the 1D axis in that direction.
+(b) The heat bath will be constantly exchanging energy with the system,
+which translates to changing the momentum of the particle.  This happens
+randomly as a function of the equilibrium temperature.</p></li>
+<li><p>The top phase space plot clearly shows the particle spending most of its
+paths (blue) in the dips in the potential function with varying momentum values.
+This is as expected because the particle will get "pulled" into the dips
+while the momentum could vary by the interaction with the heat bath.</p></li>
+<li><p>The bottom left plot shows something similar where the particle is more concentrated
+in the dips of the potential function.  Additionally, most of the time
+the internal system energy is close to the green dotted line, which represents the average
+energy of the particle system.</p></li>
+<li><p>The bottom right plot shows the distribution of states by energy.  Note that the
+energy states are not a simple exponential distribution as you may think
+from Equation 38.  The distribution in Equation 38 is a function of the
+microstates <span class="math">\((q, p)\)</span>, <em>not</em> the internal system energy.
+This is hidden in the normalization constant <span class="math">\(Z\)</span>, which sums over all
+microstates to normalize the probabilities to 1.  As a result, the distribution
+over energy states can be quite complex as shown.</p></li>
+</ul>
+</div>
+<p>As we can see from Equation 38 and Example 4, we have related the Hamiltonian
+to a probability distribution.  We now (finally!) have everything we need to
+setup the HMC method.</p>
+<p>This whole digression into thermodynamics is not for naught!  We are in fact
+going to use the canonical ensemble to model and sample from our target
+distribution.  Here's the setup for target density (or something proportional
+to it) <span class="math">\(f({\bf x})\)</span> with <span class="math">\(D\)</span> variables in its support:</p>
+<ul>
+<li><p><strong>Position variables</strong> (<span class="math">\(q\)</span>): The <span class="math">\(D\)</span> variables of our target
+distribution (the one we want to sample from) will correspond to our position
+variables <span class="math">\(\bf q\)</span>.  Instead of our canonical distribution existing in
+(usually) 3 dimensions for a physical system, we'll be using <span class="math">\(D\)</span>
+position dimensions for HMC.</p></li>
+<li><p><strong>Momentum variables</strong> (<span class="math">\(p\)</span>): <span class="math">\(D\)</span> corresponding momentum
+variables will be introduced artificially in order for the Hamiltonian
+dynamics to operate.  They will allow us to simulate both the particle moving
+around as well as the random changes in direction that occur when it
+interacts with the heat bath.</p></li>
+<li>
+<p><strong>Potential energy</strong> (<span class="math">\(U(q)\)</span>): The potential energy will be the
+negative logarithm of our target density (up to a normalizing constant):</p>
+<div class="math">
+\begin{equation*}
+U({\bf q}) = -log[f({\bf q})] \tag{39}
+\end{equation*}
+</div>
+</li>
+<li>
+<p><strong>Kinetic energy</strong> (<span class="math">\(K(p)\)</span>): There can be many choices in how to define
+the kinetic energy, but the current practice is to assume that it is independent
+of <span class="math">\(q\)</span>, and quadratic in each of the dimensions.  This naturally
+translates to a zero-mean multivariate Gaussian (see below) with independent
+variances <span class="math">\(m_i\)</span>.  This produces the kinetic energy:</p>
+<div class="math">
+\begin{equation*}
+K({\bf p}) = \sum_{i=1}^D \frac{p_i^2}{2m_i} \tag{40}
+\end{equation*}
+</div>
+</li>
+<li>
+<p><strong>Hamiltonian</strong> (<span class="math">\(H({\bf q, p})\)</span>): Equation 39 and 40 give us this Hamiltonian:</p>
+<div class="math">
+\begin{equation*}
+H({\bf q, p}) = -log[f({\bf q})] + \sum_{i=1}^D \frac{p_i^2}{2m_i} \tag{41}
+\end{equation*}
+</div>
+</li>
+<li>
+<p><strong>Canonical distribution</strong> (<span class="math">\(P({\bf q, p})\)</span>): The canonical ensemble
+yields the Boltzmann equation from Equation 38 where we will set <span class="math">\(kT=1\)</span>
+and plug in our Hamiltonian from Equation 41:</p>
+<div class="math">
+\begin{align*}
+P({\bf q, p}) &amp;= \frac{1}{Z}\exp(\frac{H({\bf q, p})}{kT}) &amp;&amp; \text{set } kT=1\\
+              &amp;= \frac{1}{Z}\exp(-log[f({\bf q})] + \sum_{i=1}^D \frac{p_i^2}{2m_i}) \\
+              &amp;= \frac{1}{Z_1}\exp(-log[f({\bf q})])\cdot\frac{1}{Z_2}\exp(\sum_{i=1}^D \frac{p_i^2}{2m_i}) \\
+              &amp;= P(q)P(p)
+\tag{42}
+\end{align*}
+</div>
+</li>
+</ul>
+<p>where <span class="math">\(Z_1, Z_2\)</span> are normalizing constants, and <span class="math">\(P(q), P(p)\)</span> are
+independent distributions involving only those variables.  Taking a closer
+look at those two distributions, we have:</p>
+<div class="math">
+\begin{align*}
+P({\bf q}) = \frac{1}{Z_1}\exp(-log[f({\bf q})]) = \frac{1}{Z_1} f({\bf q}) \propto f({\bf q}) \\
+P({\bf p}) = \cdot\frac{1}{Z_2}\exp(\sum_{i=1}^D \frac{p_i^2}{2m_i}) \\
+\tag{43}
+\end{align*}
+</div>
+<p>So our canonical distribution is made up of two independent parts: our target distribution
+and some zero mean independent Gaussians!  So how does this help us?  Recall
+that the canonical distribution models the distribution of microstates
+(<span class="math">\(\bf q,p\)</span>). So if we can <em>exactly</em> simulate the
+dynamics of the system (via the Hamilton's equations + random interactions with
+the heat bath), we would essentially be simulating exactly <span class="math">\(P({\bf q,p})\)</span>, which
+leads us directly to simulating <span class="math">\(P({\bf q})\)</span>!</p>
+<!-- admonition Why do we need to model the random interactions with the heat bath?
+
+There are two ways to think about this problem.  The first is that if want
+to use the Boltzmann distribution, the assumptions only hold either for a
+system enclosed in a heat bath *or* if it's a closed system with a very large
+number of particles.  Obviously our single particle model only fits into the
+former.  If we exclude the heat bath then there is an alternate distribution
+specified by the `microcanonical ensemble <https://en.wikipedia.org/wiki/Microcanonical_ensemble>`__.
+
+Another way to understand it is from the perspective using MCMC to sample
+our target distribution.  If we didn't model the random interactions, the
+total energy of the system would be fixed (:math:`H(q,p)` is constant).
+Therefore, there is a possibility that we would never be able to reach
+certain states with a greater energy level, resulting in the procedure not
+able to sample parts of the target distribution's support.  Obviously, this
+would not lead to a correct sampling procedure. -->
+<p>In this hypothetical scenario, we would just need to simulate this system, record
+our <span class="math">\(q\)</span> values, and out would pop samples of our target distribution.
+Unfortunately, this is not possible.  The main reason is that we cannot <em>exactly</em>
+simulate this system because, in general, Hamilton's equations do not yield a
+closed form solution.  So we'll have to discretize Hamiltoninan dynamics and add
+in a Metropolis-Hastings update step to make sure we're faithfully simulating our
+target distribution.  The next subsection describes the HMC algorithm in more detail.</p>
+</div>
+<div class="section" id="hmc-algorithm">
+<h3><a class="toc-backref" href="#id16"><span class="sectnum">3.2</span> HMC Algorithm</a></h3>
+<p>The core part of the HMC algorithm follows essentially the same structure as
+the Metropolis-Hastings algorithm: propose a new sample, accept with some
+probability.  The difference is that Hamiltonian dynamics are used to find a
+new proposal sample, and the acceptance criteria is simplified because of a
+symmetric proposal distribution.
+Here's a run-down of the major steps:</p>
+<ol class="arabic">
+<li><p>Draw a new value of <span class="math">\(p\)</span> from our zero mean Gaussian.  This simulates
+a random interaction with the heat bath.</p></li>
+<li><p>Starting in state <span class="math">\((q,p)\)</span>, run Hamiltonian dynamics for <span class="math">\(L\)</span> steps
+with step size <span class="math">\(\epsilon\)</span> using the Leapfrog method presented in
+Section 2.5.  <span class="math">\(L\)</span> and <span class="math">\(\epsilon\)</span> are hyperparameters of the
+algorithm.  This simulates the particle moving without interactions with the heat bath.</p></li>
+<li><p>After running <span class="math">\(L\)</span> steps, negate the momentum variables, giving a proposed
+state of <span class="math">\((q^*, p^*)\)</span>.  The negation makes the proposal distribution
+symmetric i.e. if we run <span class="math">\(L\)</span> steps again, we get back to the original
+state.  The negation is necessary for our MCMC proof below but the
+negation is unimportant because we always square the momentum before using
+it in the Hamiltonian.</p></li>
+<li>
+<p>The proposed state <span class="math">\((q^*, p^*)\)</span> is accepted as the next state using a
+Metropolis-Hastings update with probability:</p>
+<div class="math">
+\begin{align*}
+A(q^*, p^*) &amp;= \min\big[1, \frac{f(q^*, p^*)g(q, p | q^*, p^*)}{f(q, p)g(q^*, p^* | q, p)}\big] \\
+              &amp;= \min\big[1, \frac{f(q^*, p^*)}{f(q, p)}\big] &amp;&amp; \text{symmetry of proposal distribution} \\
+              &amp;= \min[1, \frac{\exp(-H(q^*, p^*))}{\exp(-H(q,p))}] \\
+              &amp;= \min[1, \exp(-U(q^*) + U(q) -K(p^*)+K(p))] \\
+              \tag{44}
+\end{align*}
+</div>
+<p>If the next state is not accepted (i.e. rejected), then the current state
+becomes the next state.  This MH step is needed to offset the approximation
+of our discretized Hamiltonian.  If we could exactly simulate Hamiltonian
+dynamics this acceptance probability would be exactly <span class="math">\(1\)</span> because the
+Hamiltonian is conserved (i.e. constant).</p>
+</li>
+</ol>
+<p>It's all relatively straight forward (assuming you have the requisite
+background knowledge above).  It generally converges faster than
+a random walk-based MH algorithm, but it does have some key assumptions.
+First, we can only sample from continuous distributions on
+<span class="math">\(\mathcal{R}^D\)</span> because otherwise our Hamiltonian dynamics could not
+operate.  Second, similar to MH, we need to be able to evaluate the density
+up to a normalizing constant.  Finally, we must be able to compute the partial
+derivative of the log density in order to compute Hamilton's equations.  Thus,
+these derivatives must exist everywhere the density is non-zero.
+There are several other detailed assumptions you can look up in [1] if you are
+interested.</p>
+<p>What's nice is that all that math reduces down to quite a simple algorithm.
+Listing 1 shows pseudo-code for one iteration of the algorithm, which is pretty
+straightforward to implement (see the experiments section where I implement a toy
+version of HMC).</p>
+<p><strong>Listing 1: Hamiltonian Monte Carlo Python-like Pseudocode</strong></p>
+<div class="code"><table class="codetable">
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-1"><code data-line-number=" 1"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-1"></a><span class="k">def</span> <span class="nf">hmc_iteration</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">grad_U</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">current_q</span><span class="p">,</span> <span class="n">std_dev</span><span class="p">):</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-2"><code data-line-number=" 2"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-2"></a>    <span class="sd">'''</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-3"><code data-line-number=" 3"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-3"></a><span class="sd">         U: function returns the potential energy given a state q</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-4"><code data-line-number=" 4"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-4"></a><span class="sd">         grad_u: function returns gradient of U given q</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-5"><code data-line-number=" 5"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-5"></a><span class="sd">         epsilon: step size</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-6"><code data-line-number=" 6"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-6"></a><span class="sd">         L: number of Leapfrog steps</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-7"><code data-line-number=" 7"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-7"></a><span class="sd">         current_q: current generalized state trajectory starts from</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-8"><code data-line-number=" 8"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-8"></a><span class="sd">         std_dev: vector of standard deviations for Gaussian (hyperparameter)</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-9"><code data-line-number=" 9"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-9"></a><span class="sd">    '''</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-10"><code data-line-number="10"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-10"></a>    <span class="n">q</span> <span class="o">=</span> <span class="n">current_q</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-11"><code data-line-number="11"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-11"></a>    <span class="n">p</span> <span class="o">=</span> <span class="n">sample_normal</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">q</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">std_dev</span><span class="p">)</span> <span class="c1"># sample zero-mean Gaussian</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-12"><code data-line-number="12"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-12"></a>    <span class="n">current_p</span> <span class="o">=</span> <span class="n">p</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-13"><code data-line-number="13"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-13"></a>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-14"><code data-line-number="14"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-14"></a>    <span class="c1"># Leapfrog: half step for momentum</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-15"><code data-line-number="15"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-15"></a>    <span class="n">p</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">grad_U</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-16"><code data-line-number="16"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-16"></a>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-17"><code data-line-number="17"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-17"></a>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">):</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-18"><code data-line-number="18"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-18"></a>        <span class="c1"># Leapfrog: full step for position</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-19"><code data-line-number="19"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-19"></a>        <span class="n">q</span> <span class="o">=</span> <span class="n">q</span> <span class="o">+</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">p</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-20"><code data-line-number="20"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-20"></a>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-21"><code data-line-number="21"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-21"></a>        <span class="c1"># Leapfrog: combine 2 half-steps for momentum across iterations</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-22"><code data-line-number="22"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-22"></a>        <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">!=</span> <span class="n">L</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-23"><code data-line-number="23"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-23"></a>            <span class="n">p</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">grad_U</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-24"><code data-line-number="24"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-24"></a>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-25"><code data-line-number="25"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-25"></a>    <span class="c1"># Leapfrog: final half step for momentum</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-26"><code data-line-number="26"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-26"></a>    <span class="n">p</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">grad_U</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-27"><code data-line-number="27"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-27"></a>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-28"><code data-line-number="28"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-28"></a>    <span class="c1"># Negate trajectory to make proposal symmetric</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-29"><code data-line-number="29"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-29"></a>    <span class="n">p</span> <span class="o">=</span> <span class="o">-</span><span class="n">p</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-30"><code data-line-number="30"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-30"></a>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-31"><code data-line-number="31"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-31"></a>    <span class="c1"># Compute potential and kinetic energies</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-32"><code data-line-number="32"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-32"></a>    <span class="n">current_U</span> <span class="o">=</span> <span class="n">U</span><span class="p">(</span><span class="n">current_q</span><span class="p">)</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-33"><code data-line-number="33"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-33"></a>    <span class="n">current_K</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">current_p</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-34"><code data-line-number="34"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-34"></a>    <span class="n">proposed_U</span> <span class="o">=</span> <span class="n">U</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-35"><code data-line-number="35"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-35"></a>    <span class="n">proposed_K</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-36"><code data-line-number="36"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-36"></a>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-37"><code data-line-number="37"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-37"></a>    <span class="c1"># Accept with probability specified using Equation 44:</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-38"><code data-line-number="38"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-38"></a>    <span class="k">if</span> <span class="n">rand</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">exp</span><span class="p">(</span><span class="n">current_U</span> <span class="o">-</span> <span class="n">proposed_U</span> <span class="o">+</span> <span class="n">current_K</span> <span class="o">-</span> <span class="n">proposed_K</span><span class="p">):</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-39"><code data-line-number="39"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-39"></a>        <span class="k">return</span> <span class="n">q</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-40"><code data-line-number="40"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-40"></a>    <span class="k">else</span><span class="p">:</span>
+</code></td>
+</tr>
+<tr>
+<td class="linenos linenodiv"><a href="#rest_code_df91ac5067c54e6f99994ca4a650233d-41"><code data-line-number="41"></code></a></td>
+<td class="code"><code><a name="rest_code_df91ac5067c54e6f99994ca4a650233d-41"></a>        <span class="k">return</span> <span class="n">current_q</span>
+</code></td>
+</tr>
+</table></div>
+<p>Listing 1 is a straight forward implementation of Leapfrog combined with a
+simple acceptance step. An optimization is done on line 23 to combine
+the two half momentum steps from Equation 35 and 37.  A bit of the magic is
+hidden behind the potential and gradient of the potential function but those
+depend fully on your target distribution so it can't be helped.</p>
+<p>It's not obvious that the above algorithm would be correct, particularly the
+acceptance step, which we simply stated without much reasoning.  We'll examine
+its correctness the next subsection.</p>
+</div>
+<div class="section" id="hmc-algorithm-correctness">
+<h3><a class="toc-backref" href="#id17"><span class="sectnum">3.3</span> HMC Algorithm Correctness</a></h3>
+<p>To show that HMC correctly produces samples, we will show that the algorithm
+correctly samples from the <em>joint</em> canonical ensemble distribution <span class="math">\(P(q, p)\)</span>.
+Since we already identified that this joint distribution can be factored into independent
+distributions <span class="math">\(P(q)\)</span> and <span class="math">\(P(p)\)</span> (Equation 42), our final output
+can just take the <span class="math">\(q\)</span> samples to get our desired result.</p>
+<p>We ultimately want to show that the next state returned in Listing 1
+occurs with the correct probability according to the canonical distribution.
+First, we'll look at the very first operation: sampling of the momentum (Line 11 from Listing 1).
+Assume that you have sampled <span class="math">\(q\)</span> properly (up to this point) according to
+our canonical distribution (the input to Listing 1).  Since our momentum factor
+is independent, we can simply sample the momentum from its correct distribution
+(an independent normal distribution) and the resulting sample <span class="math">\((q, p)\)</span>
+will distributed according to the canonical ensemble as required.</p>
+<p>Next, we'll look at the rest of the algorithm, which runs Leapfrog for L steps
+and does an MH update (Line 15-41).  We'll only be sketching the idea here and
+will not go into too many formalities.  To start, let's divide up phase space
+(<span class="math">\((q, p)\)</span>) into arbitrarily small partitions.  Since these are
+arbitrarily small regions, the probability density, Hamiltonian and other
+associated quantities are constant within those region.  The idea is that these
+finite regions can be shrunk down to infinitesimally small sizes that we would
+need to prove the general result.  Additionally, this is where the
+volume-preserving nature of the Leapfrog algorithm comes in (and negation of
+the momentum, which is also volume-preserving).  We don't need to worry about
+our small regions ever growing (or shrinking) and thus, we can treat any region
+(before or after a Leapfrog step) similarly.</p>
+<p>Assume you have sampled the current state <span class="math">\((q, p)\)</span> according to the
+canonical distribution i.e., <span class="math">\((q, p)\)</span> after you sample the momentum.
+The probability that the next state is in some (infinitesimally) small region
+<span class="math">\(X_k\)</span> is the sum of probabilities that it's (a) already in <span class="math">\(X_k\)</span> and it gets rejected
+(<code>else</code> statement in Listing 1) <em>plus</em> (b) the probability that it's in some other state
+and moves into state <span class="math">\(X_k\)</span>.  Given canonical distribution probability state
+<span class="math">\(P(X_k)\)</span>, rejection probability <span class="math">\(R(X_k)\)</span>, and
+transition probability <span class="math">\(T(X_k|X_i)\)</span> from region <span class="math">\(i\)</span> to <span class="math">\(k\)</span>,
+we can see that:</p>
+<div class="math">
+\begin{align*}
+P(\text{ending up in state } X_k)
+  &amp;= P(X_k)R(X_k) + \sum_i P(X_i)T(X_k|X_i) &amp;&amp; \text{Assume current state sampled correctly} \\
+  &amp;= P(X_k)R(X_k) + \sum_i P(X_k)T(X_i|X_k) &amp;&amp; \text{Detailed balance condition} \\
+  &amp;= P(X_k)R(X_k) + P(X_k) \sum_i T(X_i|X_k)  \\
+  &amp;= P(X_k)R(X_k) + P(X_k) (1 - R(X_k))  \\
+  &amp;= P(X_k) \\
+\tag{45}
+\end{align*}
+</div>
+<p>Thus, we see that our procedure will have correctly sampled our next
+state <span class="math">\(X_k\)</span> according to the target distribution.  From the second line,
+detailed balance (aka reversibility) is one of the key properties
+that we must have for this to work properly.  The other thing to notice is that
+the probability of <em>leaving</em> state <span class="math">\(X_k\)</span> to <em>any given</em> state is
+precisely the probability of <em>not</em> rejecting.  So if we satisfy detailed
+balance (and the Markov chain has a steady state), we will have shown that
+we correctly sampled from the canonical distribution.</p>
+<p>Now we will show the three conditions needed for a Markov chain described in
+the background to show that it does converge to a steady state and has the
+detailed balance condition.  First, our procedure trivially can reach any state
+due to
+the normally distributed momentums, which span the real line, thus it is
+<em>irreducible</em> (practically though it is critically important to tune the variance
+on the normal distributions due to finite runs).  Second, we need to
+ensure that the system never returns to the same state with a fixed period
+(i.e., it is aperiodic).  Theoretically, this may be possible in certain setups but can be
+avoided by randomly choosing <span class="math">\(\epsilon\)</span> or <span class="math">\(L\)</span> within a narrow
+interval.  Practically though, this is pretty rare on any non-trivial problem,
+although this may lead to other problems like very slow to converge.</p>
+<p>Lastly, all that is left to show is that detailed balance is satisfied.
+Assume we start our Leapfrog operation in state <span class="math">\(X_k\)</span> and run it for
+<span class="math">\(L\)</span> steps plus reverse the momentum, and end in state <span class="math">\(Y_k\)</span>.
+We need to show detailed balance holds for all <span class="math">\(i,j\)</span> such that:</p>
+<div class="math">
+\begin{equation*}
+P(X_i)T(Y_j|X_i) = P(Y_j)T(X_i|Y_j) \tag{46}
+\end{equation*}
+</div>
+<p>Let's break it down into two cases:</p>
+<p><strong>Case 1</strong> <span class="math">\(i \neq j\)</span>: Recall that the Leapfrog algorithm is deterministic,
+therefore <span class="math">\(Y_i = \text{Leapfrog_Plus_Reverse}(X_i)\)</span> for any given <span class="math">\(k\)</span>.  So if you
+have any other <span class="math">\(Y_{j\neq i}\)</span> then it is impossible to transition to this state.
+Thus, <span class="math">\(T(X_i|y_j) = 0\)</span> and Equation 46 is trivially satisfied.</p>
+<p><strong>Case 2</strong> <span class="math">\(i = j\)</span>: In this case, let's plug in our transition/acceptance probability
+condition (Equation 44) and see what happens.  Note that in addition to the probability
+being constant within a region, we also have the Hamiltonian constant too.  Let <span class="math">\(V\)</span> be the
+volume of the region, <span class="math">\(H_{X_k}, H_{Y_k}\)</span> be the value of the Hamiltonian
+in each region, and without loss of generality assume
+<span class="math">\(H_{X_k} &gt; H_{Y_k}\)</span> (due to symmetry of the problem). Plugging this all into Equation 46,
+we see that it satisfies the detailed balance condition:</p>
+<div class="math">
+\begin{align*}
+LHS &amp;= P(X_i)T(Y_j|X_i) \\
+    &amp;= \frac{V\cdot\exp(-H_{X_k})\min{(1, \exp(-H_{Y_k}+H_{X_k}))}}{Z} \\
+    &amp;= \frac{V\cdot\exp(-H_{X_k})(1)}{Z} &amp;&amp; \text{assumption } H_{X_k} &gt; H_{Y_k} \\
+    &amp;= \frac{V\cdot\exp(-H_{X_k})}{Z} \\
+    \tag{47} \\
+RHS &amp;= P(Y_j)T(X_i|Y_j) \\
+    &amp;= \frac{V\cdot\exp(-H_{Y_k})\min{(1, \exp(-H_{X_k}+H_{Y_k}))}}{Z} \\
+    &amp;= \frac{V\cdot\exp(-H_{Y_k})\exp(-H_{X_k}+H_{Y_k})}{Z} &amp;&amp; \text{assumption } H_{X_k} &gt; H_{Y_k} \\
+    &amp;= \frac{V\cdot\exp(-H_{X_k})}{Z} \\
+    \tag{48}
+\end{align*}
+</div>
+<p>where the probability of being in state <span class="math">\(P(X_i)\)</span> is the volume of the
+region (<span class="math">\(V\)</span>) multiplied by the density (Boltzman distribution).  This works
+because of our infinitesimally small regions where we assume the density is
+constant throughout.</p>
+<p>Two subtle points to mention.
+First, if we were able to simulate Hamiltonian dynamics exactly, <span class="math">\(H_{X_k} = H_{Y_k}\)</span>
+(recall the Hamiltonian is constant along a trajectory), then that would get us to
+a 100% acceptance rate.  Unfortunately, Leapfrog or any other approximation method
+doesn't quite get us there so we need the MH step.  Second, the reason why we
+need to negate the momentum at the end is so that our transition probabilities
+are symmetric, i.e.  <span class="math">\(T(X_k|Y_k) = T(Y_k|X_k)\)</span> (Equation 44), which
+follows from the fact that we can reverse our Leapfrog steps by negating the momentum
+and running it back the same number of steps.  If we didn't include this step,
+then we would have to include another adjustment factor (<span class="math">\(g(y|x) / g(x|y)\)</span>),
+which comes from the more generic MH step described in Equation 1.</p>
+</div>
+<div class="section" id="additional-notes">
+<h3><a class="toc-backref" href="#id18"><span class="sectnum">3.4</span> Additional Notes</a></h3>
+<p>It should be pretty obvious that the explanation above only presents the core
+math behind HMC.  To make it practically work, there are a lot more details.
+Here are just a few of the issues that make a real world implementation complex
+(for all these points, [1] has some additional discussion if you want more detail):</p>
+<ul class="simple">
+<li><p>Tuning step size (<span class="math">\(\epsilon\)</span>) and number of steps (<span class="math">\(L\)</span>) is so critically important
+that it can make or break your HMC implementation (see discussion in
+the experiments below).  You can get into all sorts of incorrect sampling
+behaviors if you get it wrong from highly correlated samples to low
+acceptance rates.  You have to be very careful!</p></li>
+<li><p>Similarly, tuning the momentum hyperparameters (the standard deviation for
+our independent Gaussians in our case) is also very important to getting proper samples.
+If your momentum is too low, then you won't be able to explore the tails of your distribution.
+If your momentum is too high, then you'll have a very low acceptance rate.
+To add to the complexity, the momentum distribution is related to the step size
+and number of steps too.  In general, it's best if you can tune each dimension
+of the momentum distribution to fit your problem but that is typically non-trivial.</p></li>
+<li><p>In general, you'll have a mix of discrete and continuous variables.  In those cases,
+you can mix and match MCMC methods and use HMC only for a subset of
+continuous variables.  Similarly, there are adaptations of HMC to continuous
+variables that don't span the real line.</p></li>
+<li><p>A practical technique to use HMC was the discovery of the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo#No_U-Turn_Sampler">No U-Turn Sampler</a>
+(NUTS).  Roughly, the algorithm adaptively sets the path length by running
+Leapfrog both backwards and forwards in time, and then seeing where the
+trajectory "changes direction" (a "U-Turn").  At this point, you randomly
+sample a point from your path.  In this way, you likely have seen enough of
+the local landscape to not double back on your path (which wastes
+computation) but still have enough momentum to reach the tails.  As far as I
+can tell, most implementations of HMC will have a NUTS sampler.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="experiments">
+<h2><a class="toc-backref" href="#id19"><span class="sectnum">4</span> Experiments</a></h2>
+<p>As usual, I implemented a toy version of HMC to better understand how it works.
+You can take a look at the code on <a class="reference external" href="https://github.com/bjlkeng/sandbox/blob/master/hmc/hmc.ipynb">Github</a>
+(note: I didn't spend much time cleaning up the code).  It's a pretty simple implementation
+of HMC and MH MCMC algorithms, which pretty much mirrors the pseudocode above.</p>
+<p>I ran it for two very simple examples.  The first is a standard normal
+distribution, where you can see the run summary in Figure 7.  The two left and
+two right panels show the HMC and MH results, respectively.  Both methods use
+a standard normal distribution for the momentum distribution and the proposal
+distribution, respectively.  I show the histogram of 1000 samples (overlaid
+with the actual density) with its associated autocorrelation plot.  You can see
+that the HMC algorithm has a higher acceptance rate (97% vs. 70%), which
+results in fewer steps needed to sample.</p>
+<div class="figure align-center">
+<img alt="Histogram of samples from toy implementation of HMC and MH for a standard normal distribution" src="../../images/hmc_experiment1.png" style="width: 100%;"><p class="caption"><strong>Figure 7: Histogram of samples from toy implementation of HMC and MH for a standard normal distribution</strong></p>
+</div>
+<p>Overall the samples look more or less reasonable.  This is backed up by the
+autocorrelation (AC) plots, which shows little to no correlation between
+samples (i.e. independence).  I had to (manually) tune both algorithms in order
+to get to a point where the AC plots didn't show significant correlation.  For
+MH, I had to increase the step size sufficiently.  For HMC, I had to tune
+between the step size and number of steps to get that result.</p>
+<p>Adding another dimension, I also ran HMC and MH for a
+<a class="reference external" href="https://en.wikipedia.org/wiki/Multivariate_normal_distribution#Bivariate_case">bivariate normal distribution</a>
+with standard deviation in both dimension of <span class="math">\(1.0\)</span>, and a correlation of <span class="math">\(0.9\)</span>
+for 1000 samples.
+The samples are plotted (from left to right, top to bottom) in Figure 8 for two
+HMC runs, a MH run, and directly sampling from the distribution (via Numpy).  I
+plotted the unit circle to give a sense of scale of the
+standard deviation of two dimensions (multivariate normal distributions with
+non-diagonal covariance matrices don't typically look spherical though).
+I also tuned all of them (except for Numpy) to have a relatively
+low autocorrelation plot.  In the plot titles, "Acc" stands for acceptance rate,
+"eps" is epsilon, "st" is steps, "pstd" is standard deviation for momentum
+normal distribution (same for both dimensions), "prop" is proposal distribution
+(same standard deviation for both dimensions).</p>
+<div class="figure align-center">
+<img alt="Histogram of samples from toy implementation of HMC, MH, and Numpy for a bivariate normal distribution" src="../../images/hmc_experiment2.png" style="width: 100%;"><p class="caption"><strong>Figure 8: Histogram of samples from toy implementation of HMC, MH, and Numpy for a bivariate normal distribution</strong></p>
+</div>
+<p>Looking at the top left HMC samples and the bottom right Numpy direct sampling,
+we can see they are visually very similar.  This is a good case of being able
+to generate reasonable samples.  I ran another HMC example but with a
+smaller standard deviation (top right), and you can see all the samples are
+concentrated in the middle.  This shows that setting the momentum properly is
+critical for generating proper samples.  In this case, we see that the
+distribution doesn't have enough "energy" to reach far away points so we never
+sample from there (for this particular finite run).</p>
+<p>Turning to the MH sampler, visually it also looks relatively similar to the
+Numpy samples. Similar to HMC, I had to set the standard deviation of the
+proposal distribution (independent Gaussians) to a relatively large value.  If
+not, then it would be extremely unlikely to reach distant points (unless you
+had many more steps).  The large random jumps result in a very low acceptance
+rate, which means we need more proposal jumps to get independent samples.</p>
+<p>I considered doing a more complex example such as a Bayesian linear regression
+or hierarchical model, but after all the fiddling with the two simple examples
+above, I thought it wasn't worth it.  I'll leave the MCMC implementations to
+the pros. I'm already quite satisfied with the understanding that I've gained
+going through this exercise (not to mention my newfound appreciation for its
+complexity) .</p>
+</div>
+<div class="section" id="conclusion">
+<h2><a class="toc-backref" href="#id20"><span class="sectnum">5</span> Conclusion</a></h2>
+<p>It's really rewarding to finally understand (to a satisfactory degree) a topic
+that you thought was "too difficult" just a few years ago.  I originally wasn't
+looking to do a post on HMC but went down this rabbit hole trying to understand
+another topic that slightly overlaps with it.  This is part of the joy of being
+able to independently study things, too bad time is so limited.  In any case, I'm
+hoping to <em>eventually</em> get back to the topic that I was originally interested
+in at some point, and hopefully be able to find time to post more often.  In
+the meantime, stay safe and have a happy holidays!</p>
+</div>
+<div class="section" id="further-reading">
+<h2><a class="toc-backref" href="#id21"><span class="sectnum">6</span> Further Reading</a></h2>
+<ul class="simple">
+<li><p>Previous posts: <a class="reference external" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/">Markov Chain Monte Carlo Methods, Rejection Sampling and the Metropolis-Hastings Algorithm</a>, <a class="reference external" href="../the-calculus-of-variations/">The Calculus of Variations</a></p></li>
+<li><p>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm">Metropolis-Hastings Algorithm</a>,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Classical_mechanics">Classical Mechanics</a>,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Lagrangian_mechanics">Lagrangian Mechanics</a>,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Hamiltonian_mechanics">Hamiltonian Mechanics</a></p></li>
+<li><p>[1] Radford M. Neal, MCMC Using Hamiltonian dynamics, <a class="reference external" href="https://arxiv.org/abs/1206.1901">arXiv:1206.1901</a>, 2012.</p></li>
+<li><p>[2] David Morin, <a class="reference external" href="https://scholar.harvard.edu/david-morin/classical-mechanics">Introduction to Classical Mechanics</a>, 2008.</p></li>
+<li><p>[3] <a class="reference external" href="http://hyperphysics.phy-astr.gsu.edu/hbase/shm2.html">HyperPhysics</a></p></li>
+</ul>
+<dl class="footnote brackets">
+<dt class="label" id="id3"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd>
+<p>The usual symbols they use for the Lagrangian are <span class="math">\(L = T - U\)</span> representing the kinetic and potential energy respectively.  However, <span class="math">\(T\)</span> makes no sense to me, so since we're not really talking about physics here, I'll just use <span class="math">\(K\)</span> to make it clear for the rest of us.</p>
+</dd>
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd>
+<p>This physical analogy is not exactly accurate because gravity, which affects the velocity of the puck, doesn't quite match our target density.  Instead, a better analogy would be a particle moving around in a vector field (e.g. an electron moving around in an electric field defined by our target density).  Although more accurate, it's less intuitive than a puck sliding along a surface so I get why the other analogy is better.</p>
+</dd>
+</dl>
+</div>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/bayesian/" rel="tag">Bayesian</a></li>
+            <li><a class="tag p-category" href="../../categories/hamiltonian/" rel="tag">Hamiltonian</a></li>
+            <li><a class="tag p-category" href="../../categories/mcmc/" rel="tag">MCMC</a></li>
+            <li><a class="tag p-category" href="../../categories/monte-carlo/" rel="tag">Monte Carlo</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../lossless-compression-with-latent-variable-models-using-bits-back-coding/" rel="prev" title="Lossless Compression with Latent Variable Models using Bits-Back Coding">Previous post</a>
+            </li>
+        </ul></nav></aside><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha384-3lJUsx1TJHt7BA4udB5KPnDrlkO8T6J6v/op7ui0BbCjvZ9WqV4Xm6DTP6kQ/iBH" crossorigin="anonymous"></script><script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
+    }
+});
+</script></article>
+</div>
+            <div class="col-md-3 ">
+            <div class="card card-body bg-light">
+            <p>
+            I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
+            a former academic, current data scientist and engineer.  This is
+            <a href="../../">the place</a>
+            where I write
+            about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br>
+</div>
+
+<!-- Begin MailChimp Signup Form -->
+<hr>
+<link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+    #mc_embed_signup{clear:left; font:13px Helvetica,Arial,sans-serif; }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+       We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="//briankeng.us10.list-manage.com/subscribe/post?u=cedf72ca8daa891e57f4379a0&amp;id=1f1563094f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <b>Signup for Email Blog Posts</b>
+    <div id="mc_embed_signup_scroll">
+<div>
+    <label for="mce-EMAIL"> Email Address </label>
+    <input type="email" value="" name="EMAIL" class="required email form-control input-sm" id="mce-EMAIL">
+</div>
+    <div id="mce-responses" class="clear">
+        <div class="response" id="mce-error-response" style="display:none"></div>
+        <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_cedf72ca8daa891e57f4379a0_1f1563094f" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn btn-default btn-xs"></div>
+    </div>
+</form>
+</div>
+<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
+</div>
+            </div>
+        </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2021         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+            
+        </footer>
+</div>
+
+
+
+        <script src="../../assets/js/all-nocdn.js"></script><script>
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element) {
+            return element.getElementsByTagName('img')[0].alt;
+    }});
+    </script><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-15314898-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>

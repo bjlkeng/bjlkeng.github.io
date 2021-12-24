@@ -1,5 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about Bayesian)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/bayesian.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sun, 29 Aug 2021 15:25:18 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Variational Bayes and The Mean-Field Approximation</title><link>http://bjlkeng.github.io/posts/variational-bayes-and-the-mean-field-approximation/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to cover Variational Bayesian methods and, in particular,
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about Bayesian)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/bayesian.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Fri, 24 Dec 2021 01:41:17 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Hamiltonian Monte Carlo</title><link>http://bjlkeng.github.io/posts/hamiltonian-monte-carlo/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Here's a topic I thought that I would never get around to learning because it was "too hard".
+When I first started learning about Bayesian methods, I knew enough that I
+should learn a thing or two about MCMC since that's the backbone
+of most Bayesian analysis; so I learned something about it
+(see my &lt;a class="reference external" href="http://bjlkeng.github.io/posts/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/"&gt;previous post&lt;/a&gt;).
+But I didn't dare attempt to learn about the infamous Hamiltonian Monte Carlo (HMC).
+Even though it is among the standard algorithms used in Bayesian inference, it
+always seemed too daunting because it required "advanced physics" to
+understand.  As usual, things only seem hard because you don't know them yet.
+After having some time to digest MCMC methods, getting comfortable learning
+more maths (see
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/tensors-tensors-tensors/"&gt;here&lt;/a&gt;,
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/manifolds/"&gt;here&lt;/a&gt;, and
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/"&gt;here&lt;/a&gt;),
+all of a sudden learning "advanced physics" didn't seem so tough (but there
+sure was a lot of background needed)!&lt;/p&gt;
+&lt;p&gt;This post is the culmination of many different rabbit holes (many much deeper
+than I needed to go) where I'm going to attempt to explain HMC in simple and
+intuitive terms to a satisfactory degree (that's the tag line of this blog
+after all).  I'm going to begin by briefly motivating the topic by reviewing
+MCMC and the Metropolis-Hastings algorithm then move on to explaining
+Hamiltonian dynamics (i.e., the "advanced physics"), and finally discuss the HMC
+algorithm along with some toy experiments I put together.  Most of the material
+is based on [1] and [2], which I've found to be great sources for their
+respective areas.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/hamiltonian-monte-carlo/"&gt;Read more…&lt;/a&gt; (52 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Bayesian</category><category>Hamiltonian</category><category>mathjax</category><category>MCMC</category><category>Monte Carlo</category><guid>http://bjlkeng.github.io/posts/hamiltonian-monte-carlo/</guid><pubDate>Fri, 24 Dec 2021 00:07:05 GMT</pubDate></item><item><title>Variational Bayes and The Mean-Field Approximation</title><link>http://bjlkeng.github.io/posts/variational-bayes-and-the-mean-field-approximation/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is going to cover Variational Bayesian methods and, in particular,
 the most common one, the mean-field approximation.  This is a topic that I've
 been trying to understand for a while now but didn't quite have all the background
 that I needed.  After picking up the main ideas from
