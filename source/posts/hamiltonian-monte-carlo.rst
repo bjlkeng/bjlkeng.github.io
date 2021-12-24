@@ -1,6 +1,6 @@
 .. title: Hamiltonian Monte Carlo
 .. slug: hamiltonian-monte-carlo
-.. date: 2021-09-11 20:47:05 UTC-04:00
+.. date: 2021-12-23 20:07:05 UTC-04:00
 .. tags: Hamiltonian, Monte Carlo, MCMC, Bayesian, mathjax
 .. category: 
 .. link: 
