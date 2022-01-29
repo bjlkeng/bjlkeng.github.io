@@ -226,7 +226,7 @@ Nothing really new here but let's make a few observations:
   order to extend to more complicated cases.
 * Finally, the encoding using Equations 3 and 4 are optimal if we have a uniform
   distribution of "0"s and "1"s (i.e. :math:`p_0=p_1=\frac{1}{2}`).  Notice
-  that the entropy :math:`H(x) = 2 \cdot \frac{1}{2}\log_2(\frac{1}{2}) = 1`,
+  that the entropy :math:`H(x) = -2 \cdot \frac{1}{2}\log_2(\frac{1}{2}) = 1`,
   which results in 1 bit per binary digit, which is exactly what these
   equations generate  (if you exclude the fact that we start at 1).
 
