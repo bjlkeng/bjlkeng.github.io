@@ -289,7 +289,7 @@ recover a "1", else when even, we recover an "0".  We'll use this idea in
 order to extend to more complicated cases.</p></li>
 <li><p>Finally, the encoding using Equations 3 and 4 are optimal if we have a uniform
 distribution of "0"s and "1"s (i.e. <span class="math">\(p_0=p_1=\frac{1}{2}\)</span>).  Notice
-that the entropy <span class="math">\(H(x) = 2 \cdot \frac{1}{2}\log_2(\frac{1}{2}) = 1\)</span>,
+that the entropy <span class="math">\(H(x) = -2 \cdot \frac{1}{2}\log_2(\frac{1}{2}) = 1\)</span>,
 which results in 1 bit per binary digit, which is exactly what these
 equations generate  (if you exclude the fact that we start at 1).</p></li>
 </ul>
@@ -717,88 +717,88 @@ play with a number that fits within an integer type.</p>
 <p><strong>Listing 1: Encoding and Decoding rANS Python Pseudocode with Renormalization</strong></p>
 <div class="code"><table class="codetable">
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_2e1500d860444f0cbea426a773914471-1"><code data-line-number=" 1"></code></a></td>
-<td class="code"><code><a name="rest_code_2e1500d860444f0cbea426a773914471-1"></a><span class="n">MASK</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="n">M</span> <span class="o">-</span> <span class="mi">1</span>
+<td class="linenos linenodiv"><a href="#rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-1"><code data-line-number=" 1"></code></a></td>
+<td class="code"><code><a name="rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-1"></a><span class="n">MASK</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="n">M</span> <span class="o">-</span> <span class="mi">1</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_2e1500d860444f0cbea426a773914471-2"><code data-line-number=" 2"></code></a></td>
-<td class="code"><code><a name="rest_code_2e1500d860444f0cbea426a773914471-2"></a><span class="n">BOUND</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">M</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+<td class="linenos linenodiv"><a href="#rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-2"><code data-line-number=" 2"></code></a></td>
+<td class="code"><code><a name="rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-2"></a><span class="n">BOUND</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">M</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_2e1500d860444f0cbea426a773914471-3"><code data-line-number=" 3"></code></a></td>
-<td class="code"><code><a name="rest_code_2e1500d860444f0cbea426a773914471-3"></a>
+<td class="linenos linenodiv"><a href="#rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-3"><code data-line-number=" 3"></code></a></td>
+<td class="code"><code><a name="rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-3"></a>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_2e1500d860444f0cbea426a773914471-4"><code data-line-number=" 4"></code></a></td>
-<td class="code"><code><a name="rest_code_2e1500d860444f0cbea426a773914471-4"></a><span class="c1"># Encoding</span>
+<td class="linenos linenodiv"><a href="#rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-4"><code data-line-number=" 4"></code></a></td>
+<td class="code"><code><a name="rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-4"></a><span class="c1"># Encoding</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_2e1500d860444f0cbea426a773914471-5"><code data-line-number=" 5"></code></a></td>
-<td class="code"><code><a name="rest_code_2e1500d860444f0cbea426a773914471-5"></a><span class="n">s</span> <span class="o">=</span> <span class="n">readSymbol</span><span class="p">()</span>
+<td class="linenos linenodiv"><a href="#rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-5"><code data-line-number=" 5"></code></a></td>
+<td class="code"><code><a name="rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-5"></a><span class="n">s</span> <span class="o">=</span> <span class="n">readSymbol</span><span class="p">()</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_2e1500d860444f0cbea426a773914471-6"><code data-line-number=" 6"></code></a></td>
-<td class="code"><code><a name="rest_code_2e1500d860444f0cbea426a773914471-6"></a><span class="n">x_test</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">f</span><span class="p">[</span><span class="n">s</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="n">n</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span> <span class="o">%</span> <span class="n">f</span><span class="p">[</span><span class="n">s</span><span class="p">])</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
+<td class="linenos linenodiv"><a href="#rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-6"><code data-line-number=" 6"></code></a></td>
+<td class="code"><code><a name="rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-6"></a><span class="n">x_test</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">f</span><span class="p">[</span><span class="n">s</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="n">n</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span> <span class="o">%</span> <span class="n">f</span><span class="p">[</span><span class="n">s</span><span class="p">])</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_2e1500d860444f0cbea426a773914471-7"><code data-line-number=" 7"></code></a></td>
-<td class="code"><code><a name="rest_code_2e1500d860444f0cbea426a773914471-7"></a><span class="k">if</span> <span class="p">(</span><span class="n">x_test</span> <span class="o">&gt;</span> <span class="n">BOUND</span><span class="p">):</span>
+<td class="linenos linenodiv"><a href="#rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-7"><code data-line-number=" 7"></code></a></td>
+<td class="code"><code><a name="rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-7"></a><span class="k">if</span> <span class="p">(</span><span class="n">x_test</span> <span class="o">&gt;</span> <span class="n">BOUND</span><span class="p">):</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_2e1500d860444f0cbea426a773914471-8"><code data-line-number=" 8"></code></a></td>
-<td class="code"><code><a name="rest_code_2e1500d860444f0cbea426a773914471-8"></a>    <span class="n">write16bits</span><span class="p">(</span><span class="n">x</span> <span class="o">&amp;</span> <span class="n">MASK</span><span class="p">)</span>
+<td class="linenos linenodiv"><a href="#rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-8"><code data-line-number=" 8"></code></a></td>
+<td class="code"><code><a name="rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-8"></a>    <span class="n">write16bits</span><span class="p">(</span><span class="n">x</span> <span class="o">&amp;</span> <span class="n">MASK</span><span class="p">)</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_2e1500d860444f0cbea426a773914471-9"><code data-line-number=" 9"></code></a></td>
-<td class="code"><code><a name="rest_code_2e1500d860444f0cbea426a773914471-9"></a>    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">&gt;&gt;</span> <span class="n">M</span>
+<td class="linenos linenodiv"><a href="#rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-9"><code data-line-number=" 9"></code></a></td>
+<td class="code"><code><a name="rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-9"></a>    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">&gt;&gt;</span> <span class="n">M</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_2e1500d860444f0cbea426a773914471-10"><code data-line-number="10"></code></a></td>
-<td class="code"><code><a name="rest_code_2e1500d860444f0cbea426a773914471-10"></a><span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">f</span><span class="p">[</span><span class="n">s</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="n">n</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span> <span class="o">%</span> <span class="n">f</span><span class="p">[</span><span class="n">s</span><span class="p">])</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
+<td class="linenos linenodiv"><a href="#rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-10"><code data-line-number="10"></code></a></td>
+<td class="code"><code><a name="rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-10"></a><span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">f</span><span class="p">[</span><span class="n">s</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="n">n</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span> <span class="o">%</span> <span class="n">f</span><span class="p">[</span><span class="n">s</span><span class="p">])</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_2e1500d860444f0cbea426a773914471-11"><code data-line-number="11"></code></a></td>
-<td class="code"><code><a name="rest_code_2e1500d860444f0cbea426a773914471-11"></a>
+<td class="linenos linenodiv"><a href="#rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-11"><code data-line-number="11"></code></a></td>
+<td class="code"><code><a name="rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-11"></a>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_2e1500d860444f0cbea426a773914471-12"><code data-line-number="12"></code></a></td>
-<td class="code"><code><a name="rest_code_2e1500d860444f0cbea426a773914471-12"></a><span class="c1"># Decoding</span>
+<td class="linenos linenodiv"><a href="#rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-12"><code data-line-number="12"></code></a></td>
+<td class="code"><code><a name="rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-12"></a><span class="c1"># Decoding</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_2e1500d860444f0cbea426a773914471-13"><code data-line-number="13"></code></a></td>
-<td class="code"><code><a name="rest_code_2e1500d860444f0cbea426a773914471-13"></a><span class="n">s</span> <span class="o">=</span> <span class="n">symbol</span><span class="p">[</span><span class="n">x</span> <span class="o">&amp;</span> <span class="n">MASK</span><span class="p">]</span>
+<td class="linenos linenodiv"><a href="#rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-13"><code data-line-number="13"></code></a></td>
+<td class="code"><code><a name="rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-13"></a><span class="n">s</span> <span class="o">=</span> <span class="n">symbol</span><span class="p">[</span><span class="n">x</span> <span class="o">&amp;</span> <span class="n">MASK</span><span class="p">]</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_2e1500d860444f0cbea426a773914471-14"><code data-line-number="14"></code></a></td>
-<td class="code"><code><a name="rest_code_2e1500d860444f0cbea426a773914471-14"></a><span class="n">writeSymbol</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<td class="linenos linenodiv"><a href="#rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-14"><code data-line-number="14"></code></a></td>
+<td class="code"><code><a name="rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-14"></a><span class="n">writeSymbol</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_2e1500d860444f0cbea426a773914471-15"><code data-line-number="15"></code></a></td>
-<td class="code"><code><a name="rest_code_2e1500d860444f0cbea426a773914471-15"></a><span class="n">x</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;&gt;</span> <span class="n">n</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span> <span class="o">&amp;</span> <span class="n">MASK</span><span class="p">)</span> <span class="o">-</span> <span class="n">c</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
+<td class="linenos linenodiv"><a href="#rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-15"><code data-line-number="15"></code></a></td>
+<td class="code"><code><a name="rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-15"></a><span class="n">x</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;&gt;</span> <span class="n">n</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span> <span class="o">&amp;</span> <span class="n">MASK</span><span class="p">)</span> <span class="o">-</span> <span class="n">c</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_2e1500d860444f0cbea426a773914471-16"><code data-line-number="16"></code></a></td>
-<td class="code"><code><a name="rest_code_2e1500d860444f0cbea426a773914471-16"></a><span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="n">M</span><span class="p">):</span>
+<td class="linenos linenodiv"><a href="#rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-16"><code data-line-number="16"></code></a></td>
+<td class="code"><code><a name="rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-16"></a><span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="n">M</span><span class="p">):</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_2e1500d860444f0cbea426a773914471-17"><code data-line-number="17"></code></a></td>
-<td class="code"><code><a name="rest_code_2e1500d860444f0cbea426a773914471-17"></a>    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="n">M</span> <span class="o">+</span> <span class="n">read16bits</span><span class="p">()</span>
+<td class="linenos linenodiv"><a href="#rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-17"><code data-line-number="17"></code></a></td>
+<td class="code"><code><a name="rest_code_cbc3c9eef45a4cfb8c350ffc6124dc00-17"></a>    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="n">M</span> <span class="o">+</span> <span class="n">read16bits</span><span class="p">()</span>
 </code></td>
 </tr>
 </table></div>
@@ -1089,7 +1089,7 @@ MathJax.Hub.Config({
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2021         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2022         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
             
         </footer>
