@@ -514,11 +514,11 @@ through by the total number of pixels).</p>
 uniform noise samples for each data point, which leads us to:</p>
 <div class="math">
 \begin{align*}
-H(p,q) &amp;= \int p({\bf y})\log q({\bf y})d{\bf y} \\
-       &amp;= \sum_{i=1}^N P({\bf x_i}) \int_{\bf u\in [0,1]^D} \log q({\bf x_i} + {\bf u})d{{\bf u}} \\
-       &amp;= \sum_{i=1}^N \frac{1}{N} \int_{\bf u\in [0,1]^D} \log q({\bf x_i} + {\bf u})d{{\bf u}} \\
-       &amp;\approx \sum_{i=1}^N \frac{1}{N} \big[\frac{1}{M}\sum_{j=1}^M \log q({\bf x_i} + {\bf u_j})\big] \\
-       &amp;= \frac{1}{NM} \sum_{i=1}^N \sum_{j=1}^M \log q({\bf x_i} + {\bf u_j}) \\
+H(p,q) &amp;= -\int p({\bf y})\log q({\bf y})d{\bf y} \\
+       &amp;= -\sum_{i=1}^N P({\bf x_i}) \int_{\bf u\in [0,1]^D} \log q({\bf x_i} + {\bf u})d{{\bf u}} \\
+       &amp;= -\sum_{i=1}^N \frac{1}{N} \int_{\bf u\in [0,1]^D} \log q({\bf x_i} + {\bf u})d{{\bf u}} \\
+       &amp;\approx -\sum_{i=1}^N \frac{1}{N} \big[\frac{1}{M}\sum_{j=1}^M \log q({\bf x_i} + {\bf u_j})\big] \\
+       &amp;= -\frac{1}{NM} \sum_{i=1}^N \sum_{j=1}^M \log q({\bf x_i} + {\bf u_j}) \\
        \tag{16}
 \end{align*}
 </div>
