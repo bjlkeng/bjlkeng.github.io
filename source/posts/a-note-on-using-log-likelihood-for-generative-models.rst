@@ -475,11 +475,11 @@ uniform noise samples for each data point, which leads us to:
 
 .. math::
 
-    H(p,q) &= \int p({\bf y})\log q({\bf y})d{\bf y} \\
-           &= \sum_{i=1}^N P({\bf x_i}) \int_{\bf u\in [0,1]^D} \log q({\bf x_i} + {\bf u})d{{\bf u}} \\
-           &= \sum_{i=1}^N \frac{1}{N} \int_{\bf u\in [0,1]^D} \log q({\bf x_i} + {\bf u})d{{\bf u}} \\
-           &\approx \sum_{i=1}^N \frac{1}{N} \big[\frac{1}{M}\sum_{j=1}^M \log q({\bf x_i} + {\bf u_j})\big] \\
-           &= \frac{1}{NM} \sum_{i=1}^N \sum_{j=1}^M \log q({\bf x_i} + {\bf u_j}) \\
+    H(p,q) &= -\int p({\bf y})\log q({\bf y})d{\bf y} \\
+           &= -\sum_{i=1}^N P({\bf x_i}) \int_{\bf u\in [0,1]^D} \log q({\bf x_i} + {\bf u})d{{\bf u}} \\
+           &= -\sum_{i=1}^N \frac{1}{N} \int_{\bf u\in [0,1]^D} \log q({\bf x_i} + {\bf u})d{{\bf u}} \\
+           &\approx -\sum_{i=1}^N \frac{1}{N} \big[\frac{1}{M}\sum_{j=1}^M \log q({\bf x_i} + {\bf u_j})\big] \\
+           &= -\frac{1}{NM} \sum_{i=1}^N \sum_{j=1}^M \log q({\bf x_i} + {\bf u_j}) \\
            \tag{16}
 
 So after all, our loss function is still just the average log-likelihood with
