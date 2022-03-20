@@ -7,7 +7,30 @@
 .. description: 
 .. type: text
 
-Write your post here.
+This post has been a long time coming.  I originally started working on it several posts back but
+hit a roadblock in the implementation and then got distracted with some other ideas, which took
+me down various rabbit holes (`here <link://slug/hamiltonian-monte-carlo>`__,
+`here <link://slug/lossless-compression-with-asymmetric-numeral-systems>`__, and
+`here <link://slug/lossless-compression-with-latent-variable-models-using-bits-back-coding>`__). 
+It feels good to finally get back on track to some of the core ML topics that I was learning about.
+The other nice thing about not being an academic researcher (not that I'm
+really researching anything here) is that there is no pressure to do anything!
+If it's just for fun, you can take your time with a topic, veer off track, and
+the come back to it later.  It's nice having the freedom to do what you want (this applies to
+more than just learning about ML too)!
+
+This post is going to talk about a class of deep probabilistic generative
+model called normalizing flows.  Alongside `Variational Autoencoders <link://slug/variational-autoencoders>`__
+and autoregressive models (e.g. `Pixel CNN <link://slug/pixelcnn>`__ and 
+`Autoregressive autoencoders <link://slug/autoregressive-autoencoders>`__), 
+normalizing flows have been one of the big ideas in deep probabilistic generative models
+(I don't count GANs aren't counted here because they are not quite probabilistic).
+Specifically, I'll be presenting Real NVP, one of the earlier normalizing flow
+techniques named *Real NVP* (circa 2016). 
+The formulation is simple but surprisingly effective, which makes it a good
+candidate to study to understand more about normalizing flows.
+As usual, I'll go over some background, the method, an implementation 
+(with commentary on the details), and some experimental results.  Let's get into the flow!
 
 .. TEASER_END
 .. section-numbering::
@@ -28,6 +51,37 @@ Write your post here.
 
 Motivation
 ==========
+
+Deep probabilistic generative models, by and large, are trying to draw samples, :math:`x`
+from a high dimensional distribution (e.g. images) specified :math:`p_X(X)`.
+There are multiple ways to go about it but a common one used in `VAEs <link://slug/variational-autoencoders>`__ 
+is a `latent variable model <https://en.wikipedia.org/wiki/Latent_variable_model>`__.
+Roughly, it's a statistical model where variables are partitioned into a set of observed variables 
+(:math:`x`) and latent (or hidden) ones (:math:`z`).  By assuming: 
+
+a. Some prior :math:`p_Z(z)` (usually Gaussian) on the latent variables;
+b. Some high capacity neural network :math:`g(\cdot; \theta)` (a deterministic
+   function) with parameters :math:`\theta`;
+c. A output distribution :math:`p_X(x|g_(z; \theta))` whose parameters are
+   defined by the outputs of the neural network (e.g. :math:`g(\cdot)` defining
+   the mean, variance of a normal distribution);
+
+We can sample from our target distribution by sampling :math:`z` from our
+prior, passing it through our neural network to define the parameters of our
+output distribution, at which point we can finally sample from our output distribution.
+
+This is all well and good but training our neural network to faithfully match our output
+distribution is non-trivial.  Variational autoencoders are a clever way to do this by
+approximating the posterior :math:`q_Z(z|x)` using another deep net, which we
+simultaneously train with our latent variable model. 
+See my post on `VAEs <link://slug/variational-autoencoders>`__ for more details.
+
+One downside of this approach is that we use an approximate posterior.  This is
+to get around the fact that there's not efficient method to directly train the
+deep net of our latent variable model (thus build our latent variable model).
+
+* How can we get around this?
+* tantelize idea of normalizing flows... "wouldn't it be nice..."
 
 
 Background
@@ -133,5 +187,5 @@ Further Reading
 ===============
 
 * Previous posts: 
-* Wikipedia: 
+* Wikipedia: `Latent Variable Model <https://en.wikipedia.org/wiki/Latent_variable_model>`__
 * [1] Dinh, Sohl-Dickstein, Bengio, Density Estimation using Real NVP, `arXiv:1605.08803 <https://arxiv.org/abs/1605.08803>`__, 2016
