@@ -52,37 +52,66 @@ As usual, I'll go over some background, the method, an implementation
 Motivation
 ==========
 
-Deep probabilistic generative models, by and large, are trying to draw samples, :math:`x`
-from a high dimensional distribution (e.g. images) specified :math:`p_X(X)`.
-There are multiple ways to go about it but a common one used in `VAEs <link://slug/variational-autoencoders>`__ 
-is a `latent variable model <https://en.wikipedia.org/wiki/Latent_variable_model>`__.
-Roughly, it's a statistical model where variables are partitioned into a set of observed variables 
-(:math:`x`) and latent (or hidden) ones (:math:`z`).  By assuming: 
+Given a distribution :math:`p_X(X)`, deep generative models use neural networks to model :math:`X`
+usually by minimizing some quantity related to the negative log-likelhood (NLL) :math:`-\log(P(X))`.
+Assuming we have identical, independently distributed (IID) samples :math:`x \in X`, we 
+are aiming for a loss that is related to:
+
+.. math::
+
+   \sum_{x \in X} -logp_X(X) \tag{1}
+
+There are multiple ways to build a deep generative model but a common way is to use is a 
+`latent variable model <https://en.wikipedia.org/wiki/Latent_variable_model>`__,
+where we partition the variables into two sets: observed variables (:math:`x`)
+and latent (or hidden) ones (:math:`z`).  We only ever observe :math:`x` and
+usually use the latent :math:`z` variables because they make the problem more
+tractable.  We can sample from this latent variable model by having three things:
 
 a. Some prior :math:`p_Z(z)` (usually Gaussian) on the latent variables;
-b. Some high capacity neural network :math:`g(\cdot; \theta)` (a deterministic
-   function) with parameters :math:`\theta`;
-c. A output distribution :math:`p_X(x|g_(z; \theta))` whose parameters are
-   defined by the outputs of the neural network (e.g. :math:`g(\cdot)` defining
-   the mean, variance of a normal distribution);
+b. Some high capacity neural network :math:`g(z; \theta)` (a deterministic
+   function) with input :math:`z` and model parameters :math:`\theta`;
+c. A conditional output distribution :math:`p_{X|Z}(x|g_(z; \theta))` whose
+   distribution parameters are defined by the outputs of the neural network (e.g.
+   :math:`g(z;\theta)` define the mean, variance of the assumed normal
+   distribution of :math:`X`).
 
-We can sample from our target distribution by sampling :math:`z` from our
-prior, passing it through our neural network to define the parameters of our
-output distribution, at which point we can finally sample from our output distribution.
+By sampling :math:`z` from our prior, passing it through our neural network to
+define the parameters of our output distribution :math:`p_{X|Z}`, and finally defining
+our target distribution :math:`p_{X|Z}`, we can finally sample a point from it.
+This is all well and good but the real tricky part is training this model!
+Let's see why.
 
-This is all well and good but training our neural network to faithfully match our output
-distribution is non-trivial.  Variational autoencoders are a clever way to do this by
-approximating the posterior :math:`q_Z(z|x)` using another deep net, which we
-simultaneously train with our latent variable model. 
-See my post on `VAEs <link://slug/variational-autoencoders>`__ for more details.
+We wish to minimize Equation 1 (our loss function) but we only have our
+conditional distribution :math:`p_{X|Z}`.  We can get most of the way there
+by using our prior :math:`p_Z`.  From Equation 1:
 
-One downside of this approach is that we use an approximate posterior.  This is
-to get around the fact that there's not efficient method to directly train the
-deep net of our latent variable model (thus build our latent variable model).
+.. math::
 
-* How can we get around this?
-* tantelize idea of normalizing flows... "wouldn't it be nice..."
+   \sum_{x \in X} -\log p_X(X) &= \sum_{x \in X} -\log\big(\int_{z} p_{X,Z}(x,z) dz\big) \\
+   &= \sum_{x \in X} -\log\big(\int_{z} p_{X|Z}(x|z)p_Z(z) dz\big) \\
+   &\approx \sum_{x \in X} -\log\big(\sum_{i=1}^K p_{X|Z}(x|z_i)p_Z(z_i)\big) &&& \text{Approx. by using } K \text{ } z_i \in Z \text{ samples} \\
+   \tag{2}
 
+There are a couple of issues here.  First, we have this summation inside the
+logarithm, that's usually a tough thing to optimize.  Perhaps the more
+important issue though is that we have to draw :math:`K` samples from :math:`Z`
+*for every* :math:`X`.  If we use any reasonable number of latent variables,
+we immediately hit `curse of dimensionality <https://en.wikipedia.org/wiki/Curse_of_dimensionality>`__
+issues with the number of samples we need.
+
+Variational autoencoders are a clever way around this by approximating the
+posterior :math:`q_Z(z|x)` using another deep net, which we simultaneously
+train with our latent variable model.  Using the 
+`expected lower bound objective <https://en.wikipedia.org/wiki/Evidence_lower_bound>`__ (ELBO)
+we can indirectly optimize (an upper bound of) :math:`-\log P(X)`.  See my post
+on `VAEs <link://slug/variational-autoencoders>`__ for more details.
+
+This is great but can we define a deep generative model that does this more
+directly?  What if we could directly optimize :math:`p_X(x)` but still had the
+convenience of starting our sampling process from a simple distribution of
+:math:`z` variables?  Of course we can (otherwise it would be a terrible setup)!
+Read on to find out how but let's review some background material first.
 
 Background
 ==========
