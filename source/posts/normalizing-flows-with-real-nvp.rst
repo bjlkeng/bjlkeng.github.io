@@ -116,6 +116,28 @@ Read on to find out how but let's review some background material first.
 Background
 ==========
 
+The first two concepts we need are the
+`Inverse Transform Sampling <https://en.wikipedia.org/wiki/Inverse_transform_sampling>`__ and
+`Probability Integral Transform <https://en.wikipedia.org/wiki/Probability_integral_transform>`__.
+Inverse transform sampling is idea that given a random variable :math:`X`
+(under some mild assumptions) with CDF :math:`F_X`, we can sample from :math:`X` 
+using starting from a standard uniform distribution :math:`U`.  This can be easily seen
+by sampling :math:`U` and using the inverse CDF `F^{-1}_X` to generate a random sample 
+from :math:`X`.  The probability integral transform is the opposite operation:
+given a way to sample :math:`X` (and its associated CDF), we can generate a
+sample from a standard uniform distribution :math:`U` as :math:`u=F_X(x)`.
+See the box below for more details.
+
+Using these two ideas (and its extension to multiple variables), there exists a
+*deterministic* transformation (recall CDFs and their inverses are
+deterministic functions) to go from any distribution :math:`X` to any
+distribution :math:`Y`.  This can be achieved by transforming from :math:`X` to 
+a standard uniform distribution :math:`U` (probability integral transform), then
+going from :math:`U` to :math:`Y` (inverse transform sampling).  For our purposes,
+we don't actually care to explicitly specify the CDFs but rather just understand
+that this transformation from samples of :math:`X` to :math:`Y` exists via a 
+*deterministic* function.  Notice that this deterministic function is *bijective*
+(or invertible) because the CDFs (and inverse CDFs) are monotone functions.
 
 .. admonition:: Inverse Transform Sampling
 
@@ -176,7 +198,7 @@ Background
     **Extensions** 
 
     Now instead of starting from a uniform distribution, what happens if we
-    want to sample from another distribution, say a normal distribution? 
+    want to sample from another distribution, say a normal distribution?
     We just first apply the reverse of the inverse sampling transform
     called the 
     `Probability Integral Transform <https://en.wikipedia.org/wiki/Probability_integral_transform>`__.
@@ -202,6 +224,27 @@ Background
     practically might not be possible.
 
 
+The next thing we need is to review is how to change variables of probability density functions.
+Given continuous n-dimensional random variable :math:`X` with joint density :math:`p_X`
+and a bijective (i.e. invertible) differentiable function :math:`g`, let :math:`Z=g(X)`,
+then its density :math:`p_Z`  is:
+
+\TODO{FIX these two equations...}
+
+.. math::
+
+    p_Z(z) = p_X(x)\big|det\big(\frac{\partial x}{\partial z}\big)\big| 
+    = p_X(g^{-1}(z))\big|det\big(\frac{\partial g^{-1}(z)}{\partial z}\big)\big| 
+    \tag{1}
+    
+.. math::
+
+    p_X(x) = p_Z(z)\big|det\big(\frac{\partial x}{\partial z}\big)\big|^{-1}
+    = p_Z(g(x))\big|det\big(\frac{\partial g}{\partial z}\big)\big|^{-1}
+    \tag{2}
+
+    
+
 Real NVP
 ========
 
@@ -216,5 +259,8 @@ Further Reading
 ===============
 
 * Previous posts: 
-* Wikipedia: `Latent Variable Model <https://en.wikipedia.org/wiki/Latent_variable_model>`__
+* Wikipedia: `Latent Variable Model <https://en.wikipedia.org/wiki/Latent_variable_model>`__, 
+`Probabilify Density Fucntion <https://en.wikipedia.org/wiki/Probability_density_function#Vector_to_vector>`__, 
+`Inverse Transform Sampling <https://en.wikipedia.org/wiki/Inverse_transform_sampling>`__,
+`Probability Integral Transform <https://en.wikipedia.org/wiki/Probability_integral_transform>`__
 * [1] Dinh, Sohl-Dickstein, Bengio, Density Estimation using Real NVP, `arXiv:1605.08803 <https://arxiv.org/abs/1605.08803>`__, 2016
