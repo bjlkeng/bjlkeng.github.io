@@ -224,26 +224,22 @@ that this transformation from samples of :math:`X` to :math:`Y` exists via a
     practically might not be possible.
 
 
-The next thing we need is to review is how to change variables of probability density functions.
-Given continuous n-dimensional random variable :math:`X` with joint density :math:`p_X`
-and a bijective (i.e. invertible) differentiable function :math:`g`, let :math:`Z=g(X)`,
-then its density :math:`p_Z`  is:
-
-\TODO{FIX these two equations...}
+The next thing we need is to review is how to `change variables of probability density functions <https://en.wikipedia.org/wiki/Probability_density_function#Densities_associated_with_multiple_variables>`__.
+Given continuous n-dimensional random variable :math:`Z` with joint density :math:`p_Z`
+and a bijective (i.e. invertible) differentiable function :math:`g`, let :math:`X=g(Z)`,
+then :math:`p_X` is defined by:
 
 .. math::
 
-    p_Z(z) = p_X(x)\big|det\big(\frac{\partial x}{\partial z}\big)\big| 
-    = p_X(g^{-1}(z))\big|det\big(\frac{\partial g^{-1}(z)}{\partial z}\big)\big| 
-    \tag{1}
-    
-.. math::
-
-    p_X(x) = p_Z(z)\big|det\big(\frac{\partial x}{\partial z}\big)\big|^{-1}
-    = p_Z(g(x))\big|det\big(\frac{\partial g}{\partial z}\big)\big|^{-1}
-    \tag{2}
-
-    
+    p_X(x) &= p_Z(z)\big|det\big(\frac{\partial z}{\partial x}\big)\big| \\
+    &= p_Z(g^{-1}(x))\big|det\big(\frac{\partial g^{-1}(x)}{\partial x}\big)\big| \\
+    &= p_Z(f(x))\big|det\big(\frac{\partial f(x)}{\partial x}\big)\big| && \text{Define }f := g^{-1} \\
+    \tag{5}
+   
+We'll see later that using this change of variable formula with the (big)
+assumption of a bijective function, we can eschew the approximate posterior (or
+in the case of GANs the discriminator network) to train our deep generative model
+directly.
 
 Real NVP
 ========
@@ -259,8 +255,5 @@ Further Reading
 ===============
 
 * Previous posts: 
-* Wikipedia: `Latent Variable Model <https://en.wikipedia.org/wiki/Latent_variable_model>`__, 
-`Probabilify Density Fucntion <https://en.wikipedia.org/wiki/Probability_density_function#Vector_to_vector>`__, 
-`Inverse Transform Sampling <https://en.wikipedia.org/wiki/Inverse_transform_sampling>`__,
-`Probability Integral Transform <https://en.wikipedia.org/wiki/Probability_integral_transform>`__
+* Wikipedia: `Latent Variable Model <https://en.wikipedia.org/wiki/Latent_variable_model>`__, `Probabilify Density Function <https://en.wikipedia.org/wiki/Probability_density_function#Vector_to_vector>`__, `Inverse Transform Sampling <https://en.wikipedia.org/wiki/Inverse_transform_sampling>`__, `Probability Integral Transform <https://en.wikipedia.org/wiki/Probability_integral_transform>`__, `Change of Variables in the Probability Density Function <https://en.wikipedia.org/wiki/Probability_density_function#Densities_associated_with_multiple_variables>`__
 * [1] Dinh, Sohl-Dickstein, Bengio, Density Estimation using Real NVP, `arXiv:1605.08803 <https://arxiv.org/abs/1605.08803>`__, 2016
