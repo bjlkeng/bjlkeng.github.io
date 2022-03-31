@@ -23,7 +23,7 @@ This post is going to talk about a class of deep probabilistic generative
 model called normalizing flows.  Alongside `Variational Autoencoders <link://slug/variational-autoencoders>`__
 and autoregressive models (e.g. `Pixel CNN <link://slug/pixelcnn>`__ and 
 `Autoregressive autoencoders <link://slug/autoregressive-autoencoders>`__), 
-normalizing flows have been one of the big ideas in deep probabilistic generative models
+normalizing flows have been one of the big ideas in deep probabilistic generative models[1]_
 (I don't count GANs aren't counted here because they are not quite probabilistic).
 Specifically, I'll be presenting Real NVP, one of the earlier normalizing flow
 techniques named *Real NVP* (circa 2016). 
@@ -235,14 +235,63 @@ then :math:`p_X` is defined by:
     &= p_Z(g^{-1}(x))\big|det\big(\frac{\partial g^{-1}(x)}{\partial x}\big)\big| \\
     &= p_Z(f(x))\big|det\big(\frac{\partial f(x)}{\partial x}\big)\big| && \text{Define }f := g^{-1} \\
     \tag{5}
-   
+  
+where :math:`det\big(\frac{\partial f(x)}{\partial x}\big)` is the 
+`determinant of the Jacobian matrix <https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant>`__.
+The determinant comes into play because we're essentially changing variables of
+the density function in the CDF integral.
+
 We'll see later that using this change of variable formula with the (big)
 assumption of a bijective function, we can eschew the approximate posterior (or
 in the case of GANs the discriminator network) to train our deep generative model
 directly.
 
-Real NVP
-========
+Normalizing Flows with Real NVP
+===============================
+
+The two big ideas from the previous section come together using this simplified logic:
+
+1. There exists an invertible transform :math:`f: X \rightarrow Z` to convert
+   between any two probability densities (Inverse Transform Sampling and
+   Probability Integral Transform); define a deep neural network to be this
+   invertible function :math:`f`.
+2. We can compute the (log-)likelihood of any variable :math:`X=f^{-1}(Z)` (for
+   invertible :math:`f`) by just knowing the density of :math:`Z` and the function :math:`f`
+   (i.e. not explicitly knowing the density of :math:`X`) using Equation 5.
+3. Thus, we can train a deep latent variable model directly using its
+   log-likelihood as a loss function with simple latent variables :math:`Z` 
+   (e.g Gaussians) and an invertible deep neural network (:math:`f`) to model
+   some unknown complex distribution :math:`X` (e.g. images).
+
+Notice there are two things that we are doing that give normalizing flows [2] its namesake:
+
+* **"Normalizing"**: The change of variable formula (Equation 5) gives us a
+  normalized probability density.
+* **"Flow"**: A series of invertible transforms that are composed together to
+  make a more complex invertible transform.
+
+Now the big assumption here is that you can build a deep neural network that is
+both *invertible* and can represent whatever complex transform you need.  There
+are several methods to do this but we'll be looking at one of the earlier ones
+call Real NVP, which is surprisingly simple.
+
+Defining the Log-Likelihood
+---------------------------
+
+
+Coupling Layers
+---------------
+
+* Masked convolutions
+
+Stacking Coupling Layers
+------------------------
+
+Multi-Scale Architecture
+------------------------
+
+Modified Batch Normalization
+----------------------------
 
 Experiments
 ===========
@@ -257,3 +306,6 @@ Further Reading
 * Previous posts: 
 * Wikipedia: `Latent Variable Model <https://en.wikipedia.org/wiki/Latent_variable_model>`__, `Probabilify Density Function <https://en.wikipedia.org/wiki/Probability_density_function#Vector_to_vector>`__, `Inverse Transform Sampling <https://en.wikipedia.org/wiki/Inverse_transform_sampling>`__, `Probability Integral Transform <https://en.wikipedia.org/wiki/Probability_integral_transform>`__, `Change of Variables in the Probability Density Function <https://en.wikipedia.org/wiki/Probability_density_function#Densities_associated_with_multiple_variables>`__
 * [1] Dinh, Sohl-Dickstein, Bengio, Density Estimation using Real NVP, `arXiv:1605.08803 <https://arxiv.org/abs/1605.08803>`__, 2016
+* [2] Stanforrd CS236 Class Notes, `<https://deepgenerativemodels.github.io/notes/flow/>`__
+
+.. [1] Apparently, autoregressive models can be interpreted as flow-based models (see [2]) but it's not very intuitive to me so I like to think of them as their own separate thing.
