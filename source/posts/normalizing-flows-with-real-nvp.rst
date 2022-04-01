@@ -236,7 +236,7 @@ then :math:`p_X` is defined by:
     &= p_Z(f(x))\big|det\big(\frac{\partial f(x)}{\partial x}\big)\big| && \text{Define }f := g^{-1} \\
     \tag{5}
   
-where :math:`det\big(\frac{\partial f(x)}{\partial x}\big)` is the 
+where :math:`\big|det\big(\frac{\partial f(x)}{\partial x}\big)\big|` is the 
 `determinant of the Jacobian matrix <https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant>`__.
 The determinant comes into play because we're essentially changing variables of
 the density function in the CDF integral.
@@ -275,8 +275,60 @@ both *invertible* and can represent whatever complex transform you need.  There
 are several methods to do this but we'll be looking at one of the earlier ones
 call Real NVP, which is surprisingly simple.
 
-Defining the Log-Likelihood
----------------------------
+Training and Generation
+-----------------------
+
+As previously mentioned, normalizing flows greatly simplify the training process.
+No need for approximate posteriors (VAEs) or discriminator networks (GANs) to 
+train -- just directly minimize the negative log likelihood.  Let's take a closer look
+at that.
+
+Assume we have training samples from a complex data distribution :math:`X`, a
+deep neural network :math:`z = f_\theta(x)` parameterized by `\theta`, and a prior
+:math:`p_Z(z)` on latent variables :math:`Z`.   From Equation 5, we can 
+derive our log-likelihood function like so:
+
+.. math::
+
+    \log p_X(x) &= \log\Big(p_Z(f_\theta(x))\big|det\big(\frac{\partial f_\theta(x)}{\partial x}\big)\big| \Big) \\
+    &= \log p_Z(f_\theta(x)) + \log\Big(\big|det\big(\frac{\partial f_\theta(x)}{\partial x}\big)\big| \Big)
+    \tag{6}
+
+As in many of these deep generative models, if we assume a standard independent 
+Gaussian priors for :math:`p_Z`, we can replace the first term in Equation 6
+with the logarithm of the standard normal PDF:
+
+.. math::
+
+    \log p_X(x) &= \log p_Z(f_\theta(x)) + \log\Big(\big|det\big(\frac{\partial f_\theta(x)}{\partial x}\big)\big| \Big) \\
+                &= -\frac{1}{2}\log(2\pi) - \frac{(f_\theta(x))^2}{2}
+                + \log\Big(\big|det\big(\frac{\partial f_\theta(x)}{\partial x}\big)\big| \Big) && \text{assume Gaussian prior} \\
+    \tag{7}
+
+Thus, our training is straight forward, just do a forward pass with training
+example :math:`x` and do a backwards pass using the negative of Equation 7 as
+the negative log-likelihood loss function.  The tricky part is defining
+a bijective deep generative model (described below) and computing the
+determinant of the Jacobian.  It's not obvious how to design a expressive
+bijective deep neural network while it's even less obvious how to compute its
+Jacobian determinant efficiently (recall the Jacobian could be very large).
+We'll cover both in the next section.
+
+Generating samples is also quite straight forward because :math:`f_\theta` is
+invertible.  Starting from a randomly sample point from our prior distribution
+on :math:`Z` (e.g. standard Gaussian), we can generate a sample easily by using
+the inverse of our deep net: `x = f^-1_\theta(z)`.  So a nice property of
+normalizing flows is that the training and generation of samples is fast
+(as opposed to autoregressive models where generation is very slow).
+
+.. admonition:: Data Preprocessing and Compute the Density
+
+   * Talk about pixel space
+   * normalizing between [0,1]
+   * the transform they use in the paper
+   * Images need to take this into account when computing metrics 
+   * Show equation where you add a preprocess function :math:`h(f_\theta(x))` and
+     its associated Jacobian (which is usuall diagonal) if done pixel by pixel
 
 
 Coupling Layers
