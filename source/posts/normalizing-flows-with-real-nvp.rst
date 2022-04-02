@@ -321,15 +321,49 @@ the inverse of our deep net: `x = f^-1_\theta(z)`.  So a nice property of
 normalizing flows is that the training and generation of samples is fast
 (as opposed to autoregressive models where generation is very slow).
 
-.. admonition:: Data Preprocessing and Compute the Density
+.. admonition:: Data Preprocessing and Density Computation
 
-   * Talk about pixel space
-   * normalizing between [0,1]
-   * the transform they use in the paper
-   * Images need to take this into account when computing metrics 
-   * Show equation where you add a preprocess function :math:`h(f_\theta(x))` and
-     its associated Jacobian (which is usuall diagonal) if done pixel by pixel
+    A direct consequence of Equation 5-7 is that *any* pre-processing
+    transformations done to the training data needs to be accounted for
+    in the Jacobian determinant.  As is standard in neural networks,
+    the input data is often pre-processed to a range usually in some interval
+    near :math:`[-1, 1]` (e.g. shifting and scaling normalization).
+    If you don't account for this in the loss function, you are not actually
+    generating a probability and the typical comparisons you see in papers
+    (e.g. bits/pixel) are not valid.  For a given pre-processing function
+    :math:`x_{pre} = h(x)`, we can update Equation 6 as such:
 
+    .. math::
+    
+        \log p_X(x) &= \log p_Z(f_\theta(h(x))) + \log\Big(\big|det\big(\frac{\partial f_\theta(h(x))}{\partial x}\big)\big| \Big)\\
+        &= \log p_Z(f_\theta(h(x))) + \log\Big(\big|det\big(\frac{\partial f_\theta(x_{pre} = h(x))}{\partial x_{pre}}\big)\big| \Big) 
+            + \log\Big(\big|det\big(\frac{\partial h(x)}{\partial x}\big)\big|\big) \\
+        \tag{8}
+
+    This relies on the multi-variate chain rule (see sections below for more details).
+
+    For images in particular, many datasets will scale the pixel values
+    to be between :math:`[0, 1]` from the original domain of :math:`[0, 255]`
+    (or :math:`[0, 256]` with uniform noise; see 
+    `my previous post <link://a-note-on-using-log-likelihood-for-generative-models>`__).
+    This translates to a per-pixel scaling of :math:`h(x) = \frac{x}{255}`.  Since each
+    pixel is independently scaled, this corresponds to a diagonal Jacobian determinant:
+    :math:`\frac{1}{255} I` where :math:`I` is the identify matrix, resulting in a simple
+    modification to the loss function.
+
+    If you have a more complex pre-processing transform, you will have to do a
+    bit more math and compute the respective gradient.  My implementation of
+    RealNVP (see below for why I changed it from what's stated in the paper)
+    uses a transform of :math:`h(x) = logit(\frac{0.9x}{256} + 0.05)`, which is
+    still done independently per dimension but is more complicated than simple scaling.
+    In this case, the per pixel derivative is: 
+    
+    .. math::
+
+        \frac{dh(x)}{dx} = \frac{0.9}{256}\big(\frac{1}{\frac{0.9x}{256} + 0.05} + \frac{1}{1 - (\frac{0.9x}{256} + 0.05)}\big) \tag{9}
+
+    It's not the prettiest function but also simple enough to compute since you
+    still have a diagnoal Jacobian.
 
 Coupling Layers
 ---------------
@@ -338,6 +372,9 @@ Coupling Layers
 
 Stacking Coupling Layers
 ------------------------
+
+* Composing functions, add log jacobians
+
 
 Multi-Scale Architecture
 ------------------------
@@ -355,7 +392,7 @@ Conclusion
 Further Reading
 ===============
 
-* Previous posts: 
+* Previous posts: `A Note on Using Log-Likelihood for Generative Models <link://a-note-on-using-log-likelihood-for-generative-models>`__
 * Wikipedia: `Latent Variable Model <https://en.wikipedia.org/wiki/Latent_variable_model>`__, `Probabilify Density Function <https://en.wikipedia.org/wiki/Probability_density_function#Vector_to_vector>`__, `Inverse Transform Sampling <https://en.wikipedia.org/wiki/Inverse_transform_sampling>`__, `Probability Integral Transform <https://en.wikipedia.org/wiki/Probability_integral_transform>`__, `Change of Variables in the Probability Density Function <https://en.wikipedia.org/wiki/Probability_density_function#Densities_associated_with_multiple_variables>`__
 * [1] Dinh, Sohl-Dickstein, Bengio, Density Estimation using Real NVP, `arXiv:1605.08803 <https://arxiv.org/abs/1605.08803>`__, 2016
 * [2] Stanforrd CS236 Class Notes, `<https://deepgenerativemodels.github.io/notes/flow/>`__
