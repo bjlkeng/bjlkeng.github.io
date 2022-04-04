@@ -25,7 +25,7 @@ and autoregressive models (e.g. `Pixel CNN <link://slug/pixelcnn>`__ and
 `Autoregressive autoencoders <link://slug/autoregressive-autoencoders>`__), 
 normalizing flows have been one of the big ideas in deep probabilistic generative models[1]_
 (I don't count GANs aren't counted here because they are not quite probabilistic).
-Specifically, I'll be presenting Real NVP, one of the earlier normalizing flow
+Specifically, I'll be presenting one of the earlier normalizing flow
 techniques named *Real NVP* (circa 2016). 
 The formulation is simple but surprisingly effective, which makes it a good
 candidate to study to understand more about normalizing flows.
@@ -193,7 +193,7 @@ that this transformation from samples of :math:`X` to :math:`Y` exists via a
       :alt: Visualization of mapping between a uniform distribution and an exponential one (source: Wikipedia)
       :align: center
     
-      Figure 1: The :math:`y` axis is our uniform random distribution and the :math:`x` axis is our exponentially distributed number.  You can see for each point on the :math:`y` axis, we can map it to a point on the :math:`x` axis.  Even though :math:`y` is distributed uniformly, their mapping is concentrated on values closer to :math:`0` on the :math:`x` axis, matching an exponential distribution (source: Wikipedia).
+      **Figure 1: The :math:`y` axis is our uniform random distribution and the :math:`x` axis is our exponentially distributed number.  You can see for each point on the :math:`y` axis, we can map it to a point on the :math:`x` axis.  Even though :math:`y` is distributed uniformly, their mapping is concentrated on values closer to :math:`0` on the :math:`x` axis, matching an exponential distribution (source: Wikipedia).**
 
     **Extensions** 
 
@@ -273,7 +273,8 @@ Notice there are two things that we are doing that give normalizing flows [2] it
 Now the big assumption here is that you can build a deep neural network that is
 both *invertible* and can represent whatever complex transform you need.  There
 are several methods to do this but we'll be looking at one of the earlier ones
-call Real NVP, which is surprisingly simple.
+call Real-valued Non-Volume Preserving (Real NVP) transformations, which is
+surprisingly simple.
 
 Training and Generation
 -----------------------
@@ -321,6 +322,94 @@ the inverse of our deep net: `x = f^-1_\theta(z)`.  So a nice property of
 normalizing flows is that the training and generation of samples is fast
 (as opposed to autoregressive models where generation is very slow).
 
+Coupling Layers
+---------------
+
+So the key question for normalizing flows is how can you define an invertible
+deep neural network?  Real NVP uses a surprisingly simple block called an
+"affine coupling layer".  The main idea is to define a transform whose Jacobian
+forms a triangular matrix resulting in a very simple and efficient determinant
+computation.  Let's first define the transform.
+
+The coupling layer is a simple scale and shift operation for some *subset* of
+the variables in the current layer, while the other half are used to compute
+the scale and shift.  Given D dimensional input variables :math:`x`,
+:math:`y` as the output of the block, and :math:`d < D`:
+
+.. math::
+
+    y_{1:d} &= x_{1:d} \\
+    y_{d+1:D} &= x_{d+1:D} \odot exp(s(x_{1:d})) + t(x_{1:d}) \\
+    \tag{8}
+
+where :math:`s` is for scale, :math:`t` is for translation, and are functions
+from :math:`R^d \mapsto R^{D-d}`, and :math:`\odot` is the element wise product.
+The reverse computation is just as simple by solving for :math:`x` and noting
+that :math:`x_{1:d}=y_{1:d}`:
+
+.. math::
+
+    x_{1:d} &= y_{1:d} \\
+    x_{d+1:D} &= (y_{d+1:D}  - t(y_{1:d})) \odot exp(-s(y_{1:d})) \\
+    \tag{9}
+
+.. figure:: /images/realnvp_coupling.png
+  :height: 270px
+  :alt: Visualization of Affine Coupling Layer
+  :align: center
+
+  **Figure 2: Forward and reverse computations of affine coupling layer [1]**
+
+Figure 2 is a figure from [1] that shows this visually.  It's not at all obvious
+(at least to me) that this simple transform can represent the complex bijections
+that we want from our deep net.  However, I'll point out two ideas.  First,
+:math:`s(\cdot)` and :math:`t(\cdot)` can be arbitrarily *deep* networks with
+width greater than the input dimensions.  This essentially can scale and shift
+the input :math:`x` in complex ways.  Second, we're going to be stacking a lot 
+of these together.  So while it seems like for a subset of the variables
+(:math:`x_{1:d}`) we're not doing anything, in fact, we scale and shift every
+input variable multiple times.  Still, there's no proof or guarantees in the
+paper that these transforms can represent every possible bijection but the
+empirical results are surprisingly effective.
+
+From our coupling layer in Equation 8, we can easily derive the Jacobian
+from Equation 6:
+
+.. math::
+
+   \frac{\partial y}{\partial x^T} = 
+   \begin{bmatrix}
+       I_d       & 0 \\
+       \frac{\partial y_{d+1:D}}{\partial x^T_{1:d}}      & diag(exp[s(x_{1:D})]) 
+    \end{bmatrix} \tag{10}
+
+The main thing to notice is that it is triangular, which means the determinant
+is just the product of the diagonals.  The first :math:`x_{1:d}` variables are
+unchanged, so those entries in the Jacobian are just the identify function and
+zeros, while the other :math:`x_{d+1:D}` vars are scaled by the :math:`exp(s(\cdot))`
+values (so it's gradient is just the value it is scaled by).  The other
+non-zero, non-diagonal part of the Jacobian can be ignored because it's never
+used.  Putting this all together, the logarithm of the Jacobian determinant
+simplifies to:
+
+.. math::
+
+    \log\Big(\big|det\big(\frac{\partial y}{\partial x^T}\big)\big| \Big) = 
+    \sum_j s(x_{1:d})_j
+    \tag{11}
+
+which is just the sum of the scaling values (all the other diagonal values are
+:math:`\log (1) = 0`).
+
+We usually pick :math:`d=\frac{D}{2}` since there's not really any benefit to 
+
+* Masked convolutions
+
+Stacking Coupling Layers
+------------------------
+
+* Composing functions, add log jacobians
+
 .. admonition:: Data Preprocessing and Density Computation
 
     A direct consequence of Equation 5-7 is that *any* pre-processing
@@ -338,9 +427,9 @@ normalizing flows is that the training and generation of samples is fast
         \log p_X(x) &= \log p_Z(f_\theta(h(x))) + \log\Big(\big|det\big(\frac{\partial f_\theta(h(x))}{\partial x}\big)\big| \Big)\\
         &= \log p_Z(f_\theta(h(x))) + \log\Big(\big|det\big(\frac{\partial f_\theta(x_{pre} = h(x))}{\partial x_{pre}}\big)\big| \Big) 
             + \log\Big(\big|det\big(\frac{\partial h(x)}{\partial x}\big)\big|\big) \\
-        \tag{8}
+        \tag{xx}
 
-    This relies on the multi-variate chain rule (see sections below for more details).
+    This relies on the multi-variate chain rule (see above for more details).
 
     For images in particular, many datasets will scale the pixel values
     to be between :math:`[0, 1]` from the original domain of :math:`[0, 255]`
@@ -353,27 +442,18 @@ normalizing flows is that the training and generation of samples is fast
 
     If you have a more complex pre-processing transform, you will have to do a
     bit more math and compute the respective gradient.  My implementation of
-    RealNVP (see below for why I changed it from what's stated in the paper)
+    Real NVP (see below for why I changed it from what's stated in the paper)
     uses a transform of :math:`h(x) = logit(\frac{0.9x}{256} + 0.05)`, which is
     still done independently per dimension but is more complicated than simple scaling.
     In this case, the per pixel derivative is: 
     
     .. math::
 
-        \frac{dh(x)}{dx} = \frac{0.9}{256}\big(\frac{1}{\frac{0.9x}{256} + 0.05} + \frac{1}{1 - (\frac{0.9x}{256} + 0.05)}\big) \tag{9}
+        \frac{dh(x)}{dx} = \frac{0.9}{256}\big(\frac{1}{\frac{0.9x}{256} + 0.05} + \frac{1}{1 - (\frac{0.9x}{256} + 0.05)}\big) \tag{xx}
 
     It's not the prettiest function but also simple enough to compute since you
     still have a diagnoal Jacobian.
 
-Coupling Layers
----------------
-
-* Masked convolutions
-
-Stacking Coupling Layers
-------------------------
-
-* Composing functions, add log jacobians
 
 
 Multi-Scale Architecture
