@@ -401,14 +401,65 @@ simplifies to:
 which is just the sum of the scaling values (all the other diagonal values are
 :math:`\log (1) = 0`).
 
-We usually pick :math:`d=\frac{D}{2}` since there's not really any benefit to 
+.. figure:: /images/realnvp_masks.png
+  :height: 270px
+  :alt: Masking Scheme for Coupling Layers
+  :align: center
 
-* Masked convolutions
+  **Figure 3: Masking schemes for coupling layers indicated by black and white:
+  spatial checkboard (left) and channel wise (right).  Squeeze operation (right) indicated by numbers. [1]**
+
+Partitioning the variables is an important choice since you will want to make
+sure you have good "mixing" of dimensions.  [1] proposes two schemes where
+:math:`d=\frac{D}{2}`.  Figure 3 shows these two schemes with black and white
+squares.  Spatial checkboarding masking simply uses an alternating pattern to
+partition the variables, while channel-wise partitions the channels.
+
+Although it may seem tedious to code up Equation 8, one can simply implement the
+partitioning schemes by providing a binary mask :math:`b` (as shown in Figure 3) and use
+an element-wise product:
+
+.. math::
+
+   y = b \odot x + (1-b) \odot (x \odot exp(s(b\odot x))  + t(\odot x)) \tag{12}
+
+Finally, the choice of architecture for :math:`s(\cdot)` and :math:`t(\cdot)`
+functions is important.  The paper uses ResNet blocks as a backbone to define
+these functions with additional normalization layers.  See the implementation
+notes for more details on the modifications that I used.
 
 Stacking Coupling Layers
 ------------------------
 
-* Composing functions, add log jacobians
+As mentioned before, coupling layers are only useful if we can stack them,
+otherwise half of the variables would be unchanged.  By using alternating
+patterns of spatial checkboarding and channel wise masking with multiple
+coupling layers, we can ensure that the deep net touches every input variable
+and that it has enough capacity to learn the necessary invertible transform.
+This is directly analgous to adding layers in a feed forward network (albeit
+with more complexity in the loss function).
+
+The Jacobian determinant is straightforward to compute using the multi-variate
+product rule:
+
+.. math::
+
+    \frac{\partial f_b \circ f_a}{\partial x_a^T}(x_a) &= 
+    \frac{\partial f_a}{x_a^T}(x_a) \cdot \frac{\partial f_b}{x_b^T}(x_b = f_a(x_a)) \\
+    det(A\cdot B) &= det(A)det(B) \\
+    \log\big(\big|det(A\cdot B)\big|\big) &= \log det(A) + \log det(B) && \text{since all scaling factors are positive} \\
+    \tag{13}
+
+So in our loss function, we can simply add up all the Jacobian determinants of
+our stacked layers to compute that term.
+
+Similarly, the inverse can be easily computed:
+
+.. math::
+
+   (f_b \circ f_a)^{-1} = f_a^{-1} \circ f_b^{-1} \tag{14}
+
+which basically is just computing the inverse of each layer in reverse order.
 
 .. admonition:: Data Preprocessing and Density Computation
 
@@ -427,9 +478,10 @@ Stacking Coupling Layers
         \log p_X(x) &= \log p_Z(f_\theta(h(x))) + \log\Big(\big|det\big(\frac{\partial f_\theta(h(x))}{\partial x}\big)\big| \Big)\\
         &= \log p_Z(f_\theta(h(x))) + \log\Big(\big|det\big(\frac{\partial f_\theta(x_{pre} = h(x))}{\partial x_{pre}}\big)\big| \Big) 
             + \log\Big(\big|det\big(\frac{\partial h(x)}{\partial x}\big)\big|\big) \\
-        \tag{xx}
+        \tag{15}
 
-    This relies on the multi-variate chain rule (see above for more details).
+    This is just another instance of "stacking" a pre-processing step (i.e.
+    function composition).
 
     For images in particular, many datasets will scale the pixel values
     to be between :math:`[0, 1]` from the original domain of :math:`[0, 255]`
@@ -453,8 +505,6 @@ Stacking Coupling Layers
 
     It's not the prettiest function but also simple enough to compute since you
     still have a diagnoal Jacobian.
-
-
 
 Multi-Scale Architecture
 ------------------------
