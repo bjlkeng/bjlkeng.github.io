@@ -425,8 +425,19 @@ an element-wise product:
 
 Finally, the choice of architecture for :math:`s(\cdot)` and :math:`t(\cdot)`
 functions is important.  The paper uses ResNet blocks as a backbone to define
-these functions with additional normalization layers.  See the implementation
-notes for more details on the modifications that I used.
+these functions with additional normalization layers (see more details on these
+and other modifications I did below).  But they do use few interesting things
+here:
+
+1. On the output of the :math:`s` function, they use a `tanh` activation
+   multiplied by a learned scale parameter.  This is presumably to mitigate the
+   effect of using `exp(s)` to scale the variables.  Directly using the outputs
+   of a neural network could cause big swings in :math:`s` leading to blowing up
+   :math:`exp(s)`.
+2. To this point, they also add a small :math:`L_2` regularization on :math:`s`
+   parameters of :math:`5\cdot 10^{-5}`.
+3. On the output of the :math:`t` function, they just use an affine output
+   since you want :math:`t` to be able to shift positive or negative.
 
 Stacking Coupling Layers
 ------------------------
@@ -501,13 +512,76 @@ which basically is just computing the inverse of each layer in reverse order.
     
     .. math::
 
-        \frac{dh(x)}{dx} = \frac{0.9}{256}\big(\frac{1}{\frac{0.9x}{256} + 0.05} + \frac{1}{1 - (\frac{0.9x}{256} + 0.05)}\big) \tag{xx}
+        \frac{dh(x)}{dx} = \frac{0.9}{256}\big(\frac{1}{\frac{0.9x}{256} + 0.05} + \frac{1}{1 - (\frac{0.9x}{256} + 0.05)}\big) \tag{16}
 
     It's not the prettiest function but also simple enough to compute since you
-    still have a diagnoal Jacobian.
+    still have a diagonal Jacobian.
 
 Multi-Scale Architecture
 ------------------------
+
+With the above concepts, Real NVP uses a multi-scale architecture to reduce
+the computation burden and distributing the loss function throughout the
+network.  There are two main ideas here: (a) a squeeze operation to transform
+a tensor's spatial dimensions into channel dimensions, and (b) a factoring out
+half the variables at regular intervals.
+
+The squeeze operation takes the input tensor and, for each channel, divides it 
+into :math:`2 \times 2 \times c` subsquares, then reshapes them into 
+:math:`1 \times 1 \times 4c` subsquares.  This effectively reshapes a 
+:math:`s \times s \times c` tensor into a :math:`\frac{s}{2} \times \frac{s}{2}
+\times 4c` tensor moving spatial size to the channel dimension.
+Figure 3 shows the squeeze operation (look at how the numbers are mapped on the
+left and right sides).
+
+The squeeze operation is combined with coupling layers to define the basic
+block of the Real NVP architecture with consists of: 
+
+* 3 coupling layers with alternative checkboard masks
+* Squeeze operation
+* 3 more coupling layers with alternating channel-wise mask 
+
+Channel-wise masking makes more sense with more channels so having it follow
+the squeeze operation is sensible.  Additionally, since half of the variables
+are passed through, we want to make sure there is no redundancy from the 
+checkboard masking.  At the final scale, four coupling layers are used with
+alternating checkboard masking.
+
+At each of the different scales, half of the variables are factored out and 
+passed directly to the output of the entire network.  This is done to reduce
+the memory and computational cost.  Defining the above
+coupling-squeeze-coupling block as :math:`f^{(i)}` with latent variables
+:math:`z` (the output of the network), we can recursively define this by:
+
+.. math::
+
+    h^{(0)} &= x \\
+    (z^{(i+1)}, h^{(i+1)}) &= f^{(i+1)}(h^{(i)}) \\
+    z^{(L)} &= f^{(L)}(h^{(L-1)}) \\
+    z &= (z^{(1)}, \ldots, z^{(L)}) \tag{17}
+
+where :math:`L` is the number of coupling-squeeze-coupling blocks.
+At each iteration, the spatial resolution is reduced and the 
+number of hidden layer channels in the :math:`s` and :math:`t` ResNet is
+doubled.  
+
+The factored out variables are concatenated out to generate the final latent
+variable output.  This factoring helps propagate the gradient more easily
+throughout the network instead of having it go through many layers. 
+The result is that each scale learns different levels of layers of features
+from local, fine-grained to global, coarse ones.  I didn't do any experiments
+on this aspect but you can see some examples they did in Appendix D of [1].
+
+A final note in this subsection that wasn't obvious to me the first time I read
+the paper: the number of latent variables you use is *equal* to the input
+dimension of :math:`x`!  While models like VAEs or GANs usually have a much
+smaller latent representation, we're using many more variables.  This makes
+perfect sense because our network is invertible so you need the same number
+of input and output dimensions but it seems inefficient!  This is another
+reason why I'm skeptical of the representation power of these stacked coupling
+layers.  The problem may be "easier" because you have so many latent variables
+where you don't really need much compression.  But this is just a random
+speculation on my side without much evidence.
 
 Modified Batch Normalization
 ----------------------------
@@ -515,6 +589,15 @@ Modified Batch Normalization
 Experiments
 ===========
 
+
+Implementation Notes
+--------------------
+
+* ResNet basic block
+* Use a convnet to project to my desired hidden layer depth and another one to project back to original depth
+* Instance norm
+* Use PyTorch multi-scaling
+* Make sure you mask out the :math:`s` vars when computing the loss function too!
 
 Conclusion
 ==========
