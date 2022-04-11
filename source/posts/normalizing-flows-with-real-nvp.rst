@@ -395,7 +395,7 @@ simplifies to:
 .. math::
 
     \log\Big(\big|det\big(\frac{\partial y}{\partial x^T}\big)\big| \Big) = 
-    \sum_j s(x_{1:d})_j
+    \sum_j s_j(x_{1:d})
     \tag{11}
 
 which is just the sum of the scaling values (all the other diagonal values are
@@ -585,6 +585,97 @@ speculation on my side without much evidence.
 
 Modified Batch Normalization
 ----------------------------
+
+The last thing to call out is that normalization was crucial in getting this
+network to train well.  Since we have the restriction of being invertible,
+you have to be careful when using a normalization technique to ensure that it
+can be inverted (e.g. layer normalization generally wouldn't work). 
+There are two main cases for adding normalization: (a) adding it in the scale
+and shift sub-networks :math:`s` and :math:`t`, and (b) adding it directly in
+coupling layer path.
+
+The simpler case is adding normalization into the scale and shift sub-networks.  [1] uses
+both `batch normalization <https://pytorch.org/docs/stable/generated/torch.nn.BatchNorm2d.html>`__ 
+and `weight normalization <https://pytorch.org/docs/stable/generated/torch.nn.utils.weight_norm.html>`__.
+I ended up using `instance normalization <https://pytorch.org/docs/stable/generated/torch.nn.InstanceNorm2d.html>`__
+and weight normalization.  I don't really have a big justification of why I
+switched out batch norm for instance norm except that I was playing around
+with things early on and it seemed to work better.  I also didn't like the idea
+of things depending on the batch size because my GPU doesn't have a lot of
+memory and can't run the same experiments as the paper.
+This is not at all scientific because it was probably based on one or two runs.
+In any case, it seemed to work well enough.  The nice thing about adding
+anything in the scale and shift sub-networks is that you don't have to account
+for anything in the inverse network or loss function.
+
+The more complex case is adding normalization to the coupling layers.
+This computation is exactly on the main path of forward and inverted
+calculations so you have to both be able to invert the computation and 
+include it in the loss function.  Notice here, you cannot use many
+different normalization techniques (e.g. instance norm, layer norm etc.)
+because it requires you to compute mean and variance assuming you are doing a
+forward pass, making it impossible to invert.  Batch norm on the other hand
+doesn't really have this problem because after the network is trained, you have
+a *static* mean and variance during generation.  However, during training
+depending on your batch size and dataset, you can have pretty wild swings in
+the mini-batch statistics, which intuitively seems like it might have
+problems when you try to invert.
+
+Real NVP does a small modification to the batch norm layers used in the
+coupling layers.  Instead of directly using the mini-batch statistics, it uses
+a running average that's weighted by some momentum factor.  This will
+result in the mean and variance used in the norm layer to be much closer in
+training vs. generation.  It turns out that this is exactly the same
+computation that PyTorch uses to keep track of its `running_mean` and
+`running_var` variables, so I was able to re-use that code.
+Note: I turned off the affine learned parameters on the output since I didn't
+think they were necessary (and the paper didn't really talk about them).
+
+The other change that is needed is to modify the loss function because
+batch norm is just another transformation.  Luckily, it's simply a scaling
+on each dimension independently.  For the standard batch norm computation
+for mean :math:`\mu`, variance :math:`\sigma^2`:
+
+.. math::
+
+    x = \frac{x-\mu}{\sqrt{\sigma^2 + \epsilon}} \tag{18}
+
+The Jacobian for this transformation is just a diagonal matrix since
+each operation is independent.  Thus, the log determinant of the Jacobian is
+just the log of the scaling for each dimension:
+
+.. math::
+
+    \log \big( \prod_i \sqrt{\sigma^2 + \epsilon}   \big)
+    &= \log \big( \prod_i (\sigma^2 + \epsilon)^{-\frac{1}{2}}\big) \\
+    &= -\frac{1}{2}\sum_i \log(\sigma^2 + \epsilon) \\
+    \tag{19}
+
+
+Full Loss Function
+------------------
+
+Putting it all together to define the full loss function, we can use Equations
+7, 11 and 19 to arrive at:
+
+.. math::
+
+   \text{Loss} &= \text{NLL} \\
+               &= -\log p_X(x) 
+                  - \log\Big(\big|det\big(\frac{\partial f_\theta(x)}{\partial x}\big)\big| \Big)
+                  + [L_2 \text{ reg on } s \text{ params}] \\
+               &= -\frac{1}{2}\log(2\pi) - \frac{(f_\theta(x))^2}{2}
+                  - \sum_j s_j(x_{1:d})
+                  + \frac{1}{2}\sum_i \log(\sigma^2 + \epsilon)
+                  + 5\cdot 10^{-5} \sum_k \| scale_{k} \|^2
+    \tag{20}
+
+where the first two terms in the last equation correspond to the log-likelihood
+of the output Gaussian variables, the third term is the scaling from the coupling
+layers, the fourth term is the batch norm scaling, and the last term is the
+regularization on the learned scale parameter for the :math:`s(\cdot)`
+functions.
+
 
 Experiments
 ===========
