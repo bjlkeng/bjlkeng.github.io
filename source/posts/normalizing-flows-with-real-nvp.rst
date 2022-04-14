@@ -676,19 +676,120 @@ layers, the fourth term is the batch norm scaling, and the last term is the
 regularization on the learned scale parameter for the :math:`s(\cdot)`
 functions.
 
+Implementation
+==============
 
-Experiments
-===========
+You can find my toy implementation of Real NVP `here <https://github.com/bjlkeng/sandbox/tree/master/realnvp>`__.
+I got it working for toy 2D datasets, MNIST, CIFAR10 and CELEBA.  The paper
+([1]) is quite good at explaining exactly how to implement it, it's just terse
+and doesn't necessarily emphasize the things that are needed in order to get
+similar results.  I did a lot of debugging (and learning) and did multiple
+double takes on the paper only to find I glossed over an innocent half sentence
+that contained the key detail that I needed.  This happened probably at least
+half a dozen times.  It goes to show you that just reading a paper doesn't
+really teach you the practical aspects of implementing a method.
+
+Due to the short bursts of work I had to work on this[2]_, I got into the habit
+of journaling my thinking process at the bottom of the notebook.  You can take
+a look at my approach and the multiple fumbles and mistakes that I made, but
+that's part of the fun of learning!  The only nice thing about short bursts is
+that I had time to think in between sessions as well as run longer experiments.
+
+In any case, I'll just jot down some notes on what I found was particularly
+important in implementing it with no particular effort to organize it.
+
+* This was my first project that I used PyTorch.  It was very enjoyable to work with!
+  A while back, I first started to work on this using Keras and had so much
+  trouble implementing custom layers to do what I wanted.  With PyTorch's `forward`
+  combined with non-static computation graph, it was just a lot easier to do
+  weird things like define the inverse network.  Additionally, I like the
+  Pythonic magic of picking up all the underlying modules so long as you use
+  the specialized PyTorch containers.  I'm a bit late to the game here but I'm
+  bought in! 
+* In general, I had to train the network for a lot longer (many epoch/batches)
+  using a small learning rate (0.0005) in most experiments.  It might be
+  obvious but these deep networks are slow learners (especially in the
+  beginning when I didn't have norm layers)
+* In my toy 2D experiments, I found that the learning scale + `tanh` trick
+  they used help get a more robust fit reducing the NaNs I got.  So I left
+  it in for all the other experiments.
+* I had so much trouble getting the pixel transform of :math:`logit(\alpha + (1-\alpha)\circ \frac{x}{256})`.
+  That's because it doesn't work!  If you set :math:`\alpha=0.05` as stated in the paper, anything that
+  gets close to :math:`x=256` will blow up the input to the logit and give you
+  infinity!  This was particularly problematic for MNIST which has a lot of
+  pixel close to max value (:math:`255 + \text{Uniform}[0, 1]`).  It took
+  longer for me to debug than it should have because I was stubborn not
+  to debug into the intermediate tensors, which found the problem quite a bit
+  more easily.
+* Speaking of which, I eschewed the pixel transform for MNIST because it's not
+  really a natural image.  Part of it was that I was having trouble fitting
+  things and things seemed to work better just with scaling the pixel values
+  to [0, 1].  Although, don't quite me on that because I did not go back to
+  verify this.
+* I had so much trouble figuring out why my loss was negative.  It all ended up
+  being because of my data preprocessing (see the box "Data Preprocessing and
+  Density Computation").  Even the simple scaling to :math:`[0, 1]`, which
+  is what the PyTorch datasets do by default causes a deformation of the density
+  that you need to account for when computing the log-likelihood (and corresponding
+  bits per pixels).  I was erroneously computing it for most of the time actually
+  until I decided that I should spend time figuring out why this was happening.
+* I was able to do some nice debugging of the inverse network just by passing an input
+  forward and then back again, and seeing if I got the same value (modulo uniform
+  noise that I add in see `my previous post <link://a-note-on-using-log-likelihood-for-generative-models>`__).
+* The regularizer on the scale learned parameter for :math:`s` didn't seem to do
+  much.  When I output the contributions to loss, it's always several orders of
+  magnitude less than the other terms.  I guess it's a safety valve so that
+  things don't blow up but :math:`10^{-5}` is hardly a penalty.
+* From my journal notes, you can see that I incrementally implemented things adding
+  features from the paper.  Almost everything the paper stated was needed in order
+  to get their results.
+* I used the typical flow of trying to overfit on a handful of images and then
+  gradually increase once I was confident things were working.  It was pretty
+  useful to work out initial kinks although I had to go back and forth several
+  times once I found more problems.
+* Adding norm layers was absolutely key in training to a low loss.  It took me
+  several iterations before I bit the bullet to add them to the network. 
+  Once I had it in both the :math:`s` and :math:`t` networks *plus* the
+  main coupling layers, then I was able to approach the stated results in the
+  paper.
+* I had to re-implement the BatchNorm layers myself (inheriting from the
+  PyTorch base class) because I needed to return the scaling factor of batch
+  norm for the loss function.  It was mostly painless looking up other implementations
+  (PyTorch's implementation is in C++, so I didn't both going deep into it).  
+  One non-obvious thing that I found out was that PyTorch computes the 
+  `running_var` as the *unbiased* variance, but uses the biased variance
+  in the computation (according to the docs).  I was scratching my head
+  wondering why I couldn't reproduce the same computation until I dug
+  into the C++ code for computing the running variance.
+* I used the running average version of BatchNorm for all the experiments
+  (not just CIFAR10, which it states in the paper).  I had to change
+  the momentum on these layers to :math:`0.005` down from :math:`0.1`
+  for things to work better.  It makes sense because of the dataset size,
+  a large momentum would "lose" information about older batches.
+* Another big bug I discovered is that I was initializing the parameters of the
+  :math:`s` scale and :math:`t` output layers to weird values.  Basically,
+  I just want to set all of them to :math:`0` so that :math:`exp(s=0)` and
+  :math:`t=0` initially just pass the signal straight through.  This worked
+  much better and didn't get stuck in a weird local minimum compared to
+  my other settings.
+* Had a stupid bug when I misconfigured and switched the parameters for number
+  of coupling layers and number of hidden features in :math:`s` and :math:`t`.
+  Serves me right for not passing by parameter name.
+* 
 
 
-Implementation Notes
---------------------
+  
+  stated in the paper to work
 
 * ResNet basic block
 * Use a convnet to project to my desired hidden layer depth and another one to project back to original depth
 * Instance norm
 * Use PyTorch multi-scaling
 * Make sure you mask out the :math:`s` vars when computing the loss function too!
+
+Experiments
+===========
+
 
 Conclusion
 ==========
@@ -702,3 +803,4 @@ Further Reading
 * [2] Stanforrd CS236 Class Notes, `<https://deepgenerativemodels.github.io/notes/flow/>`__
 
 .. [1] Apparently, autoregressive models can be interpreted as flow-based models (see [2]) but it's not very intuitive to me so I like to think of them as their own separate thing.
+.. [2] My schedule consisted of usually 30-60 minutes in the evening when I actually had some free time.  I did have some other bits of free time as well when I had some extra help around the house from my family.   Most of my other time is taken up by my main job and family time.
