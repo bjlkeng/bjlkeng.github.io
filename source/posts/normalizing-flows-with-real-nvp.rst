@@ -793,7 +793,7 @@ Experiments
 ===========
 
 .. figure:: /images/realnvp_2d.png
-  :width: 600px
+  :width: 800px
   :alt: Toy 2D Dataset Generated Images
   :align: center
     
@@ -810,21 +810,21 @@ Experiments
 
 
 .. figure:: /images/realnvp_mnist.png
-  :width: 600px
+  :width: 800px
   :alt: MNIST Generated Images
   :align: center
     
   **Figure 5: MNIST generated images**
 
 .. figure:: /images/realnvp_cifar10.png
-  :width: 600px
+  :width: 800px
   :alt: CIFAR10 Generated Images
   :align: center
     
   **Figure 6: CIFAR10 generated images**
 
 .. figure:: /images/realnvp_celeba.png
-  :width: 600px
+  :width: 800px
   :alt: CELEBA Generated Images
   :align: center
     
