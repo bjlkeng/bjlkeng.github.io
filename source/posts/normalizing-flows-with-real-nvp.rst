@@ -775,21 +775,60 @@ important in implementing it with no particular effort to organize it.
 * Had a stupid bug when I misconfigured and switched the parameters for number
   of coupling layers and number of hidden features in :math:`s` and :math:`t`.
   Serves me right for not passing by parameter name.
-* 
-
-
-  
-  stated in the paper to work
-
-* ResNet basic block
-* Use a convnet to project to my desired hidden layer depth and another one to project back to original depth
-* Instance norm
-* Use PyTorch multi-scaling
-* Make sure you mask out the :math:`s` vars when computing the loss function too!
+* I used the PyTorch function `PixelUnshuffle <https://pytorch.org/docs/stable/generated/torch.nn.PixelUnshuffle.html>`__
+  to do the squeeze operation.  Thankfully this was already implemented in 
+  PyTorch or else I'd probably put together a super slow hacky version of it.
+* For the :math:`s` and :math:`t` Resnet blocks, I used the "BasicBlock" that
+  consists of two 3x3 convolution layers.  It wasn't clear what they used in
+  the paper.  
+* For the :math:`s` and :math:`t` Resnet blocks, I also added a conv layer at
+  the start to project the inputs to whatever number of hidden channels I
+  wanted, and another one at the end to project back to the input number of
+  hidden channels.  It wasn't explicitly clear if that's what they did in the 
+  paper but I can't think of another way to do it. 
+* One mistake I made early on was that you need to make sure you mask out the
+  :math:`s` vars when computing the loss function too!
 
 Experiments
 ===========
 
+.. figure:: /images/realnvp_2d.png
+  :width: 600px
+  :alt: Toy 2D Dataset Generated Images
+  :align: center
+    
+  **Figure 4: Sampling from toy 2D datasets**
+
+.. csv-table:: Table 1: Bits/dim for experiments on validation set
+   :header: "Dataset", "RealNVP (mine)", "RealNVP (paper) [1]"
+   :widths: 5, 8, 8
+   :align: center
+
+   "MNIST", 1.92, 1.26 (GLOW)
+   "CIFAR10",  3.79, 3.49
+   "CELEBA",  3.25, 3.02
+
+
+.. figure:: /images/realnvp_mnist.png
+  :width: 600px
+  :alt: MNIST Generated Images
+  :align: center
+    
+  **Figure 5: MNIST generated images**
+
+.. figure:: /images/realnvp_cifar10.png
+  :width: 600px
+  :alt: CIFAR10 Generated Images
+  :align: center
+    
+  **Figure 6: CIFAR10 generated images**
+
+.. figure:: /images/realnvp_celeba.png
+  :width: 600px
+  :alt: CELEBA Generated Images
+  :align: center
+    
+  **Figure 7: CELEBA generated images**
 
 Conclusion
 ==========
