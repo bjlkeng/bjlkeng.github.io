@@ -792,14 +792,41 @@ important in implementing it with no particular effort to organize it.
 Experiments
 ===========
 
+Toy 2D Datasets
+---------------
+
+The first thing I did was try to implement Real NVP on toy 2D datasets as shown
+in Figure 4 using Scikit-learn's `dataset generations <https://scikit-learn.org/stable/datasets/sample_generators.html>`__.  
+The blue points were the original training data points while the red were
+generated from the trained Real NVP model.  Real NVP can *mostly* learn
+these datasets.  "Noisy Moon", "Blobs", and "Random" do reasonably well, while
+"Noisy Circles" have trouble.  Intuitively, "Noisy Circles" seems like the most
+difficult but it shouldn't be *that* hard to define that dataset if you could
+learn how to convert to polar coordinates.
+
+Recall, that in each case the latent variables is dimension two (equal to the
+input).  This also means that we can't do any interchange of masking, nor
+anything that resembles a multi-scale architecture.  It's still a question
+in my mind the expressiveness of these coupling layers.  In any case, once
+I had some reasonable results showing that the basic technique worked, I moved
+on to image datasets.
+
 .. figure:: /images/realnvp_2d.png
   :width: 800px
   :alt: Toy 2D Dataset Generated Images
   :align: center
     
-  **Figure 4: Sampling from toy 2D datasets**
+  **Figure 4: Sampling using Real NVP from toy 2D datasets (blue training data; red sample generated from Real NVP)**
 
-.. csv-table:: Table 1: Bits/dim for experiments on validation set
+Image Datasets
+--------------
+
+I also implemented results on MNIST, CIFAR10, and CELEBA using similar
+preprocessing and setup to [1] (main horizontal flips and cropping for CELEBA).
+The bits / dim for the experiments are shown in Table 1 with the comparison
+to [1] (and another normalizing flow model GLOW in the case of MNIST).
+
+.. csv-table:: Table 1: Bits/dim for experiments on test/validation set
    :header: "Dataset", "RealNVP (mine)", "RealNVP (paper) [1]"
    :widths: 5, 8, 8
    :align: center
@@ -808,6 +835,23 @@ Experiments
    "CIFAR10",  3.79, 3.49
    "CELEBA",  3.25, 3.02
 
+My results are obviously far from state of the art but not *that* far off.  To
+be fair, I didn't really spend much time hyper parameter tuning or configuring
+the training (e.g. epochs, learning rate).  I also had a tiny GPU (my good old
+GTX1070), so I couldn't use the same batch sizes that were stated in the paper
+(assuming that made a difference).  I probably could have gotten much closer to
+the paper if I had a bigger GPU and did a sweep of hyperparameters with some
+random seeds (which I assume all of these types of papers do).  I'm pretty
+happy with the results though since in the past I've been much further from
+the published results.
+
+Figure 5-7 show some *non-handpicked* examples for MNIST, CIFAR10, and CELEBA
+respectively.  Starting with Figure 5, the hand written digits of MNIST
+seem a bit off.  You can seem some clear digits, and then some that are
+incomprehensible.  One interesting thing to note is that each of the digits is
+sharp.  This is in contrast to VAEs which usually are more blurry.  In the end
+the results aren't great but perhaps Real NVP doesn't perform as well in these
+cases (or maybe I need to train more)?
 
 .. figure:: /images/realnvp_mnist.png
   :width: 800px
@@ -816,12 +860,28 @@ Experiments
     
   **Figure 5: MNIST generated images**
 
+Next up are my CIFAR10 images in Figure 6.  These ones look non-specific, which
+is typical for CIFAR10 (as far as I can tell by zooming in on pictures
+generated from papers).  Qualitatively they don't look that far off from the
+samples published in [1].  The only comment I can really make is that the diversity
+of colours and shapes/objects isn't bad.  This implies that the network is
+learning *something*.
+
 .. figure:: /images/realnvp_cifar10.png
   :width: 800px
   :alt: CIFAR10 Generated Images
   :align: center
     
   **Figure 6: CIFAR10 generated images**
+
+Finally, I decided to use CELEBA (Figure 7), which is my first time training on this
+dataset.  I usually avoid it because I thought my 8GB GPU couldn't handle it.
+Fortunately, I was able to *barely* fit it into memory (by using a smaller
+batch size).  The samples are pretty bad.  You can definitely make out faces but
+there are obvious places of corruption and the facial details are blurry.  I
+suppose that more training might help improve things, but I also suspect that
+the faces in the paper are cherry picked.  So it's probably a combination of
+both to get nicer images.
 
 .. figure:: /images/realnvp_celeba.png
   :width: 800px
@@ -833,13 +893,20 @@ Experiments
 Conclusion
 ==========
 
+I'm so happy I was finally able to get this post out.  I started playing around
+with Real NVP a while ago but I got frustrated trying to get it to work in
+Keras, so I got distracted with some other stuff (see my previous posts).
+Conceptually, I really enjoyed this topic because it was really surprising to
+me that it actually worked.  I already have a few papers that I really want to
+dig into in future posts, so look out for them!
+
 Further Reading
 ===============
 
 * Previous posts: `A Note on Using Log-Likelihood for Generative Models <link://a-note-on-using-log-likelihood-for-generative-models>`__
 * Wikipedia: `Latent Variable Model <https://en.wikipedia.org/wiki/Latent_variable_model>`__, `Probabilify Density Function <https://en.wikipedia.org/wiki/Probability_density_function#Vector_to_vector>`__, `Inverse Transform Sampling <https://en.wikipedia.org/wiki/Inverse_transform_sampling>`__, `Probability Integral Transform <https://en.wikipedia.org/wiki/Probability_integral_transform>`__, `Change of Variables in the Probability Density Function <https://en.wikipedia.org/wiki/Probability_density_function#Densities_associated_with_multiple_variables>`__
 * [1] Dinh, Sohl-Dickstein, Bengio, Density Estimation using Real NVP, `arXiv:1605.08803 <https://arxiv.org/abs/1605.08803>`__, 2016
-* [2] Stanforrd CS236 Class Notes, `<https://deepgenerativemodels.github.io/notes/flow/>`__
+* [2] Stanford CS236 Class Notes, `<https://deepgenerativemodels.github.io/notes/flow/>`__
 
 .. [1] Apparently, autoregressive models can be interpreted as flow-based models (see [2]) but it's not very intuitive to me so I like to think of them as their own separate thing.
 .. [2] My schedule consisted of usually 30-60 minutes in the evening when I actually had some free time.  I did have some other bits of free time as well when I had some extra help around the house from my family.   Most of my other time is taken up by my main job and family time.
