@@ -12,7 +12,7 @@ hit a roadblock in the implementation and then got distracted with some other id
 me down various rabbit holes (`here <link://slug/hamiltonian-monte-carlo>`__,
 `here <link://slug/lossless-compression-with-asymmetric-numeral-systems>`__, and
 `here <link://slug/lossless-compression-with-latent-variable-models-using-bits-back-coding>`__). 
-It feels good to finally get back on track to some of the core ML topics that I was learning about.
+It feels good to finally get back on track to some core ML topics.
 The other nice thing about not being an academic researcher (not that I'm
 really researching anything here) is that there is no pressure to do anything!
 If it's just for fun, you can take your time with a topic, veer off track, and
@@ -23,12 +23,12 @@ This post is going to talk about a class of deep probabilistic generative
 model called normalizing flows.  Alongside `Variational Autoencoders <link://slug/variational-autoencoders>`__
 and autoregressive models (e.g. `Pixel CNN <link://slug/pixelcnn>`__ and 
 `Autoregressive autoencoders <link://slug/autoregressive-autoencoders>`__), 
-normalizing flows have been one of the big ideas in deep probabilistic generative models[1]_
+normalizing flows have been one of the big ideas in deep probabilistic generative models [1]_
 (I don't count GANs aren't counted here because they are not quite probabilistic).
 Specifically, I'll be presenting one of the earlier normalizing flow
 techniques named *Real NVP* (circa 2016). 
 The formulation is simple but surprisingly effective, which makes it a good
-candidate to study to understand more about normalizing flows.
+candidate to understand more about normalizing flows.
 As usual, I'll go over some background, the method, an implementation 
 (with commentary on the details), and some experimental results.  Let's get into the flow!
 
@@ -52,35 +52,34 @@ As usual, I'll go over some background, the method, an implementation
 Motivation
 ==========
 
-Given a distribution :math:`p_X(X)`, deep generative models use neural networks to model :math:`X`
-usually by minimizing some quantity related to the negative log-likelhood (NLL) :math:`-\log(P(X))`.
+Given a distribution :math:`p_X(x)`, deep generative models use neural networks to model :math:`X`
+usually by minimizing some quantity related to the negative log-likelhood (NLL): :math:`-\log p_X(x)`.
 Assuming we have identical, independently distributed (IID) samples :math:`x \in X`, we 
 are aiming for a loss that is related to:
 
 .. math::
 
-   \sum_{x \in X} -logp_X(X) \tag{1}
+   \sum_{x \in X} -\log p_X(X) \tag{1}
 
 There are multiple ways to build a deep generative model but a common way is to use is a 
-`latent variable model <https://en.wikipedia.org/wiki/Latent_variable_model>`__,
+`latent variable model <https://en.wikipedia.org/wiki/Latent_variable_model>`__
 where we partition the variables into two sets: observed variables (:math:`x`)
 and latent (or hidden) ones (:math:`z`).  We only ever observe :math:`x` and
-usually use the latent :math:`z` variables because they make the problem more
+only use the latent :math:`z` variables because they make the problem more
 tractable.  We can sample from this latent variable model by having three things:
 
 a. Some prior :math:`p_Z(z)` (usually Gaussian) on the latent variables;
 b. Some high capacity neural network :math:`g(z; \theta)` (a deterministic
    function) with input :math:`z` and model parameters :math:`\theta`;
-c. A conditional output distribution :math:`p_{X|Z}(x|g_(z; \theta))` whose
-   distribution parameters are defined by the outputs of the neural network (e.g.
-   :math:`g(z;\theta)` define the mean, variance of the assumed normal
-   distribution of :math:`X`).
+c. A conditional output distribution :math:`p_{X|Z}(x|g_(z; \theta))` that use
+   the outputs of the neural network to model the data distribution :math:`x`
+   (via an appropriate loss function).
 
 By sampling :math:`z` from our prior, passing it through our neural network to
-define the parameters of our output distribution :math:`p_{X|Z}`, and finally defining
-our target distribution :math:`p_{X|Z}`, we can finally sample a point from it.
-This is all well and good but the real tricky part is training this model!
-Let's see why.
+define our conditional output distribution :math:`p_{X|Z}` for the given
+:math:`z`, and then use that distribution to (often explicitly) sample our
+:math:`X`.  In these cases, sampling is usually relatively straight forward but
+training on the other hand is not.  Let's see why.
 
 We wish to minimize Equation 1 (our loss function) but we only have our
 conditional distribution :math:`p_{X|Z}`.  We can get most of the way there
@@ -90,7 +89,7 @@ by using our prior :math:`p_Z`.  From Equation 1:
 
    \sum_{x \in X} -\log p_X(X) &= \sum_{x \in X} -\log\big(\int_{z} p_{X,Z}(x,z) dz\big) \\
    &= \sum_{x \in X} -\log\big(\int_{z} p_{X|Z}(x|z)p_Z(z) dz\big) \\
-   &\approx \sum_{x \in X} -\log\big(\sum_{i=1}^K p_{X|Z}(x|z_i)p_Z(z_i)\big) &&& \text{Approx. by using } K \text{ } z_i \in Z \text{ samples} \\
+   &\approx \sum_{x \in X} -\log\big(\sum_{i=1}^K p_{X|Z}(x|z_i)p_Z(z_i)\big) &&& \text{Approx. using } K \text{ samples} \\
    \tag{2}
 
 There are a couple of issues here.  First, we have this summation inside the
@@ -101,17 +100,16 @@ we immediately hit `curse of dimensionality <https://en.wikipedia.org/wiki/Curse
 issues with the number of samples we need.
 
 Variational autoencoders are a clever way around this by approximating the
-posterior :math:`q_Z(z|x)` using another deep net, which we simultaneously
+posterior using another deep net, which we simultaneously
 train with our latent variable model.  Using the 
 `expected lower bound objective <https://en.wikipedia.org/wiki/Evidence_lower_bound>`__ (ELBO)
-we can indirectly optimize (an upper bound of) :math:`-\log P(X)`.  See my post
+we can indirectly optimize (an upper bound of) :math:`-\log p_X(x)`.  See my post
 on `VAEs <link://slug/variational-autoencoders>`__ for more details.
 
 This is great but can we define a deep generative model that does this more
-directly?  What if we could directly optimize :math:`p_X(x)` but still had the
-convenience of starting our sampling process from a simple distribution of
-:math:`z` variables?  Of course we can (otherwise it would be a terrible setup)!
-Read on to find out how but let's review some background material first.
+directly?  What if we could directly optimize :math:`p_X(x)` but still have the
+nice properties of a latent variable model?  What special setup of the problem
+do we need to maintain to allow for this?  Keep on reading to find out more!
 
 Background
 ==========
@@ -121,23 +119,24 @@ The first two concepts we need are the
 `Probability Integral Transform <https://en.wikipedia.org/wiki/Probability_integral_transform>`__.
 Inverse transform sampling is idea that given a random variable :math:`X`
 (under some mild assumptions) with CDF :math:`F_X`, we can sample from :math:`X` 
-using starting from a standard uniform distribution :math:`U`.  This can be easily seen
-by sampling :math:`U` and using the inverse CDF `F^{-1}_X` to generate a random sample 
+starting from a standard uniform distribution :math:`U`.  This can be easily seen
+by sampling :math:`U` and using the inverse CDF :math:`F^{-1}_X` to generate a random sample 
 from :math:`X`.  The probability integral transform is the opposite operation:
 given a way to sample :math:`X` (and its associated CDF), we can generate a
 sample from a standard uniform distribution :math:`U` as :math:`u=F_X(x)`.
 See the box below for more details.
 
 Using these two ideas (and its extension to multiple variables), there exists a
-*deterministic* transformation (recall CDFs and their inverses are
-deterministic functions) to go from any distribution :math:`X` to any
-distribution :math:`Y`.  This can be achieved by transforming from :math:`X` to 
-a standard uniform distribution :math:`U` (probability integral transform), then
-going from :math:`U` to :math:`Y` (inverse transform sampling).  For our purposes,
-we don't actually care to explicitly specify the CDFs but rather just understand
-that this transformation from samples of :math:`X` to :math:`Y` exists via a 
-*deterministic* function.  Notice that this deterministic function is *bijective*
-(or invertible) because the CDFs (and inverse CDFs) are monotone functions.
+*deterministic* transformation (recall CDFs are deterministic and invertible
+functions) to go from any distribution :math:`X` to any distribution :math:`Y`.
+This can be achieved by transforming from :math:`X` to a standard uniform
+distribution :math:`U` (probability integral transform) then going from
+:math:`U` to :math:`Y` (inverse transform sampling).  For our purposes, we
+don't actually care to explicitly specify the CDFs but rather just understand
+that this transformation from samples of :math:`X` to :math:`Y` exists via a
+*deterministic* function.  Notice that this deterministic function is
+*bijective* (or invertible) because the CDFs (and inverse CDFs) are monotone
+functions.
 
 .. admonition:: Inverse Transform Sampling
 
@@ -193,7 +192,7 @@ that this transformation from samples of :math:`X` to :math:`Y` exists via a
       :alt: Visualization of mapping between a uniform distribution and an exponential one (source: Wikipedia)
       :align: center
     
-      **Figure 1: The :math:`y` axis is our uniform random distribution and the :math:`x` axis is our exponentially distributed number.  You can see for each point on the :math:`y` axis, we can map it to a point on the :math:`x` axis.  Even though :math:`y` is distributed uniformly, their mapping is concentrated on values closer to :math:`0` on the :math:`x` axis, matching an exponential distribution (source: Wikipedia).**
+      Figure 1: The :math:`y` axis is our uniform random distribution and the :math:`x` axis is our exponentially distributed number.  You can see for each point on the :math:`y` axis, we can map it to a point on the :math:`x` axis.  Even though :math:`y` is distributed uniformly, their mapping is concentrated on values closer to :math:`0` on the :math:`x` axis, matching an exponential distribution (source: Wikipedia).
 
     **Extensions** 
 
@@ -238,8 +237,9 @@ then :math:`p_X` is defined by:
   
 where :math:`\big|det\big(\frac{\partial f(x)}{\partial x}\big)\big|` is the 
 `determinant of the Jacobian matrix <https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant>`__.
-The determinant comes into play because we're essentially changing variables of
-the density function in the CDF integral.
+The determinant comes into play because we're changing variables of the
+probability density function in the CDF integral so the usual rules of change
+of variable apply.
 
 We'll see later that using this change of variable formula with the (big)
 assumption of a bijective function, we can eschew the approximate posterior (or
@@ -285,13 +285,14 @@ train -- just directly minimize the negative log likelihood.  Let's take a close
 at that.
 
 Assume we have training samples from a complex data distribution :math:`X`, a
-deep neural network :math:`z = f_\theta(x)` parameterized by `\theta`, and a prior
+deep neural network :math:`z = f_\theta(x)` parameterized by :math:`\theta`, and a prior
 :math:`p_Z(z)` on latent variables :math:`Z`.   From Equation 5, we can 
 derive our log-likelihood function like so:
 
 .. math::
 
-    \log p_X(x) &= \log\Big(p_Z(f_\theta(x))\big|det\big(\frac{\partial f_\theta(x)}{\partial x}\big)\big| \Big) \\
+    \log p_X(x) &= \log\Big(p_Z(f_\theta(x))\big|det\big(\frac{\partial f_\theta(x)}{\partial x}\big)\big| \Big) 
+    && \text{by Eq. 5}\\
     &= \log p_Z(f_\theta(x)) + \log\Big(\big|det\big(\frac{\partial f_\theta(x)}{\partial x}\big)\big| \Big)
     \tag{6}
 
@@ -310,15 +311,15 @@ Thus, our training is straight forward, just do a forward pass with training
 example :math:`x` and do a backwards pass using the negative of Equation 7 as
 the negative log-likelihood loss function.  The tricky part is defining
 a bijective deep generative model (described below) and computing the
-determinant of the Jacobian.  It's not obvious how to design a expressive
-bijective deep neural network while it's even less obvious how to compute its
+determinant of the Jacobian.  It's not obvious how to design an expressive
+invertible deep neural network, and it's even less obvious how to compute its
 Jacobian determinant efficiently (recall the Jacobian could be very large).
-We'll cover both in the next section.
+We'll cover both in the following subsections.
 
 Generating samples is also quite straight forward because :math:`f_\theta` is
 invertible.  Starting from a randomly sample point from our prior distribution
 on :math:`Z` (e.g. standard Gaussian), we can generate a sample easily by using
-the inverse of our deep net: `x = f^-1_\theta(z)`.  So a nice property of
+the inverse of our deep net: :math:`x = f^{-1}_\theta(z)`.  So a nice property of
 normalizing flows is that the training and generation of samples is fast
 (as opposed to autoregressive models where generation is very slow).
 
@@ -360,17 +361,18 @@ that :math:`x_{1:d}=y_{1:d}`:
 
   **Figure 2: Forward and reverse computations of affine coupling layer [1]**
 
-Figure 2 is a figure from [1] that shows this visually.  It's not at all obvious
+Figure 2 from [1] that shows this visually.  It's not at all obvious
 (at least to me) that this simple transform can represent the complex bijections
 that we want from our deep net.  However, I'll point out two ideas.  First,
 :math:`s(\cdot)` and :math:`t(\cdot)` can be arbitrarily *deep* networks with
-width greater than the input dimensions.  This essentially can scale and shift
-the input :math:`x` in complex ways.  Second, we're going to be stacking a lot 
-of these together.  So while it seems like for a subset of the variables
+width greater than the input dimensions because they do not need to be inverted.
+This essentially lets the coupling block scale and shift (a subset of) the
+input :math:`x` in complex ways.  Second, we're going to be stacking a lot of
+these together.  So while it seems like for a subset of the variables
 (:math:`x_{1:d}`) we're not doing anything, in fact, we scale and shift every
 input variable multiple times.  Still, there's no proof or guarantees in the
 paper that these transforms can represent every possible bijection but the
-empirical results are surprisingly effective.
+empirical results are surprisingly good.
 
 From our coupling layer in Equation 8, we can easily derive the Jacobian
 from Equation 6:
@@ -387,10 +389,10 @@ The main thing to notice is that it is triangular, which means the determinant
 is just the product of the diagonals.  The first :math:`x_{1:d}` variables are
 unchanged, so those entries in the Jacobian are just the identify function and
 zeros, while the other :math:`x_{d+1:D}` vars are scaled by the :math:`exp(s(\cdot))`
-values (so it's gradient is just the value it is scaled by).  The other
-non-zero, non-diagonal part of the Jacobian can be ignored because it's never
-used.  Putting this all together, the logarithm of the Jacobian determinant
-simplifies to:
+values so it's gradient is just the value it is scaled by, which form the other
+part of the diagnoal.  The other non-zero, non-diagonal part of the Jacobian
+can be ignored because it's never used.  Putting this all together, the
+logarithm of the Jacobian determinant simplifies to:
 
 .. math::
 
@@ -413,7 +415,7 @@ Partitioning the variables is an important choice since you will want to make
 sure you have good "mixing" of dimensions.  [1] proposes two schemes where
 :math:`d=\frac{D}{2}`.  Figure 3 shows these two schemes with black and white
 squares.  Spatial checkboarding masking simply uses an alternating pattern to
-partition the variables, while channel-wise partitions the channels.
+partition the variables, while channel-wise masking partitions the channels.
 
 Although it may seem tedious to code up Equation 8, one can simply implement the
 partitioning schemes by providing a binary mask :math:`b` (as shown in Figure 3) and use
@@ -421,13 +423,13 @@ an element-wise product:
 
 .. math::
 
-   y = b \odot x + (1-b) \odot (x \odot exp(s(b\odot x))  + t(\odot x)) \tag{12}
+   y = b \odot x + (1-b) \odot (x \odot exp(s(b\odot x))  + t(b \odot x)) \tag{12}
 
 Finally, the choice of architecture for :math:`s(\cdot)` and :math:`t(\cdot)`
 functions is important.  The paper uses ResNet blocks as a backbone to define
 these functions with additional normalization layers (see more details on these
-and other modifications I did below).  But they do use few interesting things
-here:
+and other modifications I did below).  But they do use a few interesting things
+here that I want to call out:
 
 1. On the output of the :math:`s` function, they use a `tanh` activation
    multiplied by a learned scale parameter.  This is presumably to mitigate the
@@ -436,14 +438,14 @@ here:
    :math:`exp(s)`.
 2. To this point, they also add a small :math:`L_2` regularization on :math:`s`
    parameters of :math:`5\cdot 10^{-5}`.
-3. On the output of the :math:`t` function, they just use an affine output
+3. On the output of the :math:`t` function, they use an affine output
    since you want :math:`t` to be able to shift positive or negative.
 
 Stacking Coupling Layers
 ------------------------
 
-As mentioned before, coupling layers are only useful if we can stack them,
-otherwise half of the variables would be unchanged.  By using alternating
+As mentioned before, coupling layers are only useful if we can stack them
+(otherwise half of the variables would be unchanged).  By using alternating
 patterns of spatial checkboarding and channel wise masking with multiple
 coupling layers, we can ensure that the deep net touches every input variable
 and that it has enough capacity to learn the necessary invertible transform.
@@ -514,8 +516,8 @@ which basically is just computing the inverse of each layer in reverse order.
 
         \frac{dh(x)}{dx} = \frac{0.9}{256}\big(\frac{1}{\frac{0.9x}{256} + 0.05} + \frac{1}{1 - (\frac{0.9x}{256} + 0.05)}\big) \tag{16}
 
-    It's not the prettiest function but also simple enough to compute since you
-    still have a diagonal Jacobian.
+    It's not the prettiest function but it's simple enough to compute since it's
+    part of a diagonal Jacobian.
 
 Multi-Scale Architecture
 ------------------------
@@ -561,16 +563,17 @@ coupling-squeeze-coupling block as :math:`f^{(i)}` with latent variables
     z &= (z^{(1)}, \ldots, z^{(L)}) \tag{17}
 
 where :math:`L` is the number of coupling-squeeze-coupling blocks.
-At each iteration, the spatial resolution is reduced and the 
-number of hidden layer channels in the :math:`s` and :math:`t` ResNet is
-doubled.  
+At each iteration, the spatial resolution is reduced by half in each dimension
+and the number of hidden layer channels in the :math:`s` and :math:`t` ResNet
+is doubled.  
 
 The factored out variables are concatenated out to generate the final latent
 variable output.  This factoring helps propagate the gradient more easily
 throughout the network instead of having it go through many layers. 
-The result is that each scale learns different levels of layers of features
-from local, fine-grained to global, coarse ones.  I didn't do any experiments
-on this aspect but you can see some examples they did in Appendix D of [1].
+The result is that each resolution scale learns a different granularity of
+features from local, fine-grained ones to global, coarse ones.  I didn't do any
+experiments on this aspect but you can see some examples they did in Appendix D
+of [1].
 
 A final note in this subsection that wasn't obvious to me the first time I read
 the paper: the number of latent variables you use is *equal* to the input
@@ -581,7 +584,7 @@ of input and output dimensions but it seems inefficient!  This is another
 reason why I'm skeptical of the representation power of these stacked coupling
 layers.  The problem may be "easier" because you have so many latent variables
 where you don't really need much compression.  But this is just a random
-speculation on my side without much evidence.
+hypothesis on my side without much evidence for or against it.
 
 Modified Batch Normalization
 ----------------------------
@@ -592,7 +595,7 @@ you have to be careful when using a normalization technique to ensure that it
 can be inverted (e.g. layer normalization generally wouldn't work). 
 There are two main cases for adding normalization: (a) adding it in the scale
 and shift sub-networks :math:`s` and :math:`t`, and (b) adding it directly in
-coupling layer path.
+the coupling layer path.
 
 The simpler case is adding normalization into the scale and shift sub-networks.  [1] uses
 both `batch normalization <https://pytorch.org/docs/stable/generated/torch.nn.BatchNorm2d.html>`__ 
@@ -616,7 +619,7 @@ different normalization techniques (e.g. instance norm, layer norm etc.)
 because it requires you to compute mean and variance assuming you are doing a
 forward pass, making it impossible to invert.  Batch norm on the other hand
 doesn't really have this problem because after the network is trained, you have
-a *static* mean and variance during generation.  However, during training
+a *static* mean and variance during generation.  However during training,
 depending on your batch size and dataset, you can have pretty wild swings in
 the mini-batch statistics, which intuitively seems like it might have
 problems when you try to invert.
