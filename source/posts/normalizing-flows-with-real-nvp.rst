@@ -53,7 +53,7 @@ Motivation
 ==========
 
 Given a distribution :math:`p_X(x)`, deep generative models use neural networks to model :math:`X`
-usually by minimizing some quantity related to the negative log-likelhood (NLL): :math:`-\log p_X(x)`.
+usually by minimizing some quantity related to the negative log-likelihood (NLL): :math:`-\log p_X(x)`.
 Assuming we have identical, independently distributed (IID) samples :math:`x \in X`, we 
 are aiming for a loss that is related to:
 
@@ -390,7 +390,7 @@ is just the product of the diagonals.  The first :math:`x_{1:d}` variables are
 unchanged, so those entries in the Jacobian are just the identify function and
 zeros, while the other :math:`x_{d+1:D}` vars are scaled by the :math:`exp(s(\cdot))`
 values so it's gradient is just the value it is scaled by, which form the other
-part of the diagnoal.  The other non-zero, non-diagonal part of the Jacobian
+part of the diagonal.  The other non-zero, non-diagonal part of the Jacobian
 can be ignored because it's never used.  Putting this all together, the
 logarithm of the Jacobian determinant simplifies to:
 
@@ -426,7 +426,7 @@ an element-wise product:
    y = b \odot x + (1-b) \odot (x \odot exp(s(b\odot x))  + t(b \odot x)) \tag{12}
 
 Finally, the choice of architecture for :math:`s(\cdot)` and :math:`t(\cdot)`
-functions is important.  The paper uses ResNet blocks as a backbone to define
+functions is important.  The paper uses Resnet blocks as a backbone to define
 these functions with additional normalization layers (see more details on these
 and other modifications I did below).  But they do use a few interesting things
 here that I want to call out:
@@ -449,7 +449,7 @@ As mentioned before, coupling layers are only useful if we can stack them
 patterns of spatial checkboarding and channel wise masking with multiple
 coupling layers, we can ensure that the deep net touches every input variable
 and that it has enough capacity to learn the necessary invertible transform.
-This is directly analgous to adding layers in a feed forward network (albeit
+This is directly analogous to adding layers in a feed forward network (albeit
 with more complexity in the loss function).
 
 The Jacobian determinant is straightforward to compute using the multi-variate
@@ -476,14 +476,14 @@ which basically is just computing the inverse of each layer in reverse order.
 
 .. admonition:: Data Preprocessing and Density Computation
 
-    A direct consequence of Equation 5-7 is that *any* pre-processing
+    A direct consequence of Equation 5-7 is that *any* preprocessing
     transformations done to the training data needs to be accounted for
     in the Jacobian determinant.  As is standard in neural networks,
     the input data is often pre-processed to a range usually in some interval
     near :math:`[-1, 1]` (e.g. shifting and scaling normalization).
     If you don't account for this in the loss function, you are not actually
     generating a probability and the typical comparisons you see in papers
-    (e.g. bits/pixel) are not valid.  For a given pre-processing function
+    (e.g. bits/pixel) are not valid.  For a given preprocessing function
     :math:`x_{pre} = h(x)`, we can update Equation 6 as such:
 
     .. math::
@@ -493,7 +493,7 @@ which basically is just computing the inverse of each layer in reverse order.
             + \log\Big(\big|det\big(\frac{\partial h(x)}{\partial x}\big)\big|\big) \\
         \tag{15}
 
-    This is just another instance of "stacking" a pre-processing step (i.e.
+    This is just another instance of "stacking" a preprocessing step (i.e.
     function composition).
 
     For images in particular, many datasets will scale the pixel values
@@ -505,7 +505,7 @@ which basically is just computing the inverse of each layer in reverse order.
     :math:`\frac{1}{255} I` where :math:`I` is the identify matrix, resulting in a simple
     modification to the loss function.
 
-    If you have a more complex pre-processing transform, you will have to do a
+    If you have a more complex preprocessing transform, you will have to do a
     bit more math and compute the respective gradient.  My implementation of
     Real NVP (see below for why I changed it from what's stated in the paper)
     uses a transform of :math:`h(x) = logit(\frac{0.9x}{256} + 0.05)`, which is
@@ -564,7 +564,7 @@ coupling-squeeze-coupling block as :math:`f^{(i)}` with latent variables
 
 where :math:`L` is the number of coupling-squeeze-coupling blocks.
 At each iteration, the spatial resolution is reduced by half in each dimension
-and the number of hidden layer channels in the :math:`s` and :math:`t` ResNet
+and the number of hidden layer channels in the :math:`s` and :math:`t` Resnet
 is doubled.  
 
 The factored out variables are concatenated out to generate the final latent
@@ -683,36 +683,37 @@ Implementation
 ==============
 
 You can find my toy implementation of Real NVP `here <https://github.com/bjlkeng/sandbox/tree/master/realnvp>`__.
-I got it working for toy 2D datasets, MNIST, CIFAR10 and CELEBA.  The paper
+I got it working for some toy 2D datasets, MNIST, CIFAR10 and CELEBA.  The paper
 ([1]) is quite good at explaining exactly how to implement it, it's just terse
 and doesn't necessarily emphasize the things that are needed in order to get
 similar results.  I did a lot of debugging (and learning) and did multiple
-double takes on the paper only to find I glossed over an innocent half sentence
+double takes on the paper only to find that I glossed over an innocent half sentence
 that contained the key detail that I needed.  This happened probably at least
 half a dozen times.  It goes to show you that just reading a paper doesn't
 really teach you the practical aspects of implementing a method.
 
-Due to the short bursts of work I had to work on this[2]_, I got into the habit
+Due to the short bursts of work I had to work on this [2]_, I got into the habit
 of journaling my thinking process at the bottom of the notebook.  You can take
 a look at my approach and the multiple fumbles and mistakes that I made, but
 that's part of the fun of learning!  The only nice thing about short bursts is
-that I had time to think in between sessions as well as run longer experiments.
+that I had time to think in between sessions and wasn't waiting around for long
+running experiments.
 
-In any case, I'll just jot down some notes on what I found was particularly
-important in implementing it with no particular effort to organize it.
+Here I'm just going to jot down some notes on what I found was particularly
+important in implementing Real NVP without much effort put in to organize it.
 
-* This was my first project that I used PyTorch.  It was very enjoyable to work with!
-  A while back, I first started to work on this using Keras and had so much
+* This was my first project where I used PyTorch.  It was very enjoyable to work with!
+  I first started working on this project using Keras and had so much
   trouble implementing custom layers to do what I wanted.  With PyTorch's `forward`
-  combined with non-static computation graph, it was just a lot easier to do
+  combined with dynamic computation graph, it was just a lot easier to do
   weird things like define the inverse network.  Additionally, I like the
-  Pythonic magic of picking up all the underlying modules so long as you use
-  the specialized PyTorch containers.  I'm a bit late to the game here but I'm
-  bought in! 
+  Pythonic magic of picking up all the underlying modules (as long as you use
+  the specialized PyTorch containers).  I'm a bit late to the game here but I'm
+  a convert! 
 * In general, I had to train the network for a lot longer (many epoch/batches)
-  using a small learning rate (0.0005) in most experiments.  It might be
+  using a small learning rate (0.0005) in most of my experiments.  It might be
   obvious but these deep networks are slow learners (especially in the
-  beginning when I didn't have norm layers)
+  beginning when I didn't have norm layers).
 * In my toy 2D experiments, I found that the learning scale + `tanh` trick
   they used help get a more robust fit reducing the NaNs I got.  So I left
   it in for all the other experiments.
@@ -727,25 +728,26 @@ important in implementing it with no particular effort to organize it.
 * Speaking of which, I eschewed the pixel transform for MNIST because it's not
   really a natural image.  Part of it was that I was having trouble fitting
   things and things seemed to work better just with scaling the pixel values
-  to [0, 1].  Although, don't quite me on that because I did not go back to
+  to [0, 1].  Although, don't quote me on that because I did not go back to
   verify this.
 * I had so much trouble figuring out why my loss was negative.  It all ended up
   being because of my data preprocessing (see the box "Data Preprocessing and
   Density Computation").  Even the simple scaling to :math:`[0, 1]`, which
-  is what the PyTorch datasets do by default causes a deformation of the density
+  is what the PyTorch datasets do by default, causes a deformation of the density
   that you need to account for when computing the log-likelihood (and corresponding
-  bits per pixels).  I was erroneously computing it for most of the time actually
-  until I decided that I should spend time figuring out why this was happening.
+  bits per pixels).  I was erroneously computing it for a long time until I
+  decided that I should spend time figuring out why this was happening.
 * I was able to do some nice debugging of the inverse network just by passing an input
   forward and then back again, and seeing if I got the same value (modulo uniform
-  noise that I add in see `my previous post <link://a-note-on-using-log-likelihood-for-generative-models>`__).
+  noise, see `my previous post <link://a-note-on-using-log-likelihood-for-generative-models>`__
+  for more details).
 * The regularizer on the scale learned parameter for :math:`s` didn't seem to do
   much.  When I output the contributions to loss, it's always several orders of
   magnitude less than the other terms.  I guess it's a safety valve so that
   things don't blow up but :math:`10^{-5}` is hardly a penalty.
 * From my journal notes, you can see that I incrementally implemented things adding
   features from the paper.  Almost everything the paper stated was needed in order
-  to get their results.
+  to get close to their results (of which, I'm not that close).
 * I used the typical flow of trying to overfit on a handful of images and then
   gradually increase once I was confident things were working.  It was pretty
   useful to work out initial kinks although I had to go back and forth several
@@ -774,10 +776,10 @@ important in implementing it with no particular effort to organize it.
   I just want to set all of them to :math:`0` so that :math:`exp(s=0)` and
   :math:`t=0` initially just pass the signal straight through.  This worked
   much better and didn't get stuck in a weird local minimum compared to
-  my other settings.
+  my other settings (it turns out this is one of the recommendations in GLOW).
 * Had a stupid bug when I misconfigured and switched the parameters for number
   of coupling layers and number of hidden features in :math:`s` and :math:`t`.
-  Serves me right for not passing by parameter name.
+  Serves me right for not passing parameters by name.
 * I used the PyTorch function `PixelUnshuffle <https://pytorch.org/docs/stable/generated/torch.nn.PixelUnshuffle.html>`__
   to do the squeeze operation.  Thankfully this was already implemented in 
   PyTorch or else I'd probably put together a super slow hacky version of it.
@@ -799,7 +801,7 @@ Toy 2D Datasets
 ---------------
 
 The first thing I did was try to implement Real NVP on toy 2D datasets as shown
-in Figure 4 using Scikit-learn's `dataset generations <https://scikit-learn.org/stable/datasets/sample_generators.html>`__.  
+in Figure 4 using Scikit-learn's `dataset generators <https://scikit-learn.org/stable/datasets/sample_generators.html>`__.  
 The blue points were the original training data points while the red were
 generated from the trained Real NVP model.  Real NVP can *mostly* learn
 these datasets.  "Noisy Moon", "Blobs", and "Random" do reasonably well, while
@@ -825,7 +827,8 @@ Image Datasets
 --------------
 
 I also implemented results on MNIST, CIFAR10, and CELEBA using similar
-preprocessing and setup to [1] (main horizontal flips and cropping for CELEBA).
+preprocessing and setup to [1] (horizontal flips for all of them and cropping
+for CELEBA).
 The bits / dim for the experiments are shown in Table 1 with the comparison
 to [1] (and another normalizing flow model GLOW in the case of MNIST).
 
@@ -878,13 +881,13 @@ learning *something*.
   **Figure 6: CIFAR10 generated images**
 
 Finally, I decided to use CELEBA (Figure 7), which is my first time training on this
-dataset.  I usually avoid it because I thought my 8GB GPU couldn't handle it.
+dataset.  I've avoided it in the past because of my tiny 8GB GPU.
 Fortunately, I was able to *barely* fit it into memory (by using a smaller
 batch size).  The samples are pretty bad.  You can definitely make out faces but
 there are obvious places of corruption and the facial details are blurry.  I
 suppose that more training might help improve things, but I also suspect that
 the faces in the paper are cherry picked.  So it's probably a combination of
-both to get nicer images.
+both to get nicer images as shown in the paper.
 
 .. figure:: /images/realnvp_celeba.png
   :width: 800px
@@ -900,8 +903,9 @@ I'm so happy I was finally able to get this post out.  I started playing around
 with Real NVP a while ago but I got frustrated trying to get it to work in
 Keras, so I got distracted with some other stuff (see my previous posts).
 Conceptually, I really enjoyed this topic because it was really surprising to
-me that it actually worked.  I already have a few papers that I really want to
-dig into in future posts, so look out for them!
+me that such a simple transform works.  Looking forward, I'm already pretty
+excited about a few papers that I've had my eye on and I can't wait to find
+some time to implement and write them up.  Until next time! 
 
 Further Reading
 ===============
@@ -912,4 +916,4 @@ Further Reading
 * [2] Stanford CS236 Class Notes, `<https://deepgenerativemodels.github.io/notes/flow/>`__
 
 .. [1] Apparently, autoregressive models can be interpreted as flow-based models (see [2]) but it's not very intuitive to me so I like to think of them as their own separate thing.
-.. [2] My schedule consisted of usually 30-60 minutes in the evening when I actually had some free time.  I did have some other bits of free time as well when I had some extra help around the house from my family.   Most of my other time is taken up by my main job and family time.
+.. [2] My schedule consisted of usually 30-60 minutes in the evening when I actually had some free time.  I did have some other bits of free time as well when I had some extra help around the house from my extended family.   Most of my other time is taken up by my main job and family time.
