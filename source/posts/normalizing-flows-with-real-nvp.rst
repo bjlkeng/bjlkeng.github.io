@@ -20,11 +20,10 @@ the come back to it later.  It's nice having the freedom to do what you want (th
 more than just learning about ML too)!
 
 This post is going to talk about a class of deep probabilistic generative
-model called normalizing flows.  Alongside `Variational Autoencoders <link://slug/variational-autoencoders>`__
-and autoregressive models (e.g. `Pixel CNN <link://slug/pixelcnn>`__ and 
+models called normalizing flows.  Alongside `Variational Autoencoders <link://slug/variational-autoencoders>`__
+and autoregressive models [1]_ (e.g. `Pixel CNN <link://slug/pixelcnn>`__ and 
 `Autoregressive autoencoders <link://slug/autoregressive-autoencoders>`__), 
-normalizing flows have been one of the big ideas in deep probabilistic generative models [1]_
-(I don't count GANs aren't counted here because they are not quite probabilistic).
+normalizing flows have been one of the big ideas in deep probabilistic generative models (I don't count GANs because they are not quite probabilistic).
 Specifically, I'll be presenting one of the earlier normalizing flow
 techniques named *Real NVP* (circa 2016). 
 The formulation is simple but surprisingly effective, which makes it a good
@@ -52,7 +51,7 @@ As usual, I'll go over some background, the method, an implementation
 Motivation
 ==========
 
-Given a distribution :math:`p_X(x)`, deep generative models use neural networks to model :math:`X`
+Given a distribution :math:`p_X(x)`, deep generative models use neural networks to model :math:`X`,
 usually by minimizing some quantity related to the negative log-likelihood (NLL): :math:`-\log p_X(x)`.
 Assuming we have identical, independently distributed (IID) samples :math:`x \in X`, we 
 are aiming for a loss that is related to:
@@ -62,9 +61,9 @@ are aiming for a loss that is related to:
    \sum_{x \in X} -\log p_X(X) \tag{1}
 
 There are multiple ways to build a deep generative model but a common way is to use is a 
-`latent variable model <https://en.wikipedia.org/wiki/Latent_variable_model>`__
+`latent variable model <https://en.wikipedia.org/wiki/Latent_variable_model>`__,
 where we partition the variables into two sets: observed variables (:math:`x`)
-and latent (or hidden) ones (:math:`z`).  We only ever observe :math:`x` and
+and latent (or hidden) variables (:math:`z`).  We only ever observe :math:`x` and
 only use the latent :math:`z` variables because they make the problem more
 tractable.  We can sample from this latent variable model by having three things:
 
@@ -72,12 +71,12 @@ a. Some prior :math:`p_Z(z)` (usually Gaussian) on the latent variables;
 b. Some high capacity neural network :math:`g(z; \theta)` (a deterministic
    function) with input :math:`z` and model parameters :math:`\theta`;
 c. A conditional output distribution :math:`p_{X|Z}(x|g_(z; \theta))` that use
-   the outputs of the neural network to model the data distribution :math:`x`
+   the outputs of the neural network to model the data distribution :math:`X`
    (via an appropriate loss function).
 
-By sampling :math:`z` from our prior, passing it through our neural network to
+By sampling :math:`z` from our prior and passing it through our neural network to
 define our conditional output distribution :math:`p_{X|Z}` for the given
-:math:`z`, and then use that distribution to (often explicitly) sample our
+:math:`z`, we can then use it to (often explicitly) sample our
 :math:`X`.  In these cases, sampling is usually relatively straight forward but
 training on the other hand is not.  Let's see why.
 
@@ -87,7 +86,7 @@ by using our prior :math:`p_Z`.  From Equation 1:
 
 .. math::
 
-   \sum_{x \in X} -\log p_X(X) &= \sum_{x \in X} -\log\big(\int_{z} p_{X,Z}(x,z) dz\big) \\
+   \sum_{x \in X} -\log p_X(x) &= \sum_{x \in X} -\log\big(\int_{z} p_{X,Z}(x,z) dz\big) \\
    &= \sum_{x \in X} -\log\big(\int_{z} p_{X|Z}(x|z)p_Z(z) dz\big) \\
    &\approx \sum_{x \in X} -\log\big(\sum_{i=1}^K p_{X|Z}(x|z_i)p_Z(z_i)\big) &&& \text{Approx. using } K \text{ samples} \\
    \tag{2}
@@ -96,13 +95,13 @@ There are a couple of issues here.  First, we have this summation inside the
 logarithm, that's usually a tough thing to optimize.  Perhaps the more
 important issue though is that we have to draw :math:`K` samples from :math:`Z`
 *for every* :math:`X`.  If we use any reasonable number of latent variables,
-we immediately hit `curse of dimensionality <https://en.wikipedia.org/wiki/Curse_of_dimensionality>`__
-issues with the number of samples we need.
+we immediately hit the `curse of dimensionality <https://en.wikipedia.org/wiki/Curse_of_dimensionality>`__
+for the number of samples we need.
 
 Variational autoencoders are a clever way around this by approximating the
-posterior using another deep net, which we simultaneously
-train with our latent variable model.  Using the 
-`expected lower bound objective <https://en.wikipedia.org/wiki/Evidence_lower_bound>`__ (ELBO)
+posterior with another deep net that simultaneously trains with our latent
+variable model.  Using the 
+`expected lower bound objective <https://en.wikipedia.org/wiki/Evidence_lower_bound>`__ (ELBO),
 we can indirectly optimize (an upper bound of) :math:`-\log p_X(x)`.  See my post
 on `VAEs <link://slug/variational-autoencoders>`__ for more details.
 
@@ -181,7 +180,7 @@ functions.
 
     **Example** 
 
-    As a simple example, we can try to generate a exponential distribution
+    As a simple example, we can try to generate an exponential distribution
     with CDF of :math:`F(x) = 1 - e^{-\lambda x}` for :math:`x \geq 0`.
     The inverse is defined by :math:`x = F^{-1}(u) = -\frac{1}{\lambda}\log(1-y)`.
     Thus, we can sample from an exponential distribution just by iteratively
@@ -235,11 +234,11 @@ then :math:`p_X` is defined by:
     &= p_Z(f(x))\big|det\big(\frac{\partial f(x)}{\partial x}\big)\big| && \text{Define }f := g^{-1} \\
     \tag{5}
   
-where :math:`\big|det\big(\frac{\partial f(x)}{\partial x}\big)\big|` is the 
+where :math:`det\big(\frac{\partial f(x)}{\partial x}\big)` is the 
 `determinant of the Jacobian matrix <https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant>`__.
 The determinant comes into play because we're changing variables of the
 probability density function in the CDF integral so the usual rules of change
-of variable apply.
+of variable for integrals apply.
 
 We'll see later that using this change of variable formula with the (big)
 assumption of a bijective function, we can eschew the approximate posterior (or
@@ -263,7 +262,7 @@ The two big ideas from the previous section come together using this simplified 
    (e.g Gaussians) and an invertible deep neural network (:math:`f`) to model
    some unknown complex distribution :math:`X` (e.g. images).
 
-Notice there are two things that we are doing that give normalizing flows [2] its namesake:
+Notice the two things that we are doing that give normalizing flows [2] its name:
 
 * **"Normalizing"**: The change of variable formula (Equation 5) gives us a
   normalized probability density.
@@ -388,11 +387,12 @@ from Equation 6:
 The main thing to notice is that it is triangular, which means the determinant
 is just the product of the diagonals.  The first :math:`x_{1:d}` variables are
 unchanged, so those entries in the Jacobian are just the identify function and
-zeros, while the other :math:`x_{d+1:D}` vars are scaled by the :math:`exp(s(\cdot))`
-values so it's gradient is just the value it is scaled by, which form the other
-part of the diagonal.  The other non-zero, non-diagonal part of the Jacobian
-can be ignored because it's never used.  Putting this all together, the
-logarithm of the Jacobian determinant simplifies to:
+zeros.  The other :math:`x_{d+1:D}` variables are scaled by :math:`exp(s(\cdot))`,
+so their gradient with respect to themselves is just a diagonal matrix of the
+scaling values, which form the other part of the diagonal.  The other
+non-zero, non-diagonal part of the Jacobian can be ignored because it's never
+used.  Putting this all together, the logarithm of the Jacobian determinant
+simplifies to:
 
 .. math::
 
@@ -501,7 +501,7 @@ which basically is just computing the inverse of each layer in reverse order.
     (or :math:`[0, 256]` with uniform noise; see 
     `my previous post <link://a-note-on-using-log-likelihood-for-generative-models>`__).
     This translates to a per-pixel scaling of :math:`h(x) = \frac{x}{255}`.  Since each
-    pixel is independently scaled, this corresponds to a diagonal Jacobian determinant:
+    pixel is independently scaled, this corresponds to a diagonal Jacobian:
     :math:`\frac{1}{255} I` where :math:`I` is the identify matrix, resulting in a simple
     modification to the loss function.
 
@@ -523,16 +523,16 @@ Multi-Scale Architecture
 ------------------------
 
 With the above concepts, Real NVP uses a multi-scale architecture to reduce
-the computation burden and distributing the loss function throughout the
+the computational burden and distribute the loss function throughout the
 network.  There are two main ideas here: (a) a squeeze operation to transform
 a tensor's spatial dimensions into channel dimensions, and (b) a factoring out
 half the variables at regular intervals.
 
-The squeeze operation takes the input tensor and, for each channel, divides it 
+The squeeze operation takes the input tensor and divides it 
 into :math:`2 \times 2 \times c` subsquares, then reshapes them into 
 :math:`1 \times 1 \times 4c` subsquares.  This effectively reshapes a 
 :math:`s \times s \times c` tensor into a :math:`\frac{s}{2} \times \frac{s}{2}
-\times 4c` tensor moving spatial size to the channel dimension.
+\times 4c` tensor moving the spatial size to the channel dimension.
 Figure 3 shows the squeeze operation (look at how the numbers are mapped on the
 left and right sides).
 
@@ -541,7 +541,7 @@ block of the Real NVP architecture with consists of:
 
 * 3 coupling layers with alternative checkboard masks
 * Squeeze operation
-* 3 more coupling layers with alternating channel-wise mask 
+* 3 more coupling layers with alternating channel-wise masks
 
 Channel-wise masking makes more sense with more channels so having it follow
 the squeeze operation is sensible.  Additionally, since half of the variables
@@ -553,7 +553,7 @@ At each of the different scales, half of the variables are factored out and
 passed directly to the output of the entire network.  This is done to reduce
 the memory and computational cost.  Defining the above
 coupling-squeeze-coupling block as :math:`f^{(i)}` with latent variables
-:math:`z` (the output of the network), we can recursively define this by:
+:math:`z` (the output of the network), we can recursively define this factoring as:
 
 .. math::
 
@@ -605,7 +605,7 @@ and weight normalization.  I don't really have a big justification of why I
 switched out batch norm for instance norm except that I was playing around
 with things early on and it seemed to work better.  I also didn't like the idea
 of things depending on the batch size because my GPU doesn't have a lot of
-memory and can't run the same experiments as the paper.
+memory and can't run the same batch sizes as the paper.
 This is not at all scientific because it was probably based on one or two runs.
 In any case, it seemed to work well enough.  The nice thing about adding
 anything in the scale and shift sub-networks is that you don't have to account
@@ -649,7 +649,7 @@ just the log of the scaling for each dimension:
 
 .. math::
 
-    \log \big( \prod_i \sqrt{\sigma^2 + \epsilon}   \big)
+    \log \big( \prod_i \frac{1}{\sqrt{\sigma^2 + \epsilon}}   \big)
     &= \log \big( \prod_i (\sigma^2 + \epsilon)^{-\frac{1}{2}}\big) \\
     &= -\frac{1}{2}\sum_i \log(\sigma^2 + \epsilon) \\
     \tag{19}
@@ -667,7 +667,7 @@ Putting it all together to define the full loss function, we can use Equations
                &= -\log p_X(x) 
                   - \log\Big(\big|det\big(\frac{\partial f_\theta(x)}{\partial x}\big)\big| \Big)
                   + [L_2 \text{ reg on } s \text{ params}] \\
-               &= -\frac{1}{2}\log(2\pi) - \frac{(f_\theta(x))^2}{2}
+               &= \frac{1}{2}\log(2\pi) + \frac{(f_\theta(x))^2}{2}
                   - \sum_j s_j(x_{1:d})
                   + \frac{1}{2}\sum_i \log(\sigma^2 + \epsilon)
                   + 5\cdot 10^{-5} \sum_k \| scale_{k} \|^2
@@ -717,20 +717,20 @@ important in implementing Real NVP without much effort put in to organize it.
 * In my toy 2D experiments, I found that the learning scale + `tanh` trick
   they used help get a more robust fit reducing the NaNs I got.  So I left
   it in for all the other experiments.
-* I had so much trouble getting the pixel transform of :math:`logit(\alpha + (1-\alpha)\circ \frac{x}{256})`.
-  That's because it doesn't work!  If you set :math:`\alpha=0.05` as stated in the paper, anything that
+* I had so much trouble getting the pixel transform of :math:`logit(\alpha + (1-\alpha)\circ \frac{x}{256})` to work.
+  That's because it doesn't work!  Anything that
   gets close to :math:`x=256` will blow up the input to the logit and give you
   infinity!  This was particularly problematic for MNIST which has a lot of
-  pixel close to max value (:math:`255 + \text{Uniform}[0, 1]`).  It took
+  pixels close to max value (:math:`255 + \text{Uniform}[0, 1]`).  It took
   longer for me to debug than it should have because I was stubborn not
   to debug into the intermediate tensors, which found the problem quite a bit
   more easily.
 * Speaking of which, I eschewed the pixel transform for MNIST because it's not
   really a natural image.  Part of it was that I was having trouble fitting
   things and things seemed to work better just with scaling the pixel values
-  to [0, 1].  Although, don't quote me on that because I did not go back to
+  to [0, 1].  Although don't quote me on that because I did not go back to
   verify this.
-* I had so much trouble figuring out why my loss was negative.  It all ended up
+* I had so much trouble figuring out why my loss was negative.  It ended up
   being because of my data preprocessing (see the box "Data Preprocessing and
   Density Computation").  Even the simple scaling to :math:`[0, 1]`, which
   is what the PyTorch datasets do by default, causes a deformation of the density
@@ -792,7 +792,7 @@ important in implementing Real NVP without much effort put in to organize it.
   hidden channels.  It wasn't explicitly clear if that's what they did in the 
   paper but I can't think of another way to do it. 
 * One mistake I made early on was that you need to make sure you mask out the
-  :math:`s` vars when computing the loss function too!
+  :math:`s` variables when computing the loss function too!
 
 Experiments
 ===========
@@ -805,11 +805,11 @@ in Figure 4 using Scikit-learn's `dataset generators <https://scikit-learn.org/s
 The blue points were the original training data points while the red were
 generated from the trained Real NVP model.  Real NVP can *mostly* learn
 these datasets.  "Noisy Moon", "Blobs", and "Random" do reasonably well, while
-"Noisy Circles" have trouble.  Intuitively, "Noisy Circles" seems like the most
+"Noisy Circles" has trouble.  Intuitively, "Noisy Circles" seems like the most
 difficult but it shouldn't be *that* hard to define that dataset if you could
 learn how to convert to polar coordinates.
 
-Recall, that in each case the latent variables is dimension two (equal to the
+Recall that in each case, the latent variables have dimension two (equal to the
 input).  This also means that we can't do any interchange of masking, nor
 anything that resembles a multi-scale architecture.  It's still a question
 in my mind the expressiveness of these coupling layers.  In any case, once
@@ -851,11 +851,11 @@ random seeds (which I assume all of these types of papers do).  I'm pretty
 happy with the results though since in the past I've been much further from
 the published results.
 
-Figure 5-7 show some *non-handpicked* examples for MNIST, CIFAR10, and CELEBA
+Figure 5-7 show some random (*non-handpicked*) examples for MNIST, CIFAR10, and CELEBA
 respectively.  Starting with Figure 5, the hand written digits of MNIST
 seem a bit off.  You can seem some clear digits, and then some that are
 incomprehensible.  One interesting thing to note is that each of the digits is
-sharp.  This is in contrast to VAEs which usually are more blurry.  In the end
+sharp.  This is in contrast to VAEs which usually are more blurry.  In the end,
 the results aren't great but perhaps Real NVP doesn't perform as well in these
 cases (or maybe I need to train more)?
 
@@ -899,7 +899,7 @@ both to get nicer images as shown in the paper.
 Conclusion
 ==========
 
-I'm so happy I was finally able to get this post out.  I started playing around
+I'm so happy that I was finally able to get this post out.  I started playing around
 with Real NVP a while ago but I got frustrated trying to get it to work in
 Keras, so I got distracted with some other stuff (see my previous posts).
 Conceptually, I really enjoyed this topic because it was really surprising to
