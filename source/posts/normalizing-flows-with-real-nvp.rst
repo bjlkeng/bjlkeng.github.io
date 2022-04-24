@@ -409,12 +409,12 @@ which is just the sum of the scaling values (all the other diagonal values are
   :align: center
 
   **Figure 3: Masking schemes for coupling layers indicated by black and white:
-  spatial checkboard (left) and channel wise (right).  Squeeze operation (right) indicated by numbers. [1]**
+  spatial checkerboard (left) and channel wise (right).  Squeeze operation (right) indicated by numbers. [1]**
 
 Partitioning the variables is an important choice since you will want to make
 sure you have good "mixing" of dimensions.  [1] proposes two schemes where
 :math:`d=\frac{D}{2}`.  Figure 3 shows these two schemes with black and white
-squares.  Spatial checkboarding masking simply uses an alternating pattern to
+squares.  Spatial checkerboarding masking simply uses an alternating pattern to
 partition the variables, while channel-wise masking partitions the channels.
 
 Although it may seem tedious to code up Equation 8, one can simply implement the
@@ -446,7 +446,7 @@ Stacking Coupling Layers
 
 As mentioned before, coupling layers are only useful if we can stack them
 (otherwise half of the variables would be unchanged).  By using alternating
-patterns of spatial checkboarding and channel wise masking with multiple
+patterns of spatial checkerboarding and channel wise masking with multiple
 coupling layers, we can ensure that the deep net touches every input variable
 and that it has enough capacity to learn the necessary invertible transform.
 This is directly analogous to adding layers in a feed forward network (albeit
@@ -479,7 +479,7 @@ which basically is just computing the inverse of each layer in reverse order.
     A direct consequence of Equation 5-7 is that *any* preprocessing
     transformations done to the training data needs to be accounted for
     in the Jacobian determinant.  As is standard in neural networks,
-    the input data is often pre-processed to a range usually in some interval
+    the input data is often preprocessed to a range usually in some interval
     near :math:`[-1, 1]` (e.g. shifting and scaling normalization).
     If you don't account for this in the loss function, you are not actually
     generating a probability and the typical comparisons you see in papers
@@ -539,15 +539,15 @@ left and right sides).
 The squeeze operation is combined with coupling layers to define the basic
 block of the Real NVP architecture with consists of: 
 
-* 3 coupling layers with alternative checkboard masks
+* 3 coupling layers with alternative checkerboard masks
 * Squeeze operation
 * 3 more coupling layers with alternating channel-wise masks
 
 Channel-wise masking makes more sense with more channels so having it follow
 the squeeze operation is sensible.  Additionally, since half of the variables
 are passed through, we want to make sure there is no redundancy from the 
-checkboard masking.  At the final scale, four coupling layers are used with
-alternating checkboard masking.
+checkerboard masking.  At the final scale, four coupling layers are used with
+alternating checkerboard masking.
 
 At each of the different scales, half of the variables are factored out and 
 passed directly to the output of the entire network.  This is done to reduce
