@@ -1,5 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 01 Feb 2022 01:35:48 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Hamiltonian Monte Carlo</title><link>http://bjlkeng.github.io/posts/hamiltonian-monte-carlo/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Here's a topic I thought that I would never get around to learning because it was "too hard".
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sun, 24 Apr 2022 01:03:06 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Normalizing Flows with Real NVP</title><link>http://bjlkeng.github.io/posts/normalizing-flows-with-real-nvp/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post has been a long time coming.  I originally started working on it several posts back but
+hit a roadblock in the implementation and then got distracted with some other ideas, which took
+me down various rabbit holes (&lt;a class="reference external" href="http://bjlkeng.github.io/posts/hamiltonian-monte-carlo/"&gt;here&lt;/a&gt;,
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/lossless-compression-with-asymmetric-numeral-systems/"&gt;here&lt;/a&gt;, and
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/lossless-compression-with-latent-variable-models-using-bits-back-coding/"&gt;here&lt;/a&gt;).
+It feels good to finally get back on track to some core ML topics.
+The other nice thing about not being an academic researcher (not that I'm
+really researching anything here) is that there is no pressure to do anything!
+If it's just for fun, you can take your time with a topic, veer off track, and
+the come back to it later.  It's nice having the freedom to do what you want (this applies to
+more than just learning about ML too)!&lt;/p&gt;
+&lt;p&gt;This post is going to talk about a class of deep probabilistic generative
+models called normalizing flows.  Alongside &lt;a class="reference external" href="http://bjlkeng.github.io/posts/variational-autoencoders/"&gt;Variational Autoencoders&lt;/a&gt;
+and autoregressive models &lt;a class="footnote-reference brackets" href="http://bjlkeng.github.io/posts/normalizing-flows-with-real-nvp/#id3" id="id1"&gt;1&lt;/a&gt; (e.g. &lt;a class="reference external" href="http://bjlkeng.github.io/posts/pixelcnn/"&gt;Pixel CNN&lt;/a&gt; and
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/autoregressive-autoencoders/"&gt;Autoregressive autoencoders&lt;/a&gt;),
+normalizing flows have been one of the big ideas in deep probabilistic generative models (I don't count GANs because they are not quite probabilistic).
+Specifically, I'll be presenting one of the earlier normalizing flow
+techniques named &lt;em&gt;Real NVP&lt;/em&gt; (circa 2016).
+The formulation is simple but surprisingly effective, which makes it a good
+candidate to understand more about normalizing flows.
+As usual, I'll go over some background, the method, an implementation
+(with commentary on the details), and some experimental results.  Let's get into the flow!&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/normalizing-flows-with-real-nvp/"&gt;Read more…&lt;/a&gt; (32 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>CELEBA</category><category>CIFAR10</category><category>generative models</category><category>mathjax</category><category>MNIST</category><category>normalizing flows</category><guid>http://bjlkeng.github.io/posts/normalizing-flows-with-real-nvp/</guid><pubDate>Sat, 23 Apr 2022 23:36:05 GMT</pubDate></item><item><title>Hamiltonian Monte Carlo</title><link>http://bjlkeng.github.io/posts/hamiltonian-monte-carlo/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Here's a topic I thought that I would never get around to learning because it was "too hard".
 When I first started learning about Bayesian methods, I knew enough that I
 should learn a thing or two about MCMC since that's the backbone
 of most Bayesian analysis; so I learned something about it
@@ -143,23 +165,4 @@ some theorems and play around with some toy datasets to see if we can get close
 to the theoretical limits.&lt;/p&gt;
 &lt;p&gt;(You might also want to checkout my previous post where I played around with
 ResNets: &lt;a class="reference external" href="http://bjlkeng.github.io/posts/residual-networks/"&gt;Residual Networks&lt;/a&gt;)&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/universal-resnet-the-one-neuron-approximator/"&gt;Read more…&lt;/a&gt; (11 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>hidden layers</category><category>mathjax</category><category>neural networks</category><category>residual networks</category><category>ResNet</category><category>universal approximator</category><guid>http://bjlkeng.github.io/posts/universal-resnet-the-one-neuron-approximator/</guid><pubDate>Fri, 03 Aug 2018 12:03:28 GMT</pubDate></item><item><title>Hyperbolic Geometry and Poincaré Embeddings</title><link>http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post is finally going to get back to some ML related topics.
-In fact, the original reason I took that whole math-y detour in the previous
-posts was to more deeply understand this topic.  It turns out trying to
-under tensor calculus and differential geometry (even to a basic level) takes a
-while!  Who knew?  In any case, we're getting back to our regularly scheduled program.&lt;/p&gt;
-&lt;p&gt;In this post, I'm going to explain one of the applications of an abstract
-area of mathematics called hyperbolic geometry.  The reason why this area is of
-interest is because there has been a surge of research showing its
-application in various fields, chief among them is a paper by Facebook
-researchers [1] in which they discuss how to utilize a model of hyperbolic
-geometry to represent hierarchical relationships.  I'll cover some of
-the math weighting more towards intuition, show some of their results, and also
-show some sample code from Gensim.  Don't worry, this time I'll try much harder
-not going to go down the rabbit hole of trying to explain all the math (no
-promises though).&lt;/p&gt;
-&lt;p&gt;(Note: If you're unfamiliar with tensors or manifolds, I suggest getting a quick
-overview with my previous two posts:
-&lt;a class="reference external" href="http://bjlkeng.github.io/posts/tensors-tensors-tensors/"&gt;Tensors, Tensors, Tensors&lt;/a&gt; and
-&lt;a class="reference external" href="http://bjlkeng.github.io/posts/manifolds/"&gt;Manifolds: A Gentle Introduction&lt;/a&gt;)&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/"&gt;Read more…&lt;/a&gt; (34 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>embeddings</category><category>geometry</category><category>hyperbolic</category><category>manifolds</category><category>mathjax</category><category>Poincaré</category><guid>http://bjlkeng.github.io/posts/hyperbolic-geometry-and-poincare-embeddings/</guid><pubDate>Sun, 17 Jun 2018 12:20:18 GMT</pubDate></item></channel></rss>
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/universal-resnet-the-one-neuron-approximator/"&gt;Read more…&lt;/a&gt; (11 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>hidden layers</category><category>mathjax</category><category>neural networks</category><category>residual networks</category><category>ResNet</category><category>universal approximator</category><guid>http://bjlkeng.github.io/posts/universal-resnet-the-one-neuron-approximator/</guid><pubDate>Fri, 03 Aug 2018 12:03:28 GMT</pubDate></item></channel></rss>

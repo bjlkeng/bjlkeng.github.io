@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#
+" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Normalizing Flows with Real NVP | Bounded Rationality</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
+<link rel="alternate" type="application/rss+xml" title="RSS" hreflang="en" href="../../rss.xml">
+<link rel="canonical" href="http://bjlkeng.github.io/posts/normalizing-flows-with-real-nvp/">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
+    }
+});
+</script><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Brian Keng">
+<link rel="prev" href="../hamiltonian-monte-carlo/" title="Hamiltonian Monte Carlo" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="Normalizing Flows with Real NVP">
+<meta property="og:url" content="http://bjlkeng.github.io/posts/normalizing-flows-with-real-nvp/">
+<meta property="og:description" content="This post has been a long time coming.  I originally started working on it several posts back but
+hit a roadblock in the implementation and then got distracted with some other ideas, which took
+me dow">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2022-04-23T19:36:05-04:00">
+<meta property="article:tag" content="CELEBA">
+<meta property="article:tag" content="CIFAR10">
+<meta property="article:tag" content="generative models">
+<meta property="article:tag" content="mathjax">
+<meta property="article:tag" content="MNIST">
+<meta property="article:tag" content="normalizing flows">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-expand-md static-top mb-4
+navbar-dark bg-dark
+"><div class="container">
+<!-- This keeps the margins nice -->
+        <a class="navbar-brand" href="http://bjlkeng.github.io/">
+
+            <span id="blog-title">Bounded Rationality</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="bs-navbar">
+            <ul class="navbar-nav mr-auto">
+<li class="nav-item">
+<a href="../../archive.html" class="nav-link">Archive</a>
+                </li>
+<li class="nav-item">
+<a href="../../categories/" class="nav-link">Tags</a>
+                </li>
+<li class="nav-item">
+<a href="../../rss.xml" class="nav-link">RSS feed</a>
+
+                
+            </li>
+</ul>
+<ul class="navbar-nav navbar-right">
+<li class="nav-item">
+    <a href="index.rst" id="sourcelink" class="nav-link">Source</a>
+    </li>
+
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <div class="row">
+        <!--Body content-->
+            <div class="col-lg-9">
+                
+                
+                
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Normalizing Flows with Real NVP</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
+                    Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2022-04-23T19:36:05-04:00" itemprop="datePublished" title="2022-04-23 19:36">2022-04-23 19:36</time></a>
+            </p>
+            
+        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>This post has been a long time coming.  I originally started working on it several posts back but
+hit a roadblock in the implementation and then got distracted with some other ideas, which took
+me down various rabbit holes (<a class="reference external" href="../hamiltonian-monte-carlo/">here</a>,
+<a class="reference external" href="../lossless-compression-with-asymmetric-numeral-systems/">here</a>, and
+<a class="reference external" href="../lossless-compression-with-latent-variable-models-using-bits-back-coding/">here</a>).
+It feels good to finally get back on track to some core ML topics.
+The other nice thing about not being an academic researcher (not that I'm
+really researching anything here) is that there is no pressure to do anything!
+If it's just for fun, you can take your time with a topic, veer off track, and
+the come back to it later.  It's nice having the freedom to do what you want (this applies to
+more than just learning about ML too)!</p>
+<p>This post is going to talk about a class of deep probabilistic generative
+models called normalizing flows.  Alongside <a class="reference external" href="../variational-autoencoders/">Variational Autoencoders</a>
+and autoregressive models <a class="footnote-reference brackets" href="#id3" id="id1">1</a> (e.g. <a class="reference external" href="../pixelcnn/">Pixel CNN</a> and
+<a class="reference external" href="../autoregressive-autoencoders/">Autoregressive autoencoders</a>),
+normalizing flows have been one of the big ideas in deep probabilistic generative models (I don't count GANs because they are not quite probabilistic).
+Specifically, I'll be presenting one of the earlier normalizing flow
+techniques named <em>Real NVP</em> (circa 2016).
+The formulation is simple but surprisingly effective, which makes it a good
+candidate to understand more about normalizing flows.
+As usual, I'll go over some background, the method, an implementation
+(with commentary on the details), and some experimental results.  Let's get into the flow!</p>
+<!-- TEASER_END -->
+<div class="card card-body bg-light">
+<h2>Table of Contents</h2>
+<div class="contents local topic" id="contents">
+<ul class="auto-toc simple">
+<li><p><a class="reference internal" href="#motivation" id="id5"><span class="sectnum">1</span> Motivation</a></p></li>
+<li><p><a class="reference internal" href="#background" id="id6"><span class="sectnum">2</span> Background</a></p></li>
+<li>
+<p><a class="reference internal" href="#normalizing-flows-with-real-nvp" id="id7"><span class="sectnum">3</span> Normalizing Flows with Real NVP</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#training-and-generation" id="id8"><span class="sectnum">3.1</span> Training and Generation</a></p></li>
+<li><p><a class="reference internal" href="#coupling-layers" id="id9"><span class="sectnum">3.2</span> Coupling Layers</a></p></li>
+<li><p><a class="reference internal" href="#stacking-coupling-layers" id="id10"><span class="sectnum">3.3</span> Stacking Coupling Layers</a></p></li>
+<li><p><a class="reference internal" href="#multi-scale-architecture" id="id11"><span class="sectnum">3.4</span> Multi-Scale Architecture</a></p></li>
+<li><p><a class="reference internal" href="#modified-batch-normalization" id="id12"><span class="sectnum">3.5</span> Modified Batch Normalization</a></p></li>
+<li><p><a class="reference internal" href="#full-loss-function" id="id13"><span class="sectnum">3.6</span> Full Loss Function</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#implementation" id="id14"><span class="sectnum">4</span> Implementation</a></p></li>
+<li>
+<p><a class="reference internal" href="#experiments" id="id15"><span class="sectnum">5</span> Experiments</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#toy-2d-datasets" id="id16"><span class="sectnum">5.1</span> Toy 2D Datasets</a></p></li>
+<li><p><a class="reference internal" href="#image-datasets" id="id17"><span class="sectnum">5.2</span> Image Datasets</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#conclusion" id="id18"><span class="sectnum">6</span> Conclusion</a></p></li>
+<li><p><a class="reference internal" href="#further-reading" id="id19"><span class="sectnum">7</span> Further Reading</a></p></li>
+</ul>
+</div>
+</div>
+<p></p>
+<div class="section" id="motivation">
+<h2><a class="toc-backref" href="#id5"><span class="sectnum">1</span> Motivation</a></h2>
+<p>Given a distribution <span class="math">\(p_X(x)\)</span>, deep generative models use neural networks to model <span class="math">\(X\)</span>,
+usually by minimizing some quantity related to the negative log-likelihood (NLL): <span class="math">\(-\log p_X(x)\)</span>.
+Assuming we have identical, independently distributed (IID) samples <span class="math">\(x \in X\)</span>, we
+are aiming for a loss that is related to:</p>
+<div class="math">
+\begin{equation*}
+\sum_{x \in X} -\log p_X(X) \tag{1}
+\end{equation*}
+</div>
+<p>There are multiple ways to build a deep generative model but a common way is to use is a
+<a class="reference external" href="https://en.wikipedia.org/wiki/Latent_variable_model">latent variable model</a>,
+where we partition the variables into two sets: observed variables (<span class="math">\(x\)</span>)
+and latent (or hidden) variables (<span class="math">\(z\)</span>).  We only ever observe <span class="math">\(x\)</span> and
+only use the latent <span class="math">\(z\)</span> variables because they make the problem more
+tractable.  We can sample from this latent variable model by having three things:</p>
+<ol class="loweralpha simple">
+<li><p>Some prior <span class="math">\(p_Z(z)\)</span> (usually Gaussian) on the latent variables;</p></li>
+<li><p>Some high capacity neural network <span class="math">\(g(z; \theta)\)</span> (a deterministic
+function) with input <span class="math">\(z\)</span> and model parameters <span class="math">\(\theta\)</span>;</p></li>
+<li><p>A conditional output distribution <span class="math">\(p_{X|Z}(x|g_(z; \theta))\)</span> that use
+the outputs of the neural network to model the data distribution <span class="math">\(X\)</span>
+(via an appropriate loss function).</p></li>
+</ol>
+<p>By sampling <span class="math">\(z\)</span> from our prior and passing it through our neural network to
+define our conditional output distribution <span class="math">\(p_{X|Z}\)</span> for the given
+<span class="math">\(z\)</span>, we can then use it to (often explicitly) sample our
+<span class="math">\(X\)</span>.  In these cases, sampling is usually relatively straight forward but
+training on the other hand is not.  Let's see why.</p>
+<p>We wish to minimize Equation 1 (our loss function) but we only have our
+conditional distribution <span class="math">\(p_{X|Z}\)</span>.  We can get most of the way there
+by using our prior <span class="math">\(p_Z\)</span>.  From Equation 1:</p>
+<div class="math">
+\begin{align*}
+\sum_{x \in X} -\log p_X(x) &amp;= \sum_{x \in X} -\log\big(\int_{z} p_{X,Z}(x,z) dz\big) \\
+&amp;= \sum_{x \in X} -\log\big(\int_{z} p_{X|Z}(x|z)p_Z(z) dz\big) \\
+&amp;\approx \sum_{x \in X} -\log\big(\sum_{i=1}^K p_{X|Z}(x|z_i)p_Z(z_i)\big) &amp;&amp;&amp; \text{Approx. using } K \text{ samples} \\
+\tag{2}
+\end{align*}
+</div>
+<p>There are a couple of issues here.  First, we have this summation inside the
+logarithm, that's usually a tough thing to optimize.  Perhaps the more
+important issue though is that we have to draw <span class="math">\(K\)</span> samples from <span class="math">\(Z\)</span>
+<em>for every</em> <span class="math">\(X\)</span>.  If we use any reasonable number of latent variables,
+we immediately hit the <a class="reference external" href="https://en.wikipedia.org/wiki/Curse_of_dimensionality">curse of dimensionality</a>
+for the number of samples we need.</p>
+<p>Variational autoencoders are a clever way around this by approximating the
+posterior with another deep net that simultaneously trains with our latent
+variable model.  Using the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Evidence_lower_bound">expected lower bound objective</a> (ELBO),
+we can indirectly optimize (an upper bound of) <span class="math">\(-\log p_X(x)\)</span>.  See my post
+on <a class="reference external" href="../variational-autoencoders/">VAEs</a> for more details.</p>
+<p>This is great but can we define a deep generative model that does this more
+directly?  What if we could directly optimize <span class="math">\(p_X(x)\)</span> but still have the
+nice properties of a latent variable model?  What special setup of the problem
+do we need to maintain to allow for this?  Keep on reading to find out more!</p>
+</div>
+<div class="section" id="background">
+<h2><a class="toc-backref" href="#id6"><span class="sectnum">2</span> Background</a></h2>
+<p>The first two concepts we need are the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Inverse_transform_sampling">Inverse Transform Sampling</a> and
+<a class="reference external" href="https://en.wikipedia.org/wiki/Probability_integral_transform">Probability Integral Transform</a>.
+Inverse transform sampling is idea that given a random variable <span class="math">\(X\)</span>
+(under some mild assumptions) with CDF <span class="math">\(F_X\)</span>, we can sample from <span class="math">\(X\)</span>
+starting from a standard uniform distribution <span class="math">\(U\)</span>.  This can be easily seen
+by sampling <span class="math">\(U\)</span> and using the inverse CDF <span class="math">\(F^{-1}_X\)</span> to generate a random sample
+from <span class="math">\(X\)</span>.  The probability integral transform is the opposite operation:
+given a way to sample <span class="math">\(X\)</span> (and its associated CDF), we can generate a
+sample from a standard uniform distribution <span class="math">\(U\)</span> as <span class="math">\(u=F_X(x)\)</span>.
+See the box below for more details.</p>
+<p>Using these two ideas (and its extension to multiple variables), there exists a
+<em>deterministic</em> transformation (recall CDFs are deterministic and invertible
+functions) to go from any distribution <span class="math">\(X\)</span> to any distribution <span class="math">\(Y\)</span>.
+This can be achieved by transforming from <span class="math">\(X\)</span> to a standard uniform
+distribution <span class="math">\(U\)</span> (probability integral transform) then going from
+<span class="math">\(U\)</span> to <span class="math">\(Y\)</span> (inverse transform sampling).  For our purposes, we
+don't actually care to explicitly specify the CDFs but rather just understand
+that this transformation from samples of <span class="math">\(X\)</span> to <span class="math">\(Y\)</span> exists via a
+<em>deterministic</em> function.  Notice that this deterministic function is
+<em>bijective</em> (or invertible) because the CDFs (and inverse CDFs) are monotone
+functions.</p>
+<div class="admonition admonition-inverse-transform-sampling">
+<p class="admonition-title">Inverse Transform Sampling</p>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Inverse_transform_sampling">Inverse transform sampling</a>
+is a method for sampling from any distribution given its cumulative
+distribution function (CDF), <span class="math">\(F(x)\)</span>.
+For a given distribution with CDF <span class="math">\(F(x)\)</span>, it works as such:</p>
+<ol class="arabic simple">
+<li><p>Sample a value, <span class="math">\(u\)</span>, between <span class="math">\([0,1]\)</span> from a uniform
+distribution.</p></li>
+<li><p>Define the inverse of the CDF as <span class="math">\(F^{-1}(u)\)</span> (the domain is a
+probability value between <span class="math">\([0,1]\)</span>).</p></li>
+<li><p><span class="math">\(F^{-1}(u)\)</span> is a sample from your target distribution.</p></li>
+</ol>
+<p>Of course, this method has no claims on being efficient.  For example,
+on continuous distributions, we would need to be able to find the inverse
+of the CDF (or some close approximation), which is not at all trivial.
+Typically, there are more efficient ways to perform sampling on any
+particular distribution but this provides a theoretical way to
+sample from <em>any</em> distribution.</p>
+<p><strong>Proof</strong></p>
+<p>The proof of correctness is actually pretty simple.  Let <span class="math">\(U\)</span>
+be a uniform random variable on <span class="math">\([0,1]\)</span>, and <span class="math">\(F^{-1}\)</span>
+as before, then we have:</p>
+<div class="math">
+\begin{align*}
+&amp;P(F^{-1}(U) \leq x) \\
+&amp;= P(U \leq F(x)) &amp;&amp; \text{apply } F \text{ to both sides} \\
+&amp;= F(x)  &amp;&amp; \text{because } P(U\leq y) = y \text{ on } [0,1] \\
+\tag{3}
+\end{align*}
+</div>
+<p>Thus, we have shown that <span class="math">\(F^{-1}(U)\)</span> has the distribution
+of our target random variable (since the CDF <span class="math">\(F(x)\)</span> is the same).</p>
+<p>It's important to note what we did: we took an easy to sample random
+variable <span class="math">\(U\)</span>, performed a <em>deterministic</em> transformation
+<span class="math">\(F^{-1}(U)\)</span> and ended up with a random variable that was distributed
+according to our target distribution.</p>
+<p><strong>Example</strong></p>
+<p>As a simple example, we can try to generate an exponential distribution
+with CDF of <span class="math">\(F(x) = 1 - e^{-\lambda x}\)</span> for <span class="math">\(x \geq 0\)</span>.
+The inverse is defined by <span class="math">\(x = F^{-1}(u) = -\frac{1}{\lambda}\log(1-y)\)</span>.
+Thus, we can sample from an exponential distribution just by iteratively
+evaluating this expression with a uniform randomly distributed number.</p>
+<div class="figure align-center">
+<img alt="Visualization of mapping between a uniform distribution and an exponential one (source: Wikipedia)" src="../../images/Inverse_transformation_method_for_exponential_distribution.jpg" style="height: 300px;"><p class="caption">Figure 1: The <span class="math">\(y\)</span> axis is our uniform random distribution and the <span class="math">\(x\)</span> axis is our exponentially distributed number.  You can see for each point on the <span class="math">\(y\)</span> axis, we can map it to a point on the <span class="math">\(x\)</span> axis.  Even though <span class="math">\(y\)</span> is distributed uniformly, their mapping is concentrated on values closer to <span class="math">\(0\)</span> on the <span class="math">\(x\)</span> axis, matching an exponential distribution (source: Wikipedia).</p>
+</div>
+<p><strong>Extensions</strong></p>
+<p>Now instead of starting from a uniform distribution, what happens if we
+want to sample from another distribution, say a normal distribution?
+We just first apply the reverse of the inverse sampling transform
+called the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Probability_integral_transform">Probability Integral Transform</a>.
+So the steps would be:</p>
+<ol class="arabic simple">
+<li><p>Sample from a normal distribution.</p></li>
+<li><p>Apply the probability integral transform using the CDF of a normal
+distribution to get a uniformly distributed sample.</p></li>
+<li><p>Apply inverse transform sampling with the inverse CDF of the target
+distribution to get a sample from our target distribution.</p></li>
+</ol>
+<p>What about extending to multiple dimensions?  We can just break up the
+joint distribution into its conditional components and sample each
+sequentially to construct the overall sample:</p>
+<div class="math">
+\begin{equation*}
+P(x_1,\ldots, x_n) = P(x_n|x_{n-1}, \ldots,x_1)\ldots P(x_2|x_1)P(x_1) \tag{4}
+\end{equation*}
+</div>
+<p>In detail, first sample <span class="math">\(x_1\)</span> using the method above, then <span class="math">\(x_2|x_1\)</span>,
+then <span class="math">\(x_3|x_2,x_1\)</span>, and so on.  Of course, this implicitly means you
+would have the CDF of each of those distributions available, which
+practically might not be possible.</p>
+</div>
+<p>The next thing we need is to review is how to <a class="reference external" href="https://en.wikipedia.org/wiki/Probability_density_function#Densities_associated_with_multiple_variables">change variables of probability density functions</a>.
+Given continuous n-dimensional random variable <span class="math">\(Z\)</span> with joint density <span class="math">\(p_Z\)</span>
+and a bijective (i.e. invertible) differentiable function <span class="math">\(g\)</span>, let <span class="math">\(X=g(Z)\)</span>,
+then <span class="math">\(p_X\)</span> is defined by:</p>
+<div class="math">
+\begin{align*}
+p_X(x) &amp;= p_Z(z)\big|det\big(\frac{\partial z}{\partial x}\big)\big| \\
+&amp;= p_Z(g^{-1}(x))\big|det\big(\frac{\partial g^{-1}(x)}{\partial x}\big)\big| \\
+&amp;= p_Z(f(x))\big|det\big(\frac{\partial f(x)}{\partial x}\big)\big| &amp;&amp; \text{Define }f := g^{-1} \\
+\tag{5}
+\end{align*}
+</div>
+<p>where <span class="math">\(det\big(\frac{\partial f(x)}{\partial x}\big)\)</span> is the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant">determinant of the Jacobian matrix</a>.
+The determinant comes into play because we're changing variables of the
+probability density function in the CDF integral so the usual rules of change
+of variable for integrals apply.</p>
+<p>We'll see later that using this change of variable formula with the (big)
+assumption of a bijective function, we can eschew the approximate posterior (or
+in the case of GANs the discriminator network) to train our deep generative model
+directly.</p>
+</div>
+<div class="section" id="normalizing-flows-with-real-nvp">
+<h2><a class="toc-backref" href="#id7"><span class="sectnum">3</span> Normalizing Flows with Real NVP</a></h2>
+<p>The two big ideas from the previous section come together using this simplified logic:</p>
+<ol class="arabic simple">
+<li><p>There exists an invertible transform <span class="math">\(f: X \rightarrow Z\)</span> to convert
+between any two probability densities (Inverse Transform Sampling and
+Probability Integral Transform); define a deep neural network to be this
+invertible function <span class="math">\(f\)</span>.</p></li>
+<li><p>We can compute the (log-)likelihood of any variable <span class="math">\(X=f^{-1}(Z)\)</span> (for
+invertible <span class="math">\(f\)</span>) by just knowing the density of <span class="math">\(Z\)</span> and the function <span class="math">\(f\)</span>
+(i.e. not explicitly knowing the density of <span class="math">\(X\)</span>) using Equation 5.</p></li>
+<li><p>Thus, we can train a deep latent variable model directly using its
+log-likelihood as a loss function with simple latent variables <span class="math">\(Z\)</span>
+(e.g Gaussians) and an invertible deep neural network (<span class="math">\(f\)</span>) to model
+some unknown complex distribution <span class="math">\(X\)</span> (e.g. images).</p></li>
+</ol>
+<p>Notice the two things that we are doing that give normalizing flows [2] its name:</p>
+<ul class="simple">
+<li><p><strong>"Normalizing"</strong>: The change of variable formula (Equation 5) gives us a
+normalized probability density.</p></li>
+<li><p><strong>"Flow"</strong>: A series of invertible transforms that are composed together to
+make a more complex invertible transform.</p></li>
+</ul>
+<p>Now the big assumption here is that you can build a deep neural network that is
+both <em>invertible</em> and can represent whatever complex transform you need.  There
+are several methods to do this but we'll be looking at one of the earlier ones
+call Real-valued Non-Volume Preserving (Real NVP) transformations, which is
+surprisingly simple.</p>
+<div class="section" id="training-and-generation">
+<h3><a class="toc-backref" href="#id8"><span class="sectnum">3.1</span> Training and Generation</a></h3>
+<p>As previously mentioned, normalizing flows greatly simplify the training process.
+No need for approximate posteriors (VAEs) or discriminator networks (GANs) to
+train -- just directly minimize the negative log likelihood.  Let's take a closer look
+at that.</p>
+<p>Assume we have training samples from a complex data distribution <span class="math">\(X\)</span>, a
+deep neural network <span class="math">\(z = f_\theta(x)\)</span> parameterized by <span class="math">\(\theta\)</span>, and a prior
+<span class="math">\(p_Z(z)\)</span> on latent variables <span class="math">\(Z\)</span>.   From Equation 5, we can
+derive our log-likelihood function like so:</p>
+<div class="math">
+\begin{align*}
+\log p_X(x) &amp;= \log\Big(p_Z(f_\theta(x))\big|det\big(\frac{\partial f_\theta(x)}{\partial x}\big)\big| \Big)
+&amp;&amp; \text{by Eq. 5}\\
+&amp;= \log p_Z(f_\theta(x)) + \log\Big(\big|det\big(\frac{\partial f_\theta(x)}{\partial x}\big)\big| \Big)
+\tag{6}
+\end{align*}
+</div>
+<p>As in many of these deep generative models, if we assume a standard independent
+Gaussian priors for <span class="math">\(p_Z\)</span>, we can replace the first term in Equation 6
+with the logarithm of the standard normal PDF:</p>
+<div class="math">
+\begin{align*}
+\log p_X(x) &amp;= \log p_Z(f_\theta(x)) + \log\Big(\big|det\big(\frac{\partial f_\theta(x)}{\partial x}\big)\big| \Big) \\
+            &amp;= -\frac{1}{2}\log(2\pi) - \frac{(f_\theta(x))^2}{2}
+            + \log\Big(\big|det\big(\frac{\partial f_\theta(x)}{\partial x}\big)\big| \Big) &amp;&amp; \text{assume Gaussian prior} \\
+\tag{7}
+\end{align*}
+</div>
+<p>Thus, our training is straight forward, just do a forward pass with training
+example <span class="math">\(x\)</span> and do a backwards pass using the negative of Equation 7 as
+the negative log-likelihood loss function.  The tricky part is defining
+a bijective deep generative model (described below) and computing the
+determinant of the Jacobian.  It's not obvious how to design an expressive
+invertible deep neural network, and it's even less obvious how to compute its
+Jacobian determinant efficiently (recall the Jacobian could be very large).
+We'll cover both in the following subsections.</p>
+<p>Generating samples is also quite straight forward because <span class="math">\(f_\theta\)</span> is
+invertible.  Starting from a randomly sample point from our prior distribution
+on <span class="math">\(Z\)</span> (e.g. standard Gaussian), we can generate a sample easily by using
+the inverse of our deep net: <span class="math">\(x = f^{-1}_\theta(z)\)</span>.  So a nice property of
+normalizing flows is that the training and generation of samples is fast
+(as opposed to autoregressive models where generation is very slow).</p>
+</div>
+<div class="section" id="coupling-layers">
+<h3><a class="toc-backref" href="#id9"><span class="sectnum">3.2</span> Coupling Layers</a></h3>
+<p>So the key question for normalizing flows is how can you define an invertible
+deep neural network?  Real NVP uses a surprisingly simple block called an
+"affine coupling layer".  The main idea is to define a transform whose Jacobian
+forms a triangular matrix resulting in a very simple and efficient determinant
+computation.  Let's first define the transform.</p>
+<p>The coupling layer is a simple scale and shift operation for some <em>subset</em> of
+the variables in the current layer, while the other half are used to compute
+the scale and shift.  Given D dimensional input variables <span class="math">\(x\)</span>,
+<span class="math">\(y\)</span> as the output of the block, and <span class="math">\(d &lt; D\)</span>:</p>
+<div class="math">
+\begin{align*}
+y_{1:d} &amp;= x_{1:d} \\
+y_{d+1:D} &amp;= x_{d+1:D} \odot exp(s(x_{1:d})) + t(x_{1:d}) \\
+\tag{8}
+\end{align*}
+</div>
+<p>where <span class="math">\(s\)</span> is for scale, <span class="math">\(t\)</span> is for translation, and are functions
+from <span class="math">\(R^d \mapsto R^{D-d}\)</span>, and <span class="math">\(\odot\)</span> is the element wise product.
+The reverse computation is just as simple by solving for <span class="math">\(x\)</span> and noting
+that <span class="math">\(x_{1:d}=y_{1:d}\)</span>:</p>
+<div class="math">
+\begin{align*}
+x_{1:d} &amp;= y_{1:d} \\
+x_{d+1:D} &amp;= (y_{d+1:D}  - t(y_{1:d})) \odot exp(-s(y_{1:d})) \\
+\tag{9}
+\end{align*}
+</div>
+<div class="figure align-center">
+<img alt="Visualization of Affine Coupling Layer" src="../../images/realnvp_coupling.png" style="height: 270px;"><p class="caption"><strong>Figure 2: Forward and reverse computations of affine coupling layer [1]</strong></p>
+</div>
+<p>Figure 2 from [1] that shows this visually.  It's not at all obvious
+(at least to me) that this simple transform can represent the complex bijections
+that we want from our deep net.  However, I'll point out two ideas.  First,
+<span class="math">\(s(\cdot)\)</span> and <span class="math">\(t(\cdot)\)</span> can be arbitrarily <em>deep</em> networks with
+width greater than the input dimensions because they do not need to be inverted.
+This essentially lets the coupling block scale and shift (a subset of) the
+input <span class="math">\(x\)</span> in complex ways.  Second, we're going to be stacking a lot of
+these together.  So while it seems like for a subset of the variables
+(<span class="math">\(x_{1:d}\)</span>) we're not doing anything, in fact, we scale and shift every
+input variable multiple times.  Still, there's no proof or guarantees in the
+paper that these transforms can represent every possible bijection but the
+empirical results are surprisingly good.</p>
+<p>From our coupling layer in Equation 8, we can easily derive the Jacobian
+from Equation 6:</p>
+<div class="math">
+\begin{equation*}
+\frac{\partial y}{\partial x^T} =
+\begin{bmatrix}
+    I_d       &amp; 0 \\
+    \frac{\partial y_{d+1:D}}{\partial x^T_{1:d}}      &amp; diag(exp[s(x_{1:D})])
+ \end{bmatrix} \tag{10}
+\end{equation*}
+</div>
+<p>The main thing to notice is that it is triangular, which means the determinant
+is just the product of the diagonals.  The first <span class="math">\(x_{1:d}\)</span> variables are
+unchanged, so those entries in the Jacobian are just the identify function and
+zeros.  The other <span class="math">\(x_{d+1:D}\)</span> variables are scaled by <span class="math">\(exp(s(\cdot))\)</span>,
+so their gradient with respect to themselves is just a diagonal matrix of the
+scaling values, which form the other part of the diagonal.  The other
+non-zero, non-diagonal part of the Jacobian can be ignored because it's never
+used.  Putting this all together, the logarithm of the Jacobian determinant
+simplifies to:</p>
+<div class="math">
+\begin{equation*}
+\log\Big(\big|det\big(\frac{\partial y}{\partial x^T}\big)\big| \Big) =
+\sum_j s_j(x_{1:d})
+\tag{11}
+\end{equation*}
+</div>
+<p>which is just the sum of the scaling values (all the other diagonal values are
+<span class="math">\(\log (1) = 0\)</span>).</p>
+<div class="figure align-center">
+<img alt="Masking Scheme for Coupling Layers" src="../../images/realnvp_masks.png" style="height: 270px;"><p class="caption"><strong>Figure 3: Masking schemes for coupling layers indicated by black and white:
+spatial checkerboard (left) and channel wise (right).  Squeeze operation (right) indicated by numbers. [1]</strong></p>
+</div>
+<p>Partitioning the variables is an important choice since you will want to make
+sure you have good "mixing" of dimensions.  [1] proposes two schemes where
+<span class="math">\(d=\frac{D}{2}\)</span>.  Figure 3 shows these two schemes with black and white
+squares.  Spatial checkerboarding masking simply uses an alternating pattern to
+partition the variables, while channel-wise masking partitions the channels.</p>
+<p>Although it may seem tedious to code up Equation 8, one can simply implement the
+partitioning schemes by providing a binary mask <span class="math">\(b\)</span> (as shown in Figure 3) and use
+an element-wise product:</p>
+<div class="math">
+\begin{equation*}
+y = b \odot x + (1-b) \odot (x \odot exp(s(b\odot x))  + t(b \odot x)) \tag{12}
+\end{equation*}
+</div>
+<p>Finally, the choice of architecture for <span class="math">\(s(\cdot)\)</span> and <span class="math">\(t(\cdot)\)</span>
+functions is important.  The paper uses Resnet blocks as a backbone to define
+these functions with additional normalization layers (see more details on these
+and other modifications I did below).  But they do use a few interesting things
+here that I want to call out:</p>
+<ol class="arabic simple">
+<li><p>On the output of the <span class="math">\(s\)</span> function, they use a <cite>tanh</cite> activation
+multiplied by a learned scale parameter.  This is presumably to mitigate the
+effect of using <cite>exp(s)</cite> to scale the variables.  Directly using the outputs
+of a neural network could cause big swings in <span class="math">\(s\)</span> leading to blowing up
+<span class="math">\(exp(s)\)</span>.</p></li>
+<li><p>To this point, they also add a small <span class="math">\(L_2\)</span> regularization on <span class="math">\(s\)</span>
+parameters of <span class="math">\(5\cdot 10^{-5}\)</span>.</p></li>
+<li><p>On the output of the <span class="math">\(t\)</span> function, they use an affine output
+since you want <span class="math">\(t\)</span> to be able to shift positive or negative.</p></li>
+</ol>
+</div>
+<div class="section" id="stacking-coupling-layers">
+<h3><a class="toc-backref" href="#id10"><span class="sectnum">3.3</span> Stacking Coupling Layers</a></h3>
+<p>As mentioned before, coupling layers are only useful if we can stack them
+(otherwise half of the variables would be unchanged).  By using alternating
+patterns of spatial checkerboarding and channel wise masking with multiple
+coupling layers, we can ensure that the deep net touches every input variable
+and that it has enough capacity to learn the necessary invertible transform.
+This is directly analogous to adding layers in a feed forward network (albeit
+with more complexity in the loss function).</p>
+<p>The Jacobian determinant is straightforward to compute using the multi-variate
+product rule:</p>
+<div class="math">
+\begin{align*}
+\frac{\partial f_b \circ f_a}{\partial x_a^T}(x_a) &amp;=
+\frac{\partial f_a}{x_a^T}(x_a) \cdot \frac{\partial f_b}{x_b^T}(x_b = f_a(x_a)) \\
+det(A\cdot B) &amp;= det(A)det(B) \\
+\log\big(\big|det(A\cdot B)\big|\big) &amp;= \log det(A) + \log det(B) &amp;&amp; \text{since all scaling factors are positive} \\
+\tag{13}
+\end{align*}
+</div>
+<p>So in our loss function, we can simply add up all the Jacobian determinants of
+our stacked layers to compute that term.</p>
+<p>Similarly, the inverse can be easily computed:</p>
+<div class="math">
+\begin{equation*}
+(f_b \circ f_a)^{-1} = f_a^{-1} \circ f_b^{-1} \tag{14}
+\end{equation*}
+</div>
+<p>which basically is just computing the inverse of each layer in reverse order.</p>
+<div class="admonition admonition-data-preprocessing-and-density-computation">
+<p class="admonition-title">Data Preprocessing and Density Computation</p>
+<p>A direct consequence of Equation 5-7 is that <em>any</em> preprocessing
+transformations done to the training data needs to be accounted for
+in the Jacobian determinant.  As is standard in neural networks,
+the input data is often preprocessed to a range usually in some interval
+near <span class="math">\([-1, 1]\)</span> (e.g. shifting and scaling normalization).
+If you don't account for this in the loss function, you are not actually
+generating a probability and the typical comparisons you see in papers
+(e.g. bits/pixel) are not valid.  For a given preprocessing function
+<span class="math">\(x_{pre} = h(x)\)</span>, we can update Equation 6 as such:</p>
+<div class="math">
+\begin{align*}
+\log p_X(x) &amp;= \log p_Z(f_\theta(h(x))) + \log\Big(\big|det\big(\frac{\partial f_\theta(h(x))}{\partial x}\big)\big| \Big)\\
+&amp;= \log p_Z(f_\theta(h(x))) + \log\Big(\big|det\big(\frac{\partial f_\theta(x_{pre} = h(x))}{\partial x_{pre}}\big)\big| \Big)
+    + \log\Big(\big|det\big(\frac{\partial h(x)}{\partial x}\big)\big|\big) \\
+\tag{15}
+\end{align*}
+</div>
+<p>This is just another instance of "stacking" a preprocessing step (i.e.
+function composition).</p>
+<p>For images in particular, many datasets will scale the pixel values
+to be between <span class="math">\([0, 1]\)</span> from the original domain of <span class="math">\([0, 255]\)</span>
+(or <span class="math">\([0, 256]\)</span> with uniform noise; see
+<a class="reference external" href="#">my previous post</a>).
+This translates to a per-pixel scaling of <span class="math">\(h(x) = \frac{x}{255}\)</span>.  Since each
+pixel is independently scaled, this corresponds to a diagonal Jacobian:
+<span class="math">\(\frac{1}{255} I\)</span> where <span class="math">\(I\)</span> is the identify matrix, resulting in a simple
+modification to the loss function.</p>
+<p>If you have a more complex preprocessing transform, you will have to do a
+bit more math and compute the respective gradient.  My implementation of
+Real NVP (see below for why I changed it from what's stated in the paper)
+uses a transform of <span class="math">\(h(x) = logit(\frac{0.9x}{256} + 0.05)\)</span>, which is
+still done independently per dimension but is more complicated than simple scaling.
+In this case, the per pixel derivative is:</p>
+<div class="math">
+\begin{equation*}
+\frac{dh(x)}{dx} = \frac{0.9}{256}\big(\frac{1}{\frac{0.9x}{256} + 0.05} + \frac{1}{1 - (\frac{0.9x}{256} + 0.05)}\big) \tag{16}
+\end{equation*}
+</div>
+<p>It's not the prettiest function but it's simple enough to compute since it's
+part of a diagonal Jacobian.</p>
+</div>
+</div>
+<div class="section" id="multi-scale-architecture">
+<h3><a class="toc-backref" href="#id11"><span class="sectnum">3.4</span> Multi-Scale Architecture</a></h3>
+<p>With the above concepts, Real NVP uses a multi-scale architecture to reduce
+the computational burden and distribute the loss function throughout the
+network.  There are two main ideas here: (a) a squeeze operation to transform
+a tensor's spatial dimensions into channel dimensions, and (b) a factoring out
+half the variables at regular intervals.</p>
+<p>The squeeze operation takes the input tensor and divides it
+into <span class="math">\(2 \times 2 \times c\)</span> subsquares, then reshapes them into
+<span class="math">\(1 \times 1 \times 4c\)</span> subsquares.  This effectively reshapes a
+<span class="math">\(s \times s \times c\)</span> tensor into a <span class="math">\(\frac{s}{2} \times \frac{s}{2}
+\times 4c\)</span> tensor moving the spatial size to the channel dimension.
+Figure 3 shows the squeeze operation (look at how the numbers are mapped on the
+left and right sides).</p>
+<p>The squeeze operation is combined with coupling layers to define the basic
+block of the Real NVP architecture with consists of:</p>
+<ul class="simple">
+<li><p>3 coupling layers with alternative checkerboard masks</p></li>
+<li><p>Squeeze operation</p></li>
+<li><p>3 more coupling layers with alternating channel-wise masks</p></li>
+</ul>
+<p>Channel-wise masking makes more sense with more channels so having it follow
+the squeeze operation is sensible.  Additionally, since half of the variables
+are passed through, we want to make sure there is no redundancy from the
+checkerboard masking.  At the final scale, four coupling layers are used with
+alternating checkerboard masking.</p>
+<p>At each of the different scales, half of the variables are factored out and
+passed directly to the output of the entire network.  This is done to reduce
+the memory and computational cost.  Defining the above
+coupling-squeeze-coupling block as <span class="math">\(f^{(i)}\)</span> with latent variables
+<span class="math">\(z\)</span> (the output of the network), we can recursively define this factoring as:</p>
+<div class="math">
+\begin{align*}
+h^{(0)} &amp;= x \\
+(z^{(i+1)}, h^{(i+1)}) &amp;= f^{(i+1)}(h^{(i)}) \\
+z^{(L)} &amp;= f^{(L)}(h^{(L-1)}) \\
+z &amp;= (z^{(1)}, \ldots, z^{(L)}) \tag{17}
+\end{align*}
+</div>
+<p>where <span class="math">\(L\)</span> is the number of coupling-squeeze-coupling blocks.
+At each iteration, the spatial resolution is reduced by half in each dimension
+and the number of hidden layer channels in the <span class="math">\(s\)</span> and <span class="math">\(t\)</span> Resnet
+is doubled.</p>
+<p>The factored out variables are concatenated out to generate the final latent
+variable output.  This factoring helps propagate the gradient more easily
+throughout the network instead of having it go through many layers.
+The result is that each resolution scale learns a different granularity of
+features from local, fine-grained ones to global, coarse ones.  I didn't do any
+experiments on this aspect but you can see some examples they did in Appendix D
+of [1].</p>
+<p>A final note in this subsection that wasn't obvious to me the first time I read
+the paper: the number of latent variables you use is <em>equal</em> to the input
+dimension of <span class="math">\(x\)</span>!  While models like VAEs or GANs usually have a much
+smaller latent representation, we're using many more variables.  This makes
+perfect sense because our network is invertible so you need the same number
+of input and output dimensions but it seems inefficient!  This is another
+reason why I'm skeptical of the representation power of these stacked coupling
+layers.  The problem may be "easier" because you have so many latent variables
+where you don't really need much compression.  But this is just a random
+hypothesis on my side without much evidence for or against it.</p>
+</div>
+<div class="section" id="modified-batch-normalization">
+<h3><a class="toc-backref" href="#id12"><span class="sectnum">3.5</span> Modified Batch Normalization</a></h3>
+<p>The last thing to call out is that normalization was crucial in getting this
+network to train well.  Since we have the restriction of being invertible,
+you have to be careful when using a normalization technique to ensure that it
+can be inverted (e.g. layer normalization generally wouldn't work).
+There are two main cases for adding normalization: (a) adding it in the scale
+and shift sub-networks <span class="math">\(s\)</span> and <span class="math">\(t\)</span>, and (b) adding it directly in
+the coupling layer path.</p>
+<p>The simpler case is adding normalization into the scale and shift sub-networks.  [1] uses
+both <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.BatchNorm2d.html">batch normalization</a>
+and <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.utils.weight_norm.html">weight normalization</a>.
+I ended up using <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.InstanceNorm2d.html">instance normalization</a>
+and weight normalization.  I don't really have a big justification of why I
+switched out batch norm for instance norm except that I was playing around
+with things early on and it seemed to work better.  I also didn't like the idea
+of things depending on the batch size because my GPU doesn't have a lot of
+memory and can't run the same batch sizes as the paper.
+This is not at all scientific because it was probably based on one or two runs.
+In any case, it seemed to work well enough.  The nice thing about adding
+anything in the scale and shift sub-networks is that you don't have to account
+for anything in the inverse network or loss function.</p>
+<p>The more complex case is adding normalization to the coupling layers.
+This computation is exactly on the main path of forward and inverted
+calculations so you have to both be able to invert the computation and
+include it in the loss function.  Notice here, you cannot use many
+different normalization techniques (e.g. instance norm, layer norm etc.)
+because it requires you to compute mean and variance assuming you are doing a
+forward pass, making it impossible to invert.  Batch norm on the other hand
+doesn't really have this problem because after the network is trained, you have
+a <em>static</em> mean and variance during generation.  However during training,
+depending on your batch size and dataset, you can have pretty wild swings in
+the mini-batch statistics, which intuitively seems like it might have
+problems when you try to invert.</p>
+<p>Real NVP does a small modification to the batch norm layers used in the
+coupling layers.  Instead of directly using the mini-batch statistics, it uses
+a running average that's weighted by some momentum factor.  This will
+result in the mean and variance used in the norm layer to be much closer in
+training vs. generation.  It turns out that this is exactly the same
+computation that PyTorch uses to keep track of its <cite>running_mean</cite> and
+<cite>running_var</cite> variables, so I was able to re-use that code.
+Note: I turned off the affine learned parameters on the output since I didn't
+think they were necessary (and the paper didn't really talk about them).</p>
+<p>The other change that is needed is to modify the loss function because
+batch norm is just another transformation.  Luckily, it's simply a scaling
+on each dimension independently.  For the standard batch norm computation
+for mean <span class="math">\(\mu\)</span>, variance <span class="math">\(\sigma^2\)</span>:</p>
+<div class="math">
+\begin{equation*}
+x = \frac{x-\mu}{\sqrt{\sigma^2 + \epsilon}} \tag{18}
+\end{equation*}
+</div>
+<p>The Jacobian for this transformation is just a diagonal matrix since
+each operation is independent.  Thus, the log determinant of the Jacobian is
+just the log of the scaling for each dimension:</p>
+<div class="math">
+\begin{align*}
+\log \big( \prod_i \frac{1}{\sqrt{\sigma^2 + \epsilon}}   \big)
+&amp;= \log \big( \prod_i (\sigma^2 + \epsilon)^{-\frac{1}{2}}\big) \\
+&amp;= -\frac{1}{2}\sum_i \log(\sigma^2 + \epsilon) \\
+\tag{19}
+\end{align*}
+</div>
+</div>
+<div class="section" id="full-loss-function">
+<h3><a class="toc-backref" href="#id13"><span class="sectnum">3.6</span> Full Loss Function</a></h3>
+<p>Putting it all together to define the full loss function, we can use Equations
+7, 11 and 19 to arrive at:</p>
+<div class="math">
+\begin{align*}
+\text{Loss} &amp;= \text{NLL} \\
+            &amp;= -\log p_X(x)
+               - \log\Big(\big|det\big(\frac{\partial f_\theta(x)}{\partial x}\big)\big| \Big)
+               + [L_2 \text{ reg on } s \text{ params}] \\
+            &amp;= \frac{1}{2}\log(2\pi) + \frac{(f_\theta(x))^2}{2}
+               - \sum_j s_j(x_{1:d})
+               + \frac{1}{2}\sum_i \log(\sigma^2 + \epsilon)
+               + 5\cdot 10^{-5} \sum_k \| scale_{k} \|^2
+ \tag{20}
+\end{align*}
+</div>
+<p>where the first two terms in the last equation correspond to the log-likelihood
+of the output Gaussian variables, the third term is the scaling from the coupling
+layers, the fourth term is the batch norm scaling, and the last term is the
+regularization on the learned scale parameter for the <span class="math">\(s(\cdot)\)</span>
+functions.</p>
+</div>
+</div>
+<div class="section" id="implementation">
+<h2><a class="toc-backref" href="#id14"><span class="sectnum">4</span> Implementation</a></h2>
+<p>You can find my toy implementation of Real NVP <a class="reference external" href="https://github.com/bjlkeng/sandbox/tree/master/realnvp">here</a>.
+I got it working for some toy 2D datasets, MNIST, CIFAR10 and CELEBA.  The paper
+([1]) is quite good at explaining exactly how to implement it, it's just terse
+and doesn't necessarily emphasize the things that are needed in order to get
+similar results.  I did a lot of debugging (and learning) and did multiple
+double takes on the paper only to find that I glossed over an innocent half sentence
+that contained the key detail that I needed.  This happened probably at least
+half a dozen times.  It goes to show you that just reading a paper doesn't
+really teach you the practical aspects of implementing a method.</p>
+<p>Due to the short bursts of work I had to work on this <a class="footnote-reference brackets" href="#id4" id="id2">2</a>, I got into the habit
+of journaling my thinking process at the bottom of the notebook.  You can take
+a look at my approach and the multiple fumbles and mistakes that I made, but
+that's part of the fun of learning!  The only nice thing about short bursts is
+that I had time to think in between sessions and wasn't waiting around for long
+running experiments.</p>
+<p>Here I'm just going to jot down some notes on what I found was particularly
+important in implementing Real NVP without much effort put in to organize it.</p>
+<ul class="simple">
+<li><p>This was my first project where I used PyTorch.  It was very enjoyable to work with!
+I first started working on this project using Keras and had so much
+trouble implementing custom layers to do what I wanted.  With PyTorch's <cite>forward</cite>
+combined with dynamic computation graph, it was just a lot easier to do
+weird things like define the inverse network.  Additionally, I like the
+Pythonic magic of picking up all the underlying modules (as long as you use
+the specialized PyTorch containers).  I'm a bit late to the game here but I'm
+a convert!</p></li>
+<li><p>In general, I had to train the network for a lot longer (many epoch/batches)
+using a small learning rate (0.0005) in most of my experiments.  It might be
+obvious but these deep networks are slow learners (especially in the
+beginning when I didn't have norm layers).</p></li>
+<li><p>In my toy 2D experiments, I found that the learning scale + <cite>tanh</cite> trick
+they used help get a more robust fit reducing the NaNs I got.  So I left
+it in for all the other experiments.</p></li>
+<li><p>I had so much trouble getting the pixel transform of <span class="math">\(logit(\alpha + (1-\alpha)\circ \frac{x}{256})\)</span> to work.
+That's because it doesn't work!  Anything that
+gets close to <span class="math">\(x=256\)</span> will blow up the input to the logit and give you
+infinity!  This was particularly problematic for MNIST which has a lot of
+pixels close to max value (<span class="math">\(255 + \text{Uniform}[0, 1]\)</span>).  It took
+longer for me to debug than it should have because I was stubborn not
+to debug into the intermediate tensors, which found the problem quite a bit
+more easily.</p></li>
+<li><p>Speaking of which, I eschewed the pixel transform for MNIST because it's not
+really a natural image.  Part of it was that I was having trouble fitting
+things and things seemed to work better just with scaling the pixel values
+to [0, 1].  Although don't quote me on that because I did not go back to
+verify this.</p></li>
+<li><p>I had so much trouble figuring out why my loss was negative.  It ended up
+being because of my data preprocessing (see the box "Data Preprocessing and
+Density Computation").  Even the simple scaling to <span class="math">\([0, 1]\)</span>, which
+is what the PyTorch datasets do by default, causes a deformation of the density
+that you need to account for when computing the log-likelihood (and corresponding
+bits per pixels).  I was erroneously computing it for a long time until I
+decided that I should spend time figuring out why this was happening.</p></li>
+<li><p>I was able to do some nice debugging of the inverse network just by passing an input
+forward and then back again, and seeing if I got the same value (modulo uniform
+noise, see <a class="reference external" href="#">my previous post</a>
+for more details).</p></li>
+<li><p>The regularizer on the scale learned parameter for <span class="math">\(s\)</span> didn't seem to do
+much.  When I output the contributions to loss, it's always several orders of
+magnitude less than the other terms.  I guess it's a safety valve so that
+things don't blow up but <span class="math">\(10^{-5}\)</span> is hardly a penalty.</p></li>
+<li><p>From my journal notes, you can see that I incrementally implemented things adding
+features from the paper.  Almost everything the paper stated was needed in order
+to get close to their results (of which, I'm not that close).</p></li>
+<li><p>I used the typical flow of trying to overfit on a handful of images and then
+gradually increase once I was confident things were working.  It was pretty
+useful to work out initial kinks although I had to go back and forth several
+times once I found more problems.</p></li>
+<li><p>Adding norm layers was absolutely key in training to a low loss.  It took me
+several iterations before I bit the bullet to add them to the network.
+Once I had it in both the <span class="math">\(s\)</span> and <span class="math">\(t\)</span> networks <em>plus</em> the
+main coupling layers, then I was able to approach the stated results in the
+paper.</p></li>
+<li><p>I had to re-implement the BatchNorm layers myself (inheriting from the
+PyTorch base class) because I needed to return the scaling factor of batch
+norm for the loss function.  It was mostly painless looking up other implementations
+(PyTorch's implementation is in C++, so I didn't both going deep into it).
+One non-obvious thing that I found out was that PyTorch computes the
+<cite>running_var</cite> as the <em>unbiased</em> variance, but uses the biased variance
+in the computation (according to the docs).  I was scratching my head
+wondering why I couldn't reproduce the same computation until I dug
+into the C++ code for computing the running variance.</p></li>
+<li><p>I used the running average version of BatchNorm for all the experiments
+(not just CIFAR10, which it states in the paper).  I had to change
+the momentum on these layers to <span class="math">\(0.005\)</span> down from <span class="math">\(0.1\)</span>
+for things to work better.  It makes sense because of the dataset size,
+a large momentum would "lose" information about older batches.</p></li>
+<li><p>Another big bug I discovered is that I was initializing the parameters of the
+<span class="math">\(s\)</span> scale and <span class="math">\(t\)</span> output layers to weird values.  Basically,
+I just want to set all of them to <span class="math">\(0\)</span> so that <span class="math">\(exp(s=0)\)</span> and
+<span class="math">\(t=0\)</span> initially just pass the signal straight through.  This worked
+much better and didn't get stuck in a weird local minimum compared to
+my other settings (it turns out this is one of the recommendations in GLOW).</p></li>
+<li><p>Had a stupid bug when I misconfigured and switched the parameters for number
+of coupling layers and number of hidden features in <span class="math">\(s\)</span> and <span class="math">\(t\)</span>.
+Serves me right for not passing parameters by name.</p></li>
+<li><p>I used the PyTorch function <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.PixelUnshuffle.html">PixelUnshuffle</a>
+to do the squeeze operation.  Thankfully this was already implemented in
+PyTorch or else I'd probably put together a super slow hacky version of it.</p></li>
+<li><p>For the <span class="math">\(s\)</span> and <span class="math">\(t\)</span> Resnet blocks, I used the "BasicBlock" that
+consists of two 3x3 convolution layers.  It wasn't clear what they used in
+the paper.</p></li>
+<li><p>For the <span class="math">\(s\)</span> and <span class="math">\(t\)</span> Resnet blocks, I also added a conv layer at
+the start to project the inputs to whatever number of hidden channels I
+wanted, and another one at the end to project back to the input number of
+hidden channels.  It wasn't explicitly clear if that's what they did in the
+paper but I can't think of another way to do it.</p></li>
+<li><p>One mistake I made early on was that you need to make sure you mask out the
+<span class="math">\(s\)</span> variables when computing the loss function too!</p></li>
+</ul>
+</div>
+<div class="section" id="experiments">
+<h2><a class="toc-backref" href="#id15"><span class="sectnum">5</span> Experiments</a></h2>
+<div class="section" id="toy-2d-datasets">
+<h3><a class="toc-backref" href="#id16"><span class="sectnum">5.1</span> Toy 2D Datasets</a></h3>
+<p>The first thing I did was try to implement Real NVP on toy 2D datasets as shown
+in Figure 4 using Scikit-learn's <a class="reference external" href="https://scikit-learn.org/stable/datasets/sample_generators.html">dataset generators</a>.
+The blue points were the original training data points while the red were
+generated from the trained Real NVP model.  Real NVP can <em>mostly</em> learn
+these datasets.  "Noisy Moon", "Blobs", and "Random" do reasonably well, while
+"Noisy Circles" has trouble.  Intuitively, "Noisy Circles" seems like the most
+difficult but it shouldn't be <em>that</em> hard to define that dataset if you could
+learn how to convert to polar coordinates.</p>
+<p>Recall that in each case, the latent variables have dimension two (equal to the
+input).  This also means that we can't do any interchange of masking, nor
+anything that resembles a multi-scale architecture.  It's still a question
+in my mind the expressiveness of these coupling layers.  In any case, once
+I had some reasonable results showing that the basic technique worked, I moved
+on to image datasets.</p>
+<div class="figure align-center">
+<img alt="Toy 2D Dataset Generated Images" src="../../images/realnvp_2d.png" style="width: 800px;"><p class="caption"><strong>Figure 4: Sampling using Real NVP from toy 2D datasets (blue training data; red sample generated from Real NVP)</strong></p>
+</div>
+</div>
+<div class="section" id="image-datasets">
+<h3><a class="toc-backref" href="#id17"><span class="sectnum">5.2</span> Image Datasets</a></h3>
+<p>I also implemented results on MNIST, CIFAR10, and CELEBA using similar
+preprocessing and setup to [1] (horizontal flips for all of them and cropping
+for CELEBA).
+The bits / dim for the experiments are shown in Table 1 with the comparison
+to [1] (and another normalizing flow model GLOW in the case of MNIST).</p>
+<table class="colwidths-given align-center">
+<caption>Table 1: Bits/dim for experiments on test/validation set</caption>
+<colgroup>
+<col style="width: 24%">
+<col style="width: 38%">
+<col style="width: 38%">
+</colgroup>
+<thead><tr>
+<th class="head"><p>Dataset</p></th>
+<th class="head"><p>RealNVP (mine)</p></th>
+<th class="head"><p>RealNVP (paper) [1]</p></th>
+</tr></thead>
+<tbody>
+<tr>
+<td><p>MNIST</p></td>
+<td><p>1.92</p></td>
+<td><p>1.26 (GLOW)</p></td>
+</tr>
+<tr>
+<td><p>CIFAR10</p></td>
+<td><p>3.79</p></td>
+<td><p>3.49</p></td>
+</tr>
+<tr>
+<td><p>CELEBA</p></td>
+<td><p>3.25</p></td>
+<td><p>3.02</p></td>
+</tr>
+</tbody>
+</table>
+<p>My results are obviously far from state of the art but not <em>that</em> far off.  To
+be fair, I didn't really spend much time hyper parameter tuning or configuring
+the training (e.g. epochs, learning rate).  I also had a tiny GPU (my good old
+GTX1070), so I couldn't use the same batch sizes that were stated in the paper
+(assuming that made a difference).  I probably could have gotten much closer to
+the paper if I had a bigger GPU and did a sweep of hyperparameters with some
+random seeds (which I assume all of these types of papers do).  I'm pretty
+happy with the results though since in the past I've been much further from
+the published results.</p>
+<p>Figure 5-7 show some random (<em>non-handpicked</em>) examples for MNIST, CIFAR10, and CELEBA
+respectively.  Starting with Figure 5, the hand written digits of MNIST
+seem a bit off.  You can seem some clear digits, and then some that are
+incomprehensible.  One interesting thing to note is that each of the digits is
+sharp.  This is in contrast to VAEs which usually are more blurry.  In the end,
+the results aren't great but perhaps Real NVP doesn't perform as well in these
+cases (or maybe I need to train more)?</p>
+<div class="figure align-center">
+<img alt="MNIST Generated Images" src="../../images/realnvp_mnist.png" style="width: 800px;"><p class="caption"><strong>Figure 5: MNIST generated images</strong></p>
+</div>
+<p>Next up are my CIFAR10 images in Figure 6.  These ones look non-specific, which
+is typical for CIFAR10 (as far as I can tell by zooming in on pictures
+generated from papers).  Qualitatively they don't look that far off from the
+samples published in [1].  The only comment I can really make is that the diversity
+of colours and shapes/objects isn't bad.  This implies that the network is
+learning <em>something</em>.</p>
+<div class="figure align-center">
+<img alt="CIFAR10 Generated Images" src="../../images/realnvp_cifar10.png" style="width: 800px;"><p class="caption"><strong>Figure 6: CIFAR10 generated images</strong></p>
+</div>
+<p>Finally, I decided to use CELEBA (Figure 7), which is my first time training on this
+dataset.  I've avoided it in the past because of my tiny 8GB GPU.
+Fortunately, I was able to <em>barely</em> fit it into memory (by using a smaller
+batch size).  The samples are pretty bad.  You can definitely make out faces but
+there are obvious places of corruption and the facial details are blurry.  I
+suppose that more training might help improve things, but I also suspect that
+the faces in the paper are cherry picked.  So it's probably a combination of
+both to get nicer images as shown in the paper.</p>
+<div class="figure align-center">
+<img alt="CELEBA Generated Images" src="../../images/realnvp_celeba.png" style="width: 800px;"><p class="caption"><strong>Figure 7: CELEBA generated images</strong></p>
+</div>
+</div>
+</div>
+<div class="section" id="conclusion">
+<h2><a class="toc-backref" href="#id18"><span class="sectnum">6</span> Conclusion</a></h2>
+<p>I'm so happy that I was finally able to get this post out.  I started playing around
+with Real NVP a while ago but I got frustrated trying to get it to work in
+Keras, so I got distracted with some other stuff (see my previous posts).
+Conceptually, I really enjoyed this topic because it was really surprising to
+me that such a simple transform works.  Looking forward, I'm already pretty
+excited about a few papers that I've had my eye on and I can't wait to find
+some time to implement and write them up.  Until next time!</p>
+</div>
+<div class="section" id="further-reading">
+<h2><a class="toc-backref" href="#id19"><span class="sectnum">7</span> Further Reading</a></h2>
+<ul class="simple">
+<li><p>Previous posts: <a class="reference external" href="#">A Note on Using Log-Likelihood for Generative Models</a></p></li>
+<li><p>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Latent_variable_model">Latent Variable Model</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Probability_density_function#Vector_to_vector">Probabilify Density Function</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Inverse_transform_sampling">Inverse Transform Sampling</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Probability_integral_transform">Probability Integral Transform</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Probability_density_function#Densities_associated_with_multiple_variables">Change of Variables in the Probability Density Function</a></p></li>
+<li><p>[1] Dinh, Sohl-Dickstein, Bengio, Density Estimation using Real NVP, <a class="reference external" href="https://arxiv.org/abs/1605.08803">arXiv:1605.08803</a>, 2016</p></li>
+<li><p>[2] Stanford CS236 Class Notes, <a class="reference external" href="https://deepgenerativemodels.github.io/notes/flow/">https://deepgenerativemodels.github.io/notes/flow/</a></p></li>
+</ul>
+<dl class="footnote brackets">
+<dt class="label" id="id3"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd>
+<p>Apparently, autoregressive models can be interpreted as flow-based models (see [2]) but it's not very intuitive to me so I like to think of them as their own separate thing.</p>
+</dd>
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd>
+<p>My schedule consisted of usually 30-60 minutes in the evening when I actually had some free time.  I did have some other bits of free time as well when I had some extra help around the house from my extended family.   Most of my other time is taken up by my main job and family time.</p>
+</dd>
+</dl>
+</div>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/celeba/" rel="tag">CELEBA</a></li>
+            <li><a class="tag p-category" href="../../categories/cifar10/" rel="tag">CIFAR10</a></li>
+            <li><a class="tag p-category" href="../../categories/generative-models/" rel="tag">generative models</a></li>
+            <li><a class="tag p-category" href="../../categories/mnist/" rel="tag">MNIST</a></li>
+            <li><a class="tag p-category" href="../../categories/normalizing-flows/" rel="tag">normalizing flows</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../hamiltonian-monte-carlo/" rel="prev" title="Hamiltonian Monte Carlo">Previous post</a>
+            </li>
+        </ul></nav></aside><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha384-3lJUsx1TJHt7BA4udB5KPnDrlkO8T6J6v/op7ui0BbCjvZ9WqV4Xm6DTP6kQ/iBH" crossorigin="anonymous"></script><script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
+    }
+});
+</script></article>
+</div>
+            <div class="col-md-3 ">
+            <div class="card card-body bg-light">
+            <p>
+            I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
+            a former academic, current data scientist and engineer.  This is
+            <a href="../../">the place</a>
+            where I write
+            about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br>
+</div>
+
+<!-- Begin MailChimp Signup Form -->
+<hr>
+<link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+    #mc_embed_signup{clear:left; font:13px Helvetica,Arial,sans-serif; }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+       We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="//briankeng.us10.list-manage.com/subscribe/post?u=cedf72ca8daa891e57f4379a0&amp;id=1f1563094f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <b>Signup for Email Blog Posts</b>
+    <div id="mc_embed_signup_scroll">
+<div>
+    <label for="mce-EMAIL"> Email Address </label>
+    <input type="email" value="" name="EMAIL" class="required email form-control input-sm" id="mce-EMAIL">
+</div>
+    <div id="mce-responses" class="clear">
+        <div class="response" id="mce-error-response" style="display:none"></div>
+        <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_cedf72ca8daa891e57f4379a0_1f1563094f" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn btn-default btn-xs"></div>
+    </div>
+</form>
+</div>
+<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
+</div>
+            </div>
+        </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2022         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+            
+        </footer>
+</div>
+
+
+
+        <script src="../../assets/js/all-nocdn.js"></script><script>
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element) {
+            return element.getElementsByTagName('img')[0].alt;
+    }});
+    </script><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-15314898-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>

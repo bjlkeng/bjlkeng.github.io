@@ -80,7 +80,36 @@ navbar-dark bg-dark
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/pixelcnn/" class="u-url">PixelCNN</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/a-note-on-using-log-likelihood-for-generative-models/" class="u-url">A Note on Using Log-Likelihood for Generative Models</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="posts/a-note-on-using-log-likelihood-for-generative-models/" rel="bookmark">
+            <time class="published dt-published" datetime="2019-08-27T07:50:09-04:00" itemprop="datePublished" title="2019-08-27 07:50">2019-08-27 07:50</time></a>
+            </p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>One of the things that I find is usually missing from many ML papers is how
+they relate to the fundamentals.  There's always a throwaway line where it
+assumes something that is not at all obvious (see my post on
+<a class="reference external" href="posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/">Importance Sampling</a>).  I'm the kind of person who likes to
+understand things to a satisfactory degree (it's literally in the subtitle of
+the blog) so I couldn't help myself investigating a minor idea I read about in
+a paper.</p>
+<p>This post investigates how to use continuous density outputs (e.g. a logistic
+or normal distribution) to model discrete image data (e.g. 8-bit RGB values).
+It seems like it might be something obvious such as setting the loss as the
+average log-likelihood of the continuous density and that's <em>almost</em> the
+whole story.  But leaving it at that skips over so many (interesting) and
+non-obvious things that you would never know if you didn't bother to look.  I'm
+a curious fellow so come with me and let's take a look!</p>
+<p class="more"><a href="posts/a-note-on-using-log-likelihood-for-generative-models/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/pixelcnn/" class="u-url">PixelCNN</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Brian Keng
@@ -186,40 +215,6 @@ to the theoretical limits.</p>
 <p>(You might also want to checkout my previous post where I played around with
 ResNets: <a class="reference external" href="posts/residual-networks/">Residual Networks</a>)</p>
 <p class="more"><a href="posts/universal-resnet-the-one-neuron-approximator/">Read more…</a></p>
-</div>
-    </div>
-    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/hyperbolic-geometry-and-poincare-embeddings/" class="u-url">Hyperbolic Geometry and Poincaré Embeddings</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Brian Keng
-            </span></p>
-            <p class="dateline">
-            <a href="posts/hyperbolic-geometry-and-poincare-embeddings/" rel="bookmark">
-            <time class="published dt-published" datetime="2018-06-17T08:20:18-04:00" itemprop="datePublished" title="2018-06-17 08:20">2018-06-17 08:20</time></a>
-            </p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>This post is finally going to get back to some ML related topics.
-In fact, the original reason I took that whole math-y detour in the previous
-posts was to more deeply understand this topic.  It turns out trying to
-under tensor calculus and differential geometry (even to a basic level) takes a
-while!  Who knew?  In any case, we're getting back to our regularly scheduled program.</p>
-<p>In this post, I'm going to explain one of the applications of an abstract
-area of mathematics called hyperbolic geometry.  The reason why this area is of
-interest is because there has been a surge of research showing its
-application in various fields, chief among them is a paper by Facebook
-researchers [1] in which they discuss how to utilize a model of hyperbolic
-geometry to represent hierarchical relationships.  I'll cover some of
-the math weighting more towards intuition, show some of their results, and also
-show some sample code from Gensim.  Don't worry, this time I'll try much harder
-not going to go down the rabbit hole of trying to explain all the math (no
-promises though).</p>
-<p>(Note: If you're unfamiliar with tensors or manifolds, I suggest getting a quick
-overview with my previous two posts:
-<a class="reference external" href="posts/tensors-tensors-tensors/">Tensors, Tensors, Tensors</a> and
-<a class="reference external" href="posts/manifolds/">Manifolds: A Gentle Introduction</a>)</p>
-<p class="more"><a href="posts/hyperbolic-geometry-and-poincare-embeddings/">Read more…</a></p>
 </div>
     </div>
     </article>
