@@ -1,6 +1,6 @@
 .. title: Normalizing Flows with Real NVP
 .. slug: normalizing-flows-with-real-nvp
-.. date: 2022-03-18 13:36:05 UTC-04:00
+.. date: 2022-04-23 19:36:05 UTC-04:00
 .. tags: normalizing flows, generative models, CIFAR10, CELEBA, MNIST, mathjax
 .. category: 
 .. link: 
