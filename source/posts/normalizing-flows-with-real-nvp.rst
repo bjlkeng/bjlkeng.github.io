@@ -222,7 +222,7 @@ functions.
     practically might not be possible.
 
 
-The next thing we need is to review is how to `change variables of probability density functions <https://en.wikipedia.org/wiki/Probability_density_function#Densities_associated_with_multiple_variables>`__.
+The next thing we need is to review is how to `change variables of probability density functions <https://en.wikipedia.org/wiki/Probability_density_function#Function_of_random_variables_and_change_of_variables_in_the_probability_density_function>`__.
 Given continuous n-dimensional random variable :math:`Z` with joint density :math:`p_Z`
 and a bijective (i.e. invertible) differentiable function :math:`g`, let :math:`X=g(Z)`,
 then :math:`p_X` is defined by:
@@ -911,7 +911,7 @@ Further Reading
 ===============
 
 * Previous posts: `A Note on Using Log-Likelihood for Generative Models <link://a-note-on-using-log-likelihood-for-generative-models>`__
-* Wikipedia: `Latent Variable Model <https://en.wikipedia.org/wiki/Latent_variable_model>`__, `Probabilify Density Function <https://en.wikipedia.org/wiki/Probability_density_function#Vector_to_vector>`__, `Inverse Transform Sampling <https://en.wikipedia.org/wiki/Inverse_transform_sampling>`__, `Probability Integral Transform <https://en.wikipedia.org/wiki/Probability_integral_transform>`__, `Change of Variables in the Probability Density Function <https://en.wikipedia.org/wiki/Probability_density_function#Densities_associated_with_multiple_variables>`__
+* Wikipedia: `Latent Variable Model <https://en.wikipedia.org/wiki/Latent_variable_model>`__, `Probability Density Function <https://en.wikipedia.org/wiki/Probability_density_function>`__, `Inverse Transform Sampling <https://en.wikipedia.org/wiki/Inverse_transform_sampling>`__, `Probability Integral Transform <https://en.wikipedia.org/wiki/Probability_integral_transform>`__, `Change of Variables in the Probability Density Function <https://en.wikipedia.org/wiki/Probability_density_function#Function_of_random_variables_and_change_of_variables_in_the_probability_density_function>`__
 * [1] Dinh, Sohl-Dickstein, Bengio, Density Estimation using Real NVP, `arXiv:1605.08803 <https://arxiv.org/abs/1605.08803>`__, 2016
 * [2] Stanford CS236 Class Notes, `<https://deepgenerativemodels.github.io/notes/flow/>`__
 
