@@ -29,20 +29,43 @@ Write your post here.
 Stochastic Processes
 ====================
 
-Let's start with the formal definition of a `stochastic process <https://en.wikipedia.org/wiki/Stochastic_process#Stochastic_process>`__ from Wikipedia:
+Probability Spaces
+------------------
 
-    A stochastic process is defined as a collection of random variables defined on a common `probability space  <https://en.wikipedia.org/wiki/Probability_space>`__
-    :math:`(\Omega ,{\mathcal {F}},P)`, where :math:`\Omega` is a `sample space <https://en.wikipedia.org/wiki/Sample_space>`__,
-    :math:`\mathcal {F}` is a :math:`\sigma`-`algebra <https://en.wikipedia.org/wiki/Sigma-algebra>`__, and :math:`P` is a
-    `probability measure <https://en.wikipedia.org/wiki/Probability_measure>`__; and the random variables, indexed by some set
-    :math:`T`, all take values in the same mathematical space :math:`S`,
-    which must be `measurable <https://en.wikipedia.org/wiki/Measurable>`__
-    with respect to some σ :math:`\sigma`-algebra` :math:`\Sigma`.
+(Skip this part if you're already familiar with the measure-theoretic probability definition.)
 
-That's a mouthful!  Let's break this down and interpret the definition more intuitively
-(skip this part if you're already familiar with the measure-theoretic probability definition).
-First, we need to understand the definition of a probability space :math:`(\Omega ,{\mathcal {F}},P)`.
-This is relatively intuitive.
+First, let's examine the definition of a **probability space** :math:`(\Omega, {\mathcal {F}}, P)`.
+This is basically the same setup you learn in a basic probability class, except
+with fancier math.
+
+:math:`\Omega` is the **sample space**, which defines the set
+of all possible outcomes or results of that experiment.  In finite sample
+spaces, any subset of the samples space is called an **event**.  Another way to
+think about this is any thing you would want to measure the probability on,
+which can be unions of outcomes in the sample space or even the empty set.
+
+However, this breaks down when we have certain types of infinite samples spaces
+(e.g. the real line).  For this, we need to define an events more precisely 
+with an **event space** :math:`\mathcal{F}` using a construction called a :math:`\sigma`-algebra
+("sigma algebra").  This sounds complicated but it basically is guaranteeing
+that the subsets of :math:`\Omega` that we use for events are 
+`measurable <https://en.wikipedia.org/wiki/Measure_(mathematics)>`__.
+
+Which brings us to our the last part: a **probability measure** :math:`P` on
+:math:`\mathcal{F}` is a function that maps events to the unit interval :math:`[0, 1]`
+and returns :math:`0` for the empty set and :math:`1` for the entire space
+(it must also satisfy countable additivity).  Again, for finite sample spaces,
+it's not too hard to imagine this function and how to define it but, as you can
+imagine, for continuous sample spaces, it gets more complicated.  All this is
+essentially to define a rigorous construction that matches our intuition of
+basic probability with samples spaces, events, and probabilities.
+
+.. admonition:: Example 1: Sample Spaces, Events, and Probability Measures
+
+   (Taken from `Wikipedia <https://en.wikipedia.org/wiki/Event_(probability_theory)#A_simple_example>`__)
+
+   TODO TODO
+
 
 .. admonition:: The Two Stages of Learning Probability Theory 
 
@@ -80,17 +103,32 @@ This is relatively intuitive.
     like me are happy to understand it only "to a satisfactory degree".
 
 
+Definition
+----------
+
+Let's start with the formal definition of a `stochastic process <https://en.wikipedia.org/wiki/Stochastic_process#Stochastic_process>`__ from Wikipedia:
+
+    A stochastic process is defined as a collection of random variables defined on a common `probability space  <https://en.wikipedia.org/wiki/Probability_space>`__
+    :math:`(\Omega ,{\mathcal {F}},P)`, where :math:`\Omega` is a `sample space <https://en.wikipedia.org/wiki/Sample_space>`__,
+    :math:`\mathcal {F}` is a :math:`\sigma`-`algebra <https://en.wikipedia.org/wiki/Sigma-algebra>`__, and :math:`P` is a
+    `probability measure <https://en.wikipedia.org/wiki/Probability_measure>`__; and the random variables, indexed by some set
+    :math:`T`, all take values in the same mathematical space :math:`S`,
+    which must be `measurable <https://en.wikipedia.org/wiki/Measurable>`__
+    with respect to some :math:`\sigma`-algebra` :math:`\Sigma`.
+
+That's a mouthful!  Let's break this down and interpret the definition more intuitively.
+
+* Index set
+* State space
+
 * Discrete/continuous time, discrete/continuous variable
-
-* Mathematical definition:
-* https://en.wikipedia.org/wiki/Stochastic_process#Stochastic_process
-* Explain a bit about probability
-* Callout box of (simple) probability and measure-theoretic probability (Lebesque integrals)
-
 * https://en.wikipedia.org/wiki/Stochastic_process#Examples
 * Bernoulli
 * Random Walk
 * Weiner process
+
+Adapted Processes
+-----------------
 
 * Adapted Processes: https://en.wikipedia.org/wiki/Adapted_process
   * Itō integral, which only makes sense if the integrand is an adapted process. 
