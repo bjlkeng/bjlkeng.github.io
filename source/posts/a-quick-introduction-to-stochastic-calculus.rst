@@ -29,8 +29,8 @@ Write your post here.
 Stochastic Processes
 ====================
 
-Probability Spaces
-------------------
+Probability Spaces & Random Variables
+-------------------------------------
 
 (Skip this part if you're already familiar with the measure-theoretic probability definition.)
 
@@ -41,31 +41,94 @@ with fancier math.
 :math:`\Omega` is the **sample space**, which defines the set
 of all possible outcomes or results of that experiment.  In finite sample
 spaces, any subset of the samples space is called an **event**.  Another way to
-think about this is any thing you would want to measure the probability on,
-which can be unions of outcomes in the sample space or even the empty set.
+think about events is any thing you would want to measure the probability on,
+e.g. individual elements of :math:`\Omega`,  unions of elements, or even the
+empty set.
 
-However, this breaks down when we have certain types of infinite samples spaces
-(e.g. the real line).  For this, we need to define an events more precisely 
-with an **event space** :math:`\mathcal{F}` using a construction called a :math:`\sigma`-algebra
+However, this type of reasoning breaks down when we have certain types of
+infinite samples spaces (e.g. real line).  For this, we need to define an events more precisely 
+with an **event space** :math:`\mathcal{F} \subseteq 2^{\Omega}` using a construction called a :math:`\sigma`-algebra
 ("sigma algebra").  This sounds complicated but it basically is guaranteeing
 that the subsets of :math:`\Omega` that we use for events are 
-`measurable <https://en.wikipedia.org/wiki/Measure_(mathematics)>`__.
+`measurable <https://en.wikipedia.org/wiki/Measure_(mathematics)>`__
+(this makes the notion of "size" or "volume" precise, ensuring that
+the size of the union of disjoint sets equals their sum -- exactly what 
+we need for probabilities).
 
-Which brings us to our the last part: a **probability measure** :math:`P` on
-:math:`\mathcal{F}` is a function that maps events to the unit interval :math:`[0, 1]`
-and returns :math:`0` for the empty set and :math:`1` for the entire space
-(it must also satisfy countable additivity).  Again, for finite sample spaces,
-it's not too hard to imagine this function and how to define it but, as you can
-imagine, for continuous sample spaces, it gets more complicated.  All this is
-essentially to define a rigorous construction that matches our intuition of
-basic probability with samples spaces, events, and probabilities.
+Which brings us to our the last part of probability spaces: a **probability
+measure** :math:`P` on :math:`\mathcal{F}` is a function that maps events to
+the unit interval :math:`[0, 1]` and returns :math:`0` for the empty set and
+:math:`1` for the entire space (it must also satisfy countable additivity).
+Again, for finite sample spaces, it's not too hard to imagine this function and
+how to define it but, as you can imagine, for continuous sample spaces, it gets
+more complicated.  All this is essentially to define a rigorous construction
+that matches our intuition of basic probability with samples spaces, events,
+and probabilities.
 
-.. admonition:: Example 1: Sample Spaces, Events, and Probability Measures
+Finally, a **random variable** :math:`X` is a `measurable function <https://en.wikipedia.org/wiki/Measurable_function>`__
+:math:`X:\Omega \rightarrow \mathbb{R}` (with :math:`\Omega` from a given
+probability space) [1]_.  When accompanied by the corresponding measure for the probability
+space :math:`P`, one can calculate the probability of :math:`x \in \mathbb{R}` (and its corresponding
+its distribution) as: 
 
-   (Taken from `Wikipedia <https://en.wikipedia.org/wiki/Event_(probability_theory)#A_simple_example>`__)
+.. math::
 
-   TODO TODO
+    P(X = x) = P(\{\omega \in \Omega | X(\omega) = x \}) \tag{1}
 
+Basically, a random variable allows us to map to real numbers from our original
+sample space.  So if our sample space has no concept of numbers (e.g. heads or
+tails), this allows us to assign real numbers to those events to calculate
+things like expected values and variance.  To find the associated probability,
+we map backwards from our real number (:math:`x`) to a set of values in the
+sample space (:math:`\omega`) using :math:`X` forming an event, and then 
+from this event we can calculate the probability using the original definition
+above.
+
+
+.. admonition:: Example 1: Sample Spaces, Events, Probability Measures, and Random Variables
+
+   (From `Wikipedia <https://en.wikipedia.org/wiki/Event_(probability_theory)#A_simple_example>`__)
+
+   Assume we have a standard 52 card playing deck without any jokers,
+   and our experiment is that we draw a card randomly from this set.
+   The sample space :math:`\Omega` is a set consisting of the 52 cards.
+   An event :math:`A \subseteq \mathcal{F}` is any subset of :math:`\Omega`.
+   So that would include the empty set, any single element, or even the entire
+   sample space.  Some examples of events:
+
+   * "Cards that are red and black at the same time" (0 elements)
+   * "The 5 of Hearts" (1 element)
+   * "A King" (4 elements)
+   * "A Face card" (12 elements)
+   * "A card" (52 elements)
+
+   In the case where each card is equally likely to be drawn, we 
+   can define a probability measure for event :math:`A` as:
+   
+   .. math::
+
+        P(A) = \frac{|A|}{|\Omega|} = \frac{|A|}{52} \tag{2}
+
+   We can additionally define a random variable:
+   
+   .. math::
+
+        X(\omega \in \Omega) = 
+        \begin{cases}
+            1 &\text{if } x \text{ is red}\\
+            0 &\text{otherwise}
+        \end{cases}
+        \tag{3}
+
+   We can calculate probabilities using Equation 1, for example :math:`X = 1`:
+
+   .. math::
+        
+        P(X = 1) &= P(\{\omega \in \Omega | X(\omega) = 1 \}) \\
+        &= P(\{\text{all red cards}\})  \\
+        &= \frac{|\{\text{all red cards}\}|}{52} \\
+        &= \frac{1}{2}  \\
+        \tag{4}
 
 .. admonition:: The Two Stages of Learning Probability Theory 
 
@@ -106,7 +169,7 @@ basic probability with samples spaces, events, and probabilities.
 Definition
 ----------
 
-Let's start with the formal definition of a `stochastic process <https://en.wikipedia.org/wiki/Stochastic_process#Stochastic_process>`__ from Wikipedia:
+Here's the formal definition of a `stochastic process <https://en.wikipedia.org/wiki/Stochastic_process#Stochastic_process>`__ (from Wikipedia):
 
     A stochastic process is defined as a collection of random variables defined on a common `probability space  <https://en.wikipedia.org/wiki/Probability_space>`__
     :math:`(\Omega ,{\mathcal {F}},P)`, where :math:`\Omega` is a `sample space <https://en.wikipedia.org/wiki/Sample_space>`__,
@@ -117,6 +180,10 @@ Let's start with the formal definition of a `stochastic process <https://en.wiki
     with respect to some :math:`\sigma`-algebra` :math:`\Sigma`.
 
 That's a mouthful!  Let's break this down and interpret the definition more intuitively.
+We've already seen probability spaces in the previous subsection.  The first part
+is that a stochastic process is a bunch of random variables 
+
+
 
 * Index set
 * State space
@@ -183,3 +250,6 @@ References
 ==========
 * Wikipedia: `Stochastic Processes <https://en.wikipedia.org/wiki/Stochastic_process#Stochastic_process>`__
 * [1] Steven E. Shreve, "Stochastic Calculus for Finance II: Continuous Time Models", Springer, 2004.
+  
+
+.. [1] Technically, random variables can be more general (according to Wikipedia) mapping to any measurable set.  Although, according to [1], they define it only to the real numbers.  It looks like the term `random element <https://en.wikipedia.org/wiki/Random_element>`__ is used more often for this more general case though.
