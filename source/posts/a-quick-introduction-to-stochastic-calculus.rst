@@ -169,20 +169,72 @@ above.
 Definition
 ----------
 
-Here's the formal definition of a `stochastic process <https://en.wikipedia.org/wiki/Stochastic_process#Stochastic_process>`__ (from Wikipedia):
+Here's the formal definition of a 
+`stochastic process <https://en.wikipedia.org/wiki/Stochastic_process#Stochastic_process>`__ from [2]:
 
-    A stochastic process is defined as a collection of random variables defined on a common `probability space  <https://en.wikipedia.org/wiki/Probability_space>`__
-    :math:`(\Omega ,{\mathcal {F}},P)`, where :math:`\Omega` is a `sample space <https://en.wikipedia.org/wiki/Sample_space>`__,
-    :math:`\mathcal {F}` is a :math:`\sigma`-`algebra <https://en.wikipedia.org/wiki/Sigma-algebra>`__, and :math:`P` is a
-    `probability measure <https://en.wikipedia.org/wiki/Probability_measure>`__; and the random variables, indexed by some set
-    :math:`T`, all take values in the same mathematical space :math:`S`,
-    which must be `measurable <https://en.wikipedia.org/wiki/Measurable>`__
-    with respect to some :math:`\sigma`-algebra` :math:`\Sigma`.
+    Suppose that :math:`(\Omega,\mathcal{F},P)` is a probability space, and that :math:`T \subset \mathbb{R}`
+    is of infinite cardinality. Suppose further that for each :math:`t \in T`, 
+    there is a random variable :math:`X_t: \Omega \rightarrow \mathbb{R}` 
+    defined on :math:`(\Omega,\mathcal{F},P)`. The function :math:`X: T \times \Omega \rightarrow \mathbb{R}` 
+    defined by :math:`X(t, \omega) = X_t(\omega)` is called a stochastic process with
+    indexing set :math:`T`, and is written :math:`X = \{X_t, t \in T\}`.
+
 
 That's a mouthful!  Let's break this down and interpret the definition more intuitively.
-We've already seen probability spaces in the previous subsection.  The first part
-is that a stochastic process is a bunch of random variables 
+We've already seen probability spaces and random variables in the previous
+subsection.  The first layer of a stochastic process is that we have a bunch of
+random variables that are indexed by some set :math:`T`.  Usually :math:`T` is
+some total ordered sequence such as a subset of the real line (e.g. :math:`(0,
+\infty)`) or natural numbers (e.g. :math:`0, 1, 2, 3 \ldots`), which intuitively
+correspond to continuous and discrete time.
 
+Next, we turn to the probability space on which each random variable is defined on
+:math:`(\Omega,\mathcal{F},P)`.  The key thing to note is that the elements of 
+the sample space :math:`\omega \in \Omega` are infinite sets that correspond to
+experiments performed at each index in :math:`T`.  Note: by definition it's infinite
+because otherwise it would just be a random vector.  For example, flipping a 
+coin at every (discrete) time from :math:`0` to :math:`\infty`, would define a
+specific infinite sequence of heads and tails :math:`\omega = \{H, T, H, H, H, T, \ldots\}`.
+So each random variable :math:`X_t` can depend on the entire sequence of the
+outcome of this infinite "experiment".  That is, :math:`X_t` is a mapping
+from outcomes of our infinite experiment to the real numbers: 
+:math:`X_t: \Omega \rightarrow \mathbb{R}`.  (Recall to get the probability for a
+value of :math:`X_t` we would need to map the real number back to the sample space,
+then use the probability measure :math:`P` shown in Equation 1.)
+It's important to note that in this general definition we have no explicit
+concept of time, so we can depend on the "future".  To include our usual
+concept of time, we need an additional concept (see adapted below).
+
+Finally, instead of viewing the stochastic process as a collection of random variables
+indexed by time, we could look at it as a function of both time and the sample space
+i.e., :math:`X(t, \omega) = X_t(\omega)`.  For a given outcome of an experiment
+:math:`\omega`, the deterministic function generated as :math:`X(t, \omega)` is
+called the **sample function**.  However, mostly we like to think of it
+as having a random variable at each time step indicated by this notation: 
+:math:`X = \{X_t, t \in T\}`.  We sometimes us the notation :math:`X(t)` to refer
+to the random variable at time :math:`t` or the stochastic process itself.
+
+Stochastic processes can be classified by the nature of the values the random variables
+take and/or the nature of the index set:
+
+* **Discrete and Continuous Value Processes**: :math:`X(t)` is discrete if at all "times" :math:`X(t)` takes on values in a 
+  `countable set <https://en.wikipedia.org/wiki/Countable_set>`__ (i.e., can be mapped to a subset of the natural numbers);
+  otherwise :math:`X(t)` is continuous.
+* **Discrete and Continuous Time Processes**: :math:`X(t)` is discrete time process if the index set is 
+  countable (i.e., can be mapped to a subset of the natural numbers).
+
+Generally continuous time processes are harder to analyze and what we'll focusing on
+in the rest of the subsections.
+
+.. admonition:: Example 2: Bernoulli Processes and Random Walks
+
+    One of the simplest stochastic processes is a 
+    `Bernoulli Process <https://en.wikipedia.org/wiki/Bernoulli_process>`__.
+    The main idea is that a Bernoulli process is a sequence of independent and
+    identically distributed Bernoulli trials.  More formally,
+    (TODO: Use an appendix to go through all details of math: sigma-algebra, probability measure using Shreve,
+    explain that set of all infinite sequences is uncountably infinite)
+    https://math.stackexchange.com/questions/3861539/why-is-the-collection-of-all-infinite-sequence-coin-tosses-uncountable
 
 
 * Index set
@@ -250,6 +302,6 @@ References
 ==========
 * Wikipedia: `Stochastic Processes <https://en.wikipedia.org/wiki/Stochastic_process#Stochastic_process>`__
 * [1] Steven E. Shreve, "Stochastic Calculus for Finance II: Continuous Time Models", Springer, 2004.
-  
+* [2] Michael Kozdron, "`Introduction to Stochastic Processes Notes<https://uregina.ca/~kozdron/Teaching/Regina/862Winter06/Handouts/revised_lecture1.pdf>`__", Stats 862, University of Regina, 2006.
 
 .. [1] Technically, random variables can be more general (according to Wikipedia) mapping to any measurable set.  Although, according to [1], they define it only to the real numbers.  It looks like the term `random element <https://en.wikipedia.org/wiki/Random_element>`__ is used more often for this more general case though.
