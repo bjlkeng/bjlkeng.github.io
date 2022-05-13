@@ -223,28 +223,55 @@ take and/or the nature of the index set:
 * **Discrete and Continuous Time Processes**: :math:`X(t)` is discrete time process if the index set is 
   countable (i.e., can be mapped to a subset of the natural numbers).
 
-Generally continuous time processes are harder to analyze and what we'll focusing on
-in the rest of the subsections.
+Generally continuous time processes are harder to analyze and will be the focus
+of later sections.  The next two discrete time examples give some intuition about
+how to match the formal definition to concrete stochastic processes.
 
-.. admonition:: Example 2: Bernoulli Processes and Random Walks
+.. admonition:: Example 2: Bernoulli Processes
 
     One of the simplest stochastic processes is a 
-    `Bernoulli Process <https://en.wikipedia.org/wiki/Bernoulli_process>`__.
-    The main idea is that a Bernoulli process is a sequence of independent and
-    identically distributed Bernoulli trials.  More formally,
-    (TODO: Use an appendix to go through all details of math: sigma-algebra, probability measure using Shreve,
-    explain that set of all infinite sequences is uncountably infinite)
-    https://math.stackexchange.com/questions/3861539/why-is-the-collection-of-all-infinite-sequence-coin-tosses-uncountable
+    `Bernoulli Process <https://en.wikipedia.org/wiki/Bernoulli_process>`__, which
+    is a discrete value, discrete time process.  The main idea is that a
+    Bernoulli process is a sequence of independent and identically distributed
+    Bernoulli trials (think coin flips) at each time step.
+  
+    More formally, our sample space :math:`\Omega = \{ (a_n)_1^{\infty} : a_n
+    \in {H, T} \}`, that is, the set of all infinite sequences of "heads" and "tails".
+    It turns out the event space and the probability measure are surprisingly
+    complex to define so I've put those details in Appendix A.
 
+    We can define the random variable given an outcome of infinite tosses
+    :math:`\omega`:
 
-* Index set
-* State space
+    .. math::
 
-* Discrete/continuous time, discrete/continuous variable
-* https://en.wikipedia.org/wiki/Stochastic_process#Examples
-* Bernoulli
-* Random Walk
-* Weiner process
+        X_t(\omega) =  \begin{cases}
+            1 &\text{if } \omega_t = H\\
+            0 &\text{otherwise}
+        \end{cases} \tag{5}
+
+    for :math:`\omega = \omega_1 \omega_2 \omega_3 \ldots`, where each :math:`\omega_i`
+    is the outcome of the :math:`i^{th}` toss.
+    For all values of :math:`t`, the probability :math:`P(X_t = 1) = p`, for
+    some constant :math:`p \in [0, 1]`.
+
+.. admonition:: Example 3: One Dimensional Random Walk
+
+   A simple one dimensional `random walk <https://en.wikipedia.org/wiki/Random_walk>`__
+   is a discrete value, discrete time stochastic process.  An easy way to 
+   think of it is: starting at 0, at each time step, flip a fair coin and move
+   right (+1) if heads, otherwise move left (-1).
+
+   This can be defined using the same probability space as the Bernoulli process from Example 2
+   with :math:`p=0.5` but with a different definition of the random variable at each time step:
+
+   .. math::
+
+        X_t(\omega) =  \sum_{i=1}^t x_i \text{ for } x_i
+        \begin{cases}
+            1 &\text{if } \omega_i = H\\
+            -1 &\text{otherwise}
+        \end{cases} \tag{6}
 
 Adapted Processes
 -----------------
@@ -253,7 +280,7 @@ Adapted Processes
   * Itō integral, which only makes sense if the integrand is an adapted process. 
 
 Weiner Processes
-================
+----------------
 
 * Define (Wikipedia, Hull textbook)
 * Basic properties
@@ -302,6 +329,19 @@ References
 ==========
 * Wikipedia: `Stochastic Processes <https://en.wikipedia.org/wiki/Stochastic_process#Stochastic_process>`__
 * [1] Steven E. Shreve, "Stochastic Calculus for Finance II: Continuous Time Models", Springer, 2004.
-* [2] Michael Kozdron, "`Introduction to Stochastic Processes Notes<https://uregina.ca/~kozdron/Teaching/Regina/862Winter06/Handouts/revised_lecture1.pdf>`__", Stats 862, University of Regina, 2006.
+* [2] Michael Kozdron, "`Introduction to Stochastic Processes Notes <https://uregina.ca/~kozdron/Teaching/Regina/862Winter06/Handouts/revised_lecture1.pdf>`__", Stats 862, University of Regina, 2006.
+
+
+Appendix A: Event Space and Probability Measure for a Bernoulli Process
+=======================================================================
+
+TODO
+(TODO: Use an appendix to go through all details of math: sigma-algebra, probability measure using Shreve,
+explain that set of all infinite sequences is uncountably infinite)
+https://math.stackexchange.com/questions/3861539/why-is-the-collection-of-all-infinite-sequence-coin-tosses-uncountable
+
+
+
+----
 
 .. [1] Technically, random variables can be more general (according to Wikipedia) mapping to any measurable set.  Although, according to [1], they define it only to the real numbers.  It looks like the term `random element <https://en.wikipedia.org/wiki/Random_element>`__ is used more often for this more general case though.
