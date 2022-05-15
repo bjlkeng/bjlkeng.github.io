@@ -335,7 +335,105 @@ References
 Appendix A: Event Space and Probability Measure for a Bernoulli Process
 =======================================================================
 
-TODO
+As mentioned the sample space for the Bernoulli process is all infinite
+sequences of heads and tails: :math:`\Omega = \{ (a_n)_1^{\infty} : a_n \in {H, T} \}`.
+The first thing to mention about this sample space is that it is
+`uncountable <https://en.wikipedia.org/wiki/Uncountable_set>`__,
+which basically means it is "larger" than the natural numbers.
+Reasoning in infinities is quite unnatural but the two frequent "infinities"
+that usually pop up are sets that have the same 
+`cardinality <https://en.wikipedia.org/wiki/Cardinality>`__ ("size") as
+(a) the natural numbers, and (b) the real numbers.
+For our sample space has the same cardinality as the latter.
+Cantor's original diagonalization argument 
+`diagonalization argument <https://en.wikipedia.org/wiki/Cantor%27s_diagonal_argument>`__
+actually used a variation of this sample space (with :math:`\{0, 1\}`'s), and
+the proof is relatively intuitive.  
+In any case, this complicates things because a lot of our intuition falls apart
+when we work with infinites, and especially with infinities the size of the
+real numbers.
+
+*(This construction was taken from [1], which is a dense, but informative reference for all the topics in this post.)*
+
+Now we will construct the event space (:math:`\sigma`-algebra) and probability
+measure for the Bernoulli process.  We'll do it iteratively.  First, let's define
+:math:`P(\emptyset) = 0` and :math:`P(\Sigma) = 1`, and the corresponding (trivial)
+event space: 
+
+.. math::
+
+    \mathcal{F}_0 = \{\emptyset, \Sigma\} \tag{A.1}
+  
+Notice that :math:`\mathcal{F}_0` is a :math:`\sigma`-algebra.  Next, let's
+define two sets: 
+
+.. math::
+
+   A_H &= \text{the set of all sequences beginning with } H = \{\omega: \omega_1 = H\} \\
+   A_T &= \text{the set of all sequences beginning with } T = \{\omega: \omega_1 = T\} \\
+   \tag{A.2}
+
+And set the intuitive definition of the corresponding probability measure:
+:math:`P(A_H) = p` and :math:`P(A_T) = 1-p`.  That is, the probability of
+seeing an H on the first toss is :math:`p`, otherwise :math:`T`.
+Since these two sets are compliments of each other (:math:`A_H = A_T^c`),
+this defines another :math:`\sigma`-algebra:
+
+.. math::
+
+    \mathcal{F}_1 = \{\emptyset, \Sigma, A_H, A_T\} \tag{A.3}
+
+We can repeat this process again but for the first two tosses, define sets:
+
+.. math::
+
+   A_{HH} &= \text{the set of all sequences beginning with } HH = \{\omega: \omega_1\omega_2 = HH\} \\
+   A_{HT} &= \text{the set of all sequences beginning with } HT = \{\omega: \omega_1\omega_2 = HT\} \\
+   A_{TH} &= \text{the set of all sequences beginning with } TH = \{\omega: \omega_1\omega_2 = TH\} \\
+   A_{TT} &= \text{the set of all sequences beginning with } TT = \{\omega: \omega_1\omega_2 = TT\} \\
+   \tag{A.4}
+
+Similarly, we can extend our probability measure with the definition we would expect:
+:math:`P(A_{HH}) = p^2, P(A_{HT}) = p(1-p), P(A_{TH}) = p(1-p), P(A_{TT}) = (1-p)^2`.
+Now we have to do a bit more analysis, but if one works out every possible set we can
+create either from complimentation or union of any of the above sets, we'll find
+that we have 16 in total.  For each one of them, we can compute its probability
+measure by using one of the above definitions or by the fact that :math:`P(A) = 1-P(A)`
+or :math:`P\big(\bigcup_{n=1}^{N} A_N \big) = \sum_{n=1}^{N} P(A_N)` if the sets
+are disjoint.  These 16 sets define our next :math:`\sigma`-algebra:
+
+.. math::
+
+    \mathcal{F}_2 = \left. \begin{cases}
+            \emptyset, \Sigma, A_H, A_T, A_{HH}, A_{HT}, A_{TH}, A_{TT}, A_{HH}^c, A_{HT}^c, A_{TH}^c, A_{TT}^c \\
+            A_{HH} \bigcup A_{TH}, A_{HH} \bigcup A_{TT}, A_{HT} \bigcup A_{TH}, A_{HT} \bigcup A_{TT}
+        \end{cases} \right\} \tag{A.5}
+
+As you can imagine, we can continue this process and define the probability (and associated 
+:math:`\sigma`-algebra) for every set in terms of finitely many tosses.  Let's call
+this set :math:`\mathcal{F}_\infty`, which contains all of the sets that can be described
+by finitely many coin tosses using the procedure above, and then adding in all the
+other ones using the compliment or union operator.  This turns out to be precisely
+the :math:`\sigma`-algebra: of the Bernoulli process.
+
+Now we could leave it there, but let's take a look at the non-intuitive things that go
+on when we work with infinities.
+
+TODO{Add in the rest of the section.}
+
+This definition
+implicitly includes sequences that weren't explicitly defined by us, for example,
+the sequence of all heads: :math:`H, H, H, H, \ldots`.  But we can see this sequence
+is included in :math:`A_H, A_{HH}, A_{HHH}, \ldots`.  Further, we have:
+
+.. math::
+
+    P(A_H) = p, P(A_{HH})=p^2, P(A_{HHH})=p^3, \ldots \tag{A.6}
+
+so this implies the probability of :math:`P(\text{sequence of all heads}) = 0`.
+
+This implicitly 
+    
 (TODO: Use an appendix to go through all details of math: sigma-algebra, probability measure using Shreve,
 explain that set of all infinite sequences is uncountably infinite)
 https://math.stackexchange.com/questions/3861539/why-is-the-collection-of-all-infinite-sequence-coin-tosses-uncountable
