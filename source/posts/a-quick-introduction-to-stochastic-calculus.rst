@@ -276,6 +276,52 @@ how to match the formal definition to concrete stochastic processes.
 Adapted Processes
 -----------------
 
+Notice that in the previous section, our definition of stochastic process
+included a random variable :math:`X_t: \Omega \rightarrow \mathbb{R}`
+where each :math`\omega \in \Omega` is an infinite set representing a
+given outcome for the infinitely long experiment.  This implicitly means
+that at "time" :math:`t`, we could depend on the "future".  In many
+applications, we do want to interpret :math:`t` as time so we wish
+to restrict our definition of stochastic processes.
+
+An `adapted stochastic process <https://en.wikipedia.org/wiki/Adapted_process>`__
+is one that cannot "see into the future".  Informally, it means that for
+any :math:`X_t`, you can determine it's value by *only* seeing the outcome 
+of the experiment up to time :math:`t`.  
+
+More formally, we need to introduce the concept of a filtration on our
+event space :math:`\mathcal{F}` (i.e., :math:`\sigma`-algebra) and our index
+set :math:`T`:
+
+    A **filtration** :math:`\mathbb{F}` is a ordered collection
+    of subsets :math:`\mathbb{F} := (\mathcal{F_t})_{t\in T}` where 
+    :math:`F_t` is a sub-:math:`\sigma`-algebra of :math:`\mathcal{F}`
+    and :math:`\mathcal{F_{t_1}} \subseteq \mathcal{F_{t_2}}` for all
+    :math:`t_1 \leq t_2`.
+
+To break this down, we're basically saying that our event space :math:`\mathcal{F}`
+can be broken down into logical "sub event spaces" :math:`\mathcal{F_t}` such
+that each one is a superset of the next one.  This is precisely what we want
+where as we progress through time, we "gain" more information but never lose
+any.  We also use this idea of defining a sub-:math:`\sigma`-algebra to
+formally define conditional probabilities.
+
+Using the construct of a filtration, we can define a stochastic process
+:math:`X_t : T \times \Omega` that is **adapted to the filtration**
+:math:`(\mathcal{F_t})_{t\in T}` if the random variable :math:`X_t`
+is a :math:`(F_t, \Sigma)` measurable function.  This basically says
+that :math:`X_t` can only depend on outcomes before or at time :math:`t`
+(with the definition of "outcomes" very loosely defined by the filtration).
+As with much of this topic, we require a lot of rigour in order to make
+sure we don't have weird corner cases that violate the 
+`soundness <https://en.wikipedia.org/wiki/Soundness>`__ of the theory.
+The next example gives more intuition on adapted processes.
+
+.. admonition:: Example 2: An Adapted Bernoulli Processes
+
+    TODO: Use this example: https://en.wikipedia.org/wiki/%CE%A3-algebra#Sub_%CF%83-algebras
+
+
 * Adapted Processes: https://en.wikipedia.org/wiki/Adapted_process
   * Itō integral, which only makes sense if the integrand is an adapted process. 
 
@@ -327,7 +373,7 @@ Application: Langevin Equation
 
 References
 ==========
-* Wikipedia: `Stochastic Processes <https://en.wikipedia.org/wiki/Stochastic_process#Stochastic_process>`__
+* Wikipedia: `Stochastic Processes <https://en.wikipedia.org/wiki/Stochastic_process#Stochastic_process>`__, `Adapted Stochastic Process <https://en.wikipedia.org/wiki/Adapted_process>`__
 * [1] Steven E. Shreve, "Stochastic Calculus for Finance II: Continuous Time Models", Springer, 2004.
 * [2] Michael Kozdron, "`Introduction to Stochastic Processes Notes <https://uregina.ca/~kozdron/Teaching/Regina/862Winter06/Handouts/revised_lecture1.pdf>`__", Stats 862, University of Regina, 2006.
 
@@ -414,30 +460,46 @@ As you can imagine, we can continue this process and define the probability (and
 this set :math:`\mathcal{F}_\infty`, which contains all of the sets that can be described
 by finitely many coin tosses using the procedure above, and then adding in all the
 other ones using the compliment or union operator.  This turns out to be precisely
-the :math:`\sigma`-algebra: of the Bernoulli process.
+the :math:`\sigma`-algebra: of the Bernoulli process.  And by the construction, 
+we also have defined the associated probability measure for each one of the events
+in :math:`\mathcal{F}_\infty`.
 
 Now we could leave it there, but let's take a look at the non-intuitive things that go
-on when we work with infinities.
-
-TODO{Add in the rest of the section.}
-
-This definition
-implicitly includes sequences that weren't explicitly defined by us, for example,
-the sequence of all heads: :math:`H, H, H, H, \ldots`.  But we can see this sequence
-is included in :math:`A_H, A_{HH}, A_{HHH}, \ldots`.  Further, we have:
+on when we work with infinities.  This definition implicitly includes sequences
+that weren't explicitly defined by us, for example, the sequence of all heads:
+:math:`H, H, H, H, \ldots`.  But we can see this sequence is included in
+:math:`A_H, A_{HH}, A_{HHH}, \ldots`.  Further, we have:
 
 .. math::
 
     P(A_H) = p, P(A_{HH})=p^2, P(A_{HHH})=p^3, \ldots \tag{A.6}
 
 so this implies the probability of :math:`P(\text{sequence of all heads}) = 0`.
+This illustrates an important non-intuitive result: all sequences in our sample
+space have probability :math:`0`.  Importantly, it doesn't mean they can never occur,
+just that they occur "infinitesimally".  Similarly, the complement ("sequences
+of at least one tails") happens with probability :math:`1`.
+Mathematicians have a name for this probability :math:`1` event called *almost
+surely*.  So a sequence almost surely has at least one tail.  For finite event
+spaces, there is not difference between surely (always happens) and almost
+surely.
 
-This implicitly 
-    
-(TODO: Use an appendix to go through all details of math: sigma-algebra, probability measure using Shreve,
-explain that set of all infinite sequences is uncountably infinite)
-https://math.stackexchange.com/questions/3861539/why-is-the-collection-of-all-infinite-sequence-coin-tosses-uncountable
+This definition also includes sets of sequences that cannot be easily defined such
+as:
 
+.. math::
+
+   \lim_{n\to \infty} \frac{H_n(\omega_1\ldots\omega_n)}{n} = \frac{1}{2} \tag{A.7}
+
+where :math:`H_n` denotes the number of heads in the :math:`n` tosses.  This
+can be implicitly constructed by taking (countably infinite) unions and intersections
+of sets that we have defined in our :math:`A_\ldots` event space.  See Example
+1.1.4 from [1] for more details.
+
+Finally, although it may seem that we will have defined every subset of our
+sample space, there does exist sequences that are not in
+:math:`\mathcal{F}_\infty`.  But it's extremely hard to produce such a set
+(and don't ask me how :p).
 
 
 ----
