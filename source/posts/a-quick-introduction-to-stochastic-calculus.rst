@@ -38,32 +38,70 @@ First, let's examine the definition of a **probability space** :math:`(\Omega, {
 This is basically the same setup you learn in a basic probability class, except
 with fancier math.
 
-:math:`\Omega` is the **sample space**, which defines the set
-of all possible outcomes or results of that experiment.  In finite sample
-spaces, any subset of the samples space is called an **event**.  Another way to
-think about events is any thing you would want to measure the probability on,
-e.g. individual elements of :math:`\Omega`,  unions of elements, or even the
-empty set.
+:math:`\Omega` is the **sample space**, which defines the set of all possible
+outcomes or results of that experiment.  In finite sample spaces, any subset of
+the samples space is called an **event**.  Another way to think about events is
+any thing you would want to measure the probability on, e.g. individual
+elements of :math:`\Omega`,  unions of elements, or even the empty set.
 
 However, this type of reasoning breaks down when we have certain types of
 infinite samples spaces (e.g. real line).  For this, we need to define an events more precisely 
-with an **event space** :math:`\mathcal{F} \subseteq 2^{\Omega}` using a construction called a :math:`\sigma`-algebra
-("sigma algebra").  This sounds complicated but it basically is guaranteeing
-that the subsets of :math:`\Omega` that we use for events are 
-`measurable <https://en.wikipedia.org/wiki/Measure_(mathematics)>`__
-(this makes the notion of "size" or "volume" precise, ensuring that
-the size of the union of disjoint sets equals their sum -- exactly what 
-we need for probabilities).
+with an **event space** :math:`\mathcal{F} \subseteq 2^{\Omega}` (:math:`2^{\Omega}` denotes the 
+`power set <https://en.wikipedia.org/wiki/Power_set>`__) using a construction
+called a :math:`\sigma`-algebra ("sigma algebra"):
+
+    Let :math:`\Sigma` be a non-empty set, and let :math:`\mathcal{F}` be a collection
+    of subsets of :math:`\Sigma`.  We say that :math:`\mathcal{F}` is a :math:`\sigma`-`algebra <https://en.wikipedia.org/wiki/%CE%A3-algebra>`__:
+    if:
+    
+    1. The empty set belongs to :math:`\mathcal{F}`.
+    2. Whenever a set :math:`A` belongs to :math:`\mathcal{F}`, its compliment :math:`A^c` also belongs to :math:`\mathcal{F}`
+       (closed under complement).
+    3. Whenever a sequence of sets :math:`A_1, A_2, \ldots` belongs to :math:`\mathcal{F}`, 
+       their union :math:`\cup_{n=1}^{\infty} A_n` also belongs to :math:`\mathcal{F}`
+       (closed under countable unions -- implies closed under countable intersection).
+
+    The pair :math:`(\Sigma, \mathcal{F})` define a `measurable space <https://en.wikipedia.org/wiki/Measurable_space>`__.
+
+(NOTE: For a *very brief* discussion on countability, see Appendix A)
+
+This sounds complicated but it basically is guaranteeing
+that the subsets of :math:`\Omega` that we use for events have all the
+nice properties we would expect from probabilities.  Intuitively, this helps
+makes the notion of "size" or "volume" precise by defining the "chunks" of
+"volume".  You want to make sure that no matter how you combine non-overlapping
+"chunks" (i.e. unions of disjoint sets), you end up with a consistent measure
+of "volume".  Again, this is only really needed with infinite (non-countable) sets.  For
+finite event spaces, we can usually just use the power set :math:`2^{\Omega}`
+as the event space, which has all these properties above.
 
 Which brings us to our the last part of probability spaces: a **probability
-measure** :math:`P` on :math:`\mathcal{F}` is a function that maps events to
-the unit interval :math:`[0, 1]` and returns :math:`0` for the empty set and
-:math:`1` for the entire space (it must also satisfy countable additivity).
-Again, for finite sample spaces, it's not too hard to imagine this function and
-how to define it but, as you can imagine, for continuous sample spaces, it gets
-more complicated.  All this is essentially to define a rigorous construction
-that matches our intuition of basic probability with samples spaces, events,
-and probabilities.
+measure** :math:`P` on an event space :math:`\mathcal{F}` is a function that:
+
+1. Maps events to the unit interval :math:`[0, 1]`,
+2. Returns :math:`0` for the empty set and :math:`1` for the entire space,
+3. Satisfies countable additivity for all countable collections of events
+   :math:`\{E_i\}` of pairwise disjoint sets:
+
+   .. math::
+ 
+       P(\cup_{i\in I} E_i) = \Sigma_{i\in I} P(E_i) \tag{1}
+
+These properties should look familiar as they are the three basic ones 
+axioms everyone learns when first studying probability.  The only difference is
+that we're formalizing them, particularly the last one where we may not have
+seen it with respect to infinite collections of events.
+
+Going back to the "volume" analogy above, the probability measure maps the
+"chunks" of our "volume" to :math:`[0,1]` (or non-negative real numbers for
+general measures) but in a consistent way.  Due to the way we've defined
+event spaces as :math:`\sigma`-algebra's along with the third condition from
+Equation 1, we get a consistent measurement of "volume" regardless of how we
+combine the "chunks".  Again, for finite sample spaces, it's not too hard to
+imagine this function, but for continuous sample spaces, it gets more
+complicated.  All this is essentially to define a rigorous construction that
+matches our intuition of basic probability with samples spaces, events, and
+probabilities.
 
 Finally, a **random variable** :math:`X` is a `measurable function <https://en.wikipedia.org/wiki/Measurable_function>`__
 :math:`X:\Omega \rightarrow \mathbb{R}` (with :math:`\Omega` from a given
@@ -77,10 +115,13 @@ TODO TODO: FIX ME with new definition of RV
 .. math::
 
     P(X \in S) &= P(\{\omega \in \Omega | X(\omega) \in \mathcal{B} \}) \\
-               &:= P({X \in B}) \tag{1}
+               &:= P({X \in B}) \tag{2}
 
-where we take :math:`S={x}`, and :math:`\mathcal{B}` is the Borel space on the
+where we take :math:`S={x}`, and :math:`\mathcal{B}` is the 
+`Borel algebra <https://en.wikipedia.org/wiki/Borel_set>`__ on the
 real numbers.
+
+https://en.wikipedia.org/wiki/Borel_set
 
 Basically, a random variable allows us to map to real numbers from our original
 sample space.  So if our sample space has no concept of numbers (e.g. heads or
@@ -114,7 +155,7 @@ above.
    
    .. math::
 
-        P(A) = \frac{|A|}{|\Omega|} = \frac{|A|}{52} \tag{2}
+        P(A) = \frac{|A|}{|\Omega|} = \frac{|A|}{52} \tag{3}
 
    We can additionally define a random variable:
    TODO TODO: FIX ME with new definition of RV
@@ -126,9 +167,9 @@ above.
             1 &\text{if } x \text{ is red}\\
             0 &\text{otherwise}
         \end{cases}
-        \tag{3}
+        \tag{4}
 
-   We can calculate probabilities using Equation 1, for example :math:`X = 1`:
+   We can calculate probabilities using Equation 2, for example :math:`X = 1`:
 
    .. math::
         
@@ -136,7 +177,7 @@ above.
         &= P(\{\text{all red cards}\})  \\
         &= \frac{|\{\text{all red cards}\}|}{52} \\
         &= \frac{1}{2}  \\
-        \tag{4}
+        \tag{5}
 
 .. admonition:: The Two Stages of Learning Probability Theory 
 
@@ -208,7 +249,7 @@ outcome of this infinite "experiment".  That is, :math:`X_t` is a mapping
 from outcomes of our infinite experiment to the real numbers: 
 :math:`X_t: \Omega \rightarrow \mathbb{R}`.  (Recall to get the probability for a
 value of :math:`X_t` we would need to map the real number back to the sample space,
-then use the probability measure :math:`P` shown in Equation 1.)
+then use the probability measure :math:`P` shown in Equation 2.)
 It's important to note that in this general definition we have no explicit
 concept of time, so we can depend on the "future".  To include our usual
 concept of time, we need an additional concept (see adapted below).
@@ -256,7 +297,7 @@ how to match the formal definition to concrete stochastic processes.
         X_t(\omega) =  \begin{cases}
             1 &\text{if } \omega_t = H\\
             0 &\text{otherwise}
-        \end{cases} \tag{5}
+        \end{cases} \tag{6}
 
     for :math:`\omega = \omega_1 \omega_2 \omega_3 \ldots`, where each :math:`\omega_i`
     is the outcome of the :math:`i^{th}` toss.
@@ -279,7 +320,7 @@ how to match the formal definition to concrete stochastic processes.
         \begin{cases}
             1 &\text{if } \omega_i = H\\
             -1 &\text{otherwise}
-        \end{cases} \tag{6}
+        \end{cases} \tag{7}
 
 Adapted Processes
 -----------------
@@ -344,14 +385,14 @@ on adapted processes.
 
         A_H &= \text{the set of all sequences beginning with } H = \{\omega: \omega_1 = H\} \\
         A_T &= \text{the set of all sequences beginning with } T = \{\omega: \omega_1 = T\} \\
-        \tag{7}
+        \tag{8}
  
     This basically defines two events (i.e., sets of sequences) that we use to define our
     probability measure.  We define our first sub-:math:`\sigma`-algebra using these two sets:
 
     .. math::
 
-        \mathcal{F}_1 = \{\emptyset, \Sigma, A_H, A_T\} \tag{8}
+        \mathcal{F}_1 = \{\emptyset, \Sigma, A_H, A_T\} \tag{9}
 
     TODO TODO FIX ME
     For our first Bernoulli random variable, :math:`X_1`, we can write
