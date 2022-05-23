@@ -103,35 +103,63 @@ complicated.  All this is essentially to define a rigorous construction that
 matches our intuition of basic probability with samples spaces, events, and
 probabilities.
 
-Finally, a **random variable** :math:`X` is a `measurable function <https://en.wikipedia.org/wiki/Measurable_function>`__
-:math:`X:\Omega \rightarrow \mathbb{R}` (with :math:`\Omega` from a given
-probability space) [1]_.  When accompanied by the corresponding measure for the probability
-space :math:`P`, one can calculate the probability of :math:`x \in S` 
+Finally, for a given probability space :math:`(\Omega, {\mathcal {F}}, P)`,
+a **random variable** :math:`X` is a `measurable function <https://en.wikipedia.org/wiki/Measurable_function>`__
+:math:`X:\Omega \rightarrow E \subseteq \mathbb{R}`. 
+The measurable function condition puts a few constraints:
 
-TODO TODO: FIX ME with new definition of RV
+1. :math:`X` must part of a measurable space, :math:`(E, S)` (recall:
+   :math:`S` defines a :math:`\sigma`-algebra on the set :math:`E`).  
+   For finite or countably infinite values of :math:`X`, we generally use
+   the powerset of :math:`E`.  Otherwise, we will typically use the `Borel set
+   <https://en.wikipedia.org/wiki/Borel_set>`__ for uncountably infinite
+   sets (i.e. the real numbers).
+2. For all :math:`S \in \mathcal{S}`, the pre-image of :math:`s` under :math:`X`
+   is in :math:`\mathcal{F}`.  More precisely:
 
-(and its corresponding its distribution) as: 
+   .. math::
+
+     \{X \in S\} := \{\omega \in \Omega | X(\omega) \in S\} \in \mathcal{F} \tag{2}
+
+This basically says that every value that :math:`X` can take on (which must
+be measurable) has a mapping to one of the measurable events
+in our original event space :math:`\mathcal{F}`.  If we didn't have this
+condition then either: (a) we couldn't properly measure :math:`X`'s 
+"volume" because our "chunks" would be inconsistent (constraint 1),
+or (b) we wouldn't be able to map it back to "chunks" in our original
+probability space and apply :math:`P` to evaluate the random variable's
+probability.  If this all seems a little abstract, it is -- that's what
+we need when we're dealing with uncountable infinities.  Again, for the finite
+cases, all of these properties are usually trivially met.
+
+Using the probability measure :math:`P`, one can calculate the probability of
+:math:`X \in S` using Equation 2:
 
 .. math::
 
-    P(X \in S) &= P(\{\omega \in \Omega | X(\omega) \in \mathcal{B} \}) \\
-               &:= P({X \in B}) \tag{2}
+    P(X \in S) &= P(\{\omega \in \Omega | X(\omega) \in S \}) \\
+               &:= P({X \in S}) \tag{3}
 
-where we take :math:`S={x}`, and :math:`\mathcal{B}` is the 
-`Borel algebra <https://en.wikipedia.org/wiki/Borel_set>`__ on the
-real numbers.
+where :math:`S \subseteq \mathcal{S}`.  We can take :math:`S = \{x\}` to
+evaluate the random variable at a particular value.  
 
-https://en.wikipedia.org/wiki/Borel_set
+So a random variable then allows us to map to real numbers from our original
+sample space (:math:`\Omega`).  Often times our sample space has no concept
+of numbers (e.g.  heads or tails) but random variables allow us to assign real
+numbers to those events to calculate things like expected values and variance. 
 
-Basically, a random variable allows us to map to real numbers from our original
-sample space.  So if our sample space has no concept of numbers (e.g. heads or
-tails), this allows us to assign real numbers to those events to calculate
-things like expected values and variance.  To find the associated probability,
-we map backwards from our real number (:math:`x`) to a set of values in the
-sample space (:math:`\omega`) using :math:`X` forming an event, and then 
-from this event we can calculate the probability using the original definition
-above.
+Equation 3 basically says that we map backwards from a set of real numbers
+(:math:`S`) to a set of values in the sample space (i.e. an event given by
+Equation 2) using the inverse of function :math:`X`.  From the event in our
+event space :math:`\mathcal{F}`, which is guaranteed to exist because of property (2),
+we know how to compute the probability using :math:`P`.
 
+For many applications of probability, understanding the above is overkill.
+Most practitioners of probability can get away with the "first stage" (see box
+below) of learning probability.  However specifically for stochastic calculus,
+the above helps us learn it beyond a superficial level (arguably) because we
+quickly get into situations where we need to understand the mathematical
+rigour needed for uncountable infinities.
 
 .. admonition:: Example 1: Sample Spaces, Events, Probability Measures, and Random Variables
 
@@ -169,7 +197,7 @@ above.
         \end{cases}
         \tag{4}
 
-   We can calculate probabilities using Equation 2, for example :math:`X = 1`:
+   We can calculate probabilities using Equation 3, for example :math:`X = 1`:
 
    .. math::
         
@@ -249,7 +277,7 @@ outcome of this infinite "experiment".  That is, :math:`X_t` is a mapping
 from outcomes of our infinite experiment to the real numbers: 
 :math:`X_t: \Omega \rightarrow \mathbb{R}`.  (Recall to get the probability for a
 value of :math:`X_t` we would need to map the real number back to the sample space,
-then use the probability measure :math:`P` shown in Equation 2.)
+then use the probability measure :math:`P` shown in Equation 3.)
 It's important to note that in this general definition we have no explicit
 concept of time, so we can depend on the "future".  To include our usual
 concept of time, we need an additional concept (see adapted below).
@@ -590,7 +618,3 @@ sample space, there does exist sequences that are not in
 :math:`\mathcal{F}_\infty`.  But it's extremely hard to produce such a set
 (and don't ask me how :p).
 
-
-----
-
-.. [1] Technically, random variables can be more general (according to Wikipedia) mapping to any measurable set.  Although, according to [1], they define it only to the real numbers.  It looks like the term `random element <https://en.wikipedia.org/wiki/Random_element>`__ is used more often for this more general case though.
