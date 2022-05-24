@@ -1,7 +1,7 @@
-.. title: A Quick Introduction to Stochastic Calculus
-.. slug: a-quick-introduction-to-stochastic-calculus
+.. title: A Brief Introduction to Stochastic Calculus
+.. slug: a-brief-introduction-to-stochastic-calculus
 .. date: 2022-04-29 21:05:55 UTC-04:00
-.. tags: stochastic calculus, mathjax
+.. tags: stochastic calculus, probability, measure theory, sigma algebra, mathjax
 .. category: 
 .. link: 
 .. description: 
@@ -168,9 +168,10 @@ rigour needed for uncountable infinities.
    Assume we have a standard 52 card playing deck without any jokers,
    and our experiment is that we draw a card randomly from this set.
    The sample space :math:`\Omega` is a set consisting of the 52 cards.
-   An event :math:`A \subseteq \mathcal{F}` is any subset of :math:`\Omega`.
-   So that would include the empty set, any single element, or even the entire
-   sample space.  Some examples of events:
+   An event :math:`A \subseteq \mathcal{F}` is any subset of :math:`\Omega`,
+   i.e. the powerset :math:`\mathcal{F} = 2^{\Omega}`.  So that would include
+   the empty set, any single element, or even the entire sample space.  Some
+   examples of events:
 
    * "Cards that are red and black at the same time" (0 elements)
    * "The 5 of Hearts" (1 element)
@@ -185,24 +186,25 @@ rigour needed for uncountable infinities.
 
         P(A) = \frac{|A|}{|\Omega|} = \frac{|A|}{52} \tag{3}
 
-   We can additionally define a random variable:
-   TODO TODO: FIX ME with new definition of RV
+   We can additionally define a random variable as:
    
    .. math::
 
         X(\omega \in \Omega) = 
         \begin{cases}
-            1 &\text{if } x \text{ is red}\\
+            1 &\text{if } \omega \text{ is red}\\
             0 &\text{otherwise}
         \end{cases}
         \tag{4}
 
-   We can calculate probabilities using Equation 3, for example :math:`X = 1`:
+   Which is a mapping from our sample space :math:`\Omega` to a (finite) subset
+   of the real numbers :math:`\{0, 1\}`.  We can calculate probabilities using
+   Equation 3, for example :math:`X = 1`:
 
    .. math::
         
-        P(X = 1) &= P(\{\omega \in \Omega | X(\omega) = 1 \}) \\
-        &= P(\{\text{all red cards}\})  \\
+        P(X \in \{1\}) &= P(\{\omega \in \Omega | X(\omega) \in \{1\} \}) \\
+        &= P(\{\omega | \omega \text{ is a red card}\}) \\
         &= \frac{|\{\text{all red cards}\}|}{52} \\
         &= \frac{1}{2}  \\
         \tag{5}
@@ -224,7 +226,7 @@ rigour needed for uncountable infinities.
     The second stage of probability theory dives deep into the rigorous
     measure-theoretic definition.  In this definition, one views a 
     random variable as a function from a sample space :math:`\Omega`
-    to a set of real numbers :math:`\mathbb{R}`.  Certain subsets
+    to a subset of the real numbers :math:`\mathbb{R}`.  Certain subsets
     of :math:`\Omega` are called events, and the collection of all possible
     events form a :math:`\sigma`-algebra :math:`\mathcal {F}`.  Each
     set :math:`A` in :math:`\mathcal {F}` has probability :math:`P(A)`, 
