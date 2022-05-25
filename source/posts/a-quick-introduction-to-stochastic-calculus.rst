@@ -123,14 +123,17 @@ The measurable function condition puts a few constraints:
 
 This basically says that every value that :math:`X` can take on (which must
 be measurable) has a mapping to one of the measurable events
-in our original event space :math:`\mathcal{F}`.  If we didn't have this
-condition then either: (a) we couldn't properly measure :math:`X`'s 
-"volume" because our "chunks" would be inconsistent (constraint 1),
+in our original event space :math:`\mathcal{F}`.  We use the notation
+:math:`\sigma(X)` to denote the collection of all subsets of Equation 2,
+which form the :math:`\sigma`-algebra implied by the random variable :math:`X`.
+
+If we didn't have this condition then either: (a) we couldn't properly measure
+:math:`X`'s "volume" because our "chunks" would be inconsistent (constraint 1),
 or (b) we wouldn't be able to map it back to "chunks" in our original
 probability space and apply :math:`P` to evaluate the random variable's
-probability.  If this all seems a little abstract, it is -- that's what
-we need when we're dealing with uncountable infinities.  Again, for the finite
-cases, all of these properties are usually trivially met.
+probability.  If this all seems a little abstract, it is -- that's what we need
+when we're dealing with uncountable infinities.  Again, for the finite cases,
+all of these properties are usually trivially met.
 
 Using the probability measure :math:`P`, one can calculate the probability of
 :math:`X \in S` using Equation 2:
@@ -209,6 +212,9 @@ rigour needed for uncountable infinities.
         &= \frac{1}{2}  \\
         \tag{5}
 
+   The implied :math:`\sigma`-algebra of this random variable can be defined as:
+   :math:`\sigma(X) = \{ \emptyset, \text{"all red cards"}, \text{"all black cards"}, \Omega \} \subset \mathcal{F}`.
+
 .. admonition:: The Two Stages of Learning Probability Theory 
 
     *(Inspired by the notes from Chapter 1 in [1])*
@@ -270,27 +276,25 @@ correspond to continuous and discrete time.
 Next, we turn to the probability space on which each random variable is defined on
 :math:`(\Omega,\mathcal{F},P)`.  The key thing to note is that the elements of 
 the sample space :math:`\omega \in \Omega` are infinite sets that correspond to
-experiments performed at each index in :math:`T`.  Note: by definition it's infinite
-because otherwise it would just be a random vector.  For example, flipping a 
+experiments performed at each index in :math:`T`. (Note: by definition it's infinite
+because otherwise it would just be a random vector.)  For example, flipping a 
 coin at every (discrete) time from :math:`0` to :math:`\infty`, would define a
 specific infinite sequence of heads and tails :math:`\omega = \{H, T, H, H, H, T, \ldots\}`.
 So each random variable :math:`X_t` can depend on the entire sequence of the
 outcome of this infinite "experiment".  That is, :math:`X_t` is a mapping
-from outcomes of our infinite experiment to the real numbers: 
-:math:`X_t: \Omega \rightarrow \mathbb{R}`.  (Recall to get the probability for a
-value of :math:`X_t` we would need to map the real number back to the sample space,
-then use the probability measure :math:`P` shown in Equation 3.)
+from outcomes of our infinite experiment to (a subset of) the real numbers: 
+:math:`X_t: \Omega \rightarrow E \subseteq \mathbb{R}`.
 It's important to note that in this general definition we have no explicit
 concept of time, so we can depend on the "future".  To include our usual
-concept of time, we need an additional concept (see adapted below).
+concept of time, we need an additional concept (see adapted processes below).
 
 Finally, instead of viewing the stochastic process as a collection of random variables
 indexed by time, we could look at it as a function of both time and the sample space
 i.e., :math:`X(t, \omega) = X_t(\omega)`.  For a given outcome of an experiment
-:math:`\omega`, the deterministic function generated as :math:`X(t, \omega)` is
+:math:`\omega_0`, the deterministic function generated as :math:`X(t, \omega=\omega_0)` is
 called the **sample function**.  However, mostly we like to think of it
 as having a random variable at each time step indicated by this notation: 
-:math:`X = \{X_t, t \in T\}`.  We sometimes us the notation :math:`X(t)` to refer
+:math:`X = \{X_t, t \in T\}`.  We sometimes use the notation :math:`X(t)` to refer
 to the random variable at time :math:`t` or the stochastic process itself.
 
 Stochastic processes can be classified by the nature of the values the random variables
@@ -315,7 +319,7 @@ how to match the formal definition to concrete stochastic processes.
     Bernoulli trials (think coin flips) at each time step.
   
     More formally, our sample space :math:`\Omega = \{ (a_n)_1^{\infty} : a_n
-    \in {H, T} \}`, that is, the set of all infinite sequences of "heads" and "tails".
+    \in \{H, T\} \}`, that is, the set of all infinite sequences of "heads" and "tails".
     It turns out the event space and the probability measure are surprisingly
     complex to define so I've put those details in Appendix A.
 
@@ -346,41 +350,42 @@ how to match the formal definition to concrete stochastic processes.
 
    .. math::
 
-        X_t(\omega) =  \sum_{i=1}^t x_i \text{ for } x_i
+        X_t(\omega) =  \sum_{i=1}^t \omega_i \text{ for } \omega_i =
         \begin{cases}
             1 &\text{if } \omega_i = H\\
             -1 &\text{otherwise}
         \end{cases} \tag{7}
 
+   Notice that the random variable at each time step depends on *all* the "coin
+   flips" :math:`\omega_i` for :math:`i<=t`, in contrast to just the current "coin flip".
+
 Adapted Processes
 -----------------
 
 Notice that in the previous section, our definition of stochastic process
-included a random variable :math:`X_t: \Omega \rightarrow \mathbb{R}`
-where each :math`\omega \in \Omega` is an infinite set representing a
+included a random variable :math:`X_t: \Omega \rightarrow E \subseteq \mathbb{R}`
+where each :math:`\omega \in \Omega` is an infinite set representing a
 given outcome for the infinitely long experiment.  This implicitly means
-that at "time" :math:`t`, we could depend on the "future".  In many
-applications, we do want to interpret :math:`t` as time so we wish
-to restrict our definition of stochastic processes.
+that at "time" :math:`t`, we could depend on the "future" because we are
+allowed to depend on any tosses, including those greater than :math:`t`.  In
+many applications, we do want to interpret :math:`t` as time so we wish to
+restrict our definition of stochastic processes.
 
 An `adapted stochastic process <https://en.wikipedia.org/wiki/Adapted_process>`__
 is one that cannot "see into the future".  Informally, it means that for
 any :math:`X_t`, you can determine it's value by *only* seeing the outcome 
-of the experiment up to time :math:`t`.  
+of the experiment up to time :math:`t` (i.e., :math:`\omega_1\omega_2\ldots\omega_t` only).
 
-TODO TODO: FIX ME with new definition of RV
-To define this more formally, we need to introduce a few technical definitions to define this
-fully.  First, let's define the :math:`\sigma`-algebra of a random variable :math:`X`:
+To define this more formally, we need to introduce a few technical definitions
+to define this fully.  We've already seen the definition of the
+:math:`\sigma`-algebra :math:`\sigma(X)` implied by the random variable
+:math:`X` in a previous subsections.  Suppose we have a subset of our event
+space :math:`\mathcal{G}`, we say that :math:`X` is
+:math:`\mathcal{G}`-measurable if every set in :math:`\sigma(X) \subseteq :math:`G`.
+That is, we can use :math:`\mathcal{G}` to "measure" anything we do with :math:`X`.
 
-    Let :math:`X` be a random variable on a nonempty sample space :math:`\Sigma`.
-    The :math:`\sigma`-algebra generated by :math:`X`, denoted by :math:`\Sigma(X)`
-    is the collection of subsets of :math:`\Sigma` of the form 
-    :math:`\{\omega \in \Omega | X(\omega) = x \}`
-
-
-concept of a filtration on our
-event space :math:`\mathcal{F}` (i.e., :math:`\sigma`-algebra) and our index
-set :math:`T`:
+Using this idea, we define the concept of a filtration
+on our event space :math:`\mathcal{F}` and our index set :math:`T`:
 
     A **filtration** :math:`\mathbb{F}` is a ordered collection
     of subsets :math:`\mathbb{F} := (\mathcal{F_t})_{t\in T}` where 
@@ -391,23 +396,29 @@ set :math:`T`:
 To break this down, we're basically saying that our event space :math:`\mathcal{F}`
 can be broken down into logical "sub event spaces" :math:`\mathcal{F_t}` such
 that each one is a superset of the next one.  This is precisely what we want
-where as we progress through time, we "gain" more information but never lose
-any.  We also use this idea of defining a sub-:math:`\sigma`-algebra to
-formally define conditional probabilities.
+where as we progress through time, we "gain" more "information" but never lose
+any.  We can also use this idea of defining a sub-:math:`\sigma`-algebra to
+formally define conditional probabilities, although we won't cover it in this
+post (see [1] for a more detailed treatment).
 
-Using the construct of a filtration, we can define a stochastic process
-:math:`X_t : T \times \Omega` that is **adapted to the filtration**
-:math:`(\mathcal{F_t})_{t\in T}` if the random variable :math:`X_t`
-is a :math:`(F_t, \Sigma)` measurable function.  This basically says
-that :math:`X_t` can only depend on outcomes before or at time :math:`t`
-(where we're loosely using the term "outcomes" which are more formally defined
-by the filtration).
-As with much of this topic, we require a lot of rigour in order to make
-sure we don't have weird corner cases.  The next example gives more intuition
-on adapted processes.
+Using the construct of a filtration, we can define:
+
+    A stochastic process :math:`X_t : T \times \Omega` that is **adapted to the
+    filtration** :math:`(\mathcal{F_t})_{t\in T}` if the random variable
+    :math:`X_t` is :math:`F_t`-measurable. 
+   
+This basically says that :math:`X_t` can only depend on "information" before or
+at time :math:`t`.  The "information" available is encapsulated by the
+:math:`\mathcal{F_t}` subsets of the event space.  These subsets of events are
+the only ones we can compute probabilities on for that particular random
+variable, thus effectively restricting the "information" we can use.
+As with much of this topic, we require a lot of rigour in order to make sure we
+don't have weird corner cases.  The next example gives more intuition on
+the interplay between filtrations and random variables.
 
 .. admonition:: Example 2: An Adapted Bernoulli Processes
 
+    TODO FIX ME!
     First, we need to define the filtration that we wish to adapt to our
     Bernoulli Process.  Borrowing from Appendix A, repeating the two equations:
 
