@@ -187,7 +187,7 @@ rigour needed for uncountable infinities.
    
    .. math::
 
-        P(A) = \frac{|A|}{|\Omega|} = \frac{|A|}{52} \tag{3}
+        P(A) = \frac{|A|}{|\Omega|} = \frac{|A|}{52} \tag{4}
 
    We can additionally define a random variable as:
    
@@ -198,7 +198,7 @@ rigour needed for uncountable infinities.
             1 &\text{if } \omega \text{ is red}\\
             0 &\text{otherwise}
         \end{cases}
-        \tag{4}
+        \tag{5}
 
    Which is a mapping from our sample space :math:`\Omega` to a (finite) subset
    of the real numbers :math:`\{0, 1\}`.  We can calculate probabilities using
@@ -210,7 +210,7 @@ rigour needed for uncountable infinities.
         &= P(\{\omega | \omega \text{ is a red card}\}) \\
         &= \frac{|\{\text{all red cards}\}|}{52} \\
         &= \frac{1}{2}  \\
-        \tag{5}
+        \tag{6}
 
    The implied :math:`\sigma`-algebra of this random variable can be defined as:
    :math:`\sigma(X) = \{ \emptyset, \text{"all red cards"}, \text{"all black cards"}, \Omega \} \subset \mathcal{F}`.
@@ -251,8 +251,8 @@ rigour needed for uncountable infinities.
     like me are happy to understand it only "to a satisfactory degree".
 
 
-Definition
-----------
+Stochastic Processes
+--------------------
 
 Here's the formal definition of a 
 `stochastic process <https://en.wikipedia.org/wiki/Stochastic_process#Stochastic_process>`__ from [2]:
@@ -331,7 +331,7 @@ how to match the formal definition to concrete stochastic processes.
         X_t(\omega) =  \begin{cases}
             1 &\text{if } \omega_t = H\\
             0 &\text{otherwise}
-        \end{cases} \tag{6}
+        \end{cases} \tag{7}
 
     for :math:`\omega = \omega_1 \omega_2 \omega_3 \ldots`, where each :math:`\omega_i`
     is the outcome of the :math:`i^{th}` toss.
@@ -354,7 +354,7 @@ how to match the formal definition to concrete stochastic processes.
         \begin{cases}
             1 &\text{if } \omega_i = H\\
             -1 &\text{otherwise}
-        \end{cases} \tag{7}
+        \end{cases} \tag{8}
 
    Notice that the random variable at each time step depends on *all* the "coin
    flips" :math:`\omega_i` for :math:`i<=t`, in contrast to just the current "coin flip".
@@ -381,7 +381,7 @@ to define this fully.  We've already seen the definition of the
 :math:`\sigma`-algebra :math:`\sigma(X)` implied by the random variable
 :math:`X` in a previous subsections.  Suppose we have a subset of our event
 space :math:`\mathcal{G}`, we say that :math:`X` is
-:math:`\mathcal{G}`-measurable if every set in :math:`\sigma(X) \subseteq :math:`G`.
+:math:`\mathcal{G}`-measurable if every set in :math:`\sigma(X) \subseteq \mathcal{G}`.
 That is, we can use :math:`\mathcal{G}` to "measure" anything we do with :math:`X`.
 
 Using this idea, we define the concept of a filtration
@@ -418,7 +418,6 @@ the interplay between filtrations and random variables.
 
 .. admonition:: Example 2: An Adapted Bernoulli Processes
 
-    TODO FIX ME!
     First, we need to define the filtration that we wish to adapt to our
     Bernoulli Process.  Borrowing from Appendix A, repeating the two equations:
 
@@ -426,35 +425,61 @@ the interplay between filtrations and random variables.
 
         A_H &= \text{the set of all sequences beginning with } H = \{\omega: \omega_1 = H\} \\
         A_T &= \text{the set of all sequences beginning with } T = \{\omega: \omega_1 = T\} \\
-        \tag{8}
+        \tag{9}
  
-    This basically defines two events (i.e., sets of sequences) that we use to define our
-    probability measure.  We define our first sub-:math:`\sigma`-algebra using these two sets:
+    This basically defines two events (i.e., sets of infinite coin toss
+    sequences) that we use to define our probability measure.  We define our
+    first sub-:math:`\sigma`-algebra using these two sets:
 
     .. math::
 
-        \mathcal{F}_1 = \{\emptyset, \Sigma, A_H, A_T\} \tag{9}
+        \mathcal{F}_1 = \{\emptyset, \Sigma, A_H, A_T\} \tag{10}
 
-    TODO TODO FIX ME
-    For our first Bernoulli random variable, :math:`X_1`, we can write
-    in terms of just :math:`\mathcal{F}_1` (instead of the entire event space :math:`\mathcal{F}`)
-    as:
+    Let's notice that :math:`\mathcal{F}_1 \subset \mathcal{F}` (by definition
+    since this is how we defined it). Also let's take a look at the events generated
+    by the random variable for heads and tails:
 
     .. math::
 
-        P(X_1 = x)
-        X_t(\omega) =  \begin{cases}
-            1 &\text{if } \omega_t = H\\
-            0 &\text{otherwise}
-        &= P(\{\omega \in \Omega | X(\omega) = x \}) && \text{definition of RVs} \\
-        &= P(\{\omega \in \Omega | X(\omega) = 1 \}) && \text{definition of RVs} \\
+           \{X_1 \in \{H\}\} &= \{\omega \in \Sigma | X_1(omega) \in {H}\} \\
+            &= \{\omega: \omega_1 = H\} \\
+            &= A_H \\
+           \{X_1 \in \{H\}\} &= \{\omega \in \Sigma | X_1(omega) \in {T}\} \\
+            &= \{\omega: \omega_1 = T\} \\
+            &= A_H \\
+            \tag{11}
 
-
-
+    Thus, :math:`\sigma(X_1) = \mathcal{F}_1` (the :math:`\sigma`-algebra implied by
+    the random variable :math:`X_1`, meaning that :math:`X_1` is indeed
+    :math:`\mathcal{F}_1`-measurable as required.  
     
-* Adapted Processes: https://en.wikipedia.org/wiki/Adapted_process
-  * Itō integral, which only makes sense if the integrand is an adapted process. 
-
+    Let's take a closer look at what this means.  For :math:`X_1`, Equation 10 defines 
+    the only types of events we can measure probability on, in plain English:
+    empty set, every possible outcome, outcomes starting with the first coin
+    flip as heads, and outcomes starting with the first coin flip as tails.
+    This corresponds to probabilities of :math:`0, 1, p` and :math:`1-p`
+    respectively, precisely the outcomes we would expect :math:`X_1` to be able
+    to calculate with :math:`X_1`.
+    
+    On closer examination though, this is not exactly the same as a naive understanding
+    of the situation would imply.  :math:`A_H` contains *every* infinitely long
+    sequence starting with heads -- not just the result of the first flip.
+    Recall, each "time-indexed random variable in a stochastic process is a
+    function of an element of our sample space, which is an infinitely long sequence.
+    So we cannot naively pull out just the result of the first toss.  Instead, we
+    group all sequences that match our criteria (heads on the first toss) together
+    and use that as a grouping to perform our probability "measurement" on.  Again,
+    it may seem overly complicated but this rigour is needed to ensure we don't
+    run into weird problems with infinities.
+  
+    Continuing on for later "times", we can define :math:`\mathcal{F}_2,
+    \mathcal{F}_3, \ldots` and so on in a similar manner. We'll find that each
+    :math:`X_t` is indeed :math:`\mathcal{F}_t` measurable (see Appendix A for
+    more details), and also find that each one is a superset of its
+    predecessor.  As a result, we can say that the Bernoulli process
+    :math:`X(t)` is adapted to the filtration :math:`(\mathcal{F_t})_{t\in
+    \mathbb{N}}` as defined in Appendix A.
+    
 Weiner Processes
 ----------------
 
@@ -467,6 +492,10 @@ Weiner Processes
 
 Stochastic Integrals
 ====================
+
+* Adapted Processes: https://en.wikipedia.org/wiki/Adapted_process
+  * Itō integral, which only makes sense if the integrand is an adapted process. 
+
 
 * Stochastic integral (see lectures notes "A Quick introduction to stochastic calculus")
     * Why we need it? non-differentiable
