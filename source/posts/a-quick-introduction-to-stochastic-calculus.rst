@@ -338,26 +338,50 @@ how to match the formal definition to concrete stochastic processes.
     For all values of :math:`t`, the probability :math:`P(X_t = 1) = p`, for
     some constant :math:`p \in [0, 1]`.
 
-.. admonition:: Example 3: One Dimensional Random Walk
+.. admonition:: Example 3: One Dimensional Symmetric Random Walk
 
-   A simple one dimensional `random walk <https://en.wikipedia.org/wiki/Random_walk>`__
+   A simple one dimensional symmetric `random walk <https://en.wikipedia.org/wiki/Random_walk>`__
    is a discrete value, discrete time stochastic process.  An easy way to 
    think of it is: starting at 0, at each time step, flip a fair coin and move
    right (+1) if heads, otherwise move left (-1).
 
-   This can be defined using the same probability space as the Bernoulli process from Example 2
-   with :math:`p=0.5` but with a different definition of the random variable at each time step:
+   This can be defined in terms of the Bernoulli process :math:`X_t` from
+   Example 2 with :math:`p=0.5` (with the same probability space):
 
    .. math::
 
-        X_t(\omega) =  \sum_{i=1}^t \omega_i \text{ for } \omega_i =
-        \begin{cases}
-            1 &\text{if } \omega_i = H\\
-            -1 &\text{otherwise}
-        \end{cases} \tag{8}
+        S_t(\omega) =  \sum_{i=1}^t X_t \tag{8}
 
    Notice that the random variable at each time step depends on *all* the "coin
-   flips" :math:`\omega_i` for :math:`i<=t`, in contrast to just the current "coin flip".
+   flips" :math:`X_t` that came before it in contrast to just the current "coin flip"
+   for the Bernoulli process.
+   
+   Another couple of results that we'll use later.  First is that the increments
+   between any two given non-overlapping pairs of integers
+   :math:`0 = k_0 < k_1 < k_2 < \ldots < k_m` are independent.  That is,
+   :math:`(S_{k_1} - S_{k_0}), (S_{k_2} - S_{k_1}), (S_{k_3} - S_{k_2}), ldots, (S_{k_m} - S_{k_{m-1}})`
+   are independent.  We can see this because for any combination of pairs of
+   these differences, we see that the independent :math:`X_t` variables don't
+   overlap, so the sum of them must also be independent.
+
+   Moreover, the expected value and variance of the differences is given by:
+   
+   .. math::
+
+        E[S_{k_{i+1}} - S_{k_i}] &= E[\sum_{j=k_i + 1}^{k_{i+1}} X_i] \\
+                                 &= \sum_{j=k_i + 1}^{k_{i+1}} E[X_j] \\
+                                 &= 0 \\
+        Var[S_{k_{i+1}} - S_{k_i}] &= E[\sum_{j=k_i + 1}^{k_{i+1}} X_i] \\
+                                   &= \sum_{j=k_i + 1}^{k_{i+1}} Var[X_j]  && X_i \text{ independent}\\
+                                   &= \sum_{j=k_i + 1}^{k_{i+1}} 1 && Var(X_j) = E[X_j^2] = 1 \\
+                                   &= k_{i+1} - k_i \\
+        \tag{9}
+
+   Which means that the variance of the symmetric random walk accumulates
+   at a rate of one per unit time.  So if you take :math:`l` steps from the
+   current position, you can expect a variance of :math:`l`.  We'll see this
+   pattern when we discuss the extension to continuous time.
+
 
 Adapted Processes
 -----------------
@@ -425,7 +449,7 @@ the interplay between filtrations and random variables.
 
         A_H &= \text{the set of all sequences beginning with } H = \{\omega: \omega_1 = H\} \\
         A_T &= \text{the set of all sequences beginning with } T = \{\omega: \omega_1 = T\} \\
-        \tag{9}
+        \tag{10}
  
     This basically defines two events (i.e., sets of infinite coin toss
     sequences) that we use to define our probability measure.  We define our
@@ -433,7 +457,7 @@ the interplay between filtrations and random variables.
 
     .. math::
 
-        \mathcal{F}_1 = \{\emptyset, \Sigma, A_H, A_T\} \tag{10}
+        \mathcal{F}_1 = \{\emptyset, \Sigma, A_H, A_T\} \tag{11}
 
     Let's notice that :math:`\mathcal{F}_1 \subset \mathcal{F}` (by definition
     since this is how we defined it). Also let's take a look at the events generated
@@ -446,14 +470,14 @@ the interplay between filtrations and random variables.
             &= A_H \\
            \{X_1 \in \{H\}\} &= \{\omega \in \Sigma | X_1(omega) \in {T}\} \\
             &= \{\omega: \omega_1 = T\} \\
-            &= A_H \\
-            \tag{11}
+            &= A_T \\
+            \tag{12}
 
     Thus, :math:`\sigma(X_1) = \mathcal{F}_1` (the :math:`\sigma`-algebra implied by
     the random variable :math:`X_1`, meaning that :math:`X_1` is indeed
     :math:`\mathcal{F}_1`-measurable as required.  
     
-    Let's take a closer look at what this means.  For :math:`X_1`, Equation 10 defines 
+    Let's take a closer look at what this means.  For :math:`X_1`, Equation 11 defines 
     the only types of events we can measure probability on, in plain English:
     empty set, every possible outcome, outcomes starting with the first coin
     flip as heads, and outcomes starting with the first coin flip as tails.
@@ -480,8 +504,19 @@ the interplay between filtrations and random variables.
     :math:`X(t)` is adapted to the filtration :math:`(\mathcal{F_t})_{t\in
     \mathbb{N}}` as defined in Appendix A.
     
-Weiner Processes
-----------------
+Brownian Motion
+---------------
+
+* AKA Weiner Processes
+* Start with scaled random walk (but in continuous time)
+* Introduce quadratic variation
+* Show that at time t, we are normally distributed in the limit
+* Define Brownian motion
+* Talk about the difference between the two p94
+* Talk about how quadratic variation is not-zero (unlike ordinary calculus), p99/102
+  * Cannot be differentiated like other stuff
+
+
 
 * Define (Wikipedia, Hull textbook)
 * Basic properties
