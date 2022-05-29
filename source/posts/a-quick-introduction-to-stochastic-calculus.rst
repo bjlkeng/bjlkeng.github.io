@@ -359,7 +359,7 @@ how to match the formal definition to concrete stochastic processes.
    Another couple of results that we'll use later.  First is that the increments
    between any two given non-overlapping pairs of integers
    :math:`0 = k_0 < k_1 < k_2 < \ldots < k_m` are independent.  That is,
-   :math:`(S_{k_1} - S_{k_0}), (S_{k_2} - S_{k_1}), (S_{k_3} - S_{k_2}), ldots, (S_{k_m} - S_{k_{m-1}})`
+   :math:`(S_{k_1} - S_{k_0}), (S_{k_2} - S_{k_1}), (S_{k_3} - S_{k_2}), \ldots, (S_{k_m} - S_{k_{m-1}})`
    are independent.  We can see this because for any combination of pairs of
    these differences, we see that the independent :math:`X_t` variables don't
    overlap, so the sum of them must also be independent.
@@ -507,6 +507,75 @@ the interplay between filtrations and random variables.
 Brownian Motion
 ---------------
 
+`Brownian motion <https://en.wikipedia.org/wiki/Wiener_process>`__ (also known as
+the Weiner process) is one of the most widely studied continuous time
+stochastic processes.  It occurs frequently in many different domains such as
+applied math, quantitative finance, and physics.  As alluded to previously, it
+has many "corner case" properties that do not allow simple manipulation, and
+it is one of the reasons why stochastic calculus was discovered.
+Interestingly, there are several equivalent definitions but we'll start with
+the one defined in [1] using scaled random walks.
+
+
+Scaled Symemtric Random Walk
+****************************
+
+A scaled symmetric random walk process is an extension of the simple random
+walk we showed in Example 3 except that we "speed up time and scale down the
+step size" and extend it to continuous time.  More precisely, for a fixed
+positive integer :math:`n`, we define the scaled random walk as:
+
+.. math::
+
+    W^{(n)}(t) = \frac{1}{\sqrt{n}}S_{nt} \tag{13}
+
+where :math:`S_{nt}` is a simple symmetric random walk process, provided that
+:math:`nt` is an integer.  If :math:`nt` is not an integer, we'll simply define
+:math:`W^{(n)}(t)` as the linear interpolation between it's nearest integer
+values.  
+
+A simple way to think about Equation 13 is that it's just a regular random walk
+with a scaling factor.  For example, :math:`W^{(100)}(t)` has it's first step
+(integer step) at :math:`t=\frac{1}{100}` instead of :math:`t=1`.  To adjust
+for this compression of time we scale the process by :math:`\frac{1}{\sqrt{n}}`
+to make the math work out later.  The linear interpolation is not that relevant
+except that we want to start working in continuous time.
+
+Since this is just a simple symmetric random walk (assuming we're analyzing
+it as its integer steps), the same properties hold as we discussed in Example
+3.  Namely, that non-overlapping increments are independent.  Additionally, for
+:math:`0 \leq s \leq t`, we have:
+
+.. math::
+
+    E[W^{(n)}(t) - W^{(n)}(s)] &= 0 \\
+    Var[W^{(n)}(t) - W^{(n)}(s)] &= t - s \\
+    \tag{14}
+
+where we use the square root scaling to end up with variance accumulating still
+at one unit per time. 
+
+The last property, we'll look at is a quantity called the 
+`quadratic variation <https://en.wikipedia.org/wiki/Quadratic_variation>`__,
+which is calculated *along a specific path* (i.e., there's not randomness
+involved).  For a scaled symmetric random walk, we get:
+
+.. math::
+
+    [W^{(n)}, W^{(n)}]_t &= \sum_{j=1}^{nt} (W^{(n)}(\frac{j}{n} - W^{(n)}(\frac{j-1}{n}))^2 \\
+    &= \sum_{j=1}^{nt} [\frac{1}{\sqrt{n}} X_j]^2  \\
+    &= \sum_{j=1}^{nt} \frac{1}{n} = t \\
+    \tag{15}
+
+This results in the same quantity as the variance computation we have (for
+:math:`s=0`) in Equation 14 but is conceptually different.  The variance
+is an average over all paths, while the quadratic variation is taking a
+realized path, squaring all the values, and then summing them up.
+Interestingly, they result in the same thing.
+
+
+
+
 * AKA Weiner Processes
 * Start with scaled random walk (but in continuous time)
 * Introduce quadratic variation
@@ -516,6 +585,7 @@ Brownian Motion
 * Talk about how quadratic variation is not-zero (unlike ordinary calculus), p99/102
   * Cannot be differentiated like other stuff
 
+Quadratic Variation link: https://benjaminwhiteside.com/2017/01/26/quadratic-variation/
 
 
 * Define (Wikipedia, Hull textbook)
