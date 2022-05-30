@@ -555,7 +555,7 @@ it as its integer steps), the same properties hold as we discussed in Example
 where we use the square root scaling to end up with variance accumulating still
 at one unit per time. 
 
-The last property, we'll look at is a quantity called the 
+Another property, we'll look at is a quantity called the 
 `quadratic variation <https://en.wikipedia.org/wiki/Quadratic_variation>`__,
 which is calculated *along a specific path* (i.e., there's not randomness
 involved).  For a scaled symmetric random walk, we get:
@@ -573,13 +573,28 @@ is an average over all paths, while the quadratic variation is taking a
 realized path, squaring all the values, and then summing them up.
 Interestingly, they result in the same thing.
 
+Finally, as you might expect, we wish to understand what happens
+to the scaled symmetric random walk when :math:`n \to \infty`.
+For a given :math:`t\geq 0`, let's recall a few things:
 
+* :math:`E[W^{(n)}(t)] = 0` (from Equation 14 with :math:`s = 0`).
+* :math:`Var[W^{(n)}(t)] = t` (from Equation 14 with :math:`s = 0`).
+* :math:`W^{(n)}(t) = \frac{1}{\sqrt{n}} \sum_{i=1}^t X_t` for Bernoulli process :math:`X(t)`.
+* The `central limit theorem <https://en.wikipedia.org/wiki/Central_limit_theorem#Classical_CLT>`__
+  states that :math:`\frac{1}{\sqrt{N}}\sum_{i=1}^n Y_i` converges
+  to :math:`\mathcal{N}(\mu_Y, \sigma_Y^2)` as :math:`n \to \infty` for IID
+  random variables :math:`Y_i` (given some mild conditions).
 
+We can see that our symmetric scaled random walk fits precisely the conditions
+as the central limit theorem, which means that as :math:`n \to \infty`,
+:math:`W^{(n)}(t)` converges to a normal distribution with mean :math:`0` and
+variance :math:`t`.  This limit is in fact the method in which we'll define
+Brownian motion.
 
-* AKA Weiner Processes
-* Start with scaled random walk (but in continuous time)
-* Introduce quadratic variation
-* Show that at time t, we are normally distributed in the limit
+Brownian Motion
+***************
+
+* Limit of scaled random walk -> normal dist 
 * Define Brownian motion
 * Talk about the difference between the two p94
 * Talk about how quadratic variation is not-zero (unlike ordinary calculus), p99/102
