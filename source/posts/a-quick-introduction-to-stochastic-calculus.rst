@@ -594,6 +594,23 @@ Brownian motion.
 Brownian Motion
 ***************
 
+We finally arrive at the definition of Brownian motion, which will be the limit
+of the scaled symmetric random walk as :math:`n \to \infty`.  We'll define it
+in terms of the properties of this limiting distribution, many of which are inherited
+from the scaled symmetric random walk:
+
+    Given probability space :math:`(\Sigma, \mathcal{F}, P)`,
+    For each :math:`\omega \in Omega`, define a continuous function that depends on
+    :math:`\omega` as :math:`W(t) := W(t, \omega)` for :math:`t \geq 0`.
+    :math:`W(t)` is a **Brownian motion** if the following are satisfied:
+
+    1. :math:`W(0) = 0`;
+    2. All increments :math:`W(t_1) = W(t_1) - W(t_0), W(t_2) - W(t_1), \ldots, W(t_m) - W(t_{m-1})`
+       for :math:`0 = t_0 < t_1 < \ldots < t_{m-1} < t_{m}` are independent; and
+    3. Each increment is distributed normally with :math:`E[W(t_{i+1} - t_i)] = 0` and 
+       :math:`Var[W(t_{i+1} - t_i)] = t_{i+1} - t_i`.
+
+
 * Limit of scaled random walk -> normal dist 
 * Define Brownian motion
 * Talk about the difference between the two p94
