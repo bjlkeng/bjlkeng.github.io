@@ -440,7 +440,7 @@ As with much of this topic, we require a lot of rigour in order to make sure we
 don't have weird corner cases.  The next example gives more intuition on
 the interplay between filtrations and random variables.
 
-.. admonition:: Example 2: An Adapted Bernoulli Processes
+.. admonition:: Example 4: An Adapted Bernoulli Processes
 
     First, we need to define the filtration that we wish to adapt to our
     Bernoulli Process.  Borrowing from Appendix A, repeating the two equations:
@@ -605,15 +605,63 @@ from the scaled symmetric random walk:
     :math:`W(t)` is a **Brownian motion** if the following are satisfied:
 
     1. :math:`W(0) = 0`;
-    2. All increments :math:`W(t_1) = W(t_1) - W(t_0), W(t_2) - W(t_1), \ldots, W(t_m) - W(t_{m-1})`
+    2. All increments :math:`W(t_1) - W(t_0), \ldots, W(t_m) - W(t_{m-1})`
        for :math:`0 = t_0 < t_1 < \ldots < t_{m-1} < t_{m}` are independent; and
     3. Each increment is distributed normally with :math:`E[W(t_{i+1} - t_i)] = 0` and 
        :math:`Var[W(t_{i+1} - t_i)] = t_{i+1} - t_i`.
 
+We can see that Brownian motion inherits many of the same properties as our scaled
+symmetric random walk.  Namely, independent increments with each one being
+distributed normally.  With Brownian motion the increments are exactly normal
+instead of approximately normal (for large :math:`n`) with the scaled symmetric
+random walk.
 
-* Limit of scaled random walk -> normal dist 
-* Define Brownian motion
-* Talk about the difference between the two p94
+One way to think of Brownian motion is that each :math:`\omega` is a path generated
+by a random experiment, for example, the random motion of a particle suspended
+in a fluid.  At each infinitesimal point in time, it is perturbed randomly
+(distributed normally) into a different direction.  In fact, this is the origin
+of the phenomenon by botanist `Robert Brown
+<https://en.wikipedia.org/wiki/Robert_Brown_(botanist,_born_1773)>`__ 
+(although the math describing it came after by several others including Einstein).
+
+Another way to think about the random motion is using our analogy of coin tosses.
+:math:`\omega` is still the outcome of an infinite sequence of coin tosses but
+instead of happening at each integer value of :math:`t`, they are happening
+"infinitely fast".  This is essentially the result of taking our limit to infinity.
+
+We can ask any questions that we usually would ask about random variables with
+Brown motion.  The next example shows a few of them.
+
+.. admonition:: Example 5: Brownian Motion
+
+    Suppose we wish to determine the probability that Brownian motion
+    at :math:`t=0.25` is between :math:`0` and :math:`0.25`.  Using
+    our rigourous jargon, we would say that we want to determine
+    the probability of the set :math:`A \in \mathcal{F}` containing
+    :math:`\omega \in \Omega` satisfying :math:`0 \leq W(0.25) \leq 0.2`.
+
+    We know that each increment is normally distributed with expectation of
+    :math:`0` and variance of :math:`t_{i+1}-t_{i}`, so for the :math:`[0, 0.25]`
+    increment, we have:
+
+    .. math::
+
+        W(0.25) - W(0) = W(0.25) - 0 = W(0.25) \sim N(0, 0.25) \tag{16}
+
+    Thus, we are just asking the probability that a normal distribution takes
+    on these values, which we can easily compute using the normal distribution density:
+
+    .. math::
+
+        P(0 \leq W(0.25) \leq 0.2) &= \frac{1}{\sqrt{2\pi(0.25)}} \int_0^{0.2} e^{-\frac{1}{2}(\frac{x}{0.25})^2}  \\
+                                   &= \frac{2}{2\pi} \int_0^{0.2} e^{-2x^2}  \\
+                                   &\approx 0.155 \\
+                                   \tag{17}
+
+   
+
+* First passage of time is almost surely finite
+
 * Talk about how quadratic variation is not-zero (unlike ordinary calculus), p99/102
   * Cannot be differentiated like other stuff
 
