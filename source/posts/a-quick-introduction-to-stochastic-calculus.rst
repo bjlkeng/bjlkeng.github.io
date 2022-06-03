@@ -413,7 +413,7 @@ on our event space :math:`\mathcal{F}` and our index set :math:`T`:
 
     A **filtration** :math:`\mathbb{F}` is a ordered collection
     of subsets :math:`\mathbb{F} := (\mathcal{F_t})_{t\in T}` where 
-    :math:`F_t` is a sub-:math:`\sigma`-algebra of :math:`\mathcal{F}`
+    :math:`\mathcal{F_t}` is a sub-:math:`\sigma`-algebra of :math:`\mathcal{F}`
     and :math:`\mathcal{F_{t_1}} \subseteq \mathcal{F_{t_2}}` for all
     :math:`t_1 \leq t_2`.
 
@@ -591,8 +591,8 @@ as the central limit theorem, which means that as :math:`n \to \infty`,
 variance :math:`t`.  This limit is in fact the method in which we'll define
 Brownian motion.
 
-Brownian Motion
-***************
+Brownian Motion Definition
+**************************
 
 We finally arrive at the definition of Brownian motion, which will be the limit
 of the scaled symmetric random walk as :math:`n \to \infty`.  We'll define it
@@ -658,22 +658,35 @@ Brown motion.  The next example shows a few of them.
                                    &\approx 0.155 \\
                                    \tag{17}
 
-   
+We also have the concept of filtrations for Brownian motion.  It uses the same definition
+as we discussed previously except it also adds the condition that future increments
+are independent of any :math:`\mathcal{F_t}`.  As we will see below, we will be
+using more complex adapted stochastic processes as integrands against a Brownian
+motion integrator.  This is why it's important to add this additional condition
+of independence for future increments.  It's so the adapted stochastic process
+(with respect to the Brownian motion filtration) can be properly integrated
+and cannot "see into the future".
 
-* First passage of time is almost surely finite
+
+Quadratic Variation of Brownian Motion
+**************************************
+
 
 * Talk about how quadratic variation is not-zero (unlike ordinary calculus), p99/102
   * Cannot be differentiated like other stuff
 
 Quadratic Variation link: https://benjaminwhiteside.com/2017/01/26/quadratic-variation/
 
-
-* Define (Wikipedia, Hull textbook)
-* Basic properties
 * Continuous everywhere, Differentiable nowhere
 * Quadratic variation?
 * Surely p=1.0 to return to value, and it's length is infinite
 * Example (use something from Hull textbook)
+
+First Passage of Time for Brownian Motion
+*****************************************
+
+An interesting question to ask is the *first passage of time* question: 
+* First passage of time is almost surely finite
 
 Stochastic Integrals
 ====================
