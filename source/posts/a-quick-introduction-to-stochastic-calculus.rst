@@ -671,6 +671,56 @@ and cannot "see into the future".
 Quadratic Variation of Brownian Motion
 **************************************
 
+We looked at the quadratic variation above for the scaled symmetric random walk
+and concluded that it accumulates quadratic variation one unit per time (i.e.
+quadratic variation is :math:`T` for :math:`[0, T]`) regardless of the value of
+:math:`n`.  We'll see that this is also true for Brownian motion but before we
+do, let's first appreciate why this is strange.
+
+    Let :math:`f(t)` be a function defined on :math:`[0, T]`.  The 
+    **quadratic variation** of :math:`f` up to :math:`T` is
+
+    .. math::
+
+        [f, f](T) = \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1}[f(t_{j+1}) - f(t_j)]^2 \tag{18}
+
+    for :math:`\Pi = \{t_0, t_1, \ldots, t_n\}`, :math:`0\leq t_1 \leq t_2 < \ldots < t_n = T`
+    and :math:`||\Pi|| = \max_{j=0,\ldots,n} (t_{j+1}-t_j)`.
+
+This is basically the same idea that we discussed before: for infinitesimally
+small intervals, take the difference of the function for each interval,
+square them, and then sum them all up.  The part you may not be familiar with
+is that instead of having an evenly spaced intervals like we usually see in a
+first calculus course, we're can use any unevenly spaced ones.  The only 
+condition is that the largest partition goes to zero.  This is called the mesh
+or norm of the partition, which is similar to the formal definition of 
+`Riemannian integrals <https://en.wikipedia.org/wiki/Riemann_integral>`__
+(even though many of us, like myself, didn't learn it this way).  In any
+case the idea is very similar to just having evenly spaced intervals.
+
+Now that we have Equation 18, let's see how it behaves on a function
+:math:`f(t)` that has a continuous derivative:
+(recall the `mean value theorem <https://en.wikipedia.org/wiki/Mean_value_theorem>`__ 
+states that :math:`f'(c) = \frac{f(a) - f(b)}{b-a}` for :math:`c \in (a,b)`
+for continuous functions with derivatives on the respective interval):
+
+    .. math::
+
+        [f, f](T) &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1}[f(t_{j+1}) - f(t_j)]^2   && \text{definition} \\
+        &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1}|f'(t_j^*)|^2 (t_{j+1} - t_j)^2 && \text{mean value theorem} \\
+        &\leq \lim_{||\Pi|| \to 0} ||\Pi|| \sum_{j=0}^{n-1}|f'(t_j^*)|^2 (t_{j+1} - t_j)  \\
+        &= \big[\lim_{||\Pi|| \to 0} ||\Pi||\big] \big[\lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1}|f'(t_j^*)|^2 (t_{j+1} - t_j)\big] && \text{limit product rule}  \\
+        &= \big[\lim_{||\Pi|| \to 0} ||\Pi||\big] \int_0^T |f'(t)|^2 dt = 0&& f'(t) \text{ is continuous} \\
+        \tag{19}
+
+So we can see that quadratic variation is not very important for most functions
+we are used to seeing i.e., ones with continuous derivatives.  Brownian motion,
+however, cannot be differentiated with respect to time.  This is one of the key
+reasons why we need stochastic calculus, otherwise we could just use the rules
+for standard calculus we all know and love.
+
+To see this, ... TODO: See explanation that you cannot use the mean value
+theorem.
 
 * Talk about how quadratic variation is not-zero (unlike ordinary calculus), p99/102
   * Cannot be differentiated like other stuff
