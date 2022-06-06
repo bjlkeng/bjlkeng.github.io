@@ -373,7 +373,7 @@ how to match the formal definition to concrete stochastic processes.
                                  &= 0 \\
         Var[S_{k_{i+1}} - S_{k_i}] &= E[\sum_{j=k_i + 1}^{k_{i+1}} X_i] \\
                                    &= \sum_{j=k_i + 1}^{k_{i+1}} Var[X_j]  && X_i \text{ independent}\\
-                                   &= \sum_{j=k_i + 1}^{k_{i+1}} 1 && Var(X_j) = E[X_j^2] = 1 \\
+                                   &= \sum_{j=k_i + 1}^{k_{i+1}} 1 && Var[X_j] = E[X_j^2] = 1 \\
                                    &= k_{i+1} - k_i \\
         \tag{9}
 
@@ -714,22 +714,115 @@ for continuous functions with derivatives on the respective interval):
         \tag{19}
 
 So we can see that quadratic variation is not very important for most functions
-we are used to seeing i.e., ones with continuous derivatives.  Brownian motion,
-however, cannot be differentiated with respect to time.  This is one of the key
-reasons why we need stochastic calculus, otherwise we could just use the rules
-for standard calculus we all know and love.
+we are used to seeing i.e., ones with continuous derivatives.  In cases where
+this is not true, we cannot use the mean value theorem to simplify quadratic
+variation, so we potentially will get something that is non-zero.
 
-To see this, ... TODO: See explanation that you cannot use the mean value
-theorem.
+For Brownian motion in particular, we do not have a continuous derivative
+and cannot use the mean value theorem as in Equation 19, so we end up with
+a non-zero quadratic variation.  To see this, let's take a look at the absolute
+value function :math:`f(t) = |t|` in Figure 1.  On the interval :math:`(-2, 5)`,
+the slope between the two points is :math:`\frac{3}{7}`, but nowhere in this
+interval is the slope of the absolute value function :math:`\frac{3}{7}` (it's
+either constant 1 or constant -1 or undefined).
 
-* Talk about how quadratic variation is not-zero (unlike ordinary calculus), p99/102
-  * Cannot be differentiated like other stuff
+.. figure:: /images/stochastic_calculus_mvt.png
+    :width: 500px
+    :alt: Mean value theorem does not apply on functions without derivatives
+    :align: center
 
-Quadratic Variation link: https://benjaminwhiteside.com/2017/01/26/quadratic-variation/
+**Figure 1: Mean value theorem does not apply on functions without derivatives (`source <https://people.math.sc.edu/meade/Bb-CalcI-WMI/Unit3/HTML-GIF/MeanValueTheorem.html>`__)**
 
-* Continuous everywhere, Differentiable nowhere
-* Quadratic variation?
-* Surely p=1.0 to return to value, and it's length is infinite
+Recall, this is a similar situation to what we had for the scaled symmetric 
+random walk -- in between each of the discrete points, we used a linear
+interpolation.  As we increase :math:`n`, this "pointy" behaviour persists and
+is inherited by Brownian motion where we no longer have a continuous
+derivative.  Thus, we need to deal with this situation where we have a function
+that is continuous everywhere, but differentiable nowhere.  This is one of the
+key reasons why we need stochastic calculus, otherwise we could just use the
+rules for standard calculus we all know and love.
+
+.. admonition:: **Theorem 1** For Brownian motion :math:`W`, :math:`[W,W](T) = T`
+    for all :math:`T\geq 0` almost surely.
+
+    **Proof**
+
+    Define the sampled quadratic variation for partition as above (Equation 18):
+
+    .. math::
+
+        Q_{\Pi} = \sum_{j=0}^{n-1}\big( W(t_{j+1}) - W(t_j) \big)^2 \tag{20}
+
+    This quantity is a random variable since it depends on the particular
+    "outcome" path of Brownian motion (recall quadratic variation is with
+    respect to a particular realized path).  
+    
+    To prove the theorem, We need to show that the sampled quadratic variation
+    converges to :math:`T` as :math:`||\Pi|| \to 0`.  This can be accomplished
+    by showing :math:`E[Q_{\Pi}] = T` and :math:`Var[Q_{\Pi}] = 0`, which says
+    that we will converge to :math:`T` regardless of the path taken.
+
+    We know that each increment in Brownian motion is independent, thus
+    their sums are the sums of the respective means and variances of each
+    increment.  So given that we have:
+
+    .. math::
+
+        E[(W(t_{j+1})-W(t_j))^2] &= E[(W(t_{j+1})-W(t_j))^2] - 0 \\
+                                 &= E[(W(t_{j+1})-W(t_j))^2] - E[W(t_{j+1})-W(t_j)]^2 && \text{definition of Brownian motion}\\
+                                 &= Var[W(t_{j+1})-W(t_j)]  \\
+                                 &= t_{j+1} -  t_j && \text{definition of Brownian motion}\\
+                                 \tag{21}
+
+    We can easily compute :math:`E[Q_{\Pi}]` as desired:
+
+    .. math::
+
+        E[Q_{\Pi}] &= E[ \sum_{j=0}^{n-1}\big( W(t_{j+1}) - W(t_j) \big)^2 ] \\
+        &= \sum_{j=0}^{n-1} E[W(t_{j+1}) - W(t_j)]^2 \\
+        &= \sum_{j=0}^{n-1} (t_{j+1} - t_j)  && \text{Equation } 21 \\
+        &= T \\
+        \tag{22}
+
+    From here, we use the fact <https://math.stackexchange.com/questions/1917647/proving-ex4-3%CF%834>`__ 
+    that the expected value of the fourth moment of a normal random variable
+    with zero mean is three times its variance.  Anticipating the quantity
+    we'll need to compute the variance, we have:
+
+    .. math::
+
+         E\big[(W(t_{j+1})-W(t_j))^4 \big] = 3Var[(W(t_{j+1})-W(t_j)] = 3(t_{j+1} - t_j)^2 \tag{23}
+
+    Computing the variance of each increment:
+
+    .. math::
+    
+         Var\big[(W(t_{j+1})-W(t_j))^2 \big] &= E\big[\big( (W(t_{j+1})-W(t_j))^2 -  E[(W(t_{j+1})-W(t_j))^2] \big)\big] && \text{definition of variance} \\
+         &= E\big[\big( (W(t_{j+1})-W(t_j))^2 -  (t_{j+1} - t_j) \big)\big] && \text{Equation } 21 \\
+         &= E[(W(t_{j+1})-W(t_j))^4] - 2(t_{j+1}-t_j)E[(W(t_{j+1})-W(t_j))^2] + (t_{j+1} - t_j)^2 \\
+         &= 3(t_{j+1}-t_j)^2 - 2(t_{j+1}-t_j)^2 + (t_{j+1} - t_j)^2 && \text{Equation } 21/23 \\
+         &= 2(t_{j+1}-t_j)^2 \\
+         \tag{24}
+
+    From here, we can finally compute the variance:
+
+    .. math::
+
+        Var[Q_\Pi] &= \sum_{j=0}^{n-1} Var\big[ (W(t_{j+1} - W(t_j)))^2 \big]  \\
+                   &= \sum_{j=0}^{n-1} 2(t_{j+1}-t_j)^2  && \text{Equation } 24 \\
+                   &\leq  \sum_{j=0}^{n-1} 2 ||\Pi|| (t_{j+1}-t_j)  \\
+                   &= 2 ||\Pi|| T && \text{Equation } 22 \\
+                   \tag{25}
+
+    As :math:`\lim_{||\Pi|| \to 0} Var[Q_\Pi] = 0`, therefore we have shown that
+    :math:`\lim_{||\Pi|| \to 0} Q_\Pi = T` as required.
+
+* TODO: Give some summary of what this means.  Talk about almost surely.
+* Talk about shorthand dWdW = dt
+* accumulates QV at one unit per time
+* Mention cross variation is 0, dWdt = 0 and dtdt = 0
+ 
+
 * Example (use something from Hull textbook)
 
 First Passage of Time for Brownian Motion
@@ -737,6 +830,7 @@ First Passage of Time for Brownian Motion
 
 An interesting question to ask is the *first passage of time* question: 
 * First passage of time is almost surely finite
+* Surely p=1.0 to return to value, and it's length is infinite
 
 Stochastic Integrals
 ====================
