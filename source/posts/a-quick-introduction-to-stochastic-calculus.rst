@@ -731,7 +731,7 @@ either constant 1 or constant -1 or undefined).
     :alt: Mean value theorem does not apply on functions without derivatives
     :align: center
 
-**Figure 1: Mean value theorem does not apply on functions without derivatives (`source <https://people.math.sc.edu/meade/Bb-CalcI-WMI/Unit3/HTML-GIF/MeanValueTheorem.html>`__)**
+**Figure 1: Mean value theorem does not apply on functions without derivatives** (`source <https://people.math.sc.edu/meade/Bb-CalcI-WMI/Unit3/HTML-GIF/MeanValueTheorem.html>`__)
 
 Recall, this is a similar situation to what we had for the scaled symmetric 
 random walk -- in between each of the discrete points, we used a linear
@@ -784,7 +784,7 @@ rules for standard calculus we all know and love.
         &= T \\
         \tag{22}
 
-    From here, we use the fact <https://math.stackexchange.com/questions/1917647/proving-ex4-3%CF%834>`__ 
+    From here, we use the `fact <https://math.stackexchange.com/questions/1917647/proving-ex4-3%CF%834>`__ 
     that the expected value of the fourth moment of a normal random variable
     with zero mean is three times its variance.  Anticipating the quantity
     we'll need to compute the variance, we have:
@@ -797,8 +797,8 @@ rules for standard calculus we all know and love.
 
     .. math::
     
-         Var\big[(W(t_{j+1})-W(t_j))^2 \big] &= E\big[\big( (W(t_{j+1})-W(t_j))^2 -  E[(W(t_{j+1})-W(t_j))^2] \big)\big] && \text{definition of variance} \\
-         &= E\big[\big( (W(t_{j+1})-W(t_j))^2 -  (t_{j+1} - t_j) \big)\big] && \text{Equation } 21 \\
+         Var\big[(W(t_{j+1})-W(t_j))^2 \big] &= E\big[\big( (W(t_{j+1})-W(t_j))^2 -  E[(W(t_{j+1})-W(t_j))^2] \big)^2\big] && \text{definition of variance} \\
+         &= E\big[\big( (W(t_{j+1})-W(t_j))^2 -  (t_{j+1} - t_j) \big)^2\big] && \text{Equation } 21 \\
          &= E[(W(t_{j+1})-W(t_j))^4] - 2(t_{j+1}-t_j)E[(W(t_{j+1})-W(t_j))^2] + (t_{j+1} - t_j)^2 \\
          &= 3(t_{j+1}-t_j)^2 - 2(t_{j+1}-t_j)^2 + (t_{j+1} - t_j)^2 && \text{Equation } 21/23 \\
          &= 2(t_{j+1}-t_j)^2 \\
@@ -817,13 +817,52 @@ rules for standard calculus we all know and love.
     As :math:`\lim_{||\Pi|| \to 0} Var[Q_\Pi] = 0`, therefore we have shown that
     :math:`\lim_{||\Pi|| \to 0} Q_\Pi = T` as required.
 
-* TODO: Give some summary of what this means.  Talk about almost surely.
-* Talk about shorthand dWdW = dt
-* accumulates QV at one unit per time
-* Mention cross variation is 0, dWdt = 0 and dtdt = 0
- 
+The term `almost surely <https://en.wikipedia.org/wiki/Almost_surely>`__  is a
+technical term meaning with probability 1.  This is another unintuitive idea
+when dealing with infinities.  The theorem doesn't say that there are no paths
+with different quadratic variation, it only says those paths are negligible in
+size with respect to the infinite number of paths, and thus have probability
+zero.
 
-* Example (use something from Hull textbook)
+Taking a step back, this is quite a profound result: if you take *any* realized
+path of Brownian motion, sum the infinitesimally small squared increments of
+that paths, it equals the length of the interval almost surely. In other words,
+*Brownian motion accumulates quadratic variation at a rate of one unit per
+time*.  
+
+This is perhaps surprising result because it can be *any* path.  It doesn't
+matter how the "infinitely fast" coin flips land, the sum of the square
+increments will always approach the length of the interval.  The fact
+that it's also non-zero is surprising too despite the path being continuous (but
+without a continuous derivative) as we discussed above.
+
+We often will informally write:
+
+.. math::
+
+    dW(t)dW(t) = dt \tag{26}
+
+To describe the accumulation of quadratic variation one unit per time.
+However, this should not be interpreted to be true for each infinitesimally
+small increment.  Recall each increment of W(t) is normally distributed, so the
+LHS of Equation 26 is actually distributed as the square of a normal
+distribution.  We only get the result of Theorem 1 when we sum a large number
+of them (see [1] for more details).
+
+We can also use this informal notation to describe a few other related concepts.
+The cross variation (Equation 27) and quadratic of variation for the time
+variable (Equation 28) respectively:
+
+.. math::
+
+    dW(t)dt &= 0 \tag{27} \\
+    dtdt &= 0 \tag{28}
+
+The quadratic variation for time can use the same definition from Equation 18
+above, and the cross variation just uses two different function (:math:`W(t)`
+and :math:`t`) instead of the same function.  Both of these can be shown
+to be zero using techniques as above (see [1] for more details).
+
 
 First Passage of Time for Brownian Motion
 *****************************************
