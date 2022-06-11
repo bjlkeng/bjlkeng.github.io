@@ -742,8 +742,10 @@ that is continuous everywhere, but differentiable nowhere.  This is one of the
 key reasons why we need stochastic calculus, otherwise we could just use the
 rules for standard calculus we all know and love.
 
-.. admonition:: **Theorem 1** For Brownian motion :math:`W`, :math:`[W,W](T) = T`
-    for all :math:`T\geq 0` almost surely.
+.. admonition:: **Theorem 1** 
+   
+    *For Brownian motion* :math:`W`, :math:`[W,W](T) = T`
+    *for all* :math:`T\geq 0` *almost surely.*
 
     **Proof**
 
@@ -860,16 +862,29 @@ variable (Equation 28) respectively:
 
 The quadratic variation for time can use the same definition from Equation 18
 above, and the cross variation just uses two different function (:math:`W(t)`
-and :math:`t`) instead of the same function.  Both of these can be shown
-to be zero using techniques as above (see [1] for more details).
+and :math:`t`) instead of the same function.  Intuitively, both of these are
+zero because the time increment (:math:`\Pi`) goes to zero in the limit by
+definition, thus so do these two variations.  This can be shown more formally
+using similar arguments as the quadratic variation above (see [1] for more details).
 
 
-First Passage of Time for Brownian Motion
-*****************************************
+First Passage Time for Brownian Motion
+**************************************
 
-An interesting question to ask is the *first passage of time* question: 
-* First passage of time is almost surely finite
-* Surely p=1.0 to return to value, and it's length is infinite
+We digress here to show a non-intuitive property of Brownian motion: it will
+*eventually* be equal to a given level :math:`m`.
+
+.. admonition:: **Theorem 2**
+
+   *For* :math:`m \in \mathbb{R}`, *the first passage time* :math:`\tau_m` *of
+   Brownian motion to level* :math:`m` *is finite almost surely, i.e.*
+   :math:`P(\tau_m < \infty) = 1`.
+
+This basically says that Brownian motion is almost certain to reach whatever
+finite level within some finite time :math:`\tau_m`.  Again, there is a path of
+Brownian motion that does not exceed a given level :math:`m` but they are so
+infinitesimally small that they are collectively assigned probability 0 
+(almost surely).  Working with infinities can be unintuitive.
 
 Stochastic Integrals
 ====================
