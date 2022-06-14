@@ -886,33 +886,61 @@ Brownian motion that does not exceed a given level :math:`m` but they are so
 infinitesimally small that they are collectively assigned probability 0 
 (almost surely).  Working with infinities can be unintuitive.
 
-Stochastic Integrals
-====================
+Stochastic Calculus
+===================
 
-* Adapted Processes: https://en.wikipedia.org/wiki/Adapted_process
-  * Itō integral, which only makes sense if the integrand is an adapted process. 
+Our main goal is to make sense of the following:
 
+.. math::
+
+   \int H dX(t) \tag{29}
+
+where :math:`X(t)` and :math:`H(t)` are two special types of stochastic
+processes.  The definition of the integral is conceptually too different
+from a plain old `Riemannian integral <https://en.wikipedia.org/wiki/Riemann_integral>`__
+that we learn in first year calculus, but the key difference is that
+:math:`X(t)` that has non-zero quadratic variation (e.g. Brownian motion).
+This results in a different set of "rules" of how to work with these types of
+integrals.  Don't worry about the details for now, we'll work out all these in
+the later subsections.
+
+All the depth we went into on stochastic processes in the previous section is
+about to pay off!  We'll have to use all of those ideas in order to properly
+define Equation 29.  We'll start with defining the simpler cases where
+:math:`X(t)` is a Brownian motion, and generalize it to be any
+Itô process, and then introduce the key result called Itô's lemma, a conceptual
+form of the chain rule, which will allows us to solve many more interesting
+problems.
+
+
+Stochastic Integrals with Brownian Motion
+-----------------------------------------
 
 * Stochastic integral (see lectures notes "A Quick introduction to stochastic calculus")
-    * Why we need it? non-differentiable
-    * Use the basic Brownian motion integral as an example
+    * Regular calculus chain rule would be easy
+    * But since we have non-zero quadratic variation, we need to do something different
+    * Show example of Brownian motion != regular calculus
+* Define basic integral with Brownian motion
+    * Adapted Processes: https://en.wikipedia.org/wiki/Adapted_process
+    * Itō integral, which only makes sense if the integrand is an adapted process. 
+* Show that it converges
 * Different types of stochastic calculus' you can come up with depending on definition
 
-Stochastic Differential Equations (SDE)
-=======================================
+Itô Processes
+-------------
 
 * dX = adt + bdB
 * https://en.wikipedia.org/wiki/Stochastic_differential_equation
-* Ito Processes https://en.wikipedia.org/wiki/It%C3%B4_calculus#It%C3%B4_processes
+* Itô Processes https://en.wikipedia.org/wiki/It%C3%B4_calculus#It%C3%B4_processes
 
 Itô's Lemma
-===========
+-----------
 * https://en.wikipedia.org/wiki/It%C3%B4%27s_lemma
 * Simple derivation
 * Examples: 
 
-Applications
-============
+Applications of Stochastic Calculus
+===================================
 
 Stock Prices and the Black-Scholes Equation
 -------------------------------------------
