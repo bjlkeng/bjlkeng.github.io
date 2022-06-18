@@ -893,7 +893,7 @@ Our main goal is to make sense of the following:
 
 .. math::
 
-   \int H dX(t) \tag{29}
+   \int_0^T H(t) dX(t) \tag{29}
 
 where :math:`X(t)` and :math:`H(t)` are two special types of stochastic
 processes.  The definition of the integral is conceptually too different
@@ -916,18 +916,130 @@ problems.
 Stochastic Integrals with Brownian Motion
 -----------------------------------------
 
-* Stochastic integral (see lectures notes "A Quick introduction to stochastic calculus")
-    * Regular calculus chain rule would be easy
-    * But since we have non-zero quadratic variation, we need to do something different
-    * Show example of Brownian motion != regular calculus
-* Define basic integral with Brownian motion
-    * Adapted Processes: https://en.wikipedia.org/wiki/Adapted_process
-    * Itō integral, which only makes sense if the integrand is an adapted process. 
-* Show that it converges
-* Different types of stochastic calculus' you can come up with depending on definition
+To begin, we'll start with the simplest case when the integrator (:math:`dX(t)`
+in Equation 29) is Brownian motion.  For this simple case, we can define
+the integral as:
 
-Itô Processes
--------------
+.. math::
+
+    \int_0^t H(s) dW(s) := \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} H(s_i)[W(t_{i+1}) - W(t_i)] \tag{30}
+
+where :math:`t_i \leq s_i \leq t_{i+1}`, and :math:`||\Pi||` is the mesh (or
+maximum interval) that goes to zero while the number of partitions goes to infinity
+like in Equation 18 (and standard Riemannian integrals).
+
+To ensure that this integral is well defined we need a few things:
+
+1. The choice of :math:`s_i` is quite important (unlike regular integrals).
+   The `Itô integral <https://en.wikipedia.org/wiki/Stochastic_calculus#It%C3%B4_integral>`__ 
+   uses :math:`s_i = t_i`, which is more common in finance; the 
+   `Stratonovich integral <https://en.wikipedia.org/wiki/Stochastic_calculus#Stratonovich_integral>`__
+   uses :math:`s_i = \frac{(t_i + t_{i+1})}{2}`, which is more common in physics.  
+   We'll be using the Itô integral for most of this post, but will show the difference
+   in the example below.
+2. :math:`H(t)` must be adapted to the same process as our integrator
+   :math:`\mathcal{F}(t)`, otherwise we would be allowing it to "see into the
+   future".  For most of our applications, this is a very reasonable assumption.
+3. The integrand needs to have square-integrability: :math:`E[\int_0^T H^2(t)dt] < \infty`.
+4. We need to ensure that each sample point of the integrand :math:`H(s_i)` in
+   the limit converges to :math:`H(s)` with probability one (remember we're
+   still working with stochastic processes here).  That's a pretty strong
+   condition, so we'll actually use a weaker squared convergence as:
+
+   .. math::
+
+        \lim_{n \to \infty} E[\int_0^T |H_n(t) - H(t)|^2 dt] = 0 \tag{31}
+
+   for :math:`H_n(s) = H(t_i)` for :math:`t_i \leq s < t_{i+1}`, basically the
+   piece-wise function approximation for :math:`H(t)` using the left most point for the interval.
+
+From a high level, Equation 30 is not too different from our usual Riemannian
+integrals.  However, since we're dealing with integrators (e.g. Brownian
+motion) that do not have continuous derivatives, we have to be more careful
+adding the conditions above to ensure we have a consistent definition.
+I won't go into too much detail into these conditions except for the first one,
+which we'll look at in more detail in the next example.
+
+.. admonition:: Example 6: A Simple Stochastic Integral in Two Ways
+
+    Let's work through the simple integral where the integrand and integrator are
+    both Brownian motion:
+
+    .. math::
+
+        \int_0^t W(s) dW(s) = \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} W(s_i)[W(t_{i+1}) - W(t_i)] \tag{32}
+
+    First, we'll work through it using the Itô convention where :math:`s_i=t_i`:
+
+    .. math::
+
+        \int_0^t W(s) dW(s) &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} W(t_i)[W(t_{i+1}) - W(t_i)] \\
+        &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} \big[W(t_i)W(t_{i+1}) - W(t_i)^2 + \frac{1}{2}W(t_{i+1})^2 - \frac{1}{2}W(t_{i+1})^2 \big]\\
+        &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} 
+        \big[\frac{1}{2}W(t_{i+1})^2 - \frac{1}{2}W(t_i)^2
+        - \frac{1}{2}W(t_{i+1})^2 + W(t_i)W(t_{i+1}) - \frac{1}{2}W(t_i)^2 \big]\\
+        &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} 
+        \frac{1}{2}[W(t_{i+1})^2 - W(t_i)^2] - \frac{1}{2}[W(t_{i+1}) - W(t_{i})]^2 \\
+        \tag{33}
+
+    The first term is just a telescoping sum, which has massive cancellation:
+
+    .. math::
+
+        \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} \frac{1}{2}[W(t_{i+1})^2 - W(t_i)^2] = \frac{1}{2}(W(t)^2 - W(0)^2) 
+        = \frac{1}{2} W(t)^2 - 0 = \frac{W(t)^2}{2}  \tag{34}
+
+    The second term you'll notice is precisely the quadratic variance from Theorem 1,
+    which we knows equals the interval :math:`t`.  Putting it together, we have:
+
+    .. math::
+
+        \int_0^t W(s) dW(s) =  \frac{W(t)^2}{2} - \frac{t}{2} \tag{35}
+
+    We'll notice that this *almost* looks like the result from calculus i.e., 
+    :math:`\int x dx = \frac{x^2}{2}`, except with an extra term.  As we saw
+    above the extra term comes in precisely because we have non-zero quadratic
+    variation.  If Brownian motion had a continuous differentiable paths, then
+    we wouldn't need all this extra work with stochastic integrals.
+
+    .. raw:: html
+
+        <hr>
+
+    Now let's look at what happens when we use the Stratonovich convention
+    (using the :math:`\circ` operator to denote it) with :math:`s_i = \frac{t_i + t_{i+1}}{2}`:
+
+    .. math::
+
+        &\int_0^t W(s) \circ dW(s) \\
+        &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} W(s_i)[W(t_{i+1}) - W(t_i)] \\
+        &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} \big[W(s_i)W(t_{i+1}) - W(s_i)W(t_i) +  W(t_j)W(s_i) - W(t_j)W(s_i) \\
+        &+ W(t_j)^2 - W(t_j)^2 + W(s_i)^2 - W(s_i)^2 \big] \\
+        &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} \big[W(t_j)(W(s_i) - W(t_j)) + W(s_i)(W(t_{i+1}) - W(s_i)) \big]  \\
+        &+ \sum_{j=0}^{n-1}\big[ W(s_i) - W(t_j) \big]^2 \\
+        &= \int_0^t W(s) dW(s) + \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1}\big[ W(s_i) - W(t_j) \big]^2 
+        && \text{Itô integral with partitions } t_0, s_0, t_1, s_1, \ldots \\
+        &= \frac{W(t)^2}{2} - \frac{t}{2} + \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1}\big[ W(s_i) - W(t_j) \big]^2 
+        && \text{Equation 35} \\
+        &= \frac{W(t)^2}{2} - \frac{t}{2} + \frac{t}{2} && \text{Half-saple quadratic variation} \\
+        &= \frac{W(t)^2}{2} \\
+        \tag{36}
+
+    We use the fact that the half-sample quadratic variation is equal to
+    :math:`\frac{t}{2}` using a similar proof to Theorem 1.
+
+    What we see here is that the Stronovich integral actually follows our
+    regular rules of calculus more closely, which is the reason it's used
+    in certain domains.  However in many domains, such as finance, it is not
+    appropriate to use it.  This is because the integrand represents a decision
+    we are making for a time interval :math:`[t_j, t_{j+1}]`, such as a
+    position in an asset, and we have to decide that *before* that interval starts,
+    not mid-way through.  That's analagous to deciding in the middle of the day
+    that I should have actually bought more of a stock at the start of the day
+    that went up.
+
+Stochastic Differential Equations and Itô Processes
+---------------------------------------------------
 
 * dX = adt + bdB
 * https://en.wikipedia.org/wiki/Stochastic_differential_equation
