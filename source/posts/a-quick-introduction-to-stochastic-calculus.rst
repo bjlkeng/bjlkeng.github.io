@@ -896,13 +896,24 @@ Our main goal is to make sense of the following:
    \int_0^T H(t) dX(t) \tag{29}
 
 where :math:`X(t)` and :math:`H(t)` are two special types of stochastic
-processes.  The definition of the integral is conceptually too different
-from a plain old `Riemannian integral <https://en.wikipedia.org/wiki/Riemann_integral>`__
-that we learn in first year calculus, but the key difference is that
-:math:`X(t)` that has non-zero quadratic variation (e.g. Brownian motion).
-This results in a different set of "rules" of how to work with these types of
-integrals.  Don't worry about the details for now, we'll work out all these in
-the later subsections.
+processes.  A few questions immediately come to mind:
+
+1. *What "thing" do we get out of the stochastic integral?*  This is pretty
+   simple, it's another stochastic process, although it's not immediately clear
+   that should be case, but rather something that becomes more obvious once we
+   see the definition.
+2. *How do we deal with the limits of integration being in terms of
+   time :math:`t` but the integrand and integrator being stochastic processes
+   with time index set* :math:`t`?  We'll see below that the definition of the
+   integral is conceptually not too different from a plain old `Riemannian integral
+   <https://en.wikipedia.org/wiki/Riemann_integral>`__ that we learn in
+   regular calculus, but with some key differences due to the nature of
+   the stochastic processes we use (e.g. Brownian motion).
+3. *How do we deal with the non-continuous derivative of the integrator,
+   which manifests itself with non-zero quadratic variation?*  We'll see
+   that this results in one of the big differences with regular calculus.
+   Choices that didn't matter, suddenly matter, and the result produces
+   different outputs from the integration operation.
 
 All the depth we went into on stochastic processes in the previous section is
 about to pay off!  We'll have to use all of those ideas in order to properly
@@ -927,6 +938,14 @@ the integral as:
 where :math:`t_i \leq s_i \leq t_{i+1}`, and :math:`||\Pi||` is the mesh (or
 maximum interval) that goes to zero while the number of partitions goes to infinity
 like in Equation 18 (and standard Riemannian integrals).
+
+From a high level, Equation 30 is not too different from our usual Riemannian
+integrals.  However, since we're dealing with integrators (e.g. Brownian
+motion) that do not have continuous derivatives, we have to be more careful
+adding the conditions above to ensure we have a consistent definition.
+
+TODO: Explain additional volatility Pg 145
+* Contrast integrator dt vs. dW(t)
 
 To ensure that this integral is well defined we need a few things:
 
@@ -953,12 +972,9 @@ To ensure that this integral is well defined we need a few things:
    for :math:`H_n(s) = H(t_i)` for :math:`t_i \leq s < t_{i+1}`, basically the
    piece-wise function approximation for :math:`H(t)` using the left most point for the interval.
 
-From a high level, Equation 30 is not too different from our usual Riemannian
-integrals.  However, since we're dealing with integrators (e.g. Brownian
-motion) that do not have continuous derivatives, we have to be more careful
-adding the conditions above to ensure we have a consistent definition.
-I won't go into too much detail into these conditions except for the first one,
-which we'll look at in more detail in the next example.
+TODO: Quadratic variation pg 132
+* Use informal proof
+* Explain notation and differential notation
 
 .. admonition:: Example 6: A Simple Stochastic Integral in Two Ways
 
@@ -1038,18 +1054,26 @@ which we'll look at in more detail in the next example.
     that I should have actually bought more of a stock at the start of the day
     that went up.
 
-Stochastic Differential Equations and Itô Processes
----------------------------------------------------
+Itô Processes and Integrals
+---------------------------
 
+* Itô Processes: pg 143
+  * https://en.wikipedia.org/wiki/It%C3%B4_calculus#It%C3%B4_processes
+* Quadratic variation of Ito Process?
+  * Use the "informal proof" pg 145
+  * Explain parts: random and non-random part pg 145
+* Define the Ito process integral, pg 145
+  * Explain
+
+Itô's Lemma and Stochastic Differential Equations 
+-------------------------------------------------
 * dX = adt + bdB
 * https://en.wikipedia.org/wiki/Stochastic_differential_equation
-* Itô Processes https://en.wikipedia.org/wiki/It%C3%B4_calculus#It%C3%B4_processes
-
-Itô's Lemma
------------
 * https://en.wikipedia.org/wiki/It%C3%B4%27s_lemma
 * Simple derivation
 * Examples: 
+* "Ito calculus is little more than repeated use of this formula in a variety
+  of situations" Remark 4.4.7 pg 147
 
 Applications of Stochastic Calculus
 ===================================
