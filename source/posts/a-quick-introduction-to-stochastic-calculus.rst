@@ -940,14 +940,30 @@ maximum interval) that goes to zero while the number of partitions goes to infin
 like in Equation 18 (and standard Riemannian integrals).
 
 From a high level, Equation 30 is not too different from our usual Riemannian
-integrals.  However, since we're dealing with integrators (e.g. Brownian
-motion) that do not have continuous derivatives, we have to be more careful
-adding the conditions above to ensure we have a consistent definition.
+integrals.  However, we have to note that instead of having a :math:`dt`, we
+have a :math:`dW(s)`.  This makes the results more volatile than a regular
+integral.  Let's contrast the difference between approximating a regular
+and stochastic integral for a small step size :math:`\Delta t` starting
+from :math:`t`:
 
-TODO: Explain additional volatility Pg 145
-* Contrast integrator dt vs. dW(t)
+.. math::
 
-To ensure that this integral is well defined we need a few things:
+    R(t + \Delta t) &:= \int_0^{t+\Delta t} H(s) ds \approx R(t) + H(t)\Delta t \tag{31} \\
+    I(t + \Delta t) &:= \int_0^{t+\Delta t} H(s) dW(s) \approx I(t) + H(t)(W(t + \Delta t) - W(t)) \tag{32}
+
+:math:`R(t)` changes more predictably than :math:`I(t)` since we know that each
+increment change by :math:`H(s)\Delta t`.  Note that :math:`H(s)` can still be
+a random (and :math:`R(t)` can be random as well) but it changes only by a
+deterministic :math:`\Delta t`.  This is in contrast to :math:`I(t)` which changed
+by :math:`W(t + \Delta t) - W(t)`.  Recall that each increment of Brownian
+motion is independent and distributed normally with :math:`\mathcal{N}(0, \Delta t)`.
+Thus :math:`H(t)(W(t + \Delta t) - W(t))` changes much more erratically because
+our increments follow a *independent* normal distribution versus just a
+:math:`\Delta t`.  This is one of the key intuitions why we need to define a
+new type of calculus.
+
+To ensure that the stochastic integral in Equation 30 is well defined, we need
+a few things as you might expect:
 
 1. The choice of :math:`s_i` is quite important (unlike regular integrals).
    The `Itô integral <https://en.wikipedia.org/wiki/Stochastic_calculus#It%C3%B4_integral>`__ 
@@ -967,7 +983,7 @@ To ensure that this integral is well defined we need a few things:
 
    .. math::
 
-        \lim_{n \to \infty} E[\int_0^T |H_n(t) - H(t)|^2 dt] = 0 \tag{31}
+        \lim_{n \to \infty} E[\int_0^T |H_n(t) - H(t)|^2 dt] = 0 \tag{33}
 
    for :math:`H_n(s) = H(t_i)` for :math:`t_i \leq s < t_{i+1}`, basically the
    piece-wise function approximation for :math:`H(t)` using the left most point for the interval.
@@ -983,7 +999,7 @@ TODO: Quadratic variation pg 132
 
     .. math::
 
-        \int_0^t W(s) dW(s) = \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} W(s_i)[W(t_{i+1}) - W(t_i)] \tag{32}
+        \int_0^t W(s) dW(s) = \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} W(s_i)[W(t_{i+1}) - W(t_i)] \tag{34}
 
     First, we'll work through it using the Itô convention where :math:`s_i=t_i`:
 
@@ -996,21 +1012,21 @@ TODO: Quadratic variation pg 132
         - \frac{1}{2}W(t_{i+1})^2 + W(t_i)W(t_{i+1}) - \frac{1}{2}W(t_i)^2 \big]\\
         &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} 
         \frac{1}{2}[W(t_{i+1})^2 - W(t_i)^2] - \frac{1}{2}[W(t_{i+1}) - W(t_{i})]^2 \\
-        \tag{33}
+        \tag{35}
 
     The first term is just a telescoping sum, which has massive cancellation:
 
     .. math::
 
         \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} \frac{1}{2}[W(t_{i+1})^2 - W(t_i)^2] = \frac{1}{2}(W(t)^2 - W(0)^2) 
-        = \frac{1}{2} W(t)^2 - 0 = \frac{W(t)^2}{2}  \tag{34}
+        = \frac{1}{2} W(t)^2 - 0 = \frac{W(t)^2}{2}  \tag{36}
 
     The second term you'll notice is precisely the quadratic variance from Theorem 1,
     which we knows equals the interval :math:`t`.  Putting it together, we have:
 
     .. math::
 
-        \int_0^t W(s) dW(s) =  \frac{W(t)^2}{2} - \frac{t}{2} \tag{35}
+        \int_0^t W(s) dW(s) =  \frac{W(t)^2}{2} - \frac{t}{2} \tag{37}
 
     We'll notice that this *almost* looks like the result from calculus i.e., 
     :math:`\int x dx = \frac{x^2}{2}`, except with an extra term.  As we saw
@@ -1036,10 +1052,10 @@ TODO: Quadratic variation pg 132
         &= \int_0^t W(s) dW(s) + \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1}\big[ W(s_i) - W(t_j) \big]^2 
         && \text{Itô integral with partitions } t_0, s_0, t_1, s_1, \ldots \\
         &= \frac{W(t)^2}{2} - \frac{t}{2} + \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1}\big[ W(s_i) - W(t_j) \big]^2 
-        && \text{Equation 35} \\
+        && \text{Equation 37} \\
         &= \frac{W(t)^2}{2} - \frac{t}{2} + \frac{t}{2} && \text{Half-saple quadratic variation} \\
         &= \frac{W(t)^2}{2} \\
-        \tag{36}
+        \tag{38}
 
     We use the fact that the half-sample quadratic variation is equal to
     :math:`\frac{t}{2}` using a similar proof to Theorem 1.
