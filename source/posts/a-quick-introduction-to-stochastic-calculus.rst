@@ -744,7 +744,7 @@ rules for standard calculus we all know and love.
 
 .. admonition:: **Theorem 1** 
    
-    *For Brownian motion* :math:`W`, :math:`[W,W](T) = T`
+    *For Brownian motion* :math:`W`, *the quadratic variation is* :math:`[W,W](T) = T`
     *for all* :math:`T\geq 0` *almost surely.*
 
     **Proof**
@@ -983,14 +983,10 @@ a few things as you might expect:
 
    .. math::
 
-        \lim_{n \to \infty} E[\int_0^T |H_n(t) - H(t)|^2 dt] = 0 \tag{33}
+        \lim_{n \to \infty} E\big[\int_0^T |H_n(t) - H(t)|^2 dt\big] = 0 \tag{33}
 
    for :math:`H_n(s) = H(t_i)` for :math:`t_i \leq s < t_{i+1}`, basically the
    piece-wise function approximation for :math:`H(t)` using the left most point for the interval.
-
-TODO: Quadratic variation pg 132
-* Use informal proof
-* Explain notation and differential notation
 
 .. admonition:: Example 6: A Simple Stochastic Integral in Two Ways
 
@@ -1069,6 +1065,74 @@ TODO: Quadratic variation pg 132
     not mid-way through.  That's analagous to deciding in the middle of the day
     that I should have actually bought more of a stock at the start of the day
     that went up.
+
+
+Quadratic Variation of Stochastic Integrals with Brownian Motion
+----------------------------------------------------------------
+
+Let's look at the quadratic variation (or sum of squared incremental
+differences) along a particular path for the stochastic integral we
+just defined above, and a related property.  Note: the "output" of the
+stochastic integral is a stochastic process.
+
+.. admonition:: **Theorem 3** 
+    
+    *The quadratic variation accumulated up to time* :math:`t` *by the Itô integral
+    with Brownian motion* (*denoted by* :math:`I`) *from Equation 30 is*:
+
+    .. math::
+
+        [I, I] = \int_0^t H^2(s) ds \tag{39}
+
+.. admonition:: **Theorem 4 (Itô isometry)**
+    
+    *The Itô integral with Brownian motion from Equation 30 satisfies*:
+
+    .. math::
+
+        Var(I(t)) = E[I^2(t)] = E\big[\int_0^t H^2(s) ds\big] \tag{40}
+
+A couple things to notice.  First, the quadratic variation is "scaled" by the
+underlying integrand :math:`H(t)` as opposed to accumulating quadratic
+variation at one unit per time from Brownian motion.
+
+Second, we start to see the difference between the path-dependent quantity
+of quadratic variation and variance.  The former depends on the path taken
+by :math:`H(s)` up to time :math:`t`.  If it's large, then the quadratic
+variance will be large, and similarly small with small values.  Variance
+on the other hand a fixed quantity up to time :math:`t` that is averaged
+over all paths and does not change (given the underlying distribution).
+
+Finally, let's gain some intuition on the quadratic variation by utilizing
+the informal differential notation from Equation 26-28.  We can re-write
+our stochastic integral from Equation 30:
+
+.. math::
+
+   I(t) = \int_0^t H(s) dW(s) \tag{41}
+
+as:
+
+.. math::
+
+   dI(t) = H(t)dW(t) \tag{42}
+
+Equation 41 is the *integral form* while Equation 42 is the *differential form*,
+and they have identical meaning.
+
+The differential form is a bit easier to intuitively understand.  We can see
+that it matches the approximation (Equation 32) that we discussed in the previous
+subsection.  Using this differential notation and the informal notation we defined
+above in Equation 26-28, we can "calculate" the quadratic variation as:
+
+.. math::
+
+    dI(t)dI(t) = H^2(t)dW(t)dW(t) = H^2(t)dt \tag{43}
+
+using the fact that the quadratic variation for Brownian motion accumulates at
+one unit per time (:math:`dW(t)dW(t) = dt`) from Theorem 1.  We'll utilize
+this differential notation more in the following subsections as we move
+into stochastic differential equations.
 
 Itô Processes and Integrals
 ---------------------------
