@@ -1,7 +1,7 @@
 .. title: A Brief Introduction to Stochastic Calculus
 .. slug: a-brief-introduction-to-stochastic-calculus
 .. date: 2022-04-29 21:05:55 UTC-04:00
-.. tags: stochastic calculus, probability, measure theory, sigma algebra, mathjax
+.. tags: stochastic calculus, probability, measure theory, sigma algebra, Brownian motion, Weiner process, white noise, mathjax
 .. category: 
 .. link: 
 .. description: 
@@ -25,6 +25,102 @@ Write your post here.
 
     </div>
     <p>
+
+Motivation
+==========
+
+Many physical phenomena (and financial ones) can be modelled as a stochastic differential
+equation. For example, the following equation is a simple example:
+
+.. math::
+
+    \frac{dX(t)}{dt} = \alpha(X, t) \tag{1.1}
+
+where :math:`X(t)` is a random process, :math:`\alpha` can be a function of
+both :math:`X` and time :math:`t`.  For now, you can think of a random process
+as a collection of random variables indexed by time, we'll get into more rigour
+later.
+
+Doing calculus on random variables may be a bit beyond what you have covered in
+a course, but we don't need much more than the standard tools from calculus and
+probability theory to solve it.  For example, integrating a random variable can
+be done using the basic definitions of integration and expectation/variance (see this 
+`math exchange answer <https://math.stackexchange.com/questions/791152/time-integral-of-a-stochastic-process>`__
+for more details).  Of course there are complexities when solving differential
+equations, but for the most part you can use the standard tools from calculus
+to solve (or approximate) them.
+
+However, the simple Equation 1.1 doesn't cover many of the phenomenon we
+want to model.  A more common stochastic differential equation that
+is widely used is of the form:
+
+.. math::
+
+    \frac{dX(t)}{dt} = \alpha(X, t) + \beta(X, t)\eta(t) \tag{1.2}
+
+where we have an additional term with a noise term :math:`eta(t)` in it.  The
+noise term is what makes this differential equation special, and it is the
+entire reason why we're talking about stochastic calculus in the first place.
+
+Intuitively, the noise term :math:`eta(t)` represents "random fluctuations"
+such as the random bombardment on particles suspended in a fluid, or the random
+fluctuations of a stock price.  Note that :math:`eta(t)` is a random process
+and at each time defines a random variable.  The random variables may be
+dependent on each other so we have to further define its characteristics in
+order to model it.
+
+To be precise about these "random fluctuations", we first must specify some
+of their characteristics such as their 
+`time correlation <https://en.wikipedia.org/wiki/Autocorrelation>`__ function:
+
+.. math::
+
+   C(\tau) = E[\eta(0)\eta(\tau)] = \lim_{T\to\infty} \frac{1}{T} \int_0^T \eta(t)\eta(t+\tau) dt \tag{1.3}
+
+which should be a decreasing function of :math:`\tau` since they are random
+fluctuations and shouldn't have lasting effects.  But this can get messy
+relatively quickly so we usually look for more clean abstractions to describe
+these systems. 
+
+The assumption that is commonly used is that the random fluctuations are not
+correlated at all.  This can be justified if the time scale of interest is much
+bigger than the random fluctuations.  From this assumption, we have:
+
+.. math::
+
+    E[\eta(0)\eta(\tau)] = c\delta(\tau) \tag{1.4}
+
+where :math:`c` is a constant and :math:`\delta(\tau)` is the 
+`Dirac delta <https://en.wikipedia.org/wiki/Dirac_delta_function>`__ function.
+This implies that the random fluctuations are entirely uncorrelated even for
+infinitesimal timescales.  The other corresponding assumption is that at each
+timestep :math:`t` the random variable :math:`\eta(t)` is a zero mean Gaussian.
+
+In some ways, :math:`\eta(t)` simplifies things; in others, it makes them much
+more complex.  First thing to note is that :math:`\eta(t)` is a theoretical
+construct -- there is no random process that can have its properties.
+We can see that from Equation 1.4 where we use the theoretical
+`Dirac delta <https://en.wikipedia.org/wiki/Dirac_delta_function>`__ function.
+This also implies that the variance of :math:`\eta(t)` is infinite (:math:`C(\tau=0)`).
+This construction also has a flat power spectral density of all frequencies,
+implying an infinite bandwidth signal (see `Wikipedia <https://en.wikipedia.org/wiki/White_noise>`__),
+which again is not physically realizable.
+
+Another consequence of this definition is that :math:`\eta(t)` is discontinuous
+everywhere.  The value at :math:`\eta(t)` can be totally different at a small
+time increment later (:math:`\eta(t + dt)`).  This makes simple operations like
+integration much more difficult.  Going back to our stochastic differential
+equation from Equation 1.2, we can multiply through by :math:`dt` and integrate
+both sides to try to get:
+
+.. math::
+
+    X(T) = X(0) + \int_0^T \alpha(X, t)dt + \int_0^T \beta(X, t)\eta(t)dt \tag{1.5}
+
+The first integral on the right hand side is a standard one that we argued above is
+"easy" to solve.  The second integral involving :math:`eta(t)` is where we run
+into an issue.  And it is precisely this problem that has spawned a new branch
+of mathematics called Stochastic Calculus, which is the topic of this post.
 
 Stochastic Processes
 ====================
@@ -85,7 +181,7 @@ measure** :math:`P` on an event space :math:`\mathcal{F}` is a function that:
 
    .. math::
  
-       P(\cup_{i\in I} E_i) = \Sigma_{i\in I} P(E_i) \tag{1}
+       P(\cup_{i\in I} E_i) = \Sigma_{i\in I} P(E_i) \tag{2.1}
 
 These properties should look familiar as they are the three basic ones 
 axioms everyone learns when first studying probability.  The only difference is
@@ -96,7 +192,7 @@ Going back to the "volume" analogy above, the probability measure maps the
 "chunks" of our "volume" to :math:`[0,1]` (or non-negative real numbers for
 general measures) but in a consistent way.  Due to the way we've defined
 event spaces as :math:`\sigma`-algebra's along with the third condition from
-Equation 1, we get a consistent measurement of "volume" regardless of how we
+Equation 2.1, we get a consistent measurement of "volume" regardless of how we
 combine the "chunks".  Again, for finite sample spaces, it's not too hard to
 imagine this function, but for continuous sample spaces, it gets more
 complicated.  All this is essentially to define a rigorous construction that
@@ -119,12 +215,12 @@ The measurable function condition puts a few constraints:
 
    .. math::
 
-     \{X \in S\} := \{\omega \in \Omega | X(\omega) \in S\} \in \mathcal{F} \tag{2}
+     \{X \in S\} := \{\omega \in \Omega | X(\omega) \in S\} \in \mathcal{F} \tag{2.2}
 
 This basically says that every value that :math:`X` can take on (which must
 be measurable) has a mapping to one of the measurable events
 in our original event space :math:`\mathcal{F}`.  We use the notation
-:math:`\sigma(X)` to denote the collection of all subsets of Equation 2,
+:math:`\sigma(X)` to denote the collection of all subsets of Equation 2.2,
 which form the :math:`\sigma`-algebra implied by the random variable :math:`X`.
 
 If we didn't have this condition then either: (a) we couldn't properly measure
@@ -136,12 +232,12 @@ when we're dealing with uncountable infinities.  Again, for the finite cases,
 all of these properties are usually trivially met.
 
 Using the probability measure :math:`P`, one can calculate the probability of
-:math:`X \in S` using Equation 2:
+:math:`X \in S` using Equation 2.2:
 
 .. math::
 
     P(X \in S) &= P(\{\omega \in \Omega | X(\omega) \in S \}) \\
-               &:= P({X \in S}) \tag{3}
+               &:= P({X \in S}) \tag{2.3}
 
 where :math:`S \subseteq \mathcal{S}`.  We can take :math:`S = \{x\}` to
 evaluate the random variable at a particular value.  
@@ -151,9 +247,9 @@ sample space (:math:`\Omega`).  Often times our sample space has no concept
 of numbers (e.g.  heads or tails) but random variables allow us to assign real
 numbers to those events to calculate things like expected values and variance. 
 
-Equation 3 basically says that we map backwards from a set of real numbers
+Equation 2.3 basically says that we map backwards from a set of real numbers
 (:math:`S`) to a set of values in the sample space (i.e. an event given by
-Equation 2) using the inverse of function :math:`X`.  From the event in our
+Equation 2.2) using the inverse of function :math:`X`.  From the event in our
 event space :math:`\mathcal{F}`, which is guaranteed to exist because of property (2),
 we know how to compute the probability using :math:`P`.
 
@@ -187,7 +283,7 @@ rigour needed for uncountable infinities.
    
    .. math::
 
-        P(A) = \frac{|A|}{|\Omega|} = \frac{|A|}{52} \tag{4}
+        P(A) = \frac{|A|}{|\Omega|} = \frac{|A|}{52} \tag{2.4}
 
    We can additionally define a random variable as:
    
@@ -198,11 +294,11 @@ rigour needed for uncountable infinities.
             1 &\text{if } \omega \text{ is red}\\
             0 &\text{otherwise}
         \end{cases}
-        \tag{5}
+        \tag{2.5}
 
    Which is a mapping from our sample space :math:`\Omega` to a (finite) subset
    of the real numbers :math:`\{0, 1\}`.  We can calculate probabilities using
-   Equation 3, for example :math:`X = 1`:
+   Equation 2.3, for example :math:`X = 1`:
 
    .. math::
         
@@ -210,7 +306,7 @@ rigour needed for uncountable infinities.
         &= P(\{\omega | \omega \text{ is a red card}\}) \\
         &= \frac{|\{\text{all red cards}\}|}{52} \\
         &= \frac{1}{2}  \\
-        \tag{6}
+        \tag{2.6}
 
    The implied :math:`\sigma`-algebra of this random variable can be defined as:
    :math:`\sigma(X) = \{ \emptyset, \text{"all red cards"}, \text{"all black cards"}, \Omega \} \subset \mathcal{F}`.
@@ -331,7 +427,7 @@ how to match the formal definition to concrete stochastic processes.
         X_t(\omega) =  \begin{cases}
             1 &\text{if } \omega_t = H\\
             0 &\text{otherwise}
-        \end{cases} \tag{7}
+        \end{cases} \tag{2.7}
 
     for :math:`\omega = \omega_1 \omega_2 \omega_3 \ldots`, where each :math:`\omega_i`
     is the outcome of the :math:`i^{th}` toss.
@@ -350,7 +446,7 @@ how to match the formal definition to concrete stochastic processes.
 
    .. math::
 
-        S_t(\omega) =  \sum_{i=1}^t X_t \tag{8}
+        S_t(\omega) =  \sum_{i=1}^t X_t \tag{2.8}
 
    Notice that the random variable at each time step depends on *all* the "coin
    flips" :math:`X_t` that came before it in contrast to just the current "coin flip"
@@ -375,7 +471,7 @@ how to match the formal definition to concrete stochastic processes.
                                    &= \sum_{j=k_i + 1}^{k_{i+1}} Var[X_j]  && X_i \text{ independent}\\
                                    &= \sum_{j=k_i + 1}^{k_{i+1}} 1 && Var[X_j] = E[X_j^2] = 1 \\
                                    &= k_{i+1} - k_i \\
-        \tag{9}
+        \tag{2.9}
 
    Which means that the variance of the symmetric random walk accumulates
    at a rate of one per unit time.  So if you take :math:`l` steps from the
@@ -449,7 +545,7 @@ the interplay between filtrations and random variables.
 
         A_H &= \text{the set of all sequences beginning with } H = \{\omega: \omega_1 = H\} \\
         A_T &= \text{the set of all sequences beginning with } T = \{\omega: \omega_1 = T\} \\
-        \tag{10}
+        \tag{2.10}
  
     This basically defines two events (i.e., sets of infinite coin toss
     sequences) that we use to define our probability measure.  We define our
@@ -457,7 +553,7 @@ the interplay between filtrations and random variables.
 
     .. math::
 
-        \mathcal{F}_1 = \{\emptyset, \Sigma, A_H, A_T\} \tag{11}
+        \mathcal{F}_1 = \{\emptyset, \Sigma, A_H, A_T\} \tag{2.11}
 
     Let's notice that :math:`\mathcal{F}_1 \subset \mathcal{F}` (by definition
     since this is how we defined it). Also let's take a look at the events generated
@@ -471,13 +567,13 @@ the interplay between filtrations and random variables.
            \{X_1 \in \{H\}\} &= \{\omega \in \Sigma | X_1(omega) \in {T}\} \\
             &= \{\omega: \omega_1 = T\} \\
             &= A_T \\
-            \tag{12}
+            \tag{2.12}
 
     Thus, :math:`\sigma(X_1) = \mathcal{F}_1` (the :math:`\sigma`-algebra implied by
     the random variable :math:`X_1`, meaning that :math:`X_1` is indeed
     :math:`\mathcal{F}_1`-measurable as required.  
     
-    Let's take a closer look at what this means.  For :math:`X_1`, Equation 11 defines 
+    Let's take a closer look at what this means.  For :math:`X_1`, Equation 2.11 defines 
     the only types of events we can measure probability on, in plain English:
     empty set, every possible outcome, outcomes starting with the first coin
     flip as heads, and outcomes starting with the first coin flip as tails.
@@ -504,11 +600,11 @@ the interplay between filtrations and random variables.
     :math:`X(t)` is adapted to the filtration :math:`(\mathcal{F_t})_{t\in
     \mathbb{N}}` as defined in Appendix A.
     
-Brownian Motion
----------------
+Weiner Process
+--------------
 
-`Brownian motion <https://en.wikipedia.org/wiki/Wiener_process>`__ (also known as
-the Weiner process) is one of the most widely studied continuous time
+The `Weiner process <https://en.wikipedia.org/wiki/Wiener_process>`__ (also known as
+the Brownian motion) is one of the most widely studied continuous time
 stochastic processes.  It occurs frequently in many different domains such as
 applied math, quantitative finance, and physics.  As alluded to previously, it
 has many "corner case" properties that do not allow simple manipulation, and
@@ -527,14 +623,14 @@ positive integer :math:`n`, we define the scaled random walk as:
 
 .. math::
 
-    W^{(n)}(t) = \frac{1}{\sqrt{n}}S_{nt} \tag{13}
+    W^{(n)}(t) = \frac{1}{\sqrt{n}}S_{nt} \tag{2.13}
 
 where :math:`S_{nt}` is a simple symmetric random walk process, provided that
 :math:`nt` is an integer.  If :math:`nt` is not an integer, we'll simply define
 :math:`W^{(n)}(t)` as the linear interpolation between it's nearest integer
 values.  
 
-A simple way to think about Equation 13 is that it's just a regular random walk
+A simple way to think about Equation 2.13 is that it's just a regular random walk
 with a scaling factor.  For example, :math:`W^{(100)}(t)` has it's first step
 (integer step) at :math:`t=\frac{1}{100}` instead of :math:`t=1`.  To adjust
 for this compression of time we scale the process by :math:`\frac{1}{\sqrt{n}}`
@@ -550,7 +646,7 @@ it as its integer steps), the same properties hold as we discussed in Example
 
     E[W^{(n)}(t) - W^{(n)}(s)] &= 0 \\
     Var[W^{(n)}(t) - W^{(n)}(s)] &= t - s \\
-    \tag{14}
+    \tag{2.14}
 
 where we use the square root scaling to end up with variance accumulating still
 at one unit per time. 
@@ -565,10 +661,10 @@ involved).  For a scaled symmetric random walk, we get:
     [W^{(n)}, W^{(n)}]_t &= \sum_{j=1}^{nt} (W^{(n)}(\frac{j}{n} - W^{(n)}(\frac{j-1}{n}))^2 \\
     &= \sum_{j=1}^{nt} [\frac{1}{\sqrt{n}} X_j]^2  \\
     &= \sum_{j=1}^{nt} \frac{1}{n} = t \\
-    \tag{15}
+    \tag{2.15}
 
 This results in the same quantity as the variance computation we have (for
-:math:`s=0`) in Equation 14 but is conceptually different.  The variance
+:math:`s=0`) in Equation 2.14 but is conceptually different.  The variance
 is an average over all paths, while the quadratic variation is taking a
 realized path, squaring all the values, and then summing them up.
 Interestingly, they result in the same thing.
@@ -577,8 +673,8 @@ Finally, as you might expect, we wish to understand what happens
 to the scaled symmetric random walk when :math:`n \to \infty`.
 For a given :math:`t\geq 0`, let's recall a few things:
 
-* :math:`E[W^{(n)}(t)] = 0` (from Equation 14 with :math:`s = 0`).
-* :math:`Var[W^{(n)}(t)] = t` (from Equation 14 with :math:`s = 0`).
+* :math:`E[W^{(n)}(t)] = 0` (from Equation 2.14 with :math:`s = 0`).
+* :math:`Var[W^{(n)}(t)] = t` (from Equation 2.14 with :math:`s = 0`).
 * :math:`W^{(n)}(t) = \frac{1}{\sqrt{n}} \sum_{i=1}^t X_t` for Bernoulli process :math:`X(t)`.
 * The `central limit theorem <https://en.wikipedia.org/wiki/Central_limit_theorem#Classical_CLT>`__
   states that :math:`\frac{1}{\sqrt{N}}\sum_{i=1}^n Y_i` converges
@@ -589,20 +685,20 @@ We can see that our symmetric scaled random walk fits precisely the conditions
 as the central limit theorem, which means that as :math:`n \to \infty`,
 :math:`W^{(n)}(t)` converges to a normal distribution with mean :math:`0` and
 variance :math:`t`.  This limit is in fact the method in which we'll define
-Brownian motion.
+the Wiener process.
 
-Brownian Motion Definition
+Wiener Process Definition
 **************************
 
-We finally arrive at the definition of Brownian motion, which will be the limit
+We finally arrive at the definition of the Wiener process, which will be the limit
 of the scaled symmetric random walk as :math:`n \to \infty`.  We'll define it
 in terms of the properties of this limiting distribution, many of which are inherited
 from the scaled symmetric random walk:
 
     Given probability space :math:`(\Sigma, \mathcal{F}, P)`,
-    For each :math:`\omega \in Omega`, define a continuous function that depends on
+    For each :math:`\omega \in \Omega`, define a continuous function that depends on
     :math:`\omega` as :math:`W(t) := W(t, \omega)` for :math:`t \geq 0`.
-    :math:`W(t)` is a **Brownian motion** if the following are satisfied:
+    :math:`W(t)` is a **Wiener process** if the following are satisfied:
 
     1. :math:`W(0) = 0`;
     2. All increments :math:`W(t_1) - W(t_0), \ldots, W(t_m) - W(t_{m-1})`
@@ -610,13 +706,13 @@ from the scaled symmetric random walk:
     3. Each increment is distributed normally with :math:`E[W(t_{i+1} - t_i)] = 0` and 
        :math:`Var[W(t_{i+1} - t_i)] = t_{i+1} - t_i`.
 
-We can see that Brownian motion inherits many of the same properties as our scaled
+We can see that the Weiner process inherits many of the same properties as our scaled
 symmetric random walk.  Namely, independent increments with each one being
-distributed normally.  With Brownian motion the increments are exactly normal
+distributed normally.  With the Weiner process the increments are exactly normal
 instead of approximately normal (for large :math:`n`) with the scaled symmetric
 random walk.
 
-One way to think of Brownian motion is that each :math:`\omega` is a path generated
+One way to think of the Weiner process is that each :math:`\omega` is a path generated
 by a random experiment, for example, the random motion of a particle suspended
 in a fluid.  At each infinitesimal point in time, it is perturbed randomly
 (distributed normally) into a different direction.  In fact, this is the origin
@@ -632,9 +728,9 @@ instead of happening at each integer value of :math:`t`, they are happening
 We can ask any questions that we usually would ask about random variables with
 Brown motion.  The next example shows a few of them.
 
-.. admonition:: Example 5: Brownian Motion
+.. admonition:: Example 5: Weiner Process 
 
-    Suppose we wish to determine the probability that Brownian motion
+    Suppose we wish to determine the probability that the Weiner process
     at :math:`t=0.25` is between :math:`0` and :math:`0.25`.  Using
     our rigourous jargon, we would say that we want to determine
     the probability of the set :math:`A \in \mathcal{F}` containing
@@ -646,7 +742,7 @@ Brown motion.  The next example shows a few of them.
 
     .. math::
 
-        W(0.25) - W(0) = W(0.25) - 0 = W(0.25) \sim N(0, 0.25) \tag{16}
+        W(0.25) - W(0) = W(0.25) - 0 = W(0.25) \sim N(0, 0.25) \tag{2.16}
 
     Thus, we are just asking the probability that a normal distribution takes
     on these values, which we can easily compute using the normal distribution density:
@@ -656,25 +752,25 @@ Brown motion.  The next example shows a few of them.
         P(0 \leq W(0.25) \leq 0.2) &= \frac{1}{\sqrt{2\pi(0.25)}} \int_0^{0.2} e^{-\frac{1}{2}(\frac{x}{0.25})^2}  \\
                                    &= \frac{2}{2\pi} \int_0^{0.2} e^{-2x^2}  \\
                                    &\approx 0.155 \\
-                                   \tag{17}
+                                   \tag{2.17}
 
-We also have the concept of filtrations for Brownian motion.  It uses the same definition
+We also have the concept of filtrations for the Wiener process.  It uses the same definition
 as we discussed previously except it also adds the condition that future increments
 are independent of any :math:`\mathcal{F_t}`.  As we will see below, we will be
-using more complex adapted stochastic processes as integrands against a Brownian
-motion integrator.  This is why it's important to add this additional condition
-of independence for future increments.  It's so the adapted stochastic process
-(with respect to the Brownian motion filtration) can be properly integrated
-and cannot "see into the future".
+using more complex adapted stochastic processes as integrands against a Wiener
+process integrator.  This is why it's important to add this additional
+condition of independence for future increments.  It's so the adapted
+stochastic process (with respect to the Wiener process filtration) can be
+properly integrated and cannot "see into the future".
 
 
-Quadratic Variation of Brownian Motion
-**************************************
+Quadratic Variation of Wiener Process
+*************************************
 
 We looked at the quadratic variation above for the scaled symmetric random walk
 and concluded that it accumulates quadratic variation one unit per time (i.e.
 quadratic variation is :math:`T` for :math:`[0, T]`) regardless of the value of
-:math:`n`.  We'll see that this is also true for Brownian motion but before we
+:math:`n`.  We'll see that this is also true for the Wiener process but before we
 do, let's first appreciate why this is strange.
 
     Let :math:`f(t)` be a function defined on :math:`[0, T]`.  The 
@@ -682,7 +778,7 @@ do, let's first appreciate why this is strange.
 
     .. math::
 
-        [f, f](T) = \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1}[f(t_{j+1}) - f(t_j)]^2 \tag{18}
+        [f, f](T) = \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1}[f(t_{j+1}) - f(t_j)]^2 \tag{2.18}
 
     for :math:`\Pi = \{t_0, t_1, \ldots, t_n\}`, :math:`0\leq t_1 \leq t_2 < \ldots < t_n = T`
     and :math:`||\Pi|| = \max_{j=0,\ldots,n} (t_{j+1}-t_j)`.
@@ -698,7 +794,7 @@ or norm of the partition, which is similar to the formal definition of
 (even though many of us, like myself, didn't learn it this way).  In any
 case the idea is very similar to just having evenly spaced intervals.
 
-Now that we have Equation 18, let's see how it behaves on a function
+Now that we have Equation 2.18, let's see how it behaves on a function
 :math:`f(t)` that has a continuous derivative:
 (recall the `mean value theorem <https://en.wikipedia.org/wiki/Mean_value_theorem>`__ 
 states that :math:`f'(c) = \frac{f(a) - f(b)}{b-a}` for :math:`c \in (a,b)`
@@ -711,15 +807,15 @@ for continuous functions with derivatives on the respective interval):
         &\leq \lim_{||\Pi|| \to 0} ||\Pi|| \sum_{j=0}^{n-1}|f'(t_j^*)|^2 (t_{j+1} - t_j)  \\
         &= \big[\lim_{||\Pi|| \to 0} ||\Pi||\big] \big[\lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1}|f'(t_j^*)|^2 (t_{j+1} - t_j)\big] && \text{limit product rule}  \\
         &= \big[\lim_{||\Pi|| \to 0} ||\Pi||\big] \int_0^T |f'(t)|^2 dt = 0&& f'(t) \text{ is continuous} \\
-        \tag{19}
+        \tag{2.19}
 
 So we can see that quadratic variation is not very important for most functions
 we are used to seeing i.e., ones with continuous derivatives.  In cases where
 this is not true, we cannot use the mean value theorem to simplify quadratic
 variation, so we potentially will get something that is non-zero.
 
-For Brownian motion in particular, we do not have a continuous derivative
-and cannot use the mean value theorem as in Equation 19, so we end up with
+For the Wiener process in particular, we do not have a continuous derivative
+and cannot use the mean value theorem as in Equation 2.19, so we end up with
 a non-zero quadratic variation.  To see this, let's take a look at the absolute
 value function :math:`f(t) = |t|` in Figure 1.  On the interval :math:`(-2, 5)`,
 the slope between the two points is :math:`\frac{3}{7}`, but nowhere in this
@@ -736,7 +832,7 @@ either constant 1 or constant -1 or undefined).
 Recall, this is a similar situation to what we had for the scaled symmetric 
 random walk -- in between each of the discrete points, we used a linear
 interpolation.  As we increase :math:`n`, this "pointy" behaviour persists and
-is inherited by Brownian motion where we no longer have a continuous
+is inherited by the Wiener process where we no longer have a continuous
 derivative.  Thus, we need to deal with this situation where we have a function
 that is continuous everywhere, but differentiable nowhere.  This is one of the
 key reasons why we need stochastic calculus, otherwise we could just use the
@@ -744,19 +840,19 @@ rules for standard calculus we all know and love.
 
 .. admonition:: **Theorem 1** 
    
-    *For Brownian motion* :math:`W`, *the quadratic variation is* :math:`[W,W](T) = T`
+    *For the Wiener process* :math:`W`, *the quadratic variation is* :math:`[W,W](T) = T`
     *for all* :math:`T\geq 0` *almost surely.*
 
     **Proof**
 
-    Define the sampled quadratic variation for partition as above (Equation 18):
+    Define the sampled quadratic variation for partition as above (Equation 2.18):
 
     .. math::
 
-        Q_{\Pi} = \sum_{j=0}^{n-1}\big( W(t_{j+1}) - W(t_j) \big)^2 \tag{20}
+        Q_{\Pi} = \sum_{j=0}^{n-1}\big( W(t_{j+1}) - W(t_j) \big)^2 \tag{2.20}
 
     This quantity is a random variable since it depends on the particular
-    "outcome" path of Brownian motion (recall quadratic variation is with
+    "outcome" path of the Wiener process (recall quadratic variation is with
     respect to a particular realized path).  
     
     To prove the theorem, We need to show that the sampled quadratic variation
@@ -764,27 +860,28 @@ rules for standard calculus we all know and love.
     by showing :math:`E[Q_{\Pi}] = T` and :math:`Var[Q_{\Pi}] = 0`, which says
     that we will converge to :math:`T` regardless of the path taken.
 
-    We know that each increment in Brownian motion is independent, thus
+    We know that each increment in the Wiener process is independent, thus
     their sums are the sums of the respective means and variances of each
     increment.  So given that we have:
 
     .. math::
 
         E[(W(t_{j+1})-W(t_j))^2] &= E[(W(t_{j+1})-W(t_j))^2] - 0 \\
-                                 &= E[(W(t_{j+1})-W(t_j))^2] - E[W(t_{j+1})-W(t_j)]^2 && \text{definition of Brownian motion}\\
+                                 &= E[(W(t_{j+1})-W(t_j))^2] - E[W(t_{j+1})-W(t_j)]^2 && \text{definition of the Wiener process}\\
                                  &= Var[W(t_{j+1})-W(t_j)]  \\
-                                 &= t_{j+1} -  t_j && \text{definition of Brownian motion}\\
-                                 \tag{21}
+                                 &= t_{j+1} -  t_j && \text{definition of the Wiener process}\\
+                                 \tag{2.21}
 
     We can easily compute :math:`E[Q_{\Pi}]` as desired:
 
     .. math::
 
-        E[Q_{\Pi}] &= E[ \sum_{j=0}^{n-1}\big( W(t_{j+1}) - W(t_j) \big)^2 ] \\
+        &E[Q_{\Pi}] \\
+        &= E[ \sum_{j=0}^{n-1}\big( W(t_{j+1}) - W(t_j) \big)^2 ] \\
         &= \sum_{j=0}^{n-1} E[W(t_{j+1}) - W(t_j)]^2 \\
-        &= \sum_{j=0}^{n-1} (t_{j+1} - t_j)  && \text{Equation } 21 \\
+        &= \sum_{j=0}^{n-1} (t_{j+1} - t_j)  && \text{Equation } 2.21 \\
         &= T \\
-        \tag{22}
+        \tag{2.22}
 
     From here, we use the `fact <https://math.stackexchange.com/questions/1917647/proving-ex4-3%CF%834>`__ 
     that the expected value of the fourth moment of a normal random variable
@@ -793,28 +890,29 @@ rules for standard calculus we all know and love.
 
     .. math::
 
-         E\big[(W(t_{j+1})-W(t_j))^4 \big] = 3Var[(W(t_{j+1})-W(t_j)] = 3(t_{j+1} - t_j)^2 \tag{23}
+         E\big[(W(t_{j+1})-W(t_j))^4 \big] = 3Var[(W(t_{j+1})-W(t_j)] = 3(t_{j+1} - t_j)^2 \tag{2.23}
 
     Computing the variance of each increment:
 
     .. math::
     
-         Var\big[(W(t_{j+1})-W(t_j))^2 \big] &= E\big[\big( (W(t_{j+1})-W(t_j))^2 -  E[(W(t_{j+1})-W(t_j))^2] \big)^2\big] && \text{definition of variance} \\
-         &= E\big[\big( (W(t_{j+1})-W(t_j))^2 -  (t_{j+1} - t_j) \big)^2\big] && \text{Equation } 21 \\
+         &Var\big[(W(t_{j+1})-W(t_j))^2 \big] \\
+         &= E\big[\big( (W(t_{j+1})-W(t_j))^2 -  E[(W(t_{j+1})-W(t_j))^2] \big)^2\big] && \text{definition of variance} \\
+         &= E\big[\big( (W(t_{j+1})-W(t_j))^2 -  (t_{j+1} - t_j) \big)^2\big] && \text{Equation } 2.21 \\
          &= E[(W(t_{j+1})-W(t_j))^4] - 2(t_{j+1}-t_j)E[(W(t_{j+1})-W(t_j))^2] + (t_{j+1} - t_j)^2 \\
-         &= 3(t_{j+1}-t_j)^2 - 2(t_{j+1}-t_j)^2 + (t_{j+1} - t_j)^2 && \text{Equation } 21/23 \\
+         &= 3(t_{j+1}-t_j)^2 - 2(t_{j+1}-t_j)^2 + (t_{j+1} - t_j)^2 && \text{Equation } 2.21/2.23 \\
          &= 2(t_{j+1}-t_j)^2 \\
-         \tag{24}
+         \tag{2.24}
 
     From here, we can finally compute the variance:
 
     .. math::
 
         Var[Q_\Pi] &= \sum_{j=0}^{n-1} Var\big[ (W(t_{j+1} - W(t_j)))^2 \big]  \\
-                   &= \sum_{j=0}^{n-1} 2(t_{j+1}-t_j)^2  && \text{Equation } 24 \\
+                   &= \sum_{j=0}^{n-1} 2(t_{j+1}-t_j)^2  && \text{Equation } 2.24 \\
                    &\leq  \sum_{j=0}^{n-1} 2 ||\Pi|| (t_{j+1}-t_j)  \\
-                   &= 2 ||\Pi|| T && \text{Equation } 22 \\
-                   \tag{25}
+                   &= 2 ||\Pi|| T && \text{Equation } 2.22 \\
+                   \tag{2.25}
 
     As :math:`\lim_{||\Pi|| \to 0} Var[Q_\Pi] = 0`, therefore we have shown that
     :math:`\lim_{||\Pi|| \to 0} Q_\Pi = T` as required.
@@ -827,9 +925,9 @@ size with respect to the infinite number of paths, and thus have probability
 zero.
 
 Taking a step back, this is quite a profound result: if you take *any* realized
-path of Brownian motion, sum the infinitesimally small squared increments of
+path of the Wiener process, sum the infinitesimally small squared increments of
 that paths, it equals the length of the interval almost surely. In other words,
-*Brownian motion accumulates quadratic variation at a rate of one unit per
+*the Wiener process accumulates quadratic variation at a rate of one unit per
 time*.  
 
 This is perhaps surprising result because it can be *any* path.  It doesn't
@@ -842,25 +940,25 @@ We often will informally write:
 
 .. math::
 
-    dW(t)dW(t) = dt \tag{26}
+    dW(t)dW(t) = dt \tag{2.26}
 
 To describe the accumulation of quadratic variation one unit per time.
 However, this should not be interpreted to be true for each infinitesimally
 small increment.  Recall each increment of W(t) is normally distributed, so the
-LHS of Equation 26 is actually distributed as the square of a normal
+LHS of Equation 2.26 is actually distributed as the square of a normal
 distribution.  We only get the result of Theorem 1 when we sum a large number
 of them (see [1] for more details).
 
 We can also use this informal notation to describe a few other related concepts.
-The cross variation (Equation 27) and quadratic of variation for the time
-variable (Equation 28) respectively:
+The cross variation (Equation 2.27) and quadratic of variation for the time
+variable (Equation 2.28) respectively:
 
 .. math::
 
-    dW(t)dt &= 0 \tag{27} \\
-    dtdt &= 0 \tag{28}
+    dW(t)dt &= 0 \tag{2.27} \\
+    dtdt &= 0 \tag{2.28}
 
-The quadratic variation for time can use the same definition from Equation 18
+The quadratic variation for time can use the same definition from Equation 2.18
 above, and the cross variation just uses two different function (:math:`W(t)`
 and :math:`t`) instead of the same function.  Intuitively, both of these are
 zero because the time increment (:math:`\Pi`) goes to zero in the limit by
@@ -868,23 +966,144 @@ definition, thus so do these two variations.  This can be shown more formally
 using similar arguments as the quadratic variation above (see [1] for more details).
 
 
-First Passage Time for Brownian Motion
-**************************************
+First Passage Time for Wiener Process
+*************************************
 
-We digress here to show a non-intuitive property of Brownian motion: it will
+We digress here to show a non-intuitive property of the Wiener process: it will
 *eventually* be equal to a given level :math:`m`.
 
 .. admonition:: **Theorem 2**
 
    *For* :math:`m \in \mathbb{R}`, *the first passage time* :math:`\tau_m` *of
-   Brownian motion to level* :math:`m` *is finite almost surely, i.e.*
+   the Wiener process to level* :math:`m` *is finite almost surely, i.e.*
    :math:`P(\tau_m < \infty) = 1`.
 
-This basically says that Brownian motion is almost certain to reach whatever
+This basically says that the Wiener process is almost certain to reach whatever
 finite level within some finite time :math:`\tau_m`.  Again, there is a path of
-Brownian motion that does not exceed a given level :math:`m` but they are so
+the Wiener process that does not exceed a given level :math:`m` but they are so
 infinitesimally small that they are collectively assigned probability 0 
 (almost surely).  Working with infinities can be unintuitive.
+
+Relationship Between the Wiener Process and White Noise
+--------------------------------------------------------
+
+The Wiener process can be characterized in several equivalent ways with the
+definition above being one of the most common.  Another common way to define
+it is from the white noise we discussed in the motivation.  In this definition,
+the Wiener process is the definite integral of Gaussian white noise,
+or equivalently, Gaussian white noise is the derivative of the Wiener process:
+
+.. math::
+
+    W(t) &= \int_0^t \eta(s)ds \tag{2.29} \\
+    \frac{dW(t)}{dt} &= \eta(s) \tag{2.30}
+
+To understand why this relationship is true, let's first define the derivative
+of a stochastic process from [4]:
+
+    A stochastic process :math:`X(t)`, :math:`t \in \mathbb{R}`, is said to be 
+    differentiable in quadratic mean with derivative :math:`X'(t)` if
+
+    .. math::
+
+        \frac{X(t+h) - X(t)}{h} &\to X'(t) \\
+        E\big[(\frac{X(t+h) - X(t)}{h} - X'(t))^2 \big] &\to 0 \\
+        \tag{2.31}
+
+    when :math:`h \to 0`. 
+
+We can see that the definition is basically the same as our regular calculus
+one except that we require the expectation to go to zero *and* to have a
+weaker square convergence, which we'll see appear again in the next section..
+
+From this definition, we can calculate the mean of the derivative of :math:`W(t)` as:
+
+.. math::
+
+    E[\frac{dW(t)}{dt}] &= E[\lim_{h\to 0} \frac{W(t+h) - W(t)}{h}] \\
+    &= \lim_{h\to 0} \frac{E[W(t+h)] - E[W(t)]}{h} \\
+    &= \lim_{h\to 0} \frac{0 - 0}{h} \\
+    &= 0\\
+    \tag{2.32}
+
+Similarly, we can show a general property about the time correlation of a
+stochastic process:
+
+.. math::
+
+    C_{W'}(t_1, t_2) &= E\big[
+        \lim_{k\to 0} \frac{W(t_1 + k) - W(t_1)}{k}
+        \lim_{h\to 0} \frac{W(t_2 + h) - W(t_2)}{h}
+    \big]\\
+    &= \lim_{h\to 0} \frac{1}{h} 
+       \lim_{k\to 0} E\big[\frac{(W(t_1 + k) - W(t_1))(W(t_2 + h) - W(t_2))}{k}\big] \\
+    &= \lim_{h\to 0} \frac{1}{h} 
+       \lim_{k\to 0}\big( \frac{E[W(t_1 + k)W(t_2+h)] - E[W(t_1+k)W(t_2)]
+                                -E[W(t_1)W(t_2+h)] + E[W(t_1)W(t_2)]}{k}\big) \\
+    &= \lim_{h\to 0} \frac{1}{h} 
+       \lim_{k\to 0}\big( \frac{C_W(t_1 + k, t_2+h) -C_W(t_1, t_2+h)}{k}
+                          - \frac{C_W(t_1+k, t_2) - C_W(t_1, t_2)}{k}\big) \\
+    &= \lim_{h\to 0} \frac{1}{h} 
+       \big( \frac{\partial C_W(t_1, t_2+h)}{\partial t_1} -
+             \frac{\partial C_W(t_1, t_2)}{\partial t_1} \big) \\
+    &= \frac{\partial C_W(t_1, t_2)}{\partial t_1 \partial t_2} \tag{2.33}
+
+Thus, we have shown that the time correlation of the derivative of a stochastic
+process is the mixed second-order partial derivative.  Now all we have to do
+is evaluate it for the Wiener process.  
+
+First, the Wiener process time correlation is (see this `StackExchange answer
+<https://math.stackexchange.com/questions/884299/autocorrelation-of-a-wiener-process-proof>`__
+for more details).  Assume :math:`t_1 < t_2`:
+
+.. math::
+
+    0 &= E[W(t_1)(W(t_2) - W(t_1))] && \text{independent increments} \\
+    &= E[W(t_1)W(t_2)] - E[(W(t_1))^2] \\
+    &= E[W(t_1)W(t_2)] - t_1 && Var(W(t_1)) =t \\
+    C_W(t_1, t_2) &= E[W(t_1)W(t_2)] = t_1 = \min(t_1, t_2) \\ 
+    \tag{2.34}
+
+We get the same result if :math:`t_2 < t_1`, thus :math:`C_W(t_1, t_2) = \min(t_1, t_2)`.
+Now we have to figure out how to take the second order partial derivatives.
+The first partial derivative is easy as long as :math:`t_1 \neq t_2`
+(see this `great answer <https://math.stackexchange.com/questions/150960/derivative-of-the-fx-y-minx-y>`__ on StackExchange):
+
+.. math::
+
+    \frac{\partial \min(t_1, t_2)}{\partial t_1} &= \begin{cases}
+    1 & \text{if } t_1 \lt t_2 \\
+    0 & \text{if } t_2 \gt t_1
+    \end{cases} \\
+    &= H(t_2 - t_1) && \text{everywhere except } t_1=t_2 \\
+    \tag{2.35}
+
+where :math:`H(x)` is the 
+`Heaviside step function <https://en.wikipedia.org/wiki/Heaviside_step_function>`__
+except at :math:`t_1=t_2` where our function is not defined.
+But we know the derivative of this step function is just the Dirac delta function, so:
+
+.. math::
+
+    C_{W'}(t_1, t_2) = \frac{\partial \min(t_1, t_2)}{\partial t_1\partial t_2} 
+    = \frac{\partial H(t_2-t_1)}{\partial{t_2}} = \delta(t_2-t_1) \tag{2.36}
+
+From Equation 2.32 and 2.36, we see we have the same statistics as the white noise
+we defined in the motivation section above in Equation 1.4.  Since the mean
+is also zero, the covariance is equal to the time correlation: 
+:math:`Cov_{W'}(t_1, t2) = C_{W'}(t1, t2)`
+
+Now all we have to show
+is that it is also normally distributed.  By definition the Wiener process has some derivative
+:math:`W'(x)` (assuming it exists):
+
+.. math::
+
+   W(t) = \int_0^t W'(s) ds \tag{2.37}
+
+
+* What's the argument here?  lim s \to 0  W(t) - W(s) \approx W(t) + ... ???
+
 
 Stochastic Calculus
 ===================
@@ -893,7 +1112,7 @@ Our main goal is to make sense of the following:
 
 .. math::
 
-   \int_0^T H(t) dX(t) \tag{29}
+   \int_0^T H(t) dX(t) \tag{3.1}
 
 where :math:`X(t)` and :math:`H(t)` are two special types of stochastic
 processes.  A few questions immediately come to mind:
@@ -908,7 +1127,7 @@ processes.  A few questions immediately come to mind:
    integral is conceptually not too different from a plain old `Riemannian integral
    <https://en.wikipedia.org/wiki/Riemann_integral>`__ that we learn in
    regular calculus, but with some key differences due to the nature of
-   the stochastic processes we use (e.g. Brownian motion).
+   the stochastic processes we use (e.g. Wiener process).
 3. *How do we deal with the non-continuous derivative of the integrator,
    which manifests itself with non-zero quadratic variation?*  We'll see
    that this results in one of the big differences with regular calculus.
@@ -917,8 +1136,8 @@ processes.  A few questions immediately come to mind:
 
 All the depth we went into on stochastic processes in the previous section is
 about to pay off!  We'll have to use all of those ideas in order to properly
-define Equation 29.  We'll start with defining the simpler cases where
-:math:`X(t)` is a Brownian motion, and generalize it to be any
+define Equation 3.1.  We'll start with defining the simpler cases where
+:math:`X(t)` is a Wiener process, and generalize it to be any
 Itô process, and then introduce the key result called Itô's lemma, a conceptual
 form of the chain rule, which will allows us to solve many more interesting
 problems.
@@ -928,18 +1147,18 @@ Stochastic Integrals with Brownian Motion
 -----------------------------------------
 
 To begin, we'll start with the simplest case when the integrator (:math:`dX(t)`
-in Equation 29) is Brownian motion.  For this simple case, we can define
+in Equation 3.1) is the Wiener process.  For this simple case, we can define
 the integral as:
 
 .. math::
 
-    \int_0^t H(s) dW(s) := \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} H(s_i)[W(t_{i+1}) - W(t_i)] \tag{30}
+    \int_0^t H(s) dW(s) := \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} H(s_i)[W(t_{i+1}) - W(t_i)] \tag{3.2}
 
 where :math:`t_i \leq s_i \leq t_{i+1}`, and :math:`||\Pi||` is the mesh (or
 maximum interval) that goes to zero while the number of partitions goes to infinity
-like in Equation 18 (and standard Riemannian integrals).
+like in Equation 2.18 (and standard Riemannian integrals).
 
-From a high level, Equation 30 is not too different from our usual Riemannian
+From a high level, Equation 3.2 is not too different from our usual Riemannian
 integrals.  However, we have to note that instead of having a :math:`dt`, we
 have a :math:`dW(s)`.  This makes the results more volatile than a regular
 integral.  Let's contrast the difference between approximating a regular
@@ -948,21 +1167,21 @@ from :math:`t`:
 
 .. math::
 
-    R(t + \Delta t) &:= \int_0^{t+\Delta t} H(s) ds \approx R(t) + H(t)\Delta t \tag{31} \\
-    I(t + \Delta t) &:= \int_0^{t+\Delta t} H(s) dW(s) \approx I(t) + H(t)(W(t + \Delta t) - W(t)) \tag{32}
+    R(t + \Delta t) &:= \int_0^{t+\Delta t} H(s) ds \approx R(t) + H(t)\Delta t \tag{3.3} \\
+    I(t + \Delta t) &:= \int_0^{t+\Delta t} H(s) dW(s) \approx I(t) + H(t)(W(t + \Delta t) - W(t)) \tag{3.4}
 
 :math:`R(t)` changes more predictably than :math:`I(t)` since we know that each
 increment change by :math:`H(s)\Delta t`.  Note that :math:`H(s)` can still be
 a random (and :math:`R(t)` can be random as well) but it changes only by a
 deterministic :math:`\Delta t`.  This is in contrast to :math:`I(t)` which changed
-by :math:`W(t + \Delta t) - W(t)`.  Recall that each increment of Brownian
-motion is independent and distributed normally with :math:`\mathcal{N}(0, \Delta t)`.
+by :math:`W(t + \Delta t) - W(t)`.  Recall that each increment of the Wiener process
+is independent and distributed normally with :math:`\mathcal{N}(0, \Delta t)`.
 Thus :math:`H(t)(W(t + \Delta t) - W(t))` changes much more erratically because
 our increments follow a *independent* normal distribution versus just a
 :math:`\Delta t`.  This is one of the key intuitions why we need to define a
 new type of calculus.
 
-To ensure that the stochastic integral in Equation 30 is well defined, we need
+To ensure that the stochastic integral in Equation 3.2 is well defined, we need
 a few things as you might expect:
 
 1. The choice of :math:`s_i` is quite important (unlike regular integrals).
@@ -983,7 +1202,7 @@ a few things as you might expect:
 
    .. math::
 
-        \lim_{n \to \infty} E\big[\int_0^T |H_n(t) - H(t)|^2 dt\big] = 0 \tag{33}
+        \lim_{n \to \infty} E\big[\int_0^T |H_n(t) - H(t)|^2 dt\big] = 0 \tag{3.5}
 
    for :math:`H_n(s) = H(t_i)` for :math:`t_i \leq s < t_{i+1}`, basically the
    piece-wise function approximation for :math:`H(t)` using the left most point for the interval.
@@ -991,11 +1210,11 @@ a few things as you might expect:
 .. admonition:: Example 6: A Simple Stochastic Integral in Two Ways
 
     Let's work through the simple integral where the integrand and integrator are
-    both Brownian motion:
+    both the Wiener process:
 
     .. math::
 
-        \int_0^t W(s) dW(s) = \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} W(s_i)[W(t_{i+1}) - W(t_i)] \tag{34}
+        \int_0^t W(s) dW(s) = \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} W(s_i)[W(t_{i+1}) - W(t_i)] \tag{3.6}
 
     First, we'll work through it using the Itô convention where :math:`s_i=t_i`:
 
@@ -1008,26 +1227,26 @@ a few things as you might expect:
         - \frac{1}{2}W(t_{i+1})^2 + W(t_i)W(t_{i+1}) - \frac{1}{2}W(t_i)^2 \big]\\
         &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} 
         \frac{1}{2}[W(t_{i+1})^2 - W(t_i)^2] - \frac{1}{2}[W(t_{i+1}) - W(t_{i})]^2 \\
-        \tag{35}
+        \tag{3.7}
 
     The first term is just a telescoping sum, which has massive cancellation:
 
     .. math::
 
         \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} \frac{1}{2}[W(t_{i+1})^2 - W(t_i)^2] = \frac{1}{2}(W(t)^2 - W(0)^2) 
-        = \frac{1}{2} W(t)^2 - 0 = \frac{W(t)^2}{2}  \tag{36}
+        = \frac{1}{2} W(t)^2 - 0 = \frac{W(t)^2}{2}  \tag{3.8}
 
     The second term you'll notice is precisely the quadratic variance from Theorem 1,
     which we knows equals the interval :math:`t`.  Putting it together, we have:
 
     .. math::
 
-        \int_0^t W(s) dW(s) =  \frac{W(t)^2}{2} - \frac{t}{2} \tag{37}
+        \int_0^t W(s) dW(s) =  \frac{W(t)^2}{2} - \frac{t}{2} \tag{3.9}
 
     We'll notice that this *almost* looks like the result from calculus i.e., 
     :math:`\int x dx = \frac{x^2}{2}`, except with an extra term.  As we saw
     above the extra term comes in precisely because we have non-zero quadratic
-    variation.  If Brownian motion had a continuous differentiable paths, then
+    variation.  If the Wiener process had a continuous differentiable paths, then
     we wouldn't need all this extra work with stochastic integrals.
 
     .. raw:: html
@@ -1048,10 +1267,10 @@ a few things as you might expect:
         &= \int_0^t W(s) dW(s) + \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1}\big[ W(s_i) - W(t_j) \big]^2 
         && \text{Itô integral with partitions } t_0, s_0, t_1, s_1, \ldots \\
         &= \frac{W(t)^2}{2} - \frac{t}{2} + \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1}\big[ W(s_i) - W(t_j) \big]^2 
-        && \text{Equation 37} \\
+        && \text{Equation 3.9} \\
         &= \frac{W(t)^2}{2} - \frac{t}{2} + \frac{t}{2} && \text{Half-saple quadratic variation} \\
         &= \frac{W(t)^2}{2} \\
-        \tag{38}
+        \tag{3.10}
 
     We use the fact that the half-sample quadratic variation is equal to
     :math:`\frac{t}{2}` using a similar proof to Theorem 1.
@@ -1068,7 +1287,7 @@ a few things as you might expect:
 
 
 Quadratic Variation of Stochastic Integrals with Brownian Motion
-----------------------------------------------------------------
+****************************************************************
 
 Let's look at the quadratic variation (or sum of squared incremental
 differences) along a particular path for the stochastic integral we
@@ -1078,23 +1297,23 @@ stochastic integral is a stochastic process.
 .. admonition:: **Theorem 3** 
     
     *The quadratic variation accumulated up to time* :math:`t` *by the Itô integral
-    with Brownian motion* (*denoted by* :math:`I`) *from Equation 30 is*:
+    with the Wiener process* (*denoted by* :math:`I`) *from Equation 3.2 is*:
 
     .. math::
 
-        [I, I] = \int_0^t H^2(s) ds \tag{39}
+        [I, I] = \int_0^t H^2(s) ds \tag{3.11}
 
 .. admonition:: **Theorem 4 (Itô isometry)**
     
-    *The Itô integral with Brownian motion from Equation 30 satisfies*:
+    *The Itô integral with the Wiener process from Equation 3.2 satisfies*:
 
     .. math::
 
-        Var(I(t)) = E[I^2(t)] = E\big[\int_0^t H^2(s) ds\big] \tag{40}
+        Var(I(t)) = E[I^2(t)] = E\big[\int_0^t H^2(s) ds\big] \tag{3.12}
 
 A couple things to notice.  First, the quadratic variation is "scaled" by the
 underlying integrand :math:`H(t)` as opposed to accumulating quadratic
-variation at one unit per time from Brownian motion.
+variation at one unit per time from the Wiener process.
 
 Second, we start to see the difference between the path-dependent quantity
 of quadratic variation and variance.  The former depends on the path taken
@@ -1104,32 +1323,32 @@ on the other hand a fixed quantity up to time :math:`t` that is averaged
 over all paths and does not change (given the underlying distribution).
 
 Finally, let's gain some intuition on the quadratic variation by utilizing
-the informal differential notation from Equation 26-28.  We can re-write
-our stochastic integral from Equation 30:
+the informal differential notation from Equation 2.26-2.28.  We can re-write
+our stochastic integral from Equation 3.2:
 
 .. math::
 
-   I(t) = \int_0^t H(s) dW(s) \tag{41}
+   I(t) = \int_0^t H(s) dW(s) \tag{3.13}
 
 as:
 
 .. math::
 
-   dI(t) = H(t)dW(t) \tag{42}
+   dI(t) = H(t)dW(t) \tag{3.14}
 
-Equation 41 is the *integral form* while Equation 42 is the *differential form*,
+Equation 3.13 is the *integral form* while Equation 3.14 is the *differential form*,
 and they have identical meaning.
 
 The differential form is a bit easier to intuitively understand.  We can see
-that it matches the approximation (Equation 32) that we discussed in the previous
+that it matches the approximation (Equation 3.4) that we discussed in the previous
 subsection.  Using this differential notation and the informal notation we defined
-above in Equation 26-28, we can "calculate" the quadratic variation as:
+above in Equation 2.26-2.28, we can "calculate" the quadratic variation as:
 
 .. math::
 
-    dI(t)dI(t) = H^2(t)dW(t)dW(t) = H^2(t)dt \tag{43}
+    dI(t)dI(t) = H^2(t)dW(t)dW(t) = H^2(t)dt \tag{3.15}
 
-using the fact that the quadratic variation for Brownian motion accumulates at
+using the fact that the quadratic variation for the Wiener process accumulates at
 one unit per time (:math:`dW(t)dW(t) = dt`) from Theorem 1.  We'll utilize
 this differential notation more in the following subsections as we move
 into stochastic differential equations.
@@ -1175,6 +1394,8 @@ References
 * Wikipedia: `Stochastic Processes <https://en.wikipedia.org/wiki/Stochastic_process#Stochastic_process>`__, `Adapted Stochastic Process <https://en.wikipedia.org/wiki/Adapted_process>`__
 * [1] Steven E. Shreve, "Stochastic Calculus for Finance II: Continuous Time Models", Springer, 2004.
 * [2] Michael Kozdron, "`Introduction to Stochastic Processes Notes <https://uregina.ca/~kozdron/Teaching/Regina/862Winter06/Handouts/revised_lecture1.pdf>`__", Stats 862, University of Regina, 2006.
+* [3] "`Introduction to Stochastic Differential Equations <https://canvas.harvard.edu/courses/669/files/431355/download?verifier=3LjaEzjDCgXxHFzoeTjmUv6u3VfY60yVh9y6xKSP&wrap=1>`__", Harvard, 2007.
+* [4] Maria Sandsten, "`Differentiation of stationary stochastic processes <https://canvas.education.lu.se/courses/5687/pages/differentiation-and-introduction-to-ar-and-ma-processes?module_item_id=130256>`__", 2020.
 
 
 Appendix A: Event Space and Probability Measure for a Bernoulli Process
