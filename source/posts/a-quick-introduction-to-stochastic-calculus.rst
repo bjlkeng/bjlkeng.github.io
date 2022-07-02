@@ -984,14 +984,15 @@ the Wiener process that does not exceed a given level :math:`m` but they are so
 infinitesimally small that they are collectively assigned probability 0 
 (almost surely).  Working with infinities can be unintuitive.
 
-Relationship Between the Wiener Process and White Noise
---------------------------------------------------------
+The Relationship Between the Wiener Process and White Noise
+-----------------------------------------------------------
 
 The Wiener process can be characterized in several equivalent ways with the
 definition above being one of the most common.  Another common way to define
-it is from the white noise we discussed in the motivation.  In this definition,
-the Wiener process is the definite integral of Gaussian white noise,
-or equivalently, Gaussian white noise is the derivative of the Wiener process:
+it is from the white noise we discussed in the motivation section.  In this
+definition, the Wiener process is the definite integral of Gaussian white
+noise, or equivalently, Gaussian white noise is the derivative of the Wiener
+process:
 
 .. math::
 
@@ -1012,9 +1013,9 @@ of a stochastic process from [4]:
 
     when :math:`h \to 0`. 
 
-We can see that the definition is basically the same as our regular calculus
-one except that we require the expectation to go to zero *and* to have a
-weaker square convergence, which we'll see appear again in the next section..
+We can see that the definition is basically the same as regular calculus
+except that we require the expectation to go to zero with a weaker squared
+convergence, which we'll see appear again in the next section.
 
 From this definition, we can calculate the mean of the derivative of :math:`W(t)` as:
 
@@ -1052,22 +1053,23 @@ Thus, we have shown that the time correlation of the derivative of a stochastic
 process is the mixed second-order partial derivative.  Now all we have to do
 is evaluate it for the Wiener process.  
 
-First, the Wiener process time correlation is (see this `StackExchange answer
+First, assuming :math:`t_1 < t_2` the Wiener process time correlation is given by 
+(see this `StackExchange answer
 <https://math.stackexchange.com/questions/884299/autocorrelation-of-a-wiener-process-proof>`__
-for more details).  Assume :math:`t_1 < t_2`:
+for more details):
 
 .. math::
 
     0 &= E[W(t_1)(W(t_2) - W(t_1))] && \text{independent increments} \\
     &= E[W(t_1)W(t_2)] - E[(W(t_1))^2] \\
-    &= E[W(t_1)W(t_2)] - t_1 && Var(W(t_1)) =t \\
+    &= E[W(t_1)W(t_2)] - t_1 && Var(W(t_1)) = t_1 \\
     C_W(t_1, t_2) &= E[W(t_1)W(t_2)] = t_1 = \min(t_1, t_2) \\ 
     \tag{2.34}
 
 We get the same result if :math:`t_2 < t_1`, thus :math:`C_W(t_1, t_2) = \min(t_1, t_2)`.
 Now we have to figure out how to take the second order partial derivatives.
 The first partial derivative is easy as long as :math:`t_1 \neq t_2`
-(see this `great answer <https://math.stackexchange.com/questions/150960/derivative-of-the-fx-y-minx-y>`__ on StackExchange):
+(see this `answer <https://math.stackexchange.com/questions/150960/derivative-of-the-fx-y-minx-y>`__ on StackExchange):
 
 .. math::
 
@@ -1079,9 +1081,9 @@ The first partial derivative is easy as long as :math:`t_1 \neq t_2`
     \tag{2.35}
 
 where :math:`H(x)` is the 
-`Heaviside step function <https://en.wikipedia.org/wiki/Heaviside_step_function>`__
-except at :math:`t_1=t_2` where our function is not defined.
-But we know the derivative of this step function is just the Dirac delta function, so:
+`Heaviside step function <https://en.wikipedia.org/wiki/Heaviside_step_function>`__.
+But we know the derivative of this step function is just the Dirac delta
+function (even with the missing point), so:
 
 .. math::
 
@@ -1090,20 +1092,21 @@ But we know the derivative of this step function is just the Dirac delta functio
 
 From Equation 2.32 and 2.36, we see we have the same statistics as the white noise
 we defined in the motivation section above in Equation 1.4.  Since the mean
-is also zero, the covariance is equal to the time correlation: 
+is also zero, the covariance is equal to the time correlation too: 
 :math:`Cov_{W'}(t_1, t2) = C_{W'}(t1, t2)`
 
-Now all we have to show
-is that it is also normally distributed.  By definition the Wiener process has some derivative
-:math:`W'(x)` (assuming it exists):
+Now all we have to show is that it is also normally distributed.  By definition
+(given above) the Wiener stochastic process has derivative:
 
 .. math::
 
-   W(t) = \int_0^t W'(s) ds \tag{2.37}
+   \frac{dW(t)}{dt} = \lim_{h\to 0} \frac{W(t + h) - W(t)}{h} \tag{2.37}
 
-
-* What's the argument here?  lim s \to 0  W(t) - W(s) \approx W(t) + ... ???
-
+But since each increment of the Wiener process is normally distributed (and independent), 
+the derivative from Equation 2.37 is also normally distributed.
+This implies the derivative of the Wiener process is a Gaussian process with
+zero mean and delta time correlation, which is the standard definition of white
+noise.  Thus, we have shown the relationship in Equation 2.29 / 2.30.
 
 Stochastic Calculus
 ===================
