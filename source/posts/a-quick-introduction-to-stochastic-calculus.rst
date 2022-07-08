@@ -1111,6 +1111,15 @@ noise.  Thus, we have shown the relationship in Equation 2.29 / 2.30.
 Stochastic Calculus
 ===================
 
+TODO: Add these points:
+
+* Basic idea is to define the stochastic integral where integrator is a stochastic process
+* Hard part is when the integrator is not "smooth" (continuously differentiable)
+* Needs to be adapted
+* If integrator is not stochastic process, we can use our usual rules of
+  calculus (albeit with random integrands), and the integral agrees with our usual rules
+
+
 Our main goal is to make sense of the following:
 
 .. math::
@@ -1359,16 +1368,114 @@ into stochastic differential equations.
 Itô Processes and Integrals
 ---------------------------
 
-* Itô Processes: pg 143
-  * https://en.wikipedia.org/wiki/It%C3%B4_calculus#It%C3%B4_processes
-* Quadratic variation of Ito Process?
-  * Use the "informal proof" pg 145
-  * Explain parts: random and non-random part pg 145
-* Define the Ito process integral, pg 145
-  * Explain
+In the previous subsections, we only allowed integrators that were Wiener processes
+but we'd like to extend that to a more general class of stochastic processes
+called Itô processes [1]_:
+
+    Let :math:`W(t)`, :math:`t\geq 0`, be a Wiener process with an associated 
+    filtration :math:`\mathcal{F}(t)`.  An **Itô processes** is a stochastic
+    process of the form:
+
+    .. math::
+
+        X(t) = X(0) + \int_0^t G(s) ds + \int_0^t H(s) dW(s) \tag{3.16}
+
+    where :math:`X(0)` is nonrandom and :math:`H(s)` and :math:`G(s)`
+    are adapted stochastic processes.
+
+Equation 3.16 can also be written in its more natural (informal) differential form:
+
+.. math::
+
+    dX(t) = G(t)dt + H(t)dW(t) \tag{3.17}
+
+It turns out that a large class of stochastic processes are Itô processes,
+which have the property of being continuous and adapted to the associated
+filtration.  Using our differential notation, we can rewrite Equation 3.16
+and take the expectation and variance to get more insight:
+
+.. math::
+
+    E[dX(t)] &= E[G(t)dt + H(t)dW(t)] \\
+    &= E[G(t)dt] + E[H(t)dW(t)] \\
+    &\approx G(t)dt && G(t) \text{ approx. const for small } dt \tag{3.18} \\
+    \\
+    Var[dX(t)] &= Var[G(t)dt + H(t)dW(t)] \\
+    &= E[(G(t)dt + H(t)dW(t))^2] - (E[dX(t)])^2 \\
+    &= E[H^2(t)(dW(t))^2] - (G(t)dt)^2 && \text{Equation 2.27/2.28} \\
+    &= E[H^2(t)dt] && \text{Equation 2.26} \\
+    &\approx H^2(t)dt && \text{ approx. const for small } dt \\
+    \tag{3.19}
+
+In this form, we can interpret the infinitesimal change in :math:`X(t)` as 
+being normally distributed (since :math:`dW(t)` is independent and normal) with
+mean of :math:`G(t)dt` and variance :math:`H^2(t)dt`.  So we see that we have a
+very similar type of process to a Wiener one except that it can have more
+complex means and variances.  We'll see how we can practically manipulate them
+in the next section.
+
+Lastly as with our other processes, we would like to know its quadratic
+variation.  Informally we can compute quadratic variation as:
+
+.. math::
+
+    dX(t)dX(t) &= H^2(t)dW(t)dW(t) + 2H(t)G(t)dW(t)dt + G^2(t)dtdt \\
+    &= H^2(t)dW(t)dW(t) && \text{Eqn. 2.27/2.28} \\
+    &= H^2(t)dt && \text{Quadratic variation of Wiener process} \\
+    \tag{3.20}
+
+which is essentially the same computation we used in Equation 3.19 above.
+In fact, we get the same result as with the simpler Wiener process integrator
+where we accumulate quadratic variation with :math:`H^2(t)` per unit time. 
+The reason is that the cross variation (Equation 2.27) and time quadratic
+variation (Equation 2.28) are zero and don't contribute to the final expression.
+
+Finally, let's see how to compute an integral of an Itô process :math:`X(t)`
+using our informal differential notation:
+
+.. math::
+
+    \int_0^t F(u) dX(u) &= \int_0^t F(u) (H(u)dW(u) + G(u)du) \\
+    &= \int_0^t [F(u)H(u)dW(u) + F(u)G(u)du] \\
+    &= \int_0^t F(u)H(u)dW(u) + \int_0^t F(u)G(u)du \\
+    \tag{3.21}
+
+As we can see, it's just a sum of a simple Wiener process stochastic integral
+and a regular time integral.
+
+.. admonition:: Example 7: A Simple Itô Integral
+
+    Let's work through a simple integral where the integrands are constant:
+
+    .. math::
+
+        X(t) = X(0) + \int_0^t c_1 dt + \int_0^t c_2 dW(s) \tag{3.22}
+
+    where :math:`c_1, c_2` are constant.  We can expand this out very simply
+    using the definition of stochastic integrals with Wiener process
+    integrators:
+
+    .. math::
+
+        X(t) &= X(0) + \int_0^t c_1 dt + \int_0^t c_2 dW(s) \\
+             &= X(0) + c_1 t + \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} c_2[W(t_{i+1}) - W(t_i)] && \text{defn. of stochastic integral} \\
+             &= X(0) + c_1 t + \lim_{||\Pi|| \to 0} c_2[W(t_N) - W(0)] && \text{telescoping sum} \\
+             &= X(0) + c_1 t + c_2 W(t_N) && W(0) = 0 \\
+        \tag{3.23}
+
+    Which is a simple stochastic process that increases linearly with time but
+    with an additive scaled Wiener process.
+
 
 Itô's Lemma and Stochastic Differential Equations 
 -------------------------------------------------
+
+is actually a **stochastic differential equation**.  Given :math:`G`, :math:`H`
+and :math:`X(0)`, under certain conditions, we can find a solution (or numerically 
+approximate) :math:`X(t)`.  Using the differential notation is a very natural
+way to represent physical (and financial) phenomenon, and we'll take a look
+at some examples in the next section.
+
 * dX = adt + bdB
 * https://en.wikipedia.org/wiki/Stochastic_differential_equation
 * https://en.wikipedia.org/wiki/It%C3%B4%27s_lemma
@@ -1524,3 +1631,5 @@ sample space, there does exist sequences that are not in
 :math:`\mathcal{F}_\infty`.  But it's extremely hard to produce such a set
 (and don't ask me how :p).
 
+
+.. [1] In fact, we can admit a larger class of integrators for stochastic integrals called `semimartingales <https://en.wikipedia.org/wiki/Semimartingale>`_, but for our purposes Itô processes will do just fine.
