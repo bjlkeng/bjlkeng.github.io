@@ -1445,30 +1445,59 @@ and a regular time integral.
 
 .. admonition:: Example 7: A Simple Itô Integral
 
-    Let's work through a simple integral where the integrands are constant:
+    Let's work through a simple integral where the integrands are constant.
+    Starting with our Itô process:
 
     .. math::
 
-        X(t) = X(0) + \int_0^t c_1 dt + \int_0^t c_2 dW(s) \tag{3.22}
+        X(t) = X(0) + \int_0^t A dt + \int_0^t B dW(s) \tag{3.22}
 
-    where :math:`c_1, c_2` are constant.  We can expand this out very simply
+
+    where :math:`A, B` are constant.  Now calculate a simple integral using it as the integrator:
+
+    .. math::
+
+        \int_0^t C dX(s) = \int_0^t AC ds + \int_0^t BC dW(s) && \text{Eqn. 3.21} \\
+        \tag{3.23}
+
+
+    where :math:`C` is constant.  We can expand this out very simply
     using the definition of stochastic integrals with Wiener process
     integrators:
 
     .. math::
 
-        X(t) &= X(0) + \int_0^t c_1 dt + \int_0^t c_2 dW(s) \\
-             &= X(0) + c_1 t + \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} c_2[W(t_{i+1}) - W(t_i)] && \text{defn. of stochastic integral} \\
-             &= X(0) + c_1 t + \lim_{||\Pi|| \to 0} c_2[W(t_N) - W(0)] && \text{telescoping sum} \\
-             &= X(0) + c_1 t + c_2 W(t_N) && W(0) = 0 \\
-        \tag{3.23}
+        \int_0^t C dX(s) &= \int_0^t AC ds + \int_0^t BC dW(s) \\
+             &= AC t + \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} BC[W(t_{i+1}) - W(t_i)] && \text{defn. of stochastic integral} \\
+             &= AC t + \lim_{||\Pi|| \to 0} BC[W(t) - W(0)] && \text{telescoping sum} \\
+             &= AC t + BC W(t) && W(0) = 0 \\
+        \tag{3.24}
 
-    Which is a simple stochastic process that increases linearly with time but
-    with an additive scaled Wiener process.
+    From there, we can see that the mean and variance of this process can be
+    calculated in a straight forward manner manner since :math:`W(t)` is the only
+    random component: 
+
+    .. math::
+
+        E[X(t)] &= E[X(0) + AC t + BC W(t)] \\
+         &= AC t + BC E[W(t)] \\
+         &= AC t && E[W(t)] = 0 \tag{2.25}\\
+        \\
+        Var[X(t)] &= E[(X(t) - E[X(t)])^2] \\
+         &= E[(BC W(t))^2] \\
+         &= (BC)^2 t && Var(W(t)) = E[W^2(t)] = t \tag{2.26}
+   
+    Which is a simple stochastic process with normally distributed increments
+    (inherited from the Wiener process) whose tendency is to increase linearly
+    with time but has increasing wide variance proportional to the time passed.
 
 
 Itô's Lemma and Stochastic Differential Equations 
 -------------------------------------------------
+
+
+
+
 
 is actually a **stochastic differential equation**.  Given :math:`G`, :math:`H`
 and :math:`X(0)`, under certain conditions, we can find a solution (or numerically 
