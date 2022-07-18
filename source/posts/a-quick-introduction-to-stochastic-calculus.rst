@@ -1474,22 +1474,105 @@ and a regular time integral.
 
         E[X(t)] &= E[X(0) + AC t + BC W(t)] \\
          &= AC t + BC E[W(t)] \\
-         &= AC t && E[W(t)] = 0 \tag{2.25}\\
+         &= AC t && E[W(t)] = 0 \tag{3.26}\\
         \\
         Var[X(t)] &= E[(X(t) - E[X(t)])^2] \\
          &= E[(BC W(t))^2] \\
-         &= (BC)^2 t && Var(W(t)) = E[W^2(t)] = t \tag{2.26}
+         &= (BC)^2 t && Var(W(t)) = E[W^2(t)] = t \tag{3.27}
   
     Which is the same result as if we just directly computed Equation 3.20/3.21. 
     The final result is a simple stochastic process that is essentially
     a Wiener process but that drifts up by :math:`AC` over time.
 
-Itô's Lemma and Stochastic Differential Equations 
--------------------------------------------------
+Itô's Lemma
+-----------
 
+Although many stochastic processes can be written as Itô processes, often times
+the process under consideration is not in the form of Equation 3.16/3.17.  
+A common situation is where our target stochastic process :math:`Y(t)` is a
+deterministic function :math:`f(\cdot)` of a simpler Itô process :math:`X(t)`:
 
+.. math::
 
+    Y(t) = f(t, X(t)) \tag{3.28}
 
+In these situations, we'll want a method to simplify this so we can get it into
+the simpler form of Equation 3.16/3.17 with a single :math:`dt` and a single
+:math:`dW(s)` term.  This technique is known as Itô's lemma.
+
+.. admonition:: **Itô's Lemma** 
+   
+    *Let* :math:`X(t)` *be an Itô process as described in Equation 3.16/3.17, and let* 
+    :math:`f(t, x)` *be a function for which the partial derivatives*
+    :math:`\frac{\partial f}{\partial t}, \frac{\partial f}{\partial x}, 
+    \frac{\partial^2 f}{\partial x^2}` *are defined and continuous.  Then for* 
+    :math:`T\geq 0`:
+    
+    .. math::
+        &f(T, X(T)) \\
+         &= f(0, X(0)) + \int_0^T \frac{\partial f(t, X(t))}{\partial t} dt  
+            + \int_0^T \frac{\partial f(t, X(t))}{\partial x} dX(t) \\
+         &\quad + \frac{1}{2} \int_0^T \frac{\partial^2 f(t, X(t))}{\partial x^2} dX(t)dX(t)\\
+         &= f(0, X(0)) + \int_0^T \frac{\partial f(t, X(t))}{\partial t} dt 
+          + \int_0^T \frac{\partial f(t, X(t))}{\partial x} \mu(t) dt \\
+         &\quad + \int_0^T \frac{\partial f(t, X(t))}{\partial x} \sigma(t) dW(t) 
+         + \frac{1}{2} \int_0^T \frac{\partial^2 f(t, X(t))}{\partial x^2} \sigma^2(t) dt\\
+         \tag{3.29}
+
+    *Or using differential notation, we can re-write the first equation more simply as:*
+
+    .. math::
+
+        df(t, X(t)) &= \frac{\partial f}{\partial t}dt + \frac{\partial f}{\partial x}dX(t)
+        + \frac{1}{2} \frac{\partial^2 f}{\partial x^2}dX(t)dX(t) \\
+        &= \big(\frac{\partial f}{\partial t} + 
+         \mu(t)\frac{\partial f}{\partial x} +
+         \frac{\sigma^2(t)}{2}\frac{\partial^2 f}{\partial x^2}\big)dt +
+         \frac{\partial f}{\partial x} \sigma(t) dW(t)   \\
+        \tag{3.30}
+
+    **Informal Proof**
+
+    Expand :math:`f(t, x)` as a Taylor series:
+
+    .. math::
+
+        df(t, x) = \frac{\partial f}{\partial t}dt + \frac{\partial f}{\partial x}dx
+        + \frac{1}{2} \frac{\partial^2 f}{\partial x^2}dx^2 + \ldots \tag{3.31}
+
+    Substitute :math:`X(t)` for :math:`x` and :math:`\mu(t)dt + \sigma(t)dW(s)` for :math:`dx`:
+
+    .. math::
+
+        &df(t, X(s)) \\
+        &= \frac{\partial f}{\partial t}dt + \frac{\partial f}{\partial x}dX(t)
+        + \frac{1}{2} \frac{\partial^2 f}{\partial x^2}^2 dX(t)dX(t) + \ldots  \\
+        &=\frac{\partial f}{\partial t}dt + \frac{\partial f}{\partial x}(\mu(t)dt + \sigma(t)dW(s)) \\
+        &\quad+ \frac{1}{2} \frac{\partial^2 f}{\partial x^2}^2 (\mu(t)^2dt^2 + 2\mu(t)\sigma(t)dtdW(s) + \sigma^2(t)dW(s)dW(s)) + \ldots\\
+        &=\frac{\partial f}{\partial t}dt + \frac{\partial f}{\partial x}(\mu(t)dt + \sigma(t)dW(s))
+        + \frac{\sigma^2(t)}{2} \frac{\partial^2 f}{\partial x^2}^2 dW(s)dW(s) && \text{since } dt^2=0 \text{ and } dtdW(t) = 0 \\
+        &= \big(\frac{\partial f}{\partial t} + 
+         \mu(t)\frac{\partial f}{\partial x} +
+         \frac{\sigma^2(t)}{2}\frac{\partial^2 f}{\partial x^2}\big)dt +
+         \frac{\partial f}{\partial x} \sigma(t) dW(t) &&  \text{since } dW(s)dW(s) = dt \\
+        \tag{3.32}
+
+As you can see, we can re-write the above stochastic process from Equation 3.28
+in terms of a single :math:`dt` and single :math:`dW(s)` term (using
+differential notation).  This can be thought of as a form of the 
+`chain rule for total derivatives <https://en.wikipedia.org/wiki/Total_derivative#Example:_Differentiation_with_direct_dependencies>`__, 
+except now that we have a non-zero quadratic variation, we need to include the
+extra second order term involving :math:`dW(s)dW(s)`.
+
+Itô's lemma is an incredibly important result because most applications of
+stochastic calculus is "little more than repeated use of this formula in a
+variety of situations" [1].  In fact, based on what I can tell, many
+introductory courses to stochastic calculus skip over a lot of the theoretical
+material and simply just jump into applications of Itô's lemma because that's
+mostly what you need.
+
+Stochastic Differential Equations
+---------------------------------
 
 is actually a **stochastic differential equation**.  Given :math:`G`, :math:`H`
 and :math:`X(0)`, under certain conditions, we can find a solution (or numerically 
@@ -1497,13 +1580,7 @@ approximate) :math:`X(t)`.  Using the differential notation is a very natural
 way to represent physical (and financial) phenomenon, and we'll take a look
 at some examples in the next section.
 
-* dX = adt + bdB
-* https://en.wikipedia.org/wiki/Stochastic_differential_equation
-* https://en.wikipedia.org/wiki/It%C3%B4%27s_lemma
-* Simple derivation
-* Examples: 
-* "Ito calculus is little more than repeated use of this formula in a variety
-  of situations" Remark 4.4.7 pg 147
+
 
 Applications of Stochastic Calculus
 ===================================
