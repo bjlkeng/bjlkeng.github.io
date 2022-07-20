@@ -1571,16 +1571,79 @@ introductory courses to stochastic calculus skip over a lot of the theoretical
 material and simply just jump into applications of Itô's lemma because that's
 mostly what you need.
 
+.. admonition:: Example 7: Itô's Lemma
+
+   Given the Itô process :math:`X(t)` as given by Equation 3.16, consider
+   the stochastic process :math:`Y(t)`:
+
+   .. math::
+
+        Y(t) = f(t, X(t)) = X^2(t) + t^2 \tag{3.33}
+
+   Using Itô's Lemma, we can re-write :math:`Y(t)` as
+   (in the diferential form since it's cleaner):
+
+   .. math::
+
+        dY(t) &= df(t, X(S)) = \\
+        &= \big(\frac{\partial f}{\partial t} + 
+         \mu(t)\frac{\partial f}{\partial x} +
+         \frac{\sigma^2(t)}{2}\frac{\partial^2 f}{\partial x^2}\big)dt +
+         \frac{\partial f}{\partial x} \sigma(t) dW(t)   \\
+        &= \big(2t + \sigma^2(t) + 2\mu(t)X(t) \big)dt + \sigma(t) X(t) dW(t) \\
+        \tag{3.34}
+
+   Which specifies :math:`Y(t)` in a simpler form of just a :math:`dt` and
+   :math:`dW` term.
+
+
 Stochastic Differential Equations
 ---------------------------------
 
-is actually a **stochastic differential equation**.  Given :math:`G`, :math:`H`
-and :math:`X(0)`, under certain conditions, we can find a solution (or numerically 
-approximate) :math:`X(t)`.  Using the differential notation is a very natural
-way to represent physical (and financial) phenomenon, and we'll take a look
-at some examples in the next section.
+One of the most common problems we want to use stochastic calculus for is
+solving stochastic differential equations (SDE). Similar to their non-stochastic
+counterpart, they appear in many different phenomenon (a couple of which we
+will see in the next section) and usually are very natural to write,
+but not necessarily to solve.
 
+Starting with the definition: 
 
+    A **stochastic differential equation** is an equation of the form:
+
+    .. math::
+
+        dX(t) &= \mu(t, X(t))dt + \sigma(t, X(t)) dW(t) && \text{differential form}\tag{3.35} \\
+        X(T) &= X(t) + \int_t^T \mu(u, X(u))du + \int_t^T \sigma(u, X(u)) dW(u) && \text{integral form} \tag{3.36}
+
+    :math:`\mu(t, x)` and :math:`\sigma(t, x)` are given functions called
+    the *drift* and *diffusion* respectively.  Additionally, we are given
+    an initial condition :math:`X(t) = x` for :math:`t\geq 0`.  The problem is
+    to then find the stochastic process :math:`X(T)` for :math:`T\geq t`.
+
+Notice that :math:`X(t)` appears on both sides making it difficult to solve for
+explicitly.  A nice property though is that under mild conditions on
+:math:`\mu(t, x)`` and :math:`\sigma(t, x)`, there exists a unique process
+:math:`X(T)` that satisfies the above.  As you might also guess,
+one-dimensional, linear SDEs can be solved for explicitly.
+
+SDEs can add similar complexities as their non-stochastic counterparts such as
+non-linearities, systems of SDEs, and multidimensional SDEs (with multiple
+associated Wiener processes) etc.  Generally, SDEs won't have explicit closed
+form solutions so you'll have to use numerical methods to solve them.
+
+The two popular methods are Monte Carlo simulation and numerically solving 
+a partial differential equation (PDE).  Roughly, Monte Carlo simulation for
+differential equations, which involves simulating many different paths of the
+underlying process and using these paths to compute the associated statistics
+(e.g. mean, variance etc.).  Given enough path (and associated time), you
+generally can get as accurate as you like.
+
+The other method is to numerically solve a PDE.  An SDE can be recast to as a
+PDE problem (at least in finance applications, not sure about others), and from
+the PDEs you can use the plethora of numerical methods to solve them.
+How both of these methods work is beyond the scope of this post (and how far I
+want to dig into this subject), but there is a lot of literature online about
+it.
 
 Applications of Stochastic Calculus
 ===================================
