@@ -763,7 +763,6 @@ condition of independence for future increments.  It's so the adapted
 stochastic process (with respect to the Wiener process filtration) can be
 properly integrated and cannot "see into the future".
 
-
 Quadratic Variation of Wiener Process
 *************************************
 
@@ -1107,6 +1106,45 @@ the derivative from Equation 2.37 is also normally distributed.
 This implies the derivative of the Wiener process is a Gaussian process with
 zero mean and delta time correlation, which is the standard definition of white
 noise.  Thus, we have shown the relationship in Equation 2.29 / 2.30.
+
+The Importance of the Wiener Process 
+------------------------------------
+
+One question that you might ask (especially after reading the next section) is
+why is there so much focus on the Wiener process?  It turns out that the Wiener
+process is the *only* (up to a scaling factor and drift term) continuous
+process with stationary independent increments [5].  Let's be more precise.
+
+A stochastic process is said to have independent increments if :math:`X(t) - X(s)`
+is independent of :math:`\{X(u)\}_{u\leq s}` for all :math:`s\leq t`.  If
+the distribution of the increments don't depend on :math:`s` or :math:`t`
+directly (but can depend on :math:`t-s`), then the increments are called
+stationary.  This leads us to the important result:
+
+.. admonition:: **Theorem 3**
+
+   Any continuous real-valued process :math:`X` with stationary independent
+   increments can be written as:
+
+   .. math::
+
+        X(t) = X(0) + bt + \sigma W(t) \tag{1}
+
+   where :math:`b, \sigma` are constants.
+
+The intuition behind Theorem 3 follows directly from the central limit theorem.
+For a given interval :math:`[s, t]`, the value of :math:`X(t) - X(s)` is the sum
+of infinitesimally small independent, identically distributed partitions
+or in other words IID random variables.  Thus, we can apply the central limit
+theorem and get a normal distribution (under some mild conditions).
+
+Processes with independent increments appear in many contexts.  For example,
+the random displacement of a particle moving through a fluid caused by the
+random interactions is naturally modelled using the Wiener process.  Similarly,
+the variability of the return of a stock price in a very short period of time
+is approximately the same regardless of the price, thus can also be modelled
+using a Wiener process.  We'll look at both of these example more closely later
+on in the post.
 
 Stochastic Calculus
 ===================
@@ -1650,6 +1688,8 @@ Applications of Stochastic Calculus
 
 Stock Prices and the Black-Scholes Equation
 -------------------------------------------
+
+
 * Stock prices
 * Black-Scholes Equation
 
@@ -1667,6 +1707,7 @@ References
 * [2] Michael Kozdron, "`Introduction to Stochastic Processes Notes <https://uregina.ca/~kozdron/Teaching/Regina/862Winter06/Handouts/revised_lecture1.pdf>`__", Stats 862, University of Regina, 2006.
 * [3] "`Introduction to Stochastic Differential Equations <https://canvas.harvard.edu/courses/669/files/431355/download?verifier=3LjaEzjDCgXxHFzoeTjmUv6u3VfY60yVh9y6xKSP&wrap=1>`__", Harvard, 2007.
 * [4] Maria Sandsten, "`Differentiation of stationary stochastic processes <https://canvas.education.lu.se/courses/5687/pages/differentiation-and-introduction-to-ar-and-ma-processes?module_item_id=130256>`__", 2020.
+* [5] George Lowther, `Continuous Processes with Independent Increments <https://almostsuremath.com/2010/06/16/continuous-processes-with-independent-increments/>`__
 
 
 Appendix A: Event Space and Probability Measure for a Bernoulli Process
