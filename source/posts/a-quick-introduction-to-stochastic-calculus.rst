@@ -1128,7 +1128,7 @@ stationary.  This leads us to the important result:
 
    .. math::
 
-        X(t) = X(0) + bt + \sigma W(t) \tag{1}
+        X(t) = X(0) + bt + \sigma W(t) \tag{2.38}
 
    where :math:`b, \sigma` are constants.
 
@@ -1686,9 +1686,83 @@ it.
 Applications of Stochastic Calculus
 ===================================
 
-Stock Prices and the Black-Scholes Equation
--------------------------------------------
+Black-Scholes-Merton Model for Options Pricing
+----------------------------------------------
 
+The rigorous math to get to the Black-Scholes-Merton model for options pricing
+is quite in depth so instead I'll just present a quick overview of some of
+the main concepts and intuition (following [6] closely).  See [6] for a
+lighter, but more intuitive treatment, and [1] for all the gory details.
+
+The Process for a Stock Price
+*****************************
+
+Stock prices are probably one of the most natural places where one would think
+about using stochastic processes.  We might be tempted to directly use an
+Itô process with constant :math:`\mu` and :math:`\sigma`.  However, this
+translates to a linear growth in the stock price but investors are expecting
+the same *percent return* regardless of the current price.  For example, if a
+stock's price is expected to grow at 10%, it should grow at that rate
+regardless of whether it's $10 or $100.  The naturally leads to this differential
+equation for stock price :math:`S` and constant return :math:`\mu`
+(a pretty big assumption):
+
+.. math::
+
+    dS = \mu S dt \tag{4.1}
+
+The change in growth in of the stock price (:math:`dS`) is equal to the percent
+return of the current price (:math:`\mu S dt`).  This yields the solution at
+time :math:`T` by dividing by :math:`S` and integrating both sides:
+
+.. math::
+
+    S_T = S_0 e^{\mu T} \tag{4.2}
+
+Of course, this simplistic model has no random component.  We would expect that
+the return is uncertain over a time period.  A (perhaps) reasonable assumption
+to make is that for small time periods, the variability in the return is the same
+regardless of the stock price.  That is, we similarly unsure (as a percent of
+the stock) of the returns whether it's at $10 or $100.  Using a Wiener process,
+we can add this assumption to Equation 4.1 as:
+
+.. math::
+
+    dS(t) = \mu S(t) dt + \sigma S dW(t) \tag{4.3}
+
+This results in a stochastic differential equation called **geometric Brownian motion** (GBM).
+
+Fortunately, GBM has a closed form solution that we can derive by using Itô's lemma
+on :math:`f(s) = \log s`:
+
+.. math::
+
+   d(\log S) &= {\partial f(S)}{\partial t}dt + {\partial f(S)}{\partial s}dS(t)
+   + \frac{1}{2} {\partial^2 f(S)}{\partial s^2}dS(t)dS(t) \\
+   &= 0 + \frac{dS(t)}{S(t)} - \frac{1}{2}\frac{1}{S(t)^2} dS(t) dS(t) \\
+   &= \frac{\mu S(t) dt + \sigma S(t) dW(t)}{S(t)} - \frac{1}{2}\frac{1}{S^2(t)}\big(\mu S(t) dt + \sigma S(t) dW(t)\big)\big(\mu S(t) dt + \sigma S(t) dW(t)\big)  && \text{Eq. 4.3} \\
+   &= \mu dt + \sigma dW(t) - \frac{\sigma^2}{2}dt && \text{Eq. 2.27/2.28} \\
+   &= (\mu - \frac{\sigma^2}{2})dt + \sigma dW(t) \\
+   \tag{4.4}
+
+Notice this is a variation of the generalized Weiner process we saw in Theorem 3 (Equation 2.38).
+From that, we know the :math:`\log s(t)` process between increment :math:`[0, T]`
+is normally distributed with mean :math:`(\mu - \frac{\sigma^2}{2})T` (due to non-zero mean)
+and variance :math:`\sigma^2T` telling us that:
+
+.. math::
+
+    \log S(t) \sim \mathcal{N}(\log S(0) + (\mu - \frac{\sigma^2}{2})T, \sigma^2 T) \tag{4.5}
+
+Which basically mean :math:`S(t)` is `log-normally <https://en.wikipedia.org/wiki/Log-normal_distribution>`__ 
+distributed.
+
+Black-Scholes-Merton Differential Equation
+******************************************
+
+See Hull text book.
+
+result is normally distributed with mean :math
 
 * Stock prices
 * Black-Scholes Equation
@@ -1708,6 +1782,7 @@ References
 * [3] "`Introduction to Stochastic Differential Equations <https://canvas.harvard.edu/courses/669/files/431355/download?verifier=3LjaEzjDCgXxHFzoeTjmUv6u3VfY60yVh9y6xKSP&wrap=1>`__", Harvard, 2007.
 * [4] Maria Sandsten, "`Differentiation of stationary stochastic processes <https://canvas.education.lu.se/courses/5687/pages/differentiation-and-introduction-to-ar-and-ma-processes?module_item_id=130256>`__", 2020.
 * [5] George Lowther, `Continuous Processes with Independent Increments <https://almostsuremath.com/2010/06/16/continuous-processes-with-independent-increments/>`__
+* [6] John C. Hull, "Options, Futures, and Other Derivatives", Pearson, 2018.
 
 
 Appendix A: Event Space and Probability Measure for a Bernoulli Process
