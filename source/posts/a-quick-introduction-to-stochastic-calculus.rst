@@ -1132,6 +1132,8 @@ stationary.  This leads us to the important result:
 
    where :math:`b, \sigma` are constants.
 
+\TODO{Write about how this is a generalized Wiener process}
+
 The intuition behind Theorem 3 follows directly from the central limit theorem.
 For a given interval :math:`[s, t]`, the value of :math:`X(t) - X(s)` is the sum
 of infinitesimally small independent, identically distributed partitions
@@ -1760,12 +1762,36 @@ distributed.
 Black-Scholes-Merton Differential Equation
 ******************************************
 
-See Hull text book.
+The BSM model is probably the most famous equation in quantitative finance, but
+it actually is quite complex to derive requiring all the stochastic calculus
+that we have covered so far.  At the heart of the model is the BSM differential
+equation, which we will presently derive and discuss.
 
-result is normally distributed with mean :math
+The first thing to understand is the "no arbitrage" condition.  In the case of
+a financial derivative (e.g. call or put option) and an underlying stock, the
+price of the derivative should never allow one to make a portfolio of the two
+such that you are guaranteed to make money i.e., arbitrage.  Note: in this
+theoretical portfolio you can be "long", or buying and owning the financial
+security, or "short", owing the financial security, but not owning it.  A
+theoretical "short" is essentially the opposite of buying and owning the asset
+where you benefit if the asset goes down.
 
-* Stock prices
-* Black-Scholes Equation
+To build this no arbitrage or "riskless" portfolio, we will want to go long/short the
+underlying stock and go short/long the derivative in exact proportion to the
+relative change in the asset prices of the two.  This proportion between the
+two only exists for a short period of time under that exact condition, and will
+need to be rebalanced as market conditions change.
+
+The other key idea is that once you have a "riskless" portfolio set up, it
+should return the "risk free" rate (within the short period of time the balance
+is maintained.  The risk free rate is an asset that is virtually guaranteed to
+receive that given rate (think: a savings account, or more commonly a treasury bond).
+With these few conditions and some additional idealized assumptions (e.g.
+stock price follow model we developed, no transaction costs, no dividends,
+perfect "shorting" etc.), we can formulate the BSM differential equation.
+
+pg. 329 - Derive BSM Differential equation.
+
 
 Application: Langevin Equation
 ------------------------------
