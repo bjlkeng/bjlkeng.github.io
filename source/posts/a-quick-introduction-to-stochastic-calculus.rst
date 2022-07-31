@@ -1687,6 +1687,8 @@ it.
 
 Applications of Stochastic Calculus
 ===================================
+(Note: In this section, we'll forgo the explicit parameterization of the
+stochastic processes to simplify the notation.)
 
 Black-Scholes-Merton Model for Options Pricing
 ----------------------------------------------
@@ -1695,6 +1697,7 @@ The rigorous math to get to the Black-Scholes-Merton model for options pricing
 is quite in depth so instead I'll just present a quick overview of some of
 the main concepts and intuition (following [6] closely).  See [6] for a
 lighter, but more intuitive treatment, and [1] for all the gory details.
+
 
 The Process for a Stock Price
 *****************************
@@ -1730,7 +1733,7 @@ we can add this assumption to Equation 4.1 as:
 
 .. math::
 
-    dS(t) = \mu S(t) dt + \sigma S dW(t) \tag{4.3}
+    dS = \mu S dt + \sigma S dW \tag{4.3}
 
 This results in a stochastic differential equation called **geometric Brownian motion** (GBM).
 
@@ -1739,24 +1742,24 @@ on :math:`f(s) = \log s`:
 
 .. math::
 
-   d(\log S) &= {\partial f(S)}{\partial t}dt + {\partial f(S)}{\partial s}dS(t)
-   + \frac{1}{2} {\partial^2 f(S)}{\partial s^2}dS(t)dS(t) \\
-   &= 0 + \frac{dS(t)}{S(t)} - \frac{1}{2}\frac{1}{S(t)^2} dS(t) dS(t) \\
-   &= \frac{\mu S(t) dt + \sigma S(t) dW(t)}{S(t)} - \frac{1}{2}\frac{1}{S^2(t)}\big(\mu S(t) dt + \sigma S(t) dW(t)\big)\big(\mu S(t) dt + \sigma S(t) dW(t)\big)  && \text{Eq. 4.3} \\
-   &= \mu dt + \sigma dW(t) - \frac{\sigma^2}{2}dt && \text{Eq. 2.27/2.28} \\
-   &= (\mu - \frac{\sigma^2}{2})dt + \sigma dW(t) \\
+   d(\log S) &= {\partial f}{\partial t}dt + {\partial f}{\partial s}dS
+   + \frac{1}{2} {\partial^2 f}{\partial s^2}dSdS \\
+   &= 0 + \frac{dS}{S} - \frac{1}{2}\frac{1}{S^2} dS dS \\
+   &= \frac{\mu S dt + \sigma S dW}{S} - \frac{1}{2}\frac{1}{S^2}\big(\mu S dt + \sigma S dW\big)\big(\mu S dt + \sigma S dW\big)  && \text{Eq. 4.3} \\
+   &= \mu dt + \sigma dW - \frac{\sigma^2}{2}dt && \text{Eq. 2.27/2.28} \\
+   &= (\mu - \frac{\sigma^2}{2})dt + \sigma dW \\
    \tag{4.4}
 
 Notice this is a variation of the generalized Weiner process we saw in Theorem 3 (Equation 2.38).
-From that, we know the :math:`\log s(t)` process between increment :math:`[0, T]`
+From that, we know the :math:`\log S` process between increment :math:`[0, T]`
 is normally distributed with mean :math:`(\mu - \frac{\sigma^2}{2})T` (due to non-zero mean)
 and variance :math:`\sigma^2T` telling us that:
 
 .. math::
 
-    \log S(t) \sim \mathcal{N}(\log S(0) + (\mu - \frac{\sigma^2}{2})T, \sigma^2 T) \tag{4.5}
+    \log S \sim \mathcal{N}(\log S(0) + (\mu - \frac{\sigma^2}{2})T, \sigma^2 T) \tag{4.5}
 
-Which basically mean :math:`S(t)` is `log-normally <https://en.wikipedia.org/wiki/Log-normal_distribution>`__ 
+Which basically mean :math:`S` is `log-normally <https://en.wikipedia.org/wiki/Log-normal_distribution>`__ 
 distributed.
 
 Black-Scholes-Merton Differential Equation
@@ -1768,13 +1771,14 @@ that we have covered so far.  At the heart of the model is the BSM differential
 equation, which we will presently derive and discuss.
 
 The first thing to understand is the "no arbitrage" condition.  In the case of
-a financial derivative (e.g. call or put option) and an underlying stock, the
+a financial derivative (e.g. call or put option) and the underlying stock, the
 price of the derivative should never allow one to make a portfolio of the two
-such that you are guaranteed to make money i.e., arbitrage.  Note: in this
-theoretical portfolio you can be "long", or buying and owning the financial
-security, or "short", owing the financial security, but not owning it.  A
-theoretical "short" is essentially the opposite of buying and owning the asset
-where you benefit if the asset goes down.
+such that you are guaranteed to make money i.e., arbitrage.  In this
+theoretical portfolio you can be "long", or buying and *owning* the financial
+security, or "short", *owing* the financial security, but not owning it 
+(implemented by borrowing the security).  A theoretical "short" is essentially
+the opposite of buying and owning the asset where you benefit if the asset goes
+down.
 
 To build this no arbitrage or "riskless" portfolio, we will want to go long/short the
 underlying stock and go short/long the derivative in exact proportion to the
@@ -1784,11 +1788,89 @@ need to be rebalanced as market conditions change.
 
 The other key idea is that once you have a "riskless" portfolio set up, it
 should return the "risk free" rate (within the short period of time the balance
-is maintained.  The risk free rate is an asset that is virtually guaranteed to
+is maintained).  The risk free rate is an asset that is virtually guaranteed to
 receive that given rate (think: a savings account, or more commonly a treasury bond).
 With these few conditions and some additional idealized assumptions (e.g.
 stock price follow model we developed, no transaction costs, no dividends,
 perfect "shorting" etc.), we can formulate the BSM differential equation.
+
+Translating the above into concrete equations.  We assume that stock prices
+follow geometric Brownian motion from Equation 4.3:
+
+.. math::
+
+    dS = \mu S dt + \sigma S dW \tag{4.6}
+
+An option on that stock price is some function :math:`f(S, t)` of the current
+stock price :math:`S` and the time :math:`t`, using Itô's Lemma we get:
+
+.. math::
+
+    df = \big(\frac{\partial f}{\partial t} + 
+                  \mu \frac{\partial f}{\partial S} S  +
+                  \frac{\sigma^2 }{2}\frac{\partial^2 f}{\partial S^2}S^2 \big)dt +
+                  \frac{\partial f}{\partial S} \sigma S dW \\
+                  \tag{4.7}
+
+Equations 4.6/4.7 describe infinitesimal changes in (a) the underlying stock
+(:math:`dS`), and (b) the change in the underlying financial derivative
+(:math:`df`).  Notice the Wiener process associated with both is the
+same because :math:`f` is derived from :math:`S`, which can be seen in the
+derivation of Itô's Lemma.  
+
+With these two equations, we now want to select a portfolio of the two (at a
+time instant) that doesn't change regardless of the change in price of the
+underlying stock i.e., our risk free portfolio.  This can be accomplished
+simply by equating the two :math:`dW` terms, which results in taking
+proportions of :math:`-1` of the financial derivative and :math:`\frac{\partial
+f}{\partial S}` shares of the underlying stock.  In other words, the portfolio
+is *short* one derivative and long :math:`\frac{\partial f}{\partial S}`
+shares.  Defining our portfolio value as :math:`\Pi`, we get:
+
+.. math::
+
+   \Pi = -f + \frac{\partial f}{\partial S} S \tag{4.8}
+
+Taking the differentials and plugging in Equation 4.6/4.6:
+
+.. math::
+
+   d\Pi &= -df + \frac{\partial f}{\partial S} dS \\
+        &= -\big(\frac{\partial f}{\partial t} + 
+                  \mu \frac{\partial f}{\partial S}S  +
+                  \frac{\sigma^2 }{2}\frac{\partial^2 f}{\partial S^2}S^2\big)dt +
+                  \frac{\partial f}{\partial S} \sigma S dW
+          + \frac{\partial f}{\partial S}(\mu S dt + \sigma S dW) \\
+        &= -\big(\frac{\partial f}{\partial t} + 
+                  \mu \frac{\partial f}{\partial S} S +
+                  \frac{\sigma^2 }{2}\frac{\partial^2 f}{\partial S^2}S^2\big)dt +
+            \mu \frac{\partial f}{\partial S}S dt && dW(s) \text{ terms cancel} \\
+        &= \big(-\frac{\partial f}{\partial t} -
+                  \frac{\sigma^2 }{2}\frac{\partial^2 f}{\partial S^2}S^2\big)dt \\
+        \tag{4.9}
+
+By construction (with our assumptions), :math:`\Pi` is a riskless portfolio
+i.e., it does not depend on the underlying movement of the stock.
+
+Using our other key idea, we should expect :math:`\Pi` to earn the risk free rate
+for the infinitesimal time in which out portfolio is perfectly balanced using
+Equation 4.9: 
+
+.. math::
+
+   d\Pi &= r\Pi dt \\
+   \big(-\frac{\partial f}{\partial t} -
+                  \frac{\sigma^2 }{2}\frac{\partial^2 f}{\partial S^2}S^2\big)
+        &= r(-f + \frac{\partial f}{\partial S} S) dt \\
+   \frac{\partial f}{\partial t} + rS \frac{\partial f}{\partial S} +
+           \frac{\sigma^2}{2}S^2 \frac{\partial^2 f}{\partial S^2}
+        &= rf \\
+    \tag{4.10}
+
+Equation 4.10 defines the Black-Scholes-Merton differential equation. 
+
+
+
 
 pg. 329 - Derive BSM Differential equation.
 
