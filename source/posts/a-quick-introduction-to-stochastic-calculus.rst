@@ -1867,13 +1867,37 @@ Equation 4.9:
         &= rf \\
     \tag{4.10}
 
-Equation 4.10 defines the Black-Scholes-Merton differential equation. 
+Equation 4.10 defines the Black-Scholes-Merton differential equation.  Notice
+that this is a *deterministic* differential equation in :math:`f(S, t)` because
+we have cancelled away the stochastic Wiener process and :math:`S, t` are given
+with respect to :math:`f(S, t)`.
 
 
+and that it has many
+solutions corresponding to the
+`boundary conditions <https://en.wikipedia.org/wiki/Boundary_value_problem>`__
+placed on :math:`f(S, t)`.  For example, on the 
+`European call and put options <https://www.investopedia.com/terms/e/europeanoption.asp>`__
+have these associated boundary conditions for strike price :math:`K` and 
+expiry time :math:`T`:
 
+.. math::
 
-pg. 329 - Derive BSM Differential equation.
+   f(S, t) &= \max(S-K, 0) \text{ when } t = T \tag{4.11} && \text{European call} \\
+   f(S, t) &= \max(K-S, 0) \text{ when } t = T \tag{4.12} && \text{European put}
 
+In other words, when the option contract expires, it is worth precisely the
+difference between the stock price and strike price or zero if negative
+(similarly in reverse for put options).  
+
+Solving this differential equation with these boundary conditions results 
+in the most famous formulas that you'll find when searching for BSM (see
+`here <https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model#Black%E2%80%93Scholes_formula>`__ for more details).
+I won't go into all the details since that's not the focus of this post, but
+the fact that it has a closed form solution is a big plus.  There are many
+more complex quantitative finance models that do not have closed form solutions,
+and even ones that go beyond Itô processes (see `Jump Processes <https://en.wikipedia.org/wiki/Jump_process>`__).  These models require approximate solutions as discussed in
+section 3.4.
 
 Application: Langevin Equation
 ------------------------------
