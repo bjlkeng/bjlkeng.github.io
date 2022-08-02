@@ -1899,12 +1899,39 @@ more complex quantitative finance models that do not have closed form solutions,
 and even ones that go beyond Itô processes (see `Jump Processes <https://en.wikipedia.org/wiki/Jump_process>`__).  These models require approximate solutions as discussed in
 section 3.4.
 
-Application: Langevin Equation
-------------------------------
+Langevin Equation
+-----------------
+
+A `Langevin equation <https://en.wikipedia.org/wiki/Langevin_equation>`__ is a
+well known stochastic differential equation that describes how a system evolves
+when subjected to a combination of deterministic and fluctuating forces.  The
+original equation was developed well before stochastic calculus was discovered
+in the context of the apparent random movement of a particle through a fluid,
+which describes the physical phenomenon of 
+`Brownian motion <https://en.wikipedia.org/wiki/Brownian_motion>`__.  Since the
+Wiener process and Brownian motion are so related, they are sometimes used
+interchangeably to describe the stochastic process.
+
+Many people contributed to the discovery of Brownian motion (including
+Einstein) but the stochastic differential equation was derived several years
+after by Langevin (hence the name) in 1908.  Interestingly, since Langevin
+did not approach his stochastic differential equation with much rigour (by
+mathematician standards), this gave rise to the field of stochastic analysis to
+answer some of the issues with Langevin's approach.
+
+In this section, I'm going to give a brief overview of the Langevin equation
+in the context of Brownian motion, glossing over many of the usual analysis one
+would do in a physics class.  Additionally, I'm going to approach it using Itô
+calculus, which is not the typical approach (not the one originally used).
+Finally, I'll briefly mention its relationship to a financial applications.
+
+Brownian Motion and the Langevin Equation
+*****************************************
+
 * Langevin Equation
   * https://en.wikipedia.org/wiki/Langevin_equation#Trajectories_of_free_Brownian_particles
   * https://en.wikipedia.org/wiki/Langevin_equation#Recovering_Boltzmann_statistics
-
+* https://en.wikipedia.org/wiki/Ornstein%E2%80%93Uhlenbeck_process#Definition
 
 References
 ==========
