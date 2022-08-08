@@ -1923,10 +1923,47 @@ In this section, I'm going to give a brief overview of the Langevin equation
 in the context of Brownian motion, glossing over many of the usual analysis one
 would do in a physics class.  Additionally, I'm going to approach it using Itô
 calculus, which is not the typical approach (not the one originally used).
-Finally, I'll briefly mention its relationship to a financial applications.
+Finally, I'll briefly mention its relationship to a financial application.
 
 Brownian Motion and the Langevin Equation
 *****************************************
+
+The original Langevin equation describes the random movement of a (usually much
+larger) particle suspended in a fluid due to collisions with the molecules in
+the fluid:
+
+.. math::
+
+    m\frac{d{\bf v}}{dt} = -\lambda {\bf v} + {\bf \eta}(t) \tag{4.13}
+
+where :math:`m` is the mass, :math:`\bf v` is the velocity, 
+:math:`\frac{d{\bf v}}{dt}` is the acceleration (the time derivative of velocity),
+and :math:`\bf \eta` is a white noise term with zero mean and flat spectrum
+(the same one we discussed in Section 2.5).
+The easiest way to interpret is through 
+`Newton's second law <https://en.wikipedia.org/wiki/Newton%27s_laws_of_motion#Second>`__:
+the net force on an object is equal to its mass time its acceleration (:math:`F_{net} = ma`).
+The right hand side is the net force, and the left hand side is the product of
+mass and acceleration.
+
+Breaking it down further, there are two types of forces acting on our particle
+suspended in fluid: (a) a `drag force <https://en.wikipedia.org/wiki/Stokes%27_law>`__
+of the fluid that is proportional to velocity (think something like air
+resistance), and, (b) a noise term representing the effect of random collisions
+with the fluid molecules.  This is a bit strange because we're combining the
+microscopic (forces of particles) with a seemingly macroscopic term in the
+noise.  This needs a bit of explanation.
+
+The noise term is an approximation of sorts.  For any given time instant, there
+(theoretically) are specific molecules colliding with our target particle so
+why are we considering this noise term :math:`\bf eta`?  Besides simplifying
+the math, the justification is that it is a good approximation for the
+*average* force within a small time instant.  Similarly, our instruments do not
+have infinite precision so we can only measure finite time instances, resulting
+in observations that look like the white noise term in Equation 4.13.  So while
+not exact (like any model), it provides a pretty good approximation for this
+phenomenon (and many others with some variations on the basic equation).
+
 
 * Langevin Equation
   * https://en.wikipedia.org/wiki/Langevin_equation#Trajectories_of_free_Brownian_particles
