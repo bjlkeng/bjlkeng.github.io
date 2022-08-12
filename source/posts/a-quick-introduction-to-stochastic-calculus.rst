@@ -1586,7 +1586,7 @@ the simpler form of Equation 3.16/3.17 with a single :math:`dt` and a single
 
         &df(t, X(s)) \\
         &= \frac{\partial f}{\partial t}dt + \frac{\partial f}{\partial x}dX(t)
-        + \frac{1}{2} \frac{\partial^2 f}{\partial x^2}^2 dX(t)dX(t) + \ldots  \\
+        + \frac{1}{2} (\frac{\partial^2 f}{\partial x^2})^2 dX(t)dX(t) + \ldots  \\
         &=\frac{\partial f}{\partial t}dt + \frac{\partial f}{\partial x}(\mu(t)dt + \sigma(t)dW(s)) \\
         &\quad+ \frac{1}{2} \frac{\partial^2 f}{\partial x^2}^2 (\mu(t)^2dt^2 + 2\mu(t)\sigma(t)dtdW(s) + \sigma^2(t)dW(s)dW(s)) + \ldots\\
         &=\frac{\partial f}{\partial t}dt + \frac{\partial f}{\partial x}(\mu(t)dt + \sigma(t)dW(s))
@@ -1934,11 +1934,11 @@ the fluid:
 
 .. math::
 
-    m\frac{d{\bf v}}{dt} = -\lambda {\bf v} + {\bf \eta}(t) \tag{4.13}
+    m\frac{d{\bf v_t}}{dt} = -\lambda {\bf v_t} + {\bf \eta}(t) \tag{4.13}
 
-where :math:`m` is the mass, :math:`\bf v` is the velocity, 
-:math:`\frac{d{\bf v}}{dt}` is the acceleration (the time derivative of velocity),
-and :math:`\bf \eta` is a white noise term with zero mean and flat spectrum
+where :math:`m` is the mass, :math:`\bf v_t` is the velocity, 
+:math:`\frac{d{\bf v_t}}{dt}` is the acceleration (the time derivative of velocity),
+and :math:`\bf \eta` is a white noise term with zero mean and flat frequency spectrum
 (the same one we discussed in Section 2.5).
 The easiest way to interpret is through 
 `Newton's second law <https://en.wikipedia.org/wiki/Newton%27s_laws_of_motion#Second>`__:
@@ -1964,11 +1964,48 @@ in observations that look like the white noise term in Equation 4.13.  So while
 not exact (like any model), it provides a pretty good approximation for this
 phenomenon (and many others with some variations on the basic equation).
 
+Interestingly, the noise term was not precisely defined (i.e., mathematically
+rigorous) when Langevin wrote his original equations.  However with the advent
+of stochastic calculus, we can write an equivalent stochastic differential
+equation, which is often referred to as the 
+`Ornstein-Uhlenbeck process <https://en.wikipedia.org/wiki/Ornstein%E2%80%93Uhlenbeck_process>`__
+as:
 
-* Langevin Equation
-  * https://en.wikipedia.org/wiki/Langevin_equation#Trajectories_of_free_Brownian_particles
-  * https://en.wikipedia.org/wiki/Langevin_equation#Recovering_Boltzmann_statistics
-* https://en.wikipedia.org/wiki/Ornstein%E2%80%93Uhlenbeck_process#Definition
+.. math::
+
+   d{\bf v_t} = \theta v_t dt + \sigma dW \tag{4.14}
+
+where :math:`\theta, \sigma` are constants, and assume:math:`\eta(t) =
+\frac{dW}{dt}`.  As an aside, technically, the Wiener process is nowhere
+differentiable, so :math:`\frac{dW}{dt}` does not have a precise meaning, which
+is why we rarely write it in this form and instead use the differential form of
+Equation 4.14.
+
+Equation 4.14 is more complicated because we have our target process
+:math:`v_t` is mixed in with differentials and non-differentials
+i.e., a stochastic differential equation.  Since this is a relatively
+simple SDE, we can use similar techniques to solving their non-stochastic
+counterparts along with Itô's lemma to compute the differential.  
+
+Without going into all of the details, we start with writing the function
+:math:`f(t, v_t) = v_t e^{\theta t}`, write down its differential and its Taylor
+expansion similar to our (informal) derivation of Itô's lemma:
+
+.. math::
+
+   df(v_t, t) &= \frac{\partial f}{\partial t}dt + \frac{\partial f}{\partial v_t} dv_t 
+                + \frac{1}{2} (\frac{\partial^2 f}{\partial x^2})^2 dv_t dv_t \\
+   &= \theta v_t e^{\theta t} dt + e^{\theta t} dv_t + (0)dv_t dv_t \\
+   &= \theta v_t e^{\theta t} dt + e^{\theta t} (-\theta v_t dt + \sigma dW) && \text{Equation 4.14} \\
+   &= \sigma e^{\theta t} dW \\
+   \int_0^t df &= v_0 +  \int_0^t \sigma e^{\theta s} dW \\
+   v_t e^{\theta t} &= v_0 + \int_0^t \sigma e^{\theta s} dW \\
+   v_t &= v_0e^{-\theta t} + \sigma \int_0^t e^{-\theta (t-s)} dW \\ \tag{4.15}
+
+Which shows the general solution to our stochastic differential equation.
+
+* Show characterization
+* Talk about time decay
 
 References
 ==========
