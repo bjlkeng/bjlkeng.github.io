@@ -1973,7 +1973,7 @@ as:
 
 .. math::
 
-   d{\bf v_t} = \theta v_t dt + \sigma dW \tag{4.14}
+   d{\bf v_t} = -\theta v_t dt + \sigma dW \tag{4.14}
 
 where :math:`\theta, \sigma` are constants, and assume:math:`\eta(t) =
 \frac{dW}{dt}`.  As an aside, technically, the Wiener process is nowhere
@@ -2003,9 +2003,55 @@ expansion similar to our (informal) derivation of Itô's lemma:
    v_t &= v_0e^{-\theta t} + \sigma \int_0^t e^{-\theta (t-s)} dW \\ \tag{4.15}
 
 Which shows the general solution to our stochastic differential equation.
+We can characterize this stochastic process by evaluating its mean and variance.
+First, we use the fact that an 
+`Itô's integral of a deterministic integrand is normally distributed 
+<https://quant.stackexchange.com/questions/53212/integration-of-a-deterministic-function-w-r-t-a-brownian-motion>`__,
+thus the second term in Equation 4.15 has zero mean, and so (assuming a non-random initial velocity :math:`v_0`):
 
-* Show characterization
-* Talk about time decay
+.. math::
+
+    E[v_t] &= E[v_0e^{-\theta t}] + E[\sigma \int_0^t e^{-\theta (t-s)} dW] \\
+     &= v_0e^{-\theta t} \\
+     \tag{4.16}
+
+Showing the average velocity vanishes relatively quickly over time.  Next, we
+can compute the variance using Itô's isometry (Theorem 4 above):
+
+.. math::
+
+   Var(v_t) &= E[(v_t - E[v_t])(v_t - E[v_t])] \\
+   &= E\big[(\sigma \int_0^t e^{-\theta (t-s)} dW)^2] \\
+   &= \sigma^2 E\big[\int_0^t (e^{-\theta (t-s)})^2 ds] && \text{Itô's isometry} \\
+   &= \frac{\sigma^2}{2\theta}(1 - e^{-2\theta t}) \\
+   \tag{4.17}
+
+From the mean and variance, and the fact the integrand in :math:`v_t` is normally distributed,
+we can infer that the stochastic process is one with a scaled and shifted Wiener process:
+
+.. math::
+
+   v_t = v_0 e^{-\theta t} + \frac{\sigma}{\sqrt{2\theta}}W(1-e^{-2\theta t}) \tag{4.18}
+
+Similarly, we can compute the displacement :math:`x_t` by integrating
+:math:`v_t` with respect to time:
+
+.. math::
+
+   x_t &= \int_0^t v_t dt \\
+       &= \int_0^t v_0 e^{-\theta s} ds + \int_0^t \frac{\sigma}{\sqrt{2\theta}}W(1-e^{-2\theta s}) ds \\
+       &= \frac{v_0}{\theta} (1 - e^{-\theta t}) + \int_0^t \frac{\sigma}{\sqrt{2\theta}}W(1-e^{-2\theta s}) ds \\
+       \tag{4.19}
+
+I won't expand the last time integral, but you can calculate it using the explanation in `this
+StackExchange answer <https://quant.stackexchange.com/questions/29504/integral-of-brownian-motion-w-r-t-time>`__, 
+which has a zero mean.  Thus, the average displacement asymptotes to :math:`\frac{v_0}{\theta}` over time.
+See the following 
+`Wikipedia article <https://en.wikipedia.org/wiki/Langevin_equation#Trajectories_of_free_Brownian_particles>`__
+for more details on the physics of it all.
+
+Conclusion
+==========
 
 References
 ==========
