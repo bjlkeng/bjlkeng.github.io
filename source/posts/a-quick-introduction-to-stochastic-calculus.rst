@@ -1,14 +1,31 @@
-.. title: A Brief Introduction to Stochastic Calculus
+.. title: A Not-So-Brief Introduction to Stochastic Calculus
 .. slug: a-brief-introduction-to-stochastic-calculus
 .. date: 2022-04-29 21:05:55 UTC-04:00
-.. tags: stochastic calculus, probability, measure theory, sigma algebra, Brownian motion, Weiner process, white noise, mathjax
+.. tags: stochastic calculus, probability, measure theory, sigma algebra, Brownian motion, Weiner process, white noise, Langevin, Black-Scholes-Merton, mathjax
 .. category: 
 .. link: 
 .. description: 
 .. type: text
 
-Write your post here.
+Through a couple of different avenues I wandered, yet again, down a rabbit hole
+leading to the topic of this post.  The first avenue was through my main focus
+on a particular machine learning topic that utilized some concepts from
+physics, which naturally led me to stochastic calculus.  The second avenue was
+through some projects at work in the quantitative finance space, which is one
+of the main applications of stochastic calculus.  Naively, I thought I could
+write a brief post on it that would satisfy my curiosity -- that didn't work
+out at all.  The result is this extra long post! 
 
+This post is about stochastic calculus, an extension of the usual calculus we
+learn to a certain class of stochastic processes.  It's not immediately obvious
+but the rigour needed to properly understand some of the key ideas requires
+going back to the measure theoretic definition of probability theory.  So
+that's where I start, from there I quickly move onto stochastic processes, the
+Wiener process, a particular flavour of stochastic calculus
+called Itô calculus where I present some of the main results, and finally end
+with a couple of applications.  As usual, I try to include a mix of intuition,
+rigour where it helps intuition, and some simple examples.  It's a deep and
+wide topic so I hope you enjoy my digest of it.
 
 .. TEASER_END
 .. section-numbering::
@@ -2052,6 +2069,16 @@ for more details on the physics of it all.
 
 Conclusion
 ==========
+
+Well I did it again!  I went down a rabbit hole and before I knew it, I was
+neck-deep into this topic.  In a lot of ways, it's nice learning on your own time
+because you can meander.  I will say I had no idea what I was getting myself into
+when I started to write this post.  Little did I know I would have to learn
+more about measure theoretic probability theory (something that was never a
+priority for me), nor that stochastic calculus needed so technical depth in order
+to intuitively understand the underlying math (vs. just symbol manipulation).
+In any case, I'm glad I dug into it but I'll be happy when I can get back on
+track to more standard ML topics.  Until next time!
 
 References
 ==========
