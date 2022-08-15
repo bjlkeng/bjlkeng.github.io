@@ -1,5 +1,5 @@
-.. title: A Not-So-Brief Introduction to Stochastic Calculus
-.. slug: a-brief-introduction-to-stochastic-calculus
+.. title: An Introduction to Stochastic Calculus
+.. slug: an-introduction-to-stochastic-calculus
 .. date: 2022-04-29 21:05:55 UTC-04:00
 .. tags: stochastic calculus, probability, measure theory, sigma algebra, Brownian motion, Weiner process, white noise, Langevin, Black-Scholes-Merton, mathjax
 .. category: 
@@ -46,53 +46,47 @@ wide topic so I hope you enjoy my digest of it.
 Motivation
 ==========
 
-Many physical phenomena (and financial ones) can be modelled as a stochastic differential
-equation. For example, the following equation is a simple example:
-
-.. math::
-
-    \frac{dX(t)}{dt} = \alpha(X, t) \tag{1.1}
-
-where :math:`X(t)` is a random process, :math:`\alpha` can be a function of
-both :math:`X` and time :math:`t`.  For now, you can think of a random process
-as a collection of random variables indexed by time, we'll get into more rigour
+Many physical phenomena (and financial ones) can be modelled as a 
+`stochastic process <https://en.wikipedia.org/wiki/Stochastic_process>`__
+that is described using a 
+`stochastic differential equation <https://en.wikipedia.org/wiki/Stochastic_differential_equation>`__. 
+Both of these things were probably not included in most introductory courses on
+either probability or calculus.  Starting with stochastic processes, the
+easiest way to think about it is a collection of random variables indexed by
+time.  So instead of a single deterministic value each time :math:`t`, we have
+a random variable instead (usually with some relationship or common property).
+So while on the surface it seems relatively simple, one of the big complexities
+we run into is when we let :math:`t` be continuous, which we will see in detail
 later.
 
-Doing calculus on random variables may be a bit beyond what you have covered in
-a course, but we don't need much more than the standard tools from calculus and
-probability theory to solve it.  For example, integrating a random variable can
-be done using the basic definitions of integration and expectation/variance (see this 
-`math exchange answer <https://math.stackexchange.com/questions/791152/time-integral-of-a-stochastic-process>`__
-for more details).  Of course there are complexities when solving differential
-equations, but for the most part you can use the standard tools from calculus
-to solve (or approximate) them.
-
-However, the simple Equation 1.1 doesn't cover many of the phenomenon we
-want to model.  A more common stochastic differential equation that
-is widely used is of the form:
+Stochastic differential equations, defined on continuous time, are a very
+natural way to model many different phenomena.  A common stochastic
+differential equation called the 
+`Langevin equation <https://en.wikipedia.org/wiki/Langevin_equation>`__,
+originally described the random movements of a particle suspended in a fluid
+due to collisions with the fluid molecules, is used to model many types of
+stochastic phenomena:
 
 .. math::
 
-    \frac{dX(t)}{dt} = \alpha(X, t) + \beta(X, t)\eta(t) \tag{1.2}
+    \frac{dX(t)}{dt} = \alpha(X, t) + \beta(X, t)\eta(t) \tag{1.1}
 
-where we have an additional term with a noise term :math:`eta(t)` in it.  The
-noise term is what makes this differential equation special, and it is the
-entire reason why we're talking about stochastic calculus in the first place.
+where :math:`X(t)` is a stochastic process, :math:`\alpha, \beta` can be a
+function of both :math:`X` and time :math:`t`, and an additional noise term
+:math:`\eta(t)`.  The noise term is what makes this differential equation
+special by introducing a special type of randomness.  And while this is just a
+single example, it does have many characteristics that show up in other
+applications of stochastic calculus.
 
-Intuitively, the noise term :math:`eta(t)` represents "random fluctuations"
-such as the random bombardment on particles suspended in a fluid, or the random
-fluctuations of a stock price.  Note that :math:`eta(t)` is a random process
-and at each time defines a random variable.  The random variables may be
-dependent on each other so we have to further define its characteristics in
-order to model it.
-
-To be precise about these "random fluctuations", we first must specify some
-of their characteristics such as their 
+Intuitively, the noise term :math:`\eta(t)` represents "random fluctuations"
+such as the random collisions with the fluid or the random fluctuations of a
+stock price.  To be precise about these "random fluctuations", we first must
+specify some of their characteristics such as their 
 `time correlation <https://en.wikipedia.org/wiki/Autocorrelation>`__ function:
 
 .. math::
 
-   C(\tau) = E[\eta(0)\eta(\tau)] = \lim_{T\to\infty} \frac{1}{T} \int_0^T \eta(t)\eta(t+\tau) dt \tag{1.3}
+   C(\tau) = E[\eta(0)\eta(\tau)] = \lim_{T\to\infty} \frac{1}{T} \int_0^T \eta(t)\eta(t+\tau) dt \tag{1.2}
 
 which should be a decreasing function of :math:`\tau` since they are random
 fluctuations and shouldn't have lasting effects.  But this can get messy
@@ -105,7 +99,7 @@ bigger than the random fluctuations.  From this assumption, we have:
 
 .. math::
 
-    E[\eta(0)\eta(\tau)] = c\delta(\tau) \tag{1.4}
+    E[\eta(0)\eta(\tau)] = c\delta(\tau) \tag{1.3}
 
 where :math:`c` is a constant and :math:`\delta(\tau)` is the 
 `Dirac delta <https://en.wikipedia.org/wiki/Dirac_delta_function>`__ function.
@@ -116,7 +110,7 @@ timestep :math:`t` the random variable :math:`\eta(t)` is a zero mean Gaussian.
 In some ways, :math:`\eta(t)` simplifies things; in others, it makes them much
 more complex.  First thing to note is that :math:`\eta(t)` is a theoretical
 construct -- there is no random process that can have its properties.
-We can see that from Equation 1.4 where we use the theoretical
+We can see that from Equation 1.3 where we use the theoretical
 `Dirac delta <https://en.wikipedia.org/wiki/Dirac_delta_function>`__ function.
 This also implies that the variance of :math:`\eta(t)` is infinite (:math:`C(\tau=0)`).
 This construction also has a flat power spectral density of all frequencies,
@@ -127,17 +121,18 @@ Another consequence of this definition is that :math:`\eta(t)` is discontinuous
 everywhere.  The value at :math:`\eta(t)` can be totally different at a small
 time increment later (:math:`\eta(t + dt)`).  This makes simple operations like
 integration much more difficult.  Going back to our stochastic differential
-equation from Equation 1.2, we can multiply through by :math:`dt` and integrate
+equation from Equation 1.1, we can multiply through by :math:`dt` and integrate
 both sides to try to get:
 
 .. math::
 
-    X(T) = X(0) + \int_0^T \alpha(X, t)dt + \int_0^T \beta(X, t)\eta(t)dt \tag{1.5}
+    X(T) = X(0) + \int_0^T \alpha(X, t)dt + \int_0^T \beta(X, t)\eta(t)dt \tag{1.4}
 
-The first integral on the right hand side is a standard one that we argued above is
-"easy" to solve.  The second integral involving :math:`eta(t)` is where we run
-into an issue.  And it is precisely this problem that has spawned a new branch
-of mathematics called Stochastic Calculus, which is the topic of this post.
+The first integral on the right hand side is a standard one that generally we
+know how to solve using the tools of calculus.  The second integral involving
+:math:`eta(t)` is where we run into an issue.  It is precisely this problem
+that has spawned a new branch of mathematics called **stochastic calculus**,
+which is the topic of this post.
 
 Stochastic Processes
 ====================
