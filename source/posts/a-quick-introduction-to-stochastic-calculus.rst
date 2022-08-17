@@ -131,7 +131,7 @@ both sides to try to get:
 The first integral on the right hand side is a standard one that generally we
 know how to solve using the tools of calculus.  The second integral involving
 :math:`eta(t)` is where we run into an issue.  It is precisely this problem
-that has spawned a new branch of mathematics called **stochastic calculus**,
+that has spawned a new branch of mathematics called *stochastic calculus*,
 which is the topic of this post.
 
 Stochastic Processes
@@ -140,20 +140,23 @@ Stochastic Processes
 Probability Spaces & Random Variables
 -------------------------------------
 
-(Skip this part if you're already familiar with the measure-theoretic probability definition.)
+(Skip this part if you're already familiar with the measure theoretic definition of probability.)
 
-First, let's examine the definition of a **probability space** :math:`(\Omega, {\mathcal {F}}, P)`.
-This is basically the same setup you learn in a basic probability class, except
-with fancier math.
+We're going to dive into the measure definition of probability *attempting* to
+give some intuition while still maintaining some level of rigour.  First, let's
+examine the definition of a **probability space** :math:`(\Omega, {\mathcal
+{F}}, P)`.  This is the same basic idea you learn in a first probability
+course except with fancier math.
 
 :math:`\Omega` is the **sample space**, which defines the set of all possible
-outcomes or results of that experiment.  In finite sample spaces, any subset of
+outcomes of an experiment.  In finite sample spaces, any subset of
 the samples space is called an **event**.  Another way to think about events is
-any thing you would want to measure the probability on, e.g. individual
-elements of :math:`\Omega`,  unions of elements, or even the empty set.
+any grouping of objects you would want to measure the probability on, e.g.
+individual elements of :math:`\Omega`, unions of elements, or even the empty
+set.
 
 However, this type of reasoning breaks down when we have certain types of
-infinite samples spaces (e.g. real line).  For this, we need to define an events more precisely 
+infinite samples spaces (e.g. real line).  For this, we need to define an event more precisely 
 with an **event space** :math:`\mathcal{F} \subseteq 2^{\Omega}` (:math:`2^{\Omega}` denotes the 
 `power set <https://en.wikipedia.org/wiki/Power_set>`__) using a construction
 called a :math:`\sigma`-algebra ("sigma algebra"):
@@ -173,7 +176,7 @@ called a :math:`\sigma`-algebra ("sigma algebra"):
 
 (NOTE: For a *very brief* discussion on countability, see Appendix A)
 
-This sounds complicated but it basically is guaranteeing
+This sounds complicated but it basically guarantees
 that the subsets of :math:`\Omega` that we use for events have all the
 nice properties we would expect from probabilities.  Intuitively, this helps
 makes the notion of "size" or "volume" precise by defining the "chunks" of
@@ -254,16 +257,16 @@ Using the probability measure :math:`P`, one can calculate the probability of
 where :math:`S \subseteq \mathcal{S}`.  We can take :math:`S = \{x\}` to
 evaluate the random variable at a particular value.  
 
-So a random variable then allows us to map to real numbers from our original
-sample space (:math:`\Omega`).  Often times our sample space has no concept
-of numbers (e.g.  heads or tails) but random variables allow us to assign real
-numbers to those events to calculate things like expected values and variance. 
-
 Equation 2.3 basically says that we map backwards from a set of real numbers
 (:math:`S`) to a set of values in the sample space (i.e. an event given by
 Equation 2.2) using the inverse of function :math:`X`.  From the event in our
 event space :math:`\mathcal{F}`, which is guaranteed to exist because of property (2),
 we know how to compute the probability using :math:`P`.
+
+So a random variable then allows us to map to real numbers from our original
+sample space (:math:`\Omega`).  Often times our sample space has no concept
+of numbers (e.g.  heads or tails) but random variables allow us to assign real
+numbers to those events to calculate things like expected values and variances. 
 
 For many applications of probability, understanding the above is overkill.
 Most practitioners of probability can get away with the "first stage" (see box
@@ -338,7 +341,7 @@ rigour needed for uncountable infinities.
     from basic statistical tests to likelihood functions.
 
     The second stage of probability theory dives deep into the rigorous
-    measure-theoretic definition.  In this definition, one views a 
+    measure theoretic definition.  In this definition, one views a 
     random variable as a function from a sample space :math:`\Omega`
     to a subset of the real numbers :math:`\mathbb{R}`.  Certain subsets
     of :math:`\Omega` are called events, and the collection of all possible
@@ -412,7 +415,7 @@ take and/or the nature of the index set:
   `countable set <https://en.wikipedia.org/wiki/Countable_set>`__ (i.e., can be mapped to a subset of the natural numbers);
   otherwise :math:`X(t)` is continuous.
 * **Discrete and Continuous Time Processes**: :math:`X(t)` is discrete time process if the index set is 
-  countable (i.e., can be mapped to a subset of the natural numbers).
+  countable (i.e., can be mapped to a subset of the natural numbers), otherwise it is a continuous time process.
 
 Generally continuous time processes are harder to analyze and will be the focus
 of later sections.  The next two discrete time examples give some intuition about
@@ -438,7 +441,7 @@ how to match the formal definition to concrete stochastic processes.
 
         X_t(\omega) =  \begin{cases}
             1 &\text{if } \omega_t = H\\
-            0 &\text{otherwise}
+            -1 &\text{otherwise}
         \end{cases} \tag{2.7}
 
     for :math:`\omega = \omega_1 \omega_2 \omega_3 \ldots`, where each :math:`\omega_i`
@@ -479,7 +482,7 @@ how to match the formal definition to concrete stochastic processes.
         E[S_{k_{i+1}} - S_{k_i}] &= E[\sum_{j=k_i + 1}^{k_{i+1}} X_i] \\
                                  &= \sum_{j=k_i + 1}^{k_{i+1}} E[X_j] \\
                                  &= 0 \\
-        Var[S_{k_{i+1}} - S_{k_i}] &= E[\sum_{j=k_i + 1}^{k_{i+1}} X_i] \\
+        Var[S_{k_{i+1}} - S_{k_i}] &= Var[\sum_{j=k_i + 1}^{k_{i+1}} X_i] \\
                                    &= \sum_{j=k_i + 1}^{k_{i+1}} Var[X_j]  && X_i \text{ independent}\\
                                    &= \sum_{j=k_i + 1}^{k_{i+1}} 1 && Var[X_j] = E[X_j^2] = 1 \\
                                    &= k_{i+1} - k_i \\
@@ -2098,13 +2101,12 @@ Reasoning in infinities is quite unnatural but the two frequent "infinities"
 that usually pop up are sets that have the same 
 `cardinality <https://en.wikipedia.org/wiki/Cardinality>`__ ("size") as
 (a) the natural numbers, and (b) the real numbers.
-For our sample space has the same cardinality as the latter.
-Cantor's original diagonalization argument 
-`diagonalization argument <https://en.wikipedia.org/wiki/Cantor%27s_diagonal_argument>`__
+Our sample space has the same cardinality as the latter.
+Cantor's original `diagonalization argument <https://en.wikipedia.org/wiki/Cantor%27s_diagonal_argument>`__
 actually used a variation of this sample space (with :math:`\{0, 1\}`'s), and
 the proof is relatively intuitive.  
 In any case, this complicates things because a lot of our intuition falls apart
-when we work with infinites, and especially with infinities the size of the
+when we work with infinites, and especially with infinities the cardinality of the
 real numbers.
 
 *(This construction was taken from [1], which is a dense, but informative reference for all the topics in this post.)*
@@ -2129,7 +2131,7 @@ define two sets:
 
 And set the intuitive definition of the corresponding probability measure:
 :math:`P(A_H) = p` and :math:`P(A_T) = 1-p`.  That is, the probability of
-seeing an H on the first toss is :math:`p`, otherwise :math:`T`.
+seeing an H on the first toss is :math:`p`, otherwise :math:`1-p`.
 Since these two sets are compliments of each other (:math:`A_H = A_T^c`),
 this defines another :math:`\sigma`-algebra:
 
@@ -2168,7 +2170,7 @@ As you can imagine, we can continue this process and define the probability (and
 this set :math:`\mathcal{F}_\infty`, which contains all of the sets that can be described
 by finitely many coin tosses using the procedure above, and then adding in all the
 other ones using the compliment or union operator.  This turns out to be precisely
-the :math:`\sigma`-algebra: of the Bernoulli process.  And by the construction, 
+the :math:`\sigma`-algebra of the Bernoulli process.  And by the construction, 
 we also have defined the associated probability measure for each one of the events
 in :math:`\mathcal{F}_\infty`.
 
@@ -2183,14 +2185,14 @@ that weren't explicitly defined by us, for example, the sequence of all heads:
     P(A_H) = p, P(A_{HH})=p^2, P(A_{HHH})=p^3, \ldots \tag{A.6}
 
 so this implies the probability of :math:`P(\text{sequence of all heads}) = 0`.
-This illustrates an important non-intuitive result: all sequences in our sample
+This illustrates an important non-intuitive result: all (infinite) sequences in our sample
 space have probability :math:`0`.  Importantly, it doesn't mean they can never occur,
 just that they occur "infinitesimally".  Similarly, the complement ("sequences
 of at least one tails") happens with probability :math:`1`.
-Mathematicians have a name for this probability :math:`1` event called *almost
-surely*.  So a sequence almost surely has at least one tail.  For finite event
-spaces, there is not difference between surely (always happens) and almost
-surely.
+Mathematicians have a name for this probability equals to :math:`1` event: *almost
+surely*.  So any infinite sequence of coin flips *almost surely* has at least one
+tail.  For finite event spaces, there is not difference between surely (always
+happens) and almost surely.
 
 This definition also includes sets of sequences that cannot be easily defined such
 as:
