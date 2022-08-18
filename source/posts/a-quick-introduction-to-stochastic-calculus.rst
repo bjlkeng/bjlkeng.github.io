@@ -215,7 +215,7 @@ matches our intuition of basic probability with samples spaces, events, and
 probabilities.
 
 Finally, for a given probability space :math:`(\Omega, {\mathcal {F}}, P)`,
-a **random variable** :math:`X` is a `measurable function <https://en.wikipedia.org/wiki/Measurable_function>`__
+a **random variable** :math:`X` [1]_ is a `measurable function <https://en.wikipedia.org/wiki/Measurable_function>`__
 :math:`X:\Omega \rightarrow E \subseteq \mathbb{R}`. 
 The measurable function condition puts a few constraints:
 
@@ -499,7 +499,7 @@ Adapted Processes
 
 Notice that in the previous section, our definition of stochastic process
 included a random variable :math:`X_t: \Omega \rightarrow E \subseteq \mathbb{R}`
-where each :math:`\omega \in \Omega` is an infinite set representing a
+where each :math:`\omega \in \Omega` is an infinite sequence representing a
 given outcome for the infinitely long experiment.  This implicitly means
 that at "time" :math:`t`, we could depend on the "future" because we are
 allowed to depend on any tosses, including those greater than :math:`t`.  In
@@ -511,8 +511,8 @@ is one that cannot "see into the future".  Informally, it means that for
 any :math:`X_t`, you can determine it's value by *only* seeing the outcome 
 of the experiment up to time :math:`t` (i.e., :math:`\omega_1\omega_2\ldots\omega_t` only).
 
-To define this more formally, we need to introduce a few technical definitions
-to define this fully.  We've already seen the definition of the
+To define this more formally, we need to introduce a few technical definitions.
+We've already seen the definition of the
 :math:`\sigma`-algebra :math:`\sigma(X)` implied by the random variable
 :math:`X` in a previous subsections.  Suppose we have a subset of our event
 space :math:`\mathcal{G}`, we say that :math:`X` is
@@ -531,16 +531,16 @@ on our event space :math:`\mathcal{F}` and our index set :math:`T`:
 To break this down, we're basically saying that our event space :math:`\mathcal{F}`
 can be broken down into logical "sub event spaces" :math:`\mathcal{F_t}` such
 that each one is a superset of the next one.  This is precisely what we want
-where as we progress through time, we "gain" more "information" but never lose
+where as we progress through time, we gain more "information" but never lose
 any.  We can also use this idea of defining a sub-:math:`\sigma`-algebra to
-formally define conditional probabilities, although we won't cover it in this
+formally define conditional probabilities, although we won't cover that in this
 post (see [1] for a more detailed treatment).
 
 Using the construct of a filtration, we can define:
 
-    A stochastic process :math:`X_t : T \times \Omega` that is **adapted to the
+    A stochastic process :math:`X_t : T \times \Omega` is **adapted to the
     filtration** :math:`(\mathcal{F_t})_{t\in T}` if the random variable
-    :math:`X_t` is :math:`F_t`-measurable. 
+    :math:`X_t` is :math:`F_t`-measurable for all :math:`t`.
    
 This basically says that :math:`X_t` can only depend on "information" before or
 at time :math:`t`.  The "information" available is encapsulated by the
@@ -576,10 +576,10 @@ the interplay between filtrations and random variables.
 
     .. math::
 
-           \{X_1 \in \{H\}\} &= \{\omega \in \Sigma | X_1(omega) \in {H}\} \\
+           \{X_1 \in \{H\}\} &= \{\omega \in \Sigma | X_1(\omega) \in {H}\} \\
             &= \{\omega: \omega_1 = H\} \\
             &= A_H \\
-           \{X_1 \in \{H\}\} &= \{\omega \in \Sigma | X_1(omega) \in {T}\} \\
+           \{X_1 \in \{H\}\} &= \{\omega \in \Sigma | X_1(\omega) \in {T}\} \\
             &= \{\omega: \omega_1 = T\} \\
             &= A_T \\
             \tag{2.12}
@@ -594,12 +594,12 @@ the interplay between filtrations and random variables.
     flip as heads, and outcomes starting with the first coin flip as tails.
     This corresponds to probabilities of :math:`0, 1, p` and :math:`1-p`
     respectively, precisely the outcomes we would expect :math:`X_1` to be able
-    to calculate with :math:`X_1`.
+    to calculate.
     
     On closer examination though, this is not exactly the same as a naive understanding
     of the situation would imply.  :math:`A_H` contains *every* infinitely long
     sequence starting with heads -- not just the result of the first flip.
-    Recall, each "time-indexed random variable in a stochastic process is a
+    Recall, each "time"-indexed random variable in a stochastic process is a
     function of an element of our sample space, which is an infinitely long sequence.
     So we cannot naively pull out just the result of the first toss.  Instead, we
     group all sequences that match our criteria (heads on the first toss) together
@@ -1417,7 +1417,7 @@ Itô Processes and Integrals
 
 In the previous subsections, we only allowed integrators that were Wiener processes
 but we'd like to extend that to a more general class of stochastic processes
-called Itô processes [1]_:
+called Itô processes [2]_:
 
     Let :math:`W(t)`, :math:`t\geq 0`, be a Wiener process with an associated 
     filtration :math:`\mathcal{F}(t)`.  An **Itô processes** is a stochastic
@@ -2212,4 +2212,5 @@ sample space, there does exist sequences that are not in
 (and don't ask me how :p).
 
 
-.. [1] In fact, we can admit a larger class of integrators for stochastic integrals called `semimartingales <https://en.wikipedia.org/wiki/Semimartingale>`_, but for our purposes Itô processes will do just fine.
+.. [1] I'm conveniently leaving out references to `Lebesgue integrals <https://en.wikipedia.org/wiki/Lebesgue_integration>`__ (among other things) to not overcomplicate the topic. They are quite important and are needed to work properly with random variables where you need to integrate over a set.
+.. [2] In fact, we can admit a larger class of integrators for stochastic integrals called `semimartingales <https://en.wikipedia.org/wiki/Semimartingale>`_, but for our purposes Itô processes will do just fine.
