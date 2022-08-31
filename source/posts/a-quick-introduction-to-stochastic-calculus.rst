@@ -454,7 +454,14 @@ how to match the formal definition to concrete stochastic processes.
    A simple one dimensional symmetric `random walk <https://en.wikipedia.org/wiki/Random_walk>`__
    is a discrete value, discrete time stochastic process.  An easy way to 
    think of it is: starting at 0, at each time step, flip a fair coin and move
-   right (+1) if heads, otherwise move left (-1).
+   up (+1) if heads, otherwise move down (-1).
+
+   .. figure:: /images/stochastic_calculus_random_walk.png
+       :width: 500px
+       :alt: Scaled Symmetric Random Walk
+       :align: center
+   
+       **Figure 1: 1D Symmetric Random Walk** (`source <https://towardsdatascience.com/random-walks-with-python-8420981bc4bc>`__)
 
    This can be defined in terms of the Bernoulli process :math:`X_t` from
    Example 2 with :math:`p=0.5` (with the same probability space):
@@ -619,7 +626,7 @@ Weiner Process
 --------------
 
 The `Weiner process <https://en.wikipedia.org/wiki/Wiener_process>`__ (also known as
-the Brownian motion) is one of the most widely studied continuous time
+Brownian motion) is one of the most widely studied continuous time
 stochastic processes.  It occurs frequently in many different domains such as
 applied math, quantitative finance, and physics.  As alluded to previously, it
 has many "corner case" properties that do not allow simple manipulation, and
@@ -649,11 +656,18 @@ A simple way to think about Equation 2.13 is that it's just a regular random wal
 with a scaling factor.  For example, :math:`W^{(100)}(t)` has it's first step
 (integer step) at :math:`t=\frac{1}{100}` instead of :math:`t=1`.  To adjust
 for this compression of time we scale the process by :math:`\frac{1}{\sqrt{n}}`
-to make the math work out later.  The linear interpolation is not that relevant
-except that we want to start working in continuous time.
+to make the math work out later (see Figure 2).  The linear interpolation is
+not that relevant except that we want to start working in continuous time.
+
+.. figure:: /images/stochastic_calculus_scaled_random_walk.png
+    :width: 500px
+    :alt: Scaled Symmetric Random Walk
+    :align: center
+
+    **Figure 2: Scaled Symmetric Random Walk** (`source <https://slideplayer.com/slide/4387046/>`__)
 
 Since this is just a simple symmetric random walk (assuming we're analyzing
-it as its integer steps), the same properties hold as we discussed in Example
+it with its integer steps), the same properties hold as we discussed in Example
 3.  Namely, that non-overlapping increments are independent.  Additionally, for
 :math:`0 \leq s \leq t`, we have:
 
@@ -666,14 +680,15 @@ it as its integer steps), the same properties hold as we discussed in Example
 where we use the square root scaling to end up with variance accumulating still
 at one unit per time. 
 
-Another property, we'll look at is a quantity called the 
+Another important property is called the 
 `quadratic variation <https://en.wikipedia.org/wiki/Quadratic_variation>`__,
-which is calculated *along a specific path* (i.e., there's not randomness
-involved).  For a scaled symmetric random walk, we get:
+which is calculated *along a specific path* (i.e., there's no randomness
+involved).  For a scaled symmetric random walk where we know the exact path it
+took up to time :math:`t`, we get:
 
 .. math::
 
-    [W^{(n)}, W^{(n)}]_t &= \sum_{j=1}^{nt} (W^{(n)}(\frac{j}{n} - W^{(n)}(\frac{j-1}{n}))^2 \\
+    [W^{(n)}, W^{(n)}]_t &= \sum_{j=1}^{nt} (W^{(n)}(\frac{j}{n}) - W^{(n)}(\frac{j-1}{n}))^2 \\
     &= \sum_{j=1}^{nt} [\frac{1}{\sqrt{n}} X_j]^2  \\
     &= \sum_{j=1}^{nt} \frac{1}{n} = t \\
     \tag{2.15}
@@ -682,7 +697,7 @@ This results in the same quantity as the variance computation we have (for
 :math:`s=0`) in Equation 2.14 but is conceptually different.  The variance
 is an average over all paths, while the quadratic variation is taking a
 realized path, squaring all the values, and then summing them up.
-Interestingly, they result in the same thing.
+In this specific case they result in the same thing (not always the case).
 
 Finally, as you might expect, we wish to understand what happens
 to the scaled symmetric random walk when :math:`n \to \infty`.
@@ -692,7 +707,7 @@ For a given :math:`t\geq 0`, let's recall a few things:
 * :math:`Var[W^{(n)}(t)] = t` (from Equation 2.14 with :math:`s = 0`).
 * :math:`W^{(n)}(t) = \frac{1}{\sqrt{n}} \sum_{i=1}^t X_t` for Bernoulli process :math:`X(t)`.
 * The `central limit theorem <https://en.wikipedia.org/wiki/Central_limit_theorem#Classical_CLT>`__
-  states that :math:`\frac{1}{\sqrt{N}}\sum_{i=1}^n Y_i` converges
+  states that :math:`\frac{1}{\sqrt{n}}\sum_{i=1}^n Y_i` converges
   to :math:`\mathcal{N}(\mu_Y, \sigma_Y^2)` as :math:`n \to \infty` for IID
   random variables :math:`Y_i` (given some mild conditions).
 
@@ -700,7 +715,7 @@ We can see that our symmetric scaled random walk fits precisely the conditions
 as the central limit theorem, which means that as :math:`n \to \infty`,
 :math:`W^{(n)}(t)` converges to a normal distribution with mean :math:`0` and
 variance :math:`t`.  This limit is in fact the method in which we'll define
-the Wiener process.
+the Wiener process in the next subsection.
 
 Wiener Process Definition
 **************************
@@ -831,7 +846,7 @@ variation, so we potentially will get something that is non-zero.
 For the Wiener process in particular, we do not have a continuous derivative
 and cannot use the mean value theorem as in Equation 2.19, so we end up with
 a non-zero quadratic variation.  To see this, let's take a look at the absolute
-value function :math:`f(t) = |t|` in Figure 1.  On the interval :math:`(-2, 5)`,
+value function :math:`f(t) = |t|` in Figure 3.  On the interval :math:`(-2, 5)`,
 the slope between the two points is :math:`\frac{3}{7}`, but nowhere in this
 interval is the slope of the absolute value function :math:`\frac{3}{7}` (it's
 either constant 1 or constant -1 or undefined).
@@ -841,7 +856,7 @@ either constant 1 or constant -1 or undefined).
     :alt: Mean value theorem does not apply on functions without derivatives
     :align: center
 
-**Figure 1: Mean value theorem does not apply on functions without derivatives** (`source <https://people.math.sc.edu/meade/Bb-CalcI-WMI/Unit3/HTML-GIF/MeanValueTheorem.html>`__)
+    **Figure 3: Mean value theorem does not apply on functions without derivatives** (`source <https://people.math.sc.edu/meade/Bb-CalcI-WMI/Unit3/HTML-GIF/MeanValueTheorem.html>`__)
 
 Recall, this is a similar situation to what we had for the scaled symmetric 
 random walk -- in between each of the discrete points, we used a linear
