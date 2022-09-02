@@ -697,7 +697,8 @@ This results in the same quantity as the variance computation we have (for
 :math:`s=0`) in Equation 2.14 but is conceptually different.  The variance
 is an average over all paths, while the quadratic variation is taking a
 realized path, squaring all the values, and then summing them up.
-In this specific case they result in the same thing (not always the case).
+In the specific case of a Wiener process, they result in the same thing (not
+always the case for general stochastic processes).
 
 Finally, as you might expect, we wish to understand what happens
 to the scaled symmetric random walk when :math:`n \to \infty`.
@@ -726,7 +727,7 @@ in terms of the properties of this limiting distribution, many of which are inhe
 from the scaled symmetric random walk:
 
     Given probability space :math:`(\Sigma, \mathcal{F}, P)`,
-    For each :math:`\omega \in \Omega`, define a continuous function that depends on
+    for each :math:`\omega \in \Omega`, define a continuous function that depends on
     :math:`\omega` as :math:`W(t) := W(t, \omega)` for :math:`t \geq 0`.
     :math:`W(t)` is a **Wiener process** if the following are satisfied:
 
@@ -755,8 +756,9 @@ Another way to think about the random motion is using our analogy of coin tosses
 instead of happening at each integer value of :math:`t`, they are happening
 "infinitely fast".  This is essentially the result of taking our limit to infinity.
 
-We can ask any questions that we usually would ask about random variables with
-Brown motion.  The next example shows a few of them.
+We can ask any question that we would usually ask about random variables to the
+Wiener process at a particular :math:`t`.  The next example shows a few of
+them.
 
 .. admonition:: Example 5: Weiner Process 
 
@@ -821,7 +823,7 @@ condition is that the largest partition goes to zero.  This is called the mesh
 or norm of the partition, which is similar to the formal definition of 
 `Riemannian integrals <https://en.wikipedia.org/wiki/Riemann_integral>`__
 (even though many of us, like myself, didn't learn it this way).  In any
-case the idea is very similar to just having evenly spaced intervals.
+case, the idea is very similar to just having evenly spaced intervals.
 
 Now that we have Equation 2.18, let's see how it behaves on a function
 :math:`f(t)` that has a continuous derivative:
@@ -865,7 +867,7 @@ is inherited by the Wiener process where we no longer have a continuous
 derivative.  Thus, we need to deal with this situation where we have a function
 that is continuous everywhere, but differentiable nowhere.  This is one of the
 key reasons why we need stochastic calculus, otherwise we could just use the
-rules for standard calculus we all know and love.
+standard rules for calculus that we all know and love.
 
 .. admonition:: **Theorem 1** 
    
@@ -1061,22 +1063,22 @@ stochastic process:
 
 .. math::
 
-    C_{W'}(t_1, t_2) &= E\big[
-        \lim_{k\to 0} \frac{W(t_1 + k) - W(t_1)}{k}
-        \lim_{h\to 0} \frac{W(t_2 + h) - W(t_2)}{h}
+    C_{X'}(t_1, t_2) &= E\big[
+        \lim_{k\to 0} \frac{X(t_1 + k) - X(t_1)}{k}
+        \lim_{h\to 0} \frac{X(t_2 + h) - X(t_2)}{h}
     \big]\\
     &= \lim_{h\to 0} \frac{1}{h} 
-       \lim_{k\to 0} E\big[\frac{(W(t_1 + k) - W(t_1))(W(t_2 + h) - W(t_2))}{k}\big] \\
+       \lim_{k\to 0} E\big[\frac{(X(t_1 + k) - X(t_1))(X(t_2 + h) - X(t_2))}{k}\big] \\
     &= \lim_{h\to 0} \frac{1}{h} 
-       \lim_{k\to 0}\big( \frac{E[W(t_1 + k)W(t_2+h)] - E[W(t_1+k)W(t_2)]
-                                -E[W(t_1)W(t_2+h)] + E[W(t_1)W(t_2)]}{k}\big) \\
+       \lim_{k\to 0}\big( \frac{E[X(t_1 + k)X(t_2+h)] - E[X(t_1+k)X(t_2)]
+                                -E[X(t_1)X(t_2+h)] + E[X(t_1)X(t_2)]}{k}\big) \\
     &= \lim_{h\to 0} \frac{1}{h} 
-       \lim_{k\to 0}\big( \frac{C_W(t_1 + k, t_2+h) -C_W(t_1, t_2+h)}{k}
-                          - \frac{C_W(t_1+k, t_2) - C_W(t_1, t_2)}{k}\big) \\
+       \lim_{k\to 0}\big( \frac{C_X(t_1 + k, t_2+h) -C_X(t_1, t_2+h)}{k}
+                          - \frac{C_X(t_1+k, t_2) - C_X(t_1, t_2)}{k}\big) \\
     &= \lim_{h\to 0} \frac{1}{h} 
-       \big( \frac{\partial C_W(t_1, t_2+h)}{\partial t_1} -
-             \frac{\partial C_W(t_1, t_2)}{\partial t_1} \big) \\
-    &= \frac{\partial C_W(t_1, t_2)}{\partial t_1 \partial t_2} \tag{2.33}
+       \big( \frac{\partial C_X(t_1, t_2+h)}{\partial t_1} -
+             \frac{\partial C_X(t_1, t_2)}{\partial t_1} \big) \\
+    &= \frac{\partial C_X(t_1, t_2)}{\partial t_1 \partial t_2} \tag{2.33}
 
 Thus, we have shown that the time correlation of the derivative of a stochastic
 process is the mixed second-order partial derivative.  Now all we have to do
@@ -1134,8 +1136,9 @@ Now all we have to show is that it is also normally distributed.  By definition
 But since each increment of the Wiener process is normally distributed (and independent), 
 the derivative from Equation 2.37 is also normally distributed.
 This implies the derivative of the Wiener process is a Gaussian process with
-zero mean and delta time correlation, which is the standard definition of white
-noise.  Thus, we have shown the relationship in Equation 2.29 / 2.30.
+zero mean and delta time correlation, which is the standard definition of
+Gaussian white noise.  Thus, we have shown the relationship in Equation 2.29 /
+2.30.
 
 The Importance of the Wiener Process 
 ------------------------------------
@@ -1162,21 +1165,24 @@ stationary.  This leads us to the important result:
 
    where :math:`b, \sigma` are constants.
 
-\TODO{Write about how this is a generalized Wiener process}
+Equation 2.38 is the generalized Wiener process that includes a potentially
+non-zero initial value :math:`X(0)`, deterministic drift term :math:`bt`, and
+scaling factor :math:`\sigma`.
 
 The intuition behind Theorem 3 follows directly from the central limit theorem.
 For a given interval :math:`[s, t]`, the value of :math:`X(t) - X(s)` is the sum
 of infinitesimally small independent, identically distributed partitions
-or in other words IID random variables.  Thus, we can apply the central limit
-theorem and get a normal distribution (under some mild conditions).
+or in other words IID random variables (doesn't have to be normally
+distributed).  Thus, we can apply the central limit theorem and get a normal
+distribution (under some mild conditions).
 
 Processes with independent increments appear in many contexts.  For example,
-the random displacement of a particle moving through a fluid caused by the
-random interactions is naturally modelled using the Wiener process.  Similarly,
-the variability of the return of a stock price in a very short period of time
-is approximately the same regardless of the price, thus can also be modelled
-using a Wiener process.  We'll look at both of these example more closely later
-on in the post.
+the random displacement of a macro particle moving through a fluid caused by the
+random interactions with the fluid molecules is naturally modelled using the
+Wiener process.  Similarly, the variability of the return of a stock price in a
+very short period of time is approximately the same regardless of the price,
+thus can also be modelled using a Wiener process.  We'll look at both of these
+examples more closely later on in the post.
 
 Stochastic Calculus
 ===================
@@ -1195,7 +1201,7 @@ processes.  A few questions immediately come to mind:
    that should be case, but rather something that becomes more obvious once we
    see the definition.
 2. *How do we deal with the limits of integration being in terms of
-   time :math:`t` but the integrand and integrator being stochastic processes
+   time* :math:`t` *but the integrand and integrator being stochastic processes
    with time index set* :math:`t`?  We'll see below that the definition of the
    integral is conceptually not too different from a plain old `Riemannian integral
    <https://en.wikipedia.org/wiki/Riemann_integral>`__ that we learn in
@@ -1208,13 +1214,12 @@ processes.  A few questions immediately come to mind:
    matter, and the result produces different outputs from the integration
    operation.
 
-All the depth we went into on stochastic processes in the previous section is
-about to pay off!  We'll have to use all of those ideas in order to properly
-define Equation 3.1.  We'll start with defining the simpler cases where
-:math:`X(t)` is a Wiener process, and generalize it to be any
-Itô process, and then introduce the key result called Itô's lemma, a conceptual
-form of the chain rule, which will allows us to solve many more interesting
-problems.
+All the depth we went into previously is about to pay off!  We'll have to use
+all of those ideas in order to properly define Equation 3.1.  We'll start with
+defining the simpler cases where :math:`X(t)` is a Wiener process, and
+generalize it to be any Itô process, and then introduce the key result called
+Itô's lemma, a conceptual form of the chain rule, which will allows us to solve
+many more interesting problems.
 
 
 Stochastic Integrals with Brownian Motion
@@ -1226,9 +1231,9 @@ the integral as:
 
 .. math::
 
-    \int_0^t H(s) dW(s) := \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} H(s_i)[W(t_{i+1}) - W(t_i)] \tag{3.2}
+    \int_0^t H(s) dW(s) := \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} H(s_j)[W(t_{j+1}) - W(t_j)] \tag{3.2}
 
-where :math:`t_i \leq s_i \leq t_{i+1}`, and :math:`||\Pi||` is the mesh (or
+where :math:`t_j \leq s_j \leq t_{j+1}`, and :math:`||\Pi||` is the mesh (or
 maximum interval) that goes to zero while the number of partitions goes to infinity
 like in Equation 2.18 (and standard Riemannian integrals).
 
@@ -1258,28 +1263,30 @@ new type of calculus.
 To ensure that the stochastic integral in Equation 3.2 is well defined, we need
 a few things as you might expect:
 
-1. The choice of :math:`s_i` is quite important (unlike regular integrals).
+1. The choice of :math:`s_j` is quite important (unlike regular integrals).
    The `Itô integral <https://en.wikipedia.org/wiki/Stochastic_calculus#It%C3%B4_integral>`__ 
-   uses :math:`s_i = t_i`, which is more common in finance; the 
+   uses :math:`s_j = t_j`, which is more common in finance; the 
    `Stratonovich integral <https://en.wikipedia.org/wiki/Stochastic_calculus#Stratonovich_integral>`__
-   uses :math:`s_i = \frac{(t_i + t_{i+1})}{2}`, which is more common in physics.  
+   uses :math:`s_j = \frac{(t_j + t_{j+1})}{2}`, which is more common in physics.  
    We'll be using the Itô integral for most of this post, but will show the difference
    in the example below.
 2. :math:`H(t)` must be adapted to the same process as our integrator
-   :math:`\mathcal{F}(t)`, otherwise we would be allowing it to "see into the
+   :math:`X(t)`, otherwise we would be allowing it to "see into the
    future".  For most of our applications, this is a very reasonable assumption.
 3. The integrand needs to have square-integrability: :math:`E[\int_0^T H^2(t)dt] < \infty`.
-4. We need to ensure that each sample point of the integrand :math:`H(s_i)` in
-   the limit converges to :math:`H(s)` with probability one (remember we're
-   still working with stochastic processes here).  That's a pretty strong
-   condition, so we'll actually use a weaker squared convergence as:
+4. We ideally want to ensure that each sample point of the integrand
+   :math:`H(s_j)` from Equation 3.2 converges in the limit to :math:`H(s)` with
+   probability one (remember we're still working with stochastic processes here). 
+   That's a pretty strong condition, so we'll actually use a weaker
+   squared convergence as:
 
    .. math::
 
         \lim_{n \to \infty} E\big[\int_0^T |H_n(t) - H(t)|^2 dt\big] = 0 \tag{3.5}
 
-   for :math:`H_n(s) = H(t_i)` for :math:`t_i \leq s < t_{i+1}`, basically the
-   piece-wise function approximation for :math:`H(t)` using the left most point for the interval.
+   where we define  :math:`H_n(s) := H(t_j)` for :math:`t_j \leq s < t_{j+1}`
+   i.e., it's the constant piece-wise approximation for :math:`H(t)` using the
+   left most point for the interval.
 
 .. admonition:: Example 6: A Simple Stochastic Integral in Two Ways
 
@@ -1288,26 +1295,26 @@ a few things as you might expect:
 
     .. math::
 
-        \int_0^t W(s) dW(s) = \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} W(s_i)[W(t_{i+1}) - W(t_i)] \tag{3.6}
+        \int_0^t W(s) dW(s) = \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} W(s_j)[W(t_{j+1}) - W(t_j)] \tag{3.6}
 
-    First, we'll work through it using the Itô convention where :math:`s_i=t_i`:
+    First, we'll work through it using the Itô convention where :math:`s_j=t_j`:
 
     .. math::
 
-        \int_0^t W(s) dW(s) &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} W(t_i)[W(t_{i+1}) - W(t_i)] \\
-        &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} \big[W(t_i)W(t_{i+1}) - W(t_i)^2 + \frac{1}{2}W(t_{i+1})^2 - \frac{1}{2}W(t_{i+1})^2 \big]\\
+        \int_0^t W(s) dW(s) &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} W(t_j)[W(t_{j+1}) - W(t_j)] \\
+        &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} \big[W(t_j)W(t_{j+1}) - W(t_j)^2 + \frac{1}{2}W(t_{j+1})^2 - \frac{1}{2}W(t_{j+1})^2 \big]\\
         &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} 
-        \big[\frac{1}{2}W(t_{i+1})^2 - \frac{1}{2}W(t_i)^2
-        - \frac{1}{2}W(t_{i+1})^2 + W(t_i)W(t_{i+1}) - \frac{1}{2}W(t_i)^2 \big]\\
+        \big[\frac{1}{2}W(t_{j+1})^2 - \frac{1}{2}W(t_j)^2
+        - \frac{1}{2}W(t_{j+1})^2 + W(t_j)W(t_{j+1}) - \frac{1}{2}W(t_j)^2 \big]\\
         &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} 
-        \frac{1}{2}[W(t_{i+1})^2 - W(t_i)^2] - \frac{1}{2}[W(t_{i+1}) - W(t_{i})]^2 \\
+        \frac{1}{2}[W(t_{j+1})^2 - W(t_j)^2] - \frac{1}{2}[W(t_{j+1}) - W(t_{j})]^2 \\
         \tag{3.7}
 
     The first term is just a telescoping sum, which has massive cancellation:
 
     .. math::
 
-        \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} \frac{1}{2}[W(t_{i+1})^2 - W(t_i)^2] = \frac{1}{2}(W(t)^2 - W(0)^2) 
+        \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} \frac{1}{2}[W(t_{j+1})^2 - W(t_j)^2] = \frac{1}{2}(W(t)^2 - W(0)^2) 
         = \frac{1}{2} W(t)^2 - 0 = \frac{W(t)^2}{2}  \tag{3.8}
 
     The second term you'll notice is precisely the quadratic variance from Theorem 1,
@@ -1328,19 +1335,19 @@ a few things as you might expect:
         <hr>
 
     Now let's look at what happens when we use the Stratonovich convention
-    (using the :math:`\circ` operator to denote it) with :math:`s_i = \frac{t_i + t_{i+1}}{2}`:
+    (using the :math:`\circ` operator to denote it) with :math:`s_j = \frac{t_j + t_{j+1}}{2}`:
 
     .. math::
 
         &\int_0^t W(s) \circ dW(s) \\
-        &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} W(s_i)[W(t_{i+1}) - W(t_i)] \\
-        &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} \big[W(s_i)W(t_{i+1}) - W(s_i)W(t_i) +  W(t_j)W(s_i) - W(t_j)W(s_i) \\
-        &+ W(t_j)^2 - W(t_j)^2 + W(s_i)^2 - W(s_i)^2 \big] \\
-        &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} \big[W(t_j)(W(s_i) - W(t_j)) + W(s_i)(W(t_{i+1}) - W(s_i)) \big]  \\
-        &+ \sum_{j=0}^{n-1}\big[ W(s_i) - W(t_j) \big]^2 \\
-        &= \int_0^t W(s) dW(s) + \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1}\big[ W(s_i) - W(t_j) \big]^2 
+        &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} W(s_j)[W(t_{j+1}) - W(t_j)] \\
+        &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} \big[W(s_j)W(t_{j+1}) - W(s_j)W(t_j) +  W(t_j)W(s_j) - W(t_j)W(s_j) \\
+        &+ W(t_j)^2 - W(t_j)^2 + W(s_j)^2 - W(s_j)^2 \big] \\
+        &= \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} \big[W(t_j)(W(s_j) - W(t_j)) + W(s_j)(W(t_{j+1}) - W(s_j)) \big]  \\
+        &+ \sum_{j=0}^{n-1}\big[ W(s_j) - W(t_j) \big]^2 \\
+        &= \int_0^t W(s) dW(s) + \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1}\big[ W(s_j) - W(t_j) \big]^2 
         && \text{Itô integral with partitions } t_0, s_0, t_1, s_1, \ldots \\
-        &= \frac{W(t)^2}{2} - \frac{t}{2} + \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1}\big[ W(s_i) - W(t_j) \big]^2 
+        &= \frac{W(t)^2}{2} - \frac{t}{2} + \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1}\big[ W(s_j) - W(t_j) \big]^2 
         && \text{Equation 3.9} \\
         &= \frac{W(t)^2}{2} - \frac{t}{2} + \frac{t}{2} && \text{Half-saple quadratic variation} \\
         &= \frac{W(t)^2}{2} \\
@@ -1357,7 +1364,7 @@ a few things as you might expect:
     position in an asset, and we have to decide that *before* that interval starts,
     not mid-way through.  That's analagous to deciding in the middle of the day
     that I should have actually bought more of a stock at the start of the day
-    that went up.
+    for a stock that went up in price.
 
 
 Quadratic Variation of Stochastic Integrals with Brownian Motion
@@ -1413,7 +1420,7 @@ as:
 Equation 3.13 is the *integral form* while Equation 3.14 is the *differential form*,
 and they have identical meaning.
 
-The differential form is a bit easier to intuitively understand.  We can see
+The differential form is a bit easier to understand intuitively.  We can see
 that it matches the approximation (Equation 3.4) that we discussed in the previous
 subsection.  Using this differential notation and the informal notation we defined
 above in Equation 2.26-2.28, we can "calculate" the quadratic variation as:
