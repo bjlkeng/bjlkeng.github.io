@@ -635,7 +635,7 @@ Interestingly, there are several equivalent definitions but we'll start with
 the one defined in [1] using scaled random walks.
 
 
-Scaled Symemtric Random Walk
+Scaled Symmetric Random Walk
 ****************************
 
 A scaled symmetric random walk process is an extension of the simple random
@@ -1349,20 +1349,20 @@ a few things as you might expect:
         && \text{Itô integral with partitions } t_0, s_0, t_1, s_1, \ldots \\
         &= \frac{W(t)^2}{2} - \frac{t}{2} + \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1}\big[ W(s_j) - W(t_j) \big]^2 
         && \text{Equation 3.9} \\
-        &= \frac{W(t)^2}{2} - \frac{t}{2} + \frac{t}{2} && \text{Half-saple quadratic variation} \\
+        &= \frac{W(t)^2}{2} - \frac{t}{2} + \frac{t}{2} && \text{Half-sample quadratic variation} \\
         &= \frac{W(t)^2}{2} \\
         \tag{3.10}
 
     We use the fact that the half-sample quadratic variation is equal to
     :math:`\frac{t}{2}` using a similar proof to Theorem 1.
 
-    What we see here is that the Stronovich integral actually follows our
+    What we see here is that the Stratonovich integral actually follows our
     regular rules of calculus more closely, which is the reason it's used
     in certain domains.  However in many domains, such as finance, it is not
     appropriate to use it.  This is because the integrand represents a decision
     we are making for a time interval :math:`[t_j, t_{j+1}]`, such as a
     position in an asset, and we have to decide that *before* that interval starts,
-    not mid-way through.  That's analagous to deciding in the middle of the day
+    not mid-way through.  That's analogous to deciding in the middle of the day
     that I should have actually bought more of a stock at the start of the day
     for a stock that went up in price.
 
@@ -1658,7 +1658,7 @@ mostly what you need.
         Y(t) = f(t, X(t)) = X^2(t) + t^2 \tag{3.33}
 
    Using Itô's Lemma, we can re-write :math:`Y(t)` as
-   (in the diferential form since it's cleaner):
+   (in the differential form since it's cleaner):
 
    .. math::
 
@@ -2184,7 +2184,7 @@ We can repeat this process again but for the first two tosses, define sets:
 Similarly, we can extend our probability measure with the definition we would expect:
 :math:`P(A_{HH}) = p^2, P(A_{HT}) = p(1-p), P(A_{TH}) = p(1-p), P(A_{TT}) = (1-p)^2`.
 Now we have to do a bit more analysis, but if one works out every possible set we can
-create either from complimentation or union of any of the above sets, we'll find
+create either from compliments or unions of any of the above sets, we'll find
 that we have 16 in total.  For each one of them, we can compute its probability
 measure by using one of the above definitions or by the fact that :math:`P(A) = 1-P(A)`
 or :math:`P\big(\bigcup_{n=1}^{N} A_N \big) = \sum_{n=1}^{N} P(A_N)` if the sets
