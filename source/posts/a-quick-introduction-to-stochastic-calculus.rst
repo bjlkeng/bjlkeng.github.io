@@ -1477,7 +1477,7 @@ and take the expectation and variance to get more insight:
     \\
     Var[dX(t)] &= Var[\mu(t)dt + \sigma(t)dW(t)] \\
     &= E[(\mu(t)dt + \sigma(t)dW(t))^2] - (E[dX(t)])^2 \\
-    &= E[\sigma^2(t)(dW(t))^2] - (\mu(t)dt)^2 && \text{Equation 2.27/2.28} \\
+    &\approx E[\sigma^2(t)(dW(t))^2] - (\mu(t)dt)^2 && \text{Equation 2.27/2.28} \\
     &= E[\sigma^2(t)dt] && \text{Equation 2.26} \\
     &\approx \sigma^2(t)dt && \text{ approx. const for small } dt \\
     \tag{3.19}
@@ -1486,8 +1486,8 @@ In fact, this result actually holds if we convert to our integral notation:
 
 .. math::
 
-   E[X_t] = \int_0^t \mu(s)ds \tag{3.20} \\
-   Var[X_t] = \int_0^t \sigma^2(s)ds \tag{3.21} \\
+   E[X(t)] = \int_0^t \mu(s)ds \tag{3.20} \\
+   Var[X(t)] = \int_0^t \sigma^2(s)ds \tag{3.21} \\
 
 So the notation of using :math:`\mu` and :math:`\sigma` makes more sense.  
 The regular time integral contributes to the mean of the Itô process,
@@ -1516,9 +1516,9 @@ using our informal differential notation:
 
 .. math::
 
-    \int_0^t F(u) dX(u) &= \int_0^t F(u) (\sigma(u)dW(u) + \mu(u)du) \\
-    &= \int_0^t [F(u)\sigma(u)dW(u) + F(u)\mu(u)du] \\
-    &= \int_0^t F(u)\sigma(u)dW(u) + \int_0^t F(u)\mu(u)du \\
+    \int_0^t F(s) dX(s) &= \int_0^t F(s) (\sigma(s)dW(s) + \mu(s)ds) \\
+    &= \int_0^t [F(s)\sigma(s)dW(s) + F(s)\mu(s)ds] \\
+    &= \int_0^t F(s)\sigma(s)dW(s) + \int_0^t F(s)\mu(s)ds \\
     \tag{3.23}
 
 As we can see, it's just a sum of a simple Wiener process stochastic integral
@@ -1667,7 +1667,7 @@ mostly what you need.
          \mu(t)\frac{\partial f}{\partial x} +
          \frac{\sigma^2(t)}{2}\frac{\partial^2 f}{\partial x^2}\big)dt +
          \frac{\partial f}{\partial x} \sigma(t) dW(t)   \\
-        &= \big(2t + \sigma^2(t) + 2\mu(t)X(t) \big)dt + \sigma(t) X(t) dW(t) \\
+        &= \big(2t + \sigma^2(t) + 2\mu(t)X(t) \big)dt + 2\sigma(t) X(t) dW(t) \\
         \tag{3.34}
 
    Which specifies :math:`Y(t)` in a simpler form of just a :math:`dt` and
@@ -1692,7 +1692,7 @@ Starting with the definition:
         dX(t) &= \mu(t, X(t))dt + \sigma(t, X(t)) dW(t) && \text{differential form}\tag{3.35} \\
         X(T) &= X(t) + \int_t^T \mu(u, X(u))du + \int_t^T \sigma(u, X(u)) dW(u) && \text{integral form} \tag{3.36}
 
-    :math:`\mu(t, x)` and :math:`\sigma(t, x)` are given functions called
+    where :math:`\mu(t, x)` and :math:`\sigma(t, x)` are given functions called
     the *drift* and *diffusion* respectively.  Additionally, we are given
     an initial condition :math:`X(t) = x` for :math:`t\geq 0`.  The problem is
     to then find the stochastic process :math:`X(T)` for :math:`T\geq t`.
@@ -1710,22 +1710,22 @@ form solutions so you'll have to use numerical methods to solve them.
 
 The two popular methods are Monte Carlo simulation and numerically solving 
 a partial differential equation (PDE).  Roughly, Monte Carlo simulation for
-differential equations, which involves simulating many different paths of the
+differential equations involve simulating many different paths of the
 underlying process and using these paths to compute the associated statistics
-(e.g. mean, variance etc.).  Given enough path (and associated time), you
+(e.g. mean, variance etc.).  Given enough paths (and associated time), you
 generally can get as accurate as you like.
 
 The other method is to numerically solve a PDE.  An SDE can be recast to as a
 PDE problem (at least in finance applications, not sure about others), and from
 the PDEs you can use the plethora of numerical methods to solve them.
 How both of these methods work is beyond the scope of this post (and how far I
-want to dig into this subject), but there is a lot of literature online about
+wanted to dig into this subject), but there is a lot of literature online about
 it.
 
 Applications of Stochastic Calculus
 ===================================
-(Note: In this section, we'll forgo the explicit parameterization of the
-stochastic processes to simplify the notation.)
+*(Note: In this section, we'll forgo the explicit parameterization of the
+stochastic processes to simplify the notation.)*
 
 Black-Scholes-Merton Model for Options Pricing
 ----------------------------------------------
@@ -1742,12 +1742,12 @@ The Process for a Stock Price
 Stock prices are probably one of the most natural places where one would think
 about using stochastic processes.  We might be tempted to directly use an
 Itô process with constant :math:`\mu` and :math:`\sigma`.  However, this
-translates to a linear growth in the stock price but investors are expecting
-the same *percent return* regardless of the current price.  For example, if a
-stock's price is expected to grow at 10%, it should grow at that rate
-regardless of whether it's $10 or $100.  The naturally leads to this differential
-equation for stock price :math:`S` and constant return :math:`\mu`
-(a pretty big assumption):
+translates to a linear growth in the stock price, which isn't quite right.
+Instead, investors are typically expecting the same *percent return* regardless
+of the current price vs. fixed linear growth.  For example, if a stock's price
+is expected to grow at 10%, it should grow at that rate regardless of whether
+the price is 10 or 100.  The naturally leads to this differential equation for stock
+price :math:`S` and constant return :math:`\mu` (a pretty big assumption):
 
 .. math::
 
@@ -1764,8 +1764,8 @@ time :math:`T` by dividing by :math:`S` and integrating both sides:
 Of course, this simplistic model has no random component.  We would expect that
 the return is uncertain over a time period.  A (perhaps) reasonable assumption
 to make is that for small time periods, the variability in the return is the same
-regardless of the stock price.  That is, we similarly unsure (as a percent of
-the stock) of the returns whether it's at $10 or $100.  Using a Wiener process,
+regardless of the stock price.  That is, we are similarly unsure (as a percent of
+the stock) of the returns whether it's at 10 or 100.  Using a Wiener process,
 we can add this assumption to Equation 4.1 as:
 
 .. math::
@@ -1779,15 +1779,14 @@ on :math:`f(s) = \log s`:
 
 .. math::
 
-   d(\log S) &= {\partial f}{\partial t}dt + {\partial f}{\partial s}dS
-   + \frac{1}{2} {\partial^2 f}{\partial s^2}dSdS \\
+   d(\log S) &= \frac{\partial f}{\partial t}dt + \frac{\partial f}{\partial s}dS
+   + \frac{1}{2} \frac{\partial^2 f}{\partial s^2}dSdS \\
    &= 0 + \frac{dS}{S} - \frac{1}{2}\frac{1}{S^2} dS dS \\
    &= \frac{\mu S dt + \sigma S dW}{S} - \frac{1}{2}\frac{1}{S^2}\big(\mu S dt + \sigma S dW\big)\big(\mu S dt + \sigma S dW\big)  && \text{Eq. 4.3} \\
    &= \mu dt + \sigma dW - \frac{\sigma^2}{2}dt && \text{Eq. 2.27/2.28} \\
    &= (\mu - \frac{\sigma^2}{2})dt + \sigma dW \\
    \tag{4.4}
 
-Notice this is a variation of the generalized Weiner process we saw in Theorem 3 (Equation 2.38).
 From that, we know the :math:`\log S` process between increment :math:`[0, T]`
 is normally distributed with mean :math:`(\mu - \frac{\sigma^2}{2})T` (due to non-zero mean)
 and variance :math:`\sigma^2T` telling us that:
@@ -1828,7 +1827,7 @@ should return the "risk free" rate (within the short period of time the balance
 is maintained).  The risk free rate is an asset that is virtually guaranteed to
 receive that given rate (think: a savings account, or more commonly a treasury bond).
 With these few conditions and some additional idealized assumptions (e.g.
-stock price follow model we developed, no transaction costs, no dividends,
+stock prices follow the model we developed, no transaction costs, no dividends,
 perfect "shorting" etc.), we can formulate the BSM differential equation.
 
 Translating the above into concrete equations.  We assume that stock prices
@@ -1853,45 +1852,58 @@ Equations 4.6/4.7 describe infinitesimal changes in (a) the underlying stock
 (:math:`dS`), and (b) the change in the underlying financial derivative
 (:math:`df`).  Notice the Wiener process associated with both is the
 same because :math:`f` is derived from :math:`S`, which can be seen in the
-derivation of Itô's Lemma.  
+derivation of Itô's Lemma.
 
-With these two equations, we now want to select a portfolio of the two (at a
-time instant) that doesn't change regardless of the change in price of the
-underlying stock i.e., our risk free portfolio.  This can be accomplished
-simply by equating the two :math:`dW` terms, which results in taking
-proportions of :math:`-1` of the financial derivative and :math:`\frac{\partial
-f}{\partial S}` shares of the underlying stock.  In other words, the portfolio
-is *short* one derivative and long :math:`\frac{\partial f}{\partial S}`
-shares.  Defining our portfolio value as :math:`\Pi`, we get:
+With these two equations, we now have SDEs for both the stock price :math:`S`
+and the price of an option :math:`f(S, t)`.  Our goal is to select a portfolio
+of the two (at a given time instant and price :math:`S`) that doesn't change
+regardless of the random fluctuations in price of the underlying stock.  This
+can be accomplished by ensuring that the stochastic components (:math:`dW`
+terms in each SDE) cancel out.  Since the :math:`dW` terms are the only source
+of randomness, when they are cancelled we can derive an expression for the
+portfolio that deterministically changes with time.
+
+Cancelling the stochastic terms is done simply by equating the two :math:`dW`
+terms in Equations 4.6 and 4.7, which results in taking proportions of
+:math:`-1` of the financial derivative and :math:`\frac{\partial f}{\partial S}` 
+shares of the underlying stock.  In other words, the portfolio is *short* one
+derivative and long :math:`\frac{\partial f}{\partial S}` shares.  Defining our
+portfolio value as :math:`\Pi`, we get:
 
 .. math::
 
    \Pi = -f + \frac{\partial f}{\partial S} S \tag{4.8}
 
-Taking the differentials and plugging in Equation 4.6/4.6:
+Taking the differentials, applying Itô's lemma, and plugging in Equation 4.6:
 
 .. math::
 
    d\Pi &= -df + \frac{\partial f}{\partial S} dS \\
         &= -\big(\frac{\partial f}{\partial t} + 
                   \mu \frac{\partial f}{\partial S}S  +
-                  \frac{\sigma^2 }{2}\frac{\partial^2 f}{\partial S^2}S^2\big)dt +
-                  \frac{\partial f}{\partial S} \sigma S dW
+                  \frac{\sigma^2 }{2}\frac{\partial^2 f}{\partial S^2}S^2\big)dt 
+            - \frac{\partial f}{\partial S} \sigma S dW
           + \frac{\partial f}{\partial S}(\mu S dt + \sigma S dW) \\
         &= -\big(\frac{\partial f}{\partial t} + 
                   \mu \frac{\partial f}{\partial S} S +
-                  \frac{\sigma^2 }{2}\frac{\partial^2 f}{\partial S^2}S^2\big)dt +
-            \mu \frac{\partial f}{\partial S}S dt && dW(s) \text{ terms cancel} \\
+                  \frac{\sigma^2 }{2}\frac{\partial^2 f}{\partial S^2}S^2\big)dt 
+            +\mu \frac{\partial f}{\partial S}S dt && dW(s) \text{ terms cancel} \\
         &= \big(-\frac{\partial f}{\partial t} -
                   \frac{\sigma^2 }{2}\frac{\partial^2 f}{\partial S^2}S^2\big)dt \\
         \tag{4.9}
 
-By construction (with our assumptions), :math:`\Pi` is a riskless portfolio
-i.e., it does not depend on the underlying movement of the stock.
+By construction (with our assumptions), :math:`\Pi` is a riskless portfolio 
+(at time instant :math:`t`) that deterministically changes with :math:`t`.
+The assumption of a no arbitrage situation implies that this portfolio must
+make the risk free rate.  If this portfolio earns more than the risk free rate
+you can just borrow money at the risk free rate and earn the difference between
+the two.  If it earns less than the risk free rate then you can just short the
+portfolio (and pay the associated lower interest rate) and buying risk free
+securities and make the difference.
 
-Using our other key idea, we should expect :math:`\Pi` to earn the risk free rate
-for the infinitesimal time in which out portfolio is perfectly balanced using
-Equation 4.9: 
+From this, we expect :math:`\Pi` to earn the risk free rate for the
+infinitesimal time in which out portfolio is perfectly balanced.
+Using Equation 4.9 we can construct an SDE:
 
 .. math::
 
@@ -1907,13 +1919,9 @@ Equation 4.9:
 Equation 4.10 defines the Black-Scholes-Merton differential equation.  Notice
 that this is a *deterministic* differential equation in :math:`f(S, t)` because
 we have cancelled away the stochastic Wiener process and :math:`S, t` are given
-with respect to :math:`f(S, t)`.
-
-
-and that it has many
-solutions corresponding to the
+with respect to :math:`f(S, t)`.  It also has many solutions corresponding to the
 `boundary conditions <https://en.wikipedia.org/wiki/Boundary_value_problem>`__
-placed on :math:`f(S, t)`.  For example, on the 
+placed on :math:`f(S, t)`.  For example, 
 `European call and put options <https://www.investopedia.com/terms/e/europeanoption.asp>`__
 have these associated boundary conditions for strike price :math:`K` and 
 expiry time :math:`T`:
@@ -1923,7 +1931,7 @@ expiry time :math:`T`:
    f(S, t) &= \max(S-K, 0) \text{ when } t = T \tag{4.11} && \text{European call} \\
    f(S, t) &= \max(K-S, 0) \text{ when } t = T \tag{4.12} && \text{European put}
 
-In other words, when the option contract expires, it is worth precisely the
+In other words, when the call option contract expires, it is worth precisely the
 difference between the stock price and strike price or zero if negative
 (similarly in reverse for put options).  
 
@@ -1977,29 +1985,31 @@ where :math:`m` is the mass, :math:`\bf v_t` is the velocity,
 :math:`\frac{d{\bf v_t}}{dt}` is the acceleration (the time derivative of velocity),
 and :math:`\bf \eta` is a white noise term with zero mean and flat frequency spectrum
 (the same one we discussed in Section 2.5).
-The easiest way to interpret is through 
-`Newton's second law <https://en.wikipedia.org/wiki/Newton%27s_laws_of_motion#Second>`__:
-the net force on an object is equal to its mass time its acceleration (:math:`F_{net} = ma`).
+The easiest way to interpret this equation is using 
+`Newton's second law <https://en.wikipedia.org/wiki/Newton%27s_laws_of_motion#Second>`__ of motion:
+the net force on an object is equal to its mass times acceleration (:math:`F_{net} = ma`).
 The right hand side is the net force, and the left hand side is the product of
 mass and acceleration.
 
 Breaking it down further, there are two types of forces acting on our particle
 suspended in fluid: (a) a `drag force <https://en.wikipedia.org/wiki/Stokes%27_law>`__
-of the fluid that is proportional to velocity (think something like air
+of the fluid that is proportional to velocity (think something analogous to air
 resistance), and, (b) a noise term representing the effect of random collisions
-with the fluid molecules.  This is a bit strange because we're combining the
-microscopic (forces of particles) with a seemingly macroscopic term in the
-noise.  This needs a bit of explanation.
+with the small fluid molecules.  This is a bit strange because we're combining the
+microscopic (drag force acting on the particle) with a seemingly macroscopic
+average from the noise.  This needs a bit of explanation.
 
 The noise term is an approximation of sorts.  For any given time instant, there
 (theoretically) are specific molecules colliding with our target particle so
-why are we considering this noise term :math:`\bf eta`?  Besides simplifying
+why are we considering this noise term :math:`\bf \eta`?  Besides simplifying
 the math, the justification is that it is a good approximation for the
-*average* force within a small time instant.  Similarly, our instruments do not
-have infinite precision so we can only measure finite time instances, resulting
-in observations that look like the white noise term in Equation 4.13.  So while
-not exact (like any model), it provides a pretty good approximation for this
-phenomenon (and many others with some variations on the basic equation).
+*average* force within a small time instant because of the scale of our
+observations.  Our instruments do not have infinite precision and only measure
+finitely small time intervals, this means the resulting observations are really
+an average over these small finite time intervals and look a lot like the white
+noise term in Equation 4.13.  So while not exact (like any model), it provides
+a pretty good approximation for this phenomenon (and many others with some
+variations on the basic equation).
 
 Interestingly, the noise term was not precisely defined (i.e., mathematically
 rigorous) when Langevin wrote his original equations.  However with the advent
@@ -2012,14 +2022,14 @@ as:
 
    d{\bf v_t} = -\theta v_t dt + \sigma dW \tag{4.14}
 
-where :math:`\theta, \sigma` are constants, and assume:math:`\eta(t) =
+where :math:`\theta, \sigma` are constants, and assume :math:`\eta(t) =
 \frac{dW}{dt}`.  As an aside, technically, the Wiener process is nowhere
 differentiable, so :math:`\frac{dW}{dt}` does not have a precise meaning, which
 is why we rarely write it in this form and instead use the differential form of
 Equation 4.14.
 
-Equation 4.14 is more complicated because we have our target process
-:math:`v_t` is mixed in with differentials and non-differentials
+Equation 4.14 complicated by the fact that we have our target process
+:math:`v_t` mixed in with differentials and non-differentials
 i.e., a stochastic differential equation.  Since this is a relatively
 simple SDE, we can use similar techniques to solving their non-stochastic
 counterparts along with Itô's lemma to compute the differential.  
@@ -2031,7 +2041,7 @@ expansion similar to our (informal) derivation of Itô's lemma:
 .. math::
 
    df(v_t, t) &= \frac{\partial f}{\partial t}dt + \frac{\partial f}{\partial v_t} dv_t 
-                + \frac{1}{2} (\frac{\partial^2 f}{\partial x^2})^2 dv_t dv_t \\
+                + \frac{1}{2} (\frac{\partial^2 f}{\partial v_t^2})^2 dv_t dv_t \\
    &= \theta v_t e^{\theta t} dt + e^{\theta t} dv_t + (0)dv_t dv_t \\
    &= \theta v_t e^{\theta t} dt + e^{\theta t} (-\theta v_t dt + \sigma dW) && \text{Equation 4.14} \\
    &= \sigma e^{\theta t} dW \\
@@ -2042,7 +2052,7 @@ expansion similar to our (informal) derivation of Itô's lemma:
 Which shows the general solution to our stochastic differential equation.
 We can characterize this stochastic process by evaluating its mean and variance.
 First, we use the fact that an 
-`Itô's integral of a deterministic integrand is normally distributed 
+`Itô integral of a deterministic integrand is normally distributed 
 <https://quant.stackexchange.com/questions/53212/integration-of-a-deterministic-function-w-r-t-a-brownian-motion>`__,
 thus the second term in Equation 4.15 has zero mean, and so (assuming a non-random initial velocity :math:`v_0`):
 
