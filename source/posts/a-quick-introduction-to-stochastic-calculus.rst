@@ -14,18 +14,18 @@ physics, which naturally led me to stochastic calculus.  The second avenue was
 through some projects at work in the quantitative finance space, which is one
 of the main applications of stochastic calculus.  Naively, I thought I could
 write a brief post on it that would satisfy my curiosity -- that didn't work
-out at all.  The result is this extra long post! 
+out at all! The result is this extra long post.
 
-This post is about stochastic calculus, an extension of the usual calculus we
-learn to a certain class of stochastic processes.  It's not immediately obvious
+This post is about stochastic calculus, an extension of regular calculus to
+stochastic processes.  It's not immediately obvious
 but the rigour needed to properly understand some of the key ideas requires
-going back to the measure theoretic definition of probability theory.  So
-that's where I start, from there I quickly move onto stochastic processes, the
-Wiener process, a particular flavour of stochastic calculus
-called Itô calculus where I present some of the main results, and finally end
-with a couple of applications.  As usual, I try to include a mix of intuition,
-rigour where it helps intuition, and some simple examples.  It's a deep and
-wide topic so I hope you enjoy my digest of it.
+going back to the measure theoretic definition of probability theory, so
+that's where I start in the background. From there I quickly move on to
+stochastic processes, the Wiener process, a particular flavour of stochastic
+calculus called Itô calculus, and finally end with a couple of applications.
+As usual, I try to include a mix of intuition, rigour where it helps intuition,
+and some simple examples.  It's a deep and wide topic so I hope you enjoy my
+digest of it.
 
 .. TEASER_END
 .. section-numbering::
@@ -53,35 +53,35 @@ that is described using a
 Both of these things were probably not included in most introductory courses on
 either probability or calculus.  Starting with stochastic processes, the
 easiest way to think about it is a collection of random variables indexed by
-time.  So instead of a single deterministic value each time :math:`t`, we have
-a random variable instead (usually with some relationship or common property).
+time.  So instead of a single deterministic value at each time :math:`t`, we have
+a random variable instead (usually with some relationship or common property
+with the other ones).
 So while on the surface it seems relatively simple, one of the big complexities
 we run into is when we let :math:`t` be continuous, which we will see in detail
 later.
 
-Stochastic differential equations, defined on continuous time, are a very
+Stochastic differential equations defined on continuous time are a very
 natural way to model many different phenomena.  A common stochastic
 differential equation called the 
-`Langevin equation <https://en.wikipedia.org/wiki/Langevin_equation>`__,
-originally described the random movements of a particle suspended in a fluid
-due to collisions with the fluid molecules, is used to model many types of
-stochastic phenomena:
+`Langevin equation <https://en.wikipedia.org/wiki/Langevin_equation>`__
+is used to model many types of stochastic phenomena:
 
 .. math::
 
     \frac{dX(t)}{dt} = \alpha(X, t) + \beta(X, t)\eta(t) \tag{1.1}
 
 where :math:`X(t)` is a stochastic process, :math:`\alpha, \beta` can be a
-function of both :math:`X` and time :math:`t`, and an additional noise term
+function of both :math:`X` and time :math:`t`, and a noise term
 :math:`\eta(t)`.  The noise term is what makes this differential equation
 special by introducing a special type of randomness.  And while this is just a
 single example, it does have many characteristics that show up in other
 applications of stochastic calculus.
 
 Intuitively, the noise term :math:`\eta(t)` represents "random fluctuations"
-such as the random collisions with the fluid or the random fluctuations of a
-stock price.  To be precise about these "random fluctuations", we first must
-specify some of their characteristics such as their 
+such as a particle's random collisions with other molecules in a fluid, or the
+random fluctuations of a stock price.  To be precise about these "random
+fluctuations", we first must specify some of their characteristics such as
+their 
 `time correlation <https://en.wikipedia.org/wiki/Autocorrelation>`__ function:
 
 .. math::
@@ -108,7 +108,7 @@ infinitesimal timescales.  The other corresponding assumption is that at each
 timestep :math:`t` the random variable :math:`\eta(t)` is a zero mean Gaussian.
 
 In some ways, :math:`\eta(t)` simplifies things; in others, it makes them much
-more complex.  First thing to note is that :math:`\eta(t)` is a theoretical
+more complex.  The first thing to note is that :math:`\eta(t)` is a theoretical
 construct -- there is no random process that can have its properties.
 We can see that from Equation 1.3 where we use the theoretical
 `Dirac delta <https://en.wikipedia.org/wiki/Dirac_delta_function>`__ function.
@@ -130,7 +130,7 @@ both sides to try to get:
 
 The first integral on the right hand side is a standard one that generally we
 know how to solve using the tools of calculus.  The second integral involving
-:math:`eta(t)` is where we run into an issue.  It is precisely this problem
+:math:`\eta(t)` is where we run into an issue.  It is precisely this problem
 that has spawned a new branch of mathematics called *stochastic calculus*,
 which is the topic of this post.
 
@@ -140,9 +140,9 @@ Stochastic Processes
 Probability Spaces & Random Variables
 -------------------------------------
 
-(Skip this part if you're already familiar with the measure theoretic definition of probability.)
+*(Note: Skip this part if you're already familiar with the measure theoretic definition of probability.)*
 
-We're going to dive into the measure definition of probability *attempting* to
+We're going to dive into the measure theoretic definition of probability, *attempting* to
 give some intuition while still maintaining some level of rigour.  First, let's
 examine the definition of a **probability space** :math:`(\Omega, {\mathcal
 {F}}, P)`.  This is the same basic idea you learn in a first probability
@@ -150,19 +150,19 @@ course except with fancier math.
 
 :math:`\Omega` is the **sample space**, which defines the set of all possible
 outcomes of an experiment.  In finite sample spaces, any subset of
-the samples space is called an **event**.  Another way to think about events is
-any grouping of objects you would want to measure the probability on, e.g.
+the sample space is called an **event**.  Another way to think about events is
+any grouping of objects you would want to measure the probability on (e.g.,
 individual elements of :math:`\Omega`, unions of elements, or even the empty
-set.
+set).
 
 However, this type of reasoning breaks down when we have certain types of
-infinite samples spaces (e.g. real line).  For this, we need to define an event more precisely 
+infinite sample spaces (e.g., real line).  For this, we need to define an event more precisely 
 with an **event space** :math:`\mathcal{F} \subseteq 2^{\Omega}` (:math:`2^{\Omega}` denotes the 
 `power set <https://en.wikipedia.org/wiki/Power_set>`__) using a construction
 called a :math:`\sigma`-algebra ("sigma algebra"):
 
-    Let :math:`\Sigma` be a non-empty set, and let :math:`\mathcal{F}` be a collection
-    of subsets of :math:`\Sigma`.  We say that :math:`\mathcal{F}` is a :math:`\sigma`-`algebra <https://en.wikipedia.org/wiki/%CE%A3-algebra>`__:
+    Let :math:`\Omega` be a non-empty set, and let :math:`\mathcal{F}` be a collection
+    of subsets of :math:`\Omega`.  We say that :math:`\mathcal{F}` is a :math:`\sigma`-`algebra <https://en.wikipedia.org/wiki/%CE%A3-algebra>`__:
     if:
     
     1. The empty set belongs to :math:`\mathcal{F}`.
@@ -172,31 +172,34 @@ called a :math:`\sigma`-algebra ("sigma algebra"):
        their union :math:`\cup_{n=1}^{\infty} A_n` also belongs to :math:`\mathcal{F}`
        (closed under countable unions -- implies closed under countable intersection).
 
-    The pair :math:`(\Sigma, \mathcal{F})` define a `measurable space <https://en.wikipedia.org/wiki/Measurable_space>`__.
+    The elements of a :math:`\sigma`-algebra are called `measurable sets <https://en.wikipedia.org/wiki/Measure_(mathematics)>`__, and the pair :math:`(\Omega, \mathcal{F})` define a `measurable space <https://en.wikipedia.org/wiki/Measurable_space>`__.
 
-(NOTE: For a *very brief* discussion on countability, see Appendix A)
+Thus, we wish our event space :math:`\mathcal{F}` to be a :math:`\sigma`-algebra and
+when combined with :math:`\Omega`, define a measurable space.  This sounds
+complicated but it basically guarantees that the subsets of :math:`\Omega` that
+we use for events have all the nice properties we would expect from
+probabilities.  
 
-This sounds complicated but it basically guarantees
-that the subsets of :math:`\Omega` that we use for events have all the
-nice properties we would expect from probabilities.  Intuitively, this helps
-makes the notion of "size" or "volume" precise by defining the "chunks" of
-"volume".  You want to make sure that no matter how you combine non-overlapping
-"chunks" (i.e. unions of disjoint sets), you end up with a consistent measure
-of "volume".  Again, this is only really needed with infinite (non-countable) sets.  For
-finite event spaces, we can usually just use the power set :math:`2^{\Omega}`
-as the event space, which has all these properties above.
+Intuitively, measurable spaces help makes the notion of "size" or "volume"
+precise by defining the "chunks" of "volume".  Using a physical analogy,
+you want to make sure that no matter how you combine non-overlapping "chunks"
+(i.e., unions of disjoint sets), you end up with a consistent measure of
+"volume".  Again, this is only really needed with infinite (non-countable)
+sets.  For finite event spaces, we can usually just use the power set
+:math:`2^{\Omega}` as the event space, which has all these properties above.
 
-Which brings us to our the last part of probability spaces: a **probability
-measure** :math:`P` on an event space :math:`\mathcal{F}` is a function that:
+And this brings us to the last part of probability spaces:
 
-1. Maps events to the unit interval :math:`[0, 1]`,
-2. Returns :math:`0` for the empty set and :math:`1` for the entire space,
-3. Satisfies countable additivity for all countable collections of events
-   :math:`\{E_i\}` of pairwise disjoint sets:
+    A **probability measure** :math:`P` on an event space :math:`\mathcal{F}` is a function that:
 
-   .. math::
- 
-       P(\cup_{i\in I} E_i) = \Sigma_{i\in I} P(E_i) \tag{2.1}
+    1. Maps events to the unit interval :math:`[0, 1]`,
+    2. Returns :math:`0` for the empty set and :math:`1` for the entire space,
+    3. Satisfies countable additivity for all countable collections of events
+       :math:`\{E_i\}` of pairwise disjoint sets:
+    
+       .. math::
+     
+           P(\cup_{i\in I} E_i) = \Sigma_{i\in I} P(E_i) \tag{2.1}
 
 These properties should look familiar as they are the three basic ones 
 axioms everyone learns when first studying probability.  The only difference is
@@ -209,31 +212,34 @@ general measures) but in a consistent way.  Due to the way we've defined
 event spaces as :math:`\sigma`-algebra's along with the third condition from
 Equation 2.1, we get a consistent measurement of "volume" regardless of how we
 combine the "chunks".  Again, for finite sample spaces, it's not too hard to
-imagine this function, but for continuous sample spaces, it gets more
+imagine this function but for continuous sample spaces, it gets more
 complicated.  All this is essentially to define a rigorous construction that
 matches our intuition of basic probability with samples spaces, events, and
 probabilities.
 
-Finally, for a given probability space :math:`(\Omega, {\mathcal {F}}, P)`,
-a **random variable** :math:`X` [1]_ is a `measurable function <https://en.wikipedia.org/wiki/Measurable_function>`__
-:math:`X:\Omega \rightarrow E \subseteq \mathbb{R}`. 
-The measurable function condition puts a few constraints:
+Finally, for a given probability space :math:`(\Omega, {\mathcal {F}}, P)`:
 
-1. :math:`X` must part of a measurable space, :math:`(E, S)` (recall:
-   :math:`S` defines a :math:`\sigma`-algebra on the set :math:`E`).  
-   For finite or countably infinite values of :math:`X`, we generally use
-   the powerset of :math:`E`.  Otherwise, we will typically use the `Borel set
-   <https://en.wikipedia.org/wiki/Borel_set>`__ for uncountably infinite
-   sets (i.e. the real numbers).
-2. For all :math:`S \in \mathcal{S}`, the pre-image of :math:`s` under :math:`X`
-   is in :math:`\mathcal{F}`.  More precisely:
+    A **random variable** :math:`X` [1]_ is a `measurable function <https://en.wikipedia.org/wiki/Measurable_function>`__
+    :math:`X:\Omega \rightarrow E \subseteq \mathbb{R}` where:
+    
+    1. :math:`X` must part of a measurable space, :math:`(E, \mathcal{S})` (recall:
+       :math:`\mathcal{S}` defines a :math:`\sigma`-algebra on the set :math:`E`).  
+       For finite or countably infinite values of :math:`X`, we generally use
+       the powerset of :math:`E`.  Otherwise, we will typically use the `Borel set
+       <https://en.wikipedia.org/wiki/Borel_set>`__ for uncountably infinite
+       sets (e.g., the real numbers).
+    2. For all :math:`s \in \mathcal{S}`, the pre-image of :math:`s` under :math:`X`
+       is in :math:`\mathcal{F}`.  More precisely:
 
-   .. math::
+       .. math::
 
-     \{X \in S\} := \{\omega \in \Omega | X(\omega) \in S\} \in \mathcal{F} \tag{2.2}
+         \{X \in \mathcal{s}\} \in \mathcal{F} := \{\omega \in \Omega | X(\omega) \in s\} \in \mathcal{F} \tag{2.2}
 
-This basically says that every value that :math:`X` can take on (which must
-be measurable) has a mapping to one of the measurable events
+We use random variables to map outcomes from our event space to the real line
+(e.g., a RV for a coin flip where heads maps to 1 and tails maps to 0).
+However, the mapping must also have the same consistency as we defined above.
+So this definition basically ensures that every value that :math:`X` can take on 
+(which must be measurable) has a mapping to one of the measurable events
 in our original event space :math:`\mathcal{F}`.  We use the notation
 :math:`\sigma(X)` to denote the collection of all subsets of Equation 2.2,
 which form the :math:`\sigma`-algebra implied by the random variable :math:`X`.
@@ -242,30 +248,30 @@ If we didn't have this condition then either: (a) we couldn't properly measure
 :math:`X`'s "volume" because our "chunks" would be inconsistent (constraint 1),
 or (b) we wouldn't be able to map it back to "chunks" in our original
 probability space and apply :math:`P` to evaluate the random variable's
-probability.  If this all seems a little abstract, it is -- that's what we need
+probability.  If this all seems a little abstract, it is, but that's what we need
 when we're dealing with uncountable infinities.  Again, for the finite cases,
-all of these properties are usually trivially met.
+all of these properties are trivially met.
 
 Using the probability measure :math:`P`, one can calculate the probability of
-:math:`X \in S` using Equation 2.2:
+:math:`X \in \mathcal{S}` using Equation 2.2:
 
 .. math::
 
-    P(X \in S) &= P(\{\omega \in \Omega | X(\omega) \in S \}) \\
-               &:= P({X \in S}) \tag{2.3}
+    P(X \in s) &= P(\{\omega \in \Omega | X(\omega) \in s \}) \\
+               &= P(f \subseteq \mathcal{F}) \tag{2.3}
 
-where :math:`S \subseteq \mathcal{S}`.  We can take :math:`S = \{x\}` to
-evaluate the random variable at a particular value.  
-
-Equation 2.3 basically says that we map backwards from a set of real numbers
-(:math:`S`) to a set of values in the sample space (i.e. an event given by
-Equation 2.2) using the inverse of function :math:`X`.  From the event in our
-event space :math:`\mathcal{F}`, which is guaranteed to exist because of property (2),
-we know how to compute the probability using :math:`P`.
+where :math:`s \subseteq \mathcal{S}` and :math:`f` is the corresponding event
+in :math:`\mathcal{F}`.  We can take :math:`s = \{x\}` to evaluate the random
+variable at a particular value.  Equation 2.3 basically says that we map
+backwards from a set of real numbers (:math:`s`) to a set of values in the
+sample space (i.e., an event given by Equation 2.2) using the inverse of
+function :math:`X`.  From the event in our event space :math:`f \subseteq
+\mathcal{F}`, which is guaranteed to exist because of property (2), we know how
+to compute the probability using :math:`P`.
 
 So a random variable then allows us to map to real numbers from our original
 sample space (:math:`\Omega`).  Often times our sample space has no concept
-of numbers (e.g.  heads or tails) but random variables allow us to assign real
+of numbers (e.g., heads or tails) but random variables allow us to assign real
 numbers to those events to calculate things like expected values and variances. 
 
 For many applications of probability, understanding the above is overkill.
@@ -283,7 +289,7 @@ rigour needed for uncountable infinities.
    and our experiment is that we draw a card randomly from this set.
    The sample space :math:`\Omega` is a set consisting of the 52 cards.
    An event :math:`A \subseteq \mathcal{F}` is any subset of :math:`\Omega`,
-   i.e. the powerset :math:`\mathcal{F} = 2^{\Omega}`.  So that would include
+   i.e., the powerset :math:`\mathcal{F} = 2^{\Omega}`.  So that would include
    the empty set, any single element, or even the entire sample space.  Some
    examples of events:
 
@@ -380,8 +386,8 @@ That's a mouthful!  Let's break this down and interpret the definition more intu
 We've already seen probability spaces and random variables in the previous
 subsection.  The first layer of a stochastic process is that we have a bunch of
 random variables that are indexed by some set :math:`T`.  Usually :math:`T` is
-some total ordered sequence such as a subset of the real line (e.g. :math:`(0,
-\infty)`) or natural numbers (e.g. :math:`0, 1, 2, 3 \ldots`), which intuitively
+some total ordered sequence such as a subset of the real line (e.g., :math:`(0,
+\infty)`) or natural numbers (e.g., :math:`0, 1, 2, 3 \ldots`), which intuitively
 correspond to continuous and discrete time.
 
 Next, we turn to the probability space on which each random variable is defined on
@@ -799,7 +805,7 @@ Quadratic Variation of Wiener Process
 *************************************
 
 We looked at the quadratic variation above for the scaled symmetric random walk
-and concluded that it accumulates quadratic variation one unit per time (i.e.
+and concluded that it accumulates quadratic variation one unit per time (i.e.,
 quadratic variation is :math:`T` for :math:`[0, T]`) regardless of the value of
 :math:`n`.  We'll see that this is also true for the Wiener process but before we
 do, let's first appreciate why this is strange.
@@ -1006,7 +1012,7 @@ We digress here to show a non-intuitive property of the Wiener process: it will
 .. admonition:: **Theorem 2**
 
    *For* :math:`m \in \mathbb{R}`, *the first passage time* :math:`\tau_m` *of
-   the Wiener process to level* :math:`m` *is finite almost surely, i.e.*
+   the Wiener process to level* :math:`m` *is finite almost surely, i.e.,*
    :math:`P(\tau_m < \infty) = 1`.
 
 This basically says that the Wiener process is almost certain to reach whatever
@@ -1206,9 +1212,9 @@ processes.  A few questions immediately come to mind:
    integral is conceptually not too different from a plain old `Riemannian integral
    <https://en.wikipedia.org/wiki/Riemann_integral>`__ that we learn in
    regular calculus, but with some key differences due to the nature of
-   the stochastic processes we use (e.g. Wiener process).
+   the stochastic processes we use (e.g., Wiener process).
 3. *How do we deal with the case of a non-continuous derivative of the
-   integrator (e.g. Wiener process), which manifests itself with non-zero
+   integrator (e.g., Wiener process), which manifests itself with non-zero
    quadratic variation?* We'll see that this results in one of the big
    differences with regular calculus.  Choices that didn't matter, suddenly
    matter, and the result produces different outputs from the integration
@@ -1712,7 +1718,7 @@ The two popular methods are Monte Carlo simulation and numerically solving
 a partial differential equation (PDE).  Roughly, Monte Carlo simulation for
 differential equations involve simulating many different paths of the
 underlying process and using these paths to compute the associated statistics
-(e.g. mean, variance etc.).  Given enough paths (and associated time), you
+(e.g., mean, variance etc.).  Given enough paths (and associated time), you
 generally can get as accurate as you like.
 
 The other method is to numerically solve a PDE.  An SDE can be recast to as a
@@ -1807,7 +1813,7 @@ that we have covered so far.  At the heart of the model is the BSM differential
 equation, which we will presently derive and discuss.
 
 The first thing to understand is the "no arbitrage" condition.  In the case of
-a financial derivative (e.g. call or put option) and the underlying stock, the
+a financial derivative (e.g., call or put option) and the underlying stock, the
 price of the derivative should never allow one to make a portfolio of the two
 such that you are guaranteed to make money i.e., arbitrage.  In this
 theoretical portfolio you can be "long", or buying and *owning* the financial
@@ -1826,7 +1832,7 @@ The other key idea is that once you have a "riskless" portfolio set up, it
 should return the "risk free" rate (within the short period of time the balance
 is maintained).  The risk free rate is an asset that is virtually guaranteed to
 receive that given rate (think: a savings account, or more commonly a treasury bond).
-With these few conditions and some additional idealized assumptions (e.g.
+With these few conditions and some additional idealized assumptions (e.g.,
 stock prices follow the model we developed, no transaction costs, no dividends,
 perfect "shorting" etc.), we can formulate the BSM differential equation.
 
