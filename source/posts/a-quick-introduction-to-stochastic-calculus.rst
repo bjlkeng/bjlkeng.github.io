@@ -436,7 +436,7 @@ how to match the formal definition to concrete stochastic processes.
     Bernoulli trials (think coin flips) at each time step.
   
     More formally, our sample space :math:`\Omega = \{ (a_n)_1^{\infty} : a_n
-    \in \{H, T\} \}`, that is, the set of all infinite sequences of "heads" and "tails".
+    \in \{H, T\} \}` is the set of all infinite sequences of "heads" and "tails".
     It turns out the event space and the probability measure are surprisingly
     complex to define so I've put those details in Appendix A.
 
@@ -477,10 +477,10 @@ how to match the formal definition to concrete stochastic processes.
         S_t(\omega) =  \sum_{i=1}^t X_t \tag{2.8}
 
    Notice that the random variable at each time step depends on *all* the "coin
-   flips" :math:`X_t` that came before it in contrast to just the current "coin flip"
-   for the Bernoulli process.
+   flips" :math:`X_t` that came before it, which is in contrast to just the
+   current "coin flip" for the Bernoulli process.
    
-   Another couple of results that we'll use later.  First is that the increments
+   Another couple of results that we'll use later.  The first is that the increments
    between any two given non-overlapping pairs of integers
    :math:`0 = k_0 < k_1 < k_2 < \ldots < k_m` are independent.  That is,
    :math:`(S_{k_1} - S_{k_0}), (S_{k_2} - S_{k_1}), (S_{k_3} - S_{k_2}), \ldots, (S_{k_m} - S_{k_{m-1}})`
@@ -492,11 +492,11 @@ how to match the formal definition to concrete stochastic processes.
    
    .. math::
 
-        E[S_{k_{i+1}} - S_{k_i}] &= E[\sum_{j=k_i + 1}^{k_{i+1}} X_i] \\
+        E[S_{k_{i+1}} - S_{k_i}] &= E[\sum_{j=k_i + 1}^{k_{i+1}} X_j] \\
                                  &= \sum_{j=k_i + 1}^{k_{i+1}} E[X_j] \\
                                  &= 0 \\
-        Var[S_{k_{i+1}} - S_{k_i}] &= Var[\sum_{j=k_i + 1}^{k_{i+1}} X_i] \\
-                                   &= \sum_{j=k_i + 1}^{k_{i+1}} Var[X_j]  && X_i \text{ independent}\\
+        Var[S_{k_{i+1}} - S_{k_i}] &= Var[\sum_{j=k_i + 1}^{k_{i+1}} X_j] \\
+                                   &= \sum_{j=k_i + 1}^{k_{i+1}} Var[X_j]  && X_j \text{ independent}\\
                                    &= \sum_{j=k_i + 1}^{k_{i+1}} 1 && Var[X_j] = E[X_j^2] = 1 \\
                                    &= k_{i+1} - k_i \\
         \tag{2.9}
@@ -581,7 +581,7 @@ the interplay between filtrations and random variables.
 
     .. math::
 
-        \mathcal{F}_1 = \{\emptyset, \Sigma, A_H, A_T\} \tag{2.11}
+        \mathcal{F}_1 = \{\emptyset, \Omega, A_H, A_T\} \tag{2.11}
 
     Let's notice that :math:`\mathcal{F}_1 \subset \mathcal{F}` (by definition
     since this is how we defined it). Also let's take a look at the events generated
@@ -589,16 +589,16 @@ the interplay between filtrations and random variables.
 
     .. math::
 
-           \{X_1 \in \{H\}\} &= \{\omega \in \Sigma | X_1(\omega) \in {H}\} \\
+           \{X_1 \in \{1\}\} &= \{\omega \in \Omega | X_1(\omega) \in \{1\}\} \\
             &= \{\omega: \omega_1 = H\} \\
             &= A_H \\
-           \{X_1 \in \{H\}\} &= \{\omega \in \Sigma | X_1(\omega) \in {T}\} \\
+           \{X_1 \in \{-1\}\} &= \{\omega \in \Omega | X_1(\omega) \in \{-1\}\} \\
             &= \{\omega: \omega_1 = T\} \\
             &= A_T \\
             \tag{2.12}
 
     Thus, :math:`\sigma(X_1) = \mathcal{F}_1` (the :math:`\sigma`-algebra implied by
-    the random variable :math:`X_1`, meaning that :math:`X_1` is indeed
+    the random variable :math:`X_1`), meaning that :math:`X_1` is indeed
     :math:`\mathcal{F}_1`-measurable as required.  
     
     Let's take a closer look at what this means.  For :math:`X_1`, Equation 2.11 defines 
@@ -638,7 +638,7 @@ applied math, quantitative finance, and physics.  As alluded to previously, it
 has many "corner case" properties that do not allow simple manipulation, and
 it is one of the reasons why stochastic calculus was discovered.
 Interestingly, there are several equivalent definitions but we'll start with
-the one defined in [1] using scaled random walks.
+the one defined in [1] using scaled symmetric random walks.
 
 
 Scaled Symmetric Random Walk
@@ -662,8 +662,9 @@ A simple way to think about Equation 2.13 is that it's just a regular random wal
 with a scaling factor.  For example, :math:`W^{(100)}(t)` has it's first step
 (integer step) at :math:`t=\frac{1}{100}` instead of :math:`t=1`.  To adjust
 for this compression of time we scale the process by :math:`\frac{1}{\sqrt{n}}`
-to make the math work out later (see Figure 2).  The linear interpolation is
+to make the math work out (more on this later).  The linear interpolation is
 not that relevant except that we want to start working in continuous time.
+Figure 2 shows a visualization of this compressed random walk.
 
 .. figure:: /images/stochastic_calculus_scaled_random_walk.png
     :width: 500px
@@ -701,7 +702,7 @@ took up to time :math:`t`, we get:
 
 This results in the same quantity as the variance computation we have (for
 :math:`s=0`) in Equation 2.14 but is conceptually different.  The variance
-is an average over all paths, while the quadratic variation is taking a
+is an average over all paths while the quadratic variation is taking a
 realized path, squaring all the values, and then summing them up.
 In the specific case of a Wiener process, they result in the same thing (not
 always the case for general stochastic processes).
@@ -732,9 +733,9 @@ of the scaled symmetric random walk as :math:`n \to \infty`.  We'll define it
 in terms of the properties of this limiting distribution, many of which are inherited
 from the scaled symmetric random walk:
 
-    Given probability space :math:`(\Sigma, \mathcal{F}, P)`,
-    for each :math:`\omega \in \Omega`, define a continuous function that depends on
-    :math:`\omega` as :math:`W(t) := W(t, \omega)` for :math:`t \geq 0`.
+    Given probability space :math:`(\Omega, \mathcal{F}, P)`,
+    suppose there is a continuous function of :math:`t \geq 0` that also
+    depends on :math:`\omega \in \Omega` denoted as :math:`W(t) := W(t, \omega)`.
     :math:`W(t)` is a **Wiener process** if the following are satisfied:
 
     1. :math:`W(0) = 0`;
@@ -787,8 +788,8 @@ them.
 
     .. math::
 
-        P(0 \leq W(0.25) \leq 0.2) &= \frac{1}{\sqrt{2\pi(0.25)}} \int_0^{0.2} e^{-\frac{1}{2}(\frac{x}{0.25})^2}  \\
-                                   &= \frac{2}{2\pi} \int_0^{0.2} e^{-2x^2}  \\
+        P(0 \leq W(0.25) \leq 0.2) &= \frac{1}{\sqrt{2\pi(0.25)}} \int_0^{0.2} e^{-\frac{1}{2}(\frac{x}{\sqrt{0.25}})^2}  \\
+                                   &= \frac{2}{\sqrt{2\pi}} \int_0^{0.2} e^{-2x^2}  \\
                                    &\approx 0.155 \\
                                    \tag{2.17}
 
@@ -822,20 +823,19 @@ do, let's first appreciate why this is strange.
 
 This is basically the same idea that we discussed before: for infinitesimally
 small intervals, take the difference of the function for each interval,
-square them, and then sum them all up.  The part you may not be familiar with
-is that instead of having an evenly spaced intervals like we usually see in a
-first calculus course, we're can use any unevenly spaced ones.  The only 
-condition is that the largest partition goes to zero.  This is called the mesh
-or norm of the partition, which is similar to the formal definition of 
+square them, and then sum them all up.  Here we can have unevenly spaced
+partitions with the only condition being that the largest partition has to go to
+zero.  This is called the mesh or norm of the partitions, which is similar to
+the formal definition of 
 `Riemannian integrals <https://en.wikipedia.org/wiki/Riemann_integral>`__
 (even though many of us, like myself, didn't learn it this way).  In any
-case, the idea is very similar to just having evenly spaced intervals.
+case, the idea is very similar to just having evenly spaced intervals that go to zero.
 
 Now that we have Equation 2.18, let's see how it behaves on a function
 :math:`f(t)` that has a continuous derivative:
 (recall the `mean value theorem <https://en.wikipedia.org/wiki/Mean_value_theorem>`__ 
 states that :math:`f'(c) = \frac{f(a) - f(b)}{b-a}` for :math:`c \in (a,b)`
-for continuous functions with derivatives on the respective interval):
+if :math:`f(x)` is a continuous function with derivatives on the respective interval):
 
     .. math::
 
@@ -849,11 +849,11 @@ for continuous functions with derivatives on the respective interval):
 So we can see that quadratic variation is not very important for most functions
 we are used to seeing i.e., ones with continuous derivatives.  In cases where
 this is not true, we cannot use the mean value theorem to simplify quadratic
-variation, so we potentially will get something that is non-zero.
+variation and we potentially will get something that is non-zero.
 
 For the Wiener process in particular, we do not have a continuous derivative
 and cannot use the mean value theorem as in Equation 2.19, so we end up with
-a non-zero quadratic variation.  To see this, let's take a look at the absolute
+non-zero quadratic variation.  To see this, let's take a look at the absolute
 value function :math:`f(t) = |t|` in Figure 3.  On the interval :math:`(-2, 5)`,
 the slope between the two points is :math:`\frac{3}{7}`, but nowhere in this
 interval is the slope of the absolute value function :math:`\frac{3}{7}` (it's
@@ -892,7 +892,7 @@ standard rules for calculus that we all know and love.
     "outcome" path of the Wiener process (recall quadratic variation is with
     respect to a particular realized path).  
     
-    To prove the theorem, We need to show that the sampled quadratic variation
+    To prove the theorem, we need to show that the sampled quadratic variation
     converges to :math:`T` as :math:`||\Pi|| \to 0`.  This can be accomplished
     by showing :math:`E[Q_{\Pi}] = T` and :math:`Var[Q_{\Pi}] = 0`, which says
     that we will converge to :math:`T` regardless of the path taken.
@@ -929,7 +929,7 @@ standard rules for calculus that we all know and love.
 
          E\big[(W(t_{j+1})-W(t_j))^4 \big] = 3Var[(W(t_{j+1})-W(t_j)] = 3(t_{j+1} - t_j)^2 \tag{2.23}
 
-    Computing the variance of each increment:
+    Computing the variance of the quadratic variation for each increment:
 
     .. math::
     
@@ -979,9 +979,9 @@ We often will informally write:
 
     dW(t)dW(t) = dt \tag{2.26}
 
-To describe the accumulation of quadratic variation one unit per time.
+To describe the accumulation of quadratic variation at one unit per time.
 However, this should not be interpreted to be true for each infinitesimally
-small increment.  Recall each increment of W(t) is normally distributed, so the
+small increment.  Recall each increment of :math:`W(t)` is normally distributed, so the
 LHS of Equation 2.26 is actually distributed as the square of a normal
 distribution.  We only get the result of Theorem 1 when we sum a large number
 of them (see [1] for more details).
@@ -1016,10 +1016,11 @@ We digress here to show a non-intuitive property of the Wiener process: it will
    :math:`P(\tau_m < \infty) = 1`.
 
 This basically says that the Wiener process is almost certain to reach whatever
-finite level within some finite time :math:`\tau_m`.  Again, there is a path of
-the Wiener process that does not exceed a given level :math:`m` but they are so
-infinitesimally small that they are collectively assigned probability 0 
-(almost surely).  Working with infinities can be unintuitive.
+finite level within some finite time :math:`\tau_m`.  Again, there is a
+possible realized path of the Wiener process that does not exceed a given level
+:math:`m` but they collectively are so infinitesimally small that they are
+assigned probability 0 (almost surely).  Working with infinities
+can be unintuitive.
 
 The Relationship Between the Wiener Process and White Noise
 -----------------------------------------------------------
@@ -1065,7 +1066,7 @@ From this definition, we can calculate the mean of the derivative of :math:`W(t)
     \tag{2.32}
 
 Similarly, we can show a general property about the time correlation of a
-stochastic process:
+derivative of a stochastic process:
 
 .. math::
 
@@ -1086,7 +1087,7 @@ stochastic process:
              \frac{\partial C_X(t_1, t_2)}{\partial t_1} \big) \\
     &= \frac{\partial C_X(t_1, t_2)}{\partial t_1 \partial t_2} \tag{2.33}
 
-Thus, we have shown that the time correlation of the derivative of a stochastic
+Thus we have shown that the time correlation of the derivative of a stochastic
 process is the mixed second-order partial derivative.  Now all we have to do
 is evaluate it for the Wiener process.  
 
@@ -1130,7 +1131,7 @@ function (even with the missing point), so:
 From Equation 2.32 and 2.36, we see we have the same statistics as the white noise
 we defined in the motivation section above in Equation 1.4.  Since the mean
 is also zero, the covariance is equal to the time correlation too: 
-:math:`Cov_{W'}(t_1, t2) = C_{W'}(t1, t2)`
+:math:`Cov_{W'}(t_1, t_2) = C_{W'}(t_1, t_2)`
 
 Now all we have to show is that it is also normally distributed.  By definition
 (given above) the Wiener stochastic process has derivative:
@@ -1140,7 +1141,8 @@ Now all we have to show is that it is also normally distributed.  By definition
    \frac{dW(t)}{dt} = \lim_{h\to 0} \frac{W(t + h) - W(t)}{h} \tag{2.37}
 
 But since each increment of the Wiener process is normally distributed (and independent), 
-the derivative from Equation 2.37 is also normally distributed.
+the derivative from Equation 2.37 is also normally distributed since the difference of two
+independent normals is normally distributed.
 This implies the derivative of the Wiener process is a Gaussian process with
 zero mean and delta time correlation, which is the standard definition of
 Gaussian white noise.  Thus, we have shown the relationship in Equation 2.29 /
@@ -1158,7 +1160,7 @@ A stochastic process is said to have independent increments if :math:`X(t) - X(s
 is independent of :math:`\{X(u)\}_{u\leq s}` for all :math:`s\leq t`.  If
 the distribution of the increments don't depend on :math:`s` or :math:`t`
 directly (but can depend on :math:`t-s`), then the increments are called
-stationary.  This leads us to the important result:
+stationary.  This leads us to this important result:
 
 .. admonition:: **Theorem 3**
 
@@ -1177,7 +1179,7 @@ scaling factor :math:`\sigma`.
 
 The intuition behind Theorem 3 follows directly from the central limit theorem.
 For a given interval :math:`[s, t]`, the value of :math:`X(t) - X(s)` is the sum
-of infinitesimally small independent, identically distributed partitions
+of infinitesimally small independent, identically distributed partitions,
 or in other words IID random variables (doesn't have to be normally
 distributed).  Thus, we can apply the central limit theorem and get a normal
 distribution (under some mild conditions).
@@ -1217,14 +1219,14 @@ processes.  A few questions immediately come to mind:
    integrator (e.g., Wiener process), which manifests itself with non-zero
    quadratic variation?* We'll see that this results in one of the big
    differences with regular calculus.  Choices that didn't matter, suddenly
-   matter, and the result produces different outputs from the integration
+   matter, and the result produces different outputs from the usual integration
    operation.
 
 All the depth we went into previously is about to pay off!  We'll have to use
 all of those ideas in order to properly define Equation 3.1.  We'll start with
 defining the simpler cases where :math:`X(t)` is a Wiener process, and
 generalize it to be any Itô process, and then introduce the key result called
-Itô's lemma, a conceptual form of the chain rule, which will allows us to solve
+Itô's lemma, a conceptual form of the chain rule, which will allow us to solve
 many more interesting problems.
 
 
@@ -1240,7 +1242,7 @@ the integral as:
     \int_0^t H(s) dW(s) := \lim_{||\Pi|| \to 0} \sum_{j=0}^{n-1} H(s_j)[W(t_{j+1}) - W(t_j)] \tag{3.2}
 
 where :math:`t_j \leq s_j \leq t_{j+1}`, and :math:`||\Pi||` is the mesh (or
-maximum interval) that goes to zero while the number of partitions goes to infinity
+maximum partition) that goes to zero while the number of partitions goes to infinity
 like in Equation 2.18 (and standard Riemannian integrals).
 
 From a high level, Equation 3.2 is not too different from our usual Riemannian
@@ -1256,18 +1258,18 @@ from :math:`t`:
     I(t + \Delta t) &:= \int_0^{t+\Delta t} H(s) dW(s) \approx I(t) + H(t)(W(t + \Delta t) - W(t)) \tag{3.4}
 
 :math:`R(t)` changes more predictably than :math:`I(t)` since we know that each
-increment change by :math:`H(s)\Delta t`.  Note that :math:`H(s)` can still be
-a random (and :math:`R(t)` can be random as well) but it changes only by a
-deterministic :math:`\Delta t`.  This is in contrast to :math:`I(t)` which changed
+increment changes by :math:`H(s)\Delta t`.  Note that :math:`H(s)` can still be
+a random (and :math:`R(t)` can be random as well) but its change is multiplied by a
+deterministic :math:`\Delta t`.  This is in contrast to :math:`I(t)` which changes
 by :math:`W(t + \Delta t) - W(t)`.  Recall that each increment of the Wiener process
 is independent and distributed normally with :math:`\mathcal{N}(0, \Delta t)`.
-Thus :math:`H(t)(W(t + \Delta t) - W(t))` changes much more erratically because
-our increments follow a *independent* normal distribution versus just a
+Thus :math:`H(t)(W(t + \Delta t) - W(t))` changes much more randomly and erratically because
+our increments follow an *independent* normal distribution versus just a
 :math:`\Delta t`.  This is one of the key intuitions why we need to define a
 new type of calculus.
 
 To ensure that the stochastic integral in Equation 3.2 is well defined, we need
-a few things as you might expect:
+a few conditions, which I will just quickly summarize:
 
 1. The choice of :math:`s_j` is quite important (unlike regular integrals).
    The `Itô integral <https://en.wikipedia.org/wiki/Stochastic_calculus#It%C3%B4_integral>`__ 
@@ -1333,7 +1335,7 @@ a few things as you might expect:
     We'll notice that this *almost* looks like the result from calculus i.e., 
     :math:`\int x dx = \frac{x^2}{2}`, except with an extra term.  As we saw
     above the extra term comes in precisely because we have non-zero quadratic
-    variation.  If the Wiener process had a continuous differentiable paths, then
+    variation.  If the Wiener process had continuous differentiable paths, then
     we wouldn't need all this extra work with stochastic integrals.
 
     .. raw:: html
@@ -1364,8 +1366,8 @@ a few things as you might expect:
 
     What we see here is that the Stratonovich integral actually follows our
     regular rules of calculus more closely, which is the reason it's used
-    in certain domains.  However in many domains, such as finance, it is not
-    appropriate to use it.  This is because the integrand represents a decision
+    in certain domains.  However in many domains such as finance, it is not
+    appropriate.  This is because the integrand represents a decision
     we are making for a time interval :math:`[t_j, t_{j+1}]`, such as a
     position in an asset, and we have to decide that *before* that interval starts,
     not mid-way through.  That's analogous to deciding in the middle of the day
@@ -2144,19 +2146,19 @@ Cantor's original `diagonalization argument <https://en.wikipedia.org/wiki/Canto
 actually used a variation of this sample space (with :math:`\{0, 1\}`'s), and
 the proof is relatively intuitive.  
 In any case, this complicates things because a lot of our intuition falls apart
-when we work with infinites, and especially with infinities the cardinality of the
+when we work with infinites, and especially with infinities that have the cardinality of the
 real numbers.
 
 *(This construction was taken from [1], which is a dense, but informative reference for all the topics in this post.)*
 
 Now we will construct the event space (:math:`\sigma`-algebra) and probability
 measure for the Bernoulli process.  We'll do it iteratively.  First, let's define
-:math:`P(\emptyset) = 0` and :math:`P(\Sigma) = 1`, and the corresponding (trivial)
+:math:`P(\emptyset) = 0` and :math:`P(\Omega) = 1`, and the corresponding (trivial)
 event space: 
 
 .. math::
 
-    \mathcal{F}_0 = \{\emptyset, \Sigma\} \tag{A.1}
+    \mathcal{F}_0 = \{\emptyset, \Omega\} \tag{A.1}
   
 Notice that :math:`\mathcal{F}_0` is a :math:`\sigma`-algebra.  Next, let's
 define two sets: 
@@ -2175,7 +2177,7 @@ this defines another :math:`\sigma`-algebra:
 
 .. math::
 
-    \mathcal{F}_1 = \{\emptyset, \Sigma, A_H, A_T\} \tag{A.3}
+    \mathcal{F}_1 = \{\emptyset, \Omega, A_H, A_T\} \tag{A.3}
 
 We can repeat this process again but for the first two tosses, define sets:
 
@@ -2199,14 +2201,14 @@ are disjoint.  These 16 sets define our next :math:`\sigma`-algebra:
 .. math::
 
     \mathcal{F}_2 = \left. \begin{cases}
-            \emptyset, \Sigma, A_H, A_T, A_{HH}, A_{HT}, A_{TH}, A_{TT}, A_{HH}^c, A_{HT}^c, A_{TH}^c, A_{TT}^c \\
+            \emptyset, \Omega, A_H, A_T, A_{HH}, A_{HT}, A_{TH}, A_{TT}, A_{HH}^c, A_{HT}^c, A_{TH}^c, A_{TT}^c \\
             A_{HH} \bigcup A_{TH}, A_{HH} \bigcup A_{TT}, A_{HT} \bigcup A_{TH}, A_{HT} \bigcup A_{TT}
         \end{cases} \right\} \tag{A.5}
 
 As you can imagine, we can continue this process and define the probability (and associated 
 :math:`\sigma`-algebra) for every set in terms of finitely many tosses.  Let's call
 this set :math:`\mathcal{F}_\infty`, which contains all of the sets that can be described
-by finitely many coin tosses using the procedure above, and then adding in all the
+by *any number* of finitely many coin tosses using the procedure above, and then adding in all the
 other ones using the compliment or union operator.  This turns out to be precisely
 the :math:`\sigma`-algebra of the Bernoulli process.  And by the construction, 
 we also have defined the associated probability measure for each one of the events
