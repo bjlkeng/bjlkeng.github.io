@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sun, 24 Apr 2022 01:03:06 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Normalizing Flows with Real NVP</title><link>http://bjlkeng.github.io/posts/normalizing-flows-with-real-nvp/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post has been a long time coming.  I originally started working on it several posts back but
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Mon, 12 Sep 2022 02:13:22 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>An Introduction to Stochastic Calculus</title><link>http://bjlkeng.github.io/posts/an-introduction-to-stochastic-calculus/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Through a couple of different avenues I wandered, yet again, down a rabbit hole
+leading to the topic of this post.  The first avenue was through my main focus
+on a particular machine learning topic that utilized some concepts from
+physics, which naturally led me to stochastic calculus.  The second avenue was
+through some projects at work in the quantitative finance space, which is one
+of the main applications of stochastic calculus.  Naively, I thought I could
+write a brief post on it that would satisfy my curiosity -- that didn't work
+out at all! The result is this extra long post.&lt;/p&gt;
+&lt;p&gt;This post is about stochastic calculus, an extension of regular calculus to
+stochastic processes.  It's not immediately obvious
+but the rigour needed to properly understand some of the key ideas requires
+going back to the measure theoretic definition of probability theory, so
+that's where I start in the background. From there I quickly move on to
+stochastic processes, the Wiener process, a particular flavour of stochastic
+calculus called Itô calculus, and finally end with a couple of applications.
+As usual, I try to include a mix of intuition, rigour where it helps intuition,
+and some simple examples.  It's a deep and wide topic so I hope you enjoy my
+digest of it.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/an-introduction-to-stochastic-calculus/"&gt;Read more…&lt;/a&gt; (72 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Black-Scholes-Merton</category><category>Brownian motion</category><category>Langevin</category><category>mathjax</category><category>measure theory</category><category>probability</category><category>sigma algebra</category><category>stochastic calculus</category><category>Weiner process</category><category>white noise</category><guid>http://bjlkeng.github.io/posts/an-introduction-to-stochastic-calculus/</guid><pubDate>Mon, 12 Sep 2022 01:05:55 GMT</pubDate></item><item><title>Normalizing Flows with Real NVP</title><link>http://bjlkeng.github.io/posts/normalizing-flows-with-real-nvp/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;This post has been a long time coming.  I originally started working on it several posts back but
 hit a roadblock in the implementation and then got distracted with some other ideas, which took
 me down various rabbit holes (&lt;a class="reference external" href="http://bjlkeng.github.io/posts/hamiltonian-monte-carlo/"&gt;here&lt;/a&gt;,
 &lt;a class="reference external" href="http://bjlkeng.github.io/posts/lossless-compression-with-asymmetric-numeral-systems/"&gt;here&lt;/a&gt;, and
@@ -153,16 +171,4 @@ Classification through Label Progression&lt;/a&gt;.
 The title pretty much says it all but I'll also discuss some intuition and show
 some experiments on the CIFAR10 and SVHN datasets.  The idea is both simple and
 surprising, my favourite kind of idea!  Let's take a look.&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/label-refinery/"&gt;Read more…&lt;/a&gt; (10 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>CIFAR10</category><category>label refinery</category><category>mathjax</category><category>residual networks</category><category>svhn</category><guid>http://bjlkeng.github.io/posts/label-refinery/</guid><pubDate>Tue, 04 Sep 2018 11:26:02 GMT</pubDate></item><item><title>Universal ResNet: The One-Neuron Approximator</title><link>http://bjlkeng.github.io/posts/universal-resnet-the-one-neuron-approximator/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;&lt;em&gt;"In theory, theory and practice are the same. In practice, they are not."&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;I read a very interesting paper titled &lt;em&gt;ResNet with one-neuron hidden layers is
-a Universal Approximator&lt;/em&gt; by Lin and Jegelka [1].
-The paper describes a simplified Residual Network as a universal approximator,
-giving some theoretical backing to the wildly successful ResNet architecture.
-In this post, I'm going to talk about this paper and a few of the related
-universal approximation theorems for neural networks.
-Instead of going through all the theoretical stuff, I'm simply going introduce
-some theorems and play around with some toy datasets to see if we can get close
-to the theoretical limits.&lt;/p&gt;
-&lt;p&gt;(You might also want to checkout my previous post where I played around with
-ResNets: &lt;a class="reference external" href="http://bjlkeng.github.io/posts/residual-networks/"&gt;Residual Networks&lt;/a&gt;)&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/universal-resnet-the-one-neuron-approximator/"&gt;Read more…&lt;/a&gt; (11 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>hidden layers</category><category>mathjax</category><category>neural networks</category><category>residual networks</category><category>ResNet</category><category>universal approximator</category><guid>http://bjlkeng.github.io/posts/universal-resnet-the-one-neuron-approximator/</guid><pubDate>Fri, 03 Aug 2018 12:03:28 GMT</pubDate></item></channel></rss>
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/label-refinery/"&gt;Read more…&lt;/a&gt; (10 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>CIFAR10</category><category>label refinery</category><category>mathjax</category><category>residual networks</category><category>svhn</category><guid>http://bjlkeng.github.io/posts/label-refinery/</guid><pubDate>Tue, 04 Sep 2018 11:26:02 GMT</pubDate></item></channel></rss>

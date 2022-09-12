@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about measure theory)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/measure-theory.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Mon, 12 Sep 2022 02:13:23 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>An Introduction to Stochastic Calculus</title><link>http://bjlkeng.github.io/posts/an-introduction-to-stochastic-calculus/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Through a couple of different avenues I wandered, yet again, down a rabbit hole
+leading to the topic of this post.  The first avenue was through my main focus
+on a particular machine learning topic that utilized some concepts from
+physics, which naturally led me to stochastic calculus.  The second avenue was
+through some projects at work in the quantitative finance space, which is one
+of the main applications of stochastic calculus.  Naively, I thought I could
+write a brief post on it that would satisfy my curiosity -- that didn't work
+out at all! The result is this extra long post.&lt;/p&gt;
+&lt;p&gt;This post is about stochastic calculus, an extension of regular calculus to
+stochastic processes.  It's not immediately obvious
+but the rigour needed to properly understand some of the key ideas requires
+going back to the measure theoretic definition of probability theory, so
+that's where I start in the background. From there I quickly move on to
+stochastic processes, the Wiener process, a particular flavour of stochastic
+calculus called Itô calculus, and finally end with a couple of applications.
+As usual, I try to include a mix of intuition, rigour where it helps intuition,
+and some simple examples.  It's a deep and wide topic so I hope you enjoy my
+digest of it.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/an-introduction-to-stochastic-calculus/"&gt;Read more…&lt;/a&gt; (72 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Black-Scholes-Merton</category><category>Brownian motion</category><category>Langevin</category><category>mathjax</category><category>measure theory</category><category>probability</category><category>sigma algebra</category><category>stochastic calculus</category><category>Weiner process</category><category>white noise</category><guid>http://bjlkeng.github.io/posts/an-introduction-to-stochastic-calculus/</guid><pubDate>Mon, 12 Sep 2022 01:05:55 GMT</pubDate></item></channel></rss>

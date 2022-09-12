@@ -27,6 +27,7 @@ MathJax.Hub.Config({
 });
 </script><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Brian Keng">
 <link rel="prev" href="../hamiltonian-monte-carlo/" title="Hamiltonian Monte Carlo" type="text/html">
+<link rel="next" href="../an-introduction-to-stochastic-calculus/" title="An Introduction to Stochastic Calculus" type="text/html">
 <meta property="og:site_name" content="Bounded Rationality">
 <meta property="og:title" content="Normalizing Flows with Real NVP">
 <meta property="og:url" content="http://bjlkeng.github.io/posts/normalizing-flows-with-real-nvp/">
@@ -320,7 +321,7 @@ then <span class="math">\(x_3|x_2,x_1\)</span>, and so on.  Of course, this impl
 would have the CDF of each of those distributions available, which
 practically might not be possible.</p>
 </div>
-<p>The next thing we need is to review is how to <a class="reference external" href="https://en.wikipedia.org/wiki/Probability_density_function#Densities_associated_with_multiple_variables">change variables of probability density functions</a>.
+<p>The next thing we need is to review is how to <a class="reference external" href="https://en.wikipedia.org/wiki/Probability_density_function#Function_of_random_variables_and_change_of_variables_in_the_probability_density_function">change variables of probability density functions</a>.
 Given continuous n-dimensional random variable <span class="math">\(Z\)</span> with joint density <span class="math">\(p_Z\)</span>
 and a bijective (i.e. invertible) differentiable function <span class="math">\(g\)</span>, let <span class="math">\(X=g(Z)\)</span>,
 then <span class="math">\(p_X\)</span> is defined by:</p>
@@ -970,7 +971,7 @@ some time to implement and write them up.  Until next time!</p>
 <h2><a class="toc-backref" href="#id19"><span class="sectnum">7</span> Further Reading</a></h2>
 <ul class="simple">
 <li><p>Previous posts: <a class="reference external" href="#">A Note on Using Log-Likelihood for Generative Models</a></p></li>
-<li><p>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Latent_variable_model">Latent Variable Model</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Probability_density_function#Vector_to_vector">Probabilify Density Function</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Inverse_transform_sampling">Inverse Transform Sampling</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Probability_integral_transform">Probability Integral Transform</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Probability_density_function#Densities_associated_with_multiple_variables">Change of Variables in the Probability Density Function</a></p></li>
+<li><p>Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Latent_variable_model">Latent Variable Model</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Probability_density_function">Probability Density Function</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Inverse_transform_sampling">Inverse Transform Sampling</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Probability_integral_transform">Probability Integral Transform</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Probability_density_function#Function_of_random_variables_and_change_of_variables_in_the_probability_density_function">Change of Variables in the Probability Density Function</a></p></li>
 <li><p>[1] Dinh, Sohl-Dickstein, Bengio, Density Estimation using Real NVP, <a class="reference external" href="https://arxiv.org/abs/1605.08803">arXiv:1605.08803</a>, 2016</p></li>
 <li><p>[2] Stanford CS236 Class Notes, <a class="reference external" href="https://deepgenerativemodels.github.io/notes/flow/">https://deepgenerativemodels.github.io/notes/flow/</a></p></li>
 </ul>
@@ -997,6 +998,9 @@ some time to implement and write them up.  Until next time!</p>
 <ul class="pager hidden-print">
 <li class="previous">
                 <a href="../hamiltonian-monte-carlo/" rel="prev" title="Hamiltonian Monte Carlo">Previous post</a>
+            </li>
+            <li class="next">
+                <a href="../an-introduction-to-stochastic-calculus/" rel="next" title="An Introduction to Stochastic Calculus">Next post</a>
             </li>
         </ul></nav></aside><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha384-3lJUsx1TJHt7BA4udB5KPnDrlkO8T6J6v/op7ui0BbCjvZ9WqV4Xm6DTP6kQ/iBH" crossorigin="anonymous"></script><script type="text/x-mathjax-config">
 MathJax.Hub.Config({
