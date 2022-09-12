@@ -499,7 +499,7 @@ which basically is just computing the inverse of each layer in reverse order.
     For images in particular, many datasets will scale the pixel values
     to be between :math:`[0, 1]` from the original domain of :math:`[0, 255]`
     (or :math:`[0, 256]` with uniform noise; see 
-    `my previous post <link://a-note-on-using-log-likelihood-for-generative-models>`__).
+    `my previous post <link://slug/a-note-on-using-log-likelihood-for-generative-models>`__).
     This translates to a per-pixel scaling of :math:`h(x) = \frac{x}{255}`.  Since each
     pixel is independently scaled, this corresponds to a diagonal Jacobian:
     :math:`\frac{1}{255} I` where :math:`I` is the identify matrix, resulting in a simple
@@ -739,7 +739,7 @@ important in implementing Real NVP without much effort put in to organize it.
   decided that I should spend time figuring out why this was happening.
 * I was able to do some nice debugging of the inverse network just by passing an input
   forward and then back again, and seeing if I got the same value (modulo uniform
-  noise, see `my previous post <link://a-note-on-using-log-likelihood-for-generative-models>`__
+  noise, see `my previous post <link://slug/a-note-on-using-log-likelihood-for-generative-models>`__
   for more details).
 * The regularizer on the scale learned parameter for :math:`s` didn't seem to do
   much.  When I output the contributions to loss, it's always several orders of
@@ -910,7 +910,7 @@ some time to implement and write them up.  Until next time!
 Further Reading
 ===============
 
-* Previous posts: `A Note on Using Log-Likelihood for Generative Models <link://a-note-on-using-log-likelihood-for-generative-models>`__
+* Previous posts: `A Note on Using Log-Likelihood for Generative Models <link://slug/a-note-on-using-log-likelihood-for-generative-models>`__
 * Wikipedia: `Latent Variable Model <https://en.wikipedia.org/wiki/Latent_variable_model>`__, `Probability Density Function <https://en.wikipedia.org/wiki/Probability_density_function>`__, `Inverse Transform Sampling <https://en.wikipedia.org/wiki/Inverse_transform_sampling>`__, `Probability Integral Transform <https://en.wikipedia.org/wiki/Probability_integral_transform>`__, `Change of Variables in the Probability Density Function <https://en.wikipedia.org/wiki/Probability_density_function#Function_of_random_variables_and_change_of_variables_in_the_probability_density_function>`__
 * [1] Dinh, Sohl-Dickstein, Bengio, Density Estimation using Real NVP, `arXiv:1605.08803 <https://arxiv.org/abs/1605.08803>`__, 2016
 * [2] Stanford CS236 Class Notes, `<https://deepgenerativemodels.github.io/notes/flow/>`__
