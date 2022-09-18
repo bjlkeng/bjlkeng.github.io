@@ -675,9 +675,9 @@ div.figure > a > img {
 }
 
 blockquote p, blockquote {
-  font-size: 1.25rem;
+  font-size: 1.00rem;
   font-weight: 300;
-  line-height: 1.25;
+  line-height: 1.00;
 }
 
 ul.bricks > li {

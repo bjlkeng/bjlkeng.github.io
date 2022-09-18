@@ -105,7 +105,7 @@ one dimensional line segment.
   :align: center
 
   Figure 1: A circle is a one-dimensional manifold embedded in two dimensions
-  where each arc of the circle is locally resembles a line segment (source: Wikipedia).
+  where each arc of the circle locally resembles a line segment (source: Wikipedia).
 
 Of course, there is a much more 
 `precise definition <https://en.wikipedia.org/wiki/Topological_manifold#Formal_definition>`__ 
