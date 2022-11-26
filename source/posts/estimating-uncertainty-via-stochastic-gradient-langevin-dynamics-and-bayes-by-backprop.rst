@@ -7,7 +7,26 @@
 .. description: 
 .. type: text
 
-Write your post here.
+After a long digression, I'm finally back to one of the main lines of research
+that I wanted to write about.  The two main ideas in this post are not that
+recent but have been quite impactful (one of the 
+`papers <https://icml.cc/virtual/2021/test-of-time/11808>`__ won a recent ICML
+test of time award).  They address two of the topics that are near and dear to
+my heart: Bayesian learning and scalability.  I dare ask wouldn't be interested
+in the intersection of such topics?  In any case, I hope you enjoy my
+explanation of it.
+
+This post is about two techniques to perform scalable Bayesian inference.  They
+both address the problem using stochastic gradient descent (SGD) but in very
+different ways.  One leverages the observation that SGD plus some noise will
+converge to Bayesian posterior sampling [Welling2011]_, while the other generalizes the
+"reparameterization trick" from variational autoencoders to enable non-Gaussian
+posterior approximations [Blundell2015]_.  Both are easily implemented in the modern deep
+learning toolkit thus benefit from the massive scalability of that toolchain.
+As usual, I go over the necessary background (or refer you to my previous
+posts), intuition, some math, and a couple of toy examples that I implemented.
+
+
 
 .. TEASER_END
 .. section-numbering::
@@ -29,11 +48,109 @@ Write your post here.
 Motivation
 ==========
 
+Bayesian learning is all about learning the `posterior <https://en.wikipedia.org/wiki/Posterior_probability>`__ 
+distribution of the statistical parameters of your model, which in turns allows
+you to quantify the uncertainty about them.  The classic place to start is with
+Bayes theorem:
+
+.. math::
+
+   p({\bf \theta}|{\bf x}) &= \frac{p({\bf x}|{\bf \theta})p({\bf \theta})}{p({\bf x})} \\
+                           &= \text{const}\cdot p({\bf x}|{\bf \theta})p({\bf \theta}) \\
+                           &= \text{const}\cdot \text{likelihood} \cdot \text{prior} \\
+                           \tag{1}
+
+where :math:`{\bf x}` is a vector of data points (often 
+`IID <https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables>`__)
+and :math:`{\bf \theta}` is the vector of statistical parameters of your model.
+
+Generally, there is no closed form and you have to resort to heavy methods such
+as Markov Chain Monte Carlo (MCMC) methods or some form of approximation (which
+we'll get to later).  MCMC never give you an exact closed form but instead give
+you either samples from the posterior distribution, which you can use then use
+to compute any statistics you like.  These methods are quite slow because they
+rely on `Monte Carlo <https://en.wikipedia.org/wiki/Monte_Carlo_method>`__
+methods, which require repeated random sampling. 
+
+This brings us to our first scalability problem Bayesian learning: it does not
+scale well with the number of parameters.  Randomly sampling with MCMC implies
+that you have to "walk" the parameter space, which potentially grows
+exponentially with the number of parameters.  There are many techniques to make
+this more efficient but ultimately it's hard to compensate for an exponential.
+The natural model for this situation is neural networks which can have orders
+of magnitude more parameters compared to classic Bayesian learning problems
+(I'll also add that the use-case of the posterior is usually different too).
+
+The other non-obvious scalability issue with MCMC from Equation 1 is the data.
+Each evaluation of MCMC requires an evaluation of the likelihood and prior from
+Equation 1.  For large data (e.g. modern deep learning datasets), you quickly
+hit issues either with memory and/or computation speed.
+
+Modern deep learning has really solved both of these problems by leveraging the
+one of the simplest optimization method out there (stochastic gradient descent)
+along with the massive compute power of modern hardware (and its associated
+toolchain).  How can we leverage these developments to scale Bayesian learning?
+Keep reading to found out!
+
+Background
+==========
+
+Hierarchical Models
+-------------------
+
+- Bayes formula
+- Hierarchical models (use a classic one?)
+
+Markov Chain Monte Carlo and Langevin Dynamics
+----------------------------------------------
+- Metropolis Hastings
+- Langevin Dynamics
+- HMC?
+- LMC
+
+Stochastic Gradient Descent and RMSProp
+---------------------------------------
+
+- SGD
+- SGD guarantees
+- RMSProp 
+
+Variational Inference
+---------------------
+
+- VI, q-approx function
+- ELBO
+- Reparameterization trick
+
+Stochastic Gradient Langevin Dynamics 
+=====================================
+
+- Explain intuition
+- Proof of correctness
+
+Bayes by Backprop
+=================
+
+- Used in neural networks
+- Still uses VI
+
+Experiments
+===========
+
+Simple Gaussian Mixture
+-----------------------
+
+Stochastic Volatility Model
+---------------------------
+
+Conclusion
+==========
 
 References
 ==========
-* Wikipedia: 
-* [1] Max Welling and Yee Whye Teh, "`Bayesian Learning via Stochastic Gradient Langevin Dynamics <https://www.stats.ox.ac.uk/~teh/research/compstats/WelTeh2011a.pdf>`__", ICML 2011.
-* [2] Blundell et. al, "`Weight Uncertainty in Neural Networks <https://arxiv.org/abs/1505.05424>`__", ICML 2015.
-* [3] Li et. al, "`Preconditioned Stochastic Gradient Langevin Dynamics for Deep Neural Networks <https://arxiv.org/abs/1512.07666>`__", AAAI 2016.
-* [4] Yi-An Ma, Tianqi Chen, Emily B. Fox, "`A Complete Recipe for Stochastic Gradient MCMC <https://arxiv.org/abs/1506.04696>`__", NIPS 2015.
+* Wikipedia: test 1
+
+.. [Welling2011] Max Welling and Yee Whye Teh, "`Bayesian Learning via Stochastic Gradient Langevin Dynamics <https://www.stats.ox.ac.uk/~teh/research/compstats/WelTeh2011a.pdf>`__", ICML 2011.
+.. [Blundell2015] Blundell et. al, "`Weight Uncertainty in Neural Networks <https://arxiv.org/abs/1505.05424>`__", ICML 2015.
+.. [Li] Li et. al, "`Preconditioned Stochastic Gradient Langevin Dynamics for Deep Neural Networks <https://arxiv.org/abs/1512.07666>`__", AAAI 2016.
+.. [Ma] Yi-An Ma, Tianqi Chen, Emily B. Fox, "`A Complete Recipe for Stochastic Gradient MCMC <https://arxiv.org/abs/1506.04696>`__", NIPS 2015.
