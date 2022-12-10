@@ -175,8 +175,8 @@ representation in a particular basis.
     .. math::
 
         \text{rotation matrix} 
-        = \begin{bmatrix} cos(\frac{\pi}{2}) & -sin(\frac{\pi}{2}) \\ 
-                        sin(\frac{\pi}{2}) & cos(\frac{\pi}{2}) \end{bmatrix}
+        = \begin{bmatrix} cos(\frac{\pi}{4}) & -sin(\frac{\pi}{4}) \\ 
+                        sin(\frac{\pi}{4}) & cos(\frac{\pi}{4}) \end{bmatrix}
         = \begin{bmatrix} \frac{1}{\sqrt{2}} & -\frac{1}{\sqrt{2}} \\ 
                           \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}}  \end{bmatrix} \\
         \tag{5}
