@@ -95,11 +95,28 @@ Keep reading to found out!
 Background
 ==========
 
-Hierarchical Models
--------------------
+Bayesian Hierarchical Models
+----------------------------
 
-- Bayes formula
-- Hierarchical models (use a classic one?)
+For those who are deeply familiar with Bayesian modeling, we can take the idea
+of parameters and prior to multiple levels.  Equation 1 implicitly assumes 
+that there is one "level" of parameters (:math:`\theta`) that we're trying to
+estimate with prior distributions (:math:`p({\bf \theta})`) attached to them,
+but there's not reason why you only need a single level.  In fact, our parameters
+can be conditioned on parameters, which can be conditioned on parameters, and so on.
+This is called `Bayesian hierarchical modeling <https://en.wikipedia.org/wiki/Bayesian_hierarchical_modeling>`__ 
+(which is the same thing as a `Bayesian network <https://en.wikipedia.org/wiki/Bayesian_network#Graphical_model>`__ but in a
+different context).
+
+Two important terms that allow us to talk about multi-level priors:
+
+* **Hyperparameters**: parameters of a prior distribution at any level
+* **Hyperpriors**: distributions on those hyperparameters (at any level)
+   
+.. admonition:: Example 1: Hierarchical Model
+
+   ()
+
 
 Markov Chain Monte Carlo and Langevin Dynamics
 ----------------------------------------------
