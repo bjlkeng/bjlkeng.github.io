@@ -95,24 +95,50 @@ Keep reading to found out!
 Background
 ==========
 
-Bayesian Hierarchical Models
-----------------------------
+Bayesian Hierarchical Models and Bayesian Networks
+--------------------------------------------------
 
-For those who are deeply familiar with Bayesian modeling, we can take the idea
-of parameters and prior to multiple levels.  Equation 1 implicitly assumes 
-that there is one "level" of parameters (:math:`\theta`) that we're trying to
-estimate with prior distributions (:math:`p({\bf \theta})`) attached to them,
-but there's not reason why you only need a single level.  In fact, our parameters
-can be conditioned on parameters, which can be conditioned on parameters, and so on.
-This is called `Bayesian hierarchical modeling <https://en.wikipedia.org/wiki/Bayesian_hierarchical_modeling>`__ 
-(which is the same thing as a `Bayesian network <https://en.wikipedia.org/wiki/Bayesian_network#Graphical_model>`__ but in a
-different context).
+We can take the idea of parameters and prior from Equation 1 to multiple
+levels.  Equation 1 implicitly assumes that there is one "level" of parameters
+(:math:`\theta`) that we're trying to estimate with prior distributions
+(:math:`p({\bf \theta})`) attached to them, but there's no reason why you only
+need a single level.  In fact, our parameters can be conditioned on parameters,
+which can be conditioned on parameters, and so on.  
+This is called `Bayesian hierarchical modeling <https://en.wikipedia.org/wiki/Bayesian_hierarchical_modeling>`__.
+If this sounds oddly familiar, it's the same thing as `Bayesian networks
+<https://en.wikipedia.org/wiki/Bayesian_network#Graphical_model>`__ in a different context (if you're
+familiar with that).  My `previous post <link://slug/the-expectation-maximization-algorithm>` that gives a nice high
+level summary on the intuition with latent variables.
 
-Two important terms that allow us to talk about multi-level priors:
+To quickly summarize, in a parameterized statistical model there are broadly
+two types of variables: observed and unobserved.  Observed are the ones
+where we have values for often with multiple observations where we assume
+they are `IID <https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables>`__.
 
-* **Hyperparameters**: parameters of a prior distribution at any level
-* **Hyperpriors**: distributions on those hyperparameters (at any level)
-   
+Unobserved variables can have different names. In Bayesian networks they
+are usually called latent or hidden (random) variables, which can have 
+complex conditional dependencies specified as a DAG.  In hierarchical models
+they are called **hyperparameters**, which are the parameters of the 
+observed models, the parameters of parameters, parameters of parameters of
+parameters and so on.  Similarly, each of these hyperparameters has a 
+distribution which we call a **hyperprior**.  
+
+These two concepts are mathematically the same and from what I gather really
+on vary based on the context.  In the context of hierarchical models,
+the hyperparameters and hyperpriors represent some structural knowledge
+about the problem, hence of the use of term "priors".  This view is more
+typical in terms of Bayesian statistics where the number of stages (and thus
+variables) is usually small (two or three).
+
+In Bayesian networks, the latent variables can represent the underlying
+phenomenon but also can be artificially introduced to make the problem more
+tractable.  This happens more often in machine learning e.g. `variational
+autoencoders <link://slug/variational-autoencoders>`__.  In these contexts,
+they are often modeling a much bigger network and can have arbitrarily larger
+stages and network size.  With varying assumptions on the latent variables and
+their connectivity, there are many efficient algorithms that can perform either
+approximate or exact inference on them.
+
 .. admonition:: Example 1: Hierarchical Model
 
    ()
