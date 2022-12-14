@@ -95,7 +95,7 @@ Keep reading to found out!
 Background
 ==========
 
-Bayesian Hierarchical Models and Bayesian Networks
+Bayesian Networks and Bayesian Hierarchical Models
 --------------------------------------------------
 
 We can take the idea of parameters and prior from Equation 1 to multiple
@@ -107,7 +107,7 @@ which can be conditioned on parameters, and so on.
 This is called `Bayesian hierarchical modeling <https://en.wikipedia.org/wiki/Bayesian_hierarchical_modeling>`__.
 If this sounds oddly familiar, it's the same thing as `Bayesian networks
 <https://en.wikipedia.org/wiki/Bayesian_network#Graphical_model>`__ in a different context (if you're
-familiar with that).  My `previous post <link://slug/the-expectation-maximization-algorithm>` that gives a nice high
+familiar with that).  My `previous post <link://slug/the-expectation-maximization-algorithm>`__ that gives a nice high
 level summary on the intuition with latent variables.
 
 To quickly summarize, in a parameterized statistical model there are broadly
@@ -126,9 +126,13 @@ distribution which we call a **hyperprior**.
 These two concepts are mathematically the same and from what I gather really
 on vary based on the context.  In the context of hierarchical models,
 the hyperparameters and hyperpriors represent some structural knowledge
-about the problem, hence of the use of term "priors".  This view is more
-typical in terms of Bayesian statistics where the number of stages (and thus
-variables) is usually small (two or three).
+about the problem, hence of the use of term "priors".  The data is typically
+believed to appear in hierarchical "clusters" that share similar attributes
+(i.e., drawn from the same distribution).  This view is more typical in
+Bayesian statistics applications where the number of stages (and thus
+variables) is usually small (two or three).  If terms such as 
+`fixed or random effects models <https://en.wikipedia.org/wiki/Multilevel_model>`__, 
+ring a bell, then this framing will make much more sense.
 
 In Bayesian networks, the latent variables can represent the underlying
 phenomenon but also can be artificially introduced to make the problem more
@@ -137,19 +141,98 @@ autoencoders <link://slug/variational-autoencoders>`__.  In these contexts,
 they are often modeling a much bigger network and can have arbitrarily larger
 stages and network size.  With varying assumptions on the latent variables and
 their connectivity, there are many efficient algorithms that can perform either
-approximate or exact inference on them.
-
-.. admonition:: Example 1: Hierarchical Model
-
-   ()
+approximate or exact inference on them.  Most applications in ML seem to follow
+the Bayesian networks nomenclature since its context is more general.  We'll
+stick with this framing since most of the sources will think about it this way.
 
 
-Markov Chain Monte Carlo and Langevin Dynamics
-----------------------------------------------
-- Metropolis Hastings
-- Langevin Dynamics
-- HMC?
-- LMC
+Markov Chain Monte Carlo and Hamiltonian Monte Carlo
+----------------------------------------------------
+
+This subsection gives a brief introduction Monte Carlo Markov Chains (MCMC) and
+Hamiltonian Monte Carlo.  I've written about both
+`here <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__ 
+and `here <hamiltonian-monte-carlo>`__ if you want the nitty gritty details
+(and better intuition).
+
+`MCMC <https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo>`__ methods are a
+class of algorithm for sampling from a target probability distribution 
+(e.g., posterior distribution).  The most basic algorithm is relatively simple,
+starting from a given point:
+
+1. Propose a new point (state)
+2. Accept this new point (state), and transition to it with some probability calculated using
+   the target distribution (or some function proportional to it).  Otherwise,
+   stay at the current point (state).
+3. Repeat steps 1 and 2, and periodically output the current point (state)
+
+Many MCMC algorithms follow this general framework.  The key is ensuring
+that the proposal and the acceptance probability define a Markov chain such
+that the stationary distribution (i.e., steady state) is the same as your
+target distribution.  See my previous post on `MCMC <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__ for more details.
+
+Two additional complications.  The first complication is that your initial
+state may be in some weird region that causes the algorithm to explore parts of
+the state space that are low probability.  To solve this, you can perform
+"burn-in" by starting the algorithm and throwing away a bunch of the initial
+states to have a higher change to be in a more "normal" region of the state
+space.  The other complication is that sequential samples will be correlated,
+but ideally you want independent samples.  Thus (as specified in the steps
+above), we only output the current state as a sample periodically to ensure
+that the we have minimal correlation.  A well tuned MCMC algorithm will have
+both a high acceptance rate and little correlation between samples.
+
+`Hamiltonian Monte Carlo <https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo>`__ 
+is a popular MCMC algorithm that has a high acceptance rate with low
+correlation between samples.  It roughly transforms the target probability
+distribution into a physics problem with `Hamiltonian dynamics <https://en.wikipedia.org/wiki/Hamiltonian_mechanics>`__.
+Intuitively, the problem is similar to a frictionless puck moving along a 2D surface.
+The position variables :math:`q` represent the state from our probability
+distribution, and the momentum :math:`p` (equivalently velocity) are a set of
+instrument variables to make the problem work.  For each proposal point, we
+randomly pick a new momentum (and thus energy level of the system) and simulate
+from our current point.  The end point is our new proposal point.
+
+Simulating the associated differential equations of this physical system a
+proposal point that both has a high acceptance rate and is "far away" (thus low
+correlation).  In fact, the acceptance rate would be 100% if it not for the
+fact that we have some discretization error from simulating the differential
+equations.  See my previous post on `HMC <https://en.wikipedia.org/wiki/Hamiltonian_mechanics>`__ for more details.
+
+A common method for simulation of this physics problem uses the "leap frog" method
+where we discretize time and simulate time step-by-step:
+
+.. math::
+
+   p(t+\epsilon/2) &= p(t) - \epsilon/2 \frac{\partial H}{\partial q}(q(t)) \tag{2}\\
+   q(t+\epsilon) &= q(t) + \epsilon \frac{\partial H}{\partial p}(p(t+\epsilon/2)) \tag{3} \\
+   p(t+\epsilon) &= p(t+\epsilon/2) - \epsilon/2 \frac{\partial H}{\partial q}(q(t+\epsilon)) \tag{4}
+
+Where :math:`q(t)` represent the position variables at time :math:`t`,
+:math:`p(t)` similarly represent the momentum variables, :math:`epsilon` 
+is the step size of the discretized simulation, and :math:`H := U(q) + K(p)` 
+is the Hamiltonian, which (in this case) equals the sum of potential energy
+:math:`U(q)` and the kinetic energy :math:`K(p)`.  A key fact is that the partial derivative
+of the Hamiltonian with respect to the position or momentum results in the time derivative
+of the other one:
+
+.. math::
+
+   \frac{\partial H}{\partial p} &= \frac{dq}{dt} \\
+   \frac{\partial H}{\partial q} &= \frac{dp}{dt} \\
+   \tag{5} 
+
+This result is used to derive Hamiltonian dynamics, but we'll also be using it momentarily.
+Once we have a new proposal state :math:`(q^*, p^*)`, we accept the new state
+according to this probability using a 
+`Metropolis-Hasting <https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm>`__ update:
+
+.. math::
+
+       A(q^*, p^*) = \min[1, \exp\big(-U(q^*) + U(q) -K(p^*)+K(p)\big)] \tag{6}
+
+Langevin Monte Carlo
+--------------------
 
 Stochastic Gradient Descent and RMSProp
 ---------------------------------------
@@ -191,7 +274,8 @@ Conclusion
 
 References
 ==========
-* Wikipedia: test 1
+* Wikipedia:
+* Previous posts: `Markov Chain Monte Carlo and the Metropolis Hastings Algorithm  <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__, `Hamiltonian Monte Carlo <hamiltonian-monte-carlo>`__ 
 
 .. [Welling2011] Max Welling and Yee Whye Teh, "`Bayesian Learning via Stochastic Gradient Langevin Dynamics <https://www.stats.ox.ac.uk/~teh/research/compstats/WelTeh2011a.pdf>`__", ICML 2011.
 .. [Blundell2015] Blundell et. al, "`Weight Uncertainty in Neural Networks <https://arxiv.org/abs/1505.05424>`__", ICML 2015.
