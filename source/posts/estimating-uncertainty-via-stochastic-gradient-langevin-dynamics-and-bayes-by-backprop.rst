@@ -204,23 +204,33 @@ where we discretize time and simulate time step-by-step:
 
 .. math::
 
-   p(t+\epsilon/2) &= p(t) - \epsilon/2 \frac{\partial H}{\partial q}(q(t)) \tag{2}\\
-   q(t+\epsilon) &= q(t) + \epsilon \frac{\partial H}{\partial p}(p(t+\epsilon/2)) \tag{3} \\
-   p(t+\epsilon) &= p(t+\epsilon/2) - \epsilon/2 \frac{\partial H}{\partial q}(q(t+\epsilon)) \tag{4}
+   p_i(t+\epsilon/2) &= p_i(t) - \epsilon/2 \frac{\partial H}{\partial q_i}(q(t)) \tag{2}\\
+   q_i(t+\epsilon) &= q_i(t) + \epsilon \frac{\partial H}{\partial p_i}(p(t+\epsilon/2)) \tag{3} \\
+   p_i(t+\epsilon) &= p_i(t+\epsilon/2) - \epsilon/2 \frac{\partial H}{\partial q_i}(q(t+\epsilon)) \tag{4}
 
-Where :math:`q(t)` represent the position variables at time :math:`t`,
-:math:`p(t)` similarly represent the momentum variables, :math:`epsilon` 
-is the step size of the discretized simulation, and :math:`H := U(q) + K(p)` 
-is the Hamiltonian, which (in this case) equals the sum of potential energy
-:math:`U(q)` and the kinetic energy :math:`K(p)`.  A key fact is that the partial derivative
-of the Hamiltonian with respect to the position or momentum results in the time derivative
-of the other one:
+Where :math:`i` is the dimension index, :math:`q(t)` represent the position
+variables at time :math:`t`, :math:`p(t)` similarly represent the momentum
+variables, :math:`epsilon` is the step size of the discretized simulation, and
+:math:`H := U(q) + K(p)` is the Hamiltonian, which (in this case) equals the
+sum of potential energy :math:`U(q)` and the kinetic energy :math:`K(p)`.  The
+potential energy is typically the negative logarithm of the target density up
+to a constant (:math:`f({\bf q})`, and the kinetic energy is usually defined as
+independent zero-mean Gaussians with variances :math:`m_i`:
+
+.. math::
+
+   U({\bf q}) &= -log[f({\bf q})]  \\
+   K({\bf p}) &= \sum_{i=1}^D \frac{p_i^2}{2m_i}  \\
+   \tag{5}
+
+A key fact is that the partial derivative of the Hamiltonian with respect to
+the position or momentum results in the time derivative of the other one:
 
 .. math::
 
    \frac{\partial H}{\partial p} &= \frac{dq}{dt} \\
    \frac{\partial H}{\partial q} &= \frac{dp}{dt} \\
-   \tag{5} 
+   \tag{6} 
 
 This result is used to derive Hamiltonian dynamics, but we'll also be using it momentarily.
 Once we have a new proposal state :math:`(q^*, p^*)`, we accept the new state
@@ -229,10 +239,68 @@ according to this probability using a
 
 .. math::
 
-       A(q^*, p^*) = \min[1, \exp\big(-U(q^*) + U(q) -K(p^*)+K(p)\big)] \tag{6}
+       A(q^*, p^*) = \min[1, \exp\big(-U(q^*) + U(q) -K(p^*)+K(p)\big)] \tag{7}
 
 Langevin Monte Carlo
 --------------------
+
+Langevin Monte Carlo (LMC) [Radford2012]_ is a special case of HMC where we only
+take a *single* step in the simulation to propose a new state (versus multiple
+steps in a typical HMC algorithm).  With some simplification, we will see that
+a new familiar behavior emerges from this special case.
+
+Suppose we define kinetic energy as :math:`K(p) = \frac{1}{2}\sum p_i^2`,
+which is typical for a HMC formulation.  Next, we set our momentum :math:`p` as
+a sample from a zero mean, unit variance Gaussian (still same as HMC). 
+Finally, we run a single step of the leap frog to get new a new proposal state 
+:math:`q^*` and :math:`p^*`.
+
+We only need to focus on the position :math:`q` because we resample the
+:math:`p` on each new proposal state and are only simulating one step so
+:math:`p` gets reset anyways.  Starting from Equation 3:
+
+.. math::
+
+   q_i^* &= q_i(t) + \epsilon \frac{\partial H}{\partial p}(p(t+\epsilon/2))  \\
+       &= q_i(t) + \epsilon \frac{\partial [U(q) + K(p)]}{\partial p}(p(t+\epsilon/2))  \\
+       &= q_i(t) + \epsilon \frac{\partial [U(q) + \frac{1}{2}\sum p_i^2]}{\partial p}(p(t+\epsilon/2))  && \text{Per def. of kinetic energy} \\
+       &= q_i(t) + \epsilon p|_{p=p(t+\epsilon/2)}  \\
+       &= q_i(t) + \epsilon [p(t) - \epsilon/2 \frac{\partial H}{\partial q_i}(q(t))] && \text{Eq. } 2 \\
+       &= q_i(t) + \frac{\epsilon^2}{2} \frac{\partial H}{\partial q_i}(q(t)) + \epsilon p(t) \\
+   \tag{8}
+
+Equation 8 is known in physics as (one type of) Langevin Equation (see box for explanation),
+thus the name Langevin Monte Carlo.
+
+.. admonition:: Langevin's Equation
+
+   Langevin's equation
+
+Now that we have a proposal state (:math:`q^*`), we can view the algorithm
+as running a vanilla Metropolis-Hastings update where the proposal is coming
+from a Gaussian with mean :math:`q_i(t) + \frac{\epsilon^2}{2} \frac{\partial H}{\partial q_i}(q(t))`
+and variance :math:`\epsilon^2` corresponding to Equation 8.
+By eliminating :math:`p` (and the associated :math:`p^*`, not shown here) from
+the original HMC acceptance probability in Equation 7, we can derive the
+following expression:
+
+.. math::
+
+   A(q^*) = \min\big[1, \frac{\exp(-U(q^*))}{\exp(-U(q))} 
+        \Pi_{i=1}^d 
+            \frac{\exp(-(q_i - q_i^* + (\epsilon^2 / 2) [\frac{\partial U}{\partial q_i}](q^*))^2 / 2\epsilon^2)}
+            {\exp(-(q_i^* - q_i + (\epsilon^2 / 2) [\frac{\partial U}{\partial q_i}](q))^2 / 2\epsilon^2)}\big] \\
+    \tag{9}
+
+Even though LMC is derived from HMC, its properties are quite different.
+The movement between states will be a combination of the :math:`\frac{\epsilon^2}{2} \frac{\partial H}{\partial q_i}(q(t))`
+term and the math:`\epsilon p(t)`.  Since :math:`\epsilon` is necessarily
+small (otherwise your simulation will not be accurate), the former term
+will be very small and the latter term will resemble a simple
+Metropolis-Hastings random walk.  The one difference is that LMC
+has better scaling properties when increasing dimensions.  See [Radford2012]_
+for more details.
+
 
 Stochastic Gradient Descent and RMSProp
 ---------------------------------------
@@ -281,3 +349,4 @@ References
 .. [Blundell2015] Blundell et. al, "`Weight Uncertainty in Neural Networks <https://arxiv.org/abs/1505.05424>`__", ICML 2015.
 .. [Li] Li et. al, "`Preconditioned Stochastic Gradient Langevin Dynamics for Deep Neural Networks <https://arxiv.org/abs/1512.07666>`__", AAAI 2016.
 .. [Ma] Yi-An Ma, Tianqi Chen, Emily B. Fox, "`A Complete Recipe for Stochastic Gradient MCMC <https://arxiv.org/abs/1506.04696>`__", NIPS 2015.
+.. [Radford2012] Radford M. Neal, "MCMC Using Hamiltonian dynamics", `arXiv:1206.1901 <https://arxiv.org/abs/1206.1901>`__, 2012.
