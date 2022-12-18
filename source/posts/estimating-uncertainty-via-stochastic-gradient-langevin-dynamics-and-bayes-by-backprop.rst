@@ -204,9 +204,9 @@ where we discretize time and simulate time step-by-step:
 
 .. math::
 
-   p_i(t+\epsilon/2) &= p_i(t) - \epsilon/2 \frac{\partial H}{\partial q_i}(q(t)) \tag{2}\\
+   p_i(t+\epsilon/2) &= p_i(t) - \frac{\epsilon}{2} \frac{\partial H}{\partial q_i}(q(t)) \tag{2}\\
    q_i(t+\epsilon) &= q_i(t) + \epsilon \frac{\partial H}{\partial p_i}(p(t+\epsilon/2)) \tag{3} \\
-   p_i(t+\epsilon) &= p_i(t+\epsilon/2) - \epsilon/2 \frac{\partial H}{\partial q_i}(q(t+\epsilon)) \tag{4}
+   p_i(t+\epsilon) &= p_i(t+\epsilon/2) - \frac{\epsilon}{2} \frac{\partial H}{\partial q_i}(q(t+\epsilon)) \tag{4}
 
 Where :math:`i` is the dimension index, :math:`q(t)` represent the position
 variables at time :math:`t`, :math:`p(t)` similarly represent the momentum
@@ -214,7 +214,7 @@ variables, :math:`epsilon` is the step size of the discretized simulation, and
 :math:`H := U(q) + K(p)` is the Hamiltonian, which (in this case) equals the
 sum of potential energy :math:`U(q)` and the kinetic energy :math:`K(p)`.  The
 potential energy is typically the negative logarithm of the target density up
-to a constant (:math:`f({\bf q})`, and the kinetic energy is usually defined as
+to a constant :math:`f({\bf q})`, and the kinetic energy is usually defined as
 independent zero-mean Gaussians with variances :math:`m_i`:
 
 .. math::
@@ -224,12 +224,13 @@ independent zero-mean Gaussians with variances :math:`m_i`:
    \tag{5}
 
 A key fact is that the partial derivative of the Hamiltonian with respect to
-the position or momentum results in the time derivative of the other one:
+the position or momentum results in the time derivative of the other one,
+which are called *Hamilton's equations*:
 
 .. math::
 
    \frac{\partial H}{\partial p} &= \frac{dq}{dt} \\
-   \frac{\partial H}{\partial q} &= \frac{dp}{dt} \\
+   \frac{\partial H}{\partial q} &= -\frac{dp}{dt} \\
    \tag{6} 
 
 This result is used to derive Hamiltonian dynamics, but we'll also be using it momentarily.
@@ -265,8 +266,8 @@ We only need to focus on the position :math:`q` because we resample the
        &= q_i(t) + \epsilon \frac{\partial [U(q) + K(p)]}{\partial p}(p(t+\epsilon/2))  \\
        &= q_i(t) + \epsilon \frac{\partial [U(q) + \frac{1}{2}\sum p_i^2]}{\partial p}(p(t+\epsilon/2))  && \text{Per def. of kinetic energy} \\
        &= q_i(t) + \epsilon p|_{p=p(t+\epsilon/2)}  \\
-       &= q_i(t) + \epsilon [p(t) - \epsilon/2 \frac{\partial H}{\partial q_i}(q(t))] && \text{Eq. } 2 \\
-       &= q_i(t) + \frac{\epsilon^2}{2} \frac{\partial H}{\partial q_i}(q(t)) + \epsilon p(t) \\
+       &= q_i(t) + \epsilon [p(t) - \frac{\epsilon}{2} \frac{\partial H}{\partial q_i}(q(t))] && \text{Eq. } 2 \\
+       &= q_i(t) - \frac{\epsilon^2}{2} \frac{\partial H}{\partial q_i}(q(t)) + \epsilon p(t) \\
    \tag{8}
 
 Equation 8 is known in physics as (one type of) Langevin Equation (see box for explanation),
@@ -274,11 +275,74 @@ thus the name Langevin Monte Carlo.
 
 .. admonition:: Langevin's Equation
 
-   Langevin's equation
+   *Note: The following was something I put together without looking at the reference
+   in* [Radford2012]_ *because I didn't want to buy that source, nor did I want
+   to physically go to the university library to take the book out.  So use at your
+   own risk!*
+
+   A `Langevin equation <https://en.wikipedia.org/wiki/Langevin_equation>`__ is a
+   well known stochastic differential equation that describes how a system evolves
+   when subjected to a combination of deterministic and fluctuating forces. 
+   The original Langevin equation describes the random movement of a (usually much
+   larger) particle suspended in a fluid due to collisions with the molecules of
+   the fluid:
+   
+   .. math::
+   
+       m\frac{d{\bf v}}{dt} = -\lambda {\bf v} + {\bf \eta}(t) \tag{A.1}
+
+   where :math:`m` is the mass, :math:`\bf v` is the velocity, 
+   :math:`\frac{d{\bf v}}{dt}` is the acceleration (the time derivative of velocity),
+   and :math:`\bf \eta` is a white noise term with zero mean and flat frequency spectrum.
+
+   Equation 8 can be manipulated (if you squint hard enough) to get into a similar form:
+  
+   .. math:: 
+
+       q_i(t+\epsilon) &= q_i(t) - \frac{\epsilon^2}{2} \frac{\partial H}{\partial q_i}(q(t)) + \epsilon p(t) \\
+       q_i(t+\epsilon) - q_i(t) &= -\frac{\epsilon^2}{2} \frac{\partial H}{\partial q_i}(q(t)) + p(t) \\
+       q_i(t+\epsilon) - q_i(t) &= -\frac{\epsilon^2}{2} \frac{\partial H}{\partial q_i}(q(t)) + W^{\epsilon^2}
+            && \text{since } \epsilon p \sim N(0, \epsilon^2) \\
+       q_i(t+\epsilon) - q_i(t) &= \frac{\epsilon^2}{2} \frac{dp}{dt} + W^{\epsilon^2}
+            && \text{Hamilton's Equations, Eq. } 6 \\
+       q_i(t+\epsilon) - q_i(t) &= \frac{\epsilon^2}{2} m\frac{dv}{dt} + W^{\epsilon^2}
+            && p = mv \\
+       \frac{\epsilon^2}{2} m\frac{dv}{dt} &= q_i(t+\epsilon) - q_i(t) - W^{\epsilon^2} \\
+       m_1 \frac{dv}{dt} &= \frac{q_i(t+\epsilon) - q_i(t)}{\epsilon^2} + \frac{W^{\epsilon^2}}{\epsilon^2}
+            && \text{Symmetry of Wiener process; define new constant} m_1 \\
+       m_1 \frac{dv}{dt} &= v + \eta(t)
+            && \epsilon^2 \to 0; \eta := \frac{dW}{dt} \\
+       \tag{A.1}
+
+   Which is pretty much the same as Equation A.1. A few things to explain here:
+
+   * Our momentum :math:`p` is randomly drawn from a standard Gaussian, which is
+     scaled by :math:`\eta^2`.  This is precisely the random variable defined
+     by the Wiener process (denoted by :math:`W^t`) at time :math:`t=\eta^2`.
+   * Hamilton's equations allow us to "convert" the position Hamiltonian to
+     a time derivative involving :math:`p`.  Further, we use linear
+     momentum which defines it as :math:`p=mv` (momentum equals mass times velocity). 
+   * Informally, the time derivative of the Wiener process is :math:`\eta(t)`.
+     Technically, the Wiener process is nowhere differentiable and :math:`\eta(t)`
+     is not actually a function, but it's understood what it means.  See
+     my `post on Stochastic Calculus <link://slug/an-introduction-to-stochastic-calculus>`__ 
+     for more details.
+   * We do a bit of squinting to relabel :math:`\frac{q_i(t+\epsilon) - q_i(t)}{\epsilon^2}`
+     as :math:`\frac{q_i(t+\epsilon^2) - q_i(t)}{\epsilon^2}`, which defines the
+     time derivative as :math:`\epsilon^2 \to 0`, getting us our velocity.
+     This is *probably* okay because q_i(t+\epsilon) is our own definition of
+     discretization (not exactly sure though).
+
+   Even if the above is not exactly correct, Equation A.1 is only *one* of the
+   forms of Langevin equation (although probably the most well known).  There
+   are generalized versions which I think look similar to Equation 8, but I didn't
+   end up digging too deep into it.
+
+
 
 Now that we have a proposal state (:math:`q^*`), we can view the algorithm
 as running a vanilla Metropolis-Hastings update where the proposal is coming
-from a Gaussian with mean :math:`q_i(t) + \frac{\epsilon^2}{2} \frac{\partial H}{\partial q_i}(q(t))`
+from a Gaussian with mean :math:`q_i(t) - \frac{\epsilon^2}{2} \frac{\partial H}{\partial q_i}(q(t))`
 and variance :math:`\epsilon^2` corresponding to Equation 8.
 By eliminating :math:`p` (and the associated :math:`p^*`, not shown here) from
 the original HMC acceptance probability in Equation 7, we can derive the
@@ -300,6 +364,35 @@ will be very small and the latter term will resemble a simple
 Metropolis-Hastings random walk.  The one difference is that LMC
 has better scaling properties when increasing dimensions.  See [Radford2012]_
 for more details.
+
+Finally, we'll want to re-write equation 8 using different notation
+to line up with our usual notation for stochastic gradient descent.
+First, we'll use :math:`\theta` instead of :math:`q` to imply that
+we're sampling from parameters of our model.  Next, we'll
+rewrite the potential energy :math:`U(\theta)` as the likelihood times prior
+(where :math:`x_i` are our observed data points):
+
+.. math::
+
+    U(\theta_t) &= -log[f(\theta_t)] \\
+                &= -\log[p(\theta_t)] - \sum_{i=1}^N \log[p(x_i | \theta_t)] \\
+    \tag{10}
+
+Simplifying our Equation 8, we get:
+
+.. math::
+
+    
+    \theta(t+1) &= \theta(t) - \frac{\epsilon_0^2}{2} \frac{\partial H}{\partial \theta} + \epsilon_0 p(t) \\
+    \theta(t+1) &= \theta(t) - \frac{\epsilon_0^2}{2} \frac{\partial [U(\theta) + K(p)]}{\partial \theta} + \epsilon_0 p(t) \\
+    \theta(t+1) &= \theta(t)- \frac{\epsilon_0^2}{2} \frac{\partial [-\log[p(\theta(t))] - \sum_{i=1}^N \log[p(x_i | \theta(t))]]}{\partial \theta} + \epsilon_0 p(t) && \text{Eq. } 10\\
+    \theta{t+1} - \theta(t) &= \frac{\epsilon_0^2}{2} \big (\nabla \log[p(\theta(t))] + \sum_{i=1}^N \nabla \log[p(x_i | \theta(t))]]\big) + \epsilon_0 p(t) \\
+    \theta{t+1} - \theta(t) &= \frac{\epsilon}{2} \big (\nabla \log[p(\theta(t))] + \sum_{i=1}^N \nabla \log[p(x_i | \theta(t))]]\big) + \sqrt{\epsilon} p(t) && \epsilon := \epsilon_0^2\\
+    \Delta \theta_t &= \frac{\epsilon}{2} \big (\nabla \log[p(\theta(t))] + \sum_{i=1}^N \nabla \log[p(x_i | \theta(t))]]\big) + \varepsilon && \varepsilon \sim N(0, \epsilon) \\
+    \tag{11}
+
+Which looks eerily like gradient descent except that we're adding Gaussian
+noise at the end. Stay tuned!
 
 
 Stochastic Gradient Descent and RMSProp
