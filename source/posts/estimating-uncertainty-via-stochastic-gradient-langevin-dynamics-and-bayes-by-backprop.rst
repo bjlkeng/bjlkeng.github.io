@@ -383,12 +383,12 @@ Simplifying our Equation 8, we get:
 .. math::
 
     
-    \theta(t+1) &= \theta(t) - \frac{\epsilon_0^2}{2} \frac{\partial H}{\partial \theta} + \epsilon_0 p(t) \\
-    \theta(t+1) &= \theta(t) - \frac{\epsilon_0^2}{2} \frac{\partial [U(\theta) + K(p)]}{\partial \theta} + \epsilon_0 p(t) \\
-    \theta(t+1) &= \theta(t)- \frac{\epsilon_0^2}{2} \frac{\partial [-\log[p(\theta(t))] - \sum_{i=1}^N \log[p(x_i | \theta(t))]]}{\partial \theta} + \epsilon_0 p(t) && \text{Eq. } 10\\
-    \theta{t+1} - \theta(t) &= \frac{\epsilon_0^2}{2} \big (\nabla \log[p(\theta(t))] + \sum_{i=1}^N \nabla \log[p(x_i | \theta(t))]]\big) + \epsilon_0 p(t) \\
-    \theta{t+1} - \theta(t) &= \frac{\epsilon}{2} \big (\nabla \log[p(\theta(t))] + \sum_{i=1}^N \nabla \log[p(x_i | \theta(t))]]\big) + \sqrt{\epsilon} p(t) && \epsilon := \epsilon_0^2\\
-    \Delta \theta_t &= \frac{\epsilon}{2} \big (\nabla \log[p(\theta(t))] + \sum_{i=1}^N \nabla \log[p(x_i | \theta(t))]]\big) + \varepsilon && \varepsilon \sim N(0, \epsilon) \\
+    \theta_{t+1} &= \theta_t - \frac{\epsilon_0^2}{2} \frac{\partial H}{\partial \theta} + \epsilon_0 p(t) \\
+    \theta_{t+1} &= \theta_t - \frac{\epsilon_0^2}{2} \frac{\partial [U(\theta) + K(p)]}{\partial \theta} + \epsilon_0 p(t) \\
+    \theta_{t+1} &= \theta_t- \frac{\epsilon_0^2}{2} \frac{\partial [-\log[p(\theta_t)] - \sum_{i=1}^N \log[p(x_i | \theta_t)]]}{\partial \theta} + \epsilon_0 p(t) && \text{Eq. } 10\\
+    \theta_{t+1} - \theta_t &= \frac{\epsilon_0^2}{2} \big (\nabla \log[p(\theta_t)] + \sum_{i=1}^N \nabla \log[p(x_i | \theta_t)]]\big) + \epsilon_0 p(t) \\
+    \theta_{t+1} - \theta_t &= \frac{\epsilon}{2} \big (\nabla \log[p(\theta_t)] + \sum_{i=1}^N \nabla \log[p(x_i | \theta_t)]]\big) + \sqrt{\epsilon} p(t) && \epsilon := \epsilon_0^2\\
+    \Delta \theta_t &= \frac{\epsilon}{2} \big (\nabla \log[p(\theta_t)] + \sum_{i=1}^N \nabla \log[p(x_i | \theta_t)]]\big) + \varepsilon && \varepsilon \sim N(0, \epsilon) \\
     \tag{11}
 
 Which looks eerily like gradient descent except that we're adding Gaussian
@@ -398,9 +398,81 @@ noise at the end. Stay tuned!
 Stochastic Gradient Descent and RMSProp
 ---------------------------------------
 
-- SGD
-- SGD guarantees
-- RMSProp 
+I'll only briefly cover stochastic gradient descent because I'm assuming most
+readers will be very familiar with this algorithm.  
+`Stochastic gradient descent <https://en.wikipedia.org/wiki/Stochastic_gradient_descent>`__ (SGD)
+is an iterative stochastic optimization of gradient descent.  The main difference
+is that it uses a randomly selected subset of the data to estimate gradient at 
+each step.  For a given statistical model with parameters :math:`\theta`,
+log prior :math:`\log p(\theta)`, and log likelihood :math:`\sum_{i=1}^N \log[p(x_i | \theta_t)]]`
+with observed data poits :math:`x_i`, we have:
+
+.. math::
+
+    \Delta \theta_t = \frac{\epsilon_t}{2} \big (\nabla \log[p(\theta_t)] 
+    + \frac{N}{n} \sum_{i=1}^n \nabla \log[p(x_{ti} | \theta_t)]]\big) 
+      \tag{12}
+
+where :math:`\epsilon_t` is a sequence of step sizes, and each iteration :math:`t`
+we have a subset of :math:`n` data points called a *mini-batch*
+:math:`X_t = \{x_{t1}, \ldots, x_{tn}\}`.
+By using an approximate gradient, over many iterations the entire dataset is used
+and the noise in the estimated gradient averages out.  Additionally for large
+datasets where the estimated gradient is accurate enough, this gives significant
+computational savings versus using the whole dataset at each iteration.
+
+Convergence to a local optimum is guaranteed with some mild assumptions combined
+with a major requirement that the step size :math:`\epsilon_t` satisfies:
+
+.. math::
+
+   \sum_{t=1}^\infty \epsilon_t = \infty \hspace{50pt} \sum_{t=1}^\infty \epsilon_t^2 < \infty
+   \tag{13}
+
+Intuitively, the first constraint ensures that we make progress to reaching the
+local optimum, while the second constraint ensures we don't just bounce around
+that optimum.  A typical schedule to ensure that this is the case is using
+a decayed polynomial:
+
+.. math::
+
+   \epsilon_t = a(b+t)^{-\gamma} \tag{14}
+
+with :math:`\gamma \in (0.5, 1]`.
+
+One of the issues with using vanilla SGD is that the gradients of the model
+parameters (i.e. dimensions) may have wildly different variances.  For example,
+one parameter may be smoothly descending at a constant rate while another may be
+bouncing around quite a bit (especially with mini-batches).  To solve this, many
+variations on SGD have been proposed that adjust the algorithm to account for the
+variation in parameter gradients.  
+
+`RMSProp <https://en.wikipedia.org/wiki/Stochastic_gradient_descent#RMSProp>`__
+is a popular variant that is conceptually quite simple.  It adjusted the
+learning rate *per parameter* to ensure that all of the learning rates are roughly
+the same magnitude.  It does this by keeping a running average of the magnitudes
+of recent gradients for parameter :math:`\theta` as :math:`v(\theta, t)`.
+For :math:`j^{th}` parameter :math:`\theta^j` in iteration :math:`t`, we have:
+
+.. math::
+
+   v(\theta^j, t) := \gamma v(\theta^j, t-1) + (1-\gamma)(\nabla Q_i(\theta^j))^2 \tag{15}
+
+where :math:`Q_i` is the loss function, and :math:`\gamma` is the smoothing
+constant of the average with typical value set at `0.99`.  With :math:`v(\theta^j, t)`,
+the update becomes:
+
+.. math::
+
+   \Delta \theta^j := - \frac{\epsilon_t}{\sqrt{v(\theta^j, t)}} \nabla Q_i(\theta^j) \tag{16}
+
+From Equation 16, when you have large gradients (:math:`\nabla Q >1`), it scales
+the learning rate down; while if you have large gradients (:math:`\nabla Q < 1`),
+it scales the learning rate up.  If :math:`\nabla Q` is constant in each
+parameter but with different magnitudes, it will update each parameter by the
+learning rate :math:`\eta_t`, attempting to descend each dimension at the same
+rate.  Empirically, these variations of SGD are necessary to make SGD practical
+for a wide range of models.
 
 Variational Inference
 ---------------------
