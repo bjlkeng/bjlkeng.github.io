@@ -312,25 +312,27 @@ thus the name Langevin Monte Carlo.
             && \text{Symmetry of Wiener process; define new constant} m_1 \\
        m_1 \frac{dv}{dt} &= v + \eta(t)
             && \epsilon^2 \to 0; \eta := \frac{dW}{dt} \\
-       \tag{A.1}
+       \tag{A.2}
 
    Which is pretty much the same as Equation A.1. A few things to explain here:
 
    * Our momentum :math:`p` is randomly drawn from a standard Gaussian, which is
-     scaled by :math:`\eta^2`.  This is precisely the random variable defined
-     by the Wiener process (denoted by :math:`W^t`) at time :math:`t=\eta^2`.
+     scaled by :math:`\epsilon` (implying a zero-mean Gaussian with
+     :math:`\epsilon^2` variance).  This is precisely the random variable
+     defined by the Wiener process (denoted by :math:`W^t`) at time
+     :math:`t=\epsilon^2`.
    * Hamilton's equations allow us to "convert" the position Hamiltonian to
      a time derivative involving :math:`p`.  Further, we use linear
-     momentum which defines it as :math:`p=mv` (momentum equals mass times velocity). 
+     momentum which is defines as :math:`p=mv` (momentum equals mass times velocity). 
    * Informally, the time derivative of the Wiener process is :math:`\eta(t)`.
      Technically, the Wiener process is nowhere differentiable and :math:`\eta(t)`
-     is not actually a function, but it's understood what it means.  See
-     my `post on Stochastic Calculus <link://slug/an-introduction-to-stochastic-calculus>`__ 
+     is not actually a function, but when using this notation it's understood
+     what it means.  See my `post on Stochastic Calculus <link://slug/an-introduction-to-stochastic-calculus>`__ 
      for more details.
    * We do a bit of squinting to relabel :math:`\frac{q_i(t+\epsilon) - q_i(t)}{\epsilon^2}`
      as :math:`\frac{q_i(t+\epsilon^2) - q_i(t)}{\epsilon^2}`, which defines the
      time derivative as :math:`\epsilon^2 \to 0`, getting us our velocity.
-     This is *probably* okay because q_i(t+\epsilon) is our own definition of
+     This is *probably* okay because :math:`q_i(t+\epsilon)` is our own definition of
      discretization (not exactly sure though).
 
    Even if the above is not exactly correct, Equation A.1 is only *one* of the
@@ -474,12 +476,83 @@ learning rate :math:`\eta_t`, attempting to descend each dimension at the same
 rate.  Empirically, these variations of SGD are necessary to make SGD practical
 for a wide range of models.
 
-Variational Inference
----------------------
+Variational Inference and the Reparameterization Trick
+------------------------------------------------------
 
-- VI, q-approx function
-- ELBO
-- Reparameterization trick
+I've written a lot about variational inference in my past posts so I'll
+keep this section brief and only touch upon the relevant parts.
+If you want more detail and intuition, check out my posts on 
+`Semi-supervised learning with Variational Autoencoders <link://slug/semi-supervised-learning-with-variational-autoencoders>`__,
+and `Variational Bayes and The Mean-Field Approximation <link://slug/variational-bayes-and-the-mean-field-approximation>`__.
+
+As we discussed above, our goal is to find the posterior, :math:`p(\theta|X)`,
+that tells us the distribution of the :math:`\theta` parameters Unfortunately,
+this problem is intractable for all but the simplest problems. How can we 
+overcome this problem? Approximation! 
+
+We'll approximate :math:`p(\theta|X)` by another known distribution :math:`q(\theta|X; \phi)` 
+parameterized by :math:`\phi` (and usually conditioned on :math:`X` but not
+necessarily).  Importantly, :math:`q(\theta|X; \phi)` often also has some
+simplifying assumptions about its relationships with other variables. 
+For example, you might assume that they are all independent of each other
+e.g., :math:`q(\theta|X;\phi) = \pi_{i=1}^n q_i(\theta_i|X;\phi_i)`.
+
+The nice thing about this approximation is that we turned the intractable problem
+into an optimization one where we just want to find the parameters :math:`\phi`
+of :math:`q(\theta|X;\phi)` that best match our posterior :math:`p(\theta|X)`.
+How well our approximation matches our posterior is both dependent on the
+functional form of :math:`q` as well as our optimization procedure.
+
+In terms of "best match", the standard way of measuring it is to use
+`KL divergence <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>`__.
+Without going into the derivation (see my `previous post <semi-supervised-learning-with-variational-autoencoders>`__),
+one arrive at the evidence lower bound (ELBO) for a single data point :math:`X`:
+
+.. math::
+
+  \log{p(X)} &\geq -E_q\big[\log\frac{q(\theta|X;\phi)}{p(\theta,X;\phi)}\big]  \\
+             &= E_q\big[\log p(\theta,X) - \log q(\theta|X;\phi)\big] \\
+             &= E_q\big[\log p(X|\theta) + \log p(\theta) - \log q(\theta|X;\phi)\big] \\
+             &= E_q\big[\text{likelihood} + \text{prior} - \text{approx. posterior} \big] \\
+              \tag{17}
+
+The left hand side of Equation 17 is constant (with respect to the observed
+data), so maximizing the right hand side achieves our desired goal.  It just so
+happens this looks a lot like finding a 
+`MAP <https://en.wikipedia.org/wiki/Maximum_a_posteriori_estimation>`__ with a
+likelihood and prior term.  The difference is that we have an additional term
+for our approximate posterior and we have to take the expectation with respect
+to samples from our approximate posterior.  When using a SGD approach, we can
+sample points from the :math:`q` distribution and use it to approximate the
+expectation in Equation 17.  In many cases though, it's not obvious how to
+sample from :math:`q` because you also need to backprop through it.  
+
+In the case of 
+`Variational Autoencoders <link://slug/variational-autoencoders>`__,
+we define a Gaussian posterior :math:`q(z|X;\phi)` on the latent variables
+:math:`z`. This approximate posterior is defined by a neural network with
+weights :math:`\phi` that output a mean and variance representing the
+parameters of the Gaussian.  We will want to sample from :math:`q` to
+approximate the expectation in Equation 17, but also backprop through :math:`q`
+to update the weights :math:`\phi` of the approximate posterior.
+You can't directly backprop through it but you can reparameterize it by
+using a standard normal distribution, starting from Equation 17 (using
+:math:`z` instead of :math:`\theta`):
+
+.. math::
+
+        &E_{z\sim q}\big[\log p(X|z) + \log p(z) - \log q(z|X;\phi)\big] \\
+        &= E_{\epsilon \sim \mathcal{N}(0, I)}\big[(\log p(X|z) + \log p(z) - \log q(z|X;\phi))\big|_{z=\mu_z(X) + \Sigma_z^{1/2}(X) * \epsilon}\big] \\
+        &\approx (\log p(X|z) + \log p(z) - \log q(z|X;\phi))\big|_{z=\mu_z(X) + \Sigma_z^{1/2}(X) * \epsilon} \\
+        \tag{18}
+
+where :math:`\mu_z` and :math:`\Sigma_z` are the mean and covariance matrix of
+the approximate posterior, and :math:`\epsilon` is a sample from a standard Gaussian.
+This is commonly referred to as the "reparameterization trick" where instead of
+directly computing :math:`q` you just scale and shift a standard normal
+distribution.  Thus, you can still backprop through the mean and covariances.
+The last line approximates the expectation by taking a single sample, which
+often works fine when using SGD.
 
 Stochastic Gradient Langevin Dynamics 
 =====================================
