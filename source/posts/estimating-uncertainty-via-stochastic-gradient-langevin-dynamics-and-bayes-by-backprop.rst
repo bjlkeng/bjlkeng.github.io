@@ -563,34 +563,33 @@ given by:
 
 .. math::
 
-    \Delta_t \theta_t &= \frac{\epsilon_t}{2} \big (\nabla \log[p(\theta_t)] + \frac{N}{n} \sum_{i=1}^n \nabla \log[p(x_{ti} | \theta_t)]\big) + \varepsilon \\
+    \Delta \theta_t &= \frac{\epsilon_t}{2} \big (\nabla \log[p(\theta_t)] + \frac{N}{n} \sum_{i=1}^n \nabla \log[p(x_{ti} | \theta_t)]\big) + \varepsilon \\
     \varepsilon &\sim N(0, \epsilon_t)  \\
     \tag{19}
 
-This results in an algorithm that functionally is SGD except with some
-Gaussian noise added to each parameter update.  Importantly though, there are
-several key decisions:
+This results in an algorithm that is mechanically equivalent to SGD except with
+some Gaussian noise added to each parameter update.  Importantly though, there
+are several key decisions:
 
 * :math:`\epsilon_t` decreases towards zero just as in SGD.
 * Balance the Gaussian noise :math:`\varepsilon` variance with the step size
   :math:`\epsilon_t` as in LMC.
 * Ignore the Metropolis-Hastings updates (Equation 9) using the fact that
-  rejection rates asymptotically go to zero as :math:`\epsilon_t \to 0`.  This
-  avoids the expensive evaluation of the whole dataset needed in Equation 9.
-  You can see this in Equation 9 because (a) the :math:`\epsilon` terms vanish,
-  and (b) the difference between the proposed state :math:`q^{*}` and original
-  state :math:`q` is small due to :math:`\epsilon_t \to 0` thus very close to 1.
+  rejection rates asymptotically go to zero as :math:`\epsilon_t \to 0`. 
 
 This algorithm has the advantage of SGLD of being able to work on large data
 sets (because of the mini-batches) while still computing uncertainty
-(using LMC-like estimates).  The intuition here is that in earlier iterations
-this will behave much like SGD stepping towards a local maximum because
-the large gradient overcomes the noise.  In later iterations though with a
-small :math:`\epsilon_t`, the noise dominates and the gradient plays a much
-smaller role resulting in each iteration bouncing around the local maxima via a
-random walk (with a bias towards the local maximum from the gradient).  Thus
-with carefully selected hyperparameters, you can pretty closely sample from the 
-posterior distribution.
+(using LMC-like estimates).  The avoidance of the Metropolis-Hastings update is
+key so that an expensive evaluation of the whole dataset is not needed at each
+iteration.
+
+The intuition here is that in earlier iterations this will behave much like SGD
+stepping towards a local maximum because the large gradient overcomes the
+noise.  In later iterations though with a small :math:`\epsilon_t`, the noise
+dominates and the gradient plays a much smaller role resulting in each
+iteration bouncing around the local maxima via a random walk (with a bias
+towards the local maximum from the gradient).  Thus with carefully selected
+hyperparameters, you can pretty closely sample from the posterior distribution.
 
 What is not obvious though is that why this should give correct the correct
 result.  It surely will be able to get close to a local maximum (similar to
@@ -601,6 +600,9 @@ reasoning from [Welling2011].
 Correctness of SGLD 
 -------------------
 
+You can see this in Equation 9 because (a) the :math:`\epsilon` terms vanish,
+and (b) the difference between the proposed state :math:`q^{*}` and original
+state :math:`q` is small due to :math:`\epsilon_t \to 0` thus very close to 1.
 
 
 Bayes by Backprop
