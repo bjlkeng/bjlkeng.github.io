@@ -600,10 +600,62 @@ reasoning from [Welling2011].
 Correctness of SGLD 
 -------------------
 
+To setup this problem, let us first define several quantities.
+First the true gradient of the log probability,
+which is just the negative of the gradient our our usual loss function
+(with no mini-batches):
+
+.. math::
+
+   g(\theta) = \nabla \log p(\theta) + \sum_{i=1}^N \nabla \log p(X_i|\theta) \tag{20}
+
+Next, let's define another related quantity:
+
+.. math::
+
+   h_t(\theta) = \nabla \log p(\theta) + \frac{N}{n}\sum_{i=1}^n \nabla \log p(X_{ti}|\theta) - g(\theta) \tag{21}
+
+Equation 21 is essentially the difference between our SGD update (with
+mini-batch :math:`t`) and the true gradient update (with all the data).
+Notice that an SGD update can be obtained by canceling the last term
+with :math:`h_t(\theta) + g(\theta)`.
+
+Importantly, :math:`h_t(\theta)` is a zero-mean random variable with
+finite variance :math:`V(\theta)`.  Since we're subtracting the
+true gradient, our mini-batches should net out to zero-mean.
+Similarly, the variance comes from the fact that we're randomly selecting
+mini-batches.  
+
+With these quantities, we can rewrite Equation 19 as:
+
+.. math::
+
+    \Delta \theta_t &= \frac{\epsilon_t}{2} \big (g(\theta_t) + h_t(\theta_t) \big) + \varepsilon \\
+    \varepsilon &\sim N(0, \epsilon_t)  \\
+    \tag{22}
+
+With the above setup, we'll show two statements:
+
+1. **Transition**: When we have large :math:`t`, the state transition
+   of Equation 22 will be the same as LMC, that is, have its equilibrium
+   distribution be the posterior distribution.
+2. **Convergence**: The sequence of :math:`\theta_1, \theta_2, \ldots`
+   converges to the posterior distribution with large :math:`t`.
+
+With these two shown, we can see that SGLD (for large :math:`t`) will
+eventually get into a state where each update approaches LMC while converging
+to the posterior. Thus, we can use it to sample the posterior.
+
+**Transition**
+
+**Convergence**
+
 You can see this in Equation 9 because (a) the :math:`\epsilon` terms vanish,
 and (b) the difference between the proposed state :math:`q^{*}` and original
 state :math:`q` is small due to :math:`\epsilon_t \to 0` thus very close to 1.
 
+Practical Considerations
+------------------------
 
 Bayes by Backprop
 =================
