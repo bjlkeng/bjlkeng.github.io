@@ -152,7 +152,7 @@ Markov Chain Monte Carlo and Hamiltonian Monte Carlo
 This subsection gives a brief introduction Monte Carlo Markov Chains (MCMC) and
 Hamiltonian Monte Carlo.  I've written about both
 `here <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__ 
-and `here <hamiltonian-monte-carlo>`__ if you want the nitty gritty details
+and `here <link://slug/hamiltonian-monte-carlo>`__ if you want the nitty gritty details
 (and better intuition).
 
 `MCMC <https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo>`__ methods are a
@@ -182,7 +182,7 @@ above), we only output the current state as a sample periodically to ensure
 that the we have minimal correlation.  A well tuned MCMC algorithm will have
 both a high acceptance rate and little correlation between samples.
 
-`Hamiltonian Monte Carlo <https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo>`__ 
+`Hamiltonian Monte Carlo <https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo>`__  (HMC)
 is a popular MCMC algorithm that has a high acceptance rate with low
 correlation between samples.  It roughly transforms the target probability
 distribution into a physics problem with `Hamiltonian dynamics <https://en.wikipedia.org/wiki/Hamiltonian_mechanics>`__.
@@ -197,7 +197,7 @@ Simulating the associated differential equations of this physical system a
 proposal point that both has a high acceptance rate and is "far away" (thus low
 correlation).  In fact, the acceptance rate would be 100% if it not for the
 fact that we have some discretization error from simulating the differential
-equations.  See my previous post on `HMC <https://en.wikipedia.org/wiki/Hamiltonian_mechanics>`__ for more details.
+equations.  See my previous post on `HMC <link://slug/hamiltonian-monte-carlo>`__ for more details.
 
 A common method for simulation of this physics problem uses the "leap frog" method
 where we discretize time and simulate time step-by-step:
@@ -637,7 +637,7 @@ With these quantities, we can rewrite Equation 19 as:
 With the above setup, we'll show two statements:
 
 1. **Transition**: When we have large :math:`t`, the state transition
-   of Equation 22 will be the same as LMC, that is, have its equilibrium
+   of Equation 19/22 will be the same as LMC, that is, have its equilibrium
    distribution be the posterior distribution.
 2. **Convergence**: The sequence of :math:`\theta_1, \theta_2, \ldots`
    converges to the posterior distribution with large :math:`t`.
@@ -648,11 +648,35 @@ to the posterior. Thus, we can use it to sample the posterior.
 
 **Transition**
 
+We'll argue that Equation 19/22 converges to the same transition probability
+as LMC and thus its equilibrium distribution will be the posterior.
+
+First notice that Equation 19/22 is the same LMC (Equation 11) except for the
+additional randomness due to the mini-batches: :math:`\frac{N}{n} \sum_{i=1}^n \nabla \log[p(x_{ti} | \theta_t)]`.
+This term is multiplied by a :math:`\frac{\epsilon_t}{2}` factor where as
+the standard deviation from the :math:`varepsilon` term is :math:`\sqrt{\epsilon_t}`.
+Thus as :math:`\epsilon_t \to 0`, the mini-batch term will vanish faster than
+the :math:`\varepsilon` term, converging to the LMC proposal distribution
+(Equation 11).
+
+Next, we observe that LMC is a special case of HMC.  HMC is actually a
+discretization of a continuous time differential equation.  The discretization
+introduces error in the calcluation, which is the only reason why we need a
+Metropolis-Hastings update (see previous post on `HMC <link://slug/hamiltonian-monte-carlo>`__).
+However as :math:`\epsilon_t \to 0`, this error becomes negligible converging
+to the continuous time dynamics, implying a 100% acceptance rate.  Thus there
+is no need for an MH update for very small :math:`\epsilon_t`. 
+
+In summary for the large :math:`t`, the :math:`t^{th}` iteration of Equation
+19/22 effectively defines the LMC Markov chain transition whose equilibrium
+distribution is the desired posterior.  This would be fine if we had a fixed
+:math:`t` but we are actually shrinking :math:`t` towards 0, so we must
+additionally show that the sequence of parameters 
+:math:`\theta_1, \theta_2, \ldots` converges to our posterior.
+
 **Convergence**
 
-You can see this in Equation 9 because (a) the :math:`\epsilon` terms vanish,
-and (b) the difference between the proposed state :math:`q^{*}` and original
-state :math:`q` is small due to :math:`\epsilon_t \to 0` thus very close to 1.
+
 
 Practical Considerations
 ------------------------
