@@ -275,6 +275,9 @@ thus the name Langevin Monte Carlo.
 
 .. admonition:: Langevin's Equation
 
+   *TODO: FIX ME! Using the physics paper and generalized diffusion equation
+   from "METROPOLIS INTEGRATION SCHEMES FOR SELF-ADJOINT DIFFUSIONS"*
+
    *Note: The following was something I put together without looking at the reference
    in* [Radford2012]_ *because I didn't want to buy that source, nor did I want
    to physically go to the university library to take the book out.  So use at your
@@ -588,8 +591,10 @@ stepping towards a local maximum because the large gradient overcomes the
 noise.  In later iterations though with a small :math:`\epsilon_t`, the noise
 dominates and the gradient plays a much smaller role resulting in each
 iteration bouncing around the local maxima via a random walk (with a bias
-towards the local maximum from the gradient).  Thus with carefully selected
-hyperparameters, you can pretty closely sample from the posterior distribution.
+towards the local maximum from the gradient), and in between the two
+extremes, the algorithm should vary smoothly.  Thus with carefully selected
+hyperparameters, you can pretty closely sample from the posterior distribution
+(more on this later).
 
 What is not obvious though is that why this should give correct the correct
 result.  It surely will be able to get close to a local maximum (similar to
@@ -670,11 +675,29 @@ is no need for an MH update for very small :math:`\epsilon_t`.
 In summary for the large :math:`t`, the :math:`t^{th}` iteration of Equation
 19/22 effectively defines the LMC Markov chain transition whose equilibrium
 distribution is the desired posterior.  This would be fine if we had a fixed
-:math:`t` but we are actually shrinking :math:`t` towards 0, so we must
-additionally show that the sequence of parameters 
-:math:`\theta_1, \theta_2, \ldots` converges to our posterior.
+:math:`t` but we are actually shrinking :math:`t` towards 0, thus it
+defines a non-stationary Markov Chain and so we still need to show the actual
+sequence will convert to the posterior.
 
 **Convergence**
+
+To show that even with the decreasing values of :math:`\epsilon_t` still
+converge to samples produced from the posterior, we will show that there
+exists some sequence of samples :math:`\theta_{t=a_1}, \theta_{t=a_2}, \ldots`
+that converge to the posterior for some increasing sequence :math:`a_1, a_2, \ldots`.
+
+Actually use correct statement from, Top of Page 10 "Consistency and
+fluctuations for stochastic gradient Langevin dynamics".  Then with the above
+statement, we can just say that if everything adds up to :math:`\epsilon_0`
+then it will be equivalent to the right samples.
+
+\TODO{}
+we show that for a fixed
+:math:`\epsilon_0` such that :math:`0 < \epsilon_0 << 1` we can find
+a sequence :math:`a_1 < a_2 < \ldots`
+(i.e., :math:`a_1` can be arbitrarily far away from :math:`a_2`)
+such that :math:`\sum_{t=a_n+1}^{a_{n+1}} \to \epsilon_0` as :math:`s \to \infty`.
+
 
 
 
