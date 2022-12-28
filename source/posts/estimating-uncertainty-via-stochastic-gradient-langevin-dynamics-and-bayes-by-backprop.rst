@@ -273,78 +273,6 @@ We only need to focus on the position :math:`q` because we resample the
 Equation 8 is known in physics as (one type of) Langevin Equation (see box for explanation),
 thus the name Langevin Monte Carlo.
 
-.. admonition:: Langevin's Equation
-
-   *TODO: FIX ME! Using the physics paper and generalized diffusion equation
-   from "METROPOLIS INTEGRATION SCHEMES FOR SELF-ADJOINT DIFFUSIONS"*
-
-   *Note: The following was something I put together without looking at the reference
-   in* [Radford2012]_ *because I didn't want to buy that source, nor did I want
-   to physically go to the university library to take the book out.  So use at your
-   own risk!*
-
-   A `Langevin equation <https://en.wikipedia.org/wiki/Langevin_equation>`__ is a
-   well known stochastic differential equation that describes how a system evolves
-   when subjected to a combination of deterministic and fluctuating forces. 
-   The original Langevin equation describes the random movement of a (usually much
-   larger) particle suspended in a fluid due to collisions with the molecules of
-   the fluid:
-   
-   .. math::
-   
-       m\frac{d{\bf v}}{dt} = -\lambda {\bf v} + {\bf \eta}(t) \tag{A.1}
-
-   where :math:`m` is the mass, :math:`\bf v` is the velocity, 
-   :math:`\frac{d{\bf v}}{dt}` is the acceleration (the time derivative of velocity),
-   and :math:`\bf \eta` is a white noise term with zero mean and flat frequency spectrum.
-
-   Equation 8 can be manipulated (if you squint hard enough) to get into a similar form:
-  
-   .. math:: 
-
-       q_i(t+\epsilon) &= q_i(t) - \frac{\epsilon^2}{2} \frac{\partial H}{\partial q_i}(q(t)) + \epsilon p(t) \\
-       q_i(t+\epsilon) - q_i(t) &= -\frac{\epsilon^2}{2} \frac{\partial H}{\partial q_i}(q(t)) + p(t) \\
-       q_i(t+\epsilon) - q_i(t) &= -\frac{\epsilon^2}{2} \frac{\partial H}{\partial q_i}(q(t)) + W^{\epsilon^2}
-            && \text{since } \epsilon p \sim N(0, \epsilon^2) \\
-       q_i(t+\epsilon) - q_i(t) &= \frac{\epsilon^2}{2} \frac{dp}{dt} + W^{\epsilon^2}
-            && \text{Hamilton's Equations, Eq. } 6 \\
-       q_i(t+\epsilon) - q_i(t) &= \frac{\epsilon^2}{2} m\frac{dv}{dt} + W^{\epsilon^2}
-            && p = mv \\
-       \frac{\epsilon^2}{2} m\frac{dv}{dt} &= q_i(t+\epsilon) - q_i(t) - W^{\epsilon^2} \\
-       m_1 \frac{dv}{dt} &= \frac{q_i(t+\epsilon) - q_i(t)}{\epsilon^2} + \frac{W^{\epsilon^2}}{\epsilon^2}
-            && \text{Symmetry of Wiener process; define new constant} m_1 \\
-       m_1 \frac{dv}{dt} &= v + \eta(t)
-            && \epsilon^2 \to 0; \eta := \frac{dW}{dt} \\
-       \tag{A.2}
-
-   Which is pretty much the same as Equation A.1. A few things to explain here:
-
-   * Our momentum :math:`p` is randomly drawn from a standard Gaussian, which is
-     scaled by :math:`\epsilon` (implying a zero-mean Gaussian with
-     :math:`\epsilon^2` variance).  This is precisely the random variable
-     defined by the Wiener process (denoted by :math:`W^t`) at time
-     :math:`t=\epsilon^2`.
-   * Hamilton's equations allow us to "convert" the position Hamiltonian to
-     a time derivative involving :math:`p`.  Further, we use linear
-     momentum which is defines as :math:`p=mv` (momentum equals mass times velocity). 
-   * Informally, the time derivative of the Wiener process is :math:`\eta(t)`.
-     Technically, the Wiener process is nowhere differentiable and :math:`\eta(t)`
-     is not actually a function, but when using this notation it's understood
-     what it means.  See my `post on Stochastic Calculus <link://slug/an-introduction-to-stochastic-calculus>`__ 
-     for more details.
-   * We do a bit of squinting to relabel :math:`\frac{q_i(t+\epsilon) - q_i(t)}{\epsilon^2}`
-     as :math:`\frac{q_i(t+\epsilon^2) - q_i(t)}{\epsilon^2}`, which defines the
-     time derivative as :math:`\epsilon^2 \to 0`, getting us our velocity.
-     This is *probably* okay because :math:`q_i(t+\epsilon)` is our own definition of
-     discretization (not exactly sure though).
-
-   Even if the above is not exactly correct, Equation A.1 is only *one* of the
-   forms of Langevin equation (although probably the most well known).  There
-   are generalized versions which I think look similar to Equation 8, but I didn't
-   end up digging too deep into it.
-
-
-
 Now that we have a proposal state (:math:`q^*`), we can view the algorithm
 as running a vanilla Metropolis-Hastings update where the proposal is coming
 from a Gaussian with mean :math:`q_i(t) - \frac{\epsilon^2}{2} \frac{\partial H}{\partial q_i}(q(t))`
@@ -398,6 +326,44 @@ Simplifying our Equation 8, we get:
 
 Which looks eerily like gradient descent except that we're adding Gaussian
 noise at the end. Stay tuned!
+
+.. admonition:: Langevin's Diffusion
+
+   In the field of stochastic differential equations, a general Itô diffusion
+   process is of the form:
+
+   .. math::
+    
+       dX_t = a(X_t, t)dt + b(X_t, t)dW_t \tag{A.1}
+
+   where :math:`X_t` is a stochastic process, :math:`W_t` is a Weiner process
+   and :math:`a(\cdot), b(\cdot)` are functions of :math:`X_t, t`.  The form 
+   of Equation A.1 is the differential form.  See my post on
+   `Stochastic Calculus <link://slug/an-introduction-to-stochastic-calculus>`__ 
+   for more details.
+
+   One of the forms of Langevin diffusion is a special case of Equation A.1:
+
+   .. math::
+    
+       dq_t &= -\frac{1}{2}\frac{dU(q_t)}{dq} dt + dW_t \\
+            &= -\frac{1}{2}\nabla U(q_t) dt + dW_t \\
+       \tag{A.2}
+
+   Where :math:`q_t` is the position, :math:`U` is the potential energy,
+   :math:`\frac{dU}{dq}` is the force (position derivative of potential
+   energy), and :math:`W_t` is the Wiener process.  
+  
+   In the context of MCMC, we model the potential energy of this system as
+   :math:`U(q) = \log f(q)` where :math:`f` is proportional to the likelihood
+   times prior as is usually required in MCMC methods.  With this substition,
+   Equation A.2 is the same form as Equation 11 except a discretized version of
+   it.  The only thing that the notation hides is that increments of the
+   standard Weiner process :math:`W_t` are zero-mean Gaussians with variance
+   equal to the time difference.  Once discretized with stepsize
+   :math:`\epsilon`, this precisely equals our :math:`\varepsilon` sample from
+   Equation 11.
+
 
 
 Stochastic Gradient Descent and RMSProp
@@ -605,6 +571,11 @@ reasoning from [Welling2011].
 Correctness of SGLD 
 -------------------
 
+*Note:* [Teh2015]_ *has the hardcore proof of SGLD correctness versus a very
+informal sketch presented in the original paper* ([Welling2011]_) *.  I'll mainly
+stick to the original paper's presentation (mostly because the hardcore proof
+is way beyond my comprehension), but will call out a couple of notable things.*
+
 To setup this problem, let us first define several quantities.
 First the true gradient of the log probability,
 which is just the negative of the gradient our our usual loss function
@@ -659,7 +630,7 @@ as LMC and thus its equilibrium distribution will be the posterior.
 First notice that Equation 19/22 is the same LMC (Equation 11) except for the
 additional randomness due to the mini-batches: :math:`\frac{N}{n} \sum_{i=1}^n \nabla \log[p(x_{ti} | \theta_t)]`.
 This term is multiplied by a :math:`\frac{\epsilon_t}{2}` factor where as
-the standard deviation from the :math:`varepsilon` term is :math:`\sqrt{\epsilon_t}`.
+the standard deviation from the :math:`\varepsilon` term is :math:`\sqrt{\epsilon_t}`.
 Thus as :math:`\epsilon_t \to 0`, the mini-batch term will vanish faster than
 the :math:`\varepsilon` term, converging to the LMC proposal distribution
 (Equation 11).
@@ -732,3 +703,4 @@ References
 .. [Li] Li et. al, "`Preconditioned Stochastic Gradient Langevin Dynamics for Deep Neural Networks <https://arxiv.org/abs/1512.07666>`__", AAAI 2016.
 .. [Ma] Yi-An Ma, Tianqi Chen, Emily B. Fox, "`A Complete Recipe for Stochastic Gradient MCMC <https://arxiv.org/abs/1506.04696>`__", NIPS 2015.
 .. [Radford2012] Radford M. Neal, "MCMC Using Hamiltonian dynamics", `arXiv:1206.1901 <https://arxiv.org/abs/1206.1901>`__, 2012.
+.. [Teh2015] Teh et. al, "Consistency and fluctations for stochastic gradient Langevin dynamics", `arXiv:1409.0578 <https://arxiv.org/abs/1409.0578>`__, 2015.
