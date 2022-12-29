@@ -615,12 +615,16 @@ With the above setup, we'll show two statements:
 1. **Transition**: When we have large :math:`t`, the state transition
    of Equation 19/22 will be the same as LMC, that is, have its equilibrium
    distribution be the posterior distribution.
-2. **Convergence**: The sequence of :math:`\theta_1, \theta_2, \ldots`
-   converges to the posterior distribution with large :math:`t`.
+2. **Convergence**: That there exists a subsequence of :math:`\theta_1,
+   \theta_2, \ldots` that converges to the posterior distribution.
 
 With these two shown, we can see that SGLD (for large :math:`t`) will
-eventually get into a state where each update approaches LMC while converging
-to the posterior. Thus, we can use it to sample the posterior.
+eventually get into a state where we can *theoretically* sample the posterior
+distribution.  The paper makes a stronger argument that the subsequence
+convergence implies convergence of the entire sequence but it's not clear to me
+that it is the case.  At the end of this subsection, I'll also mention a theorem
+from the rigorous proof ([Teh2015]_) that gives a practical result where this
+may not matter.
 
 **Transition**
 
@@ -631,16 +635,16 @@ First notice that Equation 19/22 is the same LMC (Equation 11) except for the
 additional randomness due to the mini-batches: :math:`\frac{N}{n} \sum_{i=1}^n \nabla \log[p(x_{ti} | \theta_t)]`.
 This term is multiplied by a :math:`\frac{\epsilon_t}{2}` factor where as
 the standard deviation from the :math:`\varepsilon` term is :math:`\sqrt{\epsilon_t}`.
-Thus as :math:`\epsilon_t \to 0`, the mini-batch term will vanish faster than
-the :math:`\varepsilon` term, converging to the LMC proposal distribution
-(Equation 11).
+Thus as :math:`\epsilon_t \to 0`, the error from the mini-batch term vs. LMC
+will vanish faster than the :math:`\varepsilon` term, converging to the LMC
+proposal distribution (Equation 11).
 
 Next, we observe that LMC is a special case of HMC.  HMC is actually a
 discretization of a continuous time differential equation.  The discretization
 introduces error in the calcluation, which is the only reason why we need a
 Metropolis-Hastings update (see previous post on `HMC <link://slug/hamiltonian-monte-carlo>`__).
 However as :math:`\epsilon_t \to 0`, this error becomes negligible converging
-to the continuous time dynamics, implying a 100% acceptance rate.  Thus there
+to the continuous time dynamics, implying a 100% acceptance rate.  Thus, there
 is no need for an MH update for very small :math:`\epsilon_t`. 
 
 In summary for the large :math:`t`, the :math:`t^{th}` iteration of Equation
@@ -652,22 +656,82 @@ sequence will convert to the posterior.
 
 **Convergence**
 
-To show that even with the decreasing values of :math:`\epsilon_t` still
-converge to samples produced from the posterior, we will show that there
-exists some sequence of samples :math:`\theta_{t=a_1}, \theta_{t=a_2}, \ldots`
-that converge to the posterior for some increasing sequence :math:`a_1, a_2, \ldots`.
+We will show that there exists some sequence of samples :math:`\theta_{t=a_1},
+\theta_{t=a_2}, \ldots` that converge to the posterior for some strictly
+increasing sequence :math:`a_1, a_2, \ldots` (note: the sequence is not
+sequential e.g., `a_{n+1}` is likely much bigger than :math:`a_{n+1}`).
 
-Actually use correct statement from, Top of Page 10 "Consistency and
+First we fix a small :math:`\epsilon_0` such that :math:`0 < \epsilon_0 << 1`.
+Assuming :math:`\{\epsilon_t\}` satisfy the decayed polynomial property from
+Equation 14, there exists an increasing subsequence :math:`\{a_n \}` such that 
+:math:`\sum_{t=a_n+1}^{a_{n+1}} \epsilon_t \to \epsilon_0` as :math:`n \to \infty`.
+That is, we can split the sequence :math:`\{\epsilon_t\}` into non-overlapping
+segments such that successive segment approaches :math:`\epsilon_0`.  This can
+be easily constructed by continually extending the current run until you go
+over :math:`\epsilon_0`.  Since :math:`\epsilon_t` is decreasing, and we are
+guaranteed that the sequence doesn't converge (Equation 13), we can always
+construct the next segment with a smaller error that the previous one.
+
+For large :math:`n`, if we look at each segment, the total Gaussian noise
+injected will be the sum of each of the Gaussian noise injections.  The
+`variance of sums of independent Gaussians <https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables>`__ 
+is just the sum of the variances so the total variance will be 
+:math:`O(\epsilon_0)`.  Thus, the injected noise (standard deviation)
+will be on the order of :math:`O(\sqrt{\epsilon})`.  Given this,
+we will want to show that the variance from the mini-batch error is
+dominated by the injected noise.
+
+To start, since :math:`\epsilon_0 << 1`, we have 
+:math:`||\theta_t-\theta_{t=a_n}|| << 1` for :math:`t \in (a_n, a_{n+1}]` 
+since the updates from Equation 19/22 cannot stray too far from where it
+started.  Assuming the gradients vary smoothly (a key assumption) then
+we can see the total update without the noise from a segment 
+:math:`t \in (a_n, a_{n+1}]` (using Equation 22 minus the noise :math:`\varepsilon`) is:
+
+.. math::
+
+   \sum_{t=a_n+1}^{a_{n+1}} \frac{\epsilon_t}{2}\big(g(\theta_t) + h_t(\theta_t)\big)
+   = \frac{\epsilon_0}{2} g(\theta_{t=a_n}) + O(\epsilon_0) + \sum_{t=a_n+1}^{a_{n+1}} \frac{\epsilon_t}{2} h_t(\theta_t) \tag{23}
+
+We see that the :math:`g(\cdot)` summation expands into the gradient at
+:math:`\theta_{t=a_n}` plus an error term :math:`O(\epsilon_0)`.  This is
+from our assumption of :math:`||\theta_t-\theta_{t=a_n}|| << 1` plus
+the gradients varying smoothly (`Lipschitz contiuity <https://en.wikipedia.org/wiki/Lipschitz_continuity>`__),
+which imply that the difference between successive gradients will be less than 1
+(for an appropriately small :math:`\epsilon_0`).  Thus, the total error will
+be :math:`\frac{\epsilon_t}{2} O(1) = O(\epsilon_0)` from our original
+construction above.
+
+Next, we deal with the :math:`h_t(\cdot)` in Equation 23.  Since we know
+that :math:`\theta_t` did not vary much in our interval :math:`t \in (a_n, a_{n+1}]`
+given our :math:`\epsilon << 1` assumption, we have :math:`h_t(\theta_t) = O(1)`
+in our interval since our gradients vary smoothly.  Additionally each
+:math:`h_t(\cdot)` will be a random variable which we can assume to be
+independent, thus IID (doesn't change argument if they are randomly
+partitioned which will only make the error smaller).  Plugging this into
+:math:`\sum_{t=a_n+1}^{a_{n+1}} \frac{\epsilon_t}{2} h_t(\theta_t)`, we
+see the variance is :math:`O(\sum_{t=a_n+1}^{a_{n+1}} (\frac{\epsilon_t}{2})^2)`.
+Putting this together in Equation 23, we get:
+
+.. math::
+
+   \sum_{t=a_n+1}^{a_{n+1}} \frac{\epsilon_t}{2}\big(g(\theta_t) + h_t(\theta_t)\big)
+   &= \frac{\epsilon}{2} g(\theta_{t=a_n}) + O(\epsilon) + O\Big(\sqrt{\sum_{t=a_n+1}^{a_{n+1}} (\frac{\epsilon_t}{2})^2}\Big) \\
+   &= \frac{\epsilon}{2} g(\theta_{t=a_n}) + O(\epsilon) \\
+   \tag{24}
+
+From Equation 24, we can see the total stochastic gradient over our segment is
+just the exact gradient starting from :math:`\theta_{t=a_n}` with step size
+:math:`\epsilon_0` plus a :math:`O(\epsilon_0)` error term.  But recall our 
+injected noise was of order :math:`O(\sqrt{\epsilon_0})`, which in turn dominates
+:math:`O(\epsilon_0)`.  Thus for small :math:`\epsilon_0`, our sequence
+:math:`\theta_{t=a_1}, \theta_{t=a_2}, \ldots` will approximate LMC and
+converge to the posterior as required.
+
+**TODO: Actually use correct statement from, Top of Page 10 "Consistency and
 fluctuations for stochastic gradient Langevin dynamics".  Then with the above
 statement, we can just say that if everything adds up to :math:`\epsilon_0`
-then it will be equivalent to the right samples.
-
-\TODO{}
-we show that for a fixed
-:math:`\epsilon_0` such that :math:`0 < \epsilon_0 << 1` we can find
-a sequence :math:`a_1 < a_2 < \ldots`
-(i.e., :math:`a_1` can be arbitrarily far away from :math:`a_2`)
-such that :math:`\sum_{t=a_n+1}^{a_{n+1}} \to \epsilon_0` as :math:`s \to \infty`.
+then it will be equivalent to the right samples.**
 
 
 
