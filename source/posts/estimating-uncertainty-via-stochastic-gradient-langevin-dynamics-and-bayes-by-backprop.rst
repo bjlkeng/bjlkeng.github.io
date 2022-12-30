@@ -247,8 +247,10 @@ Langevin Monte Carlo
 
 Langevin Monte Carlo (LMC) [Radford2012]_ is a special case of HMC where we only
 take a *single* step in the simulation to propose a new state (versus multiple
-steps in a typical HMC algorithm).  With some simplification, we will see that
-a new familiar behavior emerges from this special case.
+steps in a typical HMC algorithm).  It is sometimes referred to as the
+Metropolis-Adjusted-Langevin algorithm (MALA), see [Teh2015]_ and references
+for more details.  With some simplification, we will see that a new familiar
+behavior emerges from this special case.
 
 Suppose we define kinetic energy as :math:`K(p) = \frac{1}{2}\sum p_i^2`,
 which is typical for a HMC formulation.  Next, we set our momentum :math:`p` as
@@ -728,16 +730,42 @@ injected noise was of order :math:`O(\sqrt{\epsilon_0})`, which in turn dominate
 :math:`\theta_{t=a_1}, \theta_{t=a_2}, \ldots` will approximate LMC and
 converge to the posterior as required.
 
-**TODO: Actually use correct statement from, Top of Page 10 "Consistency and
-fluctuations for stochastic gradient Langevin dynamics".  Then with the above
-statement, we can just say that if everything adds up to :math:`\epsilon_0`
-then it will be equivalent to the right samples.**
+Now the above argument showing that there exists a subsequence that samples
+from the posterior isn't that useful because we don't know what that
+subsequence is!  But [Teh2015]_ provides a much more rigorous treatment
+of the subject showing a much more useful result in Theorem 7.  Without
+going into all of the mathematical rigour, I'll present the basic idea 
+(from what I can gather).
 
+    **Theorem 1:** (Summary of Theorem 7 from [Teh2015]_)
+    For a test function :math:`\varphi: \mathcal{R}^d \to \mathcal{R}`, the
+    expectation of :math:`\varphi` with respect to the exact posterior
+    distribution :math:`\pi` can be approximated by the weighted sum of
+    :math:`m` SGLD samples :math:`\theta_0 \ldots \theta_{m-1}` that holds
+    almost surely (given some assumptions):
 
+    .. math::
 
+        \lim_{m\to\infty} \frac{\epsilon_1 \varphi(\theta_0) + \ldots + \epsilon_m \varphi(\theta_{m-1})}{\sum_{t=1}^m \epsilon_t} = \int_{\mathcal{R}^d} \varphi(\theta)\pi(d\theta)
+        \tag{25}
+
+Theorem 1 gives us a more practical way to utilize the samples from SGLD.
+We don't need to generate the exact samples that we would from LMC,
+instead we can just the SGLD samples with their respective step sizes to
+compute a weighted average for any actual quantity we would want (e.g.
+expectation, variance, credible interval etc.).  According to Theorem 1,
+this will converge to the exact quantity using the true posterior.
+See [Teh2015]_ for more details (if you dare!).
+
+Preconditioning
+---------------
 
 Practical Considerations
 ------------------------
+
+* warmup
+* thinning
+
 
 Bayes by Backprop
 =================
