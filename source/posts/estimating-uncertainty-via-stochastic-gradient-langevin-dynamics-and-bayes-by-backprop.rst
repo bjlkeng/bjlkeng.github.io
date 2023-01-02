@@ -179,8 +179,9 @@ states to have a higher change to be in a more "normal" region of the state
 space.  The other complication is that sequential samples will be correlated,
 but ideally you want independent samples.  Thus (as specified in the steps
 above), we only output the current state as a sample periodically to ensure
-that the we have minimal correlation.  A well tuned MCMC algorithm will have
-both a high acceptance rate and little correlation between samples.
+that the we have minimal correlation.  This is generally called "thinnig".  A
+well tuned MCMC algorithm will have both a high acceptance rate and little
+correlation between samples.
 
 `Hamiltonian Monte Carlo <https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo>`__  (HMC)
 is a popular MCMC algorithm that has a high acceptance rate with low
@@ -853,9 +854,16 @@ adjustment to the SGLD noise and gain the benefits of preconditioning.
 Practical Considerations
 ------------------------
 
-* warmup
-* thinning
-
+Besides preconditioning, SGLD has some other caveats inherited from MCMC.
+First your initial condition matters, so you likely want to run it for a while
+before you start sampling (i.e., "burn-in").  Similarly, adjacent samples
+(particularly with a random walk method such as LMC/SGLD) will be highly
+correlated so you will only want to take periodic samples to get (mostly)
+independent samples (although with Theorem 1 this may not be necessary)
+depending on your application.  Finally, for both deep learning and MCMC, your
+hyperparameters matter a lot.  For example, initial conditions, learning rate
+schedule, and priors all matter a lot.  So while a lot of the above techniques
+help, they are not quite hands off.
 
 Bayes by Backprop
 =================
