@@ -738,7 +738,7 @@ going into all of the mathematical rigour, I'll present the basic idea
 (from what I can gather).
 
     **Theorem 1:** (Summary of Theorem 7 from [Teh2015]_)
-    For a test function :math:`\varphi: \mathcal{R}^d \to \mathcal{R}`, the
+    For a test function :math:`\varphi: \mathbb{R}^d \to \mathbb{R}`, the
     expectation of :math:`\varphi` with respect to the exact posterior
     distribution :math:`\pi` can be approximated by the weighted sum of
     :math:`m` SGLD samples :math:`\theta_0 \ldots \theta_{m-1}` that holds
@@ -746,7 +746,7 @@ going into all of the mathematical rigour, I'll present the basic idea
 
     .. math::
 
-        \lim_{m\to\infty} \frac{\epsilon_1 \varphi(\theta_0) + \ldots + \epsilon_m \varphi(\theta_{m-1})}{\sum_{t=1}^m \epsilon_t} = \int_{\mathcal{R}^d} \varphi(\theta)\pi(d\theta)
+        \lim_{m\to\infty} \frac{\epsilon_1 \varphi(\theta_0) + \ldots + \epsilon_m \varphi(\theta_{m-1})}{\sum_{t=1}^m \epsilon_t} = \int_{\mathbb{R}^d} \varphi(\theta)\pi(d\theta)
         \tag{25}
 
 Theorem 1 gives us a more practical way to utilize the samples from SGLD.
@@ -759,6 +759,96 @@ See [Teh2015]_ for more details (if you dare!).
 
 Preconditioning
 ---------------
+
+One problem both with SGD and SGLD is that the gradients updates might
+be very slow due to the curvature of the loss surface.  This is known
+to be a common phenomenon in large parameter models like neural networks
+where there are many `saddle points <https://en.wikipedia.org/wiki/Saddle_point>`__.
+These parts of a surface have very small gradients, which will cause
+any SGD-based optimization (or any first-order derivative) procedure to be very
+slow.  On the other end, if one of the dimensions in your loss has a very curvature
+gradient, it could cause unnecessary oscillations in one dimension while the other one
+with low curvature crawls along.  The solution to this problem is to use precondition.
+
+.. figure:: /images/sgld-precondition.png
+    :height: 250px
+    :alt: Preconditioning
+    :align: center
+
+    **Figure 1: (Left) Original loss landscape, SGD converges slowly. 
+    (Right) Transformed loss landscape with a preconditioner with reduced
+    oscillations and faster progress.  Notice the counter lines are more evenly spaced
+    out in each direction. (source:** [Dauphin2015]_ **)**
+
+Preconditioning is a type of local transform that changes the optimization landscape
+so the curvature is equal in all directions ([Dauphin2015]_).  As shown in Figure 1, preconditioning
+can change the curvature (shown by the contour lines) and as a result make SGD converge
+more quickly.  Formally, for a loss function :math:`f` with parameters :math:`\theta \in \mathbb{R}^d`,
+we introduce a non-singular matrix :math:`{\bf D}^{\frac{1}{2}}` such that :math:`\hat{\theta}={\bf D}^{\frac{1}{2}}`.
+Using the change of variables, we can define a new function :math:`\hat{f}(\hat{\theta})` that
+is equivalent to our original function with its associated gradient (using the chain rule):
+
+.. math::
+
+    \hat{f}(\hat{\theta}) &= f({\bf D}^{-\frac{1}{2}}\hat{\theta})=f(\theta) \\
+    \nabla\hat{f}(\hat{\theta}) &= {\bf D}^{-\frac{1}{2}}\nabla f(\theta)
+    \tag{26}
+
+Thus, regular SGD can be performed as such on the original :math:`\theta`, and for convenience,
+we'll define :math:`{\bf G}={\bf D}^{-1}`:
+
+.. math::
+
+   \hat{\theta_t} &= \hat{\theta_{t-1}} - \epsilon \nabla \hat{f}(\hat{\theta}) \\
+   \hat{\theta_t} &= \hat{\theta_{t-1}} - \epsilon {\bf D}^{-\frac{1}{2}}\nabla f(\theta) 
+        && {Eq. } 26 \\
+   \theta_t &= \theta_{t-1} - \epsilon {\bf D}^{-1}\nabla f(\theta) && \text{multiply through by } {\bf D}^{-\frac{1}{2}} \\
+   \theta_t &= \theta_{t-1} - \epsilon {\bf G}(\theta_{t-1})\nabla f(\theta) && \text{rename } {\bf D}^{-1} \text{ to } {\bf G}\\
+   \tag{27}
+
+So the transformation turns out to be quite simple by multiplying our gradient
+with a user chosen preconditioning matrix :math:`{\bf G}`.  In the context of SGLD, we
+have an equivalent result ([Li2016]_) where :math:`{\bf G}` defines a
+Riemannian manifold:
+
+.. math::
+
+   \Delta \theta_t &= \frac{\epsilon_t}{2} \big[ {\bf G}(\theta_t) \big (\nabla \log[p(\theta_t)] + \frac{N}{n} \sum_{i=1}^n \nabla \log[p(x_{ti} | \theta_t)]\big) + \Gamma(\theta_t) \big] + {\bf G}^{\frac{1}{2}}(\theta_t)\varepsilon \\
+        \varepsilon &\sim N(0, \epsilon_t)  \\
+        \tag{28}
+
+where :math:`\Gamma(\theta_t) = \sum_j \frac{\partial G_{i,j}}{\partial
+\theta_j}` describe how the preconditioner changes with respect to
+:math:`\theta_t`.  Notice the preconditioner is applied to the noise as well.
+
+Previous approaches to use a preconditioner relied on the
+expected 
+`Fisher information <https://en.wikipedia.org/wiki/Fisher_information>`__
+matrix, which is too costly for any modern deep learning model with many
+parameters since it grows with the square of the parameters (similar to the
+Hessian).  We in fact don't specifically need the Fisher information metric,
+just something that defines the Riemannian manifold metric, which only requires
+a `positive definite matrix <https://en.wikipedia.org/wiki/Definite_matrix>`__.
+
+The insight from [Li2016]_ was that we can use RMSprop as the preconditioning
+matrix since it satisfies the positive definite criteria, and has shown
+empirically to do well in SGD (being only a diagonal preconditioner matrix):
+
+.. math::
+
+   G(\theta_{t+1}) = diag\big(\frac{1}{\lambda + \sqrt{v(\theta_{t+1})}}\big) \tag{29}
+
+where :math:`v(\theta_{t+1})=v(\theta, t)` is from Equation 15 and
+:math:`\lambda` is a small constant to prevent divide by zero.
+
+Additionally, [Li2016]_ has shown that there is no need to include the
+:math:`\Gamma(\theta)` term in Equation 28 (even though it's not too hard to
+compute with a diagonal matrix).  This is because it introduces an additional
+bias term that scales with :math:`\frac{(1-\alpha)^2}{\alpha^3}` (from Equation 28), 
+which is practically always set close to 1 (e.g. PyTorch's default for 
+`RMSprop <https://pytorch.org/docs/stable/generated/torch.optim.RMSprop.html>`__ is :math:`0.99`).
+As a result, we can simply use off-the-shelf RMSprop with only a slight
+adjustment to the SGLD noise and gain the benefits of preconditioning.
 
 Practical Considerations
 ------------------------
@@ -792,7 +882,8 @@ References
 
 .. [Welling2011] Max Welling and Yee Whye Teh, "`Bayesian Learning via Stochastic Gradient Langevin Dynamics <https://www.stats.ox.ac.uk/~teh/research/compstats/WelTeh2011a.pdf>`__", ICML 2011.
 .. [Blundell2015] Blundell et. al, "`Weight Uncertainty in Neural Networks <https://arxiv.org/abs/1505.05424>`__", ICML 2015.
-.. [Li] Li et. al, "`Preconditioned Stochastic Gradient Langevin Dynamics for Deep Neural Networks <https://arxiv.org/abs/1512.07666>`__", AAAI 2016.
-.. [Ma] Yi-An Ma, Tianqi Chen, Emily B. Fox, "`A Complete Recipe for Stochastic Gradient MCMC <https://arxiv.org/abs/1506.04696>`__", NIPS 2015.
+.. [Li2016] Li et. al, "`Preconditioned Stochastic Gradient Langevin Dynamics for Deep Neural Networks <https://arxiv.org/abs/1512.07666>`__", AAAI 2016.
+.. [Ma2015] Yi-An Ma, Tianqi Chen, Emily B. Fox, "`A Complete Recipe for Stochastic Gradient MCMC <https://arxiv.org/abs/1506.04696>`__", NIPS 2015.
 .. [Radford2012] Radford M. Neal, "MCMC Using Hamiltonian dynamics", `arXiv:1206.1901 <https://arxiv.org/abs/1206.1901>`__, 2012.
 .. [Teh2015] Teh et. al, "Consistency and fluctations for stochastic gradient Langevin dynamics", `arXiv:1409.0578 <https://arxiv.org/abs/1409.0578>`__, 2015.
+.. [Dauphin2015] Dauphin et. al, "Equilibrated adaptive learning rates for non-convex optimization", `arXiv:1502.04390 <https://arxiv.org/abs/1502.04390>`__, 2015.
