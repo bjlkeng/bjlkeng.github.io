@@ -462,16 +462,15 @@ that tells us the distribution of the :math:`\theta` parameters Unfortunately,
 this problem is intractable for all but the simplest problems. How can we 
 overcome this problem? Approximation! 
 
-We'll approximate :math:`p(\theta|X)` by another known distribution :math:`q(\theta|X; \phi)` 
-parameterized by :math:`\phi` (and usually conditioned on :math:`X` but not
-necessarily).  Importantly, :math:`q(\theta|X; \phi)` often also has some
+We'll approximate :math:`p(\theta|X)` by another known distribution :math:`q(\theta|\phi)` 
+parameterized by :math:`\phi`.  Importantly, :math:`q(\theta|\phi)` often also has some
 simplifying assumptions about its relationships with other variables. 
 For example, you might assume that they are all independent of each other
-e.g., :math:`q(\theta|X;\phi) = \pi_{i=1}^n q_i(\theta_i|X;\phi_i)`.
+e.g., :math:`q(\theta|\phi) = \pi_{i=1}^n q_i(\theta_i|\phi_i)`.
 
 The nice thing about this approximation is that we turned the intractable problem
 into an optimization one where we just want to find the parameters :math:`\phi`
-of :math:`q(\theta|X;\phi)` that best match our posterior :math:`p(\theta|X)`.
+of :math:`q(\theta|\phi)` that best match our posterior :math:`p(\theta|X)`.
 How well our approximation matches our posterior is both dependent on the
 functional form of :math:`q` as well as our optimization procedure.
 
@@ -482,9 +481,9 @@ one arrive at the evidence lower bound (ELBO) for a single data point :math:`X`:
 
 .. math::
 
-  \log{p(X)} &\geq -E_q\big[\log\frac{q(\theta|X;\phi)}{p(\theta,X;\phi)}\big]  \\
-             &= E_q\big[\log p(\theta,X) - \log q(\theta|X;\phi)\big] \\
-             &= E_q\big[\log p(X|\theta) + \log p(\theta) - \log q(\theta|X;\phi)\big] \\
+  \log{p(X)} &\geq -E_q\big[\log\frac{q(\theta|\phi)}{p(\theta,\phi)}\big]  \\
+             &= E_q\big[\log p(\theta,X) - \log q(\theta|\phi)\big] \\
+             &= E_q\big[\log p(X|\theta) + \log p(\theta) - \log q(\theta|\phi)\big] \\
              &= E_q\big[\text{likelihood} + \text{prior} - \text{approx. posterior} \big] \\
               \tag{17}
 
@@ -501,7 +500,7 @@ sample from :math:`q` because you also need to backprop through it.
 
 In the case of 
 `Variational Autoencoders <link://slug/variational-autoencoders>`__,
-we define a Gaussian posterior :math:`q(z|X;\phi)` on the latent variables
+we define a Gaussian posterior :math:`q(z|\phi)` on the latent variables
 :math:`z`. This approximate posterior is defined by a neural network with
 weights :math:`\phi` that output a mean and variance representing the
 parameters of the Gaussian.  We will want to sample from :math:`q` to
@@ -513,9 +512,9 @@ using a standard normal distribution, starting from Equation 17 (using
 
 .. math::
 
-        &E_{z\sim q}\big[\log p(X|z) + \log p(z) - \log q(z|X;\phi)\big] \\
-        &= E_{\epsilon \sim \mathcal{N}(0, I)}\big[(\log p(X|z) + \log p(z) - \log q(z|X;\phi))\big|_{z=\mu_z(X) + \Sigma_z^{1/2}(X) * \epsilon}\big] \\
-        &\approx (\log p(X|z) + \log p(z) - \log q(z|X;\phi))\big|_{z=\mu_z(X) + \Sigma_z^{1/2}(X) * \epsilon} \\
+        &E_{z\sim q}\big[\log p(X|z) + \log p(z) - \log q(z|\phi)\big] \\
+        &= E_{\epsilon \sim \mathcal{N}(0, I)}\big[(\log p(X|z) + \log p(z) - \log q(z|\phi))\big|_{z=\mu_z(X) + \Sigma_z^{1/2}(X) * \epsilon}\big] \\
+        &\approx (\log p(X|z) + \log p(z) - \log q(z|\phi))\big|_{z=\mu_z(X) + \Sigma_z^{1/2}(X) * \epsilon} \\
         \tag{18}
 
 where :math:`\mu_z` and :math:`\Sigma_z` are the mean and covariance matrix of
@@ -868,8 +867,78 @@ help, they are not quite hands off.
 Bayes by Backprop
 =================
 
-- Used in neural networks
-- Still uses VI
+Bayes by Backprop ([Blundell2015]_) is a generalization of some previous work
+to allow an approximation of Bayesian uncertainty, particularly for weights in
+large scale neural network models where traditional MCMC methods do not scale.A
+Approximation is the key word here as it utilizes variational inference
+(Equation 17).  That is, instead of directly estimating the posterior, it 
+preselects the functional form of a distribution (:math:`q(\theta|\phi)`)
+parameterized by :math:`\phi`, and optimizes :math:`\phi` using Equation 17.
+The right hand side of Equation 17 is often called the *variational free
+energy* (among other names), which we'll denote by :math:`\mathcal{F}(X, \phi)`:
+
+.. math::
+
+  \mathcal{F}(X, \phi) =  E_q\big[\log p(X|\theta) + \log p(\theta) - \log q(\theta|\phi)\big] 
+  \tag{30}
+
+Recall that instead of solving for point estimates of :math:`\theta`, we're
+trying to solve for :math:`\phi`, which implicitly gives us (approximate)
+distributions in the form of :math:`q(\theta|\phi)`.  To make this concrete,
+for a neural network :math:`\theta` would be the weights and instead of a
+single number for each one, we would have a known distribution (that we select)
+parameterized by :math:`\phi`.
+
+The main problem with Equation 30 is that we will need to sample from
+:math:`q(\theta|phi)` in order to approximate the expectation, but we will
+also need to backprop through the "sample" in order to optimize :math:`\phi`.
+If this sounds familiar, it is precisely the same issue we had with variation
+autoencoders.  The solution there was to use the "reparameterization trick"
+so re-write the expectation in terms of a standard Gaussian distribution (and
+some additional transformations) to yield an equivalent loss function that we
+can backprop through.  
+
+As you may expect, [Blundell2015]_ generalizes this concept beyond Gaussians
+to any distribution with the following proposition:
+
+    **Proposition 1:** (Proposition 1 from [Blundell2015]_)
+    Let :math:`\varepsilon` be a random variable with probability density
+    fgiven by :math:`q(\varepsilon)` and let :math:`\theta = t(\phi, \varepsilon)`
+    where :math:`t(\phi, \varepsilon)` is a deterministic function.
+    Suppose further that the marginal probability density of :math:`\theta`,
+    :math:`q(\theta|\phi)`, is such that 
+    :math:`q(\varepsilon)d\varepsilon = q(\theta|\phi)d\theta`.  Then for a function
+    :math:`f(\cdot)` with derivatives in :math:`\theta`:
+
+    .. math::
+    
+       \frac{\partial}{\partial\phi}E_{q(\theta|phi)}[f(\theta,\phi)] =
+       E_{q(\varepsilon)}\big[
+        \frac{\partial f(\theta,\phi)}{\partial\theta}\frac{\partial\theta}{\partial\phi}
+            + \frac{\partial f(\theta, \phi)}{\partial \phi}
+       \big]
+       \tag{31}
+
+    **Proof**
+
+    .. math::
+
+       \frac{\partial}{\partial\phi}E_{q(\theta|phi)}[f(\theta,\phi)]
+           &= \frac{\partial}{\partial\phi}\int f(\theta,\phi)q(\theta|\phi)d\theta \\
+           &= \frac{\partial}{\partial\phi}\int f(\theta,\phi)q(\varepsilon)d\varepsilon && \text{Given in proposition}\\
+           &= \int \frac{\partial}{\partial\phi}[f(\theta,\phi)]q(\varepsilon)d\varepsilon \\
+           &= E_{q(\varepsilon)}\big[
+           \frac{\partial f(\theta,\phi)}{\partial\theta}\frac{\partial\theta}{\partial\phi}
+               + \frac{\partial f(\theta, \phi)}{\partial \phi} && \text{chain rule}
+          \big] \\
+       \tag{32}
+
+
+* Give a couple of examples of how :math:`q(\varepsilon)d\varepsilon = q(\theta|\phi)d\theta` works
+    * Gaussians
+    * exponentials
+* Mention how Pytorch has these built in `rsample()`
+* Wrap up with how "easy" it is to implement, just backprop like usual
 
 Experiments
 ===========
