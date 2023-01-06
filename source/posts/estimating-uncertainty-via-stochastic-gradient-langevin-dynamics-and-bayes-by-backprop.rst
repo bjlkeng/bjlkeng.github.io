@@ -360,13 +360,12 @@ noise at the end. Stay tuned!
    In the context of MCMC, we model the potential energy of this system as
    :math:`U(q) = \log f(q)` where :math:`f` is proportional to the likelihood
    times prior as is usually required in MCMC methods.  With this substition,
-   Equation A.2 is the same form as Equation 11 except a discretized version of
-   it.  The only thing that the notation hides is that increments of the
-   standard Weiner process :math:`W_t` are zero-mean Gaussians with variance
-   equal to the time difference.  Once discretized with stepsize
+   Equation A.2 is the same as Equation 11 except a continuous version of
+   it.  To see this more clearly, it is important to note that the increments
+   of the standard Weiner process :math:`W_t` are zero-mean Gaussians with
+   variance equal to the time difference.  Once discretized with stepsize
    :math:`\epsilon`, this precisely equals our :math:`\varepsilon` sample from
    Equation 11.
-
 
 
 Stochastic Gradient Descent and RMSProp
@@ -862,7 +861,7 @@ independent samples (although with Theorem 1 this may not be necessary)
 depending on your application.  Finally, for both deep learning and MCMC, your
 hyperparameters matter a lot.  For example, initial conditions, learning rate
 schedule, and priors all matter a lot.  So while a lot of the above techniques
-help, they are not quite hands off.
+help, there's no free lunch here.
 
 Bayes by Backprop
 =================
@@ -912,7 +911,7 @@ to any distribution with the following proposition:
 
     .. math::
     
-       \frac{\partial}{\partial\phi}E_{q(\theta|phi)}[f(\theta,\phi)] =
+       \frac{\partial}{\partial\phi}E_{q(\theta|\phi)}[f(\theta,\phi)] =
        E_{q(\varepsilon)}\big[
         \frac{\partial f(\theta,\phi)}{\partial\theta}\frac{\partial\theta}{\partial\phi}
             + \frac{\partial f(\theta, \phi)}{\partial \phi}
@@ -933,12 +932,54 @@ to any distribution with the following proposition:
           \big] \\
        \tag{32}
 
+So Proposition 1 tells us that the "reparameterization trick" is valid in the context of 
+gradient based optimization (i.e., SGD) if we can show :math:`q(\varepsilon)d\varepsilon = q(\theta|\phi)d\theta`.
+This may be a big cryptic so let's show it for a couple of examples.
+First, let's take a look at the good old Gaussian distribution with parameters
+:math:`\phi = \{\mu, \sigma\}` and :math:`\varepsilon` being a standard Gaussian.
+We let :math:`t(\mu, \sigma, \varepsilon) = \sigma \cdot \varepsilon + \mu`.
+Thus, we have:
 
-* Give a couple of examples of how :math:`q(\varepsilon)d\varepsilon = q(\theta|\phi)d\theta` works
-    * Gaussians
-    * exponentials
-* Mention how Pytorch has these built in `rsample()`
-* Wrap up with how "easy" it is to implement, just backprop like usual
+.. math::
+
+   q(\theta | \mu, \sigma)d\theta 
+       &= \frac{1}{\sqrt{2\pi\sigma^2}}\exp\{-\frac{(\theta - \mu)^2}{2\sigma^2}\}d\theta && \text{Gaussian pdf} \\
+       &= \frac{1}{\sqrt{2\pi\sigma^2}}\exp\{-\frac{((\sigma \cdot \varepsilon + \mu)- \mu)^2}{2\sigma^2}\}\sigma d\varepsilon && \theta = \sigma \cdot \varepsilon + \mu \\
+       &= \frac{1}{\sqrt{2\pi}}\exp\{-\frac{\varepsilon^2}{2}\} d\varepsilon \\
+       &= q(\varepsilon)d\epsilon
+       \tag{33}
+            
+We can easily see that the two expressions are the same.  To drive the point home,
+we can show the same relationship with the exponential distribution parameterized by :math:`\lambda`
+using :math:`t(\lambda, \varepsilon) = \frac{\varepsilon}{\lambda}` for standard exponential
+distribution :math:`\varepsilon`:
+
+.. math::
+
+   q(\theta | \lambda)d\theta 
+       &= \lambda \exp\{-\lambda \theta\}d\theta && \text{Exponential pdf} \\
+       &=\lambda \exp\{-\lambda \frac{\varepsilon}{\lambda}\}\frac{d\varepsilon}{\lambda} && \theta = \frac{\varepsilon}{\lambda} \\
+       &= \exp\{-\varepsilon\}d\varepsilon \\
+       &= q(\varepsilon)d\epsilon
+       \tag{34}
+
+The nice thing about this trick is that it's widely implemented in modern tooling.
+For example PyTorch has an implementation on distributions where this condition is true
+using the `rsample()` method.  You can look into each of the respective implementations to
+see how the :math:`t(\cdot)` function is defined.  See 
+`Pathwise derivative <https://pytorch.org/docs/stable/distributions.html#pathwise-derivative>`__
+section of the PyTorch docs for details.
+
+With these this reparameterization trick (and picking appropriate distributions), one
+can easily implement variational inference by substituting the exact posterior for
+a fixed parameterized distribution (e.g., Gaussian, exponential etc.).  With this
+approximation, you can then easily train the network using standard SGD methods
+that sample from this approximate posterior distribution but *importantly* can
+backprop through them to update the parameters of these approximate posteriors
+to hopefully achieve a good estimate of uncertainty.  Note however that variational
+inference will often `underestimate variance <https://www.quora.com/Why-and-when-does-mean-field-variational-Bayes-underestimate-variance>`__.
+So there's also no free lunch here.
+
 
 Experiments
 ===========
