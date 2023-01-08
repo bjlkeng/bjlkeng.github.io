@@ -978,14 +978,141 @@ that sample from this approximate posterior distribution but *importantly* can
 backprop through them to update the parameters of these approximate posteriors
 to hopefully achieve a good estimate of uncertainty.  Note however that variational
 inference will often `underestimate variance <https://www.quora.com/Why-and-when-does-mean-field-variational-Bayes-underestimate-variance>`__.
-So there's also no free lunch here.
-
+So there's also no free lunch here either.
 
 Experiments
 ===========
 
 Simple Gaussian Mixture
 -----------------------
+
+The first experiment I did was try to reproduce the simple mixture model with
+tied means from [Welling2011]_.  The model from the paper is specified as:
+
+.. math::
+
+    \pi &\sim Bernoulli(p) \\
+    \theta_1 &\sim \mathcal{N}(0, \sigma_1^2) \\
+    \theta_2 &\sim \mathcal{N}(0, \sigma_2^2) \\
+    x_i &\sim \pi * \mathcal{N}(\theta_1, \sigma_x^2) + (1-\pi) * \mathcal{N}(\theta_1 + \theta_2, \sigma_x^2) \\
+    \tag{35}
+
+with :math:`p=0.5, \sigma_1^2=10, \sigma_2^2=1, \sigma_x^2=2`.  They generate
+100 :math:`x_i` data points using a fixed :math:`\theta_1=0, \theta_2=1`.
+In the paper, they say that this generates a bimodal distribution but I wasn't
+able to reproduce it.  I had to change :math:`\sigma_x^2=2.56` to get a slightly wider distribution to get something
+similarly bimodal.  I did this *only* for the data generation, all the other 
+estimation below uses :math:`\sigma_x^2=2`.  Theoretically, if they got a weird
+random seed they might be able to get something bimodal, but I wasn't able to.
+Figure 2 shows a histogram of the data I generated with the modified
+:math:`\sigma_x^2=2.56`.
+
+
+.. figure:: /images/sgld-mixture_hist.png
+    :height: 350px
+    :alt: Preconditioning
+    :align: center
+
+    **Figure 2: Histogram of** :math:`x_i` **datapoints**
+
+From Equation 35, you can that the only parameters we need to estimate are
+:math:`\theta_1` :math:`\theta_2`.  If our procedure is correct, we would
+our posterior distribution to have a lot of density around 
+:math:`(\theta_1, \theta_2) = (0, 1)`.  
+
+.. figure:: /images/sgld-mixture-exact.png
+    :height: 450px
+    :alt: Preconditioning
+    :align: center
+
+    **Figure 3: True posterior**
+
+Since this is just a relatively simple two dimensional problem, you can
+estimate the posterior by discretizing the space and calculating the
+unnormalized posterior (likelihood x prior) for each cell.  As long as you
+don't overflow your floating point variables, you should be able to get a
+contour plot as shown in Figure 3.  As you can see, the distribution is bimodal
+with a peak at :math:`(-0.25, 1.5)` and :math:`(1.25, -1.5)`.  It's not exactly
+the :math:`(0, 1)` peak we were expecting, but considering that we only sampled
+100 points, this is the "best guess" based on the data we've seen.
+
+The first obvious thing to do is estimate the posterior using MCMC.  I used
+`PyMC <https://www.pymc.io/welcome.html>`__ for this because I think it has the
+most intuitive interface.  The code is only a handful of lines and is made easy 
+with the builtin `NormalMixture` distribution.  I used the default NUTS sampler
+(extension of HMC) to generate 5000 samples with a 2000 sample burnin.
+Figure 4 shows the resulting contour plot, which line up very closely with the
+exact results in Figure 3.
+
+.. figure:: /images/sgld-mixture_mcmc.png
+    :height: 450px
+    :alt: Preconditioning
+    :align: center
+
+    **Figure 4: MCMC estimate of posterior**
+
+Lastly, I implemented both SGD and SGLD in PyTorch (using the same PyTorch
+Module).  This was pretty simple by leveraging the builtin `distributions
+<https://pytorch.org/docs/stable/distributions.html>`__ package, particularly
+the `MixtureSameFamily <https://pytorch.org/docs/stable/distributions.html>`__
+one.  
+
+For SGD with batch size of :math:`100` and learning rate (:math:`\epsilon`)
+0.01 and 300 epochs with initial values as :math:`(\theta_1, \theta_2) = (1,
+1)`, I was able to iterate towards a solution of :math:`(-0.2327, 1.5129)`,
+which is pretty much bang on the first mode.  This gave me confidence that
+my model was correct.  
+
+Next, moving onto SGLD, I used the same effective learning rate schedule as the
+paper with :math:`a=0.01, b=0.0001, \gamma=0.55` that results in 10000 sweeps
+through the entire dataset with batch size of 1.  I also did different
+experiments with batch size of 10 and 100, adjusting the same decaying
+polynomial schedule so that the total number of gradient updates are the same
+(see the `notebook <https://github.com/bjlkeng/sandbox/blob/master/stochastic_langevin/normal_mixture.ipynb>`__).
+I didn't do any burnin or thinning (although I probably should have?).
+The results are shown in Figure 5.
+
+.. figure:: /images/sgld-mixture_sgld.png
+    :height: 650px
+    :alt: Preconditioning
+    :align: center
+
+    **Figure 5: HMC and SGLD estimates of posterior for various batch sizes**
+
+We can see that SGLD is no panacea for posterior estimation.  With batch size of 100,
+it only ever explores one mode.  Likely, I would have to play with the learning
+rate/schedule to ensure that it starts high enough that the Langevin dynamics
+will let it wander to the other mode.  Considering I started at :math:`(1,1)`,
+it's no surprise that it drifted towards the top left first.  The upside is that
+it seemed to be squarely centred on one of the true modes that SGD found at
+:math:`(-0.25, 1.5)`.
+
+Batch size of 10 shows quite a different story.  It seemed to properly explore
+the first mode but then wanders to the second mode and get stuck there.  Again,
+we're seeing the sensitivity of SGLD to the learning rate/schedule.  The peak
+on the second mode seems a bit off as well.  I should note that as mentioned in
+the SGLD section, the samples from it are not guaranteed to match the true
+posterior (theoretically only a subsequence is guaranteed).  So this comparison
+of contour plots isn't exactly fair but we're looking at macro characteristics of
+finding all the modes, which we would expect to see.
+
+Lastly using a batch size of 1 (same as [Welling2011]_), we see something
+closer to the true posterior with a clearly defined mode in the top left
+corner, and a visible but less clearly defined mode in the bottom right.
+Again, the story is likely that it wandered into the bottom right at some
+point, but got stuck in the top left corner after a while.  This is kind of
+expected as you shrink :math:`\epsilon`, it's just very unlikely to jump too
+far away from the first mode it found.  The peaks of the samples are also off
+from the exact posterior for the same reason as discussed.
+
+My conclusion from this experiment is that vanilla SGLD is not a very robust
+algorithm.  It's so sensitive to the learning rate, which can cause it to have
+issues finding modes as seen above.  There are numerous extensions to SGLD that
+I haven't really looked at (including ones that are inspired by HMC) so those
+may provide more robust algorithms to do at scale posterior sampling.  Having
+said that, perhaps you aren't too interested in trying to generate the exact
+posterior.  In those cases, SGLD seems to do a *good enough* job at estimating
+the uncertainty around one of the modes (at least in this simple case).
 
 Stochastic Volatility Model
 ---------------------------
@@ -1001,7 +1128,6 @@ References
 .. [Welling2011] Max Welling and Yee Whye Teh, "`Bayesian Learning via Stochastic Gradient Langevin Dynamics <https://www.stats.ox.ac.uk/~teh/research/compstats/WelTeh2011a.pdf>`__", ICML 2011.
 .. [Blundell2015] Blundell et. al, "`Weight Uncertainty in Neural Networks <https://arxiv.org/abs/1505.05424>`__", ICML 2015.
 .. [Li2016] Li et. al, "`Preconditioned Stochastic Gradient Langevin Dynamics for Deep Neural Networks <https://arxiv.org/abs/1512.07666>`__", AAAI 2016.
-.. [Ma2015] Yi-An Ma, Tianqi Chen, Emily B. Fox, "`A Complete Recipe for Stochastic Gradient MCMC <https://arxiv.org/abs/1506.04696>`__", NIPS 2015.
 .. [Radford2012] Radford M. Neal, "MCMC Using Hamiltonian dynamics", `arXiv:1206.1901 <https://arxiv.org/abs/1206.1901>`__, 2012.
 .. [Teh2015] Teh et. al, "Consistency and fluctations for stochastic gradient Langevin dynamics", `arXiv:1409.0578 <https://arxiv.org/abs/1409.0578>`__, 2015.
 .. [Dauphin2015] Dauphin et. al, "Equilibrated adaptive learning rates for non-convex optimization", `arXiv:1502.04390 <https://arxiv.org/abs/1502.04390>`__, 2015.
