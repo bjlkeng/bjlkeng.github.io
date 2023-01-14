@@ -1117,6 +1117,60 @@ the uncertainty around one of the modes (at least in this simple case).
 Stochastic Volatility Model
 ---------------------------
 
+The next experiment I did was with a stochastic volatility model from the 
+`example <https://www.pymc.io/projects/examples/en/latest/case_studies/stochastic_volatility.html>`__
+in the PyMC docs.  This is actually kind of the opposite of what you would
+want to use SGLD and Bayes by Backprop for because it is a complex model for
+stock prices with a *single* time series, which is the observed price of the
+S&P 500.  I mostly picked this model because I was curious how we could apply
+these methods to more complex hierarchical Bayesian models.  Being one of the
+prime examples of where Bayesian methods can be used to analyze a problem,
+I naively thought that this would be an easy thing to model.  It turned out to
+be much more complex than I expected as we shall see.
+
+First, let's take a look at the definition of the model:
+
+.. math::
+   
+   \sigma &\sim Exponential(10) \\
+   s_0 &\sim Normal(0, 100) \\
+   s_i &\sim Normal(s_{i-1}, \sigma^2) \\
+   \nu &\sim Exponential(.1) \\
+   \log(r_i) &\sim t(\nu, 0, \exp(-2 s_i)) \\
+   \tag{36}
+
+Equation 36 models the logarithm of the daily returns, :math:`r_i` with a 
+`student-t distribution <https://en.wikipedia.org/wiki/Student%27s_t-distribution>`__,
+parameterized by the degrees of freedom :math:`\nu` following an 
+`exponential distribution <https://en.wikipedia.org/wiki/Exponential_distribution>`__,
+and volatility :math:`s_i` where :math:`i` is the time index.  The volatility
+follows a 
+`Gaussian random walk <https://en.wikipedia.org/wiki/Random_walk#Gaussian_random_walk>`__ 
+across all 2905 time steps, which is parameterized by a common variance given by an 
+`exponential distribution <https://en.wikipedia.org/wiki/Exponential_distribution>`__.
+To be clear, we are modeling the entire time series at once with a different
+log-return and volatility random variable for each time step.
+Figure 6 shows the model using `plate notation <https://en.wikipedia.org/wiki/Plate_notation>`__
+
+.. figure:: /images/sgld-vol_model.png
+    :height: 400px
+    :alt: Preconditioning
+    :align: center
+
+    **Figure 6: (** `source <https://www.pymc.io/projects/examples/en/latest/case_studies/stochastic_volatility.html>`__ **)**
+
+This is a relatively simple model for explaining asset prices.  It is obviously
+too simple to actually model stock prices.  One thing to point out is that we
+have a single variance (:math:`\sigma`) of the volatility process across all
+time.  This seems kind of unlikely given that we know different market regimes
+will behave quite differently.  Further, I'm always pretty suspicious of 
+Gaussian random walks.  This implies some sort of 
+`stationarity <https://en.wikipedia.org/wiki/Stationary_distribution>`__, which 
+obviously is not true over long periods of time (this may be an acceptable
+assumption at very short time periods though).  In any case, it's a toy model
+that we can use to test our two Bayesian learning methods.
+
+
 Conclusion
 ==========
 
