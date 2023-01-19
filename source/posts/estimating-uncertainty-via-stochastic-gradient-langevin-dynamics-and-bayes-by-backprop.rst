@@ -983,8 +983,8 @@ So there's also no free lunch here either.
 Experiments
 ===========
 
-Simple Gaussian Mixture
------------------------
+Simple Gaussian Mixture Model
+-----------------------------
 
 The first experiment I did was try to reproduce the simple mixture model with
 tied means from [Welling2011]_.  The model from the paper is specified as:
@@ -1132,10 +1132,8 @@ First, let's take a look at the definition of the model:
 
 .. math::
    
-   \sigma &\sim Exponential(10) \\
-   s_0 &\sim Normal(0, 100) \\
-   s_i &\sim Normal(s_{i-1}, \sigma^2) \\
-   \nu &\sim Exponential(.1) \\
+   \sigma &\sim Exponential(10), & \nu &\sim Exponential(.1) \\
+   s_0 &\sim Normal(0, 100), & s_i &\sim Normal(s_{i-1}, \sigma^2) \\
    \log(r_i) &\sim t(\nu, 0, \exp(-2 s_i)) \\
    \tag{36}
 
@@ -1150,14 +1148,14 @@ across all 2905 time steps, which is parameterized by a common variance given by
 `exponential distribution <https://en.wikipedia.org/wiki/Exponential_distribution>`__.
 To be clear, we are modeling the entire time series at once with a different
 log-return and volatility random variable for each time step.
-Figure 6 shows the model using `plate notation <https://en.wikipedia.org/wiki/Plate_notation>`__
+Figure 6 shows the model using `plate notation <https://en.wikipedia.org/wiki/Plate_notation>`__:
 
 .. figure:: /images/sgld-vol_model.png
     :height: 400px
     :alt: Preconditioning
     :align: center
 
-    **Figure 6: (** `source <https://www.pymc.io/projects/examples/en/latest/case_studies/stochastic_volatility.html>`__ **)**
+    **Figure 6: Stochastic volatility model described using plate notation (** `source <https://www.pymc.io/projects/examples/en/latest/case_studies/stochastic_volatility.html>`__ **)**
 
 This is a relatively simple model for explaining asset prices.  It is obviously
 too simple to actually model stock prices.  One thing to point out is that we
@@ -1167,8 +1165,95 @@ will behave quite differently.  Further, I'm always pretty suspicious of
 Gaussian random walks.  This implies some sort of 
 `stationarity <https://en.wikipedia.org/wiki/Stationary_distribution>`__, which 
 obviously is not true over long periods of time (this may be an acceptable
-assumption at very short time periods though).  In any case, it's a toy model
-that we can use to test our two Bayesian learning methods.
+assumption at very short time periods though).  In any case, it's a toy
+hierarchical model that we can use to test our two Bayesian learning methods.
+
+Modelling the Hierarchy
+_______________________
+
+The first thing to figure out is how to model Figure 6 using some combination
+of our two methods.  Initially I naively tried applying SGLD directly but came
+across a major issue: how do I deal with the volatility term :math:`s_i`?
+Naively applying SGLD means instantiating a parameter for each random variable
+you want to estimate uncertainty for, then applying SGLD using a standard
+gradient optimizer.  Superficially, it looks very similar to using gradient
+descent to find a point estimate.  The big problem with this approach is that 
+the volatility :math:`s_i` is conditional on the step size :math:`\sigma`.
+If we naively model :math:`s_i` as a parameter, it loses its dependence on
+:math:`\sigma` and are unable to represent the model in Figure 6.  
+
+It's not clear to me that there is a simple way around it using vanilla SGLD.
+The examples in [Welling2011]_ were non-hierarchical models such as Bayesian
+logistic regression that just needed to model uncertainty of the model
+coefficients.  After racking my brain for a while on how to model it, I 
+remembered that there was another example that I knew of for getting gradients
+to flow through a latent variable -- variational autoencoders!  Yes, the good
+old reparameterization trick comes to save the day.  This led me to the work on
+this generalization in [Blundell2015]_ and one of the ways you estimate
+uncertainty in Bayesian neural networks.
+
+Let's write out some equations to make things more concrete. First the
+probability model defining the notation :math:`x_i = \log(r_i)` for clarity:
+
+.. math::
+
+    p({\bf s}, \nu, \sigma | {\bf x}) &= [\Pi_1^N p(x_i | s_i, \nu, \sigma) p(s_i | s_{i-1}, \sigma)]p(s_0)p(\nu) p(\sigma) \\
+    \\
+    p(x_i | s_i, \nu, \sigma) &\sim t(\nu, 0, exp(s_i)) \\
+    p(s_i|s_{i-1}, \sigma) &\sim N(s_{i-1}, \sigma^2) = N(0, \sigma^2) + s_{i-1} \\
+    p(\sigma) &\sim Exp(10) \\
+    p(\nu) &\sim Exp(0.1) \\
+    \tag{37}
+
+Notice the random walk of the stochastic volatility :math:`s_i` can be
+simplified by pulling out the mean, so we only have to worry about the
+additional zero-mean noise added at each step.  
+
+.. admonition:: Why explicitly model :math:`s_i` uncertainty at all?
+
+    One question you might ask is why do we need to explicitly model the
+    uncertainty of :math:`s_i` at all?  Can't we just model :math:`\sigma` 
+    (and :math:`\nu`) and then apply SGLD, sampling the implied value of
+    :math:`s_i` along the way?  Well it turns out that this doesn't quite work.
+
+    Naively for SGLD on the forward pass, you have a value for :math:`\sigma`,
+    you can sample :math:`s_i = s_{i-1} + \sigma \cdot \varepsilon` where
+    :math:`\varepsilon \sim N(0, 1)`, then propagate and compute the associated
+    t-distributed loss for :math:`x_i`.  Similarly, you can easily backprop
+    through this network since each computation is differentiable.
+
+    Unfortunately, this does not correctly capture the uncertainty specified in
+    :math:`s_i`.  One way to see this is that the sample we get using this
+    method is :math:`s_i = s_0 + \sum_{i=1}^{i} \sigma \varepsilon`.  This is
+    just a random walk with standard deviation :math:`\sigma` and starting
+    point :math:`s_0`.  Surely, the posterior of :math:`s_i` is not just a
+    scaled random walk.  This would completely ignore the observed values of
+    :math:`x_i`, which would only affect the value of :math:`\sigma` (and
+    :math:`\nu`).
+
+    Another intuitive argument is that SGLD explores the uncertainty by
+    "traversing" through the parameter space.  Similar to more vanilla MCMC
+    methods, it should spend more time in high density areas and less time in
+    low density ones.  If we are not "remembering" the values of :math:`s_i`
+    via parameters, then SGLD cannot correctly sample from the posterior
+    distribution since it cannot "hang out" in high density regions of
+    :math:`s_i`.  That is why we need to both be able to properly model the 
+    uncertainty of :math:`s_i` while still being able to backprop through it.
+
+To deal with the hierarchical dependence of :math:`s_i` on :math:`\sigma`, we
+approximate the posterior of :math:`s_i` using a Gaussian with mean
+:math:`\mu_i` and :math:`\sigma` as defined above:
+
+.. math::
+
+    p(s_i|s_{i-1},\sigma, {\bf x}) \approx q(s_i|s_{i-1}, \sigma, \mu_i) = s_{i-1} + N(\mu_i, \sigma) \tag{38}
+
+
+
+
+
+Implementation Notes
+--------------------
 
 
 Conclusion
