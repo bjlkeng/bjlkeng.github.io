@@ -475,12 +475,16 @@ functional form of :math:`q` as well as our optimization procedure.
 
 In terms of "best match", the standard way of measuring it is to use
 `KL divergence <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>`__.
-Without going into the derivation (see my `previous post <semi-supervised-learning-with-variational-autoencoders>`__),
-one arrive at the evidence lower bound (ELBO) for a single data point :math:`X`:
+Without going into the derivation 
+(see my `previous post <link://slug/semi-supervised-learning-with-variational-autoencoders>`__),
+if we start from the KL divergence between our approximate posterior and exact posterior,
+we'll arrive at the evidence lower bound (ELBO) for a single data point
+:math:`X`:
 
 .. math::
 
-  \log{p(X)} &\geq -E_q\big[\log\frac{q(\theta|\phi)}{p(\theta,\phi)}\big]  \\
+  D_{KL}(Q||P) &= E_q\big[\log \frac{q(\theta|\phi)}{p(\theta,X)}\big] + \log p(X) \\
+  \log{p(X)} &\geq -E_q\big[\log\frac{q(\theta|\phi)}{p(\theta,X)}\big]  \\
              &= E_q\big[\log p(\theta,X) - \log q(\theta|\phi)\big] \\
              &= E_q\big[\log p(X|\theta) + \log p(\theta) - \log q(\theta|\phi)\big] \\
              &= E_q\big[\text{likelihood} + \text{prior} - \text{approx. posterior} \big] \\
@@ -1248,9 +1252,29 @@ approximate the posterior of :math:`s_i` using a Gaussian with mean
 
     p(s_i|s_{i-1},\sigma, {\bf x}) \approx q(s_i|s_{i-1}, \sigma, \mu_i) = s_{i-1} + N(\mu_i, \sigma) \tag{38}
 
+Notice that :math:`q` is not conditioned on :math:`\bf x`.  We going to use :math:`\bf x`
+(via SGLD) to estimate the parameter :math:`\mu_i`, but there is no
+probabilistic dependency on :math:`\bf x`.
+Next using the ELBO from Equation 17, we want to be able to derive a loss to optimize
+our approximate posterior :math:`q(s_i|s_{i-1}, \mu, \sigma)`:
 
+.. math::
 
+    \log p({\bf x}| s_0, \sigma, \nu) 
+    &\geq -E_q[\log\frac{q(s_{1\ldots n}|s_0, \sigma, \mu_i)}{p({\bf s_{1\ldots n}, x}| s_0, \sigma, \nu)}] \\
+    &= E_q[\sum_{i=1}^n \log p(s_i, x_i|s_{i-1}, \sigma, \nu) - \log q(s_i|s_{i-1}, \sigma, \mu_i)] \\
+    &= E_q[\sum_{i=1}^n \log p(x_i|s_i, \nu) + \log p(s_i | s_{i-1}, \sigma) - \log q(s_i|s_{i-1}, \sigma, \mu_i)]
+    \tag{39}
 
+Finally, putting together our final loss based on the posterior we have:
+
+.. math::
+
+   \log p(s_0, \sigma, \nu| {\bf x}; {\bf \mu}) &\propto \log p(s_0, \sigma, \nu, {\bf x}; {\bf \mu}) \\
+   &= \log p({\bf x} | s_0, \sigma, \nu; {\bf \mu}) + \log p(s_0) + \log p(\sigma) \log p(\nu)  \\
+   &\approx E_q[\sum_{i=1}^n \log p(x_i|s_i, \nu) + \log p(s_i | s_{i-1}, \sigma) - \log q(s_i|s_{i-1}, \sigma, \mu_i)] \\
+   &\hspace{10pt} + \log p(s_0) + \log p(\sigma) \log p(\nu)  \\
+   \tag{40}
 
 Implementation Notes
 --------------------
