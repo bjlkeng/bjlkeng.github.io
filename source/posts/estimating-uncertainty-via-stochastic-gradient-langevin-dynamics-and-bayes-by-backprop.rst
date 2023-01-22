@@ -12,9 +12,9 @@ that I wanted to write about.  The two main ideas in this post are not that
 recent but have been quite impactful (one of the 
 `papers <https://icml.cc/virtual/2021/test-of-time/11808>`__ won a recent ICML
 test of time award).  They address two of the topics that are near and dear to
-my heart: Bayesian learning and scalability.  I dare ask wouldn't be interested
-in the intersection of such topics?  In any case, I hope you enjoy my
-explanation of it.
+my heart: Bayesian learning and scalability.  Dare I even ask who wouldn't be
+interested in the intersection of such topics?  In any case, I hope you enjoy
+my explanation of it.
 
 This post is about two techniques to perform scalable Bayesian inference.  They
 both address the problem using stochastic gradient descent (SGD) but in very
