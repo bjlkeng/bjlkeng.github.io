@@ -1040,6 +1040,9 @@ with a peak at :math:`(-0.25, 1.5)` and :math:`(1.25, -1.5)`.  It's not exactly
 the :math:`(0, 1)` peak we were expecting, but considering that we only sampled
 100 points, this is the "best guess" based on the data we've seen.
 
+Results
+_______________________
+
 The first obvious thing to do is estimate the posterior using MCMC.  I used
 `PyMC <https://www.pymc.io/welcome.html>`__ for this because I think it has the
 most intuitive interface.  The code is only a handful of lines and is made easy 
@@ -1245,18 +1248,20 @@ additional zero-mean noise added at each step.
     uncertainty of :math:`s_i` while still being able to backprop through it.
 
 To deal with the hierarchical dependence of :math:`s_i` on :math:`\sigma`, we
-approximate the posterior of :math:`s_i` using a Gaussian with mean
+approximate the posterior of :math:`s_i` using a Gaussian with learnable mean
 :math:`\mu_i` and :math:`\sigma` as defined above:
 
 .. math::
 
-    p(s_i|s_{i-1},\sigma, {\bf x}) \approx q(s_i|s_{i-1}, \sigma, \mu_i) = s_{i-1} + N(\mu_i, \sigma) \tag{38}
+    p(s_i|s_{i-1},\sigma, {\bf x}) \approx q(s_i|s_{i-1}, \sigma; \mu_i) &= s_{i-1} + N(\mu_i, \sigma)  \\
+    &= s_{i-1} + \sigma \varepsilon + \mu_i, &\varepsilon &\sim N(0, 1)\\
+    \tag{38}
 
-Notice that :math:`q` is not conditioned on :math:`\bf x`.  We going to use :math:`\bf x`
-(via SGLD) to estimate the parameter :math:`\mu_i`, but there is no
-probabilistic dependency on :math:`\bf x`.
-Next using the ELBO from Equation 17, we want to be able to derive a loss to optimize
-our approximate posterior :math:`q(s_i|s_{i-1}, \mu, \sigma)`:
+Notice that :math:`q` is not conditioned on :math:`\bf x`.  In other words, we are
+going to use :math:`\bf x` (via SGLD) to estimate the parameter :math:`\mu_i`,
+but there is no probabilistic dependency on :math:`\bf x`.  Next using the ELBO
+from Equation 17, we want to be able to derive a loss to optimize our
+approximate posterior :math:`q(s_i|s_{i-1}, \sigma; \mu_i)`:
 
 .. math::
 
@@ -1271,10 +1276,27 @@ Finally, putting together our final loss based on the posterior we have:
 .. math::
 
    \log p(s_0, \sigma, \nu| {\bf x}; {\bf \mu}) &\propto \log p(s_0, \sigma, \nu, {\bf x}; {\bf \mu}) \\
-   &= \log p({\bf x} | s_0, \sigma, \nu; {\bf \mu}) + \log p(s_0) + \log p(\sigma) \log p(\nu)  \\
+   &= \log p({\bf x} | s_0, \sigma, \nu; {\bf \mu}) + \log p(s_0) + \log p(\sigma) + \log p(\nu)  \\
    &\approx E_q[\sum_{i=1}^n \log p(x_i|s_i, \nu) + \log p(s_i | s_{i-1}, \sigma) - \log q(s_i|s_{i-1}, \sigma, \mu_i)] \\
-   &\hspace{10pt} + \log p(s_0) + \log p(\sigma) \log p(\nu)  \\
+   &\hspace{10pt} + \log p(s_0) + \log p(\sigma) + \log p(\nu)  \\
    \tag{40}
+
+We can see from Equation 40, that we have likelihood terms (:math:`\log p(x_i|s_i, \nu)`, 
+:math:`\log p(s_i | s_{i-1}, \sigma)`), prior terms (:math:`\log p(s_0)`,
+:math:`\log p(\sigma)`, :math:`\log p(\nu)`), and a regularizer from our variational
+approximation (:math:`\log q(s_i|s_{i-1}, \sigma, \mu_i)`).  This is a common
+pattern in variational approximations with an ELBO loss.
+
+With the loss we have enough to (approximately) model our stochastic volatility problem.
+First, start by defining a learnable parameter for each of :math:`\sigma, \nu, s_0, \mu_i`.
+Next, the forward pass is simply computing the :math:`s_i` values using the
+reparameterization trick in Equation 38 using the loss from Equation 40.  Only
+a minor adjustment to SGD to change it in the SGLD and you are off to the races!
+
+Results
+_______________________
+
+
 
 Implementation Notes
 --------------------
