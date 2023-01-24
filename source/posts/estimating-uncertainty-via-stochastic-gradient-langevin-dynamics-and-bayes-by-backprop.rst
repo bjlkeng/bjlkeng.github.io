@@ -1014,7 +1014,7 @@ Figure 2 shows a histogram of the data I generated with the modified
 
 .. figure:: /images/sgld-mixture_hist.png
     :height: 350px
-    :alt: Preconditioning
+    :alt: mixture hist
     :align: center
 
     **Figure 2: Histogram of** :math:`x_i` **datapoints**
@@ -1026,7 +1026,7 @@ our posterior distribution to have a lot of density around
 
 .. figure:: /images/sgld-mixture-exact.png
     :height: 450px
-    :alt: Preconditioning
+    :alt: mixture exact
     :align: center
 
     **Figure 3: True posterior**
@@ -1053,7 +1053,7 @@ exact results in Figure 3.
 
 .. figure:: /images/sgld-mixture_mcmc.png
     :height: 450px
-    :alt: Preconditioning
+    :alt: mixture mcmc
     :align: center
 
     **Figure 4: MCMC estimate of posterior**
@@ -1081,7 +1081,7 @@ The results are shown in Figure 5.
 
 .. figure:: /images/sgld-mixture_sgld.png
     :height: 650px
-    :alt: Preconditioning
+    :alt: mixture slgd
     :align: center
 
     **Figure 5: HMC and SGLD estimates of posterior for various batch sizes**
@@ -1159,7 +1159,7 @@ Figure 6 shows the model using `plate notation <https://en.wikipedia.org/wiki/Pl
 
 .. figure:: /images/sgld-vol_model.png
     :height: 400px
-    :alt: Preconditioning
+    :alt: vol model
     :align: center
 
     **Figure 6: Stochastic volatility model described using plate notation (** `source <https://www.pymc.io/projects/examples/en/latest/case_studies/stochastic_volatility.html>`__ **)**
@@ -1294,9 +1294,89 @@ reparameterization trick in Equation 38 using the loss from Equation 40.  Only
 a minor adjustment to SGD to change it in the SGLD and you are off to the races!
 
 Results
-_______________________
+_______
 
+The first thing to look at are the results generated using HMC via PyMC, whose code
+was taken directly from the 
+`example <https://www.pymc.io/projects/examples/en/latest/case_studies/stochastic_volatility.html>`__.
+Figure 7 shows the posterior :math:`\sigma` and :math:`\nu` for two chains (two
+parallel runs of HMC).  :math:`\sigma` (step size) has a mode around 0.09 -
+0.10 while :math:`\nu` has a mode between 9 and 10.  Recall that these variables 
+parameterize and an `exponential distribution <https://en.wikipedia.org/wiki/Exponential_distribution>`__, 
+so the expected value of the corresponding random  variables are :math:`\sigma
+\approx 10` and :math:`\nu \approx 0.1` (the inverse of the posterior).
 
+.. figure:: /images/sgld_mcmc_stepsize.png
+   :height: 350px
+   :align: center
+   
+   **Figure 7: HMC posterior estimate of ** :math:`\sigma, \nu` **using PyMC**
+
+The more interesting distribution is the volatility shown in Figure 8.  Here we see that there
+are certain times with high volatility such as 2008 (the financial crisis).
+These peaks in volatility also have higher uncertainty around them (measured by
+the vertical width of the graph), which matches our intuition that higher
+volatility usually means unpredictable markets making the volatility itself
+hard to estimate.
+
+.. figure:: /images/sgld_mcmc_vol.png
+    :height: 350px
+    :align: center
+
+    **Figure 8: HMC posterior estimate of the volatility**
+
+Using the above stochastic volatility model, we can estimate :math:`\sigma` and
+:math:`\nu` using SGLD shown in Figure 9.  Starting with :math:`\nu`, its mode
+is not too far off with a value around :math:`9.75`, however the width of the
+distribution is much tighter with most of the density in between 9.7 and 9.8.
+Clearly either SGLD and/or our variational approximation has changed the
+estimate of the degrees of freedom.  
+
+.. figure:: /images/sgld_sgld_sigma_nu.png
+    :height: 300px
+    :align: center
+
+    **Figure 9: Posterior estimate of ** :math:`\sigma, \nu` **using SGLD**
+
+This is even more pronounced with :math:`\sigma`.
+Here we get a mode around 0.025, which is quite different than the 0.09 - 0.10
+we saw above with HMC.  However, recall we are estimating parameters of a
+different model with :math:`\sigma` is parameterizing the variance our
+approximate posterior, so we would expect that it wouldn't necessarily capture
+the same value.  This points out a limitation of our approach: our parameter
+estimates in the approximate hierarchical model will not necessarily be
+comparable to the exact one.  Thus, we don't necessarily get the
+interpretability of the model that we would expect in a regular Bayesian
+statistics flow.
+
+.. figure:: /images/sgld_sgld_vol.png
+    :height: 350px
+    :align: center
+
+    **Figure 10: Posterior estimate of the stochastic volatility via SGLD of the approximate posterior mean**
+
+Finally, Figure 10 shows the posterior estimate of the stochastic volatility :math:`\bf s`.
+Recall, that we approximated :math:`s_i \approx q(\mu_i, \sigma) \sim N(\mu_i, \sigma)`.
+However, we cannot use :math:`q(\mu_i, \sigma)` directly to estimate the
+volatility because that would mean the variance of the volatility at each
+timestep :math:`s_i` would be equal, which clearly it is not.  Instead, I used
+SGLD to estimate the distribution of each :math:`\mu_i` and plotted that
+instead.  Interestingly, we get a very similar shaped time series but with
+significantly less variance at each time step.  For example, during 2008
+the variance of the volatility hardly changes staying close to 0.04, whereas in
+the HMC estimate it's much bigger swinging from almost 0.035 to 0.08.
+
+One reason that we see lower variance that is often cited is that variational
+inference often underestimates the 
+`variance <https://www.quora.com/Why-and-when-does-mean-field-variational-Bayes-underestimate-variance>`__.
+Thi sis because it is optimizing the KL divergence between the approximate
+posterior :math:`q` and the exact one :math:`p`.  This means that this is
+more likely to favour low variance estimates, see my `previous post <link://slug/semi-supervised-learning-with-variational-autoencoders>`__ for more details.
+Another (perhaps more likely?) reason is that the approximation is just not a
+good one.  Perhaps a more complex joint distribution across all :math:`s_i` is
+what is really needed given the dependency between them.  In any case, it points
+to the difficulty plugging these tools into a more typical Bayesian statistics
+workflow (which they were not at all intended to be used for by the way!).
 
 Implementation Notes
 --------------------
@@ -1309,6 +1389,7 @@ References
 ==========
 * Wikipedia:
 * Previous posts: `Markov Chain Monte Carlo and the Metropolis Hastings Algorithm  <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__, `Hamiltonian Monte Carlo <hamiltonian-monte-carlo>`__ 
+  TODO FIX ME with other previous posts
 
 .. [Welling2011] Max Welling and Yee Whye Teh, "`Bayesian Learning via Stochastic Gradient Langevin Dynamics <https://www.stats.ox.ac.uk/~teh/research/compstats/WelTeh2011a.pdf>`__", ICML 2011.
 .. [Blundell2015] Blundell et. al, "`Weight Uncertainty in Neural Networks <https://arxiv.org/abs/1505.05424>`__", ICML 2015.
