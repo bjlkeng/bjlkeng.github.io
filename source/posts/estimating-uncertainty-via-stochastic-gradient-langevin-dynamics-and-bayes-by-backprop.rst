@@ -368,7 +368,7 @@ noise at the end. Stay tuned!
    Equation 11.
 
 
-Stochastic Gradient Descent and RMSProp
+Stochastic Gradient Descent and RMSprop
 ---------------------------------------
 
 I'll only briefly cover stochastic gradient descent because I'm assuming most
@@ -420,7 +420,7 @@ bouncing around quite a bit (especially with mini-batches).  To solve this, many
 variations on SGD have been proposed that adjust the algorithm to account for the
 variation in parameter gradients.  
 
-`RMSProp <https://en.wikipedia.org/wiki/Stochastic_gradient_descent#RMSProp>`__
+`RMSprop <https://en.wikipedia.org/wiki/Stochastic_gradient_descent#RMSProp>`__
 is a popular variant that is conceptually quite simple.  It adjusted the
 learning rate *per parameter* to ensure that all of the learning rates are roughly
 the same magnitude.  It does this by keeping a running average of the magnitudes
@@ -1041,7 +1041,7 @@ the :math:`(0, 1)` peak we were expecting, but considering that we only sampled
 100 points, this is the "best guess" based on the data we've seen.
 
 Results
-_______________________
+_______
 
 The first obvious thing to do is estimate the posterior using MCMC.  I used
 `PyMC <https://www.pymc.io/welcome.html>`__ for this because I think it has the
@@ -1293,6 +1293,13 @@ Next, the forward pass is simply computing the :math:`s_i` values using the
 reparameterization trick in Equation 38 using the loss from Equation 40.  Only
 a minor adjustment to SGD to change it in the SGLD and you are off to the races!
 
+An important point to make this practically train was to implement the RMSprop
+preconditioner from Equation 29.  Without it I was unable to get a reasonable fit.
+This is probably analogous to most deep networks: if you don't use a modern
+optimizer, it's really difficult to fit a deep network.  In this case we're
+modeling more than 2900 time steps, which can cause lots of issues when
+backpropagating.
+
 Results
 _______
 
@@ -1310,7 +1317,7 @@ so the expected value of the corresponding random  variables are :math:`\sigma
    :height: 350px
    :align: center
    
-   **Figure 7: HMC posterior estimate of ** :math:`\sigma, \nu` **using PyMC**
+   **Figure 7: HMC posterior estimate of** :math:`\sigma, \nu` **using PyMC**
 
 The more interesting distribution is the volatility shown in Figure 8.  Here we see that there
 are certain times with high volatility such as 2008 (the financial crisis).
@@ -1325,18 +1332,28 @@ hard to estimate.
 
     **Figure 8: HMC posterior estimate of the volatility**
 
-Using the above stochastic volatility model, we can estimate :math:`\sigma` and
-:math:`\nu` using SGLD shown in Figure 9.  Starting with :math:`\nu`, its mode
-is not too far off with a value around :math:`9.75`, however the width of the
-distribution is much tighter with most of the density in between 9.7 and 9.8.
-Clearly either SGLD and/or our variational approximation has changed the
-estimate of the degrees of freedom.  
+The above stochastic volatility model was implemented using a simple PyTorch model
+Module and builtin the `distributions <https://pytorch.org/docs/stable/distributions.html>`__
+package doing a lot of the heavy work.  I used a mini-batch size of 100 even
+though I only had once trace by repeating it 100 times.  I found that this
+stabilized the gradient estimates from the Gaussian sampled :math:`\b s`
+values.  The RMSprop preconditioner was quite easy to implement by inheriting
+from the existing PyTorch class and overriding the :math:`step()` function (see
+the notebook).  I used a burnin of 500 samples with a fixed starting learning rate of
+0.001 throughout the burnin after which the decayed polynomial learning rate
+schedule kicks in.  I didn't use any thinning.  Figure 9 shows the estimate for
+:math:`\sigma` and :math:`\nu` using SGLD.  
 
 .. figure:: /images/sgld_sgld_sigma_nu.png
     :height: 300px
     :align: center
 
     **Figure 9: Posterior estimate of ** :math:`\sigma, \nu` **using SGLD**
+
+Starting with :math:`\nu`, its mode is not too far off with a value around
+:math:`9.75`, however the width of the distribution is much tighter with most
+of the density in between 9.7 and 9.8.  Clearly either SGLD and/or our
+variational approximation has changed the estimate of the degrees of freedom.  
 
 This is even more pronounced with :math:`\sigma`.
 Here we get a mode around 0.025, which is quite different than the 0.09 - 0.10
@@ -1369,7 +1386,7 @@ the HMC estimate it's much bigger swinging from almost 0.035 to 0.08.
 One reason that we see lower variance that is often cited is that variational
 inference often underestimates the 
 `variance <https://www.quora.com/Why-and-when-does-mean-field-variational-Bayes-underestimate-variance>`__.
-Thi sis because it is optimizing the KL divergence between the approximate
+This is because it is optimizing the KL divergence between the approximate
 posterior :math:`q` and the exact one :math:`p`.  This means that this is
 more likely to favour low variance estimates, see my `previous post <link://slug/semi-supervised-learning-with-variational-autoencoders>`__ for more details.
 Another (perhaps more likely?) reason is that the approximation is just not a
@@ -1381,15 +1398,87 @@ workflow (which they were not at all intended to be used for by the way!).
 Implementation Notes
 --------------------
 
+Here are some unorganized notes about implementing the above two toy experiments.
+As usual, you can find the corresponding 
+`notebooks on Github <https://github.com/bjlkeng/sandbox/blob/master/stochastic_langevin/>`__.
+
+* In general, implementing SGLD is quite simple.  Literally you just need to
+  add a noise term to the gradient and update as usual in SGD.  Just be careful
+  that the *variance* of the Gaussian noise is equal to the learning rate
+  (thus standard deviation is the square root of that).
+* The builtin `distributions <https://pytorch.org/docs/stable/distributions.html>`__ package 
+  in PyTorch is great.  It's so much less error prone than writing out the log density yourself
+  and it has so many nice helper functions like `rsample()` to do reparameterized sampling
+  and `log_prob()` to compute the log probability.
+* The one thing that required some careful coding was adding mini-batches to
+  the stochastic volatility model.  It's nothing that complicated but you have to ensure
+  all the dimensions add up and you setting up your PyTorch distributions to
+  have the correct dimension.  Generally, you'll want one copy of the parameters but
+  replicate them when you are computing forward/backward and then average over
+  your batch size in your loss.
+* For computing the mixture distributions in the first experiment, I carelessly just
+  took the weighted average of two Gaussians log densities -- this is not correct!
+  The weighted average needs to be done in non-log space and then logged.  Alternatively,
+  it's just much easier to use the builtin PyTorch function of `MixtureSameFamily()`
+  to do what you need.
+* One silly (but conceptually important) mistake was getting PyTorch scalars
+  (i.e., zero dimensional tensors) and one dimensional tensors (i.e., vectors)
+  with one element confused.  Depending on the API, you're going to want one or the other
+  and need to use `squeeze()` or `unsqueeze()` as appropriate.
+* Don't forget to use `torch.no_grad()` in your optimizer or else PyTorch will try
+  to compute the computational graph of your gradient updates and cause an error.
+* For the brute force computation to estimate the exact posterior for the Gaussian mixture,
+  you need to compute the unnormalized log density for a grid and the
+  exponentiate it to get the probability.  Obviously exponentiating it can
+  cause overflow, so I scaled the unnormalized log density by subtracting the
+  max value and then exponentiate.  Got to pay attention to numerical stability sometimes!
+* For the stochastic volatility model for time step :math:`s_i`, the naive random walk
+  posterior that we considered (by not modelling it at all) would cause the variance
+  at :math:`Var(s_i) = \sum_{j=1}^i Var(s_j)`.  This is because a random walk is a sum
+  of independent random variables, meaning the sum at the :math:`i^{th}` step
+  is the sum of the variances.  This is obviously not what we want.
+* I had to set the initial value of :math:`s_0` close to the value of the
+  posterior mean of :math:`s_1` or else I didn't get something to fit well.  I
+  suspect that it's just really hard to backprop so far back and move the value
+  of :math:`s_0` significantly.
+* On that topic, I initialized :math:`\sigma, \nu` to the means of the
+  respective priors and :math:`\bf s` to a small number near 0.  Both of these
+  seemed like reasonable choices.
+* I had to tune the stochastic volatility model to get a fit like you see above.
+  Too little and it wouldn't get the right shape.  Too much and it would get a
+  strange shape as well with :math:`\sigma` continually shrinking.  I suspect
+  the approximate Gaussian posterior is not really a good fit for this model.
+* While implementing the RMSprop preconditioner, I used inherited from the
+  PyTorch implementation and overrode `step()` function.  Using that function
+  as a base, it's interesting to see all the various branches and special cases
+  it handles beyond the vanilla one (e.g. momentum, centered, weighted_decay).
+  Of course in my implementation I just ignored all of them and only
+  implemented the simplest case but makes you appreciate the extra work that needs
+  to be done to write a good library.
+* I added a random seed at some point in the middle just so I could reproduce
+  my results.  This was important because of the high randomness from the Bayes
+  by Backprop sampling in the training.  Obviously it's good practice but when
+  you're just playing around it's easy to ignore.
 
 Conclusion
 ==========
 
+Another post on an incredibly interesting topic.  To be honest, I'm a bit
+disappointed that it was some magical solution to doing Bayesian learning but
+it makes sense that it is not because otherwise all the popular libraries would
+have already implemented it.  The real reason I got onto this topic is because
+it is important conceptually to a stream of research that I've been trying to
+build up to.  I find it incredibly satisfying to learn things "from the ground
+up", going back to the fundamentals.  I feel that this is the best way to get a
+strong intuition for the techniques.  The downside is that you go down so many
+rabbit holes and don't make too much direct progress towards a target.
+Fortunately, I'm not beholden to any sort of pressures like academics so I can
+wander around to my hearts content.  As they say, it's about the journey not
+the destination.  See you next time!
+
 References
 ==========
-* Wikipedia:
-* Previous posts: `Markov Chain Monte Carlo and the Metropolis Hastings Algorithm  <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__, `Hamiltonian Monte Carlo <hamiltonian-monte-carlo>`__ 
-  TODO FIX ME with other previous posts
+* Previous posts: `Markov Chain Monte Carlo and the Metropolis Hastings Algorithm  <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__, `Hamiltonian Monte Carlo <link://slug/hamiltonian-monte-carlo>`__, `The Expectation Maximization Algorithm <link://slug/the-expectation-maximization-algorithm>`__, `Variational Autoencoders <link://slug/variational-autoencoders>`__, `An Introduction to Stochastic Calculus <link://slug/an-introduction-to-stochastic-calculus>`__
 
 .. [Welling2011] Max Welling and Yee Whye Teh, "`Bayesian Learning via Stochastic Gradient Langevin Dynamics <https://www.stats.ox.ac.uk/~teh/research/compstats/WelTeh2011a.pdf>`__", ICML 2011.
 .. [Blundell2015] Blundell et. al, "`Weight Uncertainty in Neural Networks <https://arxiv.org/abs/1505.05424>`__", ICML 2015.
