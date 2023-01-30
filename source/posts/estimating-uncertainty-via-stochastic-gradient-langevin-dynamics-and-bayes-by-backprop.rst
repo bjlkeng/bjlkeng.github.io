@@ -232,7 +232,7 @@ according to this probability using a
 
 .. math::
 
-       A(q^*, p^*) = \min[1, \exp\big(-U(q^*) + U(q) -K(p^*)+K(p)\big)] \tag{7}
+       A(q^*, p^*) = \min[1, \exp\big(-U(q^*) + U(q) -K(p^*)+K(p)\big)] \tag{6}
 
 Langevin Monte Carlo
 --------------------
@@ -263,17 +263,17 @@ anyways.  Starting from Equation 3:
        &= q_i(t) + \epsilon [p(t) - \frac{\epsilon}{2} \frac{\partial H}{\partial q_i}(q(t))] && \text{Eq. } 2 \\
        &= q_i(t) - \frac{\epsilon^2}{2} \frac{\partial H}{\partial q_i}(q(t)) + \epsilon p(t) \\
        &= q_i(t) - \frac{\epsilon^2}{2} \frac{\partial U}{\partial q_i}(q(t)) + \epsilon p(t) && H := U(q) + K(p) \\
-   \tag{8}
+   \tag{7}
 
-Equation 8 is known in physics as (one type of) Langevin Equation (see box for explanation),
+Equation 7 is known in physics as (one type of) Langevin Equation (see box for explanation),
 thus the name Langevin Monte Carlo.
 
 Now that we have a proposal state (:math:`q^*`), we can view the algorithm
 as running a vanilla Metropolis-Hastings update where the proposal is coming
 from a Gaussian with mean :math:`q_i(t) - \frac{\epsilon^2}{2} \frac{\partial U}{\partial q_i}(q(t))`
-and variance :math:`\epsilon^2` corresponding to Equation 8.
+and variance :math:`\epsilon^2` corresponding to Equation 7.
 By eliminating :math:`p` (and the associated :math:`p^*`, not shown here) from
-the original HMC acceptance probability in Equation 7, we can derive the
+the original HMC acceptance probability in Equation 6, we can derive the
 following expression:
 
 .. math::
@@ -282,7 +282,7 @@ following expression:
         \Pi_{i=1}^d 
             \frac{\exp(-(q_i - q_i^* + (\epsilon^2 / 2) [\frac{\partial U}{\partial q_i}](q^*))^2 / 2\epsilon^2)}
             {\exp(-(q_i^* - q_i + (\epsilon^2 / 2) [\frac{\partial U}{\partial q_i}](q))^2 / 2\epsilon^2)}\big] \\
-    \tag{9}
+    \tag{8}
 
 Even though LMC is derived from HMC, its properties are quite different.
 The movement between states will be a combination of the :math:`\frac{\epsilon^2}{2} \frac{\partial U}{\partial q_i}(q(t))`
@@ -293,7 +293,7 @@ Metropolis-Hastings random walk.  A big difference though is that LMC
 has better scaling properties when increasing dimensions.  See [Radford2012]_
 for more details.
 
-Finally, we'll want to re-write equation 8 using different notation
+Finally, we'll want to re-write Equation 7 using different notation
 to line up with our usual notation for stochastic gradient descent.
 First, we'll use :math:`\theta` instead of :math:`q` to imply that
 we're sampling from parameters of our model.  Next, we'll
@@ -304,9 +304,9 @@ rewrite the potential energy :math:`U(\theta)` as the likelihood times prior
 
     U(\theta_t) &= -log[f(\theta_t)] \\
                 &= -\log[p(\theta_t)] - \sum_{i=1}^N \log[p(x_i | \theta_t)] \\
-    \tag{10}
+    \tag{9}
 
-Simplifying our Equation 8, we get:
+Simplifying our Equation 7, we get:
 
 .. math::
 
@@ -316,7 +316,7 @@ Simplifying our Equation 8, we get:
     \theta_{t+1} - \theta_t &= \frac{\epsilon_0^2}{2} \big (\nabla \log[p(\theta_t)] + \sum_{i=1}^N \nabla \log[p(x_i | \theta_t)]]\big) + \epsilon_0 p(t) \\
     \theta_{t+1} - \theta_t &= \frac{\epsilon}{2} \big (\nabla \log[p(\theta_t)] + \sum_{i=1}^N \nabla \log[p(x_i | \theta_t)]]\big) + \sqrt{\epsilon} p(t) && \epsilon := \epsilon_0^2\\
     \Delta \theta_t &= \frac{\epsilon}{2} \big (\nabla \log[p(\theta_t)] + \sum_{i=1}^N \nabla \log[p(x_i | \theta_t)]]\big) + \varepsilon && \varepsilon \sim N(0, \epsilon) \\
-    \tag{11}
+    \tag{10}
 
 Which looks eerily like gradient descent except that we're adding Gaussian
 noise at the end. Stay tuned!
@@ -356,7 +356,7 @@ noise at the end. Stay tuned!
    of the standard Weiner process :math:`W_t` are zero-mean Gaussians with
    variance equal to the time difference.  Once discretized with stepsize
    :math:`\epsilon`, this precisely equals our :math:`\varepsilon` sample from
-   Equation 11.
+   Equation 10.
 
 
 
@@ -377,7 +377,7 @@ with observed data points :math:`x_i`, we have:
 
     \Delta \theta_t = \frac{\epsilon_t}{2} \big (\nabla \log[p(\theta_t)] 
     + \frac{N}{n} \sum_{i=1}^n \nabla \log[p(x_{ti} | \theta_t)]]\big) 
-      \tag{12}
+      \tag{11}
 
 where :math:`\epsilon_t` is a sequence of step sizes, and each iteration :math:`t`
 we have a subset of :math:`n` data points called a *mini-batch*
@@ -394,7 +394,7 @@ with a major requirement that the step size schedule :math:`\epsilon_t` satisfie
 .. math::
 
    \sum_{t=1}^\infty \epsilon_t = \infty \hspace{50pt} \sum_{t=1}^\infty \epsilon_t^2 < \infty
-   \tag{13}
+   \tag{12}
 
 Intuitively, the first constraint ensures that we make progress to reaching the
 local optimum, while the second constraint ensures we don't just bounce around
@@ -403,7 +403,7 @@ a decayed polynomial:
 
 .. math::
 
-   \epsilon_t = a(b+t)^{-\gamma} \tag{14}
+   \epsilon_t = a(b+t)^{-\gamma} \tag{13}
 
 with :math:`\gamma \in (0.5, 1]`.
 
@@ -423,7 +423,7 @@ For :math:`j^{th}` parameter :math:`\theta^j` in iteration :math:`t`, we have:
 
 .. math::
 
-   v(\theta^j, t) := \gamma v(\theta^j, t-1) + (1-\gamma)(\nabla Q_i(\theta^j))^2 \tag{15}
+   v(\theta^j, t) := \gamma v(\theta^j, t-1) + (1-\gamma)(\nabla Q_i(\theta^j))^2 \tag{14}
 
 where :math:`Q_i` is the loss function, and :math:`\gamma` is the smoothing
 constant of the average with typical value set at `0.99`.  With :math:`v(\theta^j, t)`,
@@ -431,9 +431,9 @@ the update becomes:
 
 .. math::
 
-   \Delta \theta^j := - \frac{\epsilon_t}{\sqrt{v(\theta^j, t)}} \nabla Q_i(\theta^j) \tag{16}
+   \Delta \theta^j := - \frac{\epsilon_t}{\sqrt{v(\theta^j, t)}} \nabla Q_i(\theta^j) \tag{15}
 
-From Equation 16, when you have large gradients (:math:`\nabla Q >1`), it scales
+From Equation 15, when you have large gradients (:math:`\nabla Q >1`), it scales
 the learning rate down; while if you have small gradients (:math:`\nabla Q < 1`),
 it scales the learning rate up.  If :math:`\nabla Q` is constant in each
 parameter but with different magnitudes, it will update each parameter by the
@@ -482,9 +482,9 @@ we'll arrive at the evidence lower bound (ELBO) for a single data point
              &= E_q\big[\log p(\theta,X) - \log q(\theta|\phi)\big] \\
              &= E_q\big[\log p(X|\theta) + \log p(\theta) - \log q(\theta|\phi)\big] \\
              &= E_q\big[\text{likelihood} + \text{prior} - \text{approx. posterior} \big] \\
-              \tag{17}
+              \tag{16}
 
-The left hand side of Equation 17 is constant (with respect to the observed
+The left hand side of Equation 16 is constant (with respect to the observed
 data), so maximizing the right hand side achieves our desired goal.  It just so
 happens this looks a lot like finding a 
 `MAP <https://en.wikipedia.org/wiki/Maximum_a_posteriori_estimation>`__ with a
@@ -492,7 +492,7 @@ likelihood and prior term.  The two differences are that (a) we have an addition
 for our approximate posterior and (b) we have to take the expectation with respect
 to samples from that approximate posterior.  When using a SGD approach, we can
 sample points from the :math:`q` distribution and use it to approximate the
-expectation in Equation 17.  In many cases though, it's not obvious how to
+expectation in Equation 16.  In many cases though, it's not obvious how to
 sample from :math:`q` because you also need to backprop through it.  
 
 In the case of 
@@ -501,10 +501,10 @@ we define an approximate Gaussian posterior :math:`q(z|\phi)` on the latent vari
 :math:`z`. This approximate posterior is defined by a neural network with
 weights :math:`\phi` that output a mean and variance representing the
 parameters of the Gaussian.  We will want to sample from :math:`q` to
-approximate the expectation in Equation 17, but also backprop through :math:`q`
+approximate the expectation in Equation 16, but also backprop through :math:`q`
 to update the weights :math:`\phi` of the approximate posterior.
 You can't directly backprop through it but you can reparameterize it by
-using a standard normal distribution, starting from Equation 17 (using
+using a standard normal distribution, starting from Equation 16 (using
 :math:`z` instead of :math:`\theta`):
 
 .. math::
@@ -512,7 +512,7 @@ using a standard normal distribution, starting from Equation 17 (using
         &E_{z\sim q}\big[\log p(X|z) + \log p(z) - \log q(z|\phi)\big] \\
         &= E_{\epsilon \sim \mathcal{N}(0, I)}\big[(\log p(X|z) + \log p(z) - \log q(z|\phi))\big|_{z=\mu_z(X) + \Sigma_z^{1/2}(X) * \epsilon}\big] \\
         &\approx (\log p(X|z) + \log p(z) - \log q(z|\phi))\big|_{z=\mu_z(X) + \Sigma_z^{1/2}(X) * \epsilon} \\
-        \tag{18}
+        \tag{17}
 
 where :math:`\mu_z` and :math:`\Sigma_z` are the mean and covariance matrix of
 the approximate posterior, and :math:`\epsilon` is a sample from a standard Gaussian.
@@ -526,46 +526,45 @@ Stochastic Gradient Langevin Dynamics
 =====================================
 
 Stochastic Gradient Langevin Dynamics (SGLD) combines the ideas of Langevin
-Monte Carlo (Equation 11) with Stochastic Gradient Descent (Equation 12)
+Monte Carlo (Equation 10) with Stochastic Gradient Descent (Equation 11)
 given by:
 
 .. math::
 
     \Delta \theta_t &= \frac{\epsilon_t}{2} \big (\nabla \log[p(\theta_t)] + \frac{N}{n} \sum_{i=1}^n \nabla \log[p(x_{ti} | \theta_t)]\big) + \varepsilon \\
     \varepsilon &\sim N(0, \epsilon_t)  \\
-    \tag{19}
+    \tag{18}
 
 This results in an algorithm that is mechanically equivalent to SGD except with
 some Gaussian noise added to each parameter update.  Importantly though, there
-are several key decisions:
+are several key choices that SGLD makes:
 
 * :math:`\epsilon_t` decreases towards zero just as in SGD.
 * Balance the Gaussian noise :math:`\varepsilon` variance with the step size
   :math:`\epsilon_t` as in LMC.
-* Ignore the Metropolis-Hastings updates (Equation 9) using the fact that
+* Ignore the Metropolis-Hastings updates (Equation 8) using the fact that
   rejection rates asymptotically go to zero as :math:`\epsilon_t \to 0`. 
 
-This algorithm has the advantage of SGLD of being able to work on large data
+This algorithm has the advantage of SGD of being able to work on large data
 sets (because of the mini-batches) while still computing uncertainty
 (using LMC-like estimates).  The avoidance of the Metropolis-Hastings update is
 key so that an expensive evaluation of the whole dataset is not needed at each
 iteration.
 
 The intuition here is that in earlier iterations this will behave much like SGD
-stepping towards a local maximum because the large gradient overcomes the
-noise.  In later iterations though with a small :math:`\epsilon_t`, the noise
+stepping towards a local minimum because the large gradient overcomes the
+noise.  In later iterations with a small :math:`\epsilon_t`, the noise
 dominates and the gradient plays a much smaller role resulting in each
 iteration bouncing around the local maxima via a random walk (with a bias
-towards the local maximum from the gradient), and in between the two
+towards the local minimum from the gradient).  Additionally, in between these two
 extremes, the algorithm should vary smoothly.  Thus with carefully selected
-hyperparameters, you can pretty closely sample from the posterior distribution
+hyperparameters, you can *effectively* sample from the posterior distribution
 (more on this later).
 
 What is not obvious though is that why this should give correct the correct
-result.  It surely will be able to get close to a local maximum (similar to
+result.  It surely will be able to get close to a local minimum (similar to
 SGD) but why would it give the correct uncertainty estimates without the
-Metropolis-Hastings update step?  The next subsection explains this using the
-reasoning from [Welling2011].
+Metropolis-Hastings update step?  This is the topic of the next subsection.
 
 Correctness of SGLD 
 -------------------
@@ -575,164 +574,176 @@ informal sketch presented in the original paper* ([Welling2011]_) *.  I'll mainl
 stick to the original paper's presentation (mostly because the hardcore proof
 is way beyond my comprehension), but will call out a couple of notable things.*
 
-To setup this problem, let us first define several quantities.
-First the true gradient of the log probability,
-which is just the negative of the gradient our our usual loss function
-(with no mini-batches):
+To set up this problem, let us first define several quantities.
+First define the true gradient of the log probability,
+which is just the negative gradient our usual `MAP <https://en.wikipedia.org/wiki/Maximum_a_posteriori_estimation>`__
+loss function (with no mini-batches):
 
 .. math::
 
-   g(\theta) = \nabla \log p(\theta) + \sum_{i=1}^N \nabla \log p(X_i|\theta) \tag{20}
+   g(\theta) = \nabla \log p(\theta) + \sum_{i=1}^N \nabla \log p(X_i|\theta) \tag{19}
 
 Next, let's define another related quantity:
 
 .. math::
 
-   h_t(\theta) = \nabla \log p(\theta) + \frac{N}{n}\sum_{i=1}^n \nabla \log p(X_{ti}|\theta) - g(\theta) \tag{21}
+   h_t(\theta) = \nabla \log p(\theta) + \frac{N}{n}\sum_{i=1}^n \nabla \log p(X_{ti}|\theta) - g(\theta) \tag{20}
 
-Equation 21 is essentially the difference between our SGD update (with
+Equation 20 is essentially the difference between our SGD update (with
 mini-batch :math:`t`) and the true gradient update (with all the data).
-Notice that an SGD update can be obtained by canceling the last term
-with :math:`h_t(\theta) + g(\theta)`.
+Notice that :math:`h_t(\theta) + g(\theta)` is just an SGD update 
+which can be obtained by canceling out the last term.
 
 Importantly, :math:`h_t(\theta)` is a zero-mean random variable with
-finite variance :math:`V(\theta)`.  Since we're subtracting the
-true gradient, our mini-batches should net out to zero-mean.
-Similarly, the variance comes from the fact that we're randomly selecting
-mini-batches.  
+finite variance :math:`V(\theta)`.  Zero-mean because we're subtracting out the
+true gradient so our random mini-batches should not have any bias.  Similarly,
+the randomness comes from the fact that we're randomly selecting finite
+mini-batches, which should yield only a finite variance.
 
-With these quantities, we can rewrite Equation 19 as:
+With these quantities, we can rewrite Equation 18 using the fact
+that :math:`h_t(\theta) + g(\theta)` is an SGD update:
 
 .. math::
 
     \Delta \theta_t &= \frac{\epsilon_t}{2} \big (g(\theta_t) + h_t(\theta_t) \big) + \varepsilon \\
     \varepsilon &\sim N(0, \epsilon_t)  \\
-    \tag{22}
+    \tag{21}
 
 With the above setup, we'll show two statements:
 
 1. **Transition**: When we have large :math:`t`, the state transition
-   of Equation 19/22 will be the same as LMC, that is, have its equilibrium
+   of Equation 18/21 will be the same as LMC, that is, have its equilibrium
    distribution be the posterior distribution.
-2. **Convergence**: That there exists a subsequence of :math:`\theta_1,
+2. **Convergence**: There exists a subsequence of :math:`\theta_1,
    \theta_2, \ldots` that converges to the posterior distribution.
 
 With these two shown, we can see that SGLD (for large :math:`t`) will
 eventually get into a state where we can *theoretically* sample the posterior
-distribution.  The paper makes a stronger argument that the subsequence
-convergence implies convergence of the entire sequence but it's not clear to me
-that it is the case.  At the end of this subsection, I'll also mention a theorem
-from the rigorous proof ([Teh2015]_) that gives a practical result where this
-may not matter.
+distribution by taking the appropriate subsequence.  The paper makes a stronger
+argument that the subsequence convergence implies convergence of the entire
+sequence but it's not clear to me that it is the case.  At the end of this
+subsection, I'll also mention a theorem from the rigorous proof ([Teh2015]_)
+that gives a practical result where this may not matter.
 
 **Transition**
 
-We'll argue that Equation 19/22 converges to the same transition probability
+We'll argue that Equation 18/21 converges to the same transition probability
 as LMC and thus its equilibrium distribution will be the posterior.
 
-First notice that Equation 19/22 is the same LMC (Equation 11) except for the
+First notice that Equation 18/21 is the same equation as LMC (Equation 10) except for the
 additional randomness due to the mini-batches: :math:`\frac{N}{n} \sum_{i=1}^n \nabla \log[p(x_{ti} | \theta_t)]`.
-This term is multiplied by a :math:`\frac{\epsilon_t}{2}` factor where as
+This term is multiplied by a :math:`\frac{\epsilon_t}{2}` factor whereas
 the standard deviation from the :math:`\varepsilon` term is :math:`\sqrt{\epsilon_t}`.
-Thus as :math:`\epsilon_t \to 0`, the error from the mini-batch term vs. LMC
-will vanish faster than the :math:`\varepsilon` term, converging to the LMC
-proposal distribution (Equation 11).
+Thus as :math:`\epsilon_t \to 0`, the error from the mini-batch term will
+vanish faster than the :math:`\varepsilon` term, converging to the LMC proposal
+distribution (Equation 10).  That is, at large :math:`t` it approximates LMC
+and eventually converges to it in the limit since the gradient update (and the
+difference between the two) vanishes.
 
 Next, we observe that LMC is a special case of HMC.  HMC is actually a
 discretization of a continuous time differential equation.  The discretization
 introduces error in the calcluation, which is the only reason why we need a
 Metropolis-Hastings update (see previous post on `HMC <link://slug/hamiltonian-monte-carlo>`__).
 However as :math:`\epsilon_t \to 0`, this error becomes negligible converging
-to the continuous time dynamics, implying a 100% acceptance rate.  Thus, there
-is no need for an MH update for very small :math:`\epsilon_t`. 
+to the continuous time dynamics, implying a 100% acceptance rate.
+Thus, there is no need for an MH update for very small :math:`\epsilon_t`. 
 
-In summary for the large :math:`t`, the :math:`t^{th}` iteration of Equation
-19/22 effectively defines the LMC Markov chain transition whose equilibrium
-distribution is the desired posterior.  This would be fine if we had a fixed
-:math:`t` but we are actually shrinking :math:`t` towards 0, thus it
-defines a non-stationary Markov Chain and so we still need to show the actual
-sequence will convert to the posterior.
+In summary for large :math:`t`, the :math:`t^{th}` iteration of Equation
+18/21 closely approximates the LMC Markov chain transition with very small error
+so its equilibrium distribution closely approximates the desired posterior.
+This would be great if we had a fixed :math:`t` but we are actually shrinking
+:math:`t` towards 0 (as is needed by SGD), thus SGLD actually defines a
+non-stationary Markov Chain and so we still need to show the actual sequence
+will convert to the posterior.
 
 **Convergence**
 
 We will show that there exists some sequence of samples :math:`\theta_{t=a_1},
 \theta_{t=a_2}, \ldots` that converge to the posterior for some strictly
 increasing sequence :math:`a_1, a_2, \ldots` (note: the sequence is not
-sequential e.g., `a_{n+1}` is likely much bigger than :math:`a_{n+1}`).
+sequential e.g., :math:`a_{n+1}` is likely much bigger than :math:`a_{n+1}`).
 
 First we fix a small :math:`\epsilon_0` such that :math:`0 < \epsilon_0 << 1`.
 Assuming :math:`\{\epsilon_t\}` satisfy the decayed polynomial property from
-Equation 14, there exists an increasing subsequence :math:`\{a_n \}` such that 
-:math:`\sum_{t=a_n+1}^{a_{n+1}} \epsilon_t \to \epsilon_0` as :math:`n \to \infty`.
+Equation 13, there exists an increasing subsequence :math:`\{a_n \}` such that 
+:math:`\sum_{t=a_n+1}^{a_{n+1}} \epsilon_t \to \epsilon_0` as :math:`n \to \infty`
+(note: the :math:`+1` in the sum's upper limit is in the subscript, while the
+lower limit is not).
 That is, we can split the sequence :math:`\{\epsilon_t\}` into non-overlapping
 segments such that successive segment approaches :math:`\epsilon_0`.  This can
 be easily constructed by continually extending the current run until you go
 over :math:`\epsilon_0`.  Since :math:`\epsilon_t` is decreasing, and we are
-guaranteed that the sequence doesn't converge (Equation 13), we can always
+guaranteed that the sequence doesn't converge (Equation 12), we can always
 construct the next segment with a smaller error that the previous one.
 
 For large :math:`n`, if we look at each segment, the total Gaussian noise
 injected will be the sum of each of the Gaussian noise injections.  The
 `variance of sums of independent Gaussians <https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables>`__ 
-is just the sum of the variances so the total variance will be 
+is just the sum of the variances, so the total variance will be 
 :math:`O(\epsilon_0)`.  Thus, the injected noise (standard deviation)
 will be on the order of :math:`O(\sqrt{\epsilon})`.  Given this,
-we will want to show that the variance from the mini-batch error is
-dominated by the injected noise.
+next we will want to show that the variance from the mini-batch error is
+dominated by this injected noise.
 
 To start, since :math:`\epsilon_0 << 1`, we have 
 :math:`||\theta_t-\theta_{t=a_n}|| << 1` for :math:`t \in (a_n, a_{n+1}]` 
-since the updates from Equation 19/22 cannot stray too far from where it
+since the updates from Equation 18/21 cannot stray too far from where it
 started.  Assuming the gradients vary smoothly (a key assumption) then
-we can see the total update without the noise from a segment 
-:math:`t \in (a_n, a_{n+1}]` (using Equation 22 minus the noise :math:`\varepsilon`) is:
+we can see the total update without the injected noise for a segment 
+:math:`t \in (a_n, a_{n+1}]` is (i.e., Equation 21 minus the noise :math:`\varepsilon`):
 
 .. math::
 
    \sum_{t=a_n+1}^{a_{n+1}} \frac{\epsilon_t}{2}\big(g(\theta_t) + h_t(\theta_t)\big)
-   = \frac{\epsilon_0}{2} g(\theta_{t=a_n}) + O(\epsilon_0) + \sum_{t=a_n+1}^{a_{n+1}} \frac{\epsilon_t}{2} h_t(\theta_t) \tag{23}
+   = \frac{\epsilon_0}{2} g(\theta_{t=a_n}) + O(\epsilon_0) + \sum_{t=a_n+1}^{a_{n+1}} \frac{\epsilon_t}{2} h_t(\theta_t) \tag{22}
 
 We see that the :math:`g(\cdot)` summation expands into the gradient at
 :math:`\theta_{t=a_n}` plus an error term :math:`O(\epsilon_0)`.  This is
 from our assumption of :math:`||\theta_t-\theta_{t=a_n}|| << 1` plus
 the gradients varying smoothly (`Lipschitz contiuity <https://en.wikipedia.org/wiki/Lipschitz_continuity>`__),
-which imply that the difference between successive gradients will be less than 1
-(for an appropriately small :math:`\epsilon_0`).  Thus, the total error will
-be :math:`\frac{\epsilon_t}{2} O(1) = O(\epsilon_0)` from our original
-construction above.
+which imply that the difference between successive gradients will also be much
+smaller than 1 (for an appropriately small :math:`\epsilon_0`).  Thus, the
+error from this term on this segment will
+be :math:`\sum_{t=a_n+1}^{a_{n+1}} \frac{\epsilon_t}{2} O(1) = O(\epsilon_0)` as
+shown in Equation 22.
 
-Next, we deal with the :math:`h_t(\cdot)` in Equation 23.  Since we know
+Next, we deal with the :math:`h_t(\cdot)` in Equation 22.  Since we know
 that :math:`\theta_t` did not vary much in our interval :math:`t \in (a_n, a_{n+1}]`
-given our :math:`\epsilon << 1` assumption, we have :math:`h_t(\theta_t) = O(1)`
-in our interval since our gradients vary smoothly.  Additionally each
-:math:`h_t(\cdot)` will be a random variable which we can assume to be
-independent, thus IID (doesn't change argument if they are randomly
-partitioned which will only make the error smaller).  Plugging this into
-:math:`\sum_{t=a_n+1}^{a_{n+1}} \frac{\epsilon_t}{2} h_t(\theta_t)`, we
+given our :math:`\epsilon_t << 1` assumption, we have :math:`h_t(\theta_t) = O(1)`
+in our interval since our gradients vary smoothly (again due to 
+`Lipschitz contiuity <https://en.wikipedia.org/wiki/Lipschitz_continuity>`__).
+Additionally each :math:`h_t(\cdot)` will be a random variable which we can
+assume to be independent, thus IID (doesn't change argument if they are
+randomly partitioned which will only make the error smaller).  Plugging this
+into :math:`\sum_{t=a_n+1}^{a_{n+1}} \frac{\epsilon_t}{2} h_t(\theta_t)`, we
 see the variance is :math:`O(\sum_{t=a_n+1}^{a_{n+1}} (\frac{\epsilon_t}{2})^2)`.
-Putting this together in Equation 23, we get:
+Putting this together in Equation 22, we get:
 
 .. math::
 
    \sum_{t=a_n+1}^{a_{n+1}} \frac{\epsilon_t}{2}\big(g(\theta_t) + h_t(\theta_t)\big)
-   &= \frac{\epsilon}{2} g(\theta_{t=a_n}) + O(\epsilon) + O\Big(\sqrt{\sum_{t=a_n+1}^{a_{n+1}} (\frac{\epsilon_t}{2})^2}\Big) \\
-   &= \frac{\epsilon}{2} g(\theta_{t=a_n}) + O(\epsilon) \\
-   \tag{24}
+   &= \frac{\epsilon_0}{2} g(\theta_{t=a_n}) + O(\epsilon_0) + O\Big(\sqrt{\sum_{t=a_n+1}^{a_{n+1}} (\frac{\epsilon_t}{2})^2}\Big) \\
+   &= \frac{\epsilon_0}{2} g(\theta_{t=a_n}) + O(\epsilon_0) \\
+   \tag{23}
 
-From Equation 24, we can see the total stochastic gradient over our segment is
+From Equation 22, we can see the total stochastic gradient over our segment is
 just the exact gradient starting from :math:`\theta_{t=a_n}` with step size
 :math:`\epsilon_0` plus a :math:`O(\epsilon_0)` error term.  But recall our 
 injected noise was of order :math:`O(\sqrt{\epsilon_0})`, which in turn dominates
-:math:`O(\epsilon_0)`.  Thus for small :math:`\epsilon_0`, our sequence
-:math:`\theta_{t=a_1}, \theta_{t=a_2}, \ldots` will approximate LMC and
+:math:`O(\epsilon_0)` (for :math:`\epsilon_0 < 1`).  Thus for small
+:math:`\epsilon_0`, our sequence :math:`\theta_{t=a_1}, \theta_{t=a_2}, \ldots`
+will approximate LMC because each segment will essentially be an LMC update
+with very decreasing small error.  As a result, this *subsequence* will
 converge to the posterior as required.
+
+--------------
 
 Now the above argument showing that there exists a subsequence that samples
 from the posterior isn't that useful because we don't know what that
 subsequence is!  But [Teh2015]_ provides a much more rigorous treatment
 of the subject showing a much more useful result in Theorem 7.  Without
 going into all of the mathematical rigour, I'll present the basic idea 
-(from what I can gather).
+(from what I can gather):
 
     **Theorem 1:** (Summary of Theorem 7 from [Teh2015]_)
     For a test function :math:`\varphi: \mathbb{R}^d \to \mathbb{R}`, the
@@ -744,11 +755,11 @@ going into all of the mathematical rigour, I'll present the basic idea
     .. math::
 
         \lim_{m\to\infty} \frac{\epsilon_1 \varphi(\theta_0) + \ldots + \epsilon_m \varphi(\theta_{m-1})}{\sum_{t=1}^m \epsilon_t} = \int_{\mathbb{R}^d} \varphi(\theta)\pi(d\theta)
-        \tag{25}
+        \tag{24}
 
 Theorem 1 gives us a more practical way to utilize the samples from SGLD.
-We don't need to generate the exact samples that we would from LMC,
-instead we can just the SGLD samples with their respective step sizes to
+We don't need to generate the exact samples that we would get from LMC,
+instead we can just directly use the SGLD samples and their respective step sizes to
 compute a weighted average for any actual quantity we would want (e.g.
 expectation, variance, credible interval etc.).  According to Theorem 1,
 this will converge to the exact quantity using the true posterior.
@@ -789,7 +800,7 @@ is equivalent to our original function with its associated gradient (using the c
 
     \hat{f}(\hat{\theta}) &= f({\bf D}^{-\frac{1}{2}}\hat{\theta})=f(\theta) \\
     \nabla\hat{f}(\hat{\theta}) &= {\bf D}^{-\frac{1}{2}}\nabla f(\theta)
-    \tag{26}
+    \tag{25}
 
 Thus, regular SGD can be performed as such on the original :math:`\theta`, and for convenience,
 we'll define :math:`{\bf G}={\bf D}^{-1}`:
@@ -801,7 +812,7 @@ we'll define :math:`{\bf G}={\bf D}^{-1}`:
         && {Eq. } 26 \\
    \theta_t &= \theta_{t-1} - \epsilon {\bf D}^{-1}\nabla f(\theta) && \text{multiply through by } {\bf D}^{-\frac{1}{2}} \\
    \theta_t &= \theta_{t-1} - \epsilon {\bf G}(\theta_{t-1})\nabla f(\theta) && \text{rename } {\bf D}^{-1} \text{ to } {\bf G}\\
-   \tag{27}
+   \tag{26}
 
 So the transformation turns out to be quite simple by multiplying our gradient
 with a user chosen preconditioning matrix :math:`{\bf G}`.  In the context of SGLD, we
@@ -812,7 +823,7 @@ Riemannian manifold:
 
    \Delta \theta_t &= \frac{\epsilon_t}{2} \big[ {\bf G}(\theta_t) \big (\nabla \log[p(\theta_t)] + \frac{N}{n} \sum_{i=1}^n \nabla \log[p(x_{ti} | \theta_t)]\big) + \Gamma(\theta_t) \big] + {\bf G}^{\frac{1}{2}}(\theta_t)\varepsilon \\
         \varepsilon &\sim N(0, \epsilon_t)  \\
-        \tag{28}
+        \tag{27}
 
 where :math:`\Gamma(\theta_t) = \sum_j \frac{\partial G_{i,j}}{\partial
 \theta_j}` describe how the preconditioner changes with respect to
@@ -833,15 +844,15 @@ empirically to do well in SGD (being only a diagonal preconditioner matrix):
 
 .. math::
 
-   G(\theta_{t+1}) = diag\big(\frac{1}{\lambda + \sqrt{v(\theta_{t+1})}}\big) \tag{29}
+   G(\theta_{t+1}) = diag\big(\frac{1}{\lambda + \sqrt{v(\theta_{t+1})}}\big) \tag{28}
 
-where :math:`v(\theta_{t+1})=v(\theta, t)` is from Equation 15 and
+where :math:`v(\theta_{t+1})=v(\theta, t)` is from Equation 14 and
 :math:`\lambda` is a small constant to prevent divide by zero.
 
 Additionally, [Li2016]_ has shown that there is no need to include the
-:math:`\Gamma(\theta)` term in Equation 28 (even though it's not too hard to
+:math:`\Gamma(\theta)` term in Equation 27 (even though it's not too hard to
 compute with a diagonal matrix).  This is because it introduces an additional
-bias term that scales with :math:`\frac{(1-\alpha)^2}{\alpha^3}` (from Equation 28), 
+bias term that scales with :math:`\frac{(1-\alpha)^2}{\alpha^3}` (from Equation 27), 
 which is practically always set close to 1 (e.g. PyTorch's default for 
 `RMSprop <https://pytorch.org/docs/stable/generated/torch.optim.RMSprop.html>`__ is :math:`0.99`).
 As a result, we can simply use off-the-shelf RMSprop with only a slight
@@ -868,16 +879,16 @@ Bayes by Backprop ([Blundell2015]_) is a generalization of some previous work
 to allow an approximation of Bayesian uncertainty, particularly for weights in
 large scale neural network models where traditional MCMC methods do not scale.A
 Approximation is the key word here as it utilizes variational inference
-(Equation 17).  That is, instead of directly estimating the posterior, it 
+(Equation 16).  That is, instead of directly estimating the posterior, it 
 preselects the functional form of a distribution (:math:`q(\theta|\phi)`)
-parameterized by :math:`\phi`, and optimizes :math:`\phi` using Equation 17.
-The right hand side of Equation 17 is often called the *variational free
+parameterized by :math:`\phi`, and optimizes :math:`\phi` using Equation 16.
+The right hand side of Equation 16 is often called the *variational free
 energy* (among other names), which we'll denote by :math:`\mathcal{F}(X, \phi)`:
 
 .. math::
 
   \mathcal{F}(X, \phi) =  E_q\big[\log p(X|\theta) + \log p(\theta) - \log q(\theta|\phi)\big] 
-  \tag{30}
+  \tag{29}
 
 Recall that instead of solving for point estimates of :math:`\theta`, we're
 trying to solve for :math:`\phi`, which implicitly gives us (approximate)
@@ -886,7 +897,7 @@ for a neural network :math:`\theta` would be the weights and instead of a
 single number for each one, we would have a known distribution (that we select)
 parameterized by :math:`\phi`.
 
-The main problem with Equation 30 is that we will need to sample from
+The main problem with Equation 29 is that we will need to sample from
 :math:`q(\theta|phi)` in order to approximate the expectation, but we will
 also need to backprop through the "sample" in order to optimize :math:`\phi`.
 If this sounds familiar, it is precisely the same issue we had with variation
@@ -914,7 +925,7 @@ to any distribution with the following proposition:
         \frac{\partial f(\theta,\phi)}{\partial\theta}\frac{\partial\theta}{\partial\phi}
             + \frac{\partial f(\theta, \phi)}{\partial \phi}
        \big]
-       \tag{31}
+       \tag{30}
 
     **Proof**
 
@@ -928,7 +939,7 @@ to any distribution with the following proposition:
            \frac{\partial f(\theta,\phi)}{\partial\theta}\frac{\partial\theta}{\partial\phi}
                + \frac{\partial f(\theta, \phi)}{\partial \phi} && \text{chain rule}
           \big] \\
-       \tag{32}
+       \tag{31}
 
 So Proposition 1 tells us that the "reparameterization trick" is valid in the context of 
 gradient based optimization (i.e., SGD) if we can show :math:`q(\varepsilon)d\varepsilon = q(\theta|\phi)d\theta`.
@@ -945,7 +956,7 @@ Thus, we have:
        &= \frac{1}{\sqrt{2\pi\sigma^2}}\exp\{-\frac{((\sigma \cdot \varepsilon + \mu)- \mu)^2}{2\sigma^2}\}\sigma d\varepsilon && \theta = \sigma \cdot \varepsilon + \mu \\
        &= \frac{1}{\sqrt{2\pi}}\exp\{-\frac{\varepsilon^2}{2}\} d\varepsilon \\
        &= q(\varepsilon)d\epsilon
-       \tag{33}
+       \tag{32}
             
 We can easily see that the two expressions are the same.  To drive the point home,
 we can show the same relationship with the exponential distribution parameterized by :math:`\lambda`
@@ -959,7 +970,7 @@ distribution :math:`\varepsilon`:
        &=\lambda \exp\{-\lambda \frac{\varepsilon}{\lambda}\}\frac{d\varepsilon}{\lambda} && \theta = \frac{\varepsilon}{\lambda} \\
        &= \exp\{-\varepsilon\}d\varepsilon \\
        &= q(\varepsilon)d\epsilon
-       \tag{34}
+       \tag{33}
 
 The nice thing about this trick is that it's widely implemented in modern tooling.
 For example PyTorch has an implementation on distributions where this condition is true
@@ -993,7 +1004,7 @@ tied means from [Welling2011]_.  The model from the paper is specified as:
     \theta_1 &\sim \mathcal{N}(0, \sigma_1^2) \\
     \theta_2 &\sim \mathcal{N}(0, \sigma_2^2) \\
     x_i &\sim \pi * \mathcal{N}(\theta_1, \sigma_x^2) + (1-\pi) * \mathcal{N}(\theta_1 + \theta_2, \sigma_x^2) \\
-    \tag{35}
+    \tag{34}
 
 with :math:`p=0.5, \sigma_1^2=10, \sigma_2^2=1, \sigma_x^2=2`.  They generate
 100 :math:`x_i` data points using a fixed :math:`\theta_1=0, \theta_2=1`.
@@ -1013,7 +1024,7 @@ Figure 2 shows a histogram of the data I generated with the modified
 
     **Figure 2: Histogram of** :math:`x_i` **datapoints**
 
-From Equation 35, you can that the only parameters we need to estimate are
+From Equation 34, you can that the only parameters we need to estimate are
 :math:`\theta_1` :math:`\theta_2`.  If our procedure is correct, we would
 our posterior distribution to have a lot of density around 
 :math:`(\theta_1, \theta_2) = (0, 1)`.  
@@ -1136,9 +1147,9 @@ First, let's take a look at the definition of the model:
    \sigma &\sim Exponential(10), & \nu &\sim Exponential(.1) \\
    s_0 &\sim Normal(0, 100), & s_i &\sim Normal(s_{i-1}, \sigma^2) \\
    \log(r_i) &\sim t(\nu, 0, \exp(-2 s_i)) \\
-   \tag{36}
+   \tag{35}
 
-Equation 36 models the logarithm of the daily returns, :math:`r_i` with a 
+Equation 35 models the logarithm of the daily returns, :math:`r_i` with a 
 `student-t distribution <https://en.wikipedia.org/wiki/Student%27s_t-distribution>`__,
 parameterized by the degrees of freedom :math:`\nu` following an 
 `exponential distribution <https://en.wikipedia.org/wiki/Exponential_distribution>`__,
@@ -1204,7 +1215,7 @@ probability model defining the notation :math:`x_i = \log(r_i)` for clarity:
     p(s_i|s_{i-1}, \sigma) &\sim N(s_{i-1}, \sigma^2) = N(0, \sigma^2) + s_{i-1} \\
     p(\sigma) &\sim Exp(10) \\
     p(\nu) &\sim Exp(0.1) \\
-    \tag{37}
+    \tag{36}
 
 Notice the random walk of the stochastic volatility :math:`s_i` can be
 simplified by pulling out the mean, so we only have to worry about the
@@ -1249,12 +1260,12 @@ approximate the posterior of :math:`s_i` using a Gaussian with learnable mean
 
     p(s_i|s_{i-1},\sigma, {\bf x}) \approx q(s_i|s_{i-1}, \sigma; \mu_i) &= s_{i-1} + N(\mu_i, \sigma)  \\
     &= s_{i-1} + \sigma \varepsilon + \mu_i, &\varepsilon &\sim N(0, 1)\\
-    \tag{38}
+    \tag{37}
 
 Notice that :math:`q` is not conditioned on :math:`\bf x`.  In other words, we are
 going to use :math:`\bf x` (via SGLD) to estimate the parameter :math:`\mu_i`,
 but there is no probabilistic dependency on :math:`\bf x`.  Next using the ELBO
-from Equation 17, we want to be able to derive a loss to optimize our
+from Equation 16, we want to be able to derive a loss to optimize our
 approximate posterior :math:`q(s_i|s_{i-1}, \sigma; \mu_i)`:
 
 .. math::
@@ -1263,7 +1274,7 @@ approximate posterior :math:`q(s_i|s_{i-1}, \sigma; \mu_i)`:
     &\geq -E_q[\log\frac{q(s_{1\ldots n}|s_0, \sigma, \mu_i)}{p({\bf s_{1\ldots n}, x}| s_0, \sigma, \nu)}] \\
     &= E_q[\sum_{i=1}^n \log p(s_i, x_i|s_{i-1}, \sigma, \nu) - \log q(s_i|s_{i-1}, \sigma, \mu_i)] \\
     &= E_q[\sum_{i=1}^n \log p(x_i|s_i, \nu) + \log p(s_i | s_{i-1}, \sigma) - \log q(s_i|s_{i-1}, \sigma, \mu_i)]
-    \tag{39}
+    \tag{38}
 
 Finally, putting together our final loss based on the posterior we have:
 
@@ -1273,9 +1284,9 @@ Finally, putting together our final loss based on the posterior we have:
    &= \log p({\bf x} | s_0, \sigma, \nu; {\bf \mu}) + \log p(s_0) + \log p(\sigma) + \log p(\nu)  \\
    &\approx E_q[\sum_{i=1}^n \log p(x_i|s_i, \nu) + \log p(s_i | s_{i-1}, \sigma) - \log q(s_i|s_{i-1}, \sigma, \mu_i)] \\
    &\hspace{10pt} + \log p(s_0) + \log p(\sigma) + \log p(\nu)  \\
-   \tag{40}
+   \tag{39}
 
-We can see from Equation 40, that we have likelihood terms (:math:`\log p(x_i|s_i, \nu)`, 
+We can see from Equation 39, that we have likelihood terms (:math:`\log p(x_i|s_i, \nu)`, 
 :math:`\log p(s_i | s_{i-1}, \sigma)`), prior terms (:math:`\log p(s_0)`,
 :math:`\log p(\sigma)`, :math:`\log p(\nu)`), and a regularizer from our variational
 approximation (:math:`\log q(s_i|s_{i-1}, \sigma, \mu_i)`).  This is a common
@@ -1284,11 +1295,11 @@ pattern in variational approximations with an ELBO loss.
 With the loss we have enough to (approximately) model our stochastic volatility problem.
 First, start by defining a learnable parameter for each of :math:`\sigma, \nu, s_0, \mu_i`.
 Next, the forward pass is simply computing the :math:`s_i` values using the
-reparameterization trick in Equation 38 using the loss from Equation 40.  Only
+reparameterization trick in Equation 37 using the loss from Equation 39.  Only
 a minor adjustment to SGD to change it in the SGLD and you are off to the races!
 
 An important point to make this practically train was to implement the RMSprop
-preconditioner from Equation 29.  Without it I was unable to get a reasonable fit.
+preconditioner from Equation 28.  Without it I was unable to get a reasonable fit.
 This is probably analogous to most deep networks: if you don't use a modern
 optimizer, it's really difficult to fit a deep network.  In this case we're
 modeling more than 2900 time steps, which can cause lots of issues when
