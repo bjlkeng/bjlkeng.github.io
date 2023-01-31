@@ -772,11 +772,12 @@ One problem both with SGD and SGLD is that the gradients updates might
 be very slow due to the curvature of the loss surface.  This is known
 to be a common phenomenon in large parameter models like neural networks
 where there are many `saddle points <https://en.wikipedia.org/wiki/Saddle_point>`__.
-These parts of a surface have very small gradients, which will cause
-any SGD-based optimization (or any first-order derivative) procedure to be very
-slow.  On the other end, if one of the dimensions in your loss has a very curvature
-gradient, it could cause unnecessary oscillations in one dimension while the other one
-with low curvature crawls along.  The solution to this problem is to use precondition.
+These parts of a surface have very small gradients (in at least one dimension),
+which will cause any SGD-based optimization procedure to be very slow.  On the
+other end, if one of the dimensions in your loss has large curvature
+(and thus gradient), it could cause unnecessary oscillations in one dimension
+while the other one with low curvature crawls along.  The solution to this
+problem is to use preconditioner.
 
 .. figure:: /images/sgld-precondition.png
     :height: 250px
@@ -790,9 +791,9 @@ with low curvature crawls along.  The solution to this problem is to use precond
 
 Preconditioning is a type of local transform that changes the optimization landscape
 so the curvature is equal in all directions ([Dauphin2015]_).  As shown in Figure 1, preconditioning
-can change the curvature (shown by the contour lines) and as a result make SGD converge
+can transform the curvature (shown by the contour lines) and as a result make SGD converge
 more quickly.  Formally, for a loss function :math:`f` with parameters :math:`\theta \in \mathbb{R}^d`,
-we introduce a non-singular matrix :math:`{\bf D}^{\frac{1}{2}}` such that :math:`\hat{\theta}={\bf D}^{\frac{1}{2}}`.
+we introduce a non-singular matrix :math:`{\bf D}^{\frac{1}{2}}` such that :math:`\hat{\theta}={\bf D}^{\frac{1}{2}}\theta`.
 Using the change of variables, we can define a new function :math:`\hat{f}(\hat{\theta})` that
 is equivalent to our original function with its associated gradient (using the chain rule):
 
@@ -807,15 +808,16 @@ we'll define :math:`{\bf G}={\bf D}^{-1}`:
 
 .. math::
 
-   \hat{\theta_t} &= \hat{\theta_{t-1}} - \epsilon \nabla \hat{f}(\hat{\theta}) \\
-   \hat{\theta_t} &= \hat{\theta_{t-1}} - \epsilon {\bf D}^{-\frac{1}{2}}\nabla f(\theta) 
-        && {Eq. } 26 \\
+   \hat{\theta}_t &= \hat{\theta}_{t-1} - \epsilon \nabla \hat{f}(\hat{\theta}) \\
+   \hat{\theta}_t &= \hat{\theta}_{t-1} - \epsilon {\bf D}^{-\frac{1}{2}}\nabla f(\theta) 
+        && {Eq. } 25 \\
    \theta_t &= \theta_{t-1} - \epsilon {\bf D}^{-1}\nabla f(\theta) && \text{multiply through by } {\bf D}^{-\frac{1}{2}} \\
    \theta_t &= \theta_{t-1} - \epsilon {\bf G}(\theta_{t-1})\nabla f(\theta) && \text{rename } {\bf D}^{-1} \text{ to } {\bf G}\\
    \tag{26}
 
 So the transformation turns out to be quite simple by multiplying our gradient
-with a user chosen preconditioning matrix :math:`{\bf G}`.  In the context of SGLD, we
+with a user chosen preconditioning matrix :math:`{\bf G}` that is usually a function of the
+current parameters :math:`\theta_{t-1}`.  In the context of SGLD, we
 have an equivalent result ([Li2016]_) where :math:`{\bf G}` defines a
 Riemannian manifold:
 
@@ -834,8 +836,8 @@ expected
 `Fisher information <https://en.wikipedia.org/wiki/Fisher_information>`__
 matrix, which is too costly for any modern deep learning model with many
 parameters since it grows with the square of the parameters (similar to the
-Hessian).  We in fact don't specifically need the Fisher information metric,
-just something that defines the Riemannian manifold metric, which only requires
+Hessian).  It turns out that we don't specifically need the Fisher information matrix,
+we just need something that defines the Riemannian manifold metric, which only requires
 a `positive definite matrix <https://en.wikipedia.org/wiki/Definite_matrix>`__.
 
 The insight from [Li2016]_ was that we can use RMSprop as the preconditioning
@@ -847,11 +849,11 @@ empirically to do well in SGD (being only a diagonal preconditioner matrix):
    G(\theta_{t+1}) = diag\big(\frac{1}{\lambda + \sqrt{v(\theta_{t+1})}}\big) \tag{28}
 
 where :math:`v(\theta_{t+1})=v(\theta, t)` is from Equation 14 and
-:math:`\lambda` is a small constant to prevent divide by zero.
+:math:`\lambda` is a small constant to prevent numerical instability.
 
 Additionally, [Li2016]_ has shown that there is no need to include the
 :math:`\Gamma(\theta)` term in Equation 27 (even though it's not too hard to
-compute with a diagonal matrix).  This is because it introduces an additional
+compute for a diagonal matrix).  This is because it introduces an additional
 bias term that scales with :math:`\frac{(1-\alpha)^2}{\alpha^3}` (from Equation 27), 
 which is practically always set close to 1 (e.g. PyTorch's default for 
 `RMSprop <https://pytorch.org/docs/stable/generated/torch.optim.RMSprop.html>`__ is :math:`0.99`).
@@ -877,7 +879,7 @@ Bayes by Backprop
 
 Bayes by Backprop ([Blundell2015]_) is a generalization of some previous work
 to allow an approximation of Bayesian uncertainty, particularly for weights in
-large scale neural network models where traditional MCMC methods do not scale.A
+large scale neural network models where traditional MCMC methods do not scale.
 Approximation is the key word here as it utilizes variational inference
 (Equation 16).  That is, instead of directly estimating the posterior, it 
 preselects the functional form of a distribution (:math:`q(\theta|\phi)`)
@@ -893,16 +895,16 @@ energy* (among other names), which we'll denote by :math:`\mathcal{F}(X, \phi)`:
 Recall that instead of solving for point estimates of :math:`\theta`, we're
 trying to solve for :math:`\phi`, which implicitly gives us (approximate)
 distributions in the form of :math:`q(\theta|\phi)`.  To make this concrete,
-for a neural network :math:`\theta` would be the weights and instead of a
-single number for each one, we would have a known distribution (that we select)
-parameterized by :math:`\phi`.
+for a neural network, :math:`\theta` would be the weights and instead of a
+single number for each one, we would have a known distribution :math:`q(\theta|\phi)`
+(that we select) parameterized by :math:`\phi`.
 
 The main problem with Equation 29 is that we will need to sample from
-:math:`q(\theta|phi)` in order to approximate the expectation, but we will
+:math:`q(\theta|\phi)` in order to approximate the expectation, but we will
 also need to backprop through the "sample" in order to optimize :math:`\phi`.
 If this sounds familiar, it is precisely the same issue we had with variation
 autoencoders.  The solution there was to use the "reparameterization trick"
-so re-write the expectation in terms of a standard Gaussian distribution (and
+to rewrite the expectation in terms of a standard Gaussian distribution (and
 some additional transformations) to yield an equivalent loss function that we
 can backprop through.  
 
@@ -911,7 +913,7 @@ to any distribution with the following proposition:
 
     **Proposition 1:** (Proposition 1 from [Blundell2015]_)
     Let :math:`\varepsilon` be a random variable with probability density
-    fgiven by :math:`q(\varepsilon)` and let :math:`\theta = t(\phi, \varepsilon)`
+    given by :math:`q(\varepsilon)` and let :math:`\theta = t(\phi, \varepsilon)`
     where :math:`t(\phi, \varepsilon)` is a deterministic function.
     Suppose further that the marginal probability density of :math:`\theta`,
     :math:`q(\theta|\phi)`, is such that 
@@ -927,7 +929,7 @@ to any distribution with the following proposition:
        \big]
        \tag{30}
 
-    **Proof**
+    **Proof:**
 
     .. math::
 
@@ -937,13 +939,19 @@ to any distribution with the following proposition:
            &= \int \frac{\partial}{\partial\phi}[f(\theta,\phi)]q(\varepsilon)d\varepsilon \\
            &= E_{q(\varepsilon)}\big[
            \frac{\partial f(\theta,\phi)}{\partial\theta}\frac{\partial\theta}{\partial\phi}
-               + \frac{\partial f(\theta, \phi)}{\partial \phi} && \text{chain rule}
-          \big] \\
+               + \frac{\partial f(\theta, \phi)}{\partial \phi}\big]  && \text{chain rule}
+          \\
        \tag{31}
 
 So Proposition 1 tells us that the "reparameterization trick" is valid in the context of 
-gradient based optimization (i.e., SGD) if we can show :math:`q(\varepsilon)d\varepsilon = q(\theta|\phi)d\theta`.
-This may be a big cryptic so let's show it for a couple of examples.
+gradient based optimization (i.e., SGD) if we can show 
+:math:`q(\varepsilon)d\varepsilon = q(\theta|\phi)d\theta`.
+Equation 30 may be a bit cryptic because of all the partial derivatives but notice two things. 
+First, the expectation is no with respect to a standard distribution :math:`q(\varepsilon)`,
+and, second, the inner part of the expectation is done automatically through backprop when
+you implement :math:`t(\phi, \varepsilon)` so you don't have to explicitly calculate it
+(it's just the chain rule though).  Let's take a look at a couple of examples.
+
 First, let's take a look at the good old Gaussian distribution with parameters
 :math:`\phi = \{\mu, \sigma\}` and :math:`\varepsilon` being a standard Gaussian.
 We let :math:`t(\mu, \sigma, \varepsilon) = \sigma \cdot \varepsilon + \mu`.
@@ -981,8 +989,8 @@ section of the PyTorch docs for details.
 
 With these this reparameterization trick (and picking appropriate distributions), one
 can easily implement variational inference by substituting the exact posterior for
-a fixed parameterized distribution (e.g., Gaussian, exponential etc.).  With this
-approximation, you can then easily train the network using standard SGD methods
+a fixed parameterized distribution (e.g., Gaussian, exponential etc.).  This allows
+you to easily train the network using standard SGD methods
 that sample from this approximate posterior distribution but *importantly* can
 backprop through them to update the parameters of these approximate posteriors
 to hopefully achieve a good estimate of uncertainty.  Note however that variational
