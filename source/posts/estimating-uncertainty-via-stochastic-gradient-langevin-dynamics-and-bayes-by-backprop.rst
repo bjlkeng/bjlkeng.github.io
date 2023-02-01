@@ -1017,9 +1017,9 @@ tied means from [Welling2011]_.  The model from the paper is specified as:
 with :math:`p=0.5, \sigma_1^2=10, \sigma_2^2=1, \sigma_x^2=2`.  They generate
 100 :math:`x_i` data points using a fixed :math:`\theta_1=0, \theta_2=1`.
 In the paper, they say that this generates a bimodal distribution but I wasn't
-able to reproduce it.  I had to change :math:`\sigma_x^2=2.56` to get a slightly wider distribution to get something
-similarly bimodal.  I did this *only* for the data generation, all the other 
-estimation below uses :math:`\sigma_x^2=2`.  Theoretically, if they got a weird
+able to reproduce it.  I had to change :math:`\sigma_x^2=2.56` to get a
+slightly wider bimodal distribution.  I did this *only* for the data generation, all the  
+training uses :math:`\sigma_x^2=2`.  Theoretically, if they got a weird
 random seed they might be able to get something bimodal, but I wasn't able to.
 Figure 2 shows a histogram of the data I generated with the modified
 :math:`\sigma_x^2=2.56`.
@@ -1033,8 +1033,8 @@ Figure 2 shows a histogram of the data I generated with the modified
     **Figure 2: Histogram of** :math:`x_i` **datapoints**
 
 From Equation 34, you can that the only parameters we need to estimate are
-:math:`\theta_1` :math:`\theta_2`.  If our procedure is correct, we would
-our posterior distribution to have a lot of density around 
+:math:`\theta_1` :math:`\theta_2`.  If our procedure is correct,
+our posterior distribution should have a lot of density around 
 :math:`(\theta_1, \theta_2) = (0, 1)`.  
 
 .. figure:: /images/sgld-mixture-exact.png
@@ -1046,12 +1046,13 @@ our posterior distribution to have a lot of density around
 
 Since this is just a relatively simple two dimensional problem, you can
 estimate the posterior by discretizing the space and calculating the
-unnormalized posterior (likelihood x prior) for each cell.  As long as you
+unnormalized posterior (likelihood times prior) for each cell.  As long as you
 don't overflow your floating point variables, you should be able to get a
 contour plot as shown in Figure 3.  As you can see, the distribution is bimodal
 with a peak at :math:`(-0.25, 1.5)` and :math:`(1.25, -1.5)`.  It's not exactly
 the :math:`(0, 1)` peak we were expecting, but considering that we only sampled
-100 points, this is the "best guess" based on the data we've seen.
+100 points, this is the "best guess" based on the data we've seen (and the
+associated priors).
 
 Results
 _______
@@ -1071,19 +1072,19 @@ exact results in Figure 3.
 
     **Figure 4: MCMC estimate of posterior**
 
-Lastly, I implemented both SGD and SGLD in PyTorch (using the same PyTorch
+Next, I implemented both SGD and SGLD in PyTorch (using the same PyTorch
 Module).  This was pretty simple by leveraging the builtin `distributions
 <https://pytorch.org/docs/stable/distributions.html>`__ package, particularly
 the `MixtureSameFamily <https://pytorch.org/docs/stable/distributions.html>`__
 one.  
 
-For SGD with batch size of :math:`100` and learning rate (:math:`\epsilon`)
-0.01 and 300 epochs with initial values as :math:`(\theta_1, \theta_2) = (1,
-1)`, I was able to iterate towards a solution of :math:`(-0.2327, 1.5129)`,
-which is pretty much bang on the first mode.  This gave me confidence that
-my model was correct.  
+For SGD with batch size of :math:`100`, learning rate (:math:`\epsilon`)
+0.01, 300 epochs, and initial values as :math:`(\theta_1, \theta_2) = (1, 1)`, 
+I was able to iterate towards a solution of :math:`(-0.2327, 1.5129)`,
+which is pretty much our first mode from Figure 3.  This gave me confidence
+that my model was correct.  
 
-Next, moving onto SGLD, I used the same effective learning rate schedule as the
+Next, moving onto SGLD, I used the same effective decayed polynomial learning rate schedule as the
 paper with :math:`a=0.01, b=0.0001, \gamma=0.55` that results in 10000 sweeps
 through the entire dataset with batch size of 1.  I also did different
 experiments with batch size of 10 and 100, adjusting the same decaying
@@ -1101,15 +1102,15 @@ The results are shown in Figure 5.
 
 We can see that SGLD is no panacea for posterior estimation.  With batch size of 100,
 it only ever explores one mode.  Likely, I would have to play with the learning
-rate/schedule to ensure that it starts high enough that the Langevin dynamics
+rate schedule to ensure that it starts high enough that the Langevin dynamics
 will let it wander to the other mode.  Considering I started at :math:`(1,1)`,
 it's no surprise that it drifted towards the top left first.  The upside is that
 it seemed to be squarely centred on one of the true modes that SGD found at
-:math:`(-0.25, 1.5)`.
+approximately :math:`(-0.25, 1.5)`.
 
 Batch size of 10 shows quite a different story.  It seemed to properly explore
 the first mode but then wanders to the second mode and get stuck there.  Again,
-we're seeing the sensitivity of SGLD to the learning rate/schedule.  The peak
+we're seeing the sensitivity of SGLD to the learning rate schedule.  The peak
 on the second mode seems a bit off as well.  I should note that as mentioned in
 the SGLD section, the samples from it are not guaranteed to match the true
 posterior (theoretically only a subsequence is guaranteed).  So this comparison
@@ -1137,11 +1138,11 @@ the uncertainty around one of the modes (at least in this simple case).
 Stochastic Volatility Model
 ---------------------------
 
-The next experiment I did was with a stochastic volatility model from the 
+The next experiment I did was with a stochastic volatility model from this 
 `example <https://www.pymc.io/projects/examples/en/latest/case_studies/stochastic_volatility.html>`__
 in the PyMC docs.  This is actually kind of the opposite of what you would
-want to use SGLD and Bayes by Backprop for because it is a complex model for
-stock prices with a *single* time series, which is the observed price of the
+want to use SGLD and Bayes by Backprop for because it is a hierarchical model for
+stock prices with only a *single* time series, which is the observed price of the
 S&P 500.  I mostly picked this model because I was curious how we could apply
 these methods to more complex hierarchical Bayesian models.  Being one of the
 prime examples of where Bayesian methods can be used to analyze a problem,
@@ -1157,7 +1158,7 @@ First, let's take a look at the definition of the model:
    \log(r_i) &\sim t(\nu, 0, \exp(-2 s_i)) \\
    \tag{35}
 
-Equation 35 models the logarithm of the daily returns, :math:`r_i` with a 
+Equation 35 models the logarithm of the daily returns :math:`r_i` with a 
 `student-t distribution <https://en.wikipedia.org/wiki/Student%27s_t-distribution>`__,
 parameterized by the degrees of freedom :math:`\nu` following an 
 `exponential distribution <https://en.wikipedia.org/wiki/Exponential_distribution>`__,
@@ -1179,7 +1180,7 @@ Figure 6 shows the model using `plate notation <https://en.wikipedia.org/wiki/Pl
 
 This is a relatively simple model for explaining asset prices.  It is obviously
 too simple to actually model stock prices.  One thing to point out is that we
-have a single variance (:math:`\sigma`) of the volatility process across all
+have a single variance (:math:`\sigma`) for the volatility process across all
 time.  This seems kind of unlikely given that we know different market regimes
 will behave quite differently.  Further, I'm always pretty suspicious of 
 Gaussian random walks.  This implies some sort of 
@@ -1206,14 +1207,14 @@ It's not clear to me that there is a simple way around it using vanilla SGLD.
 The examples in [Welling2011]_ were non-hierarchical models such as Bayesian
 logistic regression that just needed to model uncertainty of the model
 coefficients.  After racking my brain for a while on how to model it, I 
-remembered that there was another example that I knew of for getting gradients
+remembered that there was another example where one gets gradients
 to flow through a latent variable -- variational autoencoders!  Yes, the good
 old reparameterization trick comes to save the day.  This led me to the work on
 this generalization in [Blundell2015]_ and one of the ways you estimate
 uncertainty in Bayesian neural networks.
 
 Let's write out some equations to make things more concrete. First the
-probability model defining the notation :math:`x_i = \log(r_i)` for clarity:
+probability model with some simplifying notation of :math:`x_i = \log(r_i)` for clarity:
 
 .. math::
 
@@ -1272,14 +1273,14 @@ approximate the posterior of :math:`s_i` using a Gaussian with learnable mean
 
 Notice that :math:`q` is not conditioned on :math:`\bf x`.  In other words, we are
 going to use :math:`\bf x` (via SGLD) to estimate the parameter :math:`\mu_i`,
-but there is no probabilistic dependency on :math:`\bf x`.  Next using the ELBO
+but there is no probabilistic dependence on :math:`\bf x`.  Next using the ELBO
 from Equation 16, we want to be able to derive a loss to optimize our
 approximate posterior :math:`q(s_i|s_{i-1}, \sigma; \mu_i)`:
 
 .. math::
 
     \log p({\bf x}| s_0, \sigma, \nu) 
-    &\geq -E_q[\log\frac{q(s_{1\ldots n}|s_0, \sigma, \mu_i)}{p({\bf s_{1\ldots n}, x}| s_0, \sigma, \nu)}] \\
+    &\geq -E_q[\log\frac{q({\bf s_{1\ldots n}}|s_0, \sigma, \mu_i)}{p({\bf s_{1\ldots n}, x}| s_0, \sigma, \nu)}] \\
     &= E_q[\sum_{i=1}^n \log p(s_i, x_i|s_{i-1}, \sigma, \nu) - \log q(s_i|s_{i-1}, \sigma, \mu_i)] \\
     &= E_q[\sum_{i=1}^n \log p(x_i|s_i, \nu) + \log p(s_i | s_{i-1}, \sigma) - \log q(s_i|s_{i-1}, \sigma, \mu_i)]
     \tag{38}
@@ -1303,8 +1304,8 @@ pattern in variational approximations with an ELBO loss.
 With the loss we have enough to (approximately) model our stochastic volatility problem.
 First, start by defining a learnable parameter for each of :math:`\sigma, \nu, s_0, \mu_i`.
 Next, the forward pass is simply computing the :math:`s_i` values using the
-reparameterization trick in Equation 37 using the loss from Equation 39.  Only
-a minor adjustment to SGD to change it in the SGLD and you are off to the races!
+reparameterization trick in Equation 37 using the loss from Equation 39.  And
+with just the minor adjustments to make SGD into SGLD, you're off to the races!
 
 An important point to make this practically train was to implement the RMSprop
 preconditioner from Equation 28.  Without it I was unable to get a reasonable fit.
@@ -1324,7 +1325,7 @@ parallel runs of HMC).  :math:`\sigma` (step size) has a mode around 0.09 -
 0.10 while :math:`\nu` has a mode between 9 and 10.  Recall that these variables 
 parameterize and an `exponential distribution <https://en.wikipedia.org/wiki/Exponential_distribution>`__, 
 so the expected value of the corresponding random  variables are :math:`\sigma
-\approx 10` and :math:`\nu \approx 0.1` (the inverse of the posterior).
+\approx 10` and :math:`\nu \approx 0.1` (the inverse of the parameter value).
 
 .. figure:: /images/sgld_mcmc_stepsize.png
    :height: 350px
@@ -1347,9 +1348,9 @@ hard to estimate.
 
 The above stochastic volatility model was implemented using a simple PyTorch model
 Module and builtin the `distributions <https://pytorch.org/docs/stable/distributions.html>`__
-package doing a lot of the heavy work.  I used a mini-batch size of 100 even
-though I only had once trace by repeating it 100 times.  I found that this
-stabilized the gradient estimates from the Gaussian sampled :math:`\b s`
+package doing a lot of the heavy work.  I used a mini-batch size of 100 by
+repeating the one trace 100 times.  I found this
+stabilized the gradient estimates from the Gaussian sampled :math:`\bf s`
 values.  The RMSprop preconditioner was quite easy to implement by inheriting
 from the existing PyTorch class and overriding the :math:`step()` function (see
 the notebook).  I used a burnin of 500 samples with a fixed starting learning rate of
@@ -1396,7 +1397,7 @@ significantly less variance at each time step.  For example, during 2008
 the variance of the volatility hardly changes staying close to 0.04, whereas in
 the HMC estimate it's much bigger swinging from almost 0.035 to 0.08.
 
-One reason that we see lower variance that is often cited is that variational
+One reason that is often cited for the lower variance is that variational
 inference often underestimates the 
 `variance <https://www.quora.com/Why-and-when-does-mean-field-variational-Bayes-underestimate-variance>`__.
 This is because it is optimizing the KL divergence between the approximate
@@ -1425,7 +1426,7 @@ As usual, you can find the corresponding
   and `log_prob()` to compute the log probability.
 * The one thing that required some careful coding was adding mini-batches to
   the stochastic volatility model.  It's nothing that complicated but you have to ensure
-  all the dimensions add up and you setting up your PyTorch distributions to
+  all the dimensions line up and you are setting up your PyTorch distributions to
   have the correct dimension.  Generally, you'll want one copy of the parameters but
   replicate them when you are computing forward/backward and then average over
   your batch size in your loss.
@@ -1477,8 +1478,8 @@ Conclusion
 ==========
 
 Another post on an incredibly interesting topic.  To be honest, I'm a bit
-disappointed that it was some magical solution to doing Bayesian learning but
-it makes sense that it is not because otherwise all the popular libraries would
+disappointed that it wasn't some magical solution to doing Bayesian learning but
+it makes sense because otherwise all the popular libraries would
 have already implemented it.  The real reason I got onto this topic is because
 it is important conceptually to a stream of research that I've been trying to
 build up to.  I find it incredibly satisfying to learn things "from the ground
@@ -1486,7 +1487,7 @@ up", going back to the fundamentals.  I feel that this is the best way to get a
 strong intuition for the techniques.  The downside is that you go down so many
 rabbit holes and don't make too much direct progress towards a target.
 Fortunately, I'm not beholden to any sort of pressures like academics so I can
-wander around to my hearts content.  As they say, it's about the journey not
+wander around where heart desires.  As they say, it's about the journey not
 the destination.  See you next time!
 
 References
