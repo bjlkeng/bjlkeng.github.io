@@ -1,7 +1,7 @@
 .. title: Bayesian Learning via Stochastic Gradient Langevin Dynamics and Bayes by Backprop
 .. slug: bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop
-.. date: 2022-11-23 21:25:40 UTC-05:00
-.. tags: Bayesian, Bayes by Backprop, SGLD, variational inference, elbo, mathjax
+.. date: 2023-02-02 11:25:40 UTC-05:00
+.. tags: Bayesian, Bayes by Backprop, SGLD, variational inference, HMC, Langevin, sgd, rmsprop, elbo, mathjax
 .. category: 
 .. link: 
 .. description: 
@@ -49,7 +49,7 @@ Motivation
 Bayesian learning is all about learning the `posterior <https://en.wikipedia.org/wiki/Posterior_probability>`__ 
 distribution for the parameters of your statistical model, which in turns allows
 you to quantify the uncertainty about them.  The classic place to start is with
-Bayes theorem:
+Bayes' theorem:
 
 .. math::
 
@@ -62,8 +62,8 @@ where :math:`{\bf x}` is a vector of data points (often
 `IID <https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables>`__)
 and :math:`{\bf \theta}` is the vector of statistical parameters of your model.
 
-Generally there is no closed form solution and you have to resort to heavy methods such
-as Markov Chain Monte Carlo (MCMC) methods or some form of approximation (which
+In the general case, there is no closed form solution and you have to resort to heavy methods such
+as Markov Chain Monte Carlo (MCMC) or some form of approximation (which
 we'll get to later).  MCMC methods never give you a closed form but instead give
 you samples from the posterior distribution, which you can use then use
 to compute any statistic you like.  These methods are quite slow because they
@@ -74,21 +74,21 @@ This brings us to our first scalability problem Bayesian learning: it does not
 scale well with the number of parameters.  Randomly sampling with MCMC implies
 that you have to "explore" the parameter space, which potentially grows
 exponentially with the number of parameters.  There are many techniques to make
-this more efficient but ultimately it's hard to compensate for an exponential.
+this more efficient but ultimately it's hard to overcome an exponential.
 The natural example for this situation is neural networks which can have orders
 of magnitude more parameters compared to classic Bayesian learning problems
 (I'll also add that the use-case of the posterior is usually different too).
 
-The other non-obvious scalability issue with MCMC from Equation 1 is the data.
+The other non-obvious scalability issue with MCMC in Equation 1 is the data.
 Each evaluation of MCMC requires an evaluation of the likelihood and prior from
 Equation 1.  For large data (e.g. modern deep learning datasets), you quickly
-hit issues either with memory and/or computation speed.
+hit issues with either memory and/or computation speed.
 
-For non-Bayesian learning, modern deep learning has really solved both of these
-problems by leveraging one of the simplest optimization method out there,
-stochastic gradient descent, along with the massive compute power of modern
+For non-Bayesian learning, modern deep learning has solved both of these
+problems by leveraging one of the simplest optimization methods out there
+(stochastic gradient descent) along with the massive compute power of modern
 hardware (and its associated toolchain).  How can we leverage these
-developments to scale Bayesian learning?  Keep reading to found out!
+developments to scale Bayesian learning?  Keep reading to find out!
 
 Background
 ==========
@@ -99,7 +99,7 @@ Bayesian Networks and Bayesian Hierarchical Models
 We can take the idea of parameters and priors from Equation 1 to multiple
 levels.  Equation 1 implicitly assumes that there is one "level" of parameters
 (:math:`\theta`) that we're trying to estimate with prior distributions
-(:math:`p({\bf \theta})`) attached to them, but there's no reason why you only
+(:math:`p({\bf \theta})`) attached to them but there's no reason why you only
 need a single level.  In fact, our parameters can be conditioned on parameters,
 which can be conditioned on parameters, and so on.  
 This is called `Bayesian hierarchical modeling <https://en.wikipedia.org/wiki/Bayesian_hierarchical_modeling>`__.
@@ -111,35 +111,34 @@ summary on the intuition with latent variables.
 
 To quickly summarize, in a parameterized statistical model there are broadly
 two types of variables: observed and unobserved.  Observed variables are ones
-where we have values and often assumed to be
-`IID <https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables>`__.
+that we have values for and form our dataset; unobserved variables are ones
+we don't have values for, and can go by several names.  In Bayesian networks they
+are usually called latent or hidden (random) variables, which can have complex
+conditional dependencies specified as a DAG.  In hierarchical models they are
+called **hyperparameters**, which are the parameters of the observed models,
+the parameters of parameters, parameters of parameters of parameters and so on.
+Similarly, each of these hyperparameters has a distribution which we call a
+**hyperprior**.  (Note: this is not the same concept as 
+`hyperparameters <https://en.wikipedia.org/wiki/Hyperparameter_(machine_learning)>`__ as it
+is usually used in the ML settings, which is very confusing.)
 
-Unobserved variables are ones we don't have values for and go by several names.
-In Bayesian networks they
-are usually called latent or hidden (random) variables, which can have 
-complex conditional dependencies specified as a DAG.  In hierarchical models
-they are called **hyperparameters**, which are the parameters of the 
-observed models, the parameters of parameters, parameters of parameters of
-parameters and so on.  Similarly, each of these hyperparameters has a 
-distribution which we call a **hyperprior**.  
-
-These two concepts are mathematically the same and (from what I gather) the
-difference is really just their interpretation.  In the context of hierarchical models,
-the hyperparameters and hyperpriors represent some structural knowledge
-about the problem, hence of the use of term "priors".  The data is typically
-believed to appear in hierarchical "clusters" that share similar attributes
-(i.e., drawn from the same distribution).  This view is more typical in
-Bayesian statistics applications where the number of stages (and thus
-variables) is usually small (two or three).  If terms such as 
-`fixed or random effects models <https://en.wikipedia.org/wiki/Multilevel_model>`__
-ring a bell then this framing will make much more sense.
+Latent variables and hyperparameters are mathematically the same and (from what
+I gather) the difference is really just in their interpretation.  In the context
+of hierarchical models, the hyperparameters and hyperpriors represent some
+structural knowledge about the problem, hence of the use of term "priors".  The
+data is typically believed to appear in hierarchical "clusters" that share
+similar attributes (i.e., drawn from the same distribution).  This view is more
+typical in Bayesian statistics applications where the number of stages (and
+thus variables) is usually small (two or three).  If terms such as `fixed or
+random effects models <https://en.wikipedia.org/wiki/Multilevel_model>`__ ring
+a bell then this framing will make much more sense.
 
 In Bayesian networks, the latent variables can represent the underlying
 phenomenon but also can be artificially introduced to make the problem more
 tractable.  This happens more often in machine learning such as in `variational
 autoencoders <link://slug/variational-autoencoders>`__.  In these contexts,
-they are often modeling a much bigger network and can have arbitrarily large
-stages and network sizes.  By varying assumptions on the latent variables and
+they are often modeling a much bigger network and can have an arbitrarily number of
+stages and nodes.  By varying assumptions on the latent variables and
 their connectivity, there are many efficient algorithms that can perform either
 approximate or exact inference on them.  Most applications in ML seem to follow
 the Bayesian networks nomenclature since its context is more general.  We'll
@@ -160,18 +159,19 @@ class of algorithm for sampling from a target probability distribution
 (e.g., posterior distribution).  The most basic algorithm is relatively simple,
 starting from a given point:
 
-1. Propose a new point (state)
+0. Initial the current point to some random starting point (i.e., state)
+1. Propose a new point (i.e., state)
 2. With some probability calculated using the target distribution (or some
-   function proportional to it), transition and accept this new point (state); 
-   otherwise, stay at the current point (state).
-3. Repeat steps 1 and 2, and periodically output the current point (state).
+   function proportional to it), either (a) transition and accept this new point (i.e., state),
+   or (b) stay at the current point (i.e., state).
+3. Repeat steps 1 and 2, and periodically output the current point (i.e., state).
 
 Many MCMC algorithms follow this general framework.  The key is ensuring
 that the proposal and the acceptance probability define a Markov chain such
 that its stationary distribution (i.e., steady state) is the same as your
 target distribution.  See my previous post on `MCMC <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__ for more details.
 
-Two additional complications.  The first complication is that your initial
+There are two complications with this approach.  The first complication is that your initial
 state may be in some weird region that causes the algorithm to explore parts of
 the state space that are low probability.  To solve this, you can perform
 "burn-in" by starting the algorithm and throwing away a bunch of 
@@ -251,13 +251,13 @@ Finally, we run a single step of the leap frog to get new a new proposal state
 :math:`q^*` and :math:`p^*`.
 
 We only need to focus on the position :math:`q` because we resample the
-momentum :math:`p` on each new proposal state, which gets reset each step
-anyways.  Starting from Equation 3:
+momentum :math:`p` on each new proposal state so the simulated momentum
+:math:`p^*` gets thrown away anyways.  Starting from Equation 3:
 
 .. math::
 
    q_i^* &= q_i(t) + \epsilon \frac{\partial H}{\partial p}(p(t+\epsilon/2))  \\
-       &= q_i(t) + \epsilon \frac{\partial [U(q) + K(p)]}{\partial p}(p(t+\epsilon/2))  \\
+       &= q_i(t) + \epsilon \frac{\partial [U(q) + K(p)]}{\partial p}(p(t+\epsilon/2))  && H := U(q) + K(p) \\
        &= q_i(t) + \epsilon \frac{\partial [U(q) + \frac{1}{2}\sum p_i^2]}{\partial p}(p(t+\epsilon/2))  && \text{Per def. of kinetic energy} \\
        &= q_i(t) + \epsilon p|_{p=p(t+\epsilon/2)}  \\
        &= q_i(t) + \epsilon [p(t) - \frac{\epsilon}{2} \frac{\partial H}{\partial q_i}(q(t))] && \text{Eq. } 2 \\
@@ -265,7 +265,7 @@ anyways.  Starting from Equation 3:
        &= q_i(t) - \frac{\epsilon^2}{2} \frac{\partial U}{\partial q_i}(q(t)) + \epsilon p(t) && H := U(q) + K(p) \\
    \tag{7}
 
-Equation 7 is known in physics as (one type of) Langevin Equation (see box for explanation),
+Equation 7 is known in physics as (one type of) Langevin Equation (see box below for explanation),
 thus the name Langevin Monte Carlo.
 
 Now that we have a proposal state (:math:`q^*`), we can view the algorithm
@@ -286,12 +286,12 @@ following expression:
 
 Even though LMC is derived from HMC, its properties are quite different.
 The movement between states will be a combination of the :math:`\frac{\epsilon^2}{2} \frac{\partial U}{\partial q_i}(q(t))`
-term and the :math:`\epsilon p(t)`.  Since :math:`\epsilon` is necessarily
+term and the :math:`\epsilon p(t)` term.  Since :math:`\epsilon` is necessarily
 small (otherwise your simulation will not be accurate), the former term
 will be very small and the latter term will resemble a simple
 Metropolis-Hastings random walk.  A big difference though is that LMC
-has better scaling properties when increasing dimensions.  See [Radford2012]_
-for more details.
+has better scaling properties when increasing dimensions compared to a pure
+random walk.  See [Radford2012]_ for more details.
 
 Finally, we'll want to re-write Equation 7 using different notation
 to line up with our usual notation for stochastic gradient descent.
@@ -319,7 +319,7 @@ Simplifying our Equation 7, we get:
     \tag{10}
 
 Which looks eerily like gradient descent except that we're adding Gaussian
-noise at the end. Stay tuned!
+noise at the end, stay tuned!
 
 .. admonition:: Langevin's Diffusion
 
@@ -368,7 +368,7 @@ I'll only briefly cover stochastic gradient descent because I'm assuming most
 readers will be very familiar with this algorithm.  
 `Stochastic gradient descent <https://en.wikipedia.org/wiki/Stochastic_gradient_descent>`__ (SGD)
 is an iterative stochastic optimization of gradient descent.  The main difference
-is that it uses a randomly selected subset of the data to estimate gradient at 
+is that it uses a randomly selected subset of the data to estimate the gradient at 
 each step.  For a given statistical model with parameters :math:`\theta`,
 log prior :math:`\log p(\theta)`, and log likelihood :math:`\sum_{i=1}^N \log[p(x_i | \theta_t)]]`
 with observed data points :math:`x_i`, we have:
@@ -417,8 +417,9 @@ variation in parameter gradients.
 `RMSprop <https://en.wikipedia.org/wiki/Stochastic_gradient_descent#RMSProp>`__
 is a popular variant that is conceptually quite simple.  It adjusts the
 learning rate *per parameter* to ensure that all of the learning rates are roughly
-the same magnitude.  It does this by keeping a running average of the magnitudes
-of recent gradients for parameter :math:`\theta` as :math:`v(\theta, t)`.
+the same magnitude.  It does this by keeping a moving average
+(:math:`v(\theta, t)`) of the squares of the magnitudes of recent gradients for
+parameter :math:`\theta`.
 For :math:`j^{th}` parameter :math:`\theta^j` in iteration :math:`t`, we have:
 
 .. math::
@@ -426,16 +427,16 @@ For :math:`j^{th}` parameter :math:`\theta^j` in iteration :math:`t`, we have:
    v(\theta^j, t) := \gamma v(\theta^j, t-1) + (1-\gamma)(\nabla Q_i(\theta^j))^2 \tag{14}
 
 where :math:`Q_i` is the loss function, and :math:`\gamma` is the smoothing
-constant of the average with typical value set at `0.99`.  With :math:`v(\theta^j, t)`,
+constant of the moving average with a typical value set at `0.99`.  With :math:`v(\theta^j, t)`,
 the update becomes:
 
 .. math::
 
    \Delta \theta^j := - \frac{\epsilon_t}{\sqrt{v(\theta^j, t)}} \nabla Q_i(\theta^j) \tag{15}
 
-From Equation 15, when you have large gradients (:math:`\nabla Q >1`), it scales
-the learning rate down; while if you have small gradients (:math:`\nabla Q < 1`),
-it scales the learning rate up.  If :math:`\nabla Q` is constant in each
+From Equation 15, when you have large recent gradients (:math:`v(\theta^j, t) > 1`), it scales
+the learning rate down; while if you have small recent gradients (:math:`v(\theta^j, t) < 1`),
+it scales the learning rate up.  If recently :math:`\nabla Q` is constant in each
 parameter but with different magnitudes, it will update each parameter by the
 learning rate :math:`\epsilon_t`, attempting to descend each dimension at the same
 rate.  Empirically, these variations of SGD are necessary to make SGD practical
@@ -459,7 +460,7 @@ We'll approximate :math:`p(\theta|X)` by another known distribution :math:`q(\th
 parameterized by :math:`\phi`.  Importantly, :math:`q(\theta|\phi)` often has
 simplifying assumptions about its relationships with other variables. 
 For example, you might assume that they are all independent of each other
-e.g., :math:`q(\theta|\phi) = \pi_{i=1}^n q_i(\theta_i|\phi_i)` (a example of mean-field approximation).
+e.g., :math:`q(\theta|\phi) = \prod_{i=1}^n q_i(\theta_i|\phi_i)` (a example of mean-field approximation).
 
 The nice thing about this approximation is that we turned our intractable Bayesian learning problem
 into an optimization one where we just want to find the parameters :math:`\phi`
@@ -488,8 +489,8 @@ The left hand side of Equation 16 is constant (with respect to the observed
 data), so maximizing the right hand side achieves our desired goal.  It just so
 happens this looks a lot like finding a 
 `MAP <https://en.wikipedia.org/wiki/Maximum_a_posteriori_estimation>`__ with a
-likelihood and prior term.  The two differences are that (a) we have an additional term
-for our approximate posterior and (b) we have to take the expectation with respect
+likelihood and prior term except for two differences: (a) we have an additional term
+for our approximate posterior, and (b) we have to take the expectation with respect
 to samples from that approximate posterior.  When using a SGD approach, we can
 sample points from the :math:`q` distribution and use it to approximate the
 expectation in Equation 16.  In many cases though, it's not obvious how to
@@ -517,10 +518,11 @@ using a standard normal distribution, starting from Equation 16 (using
 where :math:`\mu_z` and :math:`\Sigma_z` are the mean and covariance matrix of
 the approximate posterior, and :math:`\epsilon` is a sample from a standard Gaussian.
 This is commonly referred to as the "reparameterization trick" where instead of
-directly computing :math:`q` you just scale and shift a standard normal
-distribution.  Thus, you can still backprop through the mean and covariances.
-The last line approximates the expectation by taking a single sample, which
-often works fine when using SGD.
+directly computing :math:`z` you just scale and shift a standard normal
+distribution using the mean and covariances.  Thus, you can still backprop
+through :math:`z` to optimize the mean/covariance networks.  The last line
+approximates the expectation by taking a single sample, which often works fine
+when using SGD.
 
 Stochastic Gradient Langevin Dynamics 
 =====================================
@@ -1492,7 +1494,7 @@ the destination.  See you next time!
 
 References
 ==========
-* Previous posts: `Markov Chain Monte Carlo and the Metropolis Hastings Algorithm  <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__, `Hamiltonian Monte Carlo <link://slug/hamiltonian-monte-carlo>`__, `The Expectation Maximization Algorithm <link://slug/the-expectation-maximization-algorithm>`__, `Variational Autoencoders <link://slug/variational-autoencoders>`__, `An Introduction to Stochastic Calculus <link://slug/an-introduction-to-stochastic-calculus>`__
+**Previous posts**: `Markov Chain Monte Carlo and the Metropolis Hastings Algorithm  <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__, `Hamiltonian Monte Carlo <link://slug/hamiltonian-monte-carlo>`__, `The Expectation Maximization Algorithm <link://slug/the-expectation-maximization-algorithm>`__, `Variational Autoencoders <link://slug/variational-autoencoders>`__, `An Introduction to Stochastic Calculus <link://slug/an-introduction-to-stochastic-calculus>`__
 
 .. [Welling2011] Max Welling and Yee Whye Teh, "`Bayesian Learning via Stochastic Gradient Langevin Dynamics <https://www.stats.ox.ac.uk/~teh/research/compstats/WelTeh2011a.pdf>`__", ICML 2011.
 .. [Blundell2015] Blundell et. al, "`Weight Uncertainty in Neural Networks <https://arxiv.org/abs/1505.05424>`__", ICML 2015.
