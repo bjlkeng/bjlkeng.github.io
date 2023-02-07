@@ -556,10 +556,10 @@ iteration.
 The intuition here is that in earlier iterations this will behave much like SGD
 stepping towards a local minimum because the large gradient overcomes the
 noise.  In later iterations with a small :math:`\epsilon_t`, the noise
-dominates and the gradient plays a much smaller role resulting in each
-iteration bouncing around the local maxima via a random walk (with a bias
+dominates and the gradient plays a much smaller role, resulting in each
+iteration bouncing around the local minimum via a random walk (with a bias
 towards the local minimum from the gradient).  Additionally, in between these two
-extremes, the algorithm should vary smoothly.  Thus with carefully selected
+extremes the algorithm should vary smoothly.  Thus with carefully selected
 hyperparameters, you can *effectively* sample from the posterior distribution
 (more on this later).
 
@@ -574,7 +574,8 @@ Correctness of SGLD
 *Note:* [Teh2015]_ *has the hardcore proof of SGLD correctness versus a very
 informal sketch presented in the original paper* ([Welling2011]_) *.  I'll mainly
 stick to the original paper's presentation (mostly because the hardcore proof
-is way beyond my comprehension), but will call out a couple of notable things.*
+is way beyond my comprehension), but will call out a couple of notable things
+from the formal proof.*
 
 To set up this problem, let us first define several quantities.
 First define the true gradient of the log probability,
@@ -594,7 +595,7 @@ Next, let's define another related quantity:
 Equation 20 is essentially the difference between our SGD update (with
 mini-batch :math:`t`) and the true gradient update (with all the data).
 Notice that :math:`h_t(\theta) + g(\theta)` is just an SGD update 
-which can be obtained by canceling out the last term.
+which can be obtained by canceling out the last term in :math:`h_t(\theta)`.
 
 Importantly, :math:`h_t(\theta)` is a zero-mean random variable with
 finite variance :math:`V(\theta)`.  Zero-mean because we're subtracting out the
@@ -613,11 +614,11 @@ that :math:`h_t(\theta) + g(\theta)` is an SGD update:
 
 With the above setup, we'll show two statements:
 
-1. **Transition**: When we have large :math:`t`, the state transition
-   of Equation 18/21 will be the same as LMC, that is, have its equilibrium
+1. **Transition**: When we have large :math:`t`, the SGLD state transition
+   of Equation 18/21 will approach LMC, that is, have its equilibrium
    distribution be the posterior distribution.
 2. **Convergence**: There exists a subsequence of :math:`\theta_1,
-   \theta_2, \ldots` that converges to the posterior distribution.
+   \theta_2, \ldots` of SGLD that converges to the posterior distribution.
 
 With these two shown, we can see that SGLD (for large :math:`t`) will
 eventually get into a state where we can *theoretically* sample the posterior
@@ -647,23 +648,23 @@ discretization of a continuous time differential equation.  The discretization
 introduces error in the calcluation, which is the only reason why we need a
 Metropolis-Hastings update (see previous post on `HMC <link://slug/hamiltonian-monte-carlo>`__).
 However as :math:`\epsilon_t \to 0`, this error becomes negligible converging
-to the continuous time dynamics, implying a 100% acceptance rate.
+to the HMC continuous time dynamics, implying a 100% acceptance rate.
 Thus, there is no need for an MH update for very small :math:`\epsilon_t`. 
 
 In summary for large :math:`t`, the :math:`t^{th}` iteration of Equation
 18/21 closely approximates the LMC Markov chain transition with very small error
 so its equilibrium distribution closely approximates the desired posterior.
-This would be great if we had a fixed :math:`t` but we are actually shrinking
+This would be great if we had a fixed :math:`t` but we are shrinking
 :math:`t` towards 0 (as is needed by SGD), thus SGLD actually defines a
-non-stationary Markov Chain and so we still need to show the actual sequence
-will convert to the posterior.
+non-stationary Markov Chain, and so we still need to show the actual sequence
+will converge to the posterior.
 
 **Convergence**
 
 We will show that there exists some sequence of samples :math:`\theta_{t=a_1},
 \theta_{t=a_2}, \ldots` that converge to the posterior for some strictly
 increasing sequence :math:`a_1, a_2, \ldots` (note: the sequence is not
-sequential e.g., :math:`a_{n+1}` is likely much bigger than :math:`a_{n+1}`).
+sequential e.g., :math:`a_{n+1}` is likely much bigger than :math:`a_{n}`).
 
 First we fix a small :math:`\epsilon_0` such that :math:`0 < \epsilon_0 << 1`.
 Assuming :math:`\{\epsilon_t\}` satisfy the decayed polynomial property from
@@ -672,18 +673,19 @@ Equation 13, there exists an increasing subsequence :math:`\{a_n \}` such that
 (note: the :math:`+1` in the sum's upper limit is in the subscript, while the
 lower limit is not).
 That is, we can split the sequence :math:`\{\epsilon_t\}` into non-overlapping
-segments such that successive segment approaches :math:`\epsilon_0`.  This can
+segments such that successive segments approaches :math:`\epsilon_0`.  This can
 be easily constructed by continually extending the current run until you go
 over :math:`\epsilon_0`.  Since :math:`\epsilon_t` is decreasing, and we are
 guaranteed that the sequence doesn't converge (Equation 12), we can always
-construct the next segment with a smaller error that the previous one.
+construct the next segment with a smaller error than the previous one.
 
-For large :math:`n`, if we look at each segment, the total Gaussian noise
-injected will be the sum of each of the Gaussian noise injections.  The
+For large :math:`n`, if we look at each segment :math:`\sum_{t=a_n+1}^{a_{n+1}} \epsilon_t`,
+the total Gaussian noise injected will be the sum of each of the Gaussian noise
+injections.  The
 `variance of sums of independent Gaussians <https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables>`__ 
 is just the sum of the variances, so the total variance will be 
 :math:`O(\epsilon_0)`.  Thus, the injected noise (standard deviation)
-will be on the order of :math:`O(\sqrt{\epsilon})`.  Given this,
+will be on the order of :math:`O(\sqrt{\epsilon_0})`.  Given this,
 next we will want to show that the variance from the mini-batch error is
 dominated by this injected noise.
 
@@ -735,7 +737,7 @@ injected noise was of order :math:`O(\sqrt{\epsilon_0})`, which in turn dominate
 :math:`O(\epsilon_0)` (for :math:`\epsilon_0 < 1`).  Thus for small
 :math:`\epsilon_0`, our sequence :math:`\theta_{t=a_1}, \theta_{t=a_2}, \ldots`
 will approximate LMC because each segment will essentially be an LMC update
-with very decreasing small error.  As a result, this *subsequence* will
+with very small, decreasing error.  As a result, this *subsequence* will
 converge to the posterior as required.
 
 --------------
@@ -779,7 +781,7 @@ which will cause any SGD-based optimization procedure to be very slow.  On the
 other end, if one of the dimensions in your loss has large curvature
 (and thus gradient), it could cause unnecessary oscillations in one dimension
 while the other one with low curvature crawls along.  The solution to this
-problem is to use preconditioner.
+problem is to use a preconditioner.
 
 .. figure:: /images/sgld-precondition.png
     :height: 250px
@@ -788,7 +790,7 @@ problem is to use preconditioner.
 
     **Figure 1: (Left) Original loss landscape, SGD converges slowly. 
     (Right) Transformed loss landscape with a preconditioner with reduced
-    oscillations and faster progress.  Notice the counter lines are more evenly spaced
+    oscillations and faster progress.  Notice the contour lines are more evenly spaced
     out in each direction. (source:** [Dauphin2015]_ **)**
 
 Preconditioning is a type of local transform that changes the optimization landscape
@@ -796,7 +798,7 @@ so the curvature is equal in all directions ([Dauphin2015]_).  As shown in Figur
 can transform the curvature (shown by the contour lines) and as a result make SGD converge
 more quickly.  Formally, for a loss function :math:`f` with parameters :math:`\theta \in \mathbb{R}^d`,
 we introduce a non-singular matrix :math:`{\bf D}^{\frac{1}{2}}` such that :math:`\hat{\theta}={\bf D}^{\frac{1}{2}}\theta`.
-Using the change of variables, we can define a new function :math:`\hat{f}(\hat{\theta})` that
+Using the change of variables formula, we can define a new function :math:`\hat{f}(\hat{\theta})` that
 is equivalent to our original function with its associated gradient (using the chain rule):
 
 .. math::
@@ -805,8 +807,8 @@ is equivalent to our original function with its associated gradient (using the c
     \nabla\hat{f}(\hat{\theta}) &= {\bf D}^{-\frac{1}{2}}\nabla f(\theta)
     \tag{25}
 
-Thus, regular SGD can be performed as such on the original :math:`\theta`, and for convenience,
-we'll define :math:`{\bf G}={\bf D}^{-1}`:
+Thus, regular SGD can be performed on the original :math:`\theta` (for convenience
+we'll define :math:`{\bf G}={\bf D}^{-1}`):
 
 .. math::
 
@@ -836,8 +838,8 @@ where :math:`\Gamma(\theta_t) = \sum_j \frac{\partial G_{i,j}}{\partial
 Previous approaches to use a preconditioner relied on the
 expected 
 `Fisher information <https://en.wikipedia.org/wiki/Fisher_information>`__
-matrix, which is too costly for any modern deep learning model with many
-parameters since it grows with the square of the parameters (similar to the
+matrix, which is too costly for any modern deep learning model since it grows
+with the square of the number of parameters (similar to the
 Hessian).  It turns out that we don't specifically need the Fisher information matrix,
 we just need something that defines the Riemannian manifold metric, which only requires
 a `positive definite matrix <https://en.wikipedia.org/wiki/Definite_matrix>`__.
@@ -850,7 +852,7 @@ empirically to do well in SGD (being only a diagonal preconditioner matrix):
 
    G(\theta_{t+1}) = diag\big(\frac{1}{\lambda + \sqrt{v(\theta_{t+1})}}\big) \tag{28}
 
-where :math:`v(\theta_{t+1})=v(\theta, t)` is from Equation 14 and
+where :math:`v(\theta_{t+1})=v(\theta, t)` from Equation 14 and
 :math:`\lambda` is a small constant to prevent numerical instability.
 
 Additionally, [Li2016]_ has shown that there is no need to include the
@@ -858,7 +860,7 @@ Additionally, [Li2016]_ has shown that there is no need to include the
 compute for a diagonal matrix).  This is because it introduces an additional
 bias term that scales with :math:`\frac{(1-\alpha)^2}{\alpha^3}` (from Equation 27), 
 which is practically always set close to 1 (e.g. PyTorch's default for 
-`RMSprop <https://pytorch.org/docs/stable/generated/torch.optim.RMSprop.html>`__ is :math:`0.99`).
+`RMSprop <https://pytorch.org/docs/stable/generated/torch.optim.RMSprop.html>`__ is :math:`\alpha = 0.99`).
 As a result, we can simply use off-the-shelf RMSprop with only a slight
 adjustment to the SGLD noise and gain the benefits of preconditioning.
 
