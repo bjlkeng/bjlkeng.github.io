@@ -885,7 +885,7 @@ Bayes by Backprop ([Blundell2015]_) is a generalization of some previous work
 to allow an approximation of Bayesian uncertainty, particularly for weights in
 large scale neural network models where traditional MCMC methods do not scale.
 Approximation is the key word here as it utilizes variational inference
-(Equation 16).  That is, instead of directly estimating the posterior, it 
+(Equation 16).  More precisely, instead of directly estimating the posterior, it 
 preselects the functional form of a distribution (:math:`q(\theta|\phi)`)
 parameterized by :math:`\phi`, and optimizes :math:`\phi` using Equation 16.
 The right hand side of Equation 16 is often called the *variational free
@@ -912,7 +912,7 @@ to rewrite the expectation in terms of a standard Gaussian distribution (and
 some additional transformations) to yield an equivalent loss function that we
 can backprop through.  
 
-As you may expect, [Blundell2015]_ generalizes this concept beyond Gaussians
+[Blundell2015]_ generalizes this concept beyond Gaussians
 to any distribution with the following proposition:
 
     **Proposition 1:** (Proposition 1 from [Blundell2015]_)
@@ -951,10 +951,10 @@ So Proposition 1 tells us that the "reparameterization trick" is valid in the co
 gradient based optimization (i.e., SGD) if we can show 
 :math:`q(\varepsilon)d\varepsilon = q(\theta|\phi)d\theta`.
 Equation 30 may be a bit cryptic because of all the partial derivatives but notice two things. 
-First, the expectation is no with respect to a standard distribution :math:`q(\varepsilon)`,
+First, the expectation is now with respect to a standard distribution :math:`q(\varepsilon)`,
 and, second, the inner part of the expectation is done automatically through backprop when
 you implement :math:`t(\phi, \varepsilon)` so you don't have to explicitly calculate it
-(it's just the chain rule though).  Let's take a look at a couple of examples.
+(it's just the chain rule).  Let's take a look at a couple of examples.
 
 First, let's take a look at the good old Gaussian distribution with parameters
 :math:`\phi = \{\mu, \sigma\}` and :math:`\varepsilon` being a standard Gaussian.
@@ -985,20 +985,20 @@ distribution :math:`\varepsilon`:
        \tag{33}
 
 The nice thing about this trick is that it's widely implemented in modern tooling.
-For example PyTorch has an implementation on distributions where this condition is true
-using the `rsample()` method.  You can look into each of the respective implementations to
-see how the :math:`t(\cdot)` function is defined.  See 
+For example, PyTorch has this implemented using the `rsample()` method (where
+applicable).  You can look into each of the respective implementations to
+see how the :math:`t(\cdot)` function is defined.  See the
 `Pathwise derivative <https://pytorch.org/docs/stable/distributions.html#pathwise-derivative>`__
 section of the PyTorch docs for details.
 
-With these this reparameterization trick (and picking appropriate distributions), one
+With this reparameterization trick (and picking appropriate distributions), one
 can easily implement variational inference by substituting the exact posterior for
 a fixed parameterized distribution (e.g., Gaussian, exponential etc.).  This allows
 you to easily train the network using standard SGD methods
-that sample from this approximate posterior distribution but *importantly* can
+that sample from this approximate posterior distribution, but *importantly* can
 backprop through them to update the parameters of these approximate posteriors
-to hopefully achieve a good estimate of uncertainty.  Note however that variational
-inference will often `underestimate variance <https://www.quora.com/Why-and-when-does-mean-field-variational-Bayes-underestimate-variance>`__.
+to hopefully achieve a good estimate of uncertainty.  However this does have the same limitations
+as variational inference, which will often `underestimate variance <https://www.quora.com/Why-and-when-does-mean-field-variational-Bayes-underestimate-variance>`__.
 So there's also no free lunch here either.
 
 Experiments
