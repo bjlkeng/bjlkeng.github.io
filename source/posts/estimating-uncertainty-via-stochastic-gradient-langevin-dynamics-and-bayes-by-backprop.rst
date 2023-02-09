@@ -102,7 +102,7 @@ levels.  Equation 1 implicitly assumes that there is one "level" of parameters
 (:math:`p({\bf \theta})`) attached to them but there's no reason why you only
 need a single level.  In fact, our parameters can be conditioned on parameters,
 which can be conditioned on parameters, and so on.  
-This is called `Bayesian hierarchical modeling <https://en.wikipedia.org/wiki/Bayesian_hierarchical_modeling>`__.
+This is called `Bayesian hierarchical modelling <https://en.wikipedia.org/wiki/Bayesian_hierarchical_modeling>`__.
 If this sounds oddly familiar, it's the same thing as `Bayesian networks
 <https://en.wikipedia.org/wiki/Bayesian_network#Graphical_model>`__ in a different context (if you're
 familiar with that).  My `previous post
@@ -137,7 +137,7 @@ In Bayesian networks, the latent variables can represent the underlying
 phenomenon but also can be artificially introduced to make the problem more
 tractable.  This happens more often in machine learning such as in `variational
 autoencoders <link://slug/variational-autoencoders>`__.  In these contexts,
-they are often modeling a much bigger network and can have an arbitrarily number of
+they are often modelling a much bigger network and can have an arbitrarily number of
 stages and nodes.  By varying assumptions on the latent variables and
 their connectivity, there are many efficient algorithms that can perform either
 approximate or exact inference on them.  Most applications in ML seem to follow
@@ -242,7 +242,7 @@ take a *single* step in the simulation to propose a new state (versus multiple
 steps in a typical HMC algorithm).  It is sometimes referred to as the
 Metropolis-Adjusted-Langevin algorithm (MALA) (see [Teh2015]_ for more
 details).  With some simplification, we will see that a new familiar
-behavior emerges from this special case.
+behaviour emerges from this special case.
 
 Suppose we define kinetic energy as :math:`K(p) = \frac{1}{2}\sum p_i^2`,
 which is typical for a HMC formulation.  Next, we set our momentum :math:`p` as
@@ -350,11 +350,11 @@ noise at the end, stay tuned!
   
    In the context of MCMC, we model the potential energy of this system as
    :math:`U(q) = \log f(q)` where :math:`f` is proportional to the likelihood
-   times prior as is usually required in MCMC methods.  With this substition,
+   times prior as is usually required in MCMC methods.  With this substitution,
    Equation A.2 is the same as Equation 11 except a continuous time version of
    it.  To see this more clearly, it is important to note that the increments
    of the standard Weiner process :math:`W_t` are zero-mean Gaussians with
-   variance equal to the time difference.  Once discretized with stepsize
+   variance equal to the time difference.  Once discretized with step size
    :math:`\epsilon`, this precisely equals our :math:`\varepsilon` sample from
    Equation 10.
 
@@ -595,7 +595,7 @@ Next, let's define another related quantity:
 Equation 20 is essentially the difference between our SGD update (with
 mini-batch :math:`t`) and the true gradient update (with all the data).
 Notice that :math:`h_t(\theta) + g(\theta)` is just an SGD update 
-which can be obtained by canceling out the last term in :math:`h_t(\theta)`.
+which can be obtained by cancelling out the last term in :math:`h_t(\theta)`.
 
 Importantly, :math:`h_t(\theta)` is a zero-mean random variable with
 finite variance :math:`V(\theta)`.  Zero-mean because we're subtracting out the
@@ -645,7 +645,7 @@ difference between the two) vanishes.
 
 Next, we observe that LMC is a special case of HMC.  HMC is actually a
 discretization of a continuous time differential equation.  The discretization
-introduces error in the calcluation, which is the only reason why we need a
+introduces error in the calculation, which is the only reason why we need a
 Metropolis-Hastings update (see previous post on `HMC <link://slug/hamiltonian-monte-carlo>`__).
 However as :math:`\epsilon_t \to 0`, this error becomes negligible converging
 to the HMC continuous time dynamics, implying a 100% acceptance rate.
@@ -704,7 +704,7 @@ we can see the total update without the injected noise for a segment
 We see that the :math:`g(\cdot)` summation expands into the gradient at
 :math:`\theta_{t=a_n}` plus an error term :math:`O(\epsilon_0)`.  This is
 from our assumption of :math:`||\theta_t-\theta_{t=a_n}|| << 1` plus
-the gradients varying smoothly (`Lipschitz contiuity <https://en.wikipedia.org/wiki/Lipschitz_continuity>`__),
+the gradients varying smoothly (`Lipschitz continuity <https://en.wikipedia.org/wiki/Lipschitz_continuity>`__),
 which imply that the difference between successive gradients will also be much
 smaller than 1 (for an appropriately small :math:`\epsilon_0`).  Thus, the
 error from this term on this segment will
@@ -715,7 +715,7 @@ Next, we deal with the :math:`h_t(\cdot)` in Equation 22.  Since we know
 that :math:`\theta_t` did not vary much in our interval :math:`t \in (a_n, a_{n+1}]`
 given our :math:`\epsilon_t << 1` assumption, we have :math:`h_t(\theta_t) = O(1)`
 in our interval since our gradients vary smoothly (again due to 
-`Lipschitz contiuity <https://en.wikipedia.org/wiki/Lipschitz_continuity>`__).
+`Lipschitz continuity <https://en.wikipedia.org/wiki/Lipschitz_continuity>`__).
 Additionally each :math:`h_t(\cdot)` will be a random variable which we can
 assume to be independent, thus IID (doesn't change argument if they are
 randomly partitioned which will only make the error smaller).  Plugging this
@@ -1171,7 +1171,7 @@ follows a
 `Gaussian random walk <https://en.wikipedia.org/wiki/Random_walk#Gaussian_random_walk>`__ 
 across all 2905 time steps, which is parameterized by a common variance given by an 
 `exponential distribution <https://en.wikipedia.org/wiki/Exponential_distribution>`__.
-To be clear, we are modeling the entire time series at once with a different
+To be clear, we are modelling the entire time series at once with a different
 log-return and volatility random variable for each time step.
 Figure 6 shows the model using `plate notation <https://en.wikipedia.org/wiki/Plate_notation>`__:
 
@@ -1315,7 +1315,7 @@ An important point to make this practically train was to implement the RMSprop
 preconditioner from Equation 28.  Without it I was unable to get a reasonable fit.
 This is probably analogous to most deep networks: if you don't use a modern
 optimizer, it's really difficult to fit a deep network.  In this case we're
-modeling more than 2900 time steps, which can cause lots of issues when
+modelling more than 2900 time steps, which can cause lots of issues when
 backpropagating.
 
 Results
