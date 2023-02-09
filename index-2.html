@@ -80,7 +80,28 @@ navbar-dark bg-dark
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/universal-resnet-the-one-neuron-approximator/" class="u-url">Universal ResNet: The One-Neuron Approximator</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/label-refinery/" class="u-url">Label Refinery: A Softer Approach</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="posts/label-refinery/" rel="bookmark">
+            <time class="published dt-published" datetime="2018-09-04T07:26:02-04:00" itemprop="datePublished" title="2018-09-04 07:26">2018-09-04 07:26</time></a>
+            </p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>This post is going to be about a really simple idea that is surprisingly effective
+from a paper by Bagherinezhad et al. called <a class="reference external" href="https://arxiv.org/abs/1805.02641">Label Refinery: Improving ImageNet
+Classification through Label Progression</a>.
+The title pretty much says it all but I'll also discuss some intuition and show
+some experiments on the CIFAR10 and SVHN datasets.  The idea is both simple and
+surprising, my favourite kind of idea!  Let's take a look.</p>
+<p class="more"><a href="posts/label-refinery/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/universal-resnet-the-one-neuron-approximator/" class="u-url">Universal ResNet: The One-Neuron Approximator</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Brian Keng
@@ -193,31 +214,6 @@ it!</p>
 <p class="more"><a href="posts/tensors-tensors-tensors/">Read more…</a></p>
 </div>
     </div>
-    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/residual-networks/" class="u-url">Residual Networks</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Brian Keng
-            </span></p>
-            <p class="dateline">
-            <a href="posts/residual-networks/" rel="bookmark">
-            <time class="published dt-published" datetime="2018-02-18T13:55:13-05:00" itemprop="datePublished" title="2018-02-18 13:55">2018-02-18 13:55</time></a>
-            </p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>Taking a small break from some of the heavier math, I thought I'd write a post
-(aka learn more about) a very popular neural network architecture called
-Residual Networks aka ResNet.  This architecture is being very widely used
-because it's so simple yet so powerful at the same time.  The architecture's
-performance is due its ability to add hundreds of layers (talk about deep
-learning!) without degrading performance or adding difficulty to training.  I
-really like these types of robust advances where it doesn't require fiddling
-with all sorts of hyper-parameters to make it work.  Anyways, I'll introduce
-the idea and show an implementation of ResNet on a few runs of a variational
-autoencoder that I put together on the CIFAR10 dataset.</p>
-<p class="more"><a href="posts/residual-networks/">Read more…</a></p>
-</div>
-    </div>
     </article>
 </div>
 
@@ -243,11 +239,8 @@ MathJax.Hub.Config({
             <div class="col-md-3 ">
             <div class="card card-body bg-light">
             <p>
-            I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
-            a former academic, current data scientist and engineer.  This is
-            <a href=".">the place</a>
-            where I write
-            about all things technical.
+            Hi, I'm <a href="http://www.briankeng.com/about">Brian Keng</a>.  This is
+            <a href=".">the place</a> where I write about all things technical.
             </p>
             <p>
             Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
@@ -288,7 +281,7 @@ MathJax.Hub.Config({
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2022         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2023         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
             
         </footer>

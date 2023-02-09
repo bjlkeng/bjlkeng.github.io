@@ -347,18 +347,18 @@ to the one from the last subsection by translating some C code (except the
 variables might be signed 32-bit numbers instead of unsigned 8-bit numbers):</p>
 <div class="code"><table class="codetable">
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_8d214327085a4ab2ae89cb23b76cf0be-1"><code data-line-number="1"></code></a></td>
-<td class="code"><code><a name="rest_code_8d214327085a4ab2ae89cb23b76cf0be-1"></a><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
+<td class="linenos linenodiv"><a href="#rest_code_98e33539874c46239b62f14b9cc4991a-1"><code data-line-number="1"></code></a></td>
+<td class="code"><code><a name="rest_code_98e33539874c46239b62f14b9cc4991a-1"></a><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_8d214327085a4ab2ae89cb23b76cf0be-2"><code data-line-number="2"></code></a></td>
-<td class="code"><code><a name="rest_code_8d214327085a4ab2ae89cb23b76cf0be-2"></a><span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<td class="linenos linenodiv"><a href="#rest_code_98e33539874c46239b62f14b9cc4991a-2"><code data-line-number="2"></code></a></td>
+<td class="code"><code><a name="rest_code_98e33539874c46239b62f14b9cc4991a-2"></a><span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_8d214327085a4ab2ae89cb23b76cf0be-3"><code data-line-number="3"></code></a></td>
-<td class="code"><code><a name="rest_code_8d214327085a4ab2ae89cb23b76cf0be-3"></a><span class="n">assert</span><span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">z</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">);</span>
+<td class="linenos linenodiv"><a href="#rest_code_98e33539874c46239b62f14b9cc4991a-3"><code data-line-number="3"></code></a></td>
+<td class="code"><code><a name="rest_code_98e33539874c46239b62f14b9cc4991a-3"></a><span class="n">assert</span><span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">z</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">);</span>
 </code></td>
 </tr>
 </table></div>
@@ -368,18 +368,18 @@ possible way for that to happen.  So instead, we'll flip the question around
 and actually ask the SAT solver something like this:</p>
 <div class="code"><table class="codetable">
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_5d949b7e0de042218d566b9182f2333b-1"><code data-line-number="1"></code></a></td>
-<td class="code"><code><a name="rest_code_5d949b7e0de042218d566b9182f2333b-1"></a><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
+<td class="linenos linenodiv"><a href="#rest_code_01f70067ee8145d585295fb517245872-1"><code data-line-number="1"></code></a></td>
+<td class="code"><code><a name="rest_code_01f70067ee8145d585295fb517245872-1"></a><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_5d949b7e0de042218d566b9182f2333b-2"><code data-line-number="2"></code></a></td>
-<td class="code"><code><a name="rest_code_5d949b7e0de042218d566b9182f2333b-2"></a><span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">;</span>
+<td class="linenos linenodiv"><a href="#rest_code_01f70067ee8145d585295fb517245872-2"><code data-line-number="2"></code></a></td>
+<td class="code"><code><a name="rest_code_01f70067ee8145d585295fb517245872-2"></a><span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">;</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_5d949b7e0de042218d566b9182f2333b-3"><code data-line-number="3"></code></a></td>
-<td class="code"><code><a name="rest_code_5d949b7e0de042218d566b9182f2333b-3"></a><span class="n">assert_exists</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">z</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">));</span>
+<td class="linenos linenodiv"><a href="#rest_code_01f70067ee8145d585295fb517245872-3"><code data-line-number="3"></code></a></td>
+<td class="code"><code><a name="rest_code_01f70067ee8145d585295fb517245872-3"></a><span class="n">assert_exists</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">z</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">));</span>
 </code></td>
 </tr>
 </table></div>
@@ -399,38 +399,38 @@ that will help us deal with <cite>if</cite> statements.  Let's look at the follo
 snippet:</p>
 <div class="code"><table class="codetable">
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_972be10b0ca6452e8c0d46fc6adad6f5-1"><code data-line-number="1"></code></a></td>
-<td class="code"><code><a name="rest_code_972be10b0ca6452e8c0d46fc6adad6f5-1"></a><span class="kt">int</span> <span class="n">y</span><span class="p">;</span>
+<td class="linenos linenodiv"><a href="#rest_code_713a47bbf502458c86e8786a77ad7548-1"><code data-line-number="1"></code></a></td>
+<td class="code"><code><a name="rest_code_713a47bbf502458c86e8786a77ad7548-1"></a><span class="kt">int</span> <span class="n">y</span><span class="p">;</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_972be10b0ca6452e8c0d46fc6adad6f5-2"><code data-line-number="2"></code></a></td>
-<td class="code"><code><a name="rest_code_972be10b0ca6452e8c0d46fc6adad6f5-2"></a><span class="k">if</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+<td class="linenos linenodiv"><a href="#rest_code_713a47bbf502458c86e8786a77ad7548-2"><code data-line-number="2"></code></a></td>
+<td class="code"><code><a name="rest_code_713a47bbf502458c86e8786a77ad7548-2"></a><span class="k">if</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_972be10b0ca6452e8c0d46fc6adad6f5-3"><code data-line-number="3"></code></a></td>
-<td class="code"><code><a name="rest_code_972be10b0ca6452e8c0d46fc6adad6f5-3"></a>  <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+<td class="linenos linenodiv"><a href="#rest_code_713a47bbf502458c86e8786a77ad7548-3"><code data-line-number="3"></code></a></td>
+<td class="code"><code><a name="rest_code_713a47bbf502458c86e8786a77ad7548-3"></a>  <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_972be10b0ca6452e8c0d46fc6adad6f5-4"><code data-line-number="4"></code></a></td>
-<td class="code"><code><a name="rest_code_972be10b0ca6452e8c0d46fc6adad6f5-4"></a><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+<td class="linenos linenodiv"><a href="#rest_code_713a47bbf502458c86e8786a77ad7548-4"><code data-line-number="4"></code></a></td>
+<td class="code"><code><a name="rest_code_713a47bbf502458c86e8786a77ad7548-4"></a><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_972be10b0ca6452e8c0d46fc6adad6f5-5"><code data-line-number="5"></code></a></td>
-<td class="code"><code><a name="rest_code_972be10b0ca6452e8c0d46fc6adad6f5-5"></a>  <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">y</span><span class="p">;</span>
+<td class="linenos linenodiv"><a href="#rest_code_713a47bbf502458c86e8786a77ad7548-5"><code data-line-number="5"></code></a></td>
+<td class="code"><code><a name="rest_code_713a47bbf502458c86e8786a77ad7548-5"></a>  <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">y</span><span class="p">;</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_972be10b0ca6452e8c0d46fc6adad6f5-6"><code data-line-number="6"></code></a></td>
-<td class="code"><code><a name="rest_code_972be10b0ca6452e8c0d46fc6adad6f5-6"></a><span class="p">}</span>
+<td class="linenos linenodiv"><a href="#rest_code_713a47bbf502458c86e8786a77ad7548-6"><code data-line-number="6"></code></a></td>
+<td class="code"><code><a name="rest_code_713a47bbf502458c86e8786a77ad7548-6"></a><span class="p">}</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_972be10b0ca6452e8c0d46fc6adad6f5-7"><code data-line-number="7"></code></a></td>
-<td class="code"><code><a name="rest_code_972be10b0ca6452e8c0d46fc6adad6f5-7"></a><span class="n">assert</span><span class="p">(</span><span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">);</span>
+<td class="linenos linenodiv"><a href="#rest_code_713a47bbf502458c86e8786a77ad7548-7"><code data-line-number="7"></code></a></td>
+<td class="code"><code><a name="rest_code_713a47bbf502458c86e8786a77ad7548-7"></a><span class="n">assert</span><span class="p">(</span><span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">);</span>
 </code></td>
 </tr>
 </table></div>
@@ -440,48 +440,48 @@ much trouble.  The easiest way to see this is do some transformations on the
 code to make it more amenable to SAT.  Here's one way to do it:</p>
 <div class="code"><table class="codetable">
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_e3d68c58db54457ebfea8809d9ca94e9-1"><code data-line-number="1"></code></a></td>
-<td class="code"><code><a name="rest_code_e3d68c58db54457ebfea8809d9ca94e9-1"></a><span class="kt">int</span> <span class="n">y_1</span><span class="p">,</span> <span class="n">y_2a</span><span class="p">,</span> <span class="n">y_2b</span><span class="p">,</span> <span class="n">y_3</span><span class="p">;</span>
+<td class="linenos linenodiv"><a href="#rest_code_8b566c23df064346ae8573d48a1d5dd4-1"><code data-line-number="1"></code></a></td>
+<td class="code"><code><a name="rest_code_8b566c23df064346ae8573d48a1d5dd4-1"></a><span class="kt">int</span> <span class="n">y_1</span><span class="p">,</span> <span class="n">y_2a</span><span class="p">,</span> <span class="n">y_2b</span><span class="p">,</span> <span class="n">y_3</span><span class="p">;</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_e3d68c58db54457ebfea8809d9ca94e9-2"><code data-line-number="2"></code></a></td>
-<td class="code"><code><a name="rest_code_e3d68c58db54457ebfea8809d9ca94e9-2"></a><span class="n">y_2b</span> <span class="o">=</span> <span class="n">y_1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+<td class="linenos linenodiv"><a href="#rest_code_8b566c23df064346ae8573d48a1d5dd4-2"><code data-line-number="2"></code></a></td>
+<td class="code"><code><a name="rest_code_8b566c23df064346ae8573d48a1d5dd4-2"></a><span class="n">y_2b</span> <span class="o">=</span> <span class="n">y_1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_e3d68c58db54457ebfea8809d9ca94e9-3"><code data-line-number="3"></code></a></td>
-<td class="code"><code><a name="rest_code_e3d68c58db54457ebfea8809d9ca94e9-3"></a><span class="n">y_2a</span> <span class="o">=</span> <span class="o">-</span><span class="n">y_1</span><span class="p">;</span>
+<td class="linenos linenodiv"><a href="#rest_code_8b566c23df064346ae8573d48a1d5dd4-3"><code data-line-number="3"></code></a></td>
+<td class="code"><code><a name="rest_code_8b566c23df064346ae8573d48a1d5dd4-3"></a><span class="n">y_2a</span> <span class="o">=</span> <span class="o">-</span><span class="n">y_1</span><span class="p">;</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_e3d68c58db54457ebfea8809d9ca94e9-4"><code data-line-number="4"></code></a></td>
-<td class="code"><code><a name="rest_code_e3d68c58db54457ebfea8809d9ca94e9-4"></a><span class="k">if</span> <span class="p">(</span><span class="n">y_1</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+<td class="linenos linenodiv"><a href="#rest_code_8b566c23df064346ae8573d48a1d5dd4-4"><code data-line-number="4"></code></a></td>
+<td class="code"><code><a name="rest_code_8b566c23df064346ae8573d48a1d5dd4-4"></a><span class="k">if</span> <span class="p">(</span><span class="n">y_1</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_e3d68c58db54457ebfea8809d9ca94e9-5"><code data-line-number="5"></code></a></td>
-<td class="code"><code><a name="rest_code_e3d68c58db54457ebfea8809d9ca94e9-5"></a>  <span class="n">y_3</span> <span class="o">=</span> <span class="n">y_2b</span><span class="p">;</span>
+<td class="linenos linenodiv"><a href="#rest_code_8b566c23df064346ae8573d48a1d5dd4-5"><code data-line-number="5"></code></a></td>
+<td class="code"><code><a name="rest_code_8b566c23df064346ae8573d48a1d5dd4-5"></a>  <span class="n">y_3</span> <span class="o">=</span> <span class="n">y_2b</span><span class="p">;</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_e3d68c58db54457ebfea8809d9ca94e9-6"><code data-line-number="6"></code></a></td>
-<td class="code"><code><a name="rest_code_e3d68c58db54457ebfea8809d9ca94e9-6"></a><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+<td class="linenos linenodiv"><a href="#rest_code_8b566c23df064346ae8573d48a1d5dd4-6"><code data-line-number="6"></code></a></td>
+<td class="code"><code><a name="rest_code_8b566c23df064346ae8573d48a1d5dd4-6"></a><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_e3d68c58db54457ebfea8809d9ca94e9-7"><code data-line-number="7"></code></a></td>
-<td class="code"><code><a name="rest_code_e3d68c58db54457ebfea8809d9ca94e9-7"></a>  <span class="n">y_3</span> <span class="o">=</span> <span class="n">y_2a</span><span class="p">;</span>
+<td class="linenos linenodiv"><a href="#rest_code_8b566c23df064346ae8573d48a1d5dd4-7"><code data-line-number="7"></code></a></td>
+<td class="code"><code><a name="rest_code_8b566c23df064346ae8573d48a1d5dd4-7"></a>  <span class="n">y_3</span> <span class="o">=</span> <span class="n">y_2a</span><span class="p">;</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_e3d68c58db54457ebfea8809d9ca94e9-8"><code data-line-number="8"></code></a></td>
-<td class="code"><code><a name="rest_code_e3d68c58db54457ebfea8809d9ca94e9-8"></a><span class="p">}</span>
+<td class="linenos linenodiv"><a href="#rest_code_8b566c23df064346ae8573d48a1d5dd4-8"><code data-line-number="8"></code></a></td>
+<td class="code"><code><a name="rest_code_8b566c23df064346ae8573d48a1d5dd4-8"></a><span class="p">}</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_e3d68c58db54457ebfea8809d9ca94e9-9"><code data-line-number="9"></code></a></td>
-<td class="code"><code><a name="rest_code_e3d68c58db54457ebfea8809d9ca94e9-9"></a><span class="n">assert</span><span class="p">(</span><span class="n">y_3</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+<td class="linenos linenodiv"><a href="#rest_code_8b566c23df064346ae8573d48a1d5dd4-9"><code data-line-number="9"></code></a></td>
+<td class="code"><code><a name="rest_code_8b566c23df064346ae8573d48a1d5dd4-9"></a><span class="n">assert</span><span class="p">(</span><span class="n">y_3</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
 </code></td>
 </tr>
 </table></div>
@@ -629,11 +629,8 @@ MathJax.Hub.Config({
             <div class="col-md-3 ">
             <div class="card card-body bg-light">
             <p>
-            I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
-            a former academic, current data scientist and engineer.  This is
-            <a href="../../">the place</a>
-            where I write
-            about all things technical.
+            Hi, I'm <a href="http://www.briankeng.com/about">Brian Keng</a>.  This is
+            <a href="../../">the place</a> where I write about all things technical.
             </p>
             <p>
             Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
@@ -674,7 +671,7 @@ MathJax.Hub.Config({
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2022         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2023         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
             
         </footer>

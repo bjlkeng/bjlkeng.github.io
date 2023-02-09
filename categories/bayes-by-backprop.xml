@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about Bayes by Backprop)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/bayes-by-backprop.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Thu, 09 Feb 2023 02:29:20 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Bayesian Learning via Stochastic Gradient Langevin Dynamics and Bayes by Backprop</title><link>http://bjlkeng.github.io/posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;After a long digression, I'm finally back to one of the main lines of research
+that I wanted to write about.  The two main ideas in this post are not that
+recent but have been quite impactful (one of the
+&lt;a class="reference external" href="https://icml.cc/virtual/2021/test-of-time/11808"&gt;papers&lt;/a&gt; won a recent ICML
+test of time award).  They address two of the topics that are near and dear to
+my heart: Bayesian learning and scalability.  Dare I even ask who wouldn't be
+interested in the intersection of these topics?&lt;/p&gt;
+&lt;p&gt;This post is about two techniques to perform scalable Bayesian inference.  They
+both address the problem using stochastic gradient descent (SGD) but in very
+different ways.  One leverages the observation that SGD plus some noise will
+converge to Bayesian posterior sampling &lt;a class="citation-reference" href="http://bjlkeng.github.io/posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/#welling2011" id="id1"&gt;[Welling2011]&lt;/a&gt;, while the other generalizes the
+"reparameterization trick" from variational autoencoders to enable non-Gaussian
+posterior approximations &lt;a class="citation-reference" href="http://bjlkeng.github.io/posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/#blundell2015" id="id2"&gt;[Blundell2015]&lt;/a&gt;.  Both are easily implemented in the modern deep
+learning toolkit thus benefit from the massive scalability of that toolchain.
+As usual, I will go over the necessary background (or refer you to my previous
+posts), intuition, some math, and a couple of toy examples that I implemented.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/"&gt;Read more…&lt;/a&gt; (54 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Bayes by Backprop</category><category>Bayesian</category><category>elbo</category><category>HMC</category><category>Langevin</category><category>mathjax</category><category>rmsprop</category><category>sgd</category><category>SGLD</category><category>variational inference</category><guid>http://bjlkeng.github.io/posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/</guid><pubDate>Wed, 08 Feb 2023 23:25:40 GMT</pubDate></item></channel></rss>

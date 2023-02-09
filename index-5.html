@@ -80,7 +80,32 @@ navbar-dark bg-dark
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/lagrange-multipliers/" class="u-url">Lagrange Multipliers</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/maximum-entropy-distributions/" class="u-url">Maximum Entropy Distributions</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="posts/maximum-entropy-distributions/" rel="bookmark">
+            <time class="published dt-published" datetime="2017-01-27T09:05:00-05:00" itemprop="datePublished" title="2017-01-27 09:05">2017-01-27 09:05</time></a>
+            </p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>This post will talk about a method to find the probability distribution that best
+fits your given state of knowledge.  Using the principle of maximum
+entropy and some testable information (e.g. the mean), you can find the
+distribution that makes the fewest assumptions about your data (the one with maximal
+information entropy).  As you may have guessed, this is used often in Bayesian
+inference to determine prior distributions and also (at least implicitly) in
+natural language processing applications with maximum entropy (MaxEnt)
+classifiers (i.e. a multinomial logistic regression).  As usual, I'll go through
+some intuition, some math, and some examples.  Hope you find this topic as
+interesting as I do!</p>
+<p class="more"><a href="posts/maximum-entropy-distributions/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/lagrange-multipliers/" class="u-url">Lagrange Multipliers</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Brian Keng
@@ -195,32 +220,6 @@ filtering and end by highlighting some of its limitations.</p>
 <p>Hope you like it!</p>
 </div>
     </div>
-    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/a-probabilistic-view-of-regression/" class="u-url">A Probabilistic View of Linear Regression</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Brian Keng
-            </span></p>
-            <p class="dateline">
-            <a href="posts/a-probabilistic-view-of-regression/" rel="bookmark">
-            <time class="published dt-published" datetime="2016-05-14T20:43:05-04:00" itemprop="datePublished" title="2016-05-14 20:43">2016-05-14 20:43</time></a>
-            </p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>One thing that I always disliked about introductory material to linear
-regression is how randomness is explained.  The explanations always
-seemed unintuitive because, as I have frequently seen it, they appear as an
-after thought rather than the central focus of the model.
-In this post, I'm going to try to
-take another approach to building an ordinary linear regression model starting
-from a probabilistic point of view (which is pretty much just a Bayesian view).
-After the general idea is established, I'll modify the model a bit and end up
-with a Poisson regression using the exact same principles showing how
-generalized linear models aren't any more complicated.  Hopefully, this will
-help explain the "randomness" in linear regression in a more intuitive way.</p>
-<p class="more"><a href="posts/a-probabilistic-view-of-regression/">Read more…</a></p>
-</div>
-    </div>
     </article>
 </div>
 
@@ -246,11 +245,8 @@ MathJax.Hub.Config({
             <div class="col-md-3 ">
             <div class="card card-body bg-light">
             <p>
-            I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
-            a former academic, current data scientist and engineer.  This is
-            <a href=".">the place</a>
-            where I write
-            about all things technical.
+            Hi, I'm <a href="http://www.briankeng.com/about">Brian Keng</a>.  This is
+            <a href=".">the place</a> where I write about all things technical.
             </p>
             <p>
             Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
@@ -291,7 +287,7 @@ MathJax.Hub.Config({
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2022         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2023         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
             
         </footer>

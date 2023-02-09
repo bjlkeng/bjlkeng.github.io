@@ -27,7 +27,7 @@ MathJax.Hub.Config({
         styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
     }
 });
-</script><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/an-introduction-to-stochastic-calculus/" type="text/html">
+</script><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -79,7 +79,38 @@ navbar-dark bg-dark
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/an-introduction-to-stochastic-calculus/" class="u-url">An Introduction to Stochastic Calculus</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/" class="u-url">Bayesian Learning via Stochastic Gradient Langevin Dynamics and Bayes by Backprop</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/" rel="bookmark">
+            <time class="published dt-published" datetime="2023-02-08T18:25:40-05:00" itemprop="datePublished" title="2023-02-08 18:25">2023-02-08 18:25</time></a>
+            </p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>After a long digression, I'm finally back to one of the main lines of research
+that I wanted to write about.  The two main ideas in this post are not that
+recent but have been quite impactful (one of the
+<a class="reference external" href="https://icml.cc/virtual/2021/test-of-time/11808">papers</a> won a recent ICML
+test of time award).  They address two of the topics that are near and dear to
+my heart: Bayesian learning and scalability.  Dare I even ask who wouldn't be
+interested in the intersection of these topics?</p>
+<p>This post is about two techniques to perform scalable Bayesian inference.  They
+both address the problem using stochastic gradient descent (SGD) but in very
+different ways.  One leverages the observation that SGD plus some noise will
+converge to Bayesian posterior sampling <a class="citation-reference" href="posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/#welling2011" id="id1">[Welling2011]</a>, while the other generalizes the
+"reparameterization trick" from variational autoencoders to enable non-Gaussian
+posterior approximations <a class="citation-reference" href="posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/#blundell2015" id="id2">[Blundell2015]</a>.  Both are easily implemented in the modern deep
+learning toolkit thus benefit from the massive scalability of that toolchain.
+As usual, I will go over the necessary background (or refer you to my previous
+posts), intuition, some math, and a couple of toy examples that I implemented.</p>
+<p class="more"><a href="posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/an-introduction-to-stochastic-calculus/" class="u-url">An Introduction to Stochastic Calculus</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Brian Keng
@@ -223,46 +254,6 @@ I did while trying to write a toy version of the algorithm.</p>
 <p class="more"><a href="posts/lossless-compression-with-latent-variable-models-using-bits-back-coding/">Read more…</a></p>
 </div>
     </div>
-    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/lossless-compression-with-asymmetric-numeral-systems/" class="u-url">Lossless Compression with Asymmetric Numeral Systems</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Brian Keng
-            </span></p>
-            <p class="dateline">
-            <a href="posts/lossless-compression-with-asymmetric-numeral-systems/" rel="bookmark">
-            <time class="published dt-published" datetime="2020-09-26T10:37:43-04:00" itemprop="datePublished" title="2020-09-26 10:37">2020-09-26 10:37</time></a>
-            </p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>During my undergraduate days, one of the most interesting courses I took was on
-coding and compression.  Here was a course that combined algorithms,
-probability and secret messages, what's not to like? <a class="footnote-reference brackets" href="posts/lossless-compression-with-asymmetric-numeral-systems/#id2" id="id1">1</a> I ended up not going
-down that career path, at least partially because communications systems had
-its heyday around the 2000s with companies like Nortel and Blackberry and its
-predecessors (some like to joke that all the major theoretical breakthroughs
-were done by Shannon and his discovery of information theory around 1950).  Fortunately, I
-eventually wound up studying industrial applications of classical AI techniques
-and then machine learning, which has really grown like crazy in the last 10
-years or so.  Which is exactly why I was so surprised that a <em>new</em> and <em>better</em>
-method of lossless compression was developed in 2009 <em>after</em> I finished my
-undergraduate degree when I was well into my PhD.  It's a bit mind boggling that
-something as well-studied as entropy-based lossless compression still had
-(have?) totally new methods to discover, but I digress.</p>
-<p>In this post, I'm going to write about a relatively new entropy based encoding
-method called Asymmetrical Numeral Systems (ANS) developed by Jaroslaw (Jarek)
-Duda [2].  If you've ever heard of Arithmetic Coding (probably best known for
-its use in JPEG compression), ANS runs in a very similar vein.  It can
-generate codes that are close to the theoretical compression limit
-(similar to Arithmetic coding) but is <em>much</em> more efficient.  It's been used in
-modern compression algorithms since 2014 including compressors developed
-by Facebook, Apple and Google [3].  As usual, I'm going to go over some
-background, some math, some examples to help with intuition, and finally some
-experiments with a toy ANS implementation I wrote.  I hope you're as
-excited as I am, let's begin!</p>
-<p class="more"><a href="posts/lossless-compression-with-asymmetric-numeral-systems/">Read more…</a></p>
-</div>
-    </div>
     </article>
 </div>
 
@@ -287,11 +278,8 @@ MathJax.Hub.Config({
             <div class="col-md-3 ">
             <div class="card card-body bg-light">
             <p>
-            I'm <a href="http://www.briankeng.com/about">Brian Keng</a>, 
-            a former academic, current data scientist and engineer.  This is
-            <a href=".">the place</a>
-            where I write
-            about all things technical.
+            Hi, I'm <a href="http://www.briankeng.com/about">Brian Keng</a>.  This is
+            <a href=".">the place</a> where I write about all things technical.
             </p>
             <p>
             Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
@@ -332,7 +320,7 @@ MathJax.Hub.Config({
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2022         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2023         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
             
         </footer>

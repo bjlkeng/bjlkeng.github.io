@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#
+" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bayesian Learning via Stochastic Gradient Langevin Dynamics and Bayes by Backprop | Bounded Rationality</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
+<link rel="alternate" type="application/rss+xml" title="RSS" hreflang="en" href="../../rss.xml">
+<link rel="canonical" href="http://bjlkeng.github.io/posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
+    }
+});
+</script><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Brian Keng">
+<link rel="prev" href="../an-introduction-to-stochastic-calculus/" title="An Introduction to Stochastic Calculus" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="Bayesian Learning via Stochastic Gradient Langevin Dynamics and Bayes ">
+<meta property="og:url" content="http://bjlkeng.github.io/posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/">
+<meta property="og:description" content="After a long digression, I'm finally back to one of the main lines of research
+that I wanted to write about.  The two main ideas in this post are not that
+recent but have been quite impactful (one of ">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2023-02-08T18:25:40-05:00">
+<meta property="article:tag" content="Bayes by Backprop">
+<meta property="article:tag" content="Bayesian">
+<meta property="article:tag" content="elbo">
+<meta property="article:tag" content="HMC">
+<meta property="article:tag" content="Langevin">
+<meta property="article:tag" content="mathjax">
+<meta property="article:tag" content="rmsprop">
+<meta property="article:tag" content="sgd">
+<meta property="article:tag" content="SGLD">
+<meta property="article:tag" content="variational inference">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-expand-md static-top mb-4
+navbar-dark bg-dark
+"><div class="container">
+<!-- This keeps the margins nice -->
+        <a class="navbar-brand" href="http://bjlkeng.github.io/">
+
+            <span id="blog-title">Bounded Rationality</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="bs-navbar">
+            <ul class="navbar-nav mr-auto">
+<li class="nav-item">
+<a href="../../archive.html" class="nav-link">Archive</a>
+                </li>
+<li class="nav-item">
+<a href="../../categories/" class="nav-link">Tags</a>
+                </li>
+<li class="nav-item">
+<a href="../../rss.xml" class="nav-link">RSS feed</a>
+
+                
+            </li>
+</ul>
+<ul class="navbar-nav navbar-right">
+<li class="nav-item">
+    <a href="index.rst" id="sourcelink" class="nav-link">Source</a>
+    </li>
+
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <div class="row">
+        <!--Body content-->
+            <div class="col-lg-9">
+                
+                
+                
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Bayesian Learning via Stochastic Gradient Langevin Dynamics and Bayes by Backprop</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
+                    Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2023-02-08T18:25:40-05:00" itemprop="datePublished" title="2023-02-08 18:25">2023-02-08 18:25</time></a>
+            </p>
+            
+        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>After a long digression, I'm finally back to one of the main lines of research
+that I wanted to write about.  The two main ideas in this post are not that
+recent but have been quite impactful (one of the
+<a class="reference external" href="https://icml.cc/virtual/2021/test-of-time/11808">papers</a> won a recent ICML
+test of time award).  They address two of the topics that are near and dear to
+my heart: Bayesian learning and scalability.  Dare I even ask who wouldn't be
+interested in the intersection of these topics?</p>
+<p>This post is about two techniques to perform scalable Bayesian inference.  They
+both address the problem using stochastic gradient descent (SGD) but in very
+different ways.  One leverages the observation that SGD plus some noise will
+converge to Bayesian posterior sampling <a class="citation-reference" href="#welling2011" id="id1">[Welling2011]</a>, while the other generalizes the
+"reparameterization trick" from variational autoencoders to enable non-Gaussian
+posterior approximations <a class="citation-reference" href="#blundell2015" id="id2">[Blundell2015]</a>.  Both are easily implemented in the modern deep
+learning toolkit thus benefit from the massive scalability of that toolchain.
+As usual, I will go over the necessary background (or refer you to my previous
+posts), intuition, some math, and a couple of toy examples that I implemented.</p>
+<!-- TEASER_END -->
+<div class="card card-body bg-light">
+<h2>Table of Contents</h2>
+<div class="contents local topic" id="contents">
+<ul class="auto-toc simple">
+<li><p><a class="reference internal" href="#motivation" id="id25"><span class="sectnum">1</span> Motivation</a></p></li>
+<li>
+<p><a class="reference internal" href="#background" id="id26"><span class="sectnum">2</span> Background</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#bayesian-networks-and-bayesian-hierarchical-models" id="id27"><span class="sectnum">2.1</span> Bayesian Networks and Bayesian Hierarchical Models</a></p></li>
+<li><p><a class="reference internal" href="#markov-chain-monte-carlo-and-hamiltonian-monte-carlo" id="id28"><span class="sectnum">2.2</span> Markov Chain Monte Carlo and Hamiltonian Monte Carlo</a></p></li>
+<li><p><a class="reference internal" href="#langevin-monte-carlo" id="id29"><span class="sectnum">2.3</span> Langevin Monte Carlo</a></p></li>
+<li><p><a class="reference internal" href="#stochastic-gradient-descent-and-rmsprop" id="id30"><span class="sectnum">2.4</span> Stochastic Gradient Descent and RMSprop</a></p></li>
+<li><p><a class="reference internal" href="#variational-inference-and-the-reparameterization-trick" id="id31"><span class="sectnum">2.5</span> Variational Inference and the Reparameterization Trick</a></p></li>
+</ul>
+</li>
+<li>
+<p><a class="reference internal" href="#stochastic-gradient-langevin-dynamics" id="id32"><span class="sectnum">3</span> Stochastic Gradient Langevin Dynamics</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#correctness-of-sgld" id="id33"><span class="sectnum">3.1</span> Correctness of SGLD</a></p></li>
+<li><p><a class="reference internal" href="#preconditioning" id="id34"><span class="sectnum">3.2</span> Preconditioning</a></p></li>
+<li><p><a class="reference internal" href="#practical-considerations" id="id35"><span class="sectnum">3.3</span> Practical Considerations</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#bayes-by-backprop" id="id36"><span class="sectnum">4</span> Bayes by Backprop</a></p></li>
+<li>
+<p><a class="reference internal" href="#experiments" id="id37"><span class="sectnum">5</span> Experiments</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#simple-gaussian-mixture-model" id="id38"><span class="sectnum">5.1</span> Simple Gaussian Mixture Model</a></p></li>
+<li><p><a class="reference internal" href="#stochastic-volatility-model" id="id39"><span class="sectnum">5.2</span> Stochastic Volatility Model</a></p></li>
+<li><p><a class="reference internal" href="#implementation-notes" id="id40"><span class="sectnum">5.3</span> Implementation Notes</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#conclusion" id="id41"><span class="sectnum">6</span> Conclusion</a></p></li>
+<li><p><a class="reference internal" href="#references" id="id42"><span class="sectnum">7</span> References</a></p></li>
+</ul>
+</div>
+</div>
+<p></p>
+<div class="section" id="motivation">
+<h2><a class="toc-backref" href="#id25"><span class="sectnum">1</span> Motivation</a></h2>
+<p>Bayesian learning is all about learning the <a class="reference external" href="https://en.wikipedia.org/wiki/Posterior_probability">posterior</a>
+distribution for the parameters of your statistical model, which in turns allows
+you to quantify the uncertainty about them.  The classic place to start is with
+Bayes' theorem:</p>
+<div class="math">
+\begin{align*}
+p({\bf \theta}|{\bf x}) &amp;= \frac{p({\bf x}|{\bf \theta})p({\bf \theta})}{p({\bf x})} \\
+                        &amp;= \text{const}\cdot p({\bf x}|{\bf \theta})p({\bf \theta}) \\
+                        &amp;= \text{const}\cdot \text{likelihood} \cdot \text{prior} \\
+                        \tag{1}
+\end{align*}
+</div>
+<p>where <span class="math">\({\bf x}\)</span> is a vector of data points (often
+<a class="reference external" href="https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables">IID</a>)
+and <span class="math">\({\bf \theta}\)</span> is the vector of statistical parameters of your model.</p>
+<p>In the general case, there is no closed form solution and you have to resort to heavy methods such
+as Markov Chain Monte Carlo (MCMC) or some form of approximation (which
+we'll get to later).  MCMC methods never give you a closed form but instead give
+you samples from the posterior distribution, which you can use then use
+to compute any statistic you like.  These methods are quite slow because they
+rely on <a class="reference external" href="https://en.wikipedia.org/wiki/Monte_Carlo_method">Monte Carlo</a>
+methods.</p>
+<p>This brings us to our first scalability problem Bayesian learning: it does not
+scale well with the number of parameters.  Randomly sampling with MCMC implies
+that you have to "explore" the parameter space, which potentially grows
+exponentially with the number of parameters.  There are many techniques to make
+this more efficient but ultimately it's hard to overcome an exponential.
+The natural example for this situation is neural networks which can have orders
+of magnitude more parameters compared to classic Bayesian learning problems
+(I'll also add that the use-case of the posterior is usually different too).</p>
+<p>The other non-obvious scalability issue with MCMC in Equation 1 is the data.
+Each evaluation of MCMC requires an evaluation of the likelihood and prior from
+Equation 1.  For large data (e.g. modern deep learning datasets), you quickly
+hit issues with either memory and/or computation speed.</p>
+<p>For non-Bayesian learning, modern deep learning has solved both of these
+problems by leveraging one of the simplest optimization methods out there
+(stochastic gradient descent) along with the massive compute power of modern
+hardware (and its associated toolchain).  How can we leverage these
+developments to scale Bayesian learning?  Keep reading to find out!</p>
+</div>
+<div class="section" id="background">
+<h2><a class="toc-backref" href="#id26"><span class="sectnum">2</span> Background</a></h2>
+<div class="section" id="bayesian-networks-and-bayesian-hierarchical-models">
+<h3><a class="toc-backref" href="#id27"><span class="sectnum">2.1</span> Bayesian Networks and Bayesian Hierarchical Models</a></h3>
+<p>We can take the idea of parameters and priors from Equation 1 to multiple
+levels.  Equation 1 implicitly assumes that there is one "level" of parameters
+(<span class="math">\(\theta\)</span>) that we're trying to estimate with prior distributions
+(<span class="math">\(p({\bf \theta})\)</span>) attached to them but there's no reason why you only
+need a single level.  In fact, our parameters can be conditioned on parameters,
+which can be conditioned on parameters, and so on.
+This is called <a class="reference external" href="https://en.wikipedia.org/wiki/Bayesian_hierarchical_modeling">Bayesian hierarchical modelling</a>.
+If this sounds oddly familiar, it's the same thing as <a class="reference external" href="https://en.wikipedia.org/wiki/Bayesian_network#Graphical_model">Bayesian networks</a> in a different context (if you're
+familiar with that).  My <a class="reference external" href="../the-expectation-maximization-algorithm/">previous post</a> gives a high level
+summary on the intuition with latent variables.</p>
+<p>To quickly summarize, in a parameterized statistical model there are broadly
+two types of variables: observed and unobserved.  Observed variables are ones
+that we have values for and form our dataset; unobserved variables are ones
+we don't have values for, and can go by several names.  In Bayesian networks they
+are usually called latent or hidden (random) variables, which can have complex
+conditional dependencies specified as a DAG.  In hierarchical models they are
+called <strong>hyperparameters</strong>, which are the parameters of the observed models,
+the parameters of parameters, parameters of parameters of parameters and so on.
+Similarly, each of these hyperparameters has a distribution which we call a
+<strong>hyperprior</strong>.  (Note: this is not the same concept as
+<a class="reference external" href="https://en.wikipedia.org/wiki/Hyperparameter_(machine_learning)">hyperparameters</a> as it
+is usually used in the ML settings, which is very confusing.)</p>
+<p>Latent variables and hyperparameters are mathematically the same and (from what
+I gather) the difference is really just in their interpretation.  In the context
+of hierarchical models, the hyperparameters and hyperpriors represent some
+structural knowledge about the problem, hence of the use of term "priors".  The
+data is typically believed to appear in hierarchical "clusters" that share
+similar attributes (i.e., drawn from the same distribution).  This view is more
+typical in Bayesian statistics applications where the number of stages (and
+thus variables) is usually small (two or three).  If terms such as <a class="reference external" href="https://en.wikipedia.org/wiki/Multilevel_model">fixed or
+random effects models</a> ring
+a bell then this framing will make much more sense.</p>
+<p>In Bayesian networks, the latent variables can represent the underlying
+phenomenon but also can be artificially introduced to make the problem more
+tractable.  This happens more often in machine learning such as in <a class="reference external" href="../variational-autoencoders/">variational
+autoencoders</a>.  In these contexts,
+they are often modelling a much bigger network and can have an arbitrarily number of
+stages and nodes.  By varying assumptions on the latent variables and
+their connectivity, there are many efficient algorithms that can perform either
+approximate or exact inference on them.  Most applications in ML seem to follow
+the Bayesian networks nomenclature since its context is more general.  We'll
+stick with this framing since most of the ML sources will explain it this way.</p>
+</div>
+<div class="section" id="markov-chain-monte-carlo-and-hamiltonian-monte-carlo">
+<h3><a class="toc-backref" href="#id28"><span class="sectnum">2.2</span> Markov Chain Monte Carlo and Hamiltonian Monte Carlo</a></h3>
+<p>This subsection gives a brief introduction Monte Carlo Markov Chains (MCMC) and
+Hamiltonian Monte Carlo.  I've written about both
+<a class="reference external" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/">here</a>
+and <a class="reference external" href="../hamiltonian-monte-carlo/">here</a> if you want the nitty gritty details
+(and better intuition).</p>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo">MCMC</a> methods are a
+class of algorithm for sampling from a target probability distribution
+(e.g., posterior distribution).  The most basic algorithm is relatively simple,
+starting from a given point:</p>
+<ol class="arabic simple" start="0">
+<li><p>Initial the current point to some random starting point (i.e., state)</p></li>
+<li><p>Propose a new point (i.e., state)</p></li>
+<li><p>With some probability calculated using the target distribution (or some
+function proportional to it), either (a) transition and accept this new point (i.e., state),
+or (b) stay at the current point (i.e., state).</p></li>
+<li><p>Repeat steps 1 and 2, and periodically output the current point (i.e., state).</p></li>
+</ol>
+<p>Many MCMC algorithms follow this general framework.  The key is ensuring
+that the proposal and the acceptance probability define a Markov chain such
+that its stationary distribution (i.e., steady state) is the same as your
+target distribution.  See my previous post on <a class="reference external" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/">MCMC</a> for more details.</p>
+<p>There are two complications with this approach.  The first complication is that your initial
+state may be in some weird region that causes the algorithm to explore parts of
+the state space that are low probability.  To solve this, you can perform
+"burn-in" by starting the algorithm and throwing away a bunch of
+states to have a higher change to be in a more "normal" region of the state
+space.  The other complication is that sequential samples will often be correlated,
+but you almost always want independent samples.  Thus (as specified in the steps
+above), we only periodically output the current state as a sample to ensure
+that the we have minimal correlation.  This is generally called "thinning".  A
+well tuned MCMC algorithm will have both a high acceptance rate and little
+correlation between samples.</p>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo">Hamiltonian Monte Carlo</a>  (HMC)
+is a popular MCMC algorithm that has a high acceptance rate with low
+correlation between samples.  At a high level, it transforms the sampling of a target probability
+distribution into a physics problem with <a class="reference external" href="https://en.wikipedia.org/wiki/Hamiltonian_mechanics">Hamiltonian dynamics</a>.
+Intuitively, the problem is similar to a frictionless puck moving along a surface representing
+our target distribution.
+The position variables <span class="math">\(q\)</span> represent the state from our probability
+distribution, and the momentum <span class="math">\(p\)</span> (equivalently velocity) are a set of
+instrument variables to make the problem work.  For each proposal point, we
+randomly pick a new momentum (and thus energy level of the system) and simulate
+from our current point.  The end point is our new proposal point.</p>
+<p>This is effectively simulating the associated differential equations of this
+physical system.  It works well because the produced proposal point has both a high
+acceptance rate and can easily be "far away" with more simulation steps (thus
+low correlation).  In fact, the acceptance rate would be 100% if it not for the
+fact that we have some discretization error from simulating the differential
+equations.  See my previous post on <a class="reference external" href="../hamiltonian-monte-carlo/">HMC</a> for more details.</p>
+<p>A common method for simulation of this physics problem uses the "leap frog" method
+where we discretize time and simulate time step-by-step:</p>
+<div class="math">
+\begin{align*}
+p_i(t+\epsilon/2) &amp;= p_i(t) - \frac{\epsilon}{2} \frac{\partial H}{\partial q_i}(q(t)) \tag{2}\\
+q_i(t+\epsilon) &amp;= q_i(t) + \epsilon \frac{\partial H}{\partial p_i}(p(t+\epsilon/2)) \tag{3} \\
+p_i(t+\epsilon) &amp;= p_i(t+\epsilon/2) - \frac{\epsilon}{2} \frac{\partial H}{\partial q_i}(q(t+\epsilon)) \tag{4}
+\end{align*}
+</div>
+<p>Where <span class="math">\(i\)</span> is the dimension index, <span class="math">\(q(t)\)</span> represent the position
+variables at time <span class="math">\(t\)</span>, <span class="math">\(p(t)\)</span> similarly represent the momentum
+variables, <span class="math">\(\epsilon\)</span> is the step size of the discretized simulation, and
+<span class="math">\(H := U(q) + K(p)\)</span> is the Hamiltonian, which (in this case) equals the
+sum of potential energy <span class="math">\(U(q)\)</span> and the kinetic energy <span class="math">\(K(p)\)</span>.  The
+potential energy is typically the negative logarithm of the target density up
+to a constant <span class="math">\(f({\bf q})\)</span>, and the kinetic energy is usually defined as
+independent zero-mean Gaussians with variances <span class="math">\(m_i\)</span>:</p>
+<div class="math">
+\begin{align*}
+U({\bf q}) &amp;= -log[f({\bf q})]  \\
+K({\bf p}) &amp;= \sum_{i=1}^D \frac{p_i^2}{2m_i}  \\
+\tag{5}
+\end{align*}
+</div>
+<p>Once we have a new proposal state <span class="math">\((q^*, p^*)\)</span>, we accept the new state
+according to this probability using a
+<a class="reference external" href="https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm">Metropolis-Hasting</a> update:</p>
+<div class="math">
+\begin{equation*}
+A(q^*, p^*) = \min[1, \exp\big(-U(q^*) + U(q) -K(p^*)+K(p)\big)] \tag{6}
+\end{equation*}
+</div>
+</div>
+<div class="section" id="langevin-monte-carlo">
+<h3><a class="toc-backref" href="#id29"><span class="sectnum">2.3</span> Langevin Monte Carlo</a></h3>
+<p>Langevin Monte Carlo (LMC) <a class="citation-reference" href="#radford2012" id="id3">[Radford2012]</a> is a special case of HMC where we only
+take a <em>single</em> step in the simulation to propose a new state (versus multiple
+steps in a typical HMC algorithm).  It is sometimes referred to as the
+Metropolis-Adjusted-Langevin algorithm (MALA) (see <a class="citation-reference" href="#teh2015" id="id4">[Teh2015]</a> for more
+details).  With some simplification, we will see that a new familiar
+behaviour emerges from this special case.</p>
+<p>Suppose we define kinetic energy as <span class="math">\(K(p) = \frac{1}{2}\sum p_i^2\)</span>,
+which is typical for a HMC formulation.  Next, we set our momentum <span class="math">\(p\)</span> as
+a sample from a zero mean, unit variance Gaussian (still same as HMC).
+Finally, we run a single step of the leap frog to get new a new proposal state
+<span class="math">\(q^*\)</span> and <span class="math">\(p^*\)</span>.</p>
+<p>We only need to focus on the position <span class="math">\(q\)</span> because we resample the
+momentum <span class="math">\(p\)</span> on each new proposal state so the simulated momentum
+<span class="math">\(p^*\)</span> gets thrown away anyways.  Starting from Equation 3:</p>
+<div class="math">
+\begin{align*}
+q_i^* &amp;= q_i(t) + \epsilon \frac{\partial H}{\partial p}(p(t+\epsilon/2))  \\
+    &amp;= q_i(t) + \epsilon \frac{\partial [U(q) + K(p)]}{\partial p}(p(t+\epsilon/2))  &amp;&amp; H := U(q) + K(p) \\
+    &amp;= q_i(t) + \epsilon \frac{\partial [U(q) + \frac{1}{2}\sum p_i^2]}{\partial p}(p(t+\epsilon/2))  &amp;&amp; \text{Per def. of kinetic energy} \\
+    &amp;= q_i(t) + \epsilon p|_{p=p(t+\epsilon/2)}  \\
+    &amp;= q_i(t) + \epsilon [p(t) - \frac{\epsilon}{2} \frac{\partial H}{\partial q_i}(q(t))] &amp;&amp; \text{Eq. } 2 \\
+    &amp;= q_i(t) - \frac{\epsilon^2}{2} \frac{\partial H}{\partial q_i}(q(t)) + \epsilon p(t) \\
+    &amp;= q_i(t) - \frac{\epsilon^2}{2} \frac{\partial U}{\partial q_i}(q(t)) + \epsilon p(t) &amp;&amp; H := U(q) + K(p) \\
+\tag{7}
+\end{align*}
+</div>
+<p>Equation 7 is known in physics as (one type of) Langevin Equation (see box below for explanation),
+thus the name Langevin Monte Carlo.</p>
+<p>Now that we have a proposal state (<span class="math">\(q^*\)</span>), we can view the algorithm
+as running a vanilla Metropolis-Hastings update where the proposal is coming
+from a Gaussian with mean <span class="math">\(q_i(t) - \frac{\epsilon^2}{2} \frac{\partial U}{\partial q_i}(q(t))\)</span>
+and variance <span class="math">\(\epsilon^2\)</span> corresponding to Equation 7.
+By eliminating <span class="math">\(p\)</span> (and the associated <span class="math">\(p^*\)</span>, not shown here) from
+the original HMC acceptance probability in Equation 6, we can derive the
+following expression:</p>
+<div class="math">
+\begin{align*}
+A(q^*) = \min\big[1, \frac{\exp(-U(q^*))}{\exp(-U(q))}
+     \Pi_{i=1}^d
+         \frac{\exp(-(q_i - q_i^* + (\epsilon^2 / 2) [\frac{\partial U}{\partial q_i}](q^*))^2 / 2\epsilon^2)}
+         {\exp(-(q_i^* - q_i + (\epsilon^2 / 2) [\frac{\partial U}{\partial q_i}](q))^2 / 2\epsilon^2)}\big] \\
+ \tag{8}
+\end{align*}
+</div>
+<p>Even though LMC is derived from HMC, its properties are quite different.
+The movement between states will be a combination of the <span class="math">\(\frac{\epsilon^2}{2} \frac{\partial U}{\partial q_i}(q(t))\)</span>
+term and the <span class="math">\(\epsilon p(t)\)</span> term.  Since <span class="math">\(\epsilon\)</span> is necessarily
+small (otherwise your simulation will not be accurate), the former term
+will be very small and the latter term will resemble a simple
+Metropolis-Hastings random walk.  A big difference though is that LMC
+has better scaling properties when increasing dimensions compared to a pure
+random walk.  See <a class="citation-reference" href="#radford2012" id="id5">[Radford2012]</a> for more details.</p>
+<p>Finally, we'll want to re-write Equation 7 using different notation
+to line up with our usual notation for stochastic gradient descent.
+First, we'll use <span class="math">\(\theta\)</span> instead of <span class="math">\(q\)</span> to imply that
+we're sampling from parameters of our model.  Next, we'll
+rewrite the potential energy <span class="math">\(U(\theta)\)</span> as the likelihood times prior
+(where <span class="math">\(x_i\)</span> are our observed data points):</p>
+<div class="math">
+\begin{align*}
+U(\theta_t) &amp;= -log[f(\theta_t)] \\
+            &amp;= -\log[p(\theta_t)] - \sum_{i=1}^N \log[p(x_i | \theta_t)] \\
+\tag{9}
+\end{align*}
+</div>
+<p>Simplifying our Equation 7, we get:</p>
+<div class="math">
+\begin{align*}
+\theta_{t+1} &amp;= \theta_t - \frac{\epsilon_0^2}{2} \frac{\partial U(\theta)}{\partial \theta} + \epsilon_0 p(t) \\
+\theta_{t+1} &amp;= \theta_t- \frac{\epsilon_0^2}{2} \frac{\partial [-\log[p(\theta_t)] - \sum_{i=1}^N \log[p(x_i | \theta_t)]]}{\partial \theta} + \epsilon_0 p(t) &amp;&amp; \text{Eq. } 10\\
+\theta_{t+1} - \theta_t &amp;= \frac{\epsilon_0^2}{2} \big (\nabla \log[p(\theta_t)] + \sum_{i=1}^N \nabla \log[p(x_i | \theta_t)]]\big) + \epsilon_0 p(t) \\
+\theta_{t+1} - \theta_t &amp;= \frac{\epsilon}{2} \big (\nabla \log[p(\theta_t)] + \sum_{i=1}^N \nabla \log[p(x_i | \theta_t)]]\big) + \sqrt{\epsilon} p(t) &amp;&amp; \epsilon := \epsilon_0^2\\
+\Delta \theta_t &amp;= \frac{\epsilon}{2} \big (\nabla \log[p(\theta_t)] + \sum_{i=1}^N \nabla \log[p(x_i | \theta_t)]]\big) + \varepsilon &amp;&amp; \varepsilon \sim N(0, \epsilon) \\
+\tag{10}
+\end{align*}
+</div>
+<p>Which looks eerily like gradient descent except that we're adding Gaussian
+noise at the end, stay tuned!</p>
+<div class="admonition admonition-langevin-s-diffusion">
+<p class="admonition-title">Langevin's Diffusion</p>
+<p>In the field of stochastic differential equations, a general Itô diffusion
+process is of the form:</p>
+<div class="math">
+\begin{equation*}
+dX_t = a(X_t, t)dt + b(X_t, t)dW_t \tag{A.1}
+\end{equation*}
+</div>
+<p>where <span class="math">\(X_t\)</span> is a stochastic process, <span class="math">\(W_t\)</span> is a Weiner process
+and <span class="math">\(a(\cdot), b(\cdot)\)</span> are functions of <span class="math">\(X_t, t\)</span>.  The form
+of Equation A.1 is the differential form.  See my post on
+<a class="reference external" href="../an-introduction-to-stochastic-calculus/">Stochastic Calculus</a>
+for more details.</p>
+<p>One of the forms of Langevin diffusion is a special case of Equation A.1:</p>
+<div class="math">
+\begin{align*}
+dq_t &amp;= -\frac{1}{2}\frac{dU(q_t)}{dq} dt + dW_t \\
+     &amp;= -\frac{1}{2}\nabla U(q_t) dt + dW_t \\
+\tag{A.2}
+\end{align*}
+</div>
+<p>Where <span class="math">\(q_t\)</span> is the position, <span class="math">\(U\)</span> is the potential energy,
+<span class="math">\(\frac{dU}{dq}\)</span> is the force (position derivative of potential
+energy), and <span class="math">\(W_t\)</span> is the Wiener process.</p>
+<p>In the context of MCMC, we model the potential energy of this system as
+<span class="math">\(U(q) = \log f(q)\)</span> where <span class="math">\(f\)</span> is proportional to the likelihood
+times prior as is usually required in MCMC methods.  With this substitution,
+Equation A.2 is the same as Equation 11 except a continuous time version of
+it.  To see this more clearly, it is important to note that the increments
+of the standard Weiner process <span class="math">\(W_t\)</span> are zero-mean Gaussians with
+variance equal to the time difference.  Once discretized with step size
+<span class="math">\(\epsilon\)</span>, this precisely equals our <span class="math">\(\varepsilon\)</span> sample from
+Equation 10.</p>
+</div>
+</div>
+<div class="section" id="stochastic-gradient-descent-and-rmsprop">
+<h3><a class="toc-backref" href="#id30"><span class="sectnum">2.4</span> Stochastic Gradient Descent and RMSprop</a></h3>
+<p>I'll only briefly cover stochastic gradient descent because I'm assuming most
+readers will be very familiar with this algorithm.
+<a class="reference external" href="https://en.wikipedia.org/wiki/Stochastic_gradient_descent">Stochastic gradient descent</a> (SGD)
+is an iterative stochastic optimization of gradient descent.  The main difference
+is that it uses a randomly selected subset of the data to estimate the gradient at
+each step.  For a given statistical model with parameters <span class="math">\(\theta\)</span>,
+log prior <span class="math">\(\log p(\theta)\)</span>, and log likelihood <span class="math">\(\sum_{i=1}^N \log[p(x_i | \theta_t)]]\)</span>
+with observed data points <span class="math">\(x_i\)</span>, we have:</p>
+<div class="math">
+\begin{equation*}
+\Delta \theta_t = \frac{\epsilon_t}{2} \big (\nabla \log[p(\theta_t)]
++ \frac{N}{n} \sum_{i=1}^n \nabla \log[p(x_{ti} | \theta_t)]]\big)
+  \tag{11}
+\end{equation*}
+</div>
+<p>where <span class="math">\(\epsilon_t\)</span> is a sequence of step sizes, and each iteration <span class="math">\(t\)</span>
+we have a subset of <span class="math">\(n\)</span> data points called a <em>mini-batch</em>
+<span class="math">\(X_t = \{x_{t_1}, \ldots, x_{t_n}\}\)</span>.
+By using an approximate gradient over many iterations the entire dataset is
+eventually used, and the noise in the estimated gradient averages out.
+Additionally for large datasets where the estimated gradient is accurate
+enough, this gives significant computational savings versus using the whole
+dataset at each iteration.</p>
+<p>Convergence to a local optimum is guaranteed with some mild assumptions combined
+with a major requirement that the step size schedule <span class="math">\(\epsilon_t\)</span> satisfies:</p>
+<div class="math">
+\begin{equation*}
+\sum_{t=1}^\infty \epsilon_t = \infty \hspace{50pt} \sum_{t=1}^\infty \epsilon_t^2 &lt; \infty
+\tag{12}
+\end{equation*}
+</div>
+<p>Intuitively, the first constraint ensures that we make progress to reaching the
+local optimum, while the second constraint ensures we don't just bounce around
+that optimum.  A typical schedule to ensure that this is the case is using
+a decayed polynomial:</p>
+<div class="math">
+\begin{equation*}
+\epsilon_t = a(b+t)^{-\gamma} \tag{13}
+\end{equation*}
+</div>
+<p>with <span class="math">\(\gamma \in (0.5, 1]\)</span>.</p>
+<p>One of the issues with using vanilla SGD is that the gradients of the model
+parameters (i.e. dimensions) may have wildly different variances.  For example,
+one parameter may be smoothly descending at a constant rate while another may be
+bouncing around quite a bit (especially with mini-batches).  To solve this, many
+variations on SGD have been proposed that adjust the algorithm to account for the
+variation in parameter gradients.</p>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Stochastic_gradient_descent#RMSProp">RMSprop</a>
+is a popular variant that is conceptually quite simple.  It adjusts the
+learning rate <em>per parameter</em> to ensure that all of the learning rates are roughly
+the same magnitude.  It does this by keeping a moving average
+(<span class="math">\(v(\theta, t)\)</span>) of the squares of the magnitudes of recent gradients for
+parameter <span class="math">\(\theta\)</span>.
+For <span class="math">\(j^{th}\)</span> parameter <span class="math">\(\theta^j\)</span> in iteration <span class="math">\(t\)</span>, we have:</p>
+<div class="math">
+\begin{equation*}
+v(\theta^j, t) := \gamma v(\theta^j, t-1) + (1-\gamma)(\nabla Q_i(\theta^j))^2 \tag{14}
+\end{equation*}
+</div>
+<p>where <span class="math">\(Q_i\)</span> is the loss function, and <span class="math">\(\gamma\)</span> is the smoothing
+constant of the moving average with a typical value set at <cite>0.99</cite>.  With <span class="math">\(v(\theta^j, t)\)</span>,
+the update becomes:</p>
+<div class="math">
+\begin{equation*}
+\Delta \theta^j := - \frac{\epsilon_t}{\sqrt{v(\theta^j, t)}} \nabla Q_i(\theta^j) \tag{15}
+\end{equation*}
+</div>
+<p>From Equation 15, when you have large recent gradients (<span class="math">\(v(\theta^j, t) &gt; 1\)</span>), it scales
+the learning rate down; while if you have small recent gradients (<span class="math">\(v(\theta^j, t) &lt; 1\)</span>),
+it scales the learning rate up.  If recently <span class="math">\(\nabla Q\)</span> is constant in each
+parameter but with different magnitudes, it will update each parameter by the
+learning rate <span class="math">\(\epsilon_t\)</span>, attempting to descend each dimension at the same
+rate.  Empirically, these variations of SGD are necessary to make SGD practical
+for a wide range of models.</p>
+</div>
+<div class="section" id="variational-inference-and-the-reparameterization-trick">
+<h3><a class="toc-backref" href="#id31"><span class="sectnum">2.5</span> Variational Inference and the Reparameterization Trick</a></h3>
+<p>I've written a lot about variational inference in past posts so I'll
+keep this section brief and only touch upon the relevant parts.
+If you want more detail and intuition, check out my posts on
+<a class="reference external" href="../semi-supervised-learning-with-variational-autoencoders/">Semi-supervised learning with Variational Autoencoders</a>,
+and <a class="reference external" href="../variational-bayes-and-the-mean-field-approximation/">Variational Bayes and The Mean-Field Approximation</a>.</p>
+<p>As we discussed above, our goal is to find the posterior, <span class="math">\(p(\theta|X)\)</span>,
+that tells us the distribution of the <span class="math">\(\theta\)</span> parameters.  Unfortunately,
+this problem is intractable for all but the simplest problems. How can we
+overcome this problem? Approximation!</p>
+<p>We'll approximate <span class="math">\(p(\theta|X)\)</span> by another known distribution <span class="math">\(q(\theta|\phi)\)</span>
+parameterized by <span class="math">\(\phi\)</span>.  Importantly, <span class="math">\(q(\theta|\phi)\)</span> often has
+simplifying assumptions about its relationships with other variables.
+For example, you might assume that they are all independent of each other
+e.g., <span class="math">\(q(\theta|\phi) = \prod_{i=1}^n q_i(\theta_i|\phi_i)\)</span> (a example of mean-field approximation).</p>
+<p>The nice thing about this approximation is that we turned our intractable Bayesian learning problem
+into an optimization one where we just want to find the parameters <span class="math">\(\phi\)</span>
+of <span class="math">\(q(\theta|\phi)\)</span> that best match our posterior <span class="math">\(p(\theta|X)\)</span>.
+How well our approximation matches our posterior is both dependent on the
+functional form of <span class="math">\(q\)</span> as well as our optimization procedure.</p>
+<p>In terms of "best match", the standard way of measuring it is to use
+<a class="reference external" href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">KL divergence</a>.
+Without going into the derivation
+(see my <a class="reference external" href="../semi-supervised-learning-with-variational-autoencoders/">previous post</a>),
+if we start from the KL divergence between our approximate posterior and exact posterior,
+we'll arrive at the evidence lower bound (ELBO) for a single data point
+<span class="math">\(X\)</span>:</p>
+<div class="math">
+\begin{align*}
+D_{KL}(Q||P) &amp;= E_q\big[\log \frac{q(\theta|\phi)}{p(\theta,X)}\big] + \log p(X) \\
+\log{p(X)} &amp;\geq -E_q\big[\log\frac{q(\theta|\phi)}{p(\theta,X)}\big]  \\
+           &amp;= E_q\big[\log p(\theta,X) - \log q(\theta|\phi)\big] \\
+           &amp;= E_q\big[\log p(X|\theta) + \log p(\theta) - \log q(\theta|\phi)\big] \\
+           &amp;= E_q\big[\text{likelihood} + \text{prior} - \text{approx. posterior} \big] \\
+            \tag{16}
+\end{align*}
+</div>
+<p>The left hand side of Equation 16 is constant (with respect to the observed
+data), so maximizing the right hand side achieves our desired goal.  It just so
+happens this looks a lot like finding a
+<a class="reference external" href="https://en.wikipedia.org/wiki/Maximum_a_posteriori_estimation">MAP</a> with a
+likelihood and prior term except for two differences: (a) we have an additional term
+for our approximate posterior, and (b) we have to take the expectation with respect
+to samples from that approximate posterior.  When using a SGD approach, we can
+sample points from the <span class="math">\(q\)</span> distribution and use it to approximate the
+expectation in Equation 16.  In many cases though, it's not obvious how to
+sample from <span class="math">\(q\)</span> because you also need to backprop through it.</p>
+<p>In the case of
+<a class="reference external" href="../variational-autoencoders/">variational autoencoders</a>,
+we define an approximate Gaussian posterior <span class="math">\(q(z|\phi)\)</span> on the latent variables
+<span class="math">\(z\)</span>. This approximate posterior is defined by a neural network with
+weights <span class="math">\(\phi\)</span> that output a mean and variance representing the
+parameters of the Gaussian.  We will want to sample from <span class="math">\(q\)</span> to
+approximate the expectation in Equation 16, but also backprop through <span class="math">\(q\)</span>
+to update the weights <span class="math">\(\phi\)</span> of the approximate posterior.
+You can't directly backprop through it but you can reparameterize it by
+using a standard normal distribution, starting from Equation 16 (using
+<span class="math">\(z\)</span> instead of <span class="math">\(\theta\)</span>):</p>
+<div class="math">
+\begin{align*}
+&amp;E_{z\sim q}\big[\log p(X|z) + \log p(z) - \log q(z|\phi)\big] \\
+&amp;= E_{\epsilon \sim \mathcal{N}(0, I)}\big[(\log p(X|z) + \log p(z) - \log q(z|\phi))\big|_{z=\mu_z(X) + \Sigma_z^{1/2}(X) * \epsilon}\big] \\
+&amp;\approx (\log p(X|z) + \log p(z) - \log q(z|\phi))\big|_{z=\mu_z(X) + \Sigma_z^{1/2}(X) * \epsilon} \\
+\tag{17}
+\end{align*}
+</div>
+<p>where <span class="math">\(\mu_z\)</span> and <span class="math">\(\Sigma_z\)</span> are the mean and covariance matrix of
+the approximate posterior, and <span class="math">\(\epsilon\)</span> is a sample from a standard Gaussian.
+This is commonly referred to as the "reparameterization trick" where instead of
+directly computing <span class="math">\(z\)</span> you just scale and shift a standard normal
+distribution using the mean and covariances.  Thus, you can still backprop
+through <span class="math">\(z\)</span> to optimize the mean/covariance networks.  The last line
+approximates the expectation by taking a single sample, which often works fine
+when using SGD.</p>
+</div>
+</div>
+<div class="section" id="stochastic-gradient-langevin-dynamics">
+<h2><a class="toc-backref" href="#id32"><span class="sectnum">3</span> Stochastic Gradient Langevin Dynamics</a></h2>
+<p>Stochastic Gradient Langevin Dynamics (SGLD) combines the ideas of Langevin
+Monte Carlo (Equation 10) with Stochastic Gradient Descent (Equation 11)
+given by:</p>
+<div class="math">
+\begin{align*}
+\Delta \theta_t &amp;= \frac{\epsilon_t}{2} \big (\nabla \log[p(\theta_t)] + \frac{N}{n} \sum_{i=1}^n \nabla \log[p(x_{ti} | \theta_t)]\big) + \varepsilon \\
+\varepsilon &amp;\sim N(0, \epsilon_t)  \\
+\tag{18}
+\end{align*}
+</div>
+<p>This results in an algorithm that is mechanically equivalent to SGD except with
+some Gaussian noise added to each parameter update.  Importantly though, there
+are several key choices that SGLD makes:</p>
+<ul class="simple">
+<li><p><span class="math">\(\epsilon_t\)</span> decreases towards zero just as in SGD.</p></li>
+<li><p>Balance the Gaussian noise <span class="math">\(\varepsilon\)</span> variance with the step size
+<span class="math">\(\epsilon_t\)</span> as in LMC.</p></li>
+<li><p>Ignore the Metropolis-Hastings updates (Equation 8) using the fact that
+rejection rates asymptotically go to zero as <span class="math">\(\epsilon_t \to 0\)</span>.</p></li>
+</ul>
+<p>This algorithm has the advantage of SGD of being able to work on large data
+sets (because of the mini-batches) while still computing uncertainty
+(using LMC-like estimates).  The avoidance of the Metropolis-Hastings update is
+key so that an expensive evaluation of the whole dataset is not needed at each
+iteration.</p>
+<p>The intuition here is that in earlier iterations this will behave much like SGD
+stepping towards a local minimum because the large gradient overcomes the
+noise.  In later iterations with a small <span class="math">\(\epsilon_t\)</span>, the noise
+dominates and the gradient plays a much smaller role, resulting in each
+iteration bouncing around the local minimum via a random walk (with a bias
+towards the local minimum from the gradient).  Additionally, in between these two
+extremes the algorithm should vary smoothly.  Thus with carefully selected
+hyperparameters, you can <em>effectively</em> sample from the posterior distribution
+(more on this later).</p>
+<p>What is not obvious though is that why this should give correct the correct
+result.  It surely will be able to get close to a local minimum (similar to
+SGD) but why would it give the correct uncertainty estimates without the
+Metropolis-Hastings update step?  This is the topic of the next subsection.</p>
+<div class="section" id="correctness-of-sgld">
+<h3><a class="toc-backref" href="#id33"><span class="sectnum">3.1</span> Correctness of SGLD</a></h3>
+<p><em>Note:</em> <a class="citation-reference" href="#teh2015" id="id6">[Teh2015]</a> <em>has the hardcore proof of SGLD correctness versus a very
+informal sketch presented in the original paper</em> (<a class="citation-reference" href="#welling2011" id="id7">[Welling2011]</a>) <em>.  I'll mainly
+stick to the original paper's presentation (mostly because the hardcore proof
+is way beyond my comprehension), but will call out a couple of notable things
+from the formal proof.</em></p>
+<p>To set up this problem, let us first define several quantities.
+First define the true gradient of the log probability,
+which is just the negative gradient our usual <a class="reference external" href="https://en.wikipedia.org/wiki/Maximum_a_posteriori_estimation">MAP</a>
+loss function (with no mini-batches):</p>
+<div class="math">
+\begin{equation*}
+g(\theta) = \nabla \log p(\theta) + \sum_{i=1}^N \nabla \log p(X_i|\theta) \tag{19}
+\end{equation*}
+</div>
+<p>Next, let's define another related quantity:</p>
+<div class="math">
+\begin{equation*}
+h_t(\theta) = \nabla \log p(\theta) + \frac{N}{n}\sum_{i=1}^n \nabla \log p(X_{ti}|\theta) - g(\theta) \tag{20}
+\end{equation*}
+</div>
+<p>Equation 20 is essentially the difference between our SGD update (with
+mini-batch <span class="math">\(t\)</span>) and the true gradient update (with all the data).
+Notice that <span class="math">\(h_t(\theta) + g(\theta)\)</span> is just an SGD update
+which can be obtained by cancelling out the last term in <span class="math">\(h_t(\theta)\)</span>.</p>
+<p>Importantly, <span class="math">\(h_t(\theta)\)</span> is a zero-mean random variable with
+finite variance <span class="math">\(V(\theta)\)</span>.  Zero-mean because we're subtracting out the
+true gradient so our random mini-batches should not have any bias.  Similarly,
+the randomness comes from the fact that we're randomly selecting finite
+mini-batches, which should yield only a finite variance.</p>
+<p>With these quantities, we can rewrite Equation 18 using the fact
+that <span class="math">\(h_t(\theta) + g(\theta)\)</span> is an SGD update:</p>
+<div class="math">
+\begin{align*}
+\Delta \theta_t &amp;= \frac{\epsilon_t}{2} \big (g(\theta_t) + h_t(\theta_t) \big) + \varepsilon \\
+\varepsilon &amp;\sim N(0, \epsilon_t)  \\
+\tag{21}
+\end{align*}
+</div>
+<p>With the above setup, we'll show two statements:</p>
+<ol class="arabic simple">
+<li><p><strong>Transition</strong>: When we have large <span class="math">\(t\)</span>, the SGLD state transition
+of Equation 18/21 will approach LMC, that is, have its equilibrium
+distribution be the posterior distribution.</p></li>
+<li><p><strong>Convergence</strong>: There exists a subsequence of <span class="math">\(\theta_1,
+\theta_2, \ldots\)</span> of SGLD that converges to the posterior distribution.</p></li>
+</ol>
+<p>With these two shown, we can see that SGLD (for large <span class="math">\(t\)</span>) will
+eventually get into a state where we can <em>theoretically</em> sample the posterior
+distribution by taking the appropriate subsequence.  The paper makes a stronger
+argument that the subsequence convergence implies convergence of the entire
+sequence but it's not clear to me that it is the case.  At the end of this
+subsection, I'll also mention a theorem from the rigorous proof (<a class="citation-reference" href="#teh2015" id="id8">[Teh2015]</a>)
+that gives a practical result where this may not matter.</p>
+<p><strong>Transition</strong></p>
+<p>We'll argue that Equation 18/21 converges to the same transition probability
+as LMC and thus its equilibrium distribution will be the posterior.</p>
+<p>First notice that Equation 18/21 is the same equation as LMC (Equation 10) except for the
+additional randomness due to the mini-batches: <span class="math">\(\frac{N}{n} \sum_{i=1}^n \nabla \log[p(x_{ti} | \theta_t)]\)</span>.
+This term is multiplied by a <span class="math">\(\frac{\epsilon_t}{2}\)</span> factor whereas
+the standard deviation from the <span class="math">\(\varepsilon\)</span> term is <span class="math">\(\sqrt{\epsilon_t}\)</span>.
+Thus as <span class="math">\(\epsilon_t \to 0\)</span>, the error from the mini-batch term will
+vanish faster than the <span class="math">\(\varepsilon\)</span> term, converging to the LMC proposal
+distribution (Equation 10).  That is, at large <span class="math">\(t\)</span> it approximates LMC
+and eventually converges to it in the limit since the gradient update (and the
+difference between the two) vanishes.</p>
+<p>Next, we observe that LMC is a special case of HMC.  HMC is actually a
+discretization of a continuous time differential equation.  The discretization
+introduces error in the calculation, which is the only reason why we need a
+Metropolis-Hastings update (see previous post on <a class="reference external" href="../hamiltonian-monte-carlo/">HMC</a>).
+However as <span class="math">\(\epsilon_t \to 0\)</span>, this error becomes negligible converging
+to the HMC continuous time dynamics, implying a 100% acceptance rate.
+Thus, there is no need for an MH update for very small <span class="math">\(\epsilon_t\)</span>.</p>
+<p>In summary for large <span class="math">\(t\)</span>, the <span class="math">\(t^{th}\)</span> iteration of Equation
+18/21 closely approximates the LMC Markov chain transition with very small error
+so its equilibrium distribution closely approximates the desired posterior.
+This would be great if we had a fixed <span class="math">\(t\)</span> but we are shrinking
+<span class="math">\(t\)</span> towards 0 (as is needed by SGD), thus SGLD actually defines a
+non-stationary Markov Chain, and so we still need to show the actual sequence
+will converge to the posterior.</p>
+<p><strong>Convergence</strong></p>
+<p>We will show that there exists some sequence of samples <span class="math">\(\theta_{t=a_1},
+\theta_{t=a_2}, \ldots\)</span> that converge to the posterior for some strictly
+increasing sequence <span class="math">\(a_1, a_2, \ldots\)</span> (note: the sequence is not
+sequential e.g., <span class="math">\(a_{n+1}\)</span> is likely much bigger than <span class="math">\(a_{n}\)</span>).</p>
+<p>First we fix a small <span class="math">\(\epsilon_0\)</span> such that <span class="math">\(0 &lt; \epsilon_0 &lt;&lt; 1\)</span>.
+Assuming <span class="math">\(\{\epsilon_t\}\)</span> satisfy the decayed polynomial property from
+Equation 13, there exists an increasing subsequence <span class="math">\(\{a_n \}\)</span> such that
+<span class="math">\(\sum_{t=a_n+1}^{a_{n+1}} \epsilon_t \to \epsilon_0\)</span> as <span class="math">\(n \to \infty\)</span>
+(note: the <span class="math">\(+1\)</span> in the sum's upper limit is in the subscript, while the
+lower limit is not).
+That is, we can split the sequence <span class="math">\(\{\epsilon_t\}\)</span> into non-overlapping
+segments such that successive segments approaches <span class="math">\(\epsilon_0\)</span>.  This can
+be easily constructed by continually extending the current run until you go
+over <span class="math">\(\epsilon_0\)</span>.  Since <span class="math">\(\epsilon_t\)</span> is decreasing, and we are
+guaranteed that the sequence doesn't converge (Equation 12), we can always
+construct the next segment with a smaller error than the previous one.</p>
+<p>For large <span class="math">\(n\)</span>, if we look at each segment <span class="math">\(\sum_{t=a_n+1}^{a_{n+1}} \epsilon_t\)</span>,
+the total Gaussian noise injected will be the sum of each of the Gaussian noise
+injections.  The
+<a class="reference external" href="https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables">variance of sums of independent Gaussians</a>
+is just the sum of the variances, so the total variance will be
+<span class="math">\(O(\epsilon_0)\)</span>.  Thus, the injected noise (standard deviation)
+will be on the order of <span class="math">\(O(\sqrt{\epsilon_0})\)</span>.  Given this,
+next we will want to show that the variance from the mini-batch error is
+dominated by this injected noise.</p>
+<p>To start, since <span class="math">\(\epsilon_0 &lt;&lt; 1\)</span>, we have
+<span class="math">\(||\theta_t-\theta_{t=a_n}|| &lt;&lt; 1\)</span> for <span class="math">\(t \in (a_n, a_{n+1}]\)</span>
+since the updates from Equation 18/21 cannot stray too far from where it
+started.  Assuming the gradients vary smoothly (a key assumption) then
+we can see the total update without the injected noise for a segment
+<span class="math">\(t \in (a_n, a_{n+1}]\)</span> is (i.e., Equation 21 minus the noise <span class="math">\(\varepsilon\)</span>):</p>
+<div class="math">
+\begin{equation*}
+\sum_{t=a_n+1}^{a_{n+1}} \frac{\epsilon_t}{2}\big(g(\theta_t) + h_t(\theta_t)\big)
+= \frac{\epsilon_0}{2} g(\theta_{t=a_n}) + O(\epsilon_0) + \sum_{t=a_n+1}^{a_{n+1}} \frac{\epsilon_t}{2} h_t(\theta_t) \tag{22}
+\end{equation*}
+</div>
+<p>We see that the <span class="math">\(g(\cdot)\)</span> summation expands into the gradient at
+<span class="math">\(\theta_{t=a_n}\)</span> plus an error term <span class="math">\(O(\epsilon_0)\)</span>.  This is
+from our assumption of <span class="math">\(||\theta_t-\theta_{t=a_n}|| &lt;&lt; 1\)</span> plus
+the gradients varying smoothly (<a class="reference external" href="https://en.wikipedia.org/wiki/Lipschitz_continuity">Lipschitz continuity</a>),
+which imply that the difference between successive gradients will also be much
+smaller than 1 (for an appropriately small <span class="math">\(\epsilon_0\)</span>).  Thus, the
+error from this term on this segment will
+be <span class="math">\(\sum_{t=a_n+1}^{a_{n+1}} \frac{\epsilon_t}{2} O(1) = O(\epsilon_0)\)</span> as
+shown in Equation 22.</p>
+<p>Next, we deal with the <span class="math">\(h_t(\cdot)\)</span> in Equation 22.  Since we know
+that <span class="math">\(\theta_t\)</span> did not vary much in our interval <span class="math">\(t \in (a_n, a_{n+1}]\)</span>
+given our <span class="math">\(\epsilon_t &lt;&lt; 1\)</span> assumption, we have <span class="math">\(h_t(\theta_t) = O(1)\)</span>
+in our interval since our gradients vary smoothly (again due to
+<a class="reference external" href="https://en.wikipedia.org/wiki/Lipschitz_continuity">Lipschitz continuity</a>).
+Additionally each <span class="math">\(h_t(\cdot)\)</span> will be a random variable which we can
+assume to be independent, thus IID (doesn't change argument if they are
+randomly partitioned which will only make the error smaller).  Plugging this
+into <span class="math">\(\sum_{t=a_n+1}^{a_{n+1}} \frac{\epsilon_t}{2} h_t(\theta_t)\)</span>, we
+see the variance is <span class="math">\(O(\sum_{t=a_n+1}^{a_{n+1}} (\frac{\epsilon_t}{2})^2)\)</span>.
+Putting this together in Equation 22, we get:</p>
+<div class="math">
+\begin{align*}
+\sum_{t=a_n+1}^{a_{n+1}} \frac{\epsilon_t}{2}\big(g(\theta_t) + h_t(\theta_t)\big)
+&amp;= \frac{\epsilon_0}{2} g(\theta_{t=a_n}) + O(\epsilon_0) + O\Big(\sqrt{\sum_{t=a_n+1}^{a_{n+1}} (\frac{\epsilon_t}{2})^2}\Big) \\
+&amp;= \frac{\epsilon_0}{2} g(\theta_{t=a_n}) + O(\epsilon_0) \\
+\tag{23}
+\end{align*}
+</div>
+<p>From Equation 22, we can see the total stochastic gradient over our segment is
+just the exact gradient starting from <span class="math">\(\theta_{t=a_n}\)</span> with step size
+<span class="math">\(\epsilon_0\)</span> plus a <span class="math">\(O(\epsilon_0)\)</span> error term.  But recall our
+injected noise was of order <span class="math">\(O(\sqrt{\epsilon_0})\)</span>, which in turn dominates
+<span class="math">\(O(\epsilon_0)\)</span> (for <span class="math">\(\epsilon_0 &lt; 1\)</span>).  Thus for small
+<span class="math">\(\epsilon_0\)</span>, our sequence <span class="math">\(\theta_{t=a_1}, \theta_{t=a_2}, \ldots\)</span>
+will approximate LMC because each segment will essentially be an LMC update
+with very small, decreasing error.  As a result, this <em>subsequence</em> will
+converge to the posterior as required.</p>
+<hr class="docutils">
+<p>Now the above argument showing that there exists a subsequence that samples
+from the posterior isn't that useful because we don't know what that
+subsequence is!  But <a class="citation-reference" href="#teh2015" id="id9">[Teh2015]</a> provides a much more rigorous treatment
+of the subject showing a much more useful result in Theorem 7.  Without
+going into all of the mathematical rigour, I'll present the basic idea
+(from what I can gather):</p>
+<blockquote>
+<p><strong>Theorem 1:</strong> (Summary of Theorem 7 from <a class="citation-reference" href="#teh2015" id="id10">[Teh2015]</a>)
+For a test function <span class="math">\(\varphi: \mathbb{R}^d \to \mathbb{R}\)</span>, the
+expectation of <span class="math">\(\varphi\)</span> with respect to the exact posterior
+distribution <span class="math">\(\pi\)</span> can be approximated by the weighted sum of
+<span class="math">\(m\)</span> SGLD samples <span class="math">\(\theta_0 \ldots \theta_{m-1}\)</span> that holds
+almost surely (given some assumptions):</p>
+<div class="math">
+\begin{equation*}
+\lim_{m\to\infty} \frac{\epsilon_1 \varphi(\theta_0) + \ldots + \epsilon_m \varphi(\theta_{m-1})}{\sum_{t=1}^m \epsilon_t} = \int_{\mathbb{R}^d} \varphi(\theta)\pi(d\theta)
+\tag{24}
+\end{equation*}
+</div>
+</blockquote>
+<p>Theorem 1 gives us a more practical way to utilize the samples from SGLD.
+We don't need to generate the exact samples that we would get from LMC,
+instead we can just directly use the SGLD samples and their respective step sizes to
+compute a weighted average for any actual quantity we would want (e.g.
+expectation, variance, credible interval etc.).  According to Theorem 1,
+this will converge to the exact quantity using the true posterior.
+See <a class="citation-reference" href="#teh2015" id="id11">[Teh2015]</a> for more details (if you dare!).</p>
+</div>
+<div class="section" id="preconditioning">
+<h3><a class="toc-backref" href="#id34"><span class="sectnum">3.2</span> Preconditioning</a></h3>
+<p>One problem both with SGD and SGLD is that the gradients updates might
+be very slow due to the curvature of the loss surface.  This is known
+to be a common phenomenon in large parameter models like neural networks
+where there are many <a class="reference external" href="https://en.wikipedia.org/wiki/Saddle_point">saddle points</a>.
+These parts of a surface have very small gradients (in at least one dimension),
+which will cause any SGD-based optimization procedure to be very slow.  On the
+other end, if one of the dimensions in your loss has large curvature
+(and thus gradient), it could cause unnecessary oscillations in one dimension
+while the other one with low curvature crawls along.  The solution to this
+problem is to use a preconditioner.</p>
+<div class="figure align-center">
+<img alt="Preconditioning" src="../../images/sgld-precondition.png" style="height: 250px;"><p class="caption"><strong>Figure 1: (Left) Original loss landscape, SGD converges slowly.
+(Right) Transformed loss landscape with a preconditioner with reduced
+oscillations and faster progress.  Notice the contour lines are more evenly spaced
+out in each direction. (source:</strong> <a class="citation-reference" href="#dauphin2015" id="id12">[Dauphin2015]</a> <strong>)</strong></p>
+</div>
+<p>Preconditioning is a type of local transform that changes the optimization landscape
+so the curvature is equal in all directions (<a class="citation-reference" href="#dauphin2015" id="id13">[Dauphin2015]</a>).  As shown in Figure 1, preconditioning
+can transform the curvature (shown by the contour lines) and as a result make SGD converge
+more quickly.  Formally, for a loss function <span class="math">\(f\)</span> with parameters <span class="math">\(\theta \in \mathbb{R}^d\)</span>,
+we introduce a non-singular matrix <span class="math">\({\bf D}^{\frac{1}{2}}\)</span> such that <span class="math">\(\hat{\theta}={\bf D}^{\frac{1}{2}}\theta\)</span>.
+Using the change of variables formula, we can define a new function <span class="math">\(\hat{f}(\hat{\theta})\)</span> that
+is equivalent to our original function with its associated gradient (using the chain rule):</p>
+<div class="math">
+\begin{align*}
+\hat{f}(\hat{\theta}) &amp;= f({\bf D}^{-\frac{1}{2}}\hat{\theta})=f(\theta) \\
+\nabla\hat{f}(\hat{\theta}) &amp;= {\bf D}^{-\frac{1}{2}}\nabla f(\theta)
+\tag{25}
+\end{align*}
+</div>
+<p>Thus, regular SGD can be performed on the original <span class="math">\(\theta\)</span> (for convenience
+we'll define <span class="math">\({\bf G}={\bf D}^{-1}\)</span>):</p>
+<div class="math">
+\begin{align*}
+\hat{\theta}_t &amp;= \hat{\theta}_{t-1} - \epsilon \nabla \hat{f}(\hat{\theta}) \\
+\hat{\theta}_t &amp;= \hat{\theta}_{t-1} - \epsilon {\bf D}^{-\frac{1}{2}}\nabla f(\theta)
+     &amp;&amp; {Eq. } 25 \\
+\theta_t &amp;= \theta_{t-1} - \epsilon {\bf D}^{-1}\nabla f(\theta) &amp;&amp; \text{multiply through by } {\bf D}^{-\frac{1}{2}} \\
+\theta_t &amp;= \theta_{t-1} - \epsilon {\bf G}(\theta_{t-1})\nabla f(\theta) &amp;&amp; \text{rename } {\bf D}^{-1} \text{ to } {\bf G}\\
+\tag{26}
+\end{align*}
+</div>
+<p>So the transformation turns out to be quite simple by multiplying our gradient
+with a user chosen preconditioning matrix <span class="math">\({\bf G}\)</span> that is usually a function of the
+current parameters <span class="math">\(\theta_{t-1}\)</span>.  In the context of SGLD, we
+have an equivalent result (<a class="citation-reference" href="#li2016" id="id14">[Li2016]</a>) where <span class="math">\({\bf G}\)</span> defines a
+Riemannian manifold:</p>
+<div class="math">
+\begin{align*}
+\Delta \theta_t &amp;= \frac{\epsilon_t}{2} \big[ {\bf G}(\theta_t) \big (\nabla \log[p(\theta_t)] + \frac{N}{n} \sum_{i=1}^n \nabla \log[p(x_{ti} | \theta_t)]\big) + \Gamma(\theta_t) \big] + {\bf G}^{\frac{1}{2}}(\theta_t)\varepsilon \\
+     \varepsilon &amp;\sim N(0, \epsilon_t)  \\
+     \tag{27}
+\end{align*}
+</div>
+<p>where <span class="math">\(\Gamma(\theta_t) = \sum_j \frac{\partial G_{i,j}}{\partial
+\theta_j}\)</span> describe how the preconditioner changes with respect to
+<span class="math">\(\theta_t\)</span>.  Notice the preconditioner is applied to the noise as well.</p>
+<p>Previous approaches to use a preconditioner relied on the
+expected
+<a class="reference external" href="https://en.wikipedia.org/wiki/Fisher_information">Fisher information</a>
+matrix, which is too costly for any modern deep learning model since it grows
+with the square of the number of parameters (similar to the
+Hessian).  It turns out that we don't specifically need the Fisher information matrix,
+we just need something that defines the Riemannian manifold metric, which only requires
+a <a class="reference external" href="https://en.wikipedia.org/wiki/Definite_matrix">positive definite matrix</a>.</p>
+<p>The insight from <a class="citation-reference" href="#li2016" id="id15">[Li2016]</a> was that we can use RMSprop as the preconditioning
+matrix since it satisfies the positive definite criteria, and has shown
+empirically to do well in SGD (being only a diagonal preconditioner matrix):</p>
+<div class="math">
+\begin{equation*}
+G(\theta_{t+1}) = diag\big(\frac{1}{\lambda + \sqrt{v(\theta_{t+1})}}\big) \tag{28}
+\end{equation*}
+</div>
+<p>where <span class="math">\(v(\theta_{t+1})=v(\theta, t)\)</span> from Equation 14 and
+<span class="math">\(\lambda\)</span> is a small constant to prevent numerical instability.</p>
+<p>Additionally, <a class="citation-reference" href="#li2016" id="id16">[Li2016]</a> has shown that there is no need to include the
+<span class="math">\(\Gamma(\theta)\)</span> term in Equation 27 (even though it's not too hard to
+compute for a diagonal matrix).  This is because it introduces an additional
+bias term that scales with <span class="math">\(\frac{(1-\alpha)^2}{\alpha^3}\)</span> (from Equation 27),
+which is practically always set close to 1 (e.g. PyTorch's default for
+<a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.optim.RMSprop.html">RMSprop</a> is <span class="math">\(\alpha = 0.99\)</span>).
+As a result, we can simply use off-the-shelf RMSprop with only a slight
+adjustment to the SGLD noise and gain the benefits of preconditioning.</p>
+</div>
+<div class="section" id="practical-considerations">
+<h3><a class="toc-backref" href="#id35"><span class="sectnum">3.3</span> Practical Considerations</a></h3>
+<p>Besides preconditioning, SGLD has some other caveats inherited from MCMC.
+First your initial condition matters, so you likely want to run it for a while
+before you start sampling (i.e., "burn-in").  Similarly, adjacent samples
+(particularly with a random walk method such as LMC/SGLD) will be highly
+correlated so you will only want to take periodic samples to get (mostly)
+independent samples (although with Theorem 1 this may not be necessary)
+depending on your application.  Finally, for both deep learning and MCMC, your
+hyperparameters matter a lot.  For example, initial conditions, learning rate
+schedule, and priors all matter a lot.  So while a lot of the above techniques
+help, there's no free lunch here.</p>
+</div>
+</div>
+<div class="section" id="bayes-by-backprop">
+<h2><a class="toc-backref" href="#id36"><span class="sectnum">4</span> Bayes by Backprop</a></h2>
+<p>Bayes by Backprop (<a class="citation-reference" href="#blundell2015" id="id17">[Blundell2015]</a>) is a generalization of some previous work
+to allow an approximation of Bayesian uncertainty, particularly for weights in
+large scale neural network models where traditional MCMC methods do not scale.
+Approximation is the key word here as it utilizes variational inference
+(Equation 16).  More precisely, instead of directly estimating the posterior, it
+preselects the functional form of a distribution (<span class="math">\(q(\theta|\phi)\)</span>)
+parameterized by <span class="math">\(\phi\)</span>, and optimizes <span class="math">\(\phi\)</span> using Equation 16.
+The right hand side of Equation 16 is often called the <em>variational free
+energy</em> (among other names), which we'll denote by <span class="math">\(\mathcal{F}(X, \phi)\)</span>:</p>
+<div class="math">
+\begin{equation*}
+\mathcal{F}(X, \phi) =  E_q\big[\log p(X|\theta) + \log p(\theta) - \log q(\theta|\phi)\big]
+\tag{29}
+\end{equation*}
+</div>
+<p>Recall that instead of solving for point estimates of <span class="math">\(\theta\)</span>, we're
+trying to solve for <span class="math">\(\phi\)</span>, which implicitly gives us (approximate)
+distributions in the form of <span class="math">\(q(\theta|\phi)\)</span>.  To make this concrete,
+for a neural network, <span class="math">\(\theta\)</span> would be the weights and instead of a
+single number for each one, we would have a known distribution <span class="math">\(q(\theta|\phi)\)</span>
+(that we select) parameterized by <span class="math">\(\phi\)</span>.</p>
+<p>The main problem with Equation 29 is that we will need to sample from
+<span class="math">\(q(\theta|\phi)\)</span> in order to approximate the expectation, but we will
+also need to backprop through the "sample" in order to optimize <span class="math">\(\phi\)</span>.
+If this sounds familiar, it is precisely the same issue we had with variation
+autoencoders.  The solution there was to use the "reparameterization trick"
+to rewrite the expectation in terms of a standard Gaussian distribution (and
+some additional transformations) to yield an equivalent loss function that we
+can backprop through.</p>
+<p><a class="citation-reference" href="#blundell2015" id="id18">[Blundell2015]</a> generalizes this concept beyond Gaussians
+to any distribution with the following proposition:</p>
+<blockquote>
+<p><strong>Proposition 1:</strong> (Proposition 1 from <a class="citation-reference" href="#blundell2015" id="id19">[Blundell2015]</a>)
+Let <span class="math">\(\varepsilon\)</span> be a random variable with probability density
+given by <span class="math">\(q(\varepsilon)\)</span> and let <span class="math">\(\theta = t(\phi, \varepsilon)\)</span>
+where <span class="math">\(t(\phi, \varepsilon)\)</span> is a deterministic function.
+Suppose further that the marginal probability density of <span class="math">\(\theta\)</span>,
+<span class="math">\(q(\theta|\phi)\)</span>, is such that
+<span class="math">\(q(\varepsilon)d\varepsilon = q(\theta|\phi)d\theta\)</span>.  Then for a function
+<span class="math">\(f(\cdot)\)</span> with derivatives in <span class="math">\(\theta\)</span>:</p>
+<div class="math">
+\begin{equation*}
+\frac{\partial}{\partial\phi}E_{q(\theta|\phi)}[f(\theta,\phi)] =
+E_{q(\varepsilon)}\big[
+ \frac{\partial f(\theta,\phi)}{\partial\theta}\frac{\partial\theta}{\partial\phi}
+     + \frac{\partial f(\theta, \phi)}{\partial \phi}
+\big]
+\tag{30}
+\end{equation*}
+</div>
+<p><strong>Proof:</strong></p>
+<div class="math">
+\begin{align*}
+\frac{\partial}{\partial\phi}E_{q(\theta|phi)}[f(\theta,\phi)]
+    &amp;= \frac{\partial}{\partial\phi}\int f(\theta,\phi)q(\theta|\phi)d\theta \\
+    &amp;= \frac{\partial}{\partial\phi}\int f(\theta,\phi)q(\varepsilon)d\varepsilon &amp;&amp; \text{Given in proposition}\\
+    &amp;= \int \frac{\partial}{\partial\phi}[f(\theta,\phi)]q(\varepsilon)d\varepsilon \\
+    &amp;= E_{q(\varepsilon)}\big[
+    \frac{\partial f(\theta,\phi)}{\partial\theta}\frac{\partial\theta}{\partial\phi}
+        + \frac{\partial f(\theta, \phi)}{\partial \phi}\big]  &amp;&amp; \text{chain rule}
+   \\
+\tag{31}
+\end{align*}
+</div>
+</blockquote>
+<p>So Proposition 1 tells us that the "reparameterization trick" is valid in the context of
+gradient based optimization (i.e., SGD) if we can show
+<span class="math">\(q(\varepsilon)d\varepsilon = q(\theta|\phi)d\theta\)</span>.
+Equation 30 may be a bit cryptic because of all the partial derivatives but notice two things.
+First, the expectation is now with respect to a standard distribution <span class="math">\(q(\varepsilon)\)</span>,
+and, second, the inner part of the expectation is done automatically through backprop when
+you implement <span class="math">\(t(\phi, \varepsilon)\)</span> so you don't have to explicitly calculate it
+(it's just the chain rule).  Let's take a look at a couple of examples.</p>
+<p>First, let's take a look at the good old Gaussian distribution with parameters
+<span class="math">\(\phi = \{\mu, \sigma\}\)</span> and <span class="math">\(\varepsilon\)</span> being a standard Gaussian.
+We let <span class="math">\(t(\mu, \sigma, \varepsilon) = \sigma \cdot \varepsilon + \mu\)</span>.
+Thus, we have:</p>
+<div class="math">
+\begin{align*}
+q(\theta | \mu, \sigma)d\theta
+    &amp;= \frac{1}{\sqrt{2\pi\sigma^2}}\exp\{-\frac{(\theta - \mu)^2}{2\sigma^2}\}d\theta &amp;&amp; \text{Gaussian pdf} \\
+    &amp;= \frac{1}{\sqrt{2\pi\sigma^2}}\exp\{-\frac{((\sigma \cdot \varepsilon + \mu)- \mu)^2}{2\sigma^2}\}\sigma d\varepsilon &amp;&amp; \theta = \sigma \cdot \varepsilon + \mu \\
+    &amp;= \frac{1}{\sqrt{2\pi}}\exp\{-\frac{\varepsilon^2}{2}\} d\varepsilon \\
+    &amp;= q(\varepsilon)d\epsilon
+    \tag{32}
+\end{align*}
+</div>
+<p>We can easily see that the two expressions are the same.  To drive the point home,
+we can show the same relationship with the exponential distribution parameterized by <span class="math">\(\lambda\)</span>
+using <span class="math">\(t(\lambda, \varepsilon) = \frac{\varepsilon}{\lambda}\)</span> for standard exponential
+distribution <span class="math">\(\varepsilon\)</span>:</p>
+<div class="math">
+\begin{align*}
+q(\theta | \lambda)d\theta
+    &amp;= \lambda \exp\{-\lambda \theta\}d\theta &amp;&amp; \text{Exponential pdf} \\
+    &amp;=\lambda \exp\{-\lambda \frac{\varepsilon}{\lambda}\}\frac{d\varepsilon}{\lambda} &amp;&amp; \theta = \frac{\varepsilon}{\lambda} \\
+    &amp;= \exp\{-\varepsilon\}d\varepsilon \\
+    &amp;= q(\varepsilon)d\epsilon
+    \tag{33}
+\end{align*}
+</div>
+<p>The nice thing about this trick is that it's widely implemented in modern tooling.
+For example, PyTorch has this implemented using the <cite>rsample()</cite> method (where
+applicable).  You can look into each of the respective implementations to
+see how the <span class="math">\(t(\cdot)\)</span> function is defined.  See the
+<a class="reference external" href="https://pytorch.org/docs/stable/distributions.html#pathwise-derivative">Pathwise derivative</a>
+section of the PyTorch docs for details.</p>
+<p>With this reparameterization trick (and picking appropriate distributions), one
+can easily implement variational inference by substituting the exact posterior for
+a fixed parameterized distribution (e.g., Gaussian, exponential etc.).  This allows
+you to easily train the network using standard SGD methods
+that sample from this approximate posterior distribution, but <em>importantly</em> can
+backprop through them to update the parameters of these approximate posteriors
+to hopefully achieve a good estimate of uncertainty.  However this does have the same limitations
+as variational inference, which will often <a class="reference external" href="https://www.quora.com/Why-and-when-does-mean-field-variational-Bayes-underestimate-variance">underestimate variance</a>.
+So there's also no free lunch here either.</p>
+</div>
+<div class="section" id="experiments">
+<h2><a class="toc-backref" href="#id37"><span class="sectnum">5</span> Experiments</a></h2>
+<div class="section" id="simple-gaussian-mixture-model">
+<h3><a class="toc-backref" href="#id38"><span class="sectnum">5.1</span> Simple Gaussian Mixture Model</a></h3>
+<p>The first experiment I did was try to reproduce the simple mixture model with
+tied means from <a class="citation-reference" href="#welling2011" id="id20">[Welling2011]</a>.  The model from the paper is specified as:</p>
+<div class="math">
+\begin{align*}
+\pi &amp;\sim Bernoulli(p) \\
+\theta_1 &amp;\sim \mathcal{N}(0, \sigma_1^2) \\
+\theta_2 &amp;\sim \mathcal{N}(0, \sigma_2^2) \\
+x_i &amp;\sim \pi * \mathcal{N}(\theta_1, \sigma_x^2) + (1-\pi) * \mathcal{N}(\theta_1 + \theta_2, \sigma_x^2) \\
+\tag{34}
+\end{align*}
+</div>
+<p>with <span class="math">\(p=0.5, \sigma_1^2=10, \sigma_2^2=1, \sigma_x^2=2\)</span>.  They generate
+100 <span class="math">\(x_i\)</span> data points using a fixed <span class="math">\(\theta_1=0, \theta_2=1\)</span>.
+In the paper, they say that this generates a bimodal distribution but I wasn't
+able to reproduce it.  I had to change <span class="math">\(\sigma_x^2=2.56\)</span> to get a
+slightly wider bimodal distribution.  I did this <em>only</em> for the data generation, all the
+training uses <span class="math">\(\sigma_x^2=2\)</span>.  Theoretically, if they got a weird
+random seed they might be able to get something bimodal, but I wasn't able to.
+Figure 2 shows a histogram of the data I generated with the modified
+<span class="math">\(\sigma_x^2=2.56\)</span>.</p>
+<div class="figure align-center">
+<img alt="mixture hist" src="../../images/sgld-mixture_hist.png" style="height: 350px;"><p class="caption"><strong>Figure 2: Histogram of</strong> <span class="math">\(x_i\)</span> <strong>datapoints</strong></p>
+</div>
+<p>From Equation 34, you can that the only parameters we need to estimate are
+<span class="math">\(\theta_1\)</span> <span class="math">\(\theta_2\)</span>.  If our procedure is correct,
+our posterior distribution should have a lot of density around
+<span class="math">\((\theta_1, \theta_2) = (0, 1)\)</span>.</p>
+<div class="figure align-center">
+<img alt="mixture exact" src="../../images/sgld-mixture-exact.png" style="height: 450px;"><p class="caption"><strong>Figure 3: True posterior</strong></p>
+</div>
+<p>Since this is just a relatively simple two dimensional problem, you can
+estimate the posterior by discretizing the space and calculating the
+unnormalized posterior (likelihood times prior) for each cell.  As long as you
+don't overflow your floating point variables, you should be able to get a
+contour plot as shown in Figure 3.  As you can see, the distribution is bimodal
+with a peak at <span class="math">\((-0.25, 1.5)\)</span> and <span class="math">\((1.25, -1.5)\)</span>.  It's not exactly
+the <span class="math">\((0, 1)\)</span> peak we were expecting, but considering that we only sampled
+100 points, this is the "best guess" based on the data we've seen (and the
+associated priors).</p>
+<div class="section" id="results">
+<h4>
+<span class="sectnum">5.1.1</span> Results</h4>
+<p>The first obvious thing to do is estimate the posterior using MCMC.  I used
+<a class="reference external" href="https://www.pymc.io/welcome.html">PyMC</a> for this because I think it has the
+most intuitive interface.  The code is only a handful of lines and is made easy
+with the builtin <cite>NormalMixture</cite> distribution.  I used the default NUTS sampler
+(extension of HMC) to generate 5000 samples with a 2000 sample burnin.
+Figure 4 shows the resulting contour plot, which line up very closely with the
+exact results in Figure 3.</p>
+<div class="figure align-center">
+<img alt="mixture mcmc" src="../../images/sgld-mixture_mcmc.png" style="height: 450px;"><p class="caption"><strong>Figure 4: MCMC estimate of posterior</strong></p>
+</div>
+<p>Next, I implemented both SGD and SGLD in PyTorch (using the same PyTorch
+Module).  This was pretty simple by leveraging the builtin <a class="reference external" href="https://pytorch.org/docs/stable/distributions.html">distributions</a> package, particularly
+the <a class="reference external" href="https://pytorch.org/docs/stable/distributions.html#mixturesamefamily">MixtureSameFamily</a>
+one.</p>
+<p>For SGD with batch size of <span class="math">\(100\)</span>, learning rate (<span class="math">\(\epsilon\)</span>)
+0.01, 300 epochs, and initial values as <span class="math">\((\theta_1, \theta_2) = (1, 1)\)</span>,
+I was able to iterate towards a solution of <span class="math">\((-0.2327, 1.5129)\)</span>,
+which is pretty much our first mode from Figure 3.  This gave me confidence
+that my model was correct.</p>
+<p>Next, moving on to SGLD, I used the same effective decayed polynomial learning rate schedule as the
+paper with <span class="math">\(a=0.01, b=0.0001, \gamma=0.55\)</span> that results in 10000 sweeps
+through the entire dataset with batch size of 1.  I also did different
+experiments with batch size of 10 and 100, adjusting the same decaying
+polynomial schedule so that the total number of gradient updates are the same
+(see the <a class="reference external" href="https://github.com/bjlkeng/sandbox/blob/master/stochastic_langevin/normal_mixture.ipynb">notebook</a>).
+I didn't do any burnin or thinning (although I probably should have?).
+The results are shown in Figure 5.</p>
+<div class="figure align-center">
+<img alt="mixture slgd" src="../../images/sgld-mixture_sgld.png" style="height: 650px;"><p class="caption"><strong>Figure 5: HMC and SGLD estimates of posterior for various batch sizes</strong></p>
+</div>
+<p>We can see that SGLD is no panacea for posterior estimation.  With batch size of 100,
+it only ever explores one mode.  Likely, I would have to play with the learning
+rate schedule to ensure that it starts high enough that the Langevin dynamics
+will let it wander to the other mode.  Considering I started at <span class="math">\((1,1)\)</span>,
+it's no surprise that it drifted towards the top left first.  The upside is that
+it seemed to be squarely centred on one of the true modes that SGD found at
+approximately <span class="math">\((-0.25, 1.5)\)</span>.</p>
+<p>Batch size of 10 shows quite a different story.  It seemed to properly explore
+the first mode but then wanders to the second mode and gets stuck there.  Again,
+we're seeing the sensitivity of SGLD to the learning rate schedule.  The peak
+on the second mode seems a bit off as well.  I should note that as mentioned in
+the SGLD section, the samples from it are not guaranteed to match the true
+posterior (theoretically only a subsequence is guaranteed).  So this comparison
+of contour plots isn't exactly fair but we're looking at macro characteristics of
+finding all the modes, which we would expect to see.</p>
+<p>Lastly using a batch size of 1 (same as <a class="citation-reference" href="#welling2011" id="id21">[Welling2011]</a>), we see something
+closer to the true posterior with a clearly defined mode in the top left
+corner, and a visible but less clearly defined mode in the bottom right.
+Again, the story is likely that it wandered into the bottom right at some
+point, but got stuck in the top left corner after a while.  This is kind of
+expected as you shrink <span class="math">\(\epsilon\)</span>, it's just very unlikely to jump too
+far away from the first mode it found.  The peaks of the samples are also off
+from the exact posterior for the same reason as discussed.</p>
+<p>My conclusion from this experiment is that vanilla SGLD is not a very robust
+algorithm.  It's so sensitive to the learning rate, which can cause it to have
+issues finding modes as seen above.  There are numerous extensions to SGLD that
+I haven't really looked at (including ones that are inspired by HMC) so those
+may provide more robust algorithms to do at scale posterior sampling.  Having
+said that, perhaps you aren't too interested in trying to generate the exact
+posterior.  In those cases, SGLD seems to do a <em>good enough</em> job at estimating
+the uncertainty around one of the modes (at least in this simple case).</p>
+</div>
+</div>
+<div class="section" id="stochastic-volatility-model">
+<h3><a class="toc-backref" href="#id39"><span class="sectnum">5.2</span> Stochastic Volatility Model</a></h3>
+<p>The next experiment I did was with a stochastic volatility model from this
+<a class="reference external" href="https://www.pymc.io/projects/examples/en/latest/case_studies/stochastic_volatility.html">example</a>
+in the PyMC docs.  This is actually kind of the opposite of what you would
+want to use SGLD and Bayes by Backprop for because it is a hierarchical model for
+stock prices with only a <em>single</em> time series, which is the observed price of the
+S&amp;P 500.  I mostly picked this model because I was curious how we could apply
+these methods to more complex hierarchical Bayesian models.  Being one of the
+prime examples of where Bayesian methods can be used to analyze a problem,
+I naively thought that this would be an easy thing to model.  It turned out to
+be much more complex than I expected as we shall see.</p>
+<p>First, let's take a look at the definition of the model:</p>
+<div class="math">
+\begin{align*}
+\sigma &amp;\sim Exponential(10), &amp; \nu &amp;\sim Exponential(.1) \\
+s_0 &amp;\sim Normal(0, 100), &amp; s_i &amp;\sim Normal(s_{i-1}, \sigma^2) \\
+\log(r_i) &amp;\sim t(\nu, 0, \exp(-2 s_i)) \\
+\tag{35}
+\end{align*}
+</div>
+<p>Equation 35 models the logarithm of the daily returns <span class="math">\(r_i\)</span> with a
+<a class="reference external" href="https://en.wikipedia.org/wiki/Student%27s_t-distribution">student-t distribution</a>,
+parameterized by the degrees of freedom <span class="math">\(\nu\)</span> following an
+<a class="reference external" href="https://en.wikipedia.org/wiki/Exponential_distribution">exponential distribution</a>,
+and volatility <span class="math">\(s_i\)</span> where <span class="math">\(i\)</span> is the time index.  The volatility
+follows a
+<a class="reference external" href="https://en.wikipedia.org/wiki/Random_walk#Gaussian_random_walk">Gaussian random walk</a>
+across all 2905 time steps, which is parameterized by a common variance given by an
+<a class="reference external" href="https://en.wikipedia.org/wiki/Exponential_distribution">exponential distribution</a>.
+To be clear, we are modelling the entire time series at once with a different
+log-return and volatility random variable for each time step.
+Figure 6 shows the model using <a class="reference external" href="https://en.wikipedia.org/wiki/Plate_notation">plate notation</a>:</p>
+<div class="figure align-center">
+<img alt="vol model" src="../../images/sgld-vol_model.png" style="height: 400px;"><p class="caption"><strong>Figure 6: Stochastic volatility model described using plate notation (</strong> <a class="reference external" href="https://www.pymc.io/projects/examples/en/latest/case_studies/stochastic_volatility.html">source</a> <strong>)</strong></p>
+</div>
+<p>This is a relatively simple model for explaining asset prices.  It is obviously
+too simple to actually model stock prices.  One thing to point out is that we
+have a single variance (<span class="math">\(\sigma\)</span>) for the volatility process across all
+time.  This seems kind of unlikely given that we know different market regimes
+will behave quite differently.  Further, I'm always pretty suspicious of
+Gaussian random walks.  This implies some sort of
+<a class="reference external" href="https://en.wikipedia.org/wiki/Stationary_distribution">stationarity</a>, which
+obviously is not true over long periods of time (this may be an acceptable
+assumption at very short time periods though).  In any case, it's a toy
+hierarchical model that we can use to test our two Bayesian learning methods.</p>
+<div class="section" id="modelling-the-hierarchy">
+<h4>
+<span class="sectnum">5.2.1</span> Modelling the Hierarchy</h4>
+<p>The first thing to figure out is how to model Figure 6 using some combination
+of our two methods.  Initially I naively tried applying SGLD directly but came
+across a major issue: how do I deal with the volatility term <span class="math">\(s_i\)</span>?
+Naively applying SGLD means instantiating a parameter for each random variable
+you want to estimate uncertainty for, then applying SGLD using a standard
+gradient optimizer.  Superficially, it looks very similar to using gradient
+descent to find a point estimate.  The big problem with this approach is that
+the volatility <span class="math">\(s_i\)</span> is conditional on the step size <span class="math">\(\sigma\)</span>.
+If we naively model <span class="math">\(s_i\)</span> as a parameter, it loses its dependence on
+<span class="math">\(\sigma\)</span> and are unable to represent the model in Figure 6.</p>
+<p>It's not clear to me that there is a simple way around it using vanilla SGLD.
+The examples in <a class="citation-reference" href="#welling2011" id="id22">[Welling2011]</a> were non-hierarchical models such as Bayesian
+logistic regression that just needed to model uncertainty of the model
+coefficients.  After racking my brain for a while on how to model it, I
+remembered that there was another example where one gets gradients
+to flow through a latent variable -- variational autoencoders!  Yes, the good
+old reparameterization trick comes to save the day.  This led me to the work on
+this generalization in <a class="citation-reference" href="#blundell2015" id="id23">[Blundell2015]</a> and one of the ways you estimate
+uncertainty in Bayesian neural networks.</p>
+<p>Let's write out some equations to make things more concrete. First the
+probability model with some simplifying notation of <span class="math">\(x_i = \log(r_i)\)</span> for clarity:</p>
+<div class="math">
+\begin{align*}
+p({\bf s}, \nu, \sigma | {\bf x}) &amp;= [\prod_1^N p(x_i | s_i, \nu, \sigma) p(s_i | s_{i-1}, \sigma)]p(s_0)p(\nu) p(\sigma) \\
+\\
+p(x_i | s_i, \nu, \sigma) &amp;\sim t(\nu, 0, exp(s_i)) \\
+p(s_i|s_{i-1}, \sigma) &amp;\sim N(s_{i-1}, \sigma^2) = N(0, \sigma^2) + s_{i-1} \\
+p(\sigma) &amp;\sim Exp(10) \\
+p(\nu) &amp;\sim Exp(0.1) \\
+\tag{36}
+\end{align*}
+</div>
+<p>Notice the random walk of the stochastic volatility <span class="math">\(s_i\)</span> can be
+simplified by pulling out the mean, so we only have to worry about the
+additional zero-mean noise added at each step.</p>
+<div class="admonition admonition-why-explicitly-model-math-s-i-uncertainty-at-all">
+<p class="admonition-title">Why explicitly model <span class="math">\(s_i\)</span> uncertainty at all?</p>
+<p>One question you might ask is why do we need to explicitly model the
+uncertainty of <span class="math">\(s_i\)</span> at all?  Can't we just model <span class="math">\(\sigma\)</span>
+(and <span class="math">\(\nu\)</span>) and then apply SGLD, sampling the implied value of
+<span class="math">\(s_i\)</span> along the way?  Well it turns out that this doesn't quite work.</p>
+<p>Naively for SGLD on the forward pass, you have a value for <span class="math">\(\sigma\)</span>,
+you can sample <span class="math">\(s_i = s_{i-1} + \sigma \cdot \varepsilon\)</span> where
+<span class="math">\(\varepsilon \sim N(0, 1)\)</span>, then propagate and compute the associated
+t-distributed loss for <span class="math">\(x_i\)</span>.  Similarly, you can easily backprop
+through this network since each computation is differentiable.</p>
+<p>Unfortunately, this does not correctly capture the uncertainty specified in
+<span class="math">\(s_i\)</span>.  One way to see this is that the sample we get using this
+method is <span class="math">\(s_i = s_0 + \sum_{i=1}^{i} \sigma \varepsilon\)</span>.  This is
+just a random walk with standard deviation <span class="math">\(\sigma\)</span> and starting
+point <span class="math">\(s_0\)</span>.  Surely, the posterior of <span class="math">\(s_i\)</span> is not just a
+scaled random walk.  This would completely ignore the observed values of
+<span class="math">\(x_i\)</span>, which would only affect the value of <span class="math">\(\sigma\)</span> (and
+<span class="math">\(\nu\)</span>).</p>
+<p>Another intuitive argument is that SGLD explores the uncertainty by
+"traversing" through the parameter space.  Similar to more vanilla MCMC
+methods, it should spend more time in high density areas and less time in
+low density ones.  If we are not "remembering" the values of <span class="math">\(s_i\)</span>
+via parameters, then SGLD cannot correctly sample from the posterior
+distribution since it cannot "hang out" in high density regions of
+<span class="math">\(s_i\)</span>.  That is why we need to both be able to properly model the
+uncertainty of <span class="math">\(s_i\)</span> while still being able to backprop through it.</p>
+</div>
+<p>To deal with the hierarchical dependence of <span class="math">\(s_i\)</span> on <span class="math">\(\sigma\)</span>, we
+approximate the posterior of <span class="math">\(s_i\)</span> using a Gaussian with learnable mean
+<span class="math">\(\mu_i\)</span> and <span class="math">\(\sigma\)</span> as defined above:</p>
+<div class="math">
+\begin{align*}
+p(s_i|s_{i-1},\sigma, {\bf x}) \approx q(s_i|s_{i-1}, \sigma; \mu_i) &amp;= s_{i-1} + N(\mu_i, \sigma)  \\
+&amp;= s_{i-1} + \sigma \varepsilon + \mu_i, &amp;\varepsilon &amp;\sim N(0, 1)\\
+\tag{37}
+\end{align*}
+</div>
+<p>Notice that <span class="math">\(q\)</span> is not conditioned on <span class="math">\(\bf x\)</span>.  In other words, we are
+going to use <span class="math">\(\bf x\)</span> (via SGLD) to estimate the parameter <span class="math">\(\mu_i\)</span>,
+but there is no probabilistic dependence on <span class="math">\(\bf x\)</span>.  Next using the ELBO
+from Equation 16, we want to be able to derive a loss to optimize our
+approximate posterior <span class="math">\(q(s_i|s_{i-1}, \sigma; \mu_i)\)</span>:</p>
+<div class="math">
+\begin{align*}
+\log p({\bf x}| s_0, \sigma, \nu)
+&amp;\geq -E_q[\log\frac{q({\bf s_{1\ldots n}}|s_0, \sigma, \mu_i)}{p({\bf s_{1\ldots n}, x}| s_0, \sigma, \nu)}] \\
+&amp;= E_q[\sum_{i=1}^n \log p(s_i, x_i|s_{i-1}, \sigma, \nu) - \log q(s_i|s_{i-1}, \sigma, \mu_i)] \\
+&amp;= E_q[\sum_{i=1}^n \log p(x_i|s_i, \nu) + \log p(s_i | s_{i-1}, \sigma) - \log q(s_i|s_{i-1}, \sigma, \mu_i)]
+\tag{38}
+\end{align*}
+</div>
+<p>Finally, putting together our final loss based on the posterior we have:</p>
+<div class="math">
+\begin{align*}
+\log p(s_0, \sigma, \nu| {\bf x}) &amp;\propto \log p(s_0, \sigma, \nu, {\bf x}) \\
+&amp;= \log p({\bf x} | s_0, \sigma, \nu) + \log p(s_0) + \log p(\sigma) + \log p(\nu)  \\
+&amp;\approx E_q[\sum_{i=1}^n \log p(x_i|s_i, \nu) + \log p(s_i | s_{i-1}, \sigma) - \log q(s_i|s_{i-1}, \sigma, \mu_i)] \\
+&amp;\hspace{10pt} + \log p(s_0) + \log p(\sigma) + \log p(\nu)  \\
+\tag{39}
+\end{align*}
+</div>
+<p>We can see from Equation 39, that we have likelihood terms (<span class="math">\(\log p(x_i|s_i, \nu)\)</span>,
+<span class="math">\(\log p(s_i | s_{i-1}, \sigma)\)</span>), prior terms (<span class="math">\(\log p(s_0)\)</span>,
+<span class="math">\(\log p(\sigma)\)</span>, <span class="math">\(\log p(\nu)\)</span>), and a regularizer from our variational
+approximation (<span class="math">\(\log q(s_i|s_{i-1}, \sigma, \mu_i)\)</span>).  This is a common
+pattern in variational approximations with an ELBO loss.</p>
+<p>With the loss we have enough to (approximately) model our stochastic volatility problem.
+First, start by defining a learnable parameter for each of <span class="math">\(\sigma, \nu, s_0, \mu_i\)</span>.
+Next, the forward pass is simply computing the <span class="math">\(s_i\)</span> values using the
+reparameterization trick in Equation 37 using the loss from Equation 39.  And
+with just the minor adjustments to make SGD into SGLD, you're off to the races!</p>
+<p>An important point to make this practically train was to implement the RMSprop
+preconditioner from Equation 28.  Without it I was unable to get a reasonable fit.
+This is probably analogous to most deep networks: if you don't use a modern
+optimizer, it's really difficult to fit a deep network.  In this case we're
+modelling more than 2900 time steps, which can cause lots of issues when
+backpropagating.</p>
+</div>
+<div class="section" id="id24">
+<h4>
+<span class="sectnum">5.2.2</span> Results</h4>
+<p>The first thing to look at are the results generated using HMC via PyMC, whose code
+was taken directly from the
+<a class="reference external" href="https://www.pymc.io/projects/examples/en/latest/case_studies/stochastic_volatility.html">example</a>.
+Figure 7 shows the posterior <span class="math">\(\sigma\)</span> and <span class="math">\(\nu\)</span> for two chains (two
+parallel runs of HMC).  <span class="math">\(\sigma\)</span> (step size) has a mode around 0.09 -
+0.10 while <span class="math">\(\nu\)</span> has a mode between 9 and 10.  Recall that these variables
+parameterize an <a class="reference external" href="https://en.wikipedia.org/wiki/Exponential_distribution">exponential distribution</a>,
+so the expected value of the corresponding random  variables are <span class="math">\(\sigma
+\approx 10\)</span> and <span class="math">\(\nu \approx 0.1\)</span> (the inverse of the parameter value).</p>
+<div class="figure align-center">
+<img alt="/images/sgld_mcmc_stepsize.png" src="../../images/sgld_mcmc_stepsize.png" style="height: 350px;"><p class="caption"><strong>Figure 7: HMC posterior estimate of</strong> <span class="math">\(\sigma, \nu\)</span> <strong>using PyMC</strong></p>
+</div>
+<p>The more interesting distribution is the volatility shown in Figure 8.  Here we see that there
+are certain times with high volatility such as 2008 (the financial crisis).
+These peaks in volatility also have higher uncertainty around them (measured by
+the vertical width of the graph), which matches our intuition that higher
+volatility usually means unpredictable markets making the volatility itself
+hard to estimate.</p>
+<div class="figure align-center">
+<img alt="/images/sgld_mcmc_vol.png" src="../../images/sgld_mcmc_vol.png" style="height: 350px;"><p class="caption"><strong>Figure 8: HMC posterior estimate of the volatility</strong></p>
+</div>
+<p>The above stochastic volatility model was implemented using a simple PyTorch model
+Module and builtin the <a class="reference external" href="https://pytorch.org/docs/stable/distributions.html">distributions</a>
+package doing a lot of the heavy work.  I used a mini-batch size of 100 by
+repeating the one trace 100 times.  I found this
+stabilized the gradient estimates from the Gaussian sampled <span class="math">\(\bf s\)</span>
+values.  The RMSprop preconditioner was quite easy to implement by inheriting
+from the existing PyTorch class and overriding the <span class="math">\(step()\)</span> function (see
+the notebook).  I used a burnin of 500 samples with a fixed starting learning rate of
+0.001 throughout the burnin after which the decayed polynomial learning rate
+schedule kicks in.  I didn't use any thinning.  Figure 9 shows the estimate for
+<span class="math">\(\sigma\)</span> and <span class="math">\(\nu\)</span> using SGLD.</p>
+<div class="figure align-center">
+<img alt="/images/sgld_sgld_sigma_nu.png" src="../../images/sgld_sgld_sigma_nu.png" style="height: 300px;"><p class="caption"><strong>Figure 9: Posterior estimate of ** :math:`sigma, nu` **using SGLD</strong></p>
+</div>
+<p>Starting with <span class="math">\(\nu\)</span>, its mode is not too far off with a value around
+<span class="math">\(9.75\)</span>, however the width of the distribution is much tighter with most
+of the density in between 9.7 and 9.8.  Clearly either SGLD and/or our
+variational approximation has changed the estimate of the degrees of freedom.</p>
+<p>This is even more pronounced with <span class="math">\(\sigma\)</span>.
+Here we get a mode around 0.025, which is quite different than the 0.09 - 0.10
+we saw above with HMC.  However, recall we are estimating parameters of a
+different model with <span class="math">\(\sigma\)</span> is parameterizing the variance our
+approximate posterior, so we would expect that it wouldn't necessarily capture
+the same value.  This points out a limitation of our approach: our parameter
+estimates in the approximate hierarchical model will not necessarily be
+comparable to the exact one.  Thus, we don't necessarily get the
+interpretability of the model that we would expect in a regular Bayesian
+statistics flow.</p>
+<div class="figure align-center">
+<img alt="/images/sgld_sgld_vol.png" src="../../images/sgld_sgld_vol.png" style="height: 350px;"><p class="caption"><strong>Figure 10: Posterior estimate of the stochastic volatility via SGLD of the approximate posterior mean</strong></p>
+</div>
+<p>Finally, Figure 10 shows the posterior estimate of the stochastic volatility <span class="math">\(\bf s\)</span>.
+Recall, that we approximated <span class="math">\(s_i \approx q(\mu_i, \sigma) \sim N(\mu_i, \sigma)\)</span>.
+However, we cannot use <span class="math">\(q(\mu_i, \sigma)\)</span> directly to estimate the
+volatility because that would mean the variance of the volatility at each
+timestep <span class="math">\(s_i\)</span> would be equal, which clearly it is not.  Instead, I used
+SGLD to estimate the distribution of each <span class="math">\(\mu_i\)</span> and plotted that
+instead.  Interestingly, we get a very similar shaped time series but with
+significantly less variance at each time step.  For example, during 2008
+the variance of the volatility hardly changes staying close to 0.04, whereas in
+the HMC estimate it's much bigger swinging from almost 0.035 to 0.08.</p>
+<p>One reason that is often cited for the lower variance is that variational
+inference often underestimates the
+<a class="reference external" href="https://www.quora.com/Why-and-when-does-mean-field-variational-Bayes-underestimate-variance">variance</a>.
+This is because it is optimizing the KL divergence between the approximate
+posterior <span class="math">\(q\)</span> and the exact one <span class="math">\(p\)</span>.  This means that this is
+more likely to favour low variance estimates, see my <a class="reference external" href="../semi-supervised-learning-with-variational-autoencoders/">previous post</a> for more details.
+Another (perhaps more likely?) reason is that the approximation is just not a
+good one.  Perhaps a more complex joint distribution across all <span class="math">\(s_i\)</span> is
+what is really needed given the dependency between them.  In any case, it points
+to the difficulty plugging these tools into a more typical Bayesian statistics
+workflow (which they were not at all intended to be used for by the way!).</p>
+</div>
+</div>
+<div class="section" id="implementation-notes">
+<h3><a class="toc-backref" href="#id40"><span class="sectnum">5.3</span> Implementation Notes</a></h3>
+<p>Here are some unorganized notes about implementing the above two toy experiments.
+As usual, you can find the corresponding
+<a class="reference external" href="https://github.com/bjlkeng/sandbox/blob/master/stochastic_langevin/">notebooks on Github</a>.</p>
+<ul class="simple">
+<li><p>In general, implementing SGLD is quite simple.  Literally you just need to
+add a noise term to the gradient and update as usual in SGD.  Just be careful
+that the <em>variance</em> of the Gaussian noise is equal to the learning rate
+(thus standard deviation is the square root of that).</p></li>
+<li><p>The builtin <a class="reference external" href="https://pytorch.org/docs/stable/distributions.html">distributions</a> package
+in PyTorch is great.  It's so much less error prone than writing out the log density yourself
+and it has so many nice helper functions like <cite>rsample()</cite> to do reparameterized sampling
+and <cite>log_prob()</cite> to compute the log probability.</p></li>
+<li><p>The one thing that required some careful coding was adding mini-batches to
+the stochastic volatility model.  It's nothing that complicated but you have to ensure
+all the dimensions line up and you are setting up your PyTorch distributions to
+have the correct dimension.  Generally, you'll want one copy of the parameters but
+replicate them when you are computing forward/backward and then average over
+your batch size in your loss.</p></li>
+<li><p>For computing the mixture distributions in the first experiment, I carelessly just
+took the weighted average of two Gaussians log densities -- this is not correct!
+The weighted average needs to be done in non-log space and then logged.  Alternatively,
+it's just much easier to use the builtin PyTorch function of <cite>MixtureSameFamily()</cite>
+to do what you need.</p></li>
+<li><p>One silly (but conceptually important) mistake was getting PyTorch scalars
+(i.e., zero dimensional tensors) and one dimensional tensors (i.e., vectors)
+with one element confused.  Depending on the API, you're going to want one or the other
+and need to use <cite>squeeze()</cite> or <cite>unsqueeze()</cite> as appropriate.</p></li>
+<li><p>Don't forget to use <cite>torch.no_grad()</cite> in your optimizer or else PyTorch will try
+to compute the computational graph of your gradient updates and cause an error.</p></li>
+<li><p>For the brute force computation to estimate the exact posterior for the Gaussian mixture,
+you need to compute the unnormalized log density for a grid and the
+exponentiate it to get the probability.  Obviously exponentiating it can
+cause overflow, so I scaled the unnormalized log density by subtracting the
+max value and then exponentiate.  Got to pay attention to numerical stability sometimes!</p></li>
+<li><p>For the stochastic volatility model for time step <span class="math">\(s_i\)</span>, the naive random walk
+posterior that we considered (by not modelling it at all) would cause the variance
+at <span class="math">\(Var(s_i) = \sum_{j=1}^i Var(s_j)\)</span>.  This is because a random walk is a sum
+of independent random variables, meaning the sum at the <span class="math">\(i^{th}\)</span> step
+is the sum of the variances.  This is obviously not what we want.</p></li>
+<li><p>I had to set the initial value of <span class="math">\(s_0\)</span> close to the value of the
+posterior mean of <span class="math">\(s_1\)</span> or else I didn't get something to fit well.  I
+suspect that it's just really hard to backprop so far back and move the value
+of <span class="math">\(s_0\)</span> significantly.</p></li>
+<li><p>On that topic, I initialized <span class="math">\(\sigma, \nu\)</span> to the means of the
+respective priors and <span class="math">\(\bf s\)</span> to a small number near 0.  Both of these
+seemed like reasonable choices.</p></li>
+<li><p>I had to tune the number of batches in the stochastic volatility model to get
+a fit like you see above.  Too little and it wouldn't get the right shape.
+Too much and it would get a strange shape as well with <span class="math">\(\sigma\)</span>
+continually shrinking.  I suspect the approximate Gaussian posterior is not
+really a good fit for this model.</p></li>
+<li><p>While implementing the RMSprop preconditioner, I used inherited from the
+PyTorch implementation and overrode <cite>step()</cite> function.  Using that function
+as a base, it's interesting to see all the various branches and special cases
+it handles beyond the vanilla one (e.g. momentum, centered, weighted_decay).
+Of course in my implementation I just ignored all of them and only
+implemented the simplest case but makes you appreciate the extra work that needs
+to be done to write a good library.</p></li>
+<li><p>I added a random seed at some point in the middle just so I could reproduce
+my results.  This was important because of the high randomness from the Bayes
+by Backprop sampling in the training.  Obviously it's good practice but when
+you're just playing around it's easy to ignore.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="conclusion">
+<h2><a class="toc-backref" href="#id41"><span class="sectnum">6</span> Conclusion</a></h2>
+<p>Another post on an incredibly interesting topic.  To be honest, I'm a bit
+disappointed that it wasn't some magical solution to doing Bayesian learning but
+it makes sense because otherwise all the popular libraries would
+have already implemented it.  The real reason I got on this topic is because
+it is important conceptually to a stream of research that I've been trying to
+build up to.  I find it incredibly satisfying to learn things "from the ground
+up", going back to the fundamentals.  I feel that this is the best way to get a
+strong intuition for the techniques.  The downside is that you go down so many
+rabbit holes and don't make too much direct progress towards a target.
+Fortunately, I'm not beholden to any sort of pressures like publishing so I can
+wander around to my heart's desire.  As they say, it's about the journey not
+the destination.  See you next time!</p>
+</div>
+<div class="section" id="references">
+<h2><a class="toc-backref" href="#id42"><span class="sectnum">7</span> References</a></h2>
+<p><strong>Previous posts</strong>: <a class="reference external" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/">Markov Chain Monte Carlo and the Metropolis Hastings Algorithm</a>, <a class="reference external" href="../hamiltonian-monte-carlo/">Hamiltonian Monte Carlo</a>, <a class="reference external" href="../the-expectation-maximization-algorithm/">The Expectation Maximization Algorithm</a>, <a class="reference external" href="../variational-autoencoders/">Variational Autoencoders</a>, <a class="reference external" href="../an-introduction-to-stochastic-calculus/">An Introduction to Stochastic Calculus</a></p>
+<dl class="citation">
+<dt class="label" id="welling2011">
+<span class="brackets">Welling2011</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id7">2</a>,<a href="#id20">3</a>,<a href="#id21">4</a>,<a href="#id22">5</a>)</span>
+</dt>
+<dd>
+<p>Max Welling and Yee Whye Teh, "<a class="reference external" href="https://www.stats.ox.ac.uk/~teh/research/compstats/WelTeh2011a.pdf">Bayesian Learning via Stochastic Gradient Langevin Dynamics</a>", ICML 2011.</p>
+</dd>
+<dt class="label" id="blundell2015">
+<span class="brackets">Blundell2015</span><span class="fn-backref">(<a href="#id2">1</a>,<a href="#id17">2</a>,<a href="#id18">3</a>,<a href="#id19">4</a>,<a href="#id23">5</a>)</span>
+</dt>
+<dd>
+<p>Blundell et. al, "<a class="reference external" href="https://arxiv.org/abs/1505.05424">Weight Uncertainty in Neural Networks</a>", ICML 2015.</p>
+</dd>
+<dt class="label" id="li2016">
+<span class="brackets">Li2016</span><span class="fn-backref">(<a href="#id14">1</a>,<a href="#id15">2</a>,<a href="#id16">3</a>)</span>
+</dt>
+<dd>
+<p>Li et. al, "<a class="reference external" href="https://arxiv.org/abs/1512.07666">Preconditioned Stochastic Gradient Langevin Dynamics for Deep Neural Networks</a>", AAAI 2016.</p>
+</dd>
+<dt class="label" id="radford2012">
+<span class="brackets">Radford2012</span><span class="fn-backref">(<a href="#id3">1</a>,<a href="#id5">2</a>)</span>
+</dt>
+<dd>
+<p>Radford M. Neal, "MCMC Using Hamiltonian dynamics", <a class="reference external" href="https://arxiv.org/abs/1206.1901">arXiv:1206.1901</a>, 2012.</p>
+</dd>
+<dt class="label" id="teh2015">
+<span class="brackets">Teh2015</span><span class="fn-backref">(<a href="#id4">1</a>,<a href="#id6">2</a>,<a href="#id8">3</a>,<a href="#id9">4</a>,<a href="#id10">5</a>,<a href="#id11">6</a>)</span>
+</dt>
+<dd>
+<p>Teh et. al, "Consistency and fluctations for stochastic gradient Langevin dynamics", <a class="reference external" href="https://arxiv.org/abs/1409.0578">arXiv:1409.0578</a>, 2015.</p>
+</dd>
+<dt class="label" id="dauphin2015">
+<span class="brackets">Dauphin2015</span><span class="fn-backref">(<a href="#id12">1</a>,<a href="#id13">2</a>)</span>
+</dt>
+<dd>
+<p>Dauphin et. al, "Equilibrated adaptive learning rates for non-convex optimization", <a class="reference external" href="https://arxiv.org/abs/1502.04390">arXiv:1502.04390</a>, 2015.</p>
+</dd>
+</dl>
+</div>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/bayes-by-backprop/" rel="tag">Bayes by Backprop</a></li>
+            <li><a class="tag p-category" href="../../categories/bayesian/" rel="tag">Bayesian</a></li>
+            <li><a class="tag p-category" href="../../categories/elbo/" rel="tag">elbo</a></li>
+            <li><a class="tag p-category" href="../../categories/hmc/" rel="tag">HMC</a></li>
+            <li><a class="tag p-category" href="../../categories/langevin/" rel="tag">Langevin</a></li>
+            <li><a class="tag p-category" href="../../categories/rmsprop/" rel="tag">rmsprop</a></li>
+            <li><a class="tag p-category" href="../../categories/sgd/" rel="tag">sgd</a></li>
+            <li><a class="tag p-category" href="../../categories/sgld/" rel="tag">SGLD</a></li>
+            <li><a class="tag p-category" href="../../categories/variational-inference/" rel="tag">variational inference</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../an-introduction-to-stochastic-calculus/" rel="prev" title="An Introduction to Stochastic Calculus">Previous post</a>
+            </li>
+        </ul></nav></aside><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha384-3lJUsx1TJHt7BA4udB5KPnDrlkO8T6J6v/op7ui0BbCjvZ9WqV4Xm6DTP6kQ/iBH" crossorigin="anonymous"></script><script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
+    }
+});
+</script></article>
+</div>
+            <div class="col-md-3 ">
+            <div class="card card-body bg-light">
+            <p>
+            Hi, I'm <a href="http://www.briankeng.com/about">Brian Keng</a>.  This is
+            <a href="../../">the place</a> where I write about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br>
+</div>
+
+<!-- Begin MailChimp Signup Form -->
+<hr>
+<link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+    #mc_embed_signup{clear:left; font:13px Helvetica,Arial,sans-serif; }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+       We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="//briankeng.us10.list-manage.com/subscribe/post?u=cedf72ca8daa891e57f4379a0&amp;id=1f1563094f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <b>Signup for Email Blog Posts</b>
+    <div id="mc_embed_signup_scroll">
+<div>
+    <label for="mce-EMAIL"> Email Address </label>
+    <input type="email" value="" name="EMAIL" class="required email form-control input-sm" id="mce-EMAIL">
+</div>
+    <div id="mce-responses" class="clear">
+        <div class="response" id="mce-error-response" style="display:none"></div>
+        <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_cedf72ca8daa891e57f4379a0_1f1563094f" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn btn-default btn-xs"></div>
+    </div>
+</form>
+</div>
+<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
+</div>
+            </div>
+        </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2023         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+            
+        </footer>
+</div>
+
+
+
+        <script src="../../assets/js/all-nocdn.js"></script><script>
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element) {
+            return element.getElementsByTagName('img')[0].alt;
+    }});
+    </script><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-15314898-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>
