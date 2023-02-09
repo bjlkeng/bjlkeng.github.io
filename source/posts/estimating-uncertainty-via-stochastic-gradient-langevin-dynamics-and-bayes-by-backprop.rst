@@ -1,6 +1,6 @@
 .. title: Bayesian Learning via Stochastic Gradient Langevin Dynamics and Bayes by Backprop
 .. slug: bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop
-.. date: 2023-02-02 11:25:40 UTC-05:00
+.. date: 2023-02-08 18:25:40 UTC-05:00
 .. tags: Bayesian, Bayes by Backprop, SGLD, variational inference, HMC, Langevin, sgd, rmsprop, elbo, mathjax
 .. category: 
 .. link: 
@@ -1079,7 +1079,7 @@ exact results in Figure 3.
 Next, I implemented both SGD and SGLD in PyTorch (using the same PyTorch
 Module).  This was pretty simple by leveraging the builtin `distributions
 <https://pytorch.org/docs/stable/distributions.html>`__ package, particularly
-the `MixtureSameFamily <https://pytorch.org/docs/stable/distributions.html>`__
+the `MixtureSameFamily <https://pytorch.org/docs/stable/distributions.html#mixturesamefamily>`__
 one.  
 
 For SGD with batch size of :math:`100`, learning rate (:math:`\epsilon`)
@@ -1088,7 +1088,7 @@ I was able to iterate towards a solution of :math:`(-0.2327, 1.5129)`,
 which is pretty much our first mode from Figure 3.  This gave me confidence
 that my model was correct.  
 
-Next, moving onto SGLD, I used the same effective decayed polynomial learning rate schedule as the
+Next, moving on to SGLD, I used the same effective decayed polynomial learning rate schedule as the
 paper with :math:`a=0.01, b=0.0001, \gamma=0.55` that results in 10000 sweeps
 through the entire dataset with batch size of 1.  I also did different
 experiments with batch size of 10 and 100, adjusting the same decaying
@@ -1113,7 +1113,7 @@ it seemed to be squarely centred on one of the true modes that SGD found at
 approximately :math:`(-0.25, 1.5)`.
 
 Batch size of 10 shows quite a different story.  It seemed to properly explore
-the first mode but then wanders to the second mode and get stuck there.  Again,
+the first mode but then wanders to the second mode and gets stuck there.  Again,
 we're seeing the sensitivity of SGLD to the learning rate schedule.  The peak
 on the second mode seems a bit off as well.  I should note that as mentioned in
 the SGLD section, the samples from it are not guaranteed to match the true
@@ -1222,7 +1222,7 @@ probability model with some simplifying notation of :math:`x_i = \log(r_i)` for 
 
 .. math::
 
-    p({\bf s}, \nu, \sigma | {\bf x}) &= [\Pi_1^N p(x_i | s_i, \nu, \sigma) p(s_i | s_{i-1}, \sigma)]p(s_0)p(\nu) p(\sigma) \\
+    p({\bf s}, \nu, \sigma | {\bf x}) &= [\prod_1^N p(x_i | s_i, \nu, \sigma) p(s_i | s_{i-1}, \sigma)]p(s_0)p(\nu) p(\sigma) \\
     \\
     p(x_i | s_i, \nu, \sigma) &\sim t(\nu, 0, exp(s_i)) \\
     p(s_i|s_{i-1}, \sigma) &\sim N(s_{i-1}, \sigma^2) = N(0, \sigma^2) + s_{i-1} \\
@@ -1293,8 +1293,8 @@ Finally, putting together our final loss based on the posterior we have:
 
 .. math::
 
-   \log p(s_0, \sigma, \nu| {\bf x}; {\bf \mu}) &\propto \log p(s_0, \sigma, \nu, {\bf x}; {\bf \mu}) \\
-   &= \log p({\bf x} | s_0, \sigma, \nu; {\bf \mu}) + \log p(s_0) + \log p(\sigma) + \log p(\nu)  \\
+   \log p(s_0, \sigma, \nu| {\bf x}) &\propto \log p(s_0, \sigma, \nu, {\bf x}) \\
+   &= \log p({\bf x} | s_0, \sigma, \nu) + \log p(s_0) + \log p(\sigma) + \log p(\nu)  \\
    &\approx E_q[\sum_{i=1}^n \log p(x_i|s_i, \nu) + \log p(s_i | s_{i-1}, \sigma) - \log q(s_i|s_{i-1}, \sigma, \mu_i)] \\
    &\hspace{10pt} + \log p(s_0) + \log p(\sigma) + \log p(\nu)  \\
    \tag{39}
@@ -1327,7 +1327,7 @@ was taken directly from the
 Figure 7 shows the posterior :math:`\sigma` and :math:`\nu` for two chains (two
 parallel runs of HMC).  :math:`\sigma` (step size) has a mode around 0.09 -
 0.10 while :math:`\nu` has a mode between 9 and 10.  Recall that these variables 
-parameterize and an `exponential distribution <https://en.wikipedia.org/wiki/Exponential_distribution>`__, 
+parameterize an `exponential distribution <https://en.wikipedia.org/wiki/Exponential_distribution>`__, 
 so the expected value of the corresponding random  variables are :math:`\sigma
 \approx 10` and :math:`\nu \approx 0.1` (the inverse of the parameter value).
 
@@ -1462,10 +1462,11 @@ As usual, you can find the corresponding
 * On that topic, I initialized :math:`\sigma, \nu` to the means of the
   respective priors and :math:`\bf s` to a small number near 0.  Both of these
   seemed like reasonable choices.
-* I had to tune the stochastic volatility model to get a fit like you see above.
-  Too little and it wouldn't get the right shape.  Too much and it would get a
-  strange shape as well with :math:`\sigma` continually shrinking.  I suspect
-  the approximate Gaussian posterior is not really a good fit for this model.
+* I had to tune the number of batches in the stochastic volatility model to get
+  a fit like you see above.  Too little and it wouldn't get the right shape.
+  Too much and it would get a strange shape as well with :math:`\sigma`
+  continually shrinking.  I suspect the approximate Gaussian posterior is not
+  really a good fit for this model.
 * While implementing the RMSprop preconditioner, I used inherited from the
   PyTorch implementation and overrode `step()` function.  Using that function
   as a base, it's interesting to see all the various branches and special cases
@@ -1484,14 +1485,14 @@ Conclusion
 Another post on an incredibly interesting topic.  To be honest, I'm a bit
 disappointed that it wasn't some magical solution to doing Bayesian learning but
 it makes sense because otherwise all the popular libraries would
-have already implemented it.  The real reason I got onto this topic is because
+have already implemented it.  The real reason I got on this topic is because
 it is important conceptually to a stream of research that I've been trying to
 build up to.  I find it incredibly satisfying to learn things "from the ground
 up", going back to the fundamentals.  I feel that this is the best way to get a
 strong intuition for the techniques.  The downside is that you go down so many
 rabbit holes and don't make too much direct progress towards a target.
-Fortunately, I'm not beholden to any sort of pressures like academics so I can
-wander around where heart desires.  As they say, it's about the journey not
+Fortunately, I'm not beholden to any sort of pressures like publishing so I can
+wander around to my heart's desire.  As they say, it's about the journey not
 the destination.  See you next time!
 
 References
