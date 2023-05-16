@@ -422,6 +422,7 @@ DEPLOY_COMMANDS = {
         "nikola clean",
         "nikola build -a",
         "cp README.md output/",
+        "cp CNAME output/",
         "git checkout master",
         "rsync -rPv --delete-after --exclude old_blog --exclude .git --exclude .gitignore --exclude cache/ --exclude .doit.db.* output/ ..",
         "git add -A ..",
