@@ -219,6 +219,7 @@ PAGES = (
 # The format is a dictionary of {source: relative destination}.
 # Default is:
 FILES_FOLDERS = {
+    'files': 'files',
     'notebooks': 'notebooks',
     'js': 'js',
     'css': 'css'
