@@ -244,39 +244,44 @@ identify mapping (because your input is not the same as your output anymore).</p
 of <span class="math">\(x\)</span> that can be used in all sorts of applications such as
 <a class="reference external" href="../semi-supervised-learning-with-variational-autoencoders/">semi-supervised learning</a>.</p>
 <p></p>
-<h5> Proper Probability Distributions </h5>
-<p>Although vanilla autoencoders do pretty well in learning a latent
-representation of data in an unsupervised manner, they don't have a proper
+<h5> A Not-So-Helpful Probabilistic Interpretation </h5>
+<p>Although vanilla autoencoders can do pretty well in learning a latent
+representation of the data in an unsupervised manner, they don't have a useful
 probabilistic interpretation.  We put a loss function on the outputs of the
-autoencoder in Equation 1 and 2 but that doesn't automatically mean our
-autoencoder will generate a proper distribution of the data!  Let me explain.</p>
+autoencoder in Equation 1 and 2 but that only leads to a trivial probabilistic
+distribution!  Let me explain.</p>
 <p>Ideally, we would like the unsupervised autoencoder to learn the distribution
-of the data.  That is, for each one of our <span class="math">\(\bf x\)</span> values, we would like
-to be able to evaluate the probability <span class="math">\(P({\bf x})\)</span> to see how often we
-would expect to see this data point.  Implicitly this means that if we sum over
-all <em>possible</em> <span class="math">\(\bf x\)</span> values, we should get <span class="math">\(1\)</span>,
-i.e. <span class="math">\(\sum_{\bf x} P({\bf x}) = 1\)</span>.  For traditional autoencoders, we can show that
-this property is not guaranteed.</p>
-<p>Consider two samples <span class="math">\(\bf x_1\)</span>, and <span class="math">\(\bf x_2\)</span>.  Let's say (regardless of
-what type of autoencoder we use) our neural network "memorizes" these two
-samples and is able to reconstruct them perfectly.  That is,
-pass <span class="math">\(\bf x_1\)</span> into the autoencoder and get <em>exactly</em> <span class="math">\(\bf x_1\)</span> back;
-pass <span class="math">\(\bf x_2\)</span> into the autoencoder and get <em>exactly</em> <span class="math">\(\bf x_2\)</span> back.
-If this happened, it would be a good thing (as long as we had a bottleneck or a
-denoising autoencoder) because we have a learned a really powerful latent
-representation that can reconstruct the data perfectly!
-However, this implies the loss from Equation 1 (or 2 in the continuous case) is
-<span class="math">\(0\)</span>.  If we negate and take the exponential to translate it to a
-probability this means both <span class="math">\(P({\bf x_1})=1\)</span> and <span class="math">\(P({\bf x_2})=1\)</span>, which of
-course is not a valid probability distribution.
-In contrast, if our model did model the data distribution properly, then we would
-end up with a fully
-<a class="reference external" href="https://en.wikipedia.org/wiki/Generative_model">generative model</a>,
-where we could do nice things like sample from it (e.g. generate new images).</p>
+of the data.  That is, we would like to be able to approximate the <em>marginal</em>
+probability distribution <span class="math">\(P({\bf x})\)</span>, which let's us do a whole bunch
+of useful and interesting things (e.g. sampling).  Our autoencoder, however,
+does not model the marginal distribution, it models the <em>conditional</em>
+distribution given inputs <span class="math">\(\bf x_i\)</span> (subscript denoting data point
+<span class="math">\(i\)</span>).  Thus, our network is actually modelling <span class="math">\(P({\bf x} | {\bf
+x_i})\)</span> -- a conditional probability distribution that is approximately centred
+on <span class="math">\(x_i\)</span>, given that same data point as input.</p>
+<p>This is weird in two ways.  First, this conditional distribution is kind of
+fictional -- <span class="math">\(x_i\)</span> is a single data point, so it doesn't really make
+sense to talk about a distribution centred on it.  While you could argue it
+might have some relation to the other data points, the chances that the Bernoulli
+or Gaussian in Equation 1 and 2 model that correctly are pretty slim.
+Second, the bigger problem is that you are giving <span class="math">\(x_i\)</span> as input to
+try to generate a distribution centred on <span class="math">\(x_i\)</span>! You don't need a neural
+network to do that! You can just pick a variance and slap an independent normal
+distribution on each output (for the continuous case).  As we can see, trying
+to interpret this vanilla autoencoder network using the lens of probability is not
+very useful.</p>
+<p>The more typical way you might want to actually use an autoencoder network is
+by just using the decoder network.  In this setting, you have a distribution
+conditional on the latent variables <span class="math">\(P({\bf x}|{\bf z})\)</span>.  This is
+pretty much the setup we have in <a class="reference external" href="../variational-autoencoders/">variational autoencoders</a> (with some extra details outlined in
+the linked post).  However, with vanilla autoencoders we have no probabilistic
+interpretation of the latent variable <span class="math">\(z\)</span>, thus still do not have a useful
+probabilistic interpretation.</p>
 <p>For vanilla autoencoders, we started with some neural network and then tried to
-apply some sort of probabilistic interpretation that didn't quite work out.  I
-like it the other way around: start with a probabilistic model and then figure
-out how to use neural networks to help you add more capacity and scale it.</p>
+apply some sort of probabilistic interpretation that didn't quite work out.  Why
+not do it the other way around: start with a probabilistic model and then
+figure out how to use neural networks to help you add more capacity and scale
+it?</p>
 <p><br></p>
 <h4> Autoregressive Autoencoders </h4>
 <p>So vanilla autoencoders don't quite get us to a proper probability distribution
