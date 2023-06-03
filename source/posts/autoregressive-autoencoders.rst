@@ -181,43 +181,50 @@ In both cases, you will eventually end up with a pretty good latent representati
 of :math:`x` that can be used in all sorts of applications such as 
 `semi-supervised learning <link://slug/semi-supervised-learning-with-variational-autoencoders>`__.
 
-|h3| Proper Probability Distributions |h3e|
+|h3| A Not-So-Helpful Probabilistic Interpretation |h3e|
 
-Although vanilla autoencoders do pretty well in learning a latent
-representation of data in an unsupervised manner, they don't have a proper
+Although vanilla autoencoders can do pretty well in learning a latent
+representation of the data in an unsupervised manner, they don't have a useful
 probabilistic interpretation.  We put a loss function on the outputs of the
-autoencoder in Equation 1 and 2 but that doesn't automatically mean our
-autoencoder will generate a proper distribution of the data!  Let me explain.
+autoencoder in Equation 1 and 2 but that only leads to a trivial probabilistic
+distribution!  Let me explain.
 
 Ideally, we would like the unsupervised autoencoder to learn the distribution
-of the data.  That is, for each one of our :math:`\bf x` values, we would like
-to be able to evaluate the probability :math:`P({\bf x})` to see how often we
-would expect to see this data point.  Implicitly this means that if we sum over
-all *possible* :math:`\bf x` values, we should get :math:`1`, 
-i.e. :math:`\sum_{\bf x} P({\bf x}) = 1`.  For traditional autoencoders, we can show that
-this property is not guaranteed.  
+of the data.  That is, we would like to be able to approximate the *marginal*
+probability distribution :math:`P({\bf x})`, which let's us do a whole bunch
+of useful and interesting things (e.g. sampling).  Our autoencoder, however,
+does not model the marginal distribution, it models the *conditional*
+distribution given inputs :math:`\bf x_i` (subscript denoting data point
+:math:`i`).  Thus, our network is actually modelling :math:`P({\bf x} | {\bf
+x_i})` -- a conditional probability distribution that is approximately centred
+on :math:`x_i`, given that same data point as input.  
 
-Consider two samples :math:`\bf x_1`, and :math:`\bf x_2`.  Let's say (regardless of
-what type of autoencoder we use) our neural network "memorizes" these two
-samples and is able to reconstruct them perfectly.  That is, 
-pass :math:`\bf x_1` into the autoencoder and get *exactly* :math:`\bf x_1` back; 
-pass :math:`\bf x_2` into the autoencoder and get *exactly* :math:`\bf x_2` back.  
-If this happened, it would be a good thing (as long as we had a bottleneck or a
-denoising autoencoder) because we have a learned a really powerful latent
-representation that can reconstruct the data perfectly!
-However, this implies the loss from Equation 1 (or 2 in the continuous case) is
-:math:`0`.  If we negate and take the exponential to translate it to a
-probability this means both :math:`P({\bf x_1})=1` and :math:`P({\bf x_2})=1`, which of
-course is not a valid probability distribution.
-In contrast, if our model did model the data distribution properly, then we would
-end up with a fully 
-`generative model <https://en.wikipedia.org/wiki/Generative_model>`__,
-where we could do nice things like sample from it (e.g. generate new images).
+This is weird in two ways.  First, this conditional distribution is kind of
+fictional -- :math:`x_i` is a single data point, so it doesn't really make
+sense to talk about a distribution centred on it.  While you could argue it
+might have some relation to the other data points, the chances that the Bernoulli
+or Gaussian in Equation 1 and 2 model that correctly are pretty slim.
+Second, the bigger problem is that you are giving :math:`x_i` as input to 
+try to generate a distribution centred on :math:`x_i`! You don't need a neural
+network to do that! You can just pick a variance and slap an independent normal
+distribution on each output (for the continuous case).  As we can see, trying
+to interpret this vanilla autoencoder network using the lens of probability is not
+very useful.
+
+The more typical way you might want to actually use an autoencoder network is
+by just using the decoder network.  In this setting, you have a distribution
+conditional on the latent variables :math:`P({\bf x}|{\bf z})`.  This is
+pretty much the setup we have in `variational autoencoders
+<link://slug/variational-autoencoders>`__ (with some extra details outlined in
+the linked post).  However, with vanilla autoencoders we have no probabilistic
+interpretation of the latent variable :math:`z`, thus still do not have a useful
+probabilistic interpretation.
 
 For vanilla autoencoders, we started with some neural network and then tried to
-apply some sort of probabilistic interpretation that didn't quite work out.  I
-like it the other way around: start with a probabilistic model and then figure
-out how to use neural networks to help you add more capacity and scale it.
+apply some sort of probabilistic interpretation that didn't quite work out.  Why
+not do it the other way around: start with a probabilistic model and then
+figure out how to use neural networks to help you add more capacity and scale
+it?
 
 
 |h2| Autoregressive Autoencoders |h2e|
