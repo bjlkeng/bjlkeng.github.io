@@ -20,12 +20,12 @@ multiple birds with one stone.
 
 This post is going to how I built a question and answering bot of myself using
 LLMs and my experience of the whole process using some modern developer tools
-`ChatGPT <https://chat.openai.com>`__, `Github copilot
+`ChatGPT <https://chat.openai.com>`__, `Github Copilot
 <https://github.com/features/copilot>`__, `Cloudflare workers
 <https://workers.cloudflare.com/>`__, and a couple of other related ones.
 I start out with *my motivation* for doing this project, some brief background
 on the technologies, a description of how I built everything, and finally some
-commentary on my experience with everything.
+commentary on my experience with everything.  If that interests you, read on!
 
 *Note: This post is quite different from my previous ones with almost no
 explanation of the math or techniques underneath, so if you came here for
@@ -48,8 +48,54 @@ in the commentary at the end, which I think will be insightful to many.*
     </div>
     <p>
 
-Why an LLM Me?
-==============
+My Motivation: Why build an LLM Me?
+===================================
+
+As I mentioned above, *most* of the reason why I did this little project was to
+get better intuition with LLMs.  Practically that meant on the application level
+and not training foundation models myself.  Realistically only a few
+organizations are setup to do the really large training, and I'm (a) not in one
+of those companies and (b) likely wouldn't be working on that project given my
+experience.  So the result is that I needed to learn more about how to use LLMs
+in application.  (Although this does not preclude me from exploring other technical
+topics like fine tuning or efficient inference  and the like.)
+
+The other LLM-related reason I did this project was to play around with modern
+development tools.  Github Copilot and ChatGPT (at least from the outside) 
+had the potential to be a step change in productivity so I would be irresponsible
+not to learn more about them.  This is even true if I'm not actually coding on
+a daily basis because it will help me understand how it could affect my teams
+(which do a lot of coding).
+
+Github Copilot is easiest to setup within `VSCode
+<https://code.visualstudio.com/>`__ so I decided to take that for a spin.
+Coming from Vim + Jupyter notebooks (depending on the task) for the past 15
+years or so, it was probably time to try out a new IDE.  Everything has Vim
+bindings nowadays (including Jupyter), and I mostly just use the standard
+commands.  The appealing thing about VSCode is the ability to manage Jupyter
+notebooks alongside my code files, which I always found super annoying switching 
+back and forth between.
+
+The last piece of technology I wanted to play with was Cloudflare
+workers and the related ecosystem of infrastructure.  To be honest, the main
+reason for wanting to learn more about this is primarily because I recently
+invested in the stock and I wanted to learn more about their "Act 3 products",
+which is primarily their serverless development platform.  Serverless always
+seemed interesting but limited to a subset of use-cases so I never gave it 
+much attention except playing around with AWS lambda early on.  Cloudflare
+has a very opinionated way of doing things with a unique architecture so
+it was definitely an interesting experience.
+
+Finally, the scope of the project needed to be sufficiently small that I 
+wouldn't spend too much time on it but at the same time actually get enough
+experience test driving the technologies above.  Most importantly though,
+it should be fun!  So it was only natural to stroke my own ego and try
+to make a virtual version of myself, which checked all the boxes.  Despite it
+following almost exactly the same idea from popular sci-fi `making killer
+robots from their online presence <https://en.wikipedia.org/wiki/Caprica>`__, I was not
+worried at all because (a) I have very little training data (my online presence
+is small and explicit on purpose), and (b) I'm highly doubtful that LLMs are
+that powerful.  In any case, enjoy the writeup!
 
 Background
 ==========
@@ -122,5 +168,7 @@ LLMs: Do we need to worry?
 Conclusion
 ==========
 
+It was a fun project and I might end up doing more of them instead of diving
+deep into the math and algorithms.
 
 .. [1] In fact, there are several projects going on at work that are related to this topic but since I'm in a technical management role, I spend almost no time coding or directly doing research.  Thus, this blog is my outlet to satisfy my curiousity both also help with staying current on both fronts.
