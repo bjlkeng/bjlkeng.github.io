@@ -100,8 +100,53 @@ that powerful.  In any case, enjoy the writeup!
 Background
 ==========
 
-LLM Question and Answering
---------------------------
+Large Language Models
+---------------------
+
+* Prompt
+* Context window
+* Training cost
+
+`A High-Level Overview of Large Language Models <https://www.borealisai.com/research-blogs/a-high-level-overview-of-large-language-models/>`__
+
+Retrieval-Augmented Generation
+------------------------------
+
+`Retrieval-Augmented Generation (RAG)
+<https://eugeneyan.com/writing/llm-patterns/#retrieval-augmented-generation-to-add-knowledge>`__
+enhances a large language model by first retrieving relevant data and combining
+it with the input to improve results.  This technique is typically used in
+question and answering scenarios.  The name is fancier than it sounds (at least
+for the main concept), LangChain has a good summary on its `Question Answering
+Over Documents <https://docs.langchain.com/docs/use-cases/qa-docs>`__ page that
+is roughly summarized below.
+
+For the setup, you build an index of your documents representing each typically
+as a word / sentence / paragraph `embedding <https://en.wikipedia.org/wiki/Word_embedding>`__ 
+as follows:
+
+1. Due to the limitations of LLMs, you will typically split your documents into
+   bite-sized chunks that fit into the LLM's context window.
+2. Create an embedding from each of your chunks.
+3. Store documents in a vector store that can find the top-K matching
+   chunks for a given embedding query.
+
+Once you have a vector store, answering proceeds as follows:
+
+1. Take the input question and convert it to an embedding.
+2. Look up top-K relevant chunks in your vector store.
+3. Construct a prompt based on the input question and these chunks.
+4. Send the prompt to an LLM and return the result.
+
+The original `RAG paper <https://arxiv.org/abs/2005.11401>`__ was written
+before LLM's got really powerful so it seems that they do a bunch of other
+fancy tricks.  However with LLM's, you don't need to seem to do much more than
+the above to get pretty good results.  As far as I can tell, most setups will
+do some variation of the above without much more effort.  As with most
+LLM related things, the prompt is important (along with how many k documents to
+include).  Similarly, the `chunking
+<https://www.pinecone.io/learn/chunking-strategies/>`__ may also be important
+depending on your context.
 
 LLM Fine-Tuning
 ---------------
@@ -170,5 +215,13 @@ Conclusion
 
 It was a fun project and I might end up doing more of them instead of diving
 deep into the math and algorithms.
+
+
+Further Reading
+===============
+
+* `A High-Level Overview of Large Language Models <https://www.borealisai.com/research-blogs/a-high-level-overview-of-large-language-models/>`__
+* `Building LLM-based Systems & Products <https://eugeneyan.com/writing/llm-patterns/#retrieval-augmented-generation-to-add-knowledge>`__
+
 
 .. [1] In fact, there are several projects going on at work that are related to this topic but since I'm in a technical management role, I spend almost no time coding or directly doing research.  Thus, this blog is my outlet to satisfy my curiousity both also help with staying current on both fronts.
