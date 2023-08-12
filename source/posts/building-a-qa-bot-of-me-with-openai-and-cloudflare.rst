@@ -25,12 +25,9 @@ LLMs and my experience of the whole process using some modern developer tools
 <https://workers.cloudflare.com/>`__, and a couple of other related ones.
 I start out with *my motivation* for doing this project, some brief background
 on the technologies, a description of how I built everything, and finally some
-commentary on my experience with everything.  If that interests you, read on!
-
-*Note: This post is quite different from my previous ones with almost no
-explanation of the math or techniques underneath, so if you came here for
-that you may want to skip the post.  However, you might be interested
-in the commentary at the end, which I think will be insightful to many.*
+commentary on my experience with everything.  This post is a lot less heavy on
+the math as compared to my previous ones, but it still got some good substance
+so do read on!
 
 .. TEASER_END
 .. section-numbering::
@@ -103,11 +100,74 @@ Background
 Large Language Models
 ---------------------
 
-* Prompt
-* Context window
-* Training cost
+A `large language model (LLM) <https://en.wikipedia.org/wiki/Large_language_model>`__
+is a `language model <https://en.wikipedia.org/wiki/Language_model>`__ that is... large.
+First, a language model is simply a statistical model that tries to model:
 
-`A High-Level Overview of Large Language Models <https://www.borealisai.com/research-blogs/a-high-level-overview-of-large-language-models/>`__
+.. math::
+
+   P(w_m | w_{m-k}, \ldots, w_{m-1}) \tag{1}
+
+In other words, given some context of previous words (although theoretically it can be surrounding words too)
+:math:`w_{m-k}, \ldots, w_{m-1}`, try to predict the probability distribution for the next word :math:`w_m`.
+Basically, the model predicts a probability for each possible next word.  Here word is not necessarily a word,
+it can be a character, word or more commonly a `token <https://learn.microsoft.com/en-us/semantic-kernel/prompt-engineering/tokens>`__.
+Model in this case can be something simple like a `Markov chain <https://en.wikipedia.org/wiki/Markov_chain>`__, 
+a `count based n-gram model <https://en.wikipedia.org/wiki/Word_n-gram_language_model#Approximation_method>`__,
+or even a trillion parameter `transformer <https://en.wikipedia.org/wiki/Transformer_(machine_learning_model)>`__ neural network.
+And finally "large" is a moving target without a precise definition.  
+Nowadays, you probably need to have 1 billion `parameters <https://en.wikipedia.org/wiki/Statistical_parameter>`__
+(or neural network weights) to be even be close.  For context 
+`GPT-2 <https://en.wikipedia.org/wiki/GPT-2>`__ has 1.5B parameters, 
+`GPT-3 <https://en.wikipedia.org/wiki/GPT-3>`__ has 175B parameters, and
+the LLaMA has variants from 7B - 65B parameters.
+
+In this post, I won't try to explain transformers in detail because I know I'm going to 
+go too deep.  Instead, I'll refer you to these posts on `transformers <https://www.borealisai.com/research-blogs/tutorial-14-transformers-i-introduction/>`__, their `extensions <https://www.borealisai.com/research-blogs/tutorial-16-transformers-ii-extensions/>`__,
+and their `training <https://www.borealisai.com/research-blogs/tutorial-17-transformers-iii-training/>`__ from Borealis
+(where I currently work).  
+
+If you aren't quite interested to go that deep, I'll give you the gist for our purposes.  
+Transformers are a scalable neural network architecture that allows you to train
+really high capacity (i.e., parameter) models.  The architecture accepts a sequence
+of tokens represented as vectors as input, and in the "decoder" variant the
+architecture can predict the next token after the input as in Equation 1.
+Using various methods to select a specific next token, you append it to the
+input, generate another token and so on until you generate a new sequence of
+text.
+
+The important part from this description is the original input you specify to
+the LLM is called the **prompt**.  In `instruction tuned or aligned LLM models <https://www.borealisai.com/research-blogs/a-high-level-overview-of-large-language-models/#Reinforcement_learning_from_human_feedback_RLHF>`__,
+the prompt is essentially giving the LLM an instruction or query in natural
+language, and it will iteratively (also called "auto regressively") generate
+new text that (ideally) gives you a good response.  Unexpectedly, making
+these LLM's really large and aligning them with human goals makes them
+not only really good at understanding and writing natural language, but also
+quite good at reasoning (debatable).  The prompt is critically important
+to ensuring your LLM produces good output.  Instructing the LLM to "think
+critically" or go "step by step" seems to produce better results, so subtle 
+language cues can make a big different in the quality of output.
+
+The other important part is the :math:`m` in Equation 1, which is also called the
+**context window** length.  This is basically the size of "memory" the LLM has
+to understand what you've input to it.  Modern commercial LLM's have context
+windows in the thousands but some have context windows as long as 100K.  In the
+basic case, LLM's will only perform well at context window lengths at or
+below what it was trained on even the transformer architecture can mechanically
+be extended to arbitrary lengths.
+
+Lastly, due to the massive number of parameters, training these LLM's are
+prohibitively expensive.  Training these 100+B models can be on the order
+of millions of dollars (assuming you can even get a cluster of GPUs).
+Inference on these models is relatively less compute intense but is more
+limited by GPU VRAM, which usually still requires a distributed cluster.
+Smaller models (e.g. 7B parameter) and advances in quantization and related
+compression have inference (and sometimes training) running on single machines,
+sometimes even without GPUs.
+
+See `Borealis' post on LLMs <https://www.borealisai.com/research-blogs/a-high-level-overview-of-large-language-models/#Reinforcement_learning_from_human_feedback_RLHF>`__, which is much more accessible than a lot of the
+interweb posts out there.
+
 
 Retrieval-Augmented Generation
 ------------------------------
@@ -145,11 +205,13 @@ the above to get pretty good results.  As far as I can tell, most setups will
 do some variation of the above without much more effort.  As with most
 LLM related things, the prompt is important (along with how many k documents to
 include).  Similarly, the `chunking
-<https://www.pinecone.io/learn/chunking-strategies/>`__ may also be important
-depending on your context.
+<https://www.pinecone.io/learn/chunking-strategies/>`__ step may also be
+important depending on your problem.
 
 LLM Fine-Tuning
 ---------------
+
+
 
 OpenAI and Langchain APIs
 -------------------------
