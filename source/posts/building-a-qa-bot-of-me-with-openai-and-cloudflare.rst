@@ -156,6 +156,13 @@ basic case, LLM's will only perform well at context window lengths at or
 below what it was trained on even the transformer architecture can mechanically
 be extended to arbitrary lengths.
 
+LLM's like many of its predecessor language models can also generate 
+`embedding <https://en.wikipedia.org/wiki/Word_embedding>`__ from their input
+prompts.  These are some combination of internal vectors that the underlying
+transformer generates.  They map the input tokens to a new latent space that
+typically will cluster similar concepts together, making them extremely useful
+for downstream applications (see RAG below).
+
 Lastly, due to the massive number of parameters, training these LLM's are
 prohibitively expensive.  Training these 100+B models can be on the order
 of millions of dollars (assuming you can even get a cluster of GPUs).
@@ -211,7 +218,24 @@ important depending on your problem.
 LLM Fine-Tuning
 ---------------
 
+`Fine-tuning <https://en.wikipedia.org/wiki/Fine-tuning_(deep_learning)>`__ an
+LLM is precisely the concept as it is used in other transfer learning
+applications.  The main idea is to take an existing trained model ("pre-trained model"),
+and modify the weights in order to adapt it to a different task.  The
+modification of the weights can be for a subset of the layers, all of them,
+or even none of them but effectively modifying the weights by augmenting
+the model with additional trainable parameters.  Variants of the latter has
+been a `popular technique <https://arxiv.org/abs/2106.09685>`__ to cheaply
+fine-tune an existing LLM reducing the cost by orders of magnitude compared
+to training the base model (or naively directly fine-tuning an LLM).  Typically
+the fine-tuning uses a lower learning rate so you retain a substantial portion
+of the learning of the pre-trained model.
 
+The above "alignment" step is a form of fine tuning where the base language
+model is only good at predicting the next token, while fine-tuning gives it the
+ability to follow instructions and respond as humans would expect.  Other
+examples include training with more specific data for a task (e.g. Medical Q&A),
+which has shown to improve performance over generic models.
 
 OpenAI and Langchain APIs
 -------------------------
