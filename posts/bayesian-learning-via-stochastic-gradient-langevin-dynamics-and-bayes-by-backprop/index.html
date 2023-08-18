@@ -136,42 +136,42 @@ posts), intuition, some math, and a couple of toy examples that I implemented.</
 <h2>Table of Contents</h2>
 <div class="contents local topic" id="contents">
 <ul class="auto-toc simple">
-<li><p><a class="reference internal" href="#motivation" id="id25"><span class="sectnum">1</span> Motivation</a></p></li>
+<li><p><a class="reference internal" href="#motivation" id="id24"><span class="sectnum">1</span> Motivation</a></p></li>
 <li>
-<p><a class="reference internal" href="#background" id="id26"><span class="sectnum">2</span> Background</a></p>
+<p><a class="reference internal" href="#background" id="id25"><span class="sectnum">2</span> Background</a></p>
 <ul class="auto-toc">
-<li><p><a class="reference internal" href="#bayesian-networks-and-bayesian-hierarchical-models" id="id27"><span class="sectnum">2.1</span> Bayesian Networks and Bayesian Hierarchical Models</a></p></li>
-<li><p><a class="reference internal" href="#markov-chain-monte-carlo-and-hamiltonian-monte-carlo" id="id28"><span class="sectnum">2.2</span> Markov Chain Monte Carlo and Hamiltonian Monte Carlo</a></p></li>
-<li><p><a class="reference internal" href="#langevin-monte-carlo" id="id29"><span class="sectnum">2.3</span> Langevin Monte Carlo</a></p></li>
-<li><p><a class="reference internal" href="#stochastic-gradient-descent-and-rmsprop" id="id30"><span class="sectnum">2.4</span> Stochastic Gradient Descent and RMSprop</a></p></li>
-<li><p><a class="reference internal" href="#variational-inference-and-the-reparameterization-trick" id="id31"><span class="sectnum">2.5</span> Variational Inference and the Reparameterization Trick</a></p></li>
+<li><p><a class="reference internal" href="#bayesian-networks-and-bayesian-hierarchical-models" id="id26"><span class="sectnum">2.1</span> Bayesian Networks and Bayesian Hierarchical Models</a></p></li>
+<li><p><a class="reference internal" href="#markov-chain-monte-carlo-and-hamiltonian-monte-carlo" id="id27"><span class="sectnum">2.2</span> Markov Chain Monte Carlo and Hamiltonian Monte Carlo</a></p></li>
+<li><p><a class="reference internal" href="#langevin-monte-carlo" id="id28"><span class="sectnum">2.3</span> Langevin Monte Carlo</a></p></li>
+<li><p><a class="reference internal" href="#stochastic-gradient-descent-and-rmsprop" id="id29"><span class="sectnum">2.4</span> Stochastic Gradient Descent and RMSprop</a></p></li>
+<li><p><a class="reference internal" href="#variational-inference-and-the-reparameterization-trick" id="id30"><span class="sectnum">2.5</span> Variational Inference and the Reparameterization Trick</a></p></li>
 </ul>
 </li>
 <li>
-<p><a class="reference internal" href="#stochastic-gradient-langevin-dynamics" id="id32"><span class="sectnum">3</span> Stochastic Gradient Langevin Dynamics</a></p>
+<p><a class="reference internal" href="#stochastic-gradient-langevin-dynamics" id="id31"><span class="sectnum">3</span> Stochastic Gradient Langevin Dynamics</a></p>
 <ul class="auto-toc">
-<li><p><a class="reference internal" href="#correctness-of-sgld" id="id33"><span class="sectnum">3.1</span> Correctness of SGLD</a></p></li>
-<li><p><a class="reference internal" href="#preconditioning" id="id34"><span class="sectnum">3.2</span> Preconditioning</a></p></li>
-<li><p><a class="reference internal" href="#practical-considerations" id="id35"><span class="sectnum">3.3</span> Practical Considerations</a></p></li>
+<li><p><a class="reference internal" href="#correctness-of-sgld" id="id32"><span class="sectnum">3.1</span> Correctness of SGLD</a></p></li>
+<li><p><a class="reference internal" href="#preconditioning" id="id33"><span class="sectnum">3.2</span> Preconditioning</a></p></li>
+<li><p><a class="reference internal" href="#practical-considerations" id="id34"><span class="sectnum">3.3</span> Practical Considerations</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#bayes-by-backprop" id="id36"><span class="sectnum">4</span> Bayes by Backprop</a></p></li>
+<li><p><a class="reference internal" href="#bayes-by-backprop" id="id35"><span class="sectnum">4</span> Bayes by Backprop</a></p></li>
 <li>
-<p><a class="reference internal" href="#experiments" id="id37"><span class="sectnum">5</span> Experiments</a></p>
+<p><a class="reference internal" href="#experiments" id="id36"><span class="sectnum">5</span> Experiments</a></p>
 <ul class="auto-toc">
-<li><p><a class="reference internal" href="#simple-gaussian-mixture-model" id="id38"><span class="sectnum">5.1</span> Simple Gaussian Mixture Model</a></p></li>
-<li><p><a class="reference internal" href="#stochastic-volatility-model" id="id39"><span class="sectnum">5.2</span> Stochastic Volatility Model</a></p></li>
-<li><p><a class="reference internal" href="#implementation-notes" id="id40"><span class="sectnum">5.3</span> Implementation Notes</a></p></li>
+<li><p><a class="reference internal" href="#simple-gaussian-mixture-model" id="id37"><span class="sectnum">5.1</span> Simple Gaussian Mixture Model</a></p></li>
+<li><p><a class="reference internal" href="#stochastic-volatility-model" id="id38"><span class="sectnum">5.2</span> Stochastic Volatility Model</a></p></li>
+<li><p><a class="reference internal" href="#implementation-notes" id="id39"><span class="sectnum">5.3</span> Implementation Notes</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#conclusion" id="id41"><span class="sectnum">6</span> Conclusion</a></p></li>
-<li><p><a class="reference internal" href="#references" id="id42"><span class="sectnum">7</span> References</a></p></li>
+<li><p><a class="reference internal" href="#conclusion" id="id40"><span class="sectnum">6</span> Conclusion</a></p></li>
+<li><p><a class="reference internal" href="#references" id="id41"><span class="sectnum">7</span> References</a></p></li>
 </ul>
 </div>
 </div>
 <p></p>
 <div class="section" id="motivation">
-<h2><a class="toc-backref" href="#id25"><span class="sectnum">1</span> Motivation</a></h2>
+<h2><a class="toc-backref" href="#id24"><span class="sectnum">1</span> Motivation</a></h2>
 <p>Bayesian learning is all about learning the <a class="reference external" href="https://en.wikipedia.org/wiki/Posterior_probability">posterior</a>
 distribution for the parameters of your statistical model, which in turns allows
 you to quantify the uncertainty about them.  The classic place to start is with
@@ -213,9 +213,9 @@ hardware (and its associated toolchain).  How can we leverage these
 developments to scale Bayesian learning?  Keep reading to find out!</p>
 </div>
 <div class="section" id="background">
-<h2><a class="toc-backref" href="#id26"><span class="sectnum">2</span> Background</a></h2>
+<h2><a class="toc-backref" href="#id25"><span class="sectnum">2</span> Background</a></h2>
 <div class="section" id="bayesian-networks-and-bayesian-hierarchical-models">
-<h3><a class="toc-backref" href="#id27"><span class="sectnum">2.1</span> Bayesian Networks and Bayesian Hierarchical Models</a></h3>
+<h3><a class="toc-backref" href="#id26"><span class="sectnum">2.1</span> Bayesian Networks and Bayesian Hierarchical Models</a></h3>
 <p>We can take the idea of parameters and priors from Equation 1 to multiple
 levels.  Equation 1 implicitly assumes that there is one "level" of parameters
 (<span class="math">\(\theta\)</span>) that we're trying to estimate with prior distributions
@@ -260,7 +260,7 @@ the Bayesian networks nomenclature since its context is more general.  We'll
 stick with this framing since most of the ML sources will explain it this way.</p>
 </div>
 <div class="section" id="markov-chain-monte-carlo-and-hamiltonian-monte-carlo">
-<h3><a class="toc-backref" href="#id28"><span class="sectnum">2.2</span> Markov Chain Monte Carlo and Hamiltonian Monte Carlo</a></h3>
+<h3><a class="toc-backref" href="#id27"><span class="sectnum">2.2</span> Markov Chain Monte Carlo and Hamiltonian Monte Carlo</a></h3>
 <p>This subsection gives a brief introduction Monte Carlo Markov Chains (MCMC) and
 Hamiltonian Monte Carlo.  I've written about both
 <a class="reference external" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/">here</a>
@@ -344,7 +344,7 @@ A(q^*, p^*) = \min[1, \exp\big(-U(q^*) + U(q) -K(p^*)+K(p)\big)] \tag{6}
 </div>
 </div>
 <div class="section" id="langevin-monte-carlo">
-<h3><a class="toc-backref" href="#id29"><span class="sectnum">2.3</span> Langevin Monte Carlo</a></h3>
+<h3><a class="toc-backref" href="#id28"><span class="sectnum">2.3</span> Langevin Monte Carlo</a></h3>
 <p>Langevin Monte Carlo (LMC) <a class="citation-reference" href="#radford2012" id="id3">[Radford2012]</a> is a special case of HMC where we only
 take a <em>single</em> step in the simulation to propose a new state (versus multiple
 steps in a typical HMC algorithm).  It is sometimes referred to as the
@@ -460,7 +460,7 @@ Equation 10.</p>
 </div>
 </div>
 <div class="section" id="stochastic-gradient-descent-and-rmsprop">
-<h3><a class="toc-backref" href="#id30"><span class="sectnum">2.4</span> Stochastic Gradient Descent and RMSprop</a></h3>
+<h3><a class="toc-backref" href="#id29"><span class="sectnum">2.4</span> Stochastic Gradient Descent and RMSprop</a></h3>
 <p>I'll only briefly cover stochastic gradient descent because I'm assuming most
 readers will be very familiar with this algorithm.
 <a class="reference external" href="https://en.wikipedia.org/wiki/Stochastic_gradient_descent">Stochastic gradient descent</a> (SGD)
@@ -537,7 +537,7 @@ rate.  Empirically, these variations of SGD are necessary to make SGD practical
 for a wide range of models.</p>
 </div>
 <div class="section" id="variational-inference-and-the-reparameterization-trick">
-<h3><a class="toc-backref" href="#id31"><span class="sectnum">2.5</span> Variational Inference and the Reparameterization Trick</a></h3>
+<h3><a class="toc-backref" href="#id30"><span class="sectnum">2.5</span> Variational Inference and the Reparameterization Trick</a></h3>
 <p>I've written a lot about variational inference in past posts so I'll
 keep this section brief and only touch upon the relevant parts.
 If you want more detail and intuition, check out my posts on
@@ -614,7 +614,7 @@ when using SGD.</p>
 </div>
 </div>
 <div class="section" id="stochastic-gradient-langevin-dynamics">
-<h2><a class="toc-backref" href="#id32"><span class="sectnum">3</span> Stochastic Gradient Langevin Dynamics</a></h2>
+<h2><a class="toc-backref" href="#id31"><span class="sectnum">3</span> Stochastic Gradient Langevin Dynamics</a></h2>
 <p>Stochastic Gradient Langevin Dynamics (SGLD) combines the ideas of Langevin
 Monte Carlo (Equation 10) with Stochastic Gradient Descent (Equation 11)
 given by:</p>
@@ -654,7 +654,7 @@ result.  It surely will be able to get close to a local minimum (similar to
 SGD) but why would it give the correct uncertainty estimates without the
 Metropolis-Hastings update step?  This is the topic of the next subsection.</p>
 <div class="section" id="correctness-of-sgld">
-<h3><a class="toc-backref" href="#id33"><span class="sectnum">3.1</span> Correctness of SGLD</a></h3>
+<h3><a class="toc-backref" href="#id32"><span class="sectnum">3.1</span> Correctness of SGLD</a></h3>
 <p><em>Note:</em> <a class="citation-reference" href="#teh2015" id="id6">[Teh2015]</a> <em>has the hardcore proof of SGLD correctness versus a very
 informal sketch presented in the original paper</em> (<a class="citation-reference" href="#welling2011" id="id7">[Welling2011]</a>) <em>.  I'll mainly
 stick to the original paper's presentation (mostly because the hardcore proof
@@ -839,7 +839,7 @@ this will converge to the exact quantity using the true posterior.
 See <a class="citation-reference" href="#teh2015" id="id11">[Teh2015]</a> for more details (if you dare!).</p>
 </div>
 <div class="section" id="preconditioning">
-<h3><a class="toc-backref" href="#id34"><span class="sectnum">3.2</span> Preconditioning</a></h3>
+<h3><a class="toc-backref" href="#id33"><span class="sectnum">3.2</span> Preconditioning</a></h3>
 <p>One problem both with SGD and SGLD is that the gradients updates might
 be very slow due to the curvature of the loss surface.  This is known
 to be a common phenomenon in large parameter models like neural networks
@@ -925,7 +925,7 @@ As a result, we can simply use off-the-shelf RMSprop with only a slight
 adjustment to the SGLD noise and gain the benefits of preconditioning.</p>
 </div>
 <div class="section" id="practical-considerations">
-<h3><a class="toc-backref" href="#id35"><span class="sectnum">3.3</span> Practical Considerations</a></h3>
+<h3><a class="toc-backref" href="#id34"><span class="sectnum">3.3</span> Practical Considerations</a></h3>
 <p>Besides preconditioning, SGLD has some other caveats inherited from MCMC.
 First your initial condition matters, so you likely want to run it for a while
 before you start sampling (i.e., "burn-in").  Similarly, adjacent samples
@@ -939,7 +939,7 @@ help, there's no free lunch here.</p>
 </div>
 </div>
 <div class="section" id="bayes-by-backprop">
-<h2><a class="toc-backref" href="#id36"><span class="sectnum">4</span> Bayes by Backprop</a></h2>
+<h2><a class="toc-backref" href="#id35"><span class="sectnum">4</span> Bayes by Backprop</a></h2>
 <p>Bayes by Backprop (<a class="citation-reference" href="#blundell2015" id="id17">[Blundell2015]</a>) is a generalization of some previous work
 to allow an approximation of Bayesian uncertainty, particularly for weights in
 large scale neural network models where traditional MCMC methods do not scale.
@@ -1058,9 +1058,9 @@ as variational inference, which will often <a class="reference external" href="h
 So there's also no free lunch here either.</p>
 </div>
 <div class="section" id="experiments">
-<h2><a class="toc-backref" href="#id37"><span class="sectnum">5</span> Experiments</a></h2>
+<h2><a class="toc-backref" href="#id36"><span class="sectnum">5</span> Experiments</a></h2>
 <div class="section" id="simple-gaussian-mixture-model">
-<h3><a class="toc-backref" href="#id38"><span class="sectnum">5.1</span> Simple Gaussian Mixture Model</a></h3>
+<h3><a class="toc-backref" href="#id37"><span class="sectnum">5.1</span> Simple Gaussian Mixture Model</a></h3>
 <p>The first experiment I did was try to reproduce the simple mixture model with
 tied means from <a class="citation-reference" href="#welling2011" id="id20">[Welling2011]</a>.  The model from the paper is specified as:</p>
 <div class="math">
@@ -1103,6 +1103,7 @@ associated priors).</p>
 <div class="section" id="results">
 <h4>
 <span class="sectnum">5.1.1</span> Results</h4>
+<p><em>Update 2023-08-17: Section updated with a bug fix, thanks @davetornado!</em></p>
 <p>The first obvious thing to do is estimate the posterior using MCMC.  I used
 <a class="reference external" href="https://www.pymc.io/welcome.html">PyMC</a> for this because I think it has the
 most intuitive interface.  The code is only a handful of lines and is made easy
@@ -1134,40 +1135,28 @@ The results are shown in Figure 5.</p>
 <img alt="mixture slgd" src="../../images/sgld-mixture_sgld.png" style="height: 650px;"><p class="caption"><strong>Figure 5: HMC and SGLD estimates of posterior for various batch sizes</strong></p>
 </div>
 <p>We can see that SGLD is no panacea for posterior estimation.  With batch size of 100,
-it only ever explores one mode.  Likely, I would have to play with the learning
-rate schedule to ensure that it starts high enough that the Langevin dynamics
-will let it wander to the other mode.  Considering I started at <span class="math">\((1,1)\)</span>,
-it's no surprise that it drifted towards the top left first.  The upside is that
-it seemed to be squarely centred on one of the true modes that SGD found at
-approximately <span class="math">\((-0.25, 1.5)\)</span>.</p>
-<p>Batch size of 10 shows quite a different story.  It seemed to properly explore
-the first mode but then wanders to the second mode and gets stuck there.  Again,
-we're seeing the sensitivity of SGLD to the learning rate schedule.  The peak
-on the second mode seems a bit off as well.  I should note that as mentioned in
-the SGLD section, the samples from it are not guaranteed to match the true
-posterior (theoretically only a subsequence is guaranteed).  So this comparison
-of contour plots isn't exactly fair but we're looking at macro characteristics of
-finding all the modes, which we would expect to see.</p>
-<p>Lastly using a batch size of 1 (same as <a class="citation-reference" href="#welling2011" id="id21">[Welling2011]</a>), we see something
-closer to the true posterior with a clearly defined mode in the top left
-corner, and a visible but less clearly defined mode in the bottom right.
-Again, the story is likely that it wandered into the bottom right at some
-point, but got stuck in the top left corner after a while.  This is kind of
-expected as you shrink <span class="math">\(\epsilon\)</span>, it's just very unlikely to jump too
-far away from the first mode it found.  The peaks of the samples are also off
-from the exact posterior for the same reason as discussed.</p>
-<p>My conclusion from this experiment is that vanilla SGLD is not a very robust
-algorithm.  It's so sensitive to the learning rate, which can cause it to have
+it spends most of its time in the bottom right mode, while mostly missing the
+top left one.  It makes sense the SGLD using the polynomial learning rate
+schedule would have a tendency to sit in one mode because we're rapidly
+decaying <span class="math">\(\epsilon\)</span> (and thus ability to "jump" around and find the other
+mode).  The upside is that it seemed to the right shape and location of the
+distribution overall distribution for both modes.</p>
+<p>Both batch size of 1 and 10 shows a similar story to that of 100 but this time
+they spend most of its time in the top left mode.  Where SGLD gets "stuck"
+seems to depend on the initial conditions and the randomness injected.
+However, it does appear to have the right shape as with batch size 100.</p>
+<p>My conclusion from this experiment is that vanilla SGLD is not as robust as MCMC.
+It's so sensitive to the learning rate schedule, which can cause it to have
 issues finding modes as seen above.  There are numerous extensions to SGLD that
 I haven't really looked at (including ones that are inspired by HMC) so those
-may provide more robust algorithms to do at scale posterior sampling.  Having
+may provide more robust algorithms to do at-scale posterior sampling.  Having
 said that, perhaps you aren't too interested in trying to generate the exact
 posterior.  In those cases, SGLD seems to do a <em>good enough</em> job at estimating
 the uncertainty around one of the modes (at least in this simple case).</p>
 </div>
 </div>
 <div class="section" id="stochastic-volatility-model">
-<h3><a class="toc-backref" href="#id39"><span class="sectnum">5.2</span> Stochastic Volatility Model</a></h3>
+<h3><a class="toc-backref" href="#id38"><span class="sectnum">5.2</span> Stochastic Volatility Model</a></h3>
 <p>The next experiment I did was with a stochastic volatility model from this
 <a class="reference external" href="https://www.pymc.io/projects/examples/en/latest/case_studies/stochastic_volatility.html">example</a>
 in the PyMC docs.  This is actually kind of the opposite of what you would
@@ -1226,13 +1215,13 @@ the volatility <span class="math">\(s_i\)</span> is conditional on the step size
 If we naively model <span class="math">\(s_i\)</span> as a parameter, it loses its dependence on
 <span class="math">\(\sigma\)</span> and are unable to represent the model in Figure 6.</p>
 <p>It's not clear to me that there is a simple way around it using vanilla SGLD.
-The examples in <a class="citation-reference" href="#welling2011" id="id22">[Welling2011]</a> were non-hierarchical models such as Bayesian
+The examples in <a class="citation-reference" href="#welling2011" id="id21">[Welling2011]</a> were non-hierarchical models such as Bayesian
 logistic regression that just needed to model uncertainty of the model
 coefficients.  After racking my brain for a while on how to model it, I
 remembered that there was another example where one gets gradients
 to flow through a latent variable -- variational autoencoders!  Yes, the good
 old reparameterization trick comes to save the day.  This led me to the work on
-this generalization in <a class="citation-reference" href="#blundell2015" id="id23">[Blundell2015]</a> and one of the ways you estimate
+this generalization in <a class="citation-reference" href="#blundell2015" id="id22">[Blundell2015]</a> and one of the ways you estimate
 uncertainty in Bayesian neural networks.</p>
 <p>Let's write out some equations to make things more concrete. First the
 probability model with some simplifying notation of <span class="math">\(x_i = \log(r_i)\)</span> for clarity:</p>
@@ -1329,7 +1318,7 @@ optimizer, it's really difficult to fit a deep network.  In this case we're
 modelling more than 2900 time steps, which can cause lots of issues when
 backpropagating.</p>
 </div>
-<div class="section" id="id24">
+<div class="section" id="id23">
 <h4>
 <span class="sectnum">5.2.2</span> Results</h4>
 <p>The first thing to look at are the results generated using HMC via PyMC, whose code
@@ -1408,7 +1397,7 @@ workflow (which they were not at all intended to be used for by the way!).</p>
 </div>
 </div>
 <div class="section" id="implementation-notes">
-<h3><a class="toc-backref" href="#id40"><span class="sectnum">5.3</span> Implementation Notes</a></h3>
+<h3><a class="toc-backref" href="#id39"><span class="sectnum">5.3</span> Implementation Notes</a></h3>
 <p>Here are some unorganized notes about implementing the above two toy experiments.
 As usual, you can find the corresponding
 <a class="reference external" href="https://github.com/bjlkeng/sandbox/blob/master/stochastic_langevin/">notebooks on Github</a>.</p>
@@ -1475,7 +1464,7 @@ you're just playing around it's easy to ignore.</p></li>
 </div>
 </div>
 <div class="section" id="conclusion">
-<h2><a class="toc-backref" href="#id41"><span class="sectnum">6</span> Conclusion</a></h2>
+<h2><a class="toc-backref" href="#id40"><span class="sectnum">6</span> Conclusion</a></h2>
 <p>Another post on an incredibly interesting topic.  To be honest, I'm a bit
 disappointed that it wasn't some magical solution to doing Bayesian learning but
 it makes sense because otherwise all the popular libraries would
@@ -1490,17 +1479,17 @@ wander around to my heart's desire.  As they say, it's about the journey not
 the destination.  See you next time!</p>
 </div>
 <div class="section" id="references">
-<h2><a class="toc-backref" href="#id42"><span class="sectnum">7</span> References</a></h2>
+<h2><a class="toc-backref" href="#id41"><span class="sectnum">7</span> References</a></h2>
 <p><strong>Previous posts</strong>: <a class="reference external" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/">Markov Chain Monte Carlo and the Metropolis Hastings Algorithm</a>, <a class="reference external" href="../hamiltonian-monte-carlo/">Hamiltonian Monte Carlo</a>, <a class="reference external" href="../the-expectation-maximization-algorithm/">The Expectation Maximization Algorithm</a>, <a class="reference external" href="../variational-autoencoders/">Variational Autoencoders</a>, <a class="reference external" href="../an-introduction-to-stochastic-calculus/">An Introduction to Stochastic Calculus</a></p>
 <dl class="citation">
 <dt class="label" id="welling2011">
-<span class="brackets">Welling2011</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id7">2</a>,<a href="#id20">3</a>,<a href="#id21">4</a>,<a href="#id22">5</a>)</span>
+<span class="brackets">Welling2011</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id7">2</a>,<a href="#id20">3</a>,<a href="#id21">4</a>)</span>
 </dt>
 <dd>
 <p>Max Welling and Yee Whye Teh, "<a class="reference external" href="https://www.stats.ox.ac.uk/~teh/research/compstats/WelTeh2011a.pdf">Bayesian Learning via Stochastic Gradient Langevin Dynamics</a>", ICML 2011.</p>
 </dd>
 <dt class="label" id="blundell2015">
-<span class="brackets">Blundell2015</span><span class="fn-backref">(<a href="#id2">1</a>,<a href="#id17">2</a>,<a href="#id18">3</a>,<a href="#id19">4</a>,<a href="#id23">5</a>)</span>
+<span class="brackets">Blundell2015</span><span class="fn-backref">(<a href="#id2">1</a>,<a href="#id17">2</a>,<a href="#id18">3</a>,<a href="#id19">4</a>,<a href="#id22">5</a>)</span>
 </dt>
 <dd>
 <p>Blundell et. al, "<a class="reference external" href="https://arxiv.org/abs/1505.05424">Weight Uncertainty in Neural Networks</a>", ICML 2015.</p>

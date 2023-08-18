@@ -1061,6 +1061,8 @@ associated priors).
 Results
 _______
 
+*Update 2023-08-17: Section updated with a bug fix, thanks @davetornado!*
+
 The first obvious thing to do is estimate the posterior using MCMC.  I used
 `PyMC <https://www.pymc.io/welcome.html>`__ for this because I think it has the
 most intuitive interface.  The code is only a handful of lines and is made easy 
@@ -1105,36 +1107,23 @@ The results are shown in Figure 5.
     **Figure 5: HMC and SGLD estimates of posterior for various batch sizes**
 
 We can see that SGLD is no panacea for posterior estimation.  With batch size of 100,
-it only ever explores one mode.  Likely, I would have to play with the learning
-rate schedule to ensure that it starts high enough that the Langevin dynamics
-will let it wander to the other mode.  Considering I started at :math:`(1,1)`,
-it's no surprise that it drifted towards the top left first.  The upside is that
-it seemed to be squarely centred on one of the true modes that SGD found at
-approximately :math:`(-0.25, 1.5)`.
+it spends most of its time in the bottom right mode, while mostly missing the
+top left one.  It makes sense the SGLD using the polynomial learning rate
+schedule would have a tendency to sit in one mode because we're rapidly
+decaying :math:`\epsilon` (and thus ability to "jump" around and find the other
+mode).  The upside is that it seemed to the right shape and location of the
+distribution overall distribution for both modes.
 
-Batch size of 10 shows quite a different story.  It seemed to properly explore
-the first mode but then wanders to the second mode and gets stuck there.  Again,
-we're seeing the sensitivity of SGLD to the learning rate schedule.  The peak
-on the second mode seems a bit off as well.  I should note that as mentioned in
-the SGLD section, the samples from it are not guaranteed to match the true
-posterior (theoretically only a subsequence is guaranteed).  So this comparison
-of contour plots isn't exactly fair but we're looking at macro characteristics of
-finding all the modes, which we would expect to see.
+Both batch size of 1 and 10 shows a similar story to that of 100 but this time
+they spend most of its time in the top left mode.  Where SGLD gets "stuck"
+seems to depend on the initial conditions and the randomness injected.
+However, it does appear to have the right shape as with batch size 100.
 
-Lastly using a batch size of 1 (same as [Welling2011]_), we see something
-closer to the true posterior with a clearly defined mode in the top left
-corner, and a visible but less clearly defined mode in the bottom right.
-Again, the story is likely that it wandered into the bottom right at some
-point, but got stuck in the top left corner after a while.  This is kind of
-expected as you shrink :math:`\epsilon`, it's just very unlikely to jump too
-far away from the first mode it found.  The peaks of the samples are also off
-from the exact posterior for the same reason as discussed.
-
-My conclusion from this experiment is that vanilla SGLD is not a very robust
-algorithm.  It's so sensitive to the learning rate, which can cause it to have
+My conclusion from this experiment is that vanilla SGLD is not as robust as MCMC. 
+It's so sensitive to the learning rate schedule, which can cause it to have
 issues finding modes as seen above.  There are numerous extensions to SGLD that
 I haven't really looked at (including ones that are inspired by HMC) so those
-may provide more robust algorithms to do at scale posterior sampling.  Having
+may provide more robust algorithms to do at-scale posterior sampling.  Having
 said that, perhaps you aren't too interested in trying to generate the exact
 posterior.  In those cases, SGLD seems to do a *good enough* job at estimating
 the uncertainty around one of the modes (at least in this simple case).
