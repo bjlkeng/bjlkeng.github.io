@@ -55,7 +55,7 @@ organizations are setup to do the really large training, and I'm (a) not in one
 of those companies and (b) likely wouldn't be working on that project given my
 experience.  So the result is that I needed to learn more about how to use LLMs
 in application.  (Although this does not preclude me from exploring other technical
-topics like fine tuning or efficient inference  and the like.)
+topics like fine-tuning or efficient inference  and the like.)
 
 The other LLM-related reason I did this project was to play around with modern
 development tools.  Github Copilot and ChatGPT (at least from the outside) 
@@ -231,7 +231,7 @@ to training the base model (or naively directly fine-tuning an LLM).  Typically
 the fine-tuning uses a lower learning rate so you retain a substantial portion
 of the learning of the pre-trained model.
 
-The above "alignment" step is a form of fine tuning where the base language
+The above "alignment" step is a form of fine-tuning where the base language
 model is only good at predicting the next token, while fine-tuning gives it the
 ability to follow instructions and respond as humans would expect.  Other
 examples include training with more specific data for a task (e.g. Medical Q&A),
@@ -240,8 +240,87 @@ which has shown to improve performance over generic models.
 OpenAI and Langchain APIs
 -------------------------
 
+Most of you will be familiar with `OpenAI <https://openai.com/>`__, most likely
+from their breakout product `ChatGPT <https://chat.openai.com/>`__ that was probably
+the first widespread demonstration of what LLM's could do (particularly because it
+could follow instructions).  What's probably also obvious to most people is that
+OpenAI has many `APIs <https://platform.openai.com/docs/introduction>`__ that
+allow programmatic access to all the functionalities of ChatGPT and more.
+
+The APIs are HTTP endpoints that have two officially released libraries in for
+Python and Node.js (as well as other community maintained ones).  The most relevant
+APIs related to this post are ones to call the via the `chat/completions` to respond
+to a prompt, and the fine-tuning API to train a model on my own data.  The cost
+is usually priced per 1000 tokens for both completion APIs and fine-tuning.
+The latter charges different rates for training and inference depending on the
+model.
+
+For most of their language APIs, you can select which model you want to use.  The models
+are roughly binned into how powerful each on is with the original ChatGPT using
+`gpt-3.5-turbo` (with some details), `gpt-4` being their most capable ones, and others
+being of the GPT-3 generation without instruction fine-tuning with various
+model sizes (as I understand).
+
+Working with the OpenAI APIs is pretty straight forward, but often times you want
+additional functionality (such as RAG) and `Langchain <https://www.langchain.com/>`__
+is one of the *many* libraries that fills in the gap.  It appears to be one of the
+first and thus relatively popular at the moment, but things are changing fast.
+Langchain has a Python library and a more recent Javascript one, both of which
+I used in this project.
+
+The main advantage of Langchain (in my opinion) is that they have many predefined
+patterns that you can put together such as RAG.  They have numerous examples
+along with the building blocks you need to set up a default LLM application
+with components such as predefined prompts, inclusion of various vector
+databases, and integration with all popular LLM provider libraries.  It's hard to
+say if this will be the LLM library of the future but it's definitely a useful
+library to get up and running quickly.
+
 Cloudflare Workers
 ------------------
+`Cloudflare workers <https://workers.cloudflare.com/>`__ is a serverless code platform
+developed by Cloudflare.  Although the large cloud providers (also known as
+hyperscalers) generally have a serverless code offering (e.g. AWS Lambda), Cloudflare
+touts several advantages such as:
+
+* Automatic scaling 
+* High performance
+* Low latency startup time
+* Better developer experience (DX)
+
+One of the fundamental ideas is that you shouldn't have to think about the underlying
+infrastructure at all, just deploy and have it work.  
+
+Of course, these benefits do come with tradeoffs.  Their serverless code 
+`runs in V8 isolates <https://developers.cloudflare.com/workers/learning/how-workers-works/>`__,
+which is the same technology that Chrome's Javascript engine uses to sandbox
+each browser tab, which enables things such as the high performance and low
+latency.  The obvious limitation here is that it only runs Javascript.
+While that is a big limitation, V8 also supports `WebAssembly <https://webassembly.org/>`__,
+which opens the door to other languages such as Rust, C, Cobol (compiling to
+WebAssembly). Other languages such as Python, Scala and Perl are enabled by
+other projects that exist to make those languages work within a Javascript
+environment, often times with some reduced functionality (e.g. not all
+libraries are available).
+
+The other non-obvious thing is that although the Worker environment very
+much behaves similar to Node.js, it is missing some key components due
+to the security model that Cloudflare has implemented.  A glaringly obvious
+limitation is that there is no filesystem.  This caused some trouble as I
+mention below.
+
+The other relatively large blocker, at least until recently, was that there was
+no state management within the ecosystem.  You could make a call out to an
+external database via an HTTP call, but the platform didn't natively support
+it.  Cloudflare has been pushing hard on the innovation to make their solution
+full stack by including things such as a zero-egress fee S3 compatible object store `R2 <https://www.cloudflare.com/developer-platform/r2/>`__, 
+an eventually consistent key value store `Workers KV <https://www.cloudflare.com/developer-platform/workers-kv/>`__, 
+a serverless SQL databse `D1 <https://developers.cloudflare.com/d1/>`__, and
+a transaction store with `Durable Objects <https://developers.cloudflare.com/durable-objects/>`__.
+Some of these are still in beta but Cloudflare's track record is pretty good at
+building thoughtful additions to their platform with good DX.  It remains to be
+seen if they can truly disrupt the established hyperscaler dominance.
+
 
 Rouge Metric
 ------------
@@ -266,7 +345,7 @@ Webpage
 
 Model Evaluation
 ================
-
+n
 
 
 Commentary
