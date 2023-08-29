@@ -322,8 +322,71 @@ building thoughtful additions to their platform with good DX.  It remains to be
 seen if they can truly disrupt the established hyperscaler dominance.
 
 
-Rouge Metric
+ROUGE Metric
 ------------
+
+The `ROUGE <https://en.wikipedia.org/wiki/ROUGE_(metric)>`__ or Recall-Oriented
+Understudy for Gisting Evaluation is a family of metrics to evaluate
+summarization and machine translation NLP tasks.  They work by comparing
+the automatically generated proposed (hypothesis) text to one or more reference texts
+(usually human generated).  Evaluation will depend very heavily on the meaning
+of the text so (at least before the LLM revolution) it is desirable to use a
+simple mechanical metric such as ROUGE that does not depend on the meaning.
+
+ROUGE has many different variants with the simplest one called `ROUGE-N` being
+based on the overlap of `N-grams <https://en.wikipedia.org/wiki/N-gram>`__
+(word level) between the hypothesis text (:math:`s_{hyp}`) and reference text
+(:math:`s_{ref}`) given by the formula:
+
+.. math::
+
+   ROUGE-N = \frac{\big| \text{N-GRAM}(s_{hyp}) \cap \text{N-GRAM}(s_{ref}) \big|}{\big|\text{N-GRAM}(s_{ref})\big|} \tag{2}
+
+where :math:`\text{N-GRAM}(\cdot)` generates the multiset of (word-level) n-gram tokens and the
+intersection operates on multisets.
+
+Since we're using :math:`s_{ref}` in the denominator, it's a recall oriented
+metric.  However, we could just as well use :math:`s_{hyp}` in the denominator
+and it would be the symmetrical precision oriented metric.  Similarly, 
+we could compute the related `F1-score <https://en.wikipedia.org/wiki/F-score>`__
+with these two values.  This is the evaluation metric that I'll use later on
+to give a rough idea of how good the LLM performed.
+
+.. admonition:: Example 1: Calculating the ROUGE-2 score.
+
+    Consider a hypothesis text summary and the reference text (I used GPT-4 to
+    generate them both):
+
+    .. math::
+    
+        s_{hyp} &= \text{"AI accelerators facilitate extensive text processing in large language models"} \\
+        s_{ref} &= \text{"Large language models use AI accelerators for improved processing and training."} \\
+        \tag{3}
+
+    We can compute the multiset of n-grams (ignoring capitalization) and their intersection as:
+
+    .. math::
+
+        \text{1-GRAM}(s_{hyp}) &= [ai, accelerators, facilitate, extensive, text, processing, in, large, language, models] \\
+        \text{1-GRAM}(s_{ref}) &= [large, language, models, use, ai, accelerators, for, improved, processing, and, training] \\
+        \text{1-GRAM}(s_{hyp}) \cap \text{1-GRAM}(s_{ref}) &= [large, language, models, ai, accelerators, processing] \\
+        \tag{4}
+
+    We can then calculate the cardinality of each and finally compute the ROUGE-1 score:
+
+    .. math::
+
+        \big|\text{1-GRAM}(s_{hyp})\big| = 10,
+        \big|\text{1-GRAM}(s_{ref})\big| = 11,
+        \big|\text{1-GRAM}(s_{hyp}) \cap \text{1-GRAM}(s_{ref})\big| = 6 
+
+    .. math::
+        \text{ROUGE-1} = \frac{\big| \text{1-GRAM}(s_{hyp}) \cap \text{1-GRAM}(s_{ref}) \big|}{\big|\text{1-GRAM}(s_{ref})\big|}
+         = \frac{6}{11} \approx 0.54 \\
+         \tag{5}
+
+    Similarly, the precision variant yields :math:`0.6` and the F1-score yields approximately :math:`0.57`.
+
 
 Project Details
 ===============
