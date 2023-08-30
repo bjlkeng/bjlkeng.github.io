@@ -265,7 +265,7 @@ Working with the OpenAI APIs is pretty straight forward, but often times you wan
 additional functionality (such as RAG) and `Langchain <https://www.langchain.com/>`__
 is one of the *many* libraries that fills in the gap.  It appears to be one of the
 first and thus relatively popular at the moment, but things are changing fast.
-Langchain has a Python library and a more recent Javascript one, both of which
+Langchain has a Python library and a more recent JavaScript one, both of which
 I used in this project.
 
 The main advantage of Langchain (in my opinion) is that they have many predefined
@@ -293,13 +293,13 @@ infrastructure at all, just deploy and have it work.
 
 Of course, these benefits do come with tradeoffs.  Their serverless code 
 `runs in V8 isolates <https://developers.cloudflare.com/workers/learning/how-workers-works/>`__,
-which is the same technology that Chrome's Javascript engine uses to sandbox
+which is the same technology that Chrome's JavaScript engine uses to sandbox
 each browser tab, which enables things such as the high performance and low
-latency.  The obvious limitation here is that it only runs Javascript.
+latency.  The obvious limitation here is that it only runs JavaScript.
 While that is a big limitation, V8 also supports `WebAssembly <https://webassembly.org/>`__,
 which opens the door to other languages such as Rust, C, Cobol (compiling to
 WebAssembly). Other languages such as Python, Scala and Perl are enabled by
-other projects that exist to make those languages work within a Javascript
+other projects that exist to make those languages work within a JavaScript
 environment, often times with some reduced functionality (e.g. not all
 libraries are available).
 
@@ -391,17 +391,61 @@ to give a rough idea of how good the LLM performed.
 Project Details
 ===============
 
+This section gives an overview of the project components and highlights some of the details
+that are not apparent from the code.  
+All the `code is available <https://github.com/bjlkeng/bjlkengbot>`__ on Github
+but please keep in mind that it's a one-off so I know it's a mess and don't
+expect any reuse (besides the LLM related code will probably be out of date in
+a few months anyways).
+
 Crawler 
 -------
 
+The first thing I needed to do was gather a corpus of my writing.  Luckily,
+there was a readily available corpus on my personal site `<https://www.briankeng.com>`__.
+The posts have varying lengths, contain lots of quotes, and sometimes contain
+dated information but generally I think my writing style hasn't changed too
+much so I thought it would be interesting to see how it would do.  
+
+I did the easiest thing I could to capture the text content and used the
+`Scrapy <https://scrapy.org/>`__ library to crawl my site and captured the
+title, URL and text content.
+In total I crawled 173 pages (posts and a couple of selected pages) containing
+my writing including the About Me page.
+
+Next, the data was chunked into LLM-sized pieces.  Here I used the 
+`RecursiveTextSplitter <https://python.langchain.com/docs/modules/data_connection/document_transformers/text_splitters/recursive_text_splitter>`__.
+This splitter is nice because it will try to group things by paragraphs, then
+sentences, and then words, intuitively keeping semantically related pieces
+together.  You can additionally utilize the OpenAI tokenizer using `from_tiktoken_encoder()`
+to match the token counts that OpenAI's API expects.
+A chunk size of 900 tokens with 100 overlapping tokens.  These numbers
+were chosen because I was planning to send 4 documents into the RAG workflow so
+I wanted it to be less than the default 4096 token window for the ChatGPT3
+endpoint.
+
+This was done as a preprocessing step because (as we will see later) the
+Langchain JavaScript library doesn't (at the time of writing to my knowledge)
+have the specific splitter + OpenAI tokenizer.  So I thought I would just split
+the text into the appropriate chunks first and then not have to worry about
+doing much manipulation in JavaScript.  The resulting output was a JSON file
+containing an array of objects with the chunked text, and the associated
+URL/title metadata for each chunk.
+
 Embeddings and Vector DB
 ------------------------
+
+- Doing the indexing in JS, saving the internal object as JSON (nice thing about JavaScript)
+- Use OpenAI embedding endpoint
+- MemoryVectorStore
+- Langchain handles all of this for me pretty much
+- Node allows read/write to disk but Cloudflare does not
     
 Fine Tuning
 -----------
 
-Model Worker
-------------
+Cloudflare Worker
+-----------------
 
 Webpage 
 -------
