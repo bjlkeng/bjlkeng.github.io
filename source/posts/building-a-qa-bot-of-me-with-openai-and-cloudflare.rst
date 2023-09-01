@@ -1,4 +1,4 @@
-.. title: Building a Q&A Bot of Myself
+.. title: LLM Fun: Building a Q&A Bot of Myself
 .. slug: building-a-qa-bot-of-me-with-openai-and-cloudflare
 .. date: 2023-07-28 20:56:42 UTC-04:00
 .. tags: mathjax
@@ -435,11 +435,73 @@ URL/title metadata for each chunk.
 Embeddings and Vector DB
 ------------------------
 
-- Doing the indexing in JS, saving the internal object as JSON (nice thing about JavaScript)
-- Use OpenAI embedding endpoint
-- MemoryVectorStore
-- Langchain handles all of this for me pretty much
-- Node allows read/write to disk but Cloudflare does not
+With the data collected and chunked, the next step is to implement RAG.
+Luckily Langchain and Langchain.js has some builtin flows to help with that.
+The usual flow is to index all your documents which involves: 
+
+1. Creating `Document` objects
+2. Connecting to an embedding model (e.g. `OpenAIEmbeddings`)
+3. Retrieving embeddings for each document and indexing them in a vector store
+4. Persist vector store (for in memory stores)
+
+Then for inference, you simply:
+
+1. Load vector store
+2. Embed input question using LLM and search for relevant docs in vector store
+3. Create prompt using input question and retrieved docs
+4. Ask LLM prompt and return response
+
+Since I wanted to deploy the inference to Cloudflare, I had to use 
+Langchain.js for both indexing and inference.  This would have been fine except
+that Cloudflare has some quirks.
+
+The main one being that although Cloudflare Workers `mostly supports <https://developers.cloudflare.com/workers/runtime-apis/nodejs/>`__ 
+a `Node <https://nodejs.org/en>`__ environment there is (at least) one major
+difference: there is `no filesystem <https://developers.cloudflare.com/workers/learning/security-model/>`__.  
+This is part of their security model to prevent security issues.  Fair enough. 
+But this posed a slight challenge because Langchain.js vector model APIs only
+support serializing to disk.  After thinking for a bit, I realized that almost
+all objects in JavaScript can serialized trivially with :code:`JSON.stringify()` so
+I just accessed the internal vector store storage and serialized that to a file.
+That file would then be stored on R2 object store, which then could be read back
+in a Worker (not using Langchain.js) and I could construct a new vector store
+object and just assign the internal storage.  This worked our pretty well
+(and much better than my initial naive idea of reindexing the whole corpus on
+every inference call).
+
+In terms of the Langchain.js API, it was pretty simple to index using
+:code:`MemoryVectorStore.fromDocuments()` API, and inference was also a breeze using 
+the :code:`RetrievalQAChain`.  I must say that documentation for these wasn't great
+so I often had to look at the implementation to figure out what was going on.
+Thank goodness for open source.
+
+In terms of models, I used OpenAI's :code:`text-embedding-ada-002` for embeddings,
+and :code:`gpt-3.5-turbo` (ChatGPT3 endpoint) for completion.  With the aforementioned,
+4 chunks x 900 token / chunk plus a max token generation of 256, I didn't
+have too much trouble fitting into the 4096 token limit of the model.  The
+only other parameter I changed from default was a temperature of 0.2.  I 
+didn't really try much else, I just wanted something sufficiently low not get
+totally different answers each time.
+
+My prompt was relatively simple where I took some parts from the default
+:code:`RetrievalQAChain` prompt:
+
+.. code::
+
+    Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that "I am not programmed to answer that", don't try to make up an answer.
+    
+    ### Context ###
+    Your name is Brian Keng.
+    
+    {context}
+    
+    ### Question ###
+    Question: {question}
+    Helpful answer in less than 100 words:
+
+I supposed I could have improved the prompt with extra background information
+about myself but I was lazy and didn't think it was worth it.
+
     
 Fine Tuning
 -----------
