@@ -506,6 +506,80 @@ about myself but I was lazy and didn't think it was worth it.
 Fine Tuning
 -----------
 
+The other method I played with was using the OpenAI API for fine-tuning.
+This *sort of* fits in the `example <https://platform.openai.com/docs/guides/fine-tuning/fine-tuning-examples>`__ 
+use-cases they give where it recommends fine tuning for setting a "style and
+tone" (the other use-case is for structured output).
+The biggest issue with what I want to do is that my corpus is still just a set
+of blog posts, which actually matches the RAG pattern the best.  But I did want
+to see if fine-tuning could help capture more of my writing style and tone.
+
+At the time of implementation, the fine-tuning API was not instruction tuned
+so it would *only* try to do a completion without the "smarts" about
+understanding an instruction.  Due to the expensive cost (at the time),
+I used the :code:`curie` model instead of the more expensive :code:`davinci` one.
+
+.. admonition:: LLM Development Is Fast Moving
+
+    To show how fast things have been changing, they don't offer fine-tuning
+    with :code:`curie` models any more, and they added :code:`gpt-3.5`
+    (ChatGPT), which is instruction tuned (with GPT4 come along soon).  
+    Further, due to instruction tuned versions being the recommended fine-tuning
+    model, some of the preprocessing isn't even applicable anymore.  
+    For anything to do with LLM's in the next year or two, you probably
+    want to look up the source documentation instead of any second hand account
+    lest it be out of date.
+
+The biggest problem with trying out fine-tuning was that I didn't have
+a good dataset!  All I had was a bunch of text, but I wanted to build a
+Q&A bot so I needed questions and answersj  Luckily, LLM's are very adaptable,
+so I used the ChatGPT API to generate questions where the answers were
+snippets from my blog!
+
+First, I chunked my blog posts (and excluded some the non-relevant chunks) to
+250 tokens using the above mentioned OpenAI :code:`Tiktoken` encoder.  This
+mostly chunks it into paragraphs since I mostly have shorter paragraphs.
+
+Next, I prompted the ChatGPT (GPT3) API with the following:
+
+.. code::
+
+    Write a concise question in as few words as possible to the author in the second person that has the following TEXT as the answer.
+
+    ### TEXT ###
+
+where the text chunk is appended to the prompt.  The prompt is pretty self
+explanatory, except for the :code:`###` demarcations.  This is a trick
+to help the LLM separate the instruction from the "data".  I didn't play
+around with it much but it seems like it's a pretty standard prompting trick.
+
+The fine-tuning format (for the older version of OpenAI fine-tuning that I
+used) required a clear separator to end the *prompt* and the *completion*
+required a whitespace to start with a clear ending token.  For the former
+I used :code:`\n\n###\n\n`, and the latter I used :code:`END`.  Each training
+sample should be put in a JSONL format.  Here's an example line:
+
+.. code::
+
+   {
+      "prompt": "QUESTION: Is 2022 feeling more like a \"normal\" year for you?\n\n###\n\n",
+      "completion": " Thankfully 2022 has felt a bit more like a “normal” year.  ... END"
+   }
+
+This little dataset generation script ran pretty smoothly with the only added
+tweak was to add rate limiting since OpenAI doesn't like you hammering their
+API.
+
+Once I had the dataset ready in the required format, it was pretty straightforward
+to use OpenAI's CLI to fine tune.  The main hyperparameters I played with were
+`epochs`, `learning_rate_multiplier`, and `batch_size`.  
+When you call the API, it queues up a fine-tuning job and you can poll an API
+to see it's status.  My jobs typically trained overnight.  The job also has
+an associated ID that you can use when you want to call it for inference.
+The only thing to remember is that you need to add the above separators to
+ensure that your questions have the same format as during training.
+
+
 Cloudflare Worker
 -----------------
 
