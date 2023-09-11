@@ -583,8 +583,63 @@ ensure that your questions have the same format as during training.
 Cloudflare Worker
 -----------------
 
+The Cloudflare Worker was pretty straightforward to put together.
+The parts that I spent the most time on were (a) learning modern Javascript,
+and (b) figuring out how to call the relevant libraries.
+The Worker is simply a async Javascript function that Cloudflare
+uses to respond to a request.  With their :code:`wrangler` workflow,
+it was pretty easy to get it deployed.
+
+The RAG flow was the more complicated one where in addition to calling
+OpenAI, I had to load the serialized :code:`MemoryVectorStore` from 
+R2 (which took some time to figure out but otherwise has simple code). 
+The rest of the flow was easily done using Langchain.js using the appropriate APIs.
+The fine-tune flow simply consisted of calling the OpenAI API with
+my selected model.
+
+The one thing I will call out is that to test/debug the endpoint, I deployed
+it each time.  There is a local server you can spin up to emulate the code
+but I didn't really take the time to figure out how to get that working for R2.
+I suspect if you're using a lot of the Cloudflare ecosystem (especially the
+newer services), it will be increasingly difficult to do local development.
+On the other hand, it only took an additional 20 seconds to deploy but having
+not needed to "compile" anything since my C++ days, it felt like a pain. 
+
 Webpage 
 -------
+
+The webpage is basic HTML with client side Javascript to call the Cloudflare
+Worker endpoint.  It's hosted on Cloudflare pages, which is basically a similar
+service to Github pages except with a lot of extra integration into Cloudflare
+services.  It was pretty easy to setup, and it has a full continuous deployment
+flow where a commit triggers the page to be updated.
+
+Truthfully, getting the page to do what I wanted was a pain in the arse and
+took a long time!  I have some rudimentary knowledge of CSS but it just also
+feels so fiddly and I had a lot of trouble getting things just right (even with
+my super ugly page).  On top of that, it's hard to Google for the exact problem
+you have since I didn't find the basic examples helpful to debug the specific
+issues I was having.  However, what did come to the rescue was ChatGPT!  It
+didn't generate it in one go, but I asked it to write a basic example of what I
+wanted, which then served as a good example for the final page.
+
+A couple of other random points I had.  It's no wonder that modern pages use
+some kind of Javascript framework.  Even with the handful of UI elements I had
+on the page, I had to start maintaining state so that they would all work
+together.  I definitely appreciate modern pages a lot more, but I will say that
+the work is not suited to me.  Maybe it's because I've only worked on more
+algorithmic type systems but web development seems so foreign to me.
+
+The other point I'll mention is that this type of web development benefits a
+lot from local development.  At first I was iterating by just pushing to
+Github, which is relatively fast (< 1 mins to update).  But when I'm trying to
+get the positioning right of a UI element by playing with the style sheets,
+it's not the right flow.  I played around with the browser inspector to debug /
+prototype, but inevitably you have to deploy to see if it works.  I finally bit
+the bullet and figured out how to set it up locally, which was trivial because
+it's just a static HTML page!  I ended up just accessing the local copy from
+my web browser.
+
 
 Model Evaluation
 ================
@@ -620,6 +675,10 @@ LLMs: Do we need to worry?
 
 Conclusion
 ==========
+
+Probably should try fine-tuning + RAG later on, which wasn't available when I
+was doing the project.  Oh well, I guess AI me will not be taking over the
+world anytime soon.
 
 It was a fun project and I might end up doing more of them instead of diving
 deep into the math and algorithms.
