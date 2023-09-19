@@ -387,6 +387,20 @@ to give a rough idea of how good the LLM performed.
 
     Similarly, the precision variant yields :math:`0.6` and the F1-score yields approximately :math:`0.57`.
 
+LLM Evaluation using LLMs
+-------------------------
+
+As we saw above with the ROUGE metric, evaluation of models up until recently
+mainly focused on mechanical metrics.  With the advent of powerful models though,
+we can do better by using a *stronger* LLM to evaluate our particular task.
+A common method is to use GPT-4 (the current state of the art) to evaluate
+whatever LLM task you are working on.  In general because it's so strong
+at understanding the semantic meaning of text, it can perform quite well
+(at least upon inspection) as a human, sometimes even better.  The only
+problem is that the state of the art (GPT-4) can't really be evaluated
+using GPT-4.  That's not so much of a problem in this post because I only used
+earlier generation models in this post.
+
 
 Project Details
 ===============
@@ -421,7 +435,7 @@ together.  You can additionally utilize the OpenAI tokenizer using `from_tiktoke
 to match the token counts that OpenAI's API expects.
 A chunk size of 900 tokens with 100 overlapping tokens.  These numbers
 were chosen because I was planning to send 4 documents into the RAG workflow so
-I wanted it to be less than the default 4096 token window for the ChatGPT3
+I wanted it to be less than the default 4096 token window for the ChatGPT-3.5
 endpoint.
 
 This was done as a preprocessing step because (as we will see later) the
@@ -476,7 +490,7 @@ so I often had to look at the implementation to figure out what was going on.
 Thank goodness for open source.
 
 In terms of models, I used OpenAI's :code:`text-embedding-ada-002` for embeddings,
-and :code:`gpt-3.5-turbo` (ChatGPT3 endpoint) for completion.  With the aforementioned,
+and :code:`gpt-3.5-turbo` (ChatGPT-3.5 endpoint) for completion.  With the aforementioned,
 4 chunks x 900 token / chunk plus a max token generation of 256, I didn't
 have too much trouble fitting into the 4096 token limit of the model.  The
 only other parameter I changed from default was a temperature of 0.2.  I 
@@ -540,7 +554,7 @@ First, I chunked my blog posts (and excluded some the non-relevant chunks) to
 250 tokens using the above mentioned OpenAI :code:`Tiktoken` encoder.  This
 mostly chunks it into paragraphs since I mostly have shorter paragraphs.
 
-Next, I prompted the ChatGPT (GPT3) API with the following:
+Next, I prompted the ChatGPT (GPT 3.5) API with the following:
 
 .. code::
 
@@ -643,7 +657,204 @@ my web browser.
 
 Model Evaluation
 ================
-n
+
+To evaluate the model, I used the training dataset from the fine tuned section,
+which includes questions that were generated using ChatGPT-3.5 from snippets of
+the original blog posts.  This pseudo-Q&A dataset is not at all ideal
+particularly because I'm using the exact same dataset to fine-tuning the
+models.  The other reason it's not ideal is that these questions and answers
+are not completely in agreement because the question is LLM generated and the
+answer is a chunk of my blog post, not an actual answer.  Despite this, it
+was the easier way to generate an evaluation dataset and I believe gives a
+flavour of the results you can expect (but not at all scientific).  In total,
+there were 669 Q&As in the dataset.
+
+The models I compared were the standard RAG flow plus differently fine-tuned
+OpenAI Curie (non-instruct) models.  Curie is a smaller model compared to the
+(then largest) Davinci model on OpenAI.  This was primarily used because of cost.
+I originally tried to fine-tune Davinci and (at the time) I calculated it would
+have blew through my `$50` budget.  I ended up spending a bit under `$100` after all
+the iterations, which would have been much more if I had used a larger model.
+
+For each model, I generated the answer from the selected question using the
+prompts above, then compared the results versus the reference answer on two
+categories of metrics. 
+
+ROUGE Metrics
+-------------
+The first set of metrics use ROUGE with the ROUGE-1,
+ROUGE-2 and ROUGE-L F1 variants.  The results are shown in Table 1.
+
+.. csv-table:: Table 1: Mean ROUGE evaluated performance for RAG and Fine-Tuning Models
+   :header: Model,"Num Epochs","Batch size","LR Multiplier","ROUGE-1 F1","ROUGE-2 F1","ROUGE-L F1"
+   :align: center
+
+   RAG,N/A,N/A,N/A ,0.3311,0.1455,0.3055
+   Fine-tune (Curie),2,1,0.05,0.2279,0.0540,0.2093
+   Fine-tune (Curie),2,1,0.10,0.2356,0.0598,0.2170
+   Fine-tune (Curie),2,1,0.20,0.2552,0.0690,0.2350
+   Fine-tune (Curie),2,5,0.10,0.2244,0.0510,0.2049
+   Fine-tune (Curie),4,1,0.05,0.2548,0.0679,0.2348
+   Fine-tune (Curie),4,1,0.10,0.2714,0.0794,0.2494
+   Fine-tune (Curie),4,1,0.20,**0.3382**,**0.1494**,**0.3157**
+   Fine-tune (Curie),4,5,0.10,0.2434,0.0565,0.2226
+
+As you can see, the fine-tuned Curie model with 4 epochs, batch size 1 and
+learning rate multiplier of 0.20 performed the best with ROUGE metrics of
+0.3382, 0.1494, and 0.3157.  The RAG solution is not too far behind with
+0.3311, 0.1455, and 0.3055 respectively.  Interestingly, the other fine-tuned
+models performed significantly worse, which shows that the hyperparameters
+for fine-tuning matter a lot.
+
+
+LLM Evaluation
+--------------
+
+As we know ROUGE is a very crude metric only depending on n-grams in the text
+and doesn't have any sense of semantic meaning.  So next, I tried the LLM route
+to evaluate the answers using both GPT-3.5 (:code:`text-davinci-003`) and GPT-4.  
+Given the above answers, I prompted GPT-3.5 using the following prompt
+using the `Guidance <https://github.com/guidance-ai/guidance>`__ library:
+
+.. code::
+
+   QUESTION: {{question}}
+
+   ANSWER: {{reference}}
+
+   PROPOSED ANSWER: {{hypothesis}}
+
+   Can you rate the PROPOSED ANSWER to the above QUESTION from 0 (not even close) to 10 (exact meaning) on whether or not it matches ANSWER?  Only output the number.
+   {{select 'rating' options=valid_nums logprobs='logprobs'}}
+
+The nice thing about guidance is that you can easily insert templates but most uniquely, you can guide the
+generation.  So for example the :code:`{{select ... options=valid_nums}}`
+constrains the output to the valid numbers (in this case between 0 and 10).  It also allows you to extract
+the log probabilities, which I generated and then calculated the expected value
+(mean) of the resulting distribution.  Note: It's probably doesn't make sense
+to use GPT-3.5 to evaluate a GPT-3.5 output in the case of RAG, but perhaps
+makes sense for the smaller Curie model?
+
+Similarly, I did a similar exercise for GPT-4 using the following prompt:
+
+.. code::
+
+   {{#system~}}
+   You are a helpful assistant.
+   {{~/system}}
+   {{#user~}}
+   QUESTION: {{question}}
+   
+   ANSWER: {{reference}}
+   
+   PROPOSED ANSWER: {{hypothesis}}
+   
+   Can you rate the PROPOSED ANSWER to the above QUESTION from 0 (not even close) to 10 (exact meaning) on whether or not it matches ANSWER?  Only output the number.
+   {{~/user}}
+   {{#assistant~}}
+   {{gen 'rating' temperature=0 max_tokens=2}}
+   {{~/assistant}}
+
+Note that GPT-4 is a conversational endpoint so it has the added system/user/assistant functionality.
+Additionally, these endpoints don't provide log probabilities (either as input or output) so you can't
+use the Guidance library with them.  The final value output here is simple the numeric token from 0 to 10,
+although I did limit the tokens to 2 so it wouldn't give me too much spurious output.
+The results of these two experiments are in Table 2.
+
+.. csv-table:: Table 2: Mean GPT-3.5/4 evaluated performance on a 0 to 10 scale for RAG and Best Fine-Tune Models
+   :header: Model,"GPT-3.5","GPT-4","Wins","Ties"
+   :widths: 12,7,6,5,4
+   :align: center
+
+   RAG,**8.746**,**7.643**,**486**,102
+   Fine-tune (best),8.048,4.872,81,102
+
+As you can see the LLM outputs paint a different picture compared to the ROUGE scores.  Here RAG
+shows a much better match to the reference answer than the fine-tuned model.  This can be seen
+in the GPT-4 rating of 7.6 vs. 4.8 respectively, and within this difference the
+RAG models has a higher rating (i.e., "wins") 486 times to fine-tuned 81 times
+with 102 ties.  The GPT-3.5 output seems a bit less trustworthy because of the
+reasoning above showing the gap being much smaller.
+
+Example Output
+--------------
+
+Taking a look at some of the examples, we can see some anomalies in the data based on the non-ideal
+experimental setup we have.  First, let's take a look a good RAG example and a poor fine-tuned example:
+
+.. code::
+
+   QUESTION: What are some examples of contexts where memorization is beneficial?
+
+   REFERENCE: 
+   As with many things in life, I feel like I’ve come full circle.  Recently, I’ve started taking Chinese classes again as well as music lessons (mostly guitar, a bit of vocal).  One thing that is crystal clear is that memorization is
+   hugely beneficial… in certain contexts.  For example, my Chinese speaking has always been lacking.  I was a shy kid and didn’t really make much of an effort to speak in Chinese.  However by memorizing and reciting the textbook lessons, character by character, I’ve been told my Chinese has improved quite a bit.  There’s something about actually moving your mouth, activating your vocal chords, and having sound come out that gets your neurons connecting properly.  Another more obvious explanation: if I wanted to get better at speaking, I should practice speaking more!  However, I will point out that the opportunities to memorize a piece of text and say it out loud are much more abundant than speaking to an actual human.  In any case, a very useful application of memorization.
+
+   RAG (Score: 10):
+   Memorization is beneficial in contexts where physical practice is needed, such as speaking a language or playing a musical instrument. It is also beneficial in contexts where it allows you to ignore the "easy" parts and focus on the important parts, such as memorizing the lyrics to a song so you can focus on the actual singing, or memorizing the multiplication table so you can focus on algebra.
+
+   FINE-TUNED (Score: 0):   Memorization is definitely one of those things that you either have a talent for or you don’t.  I definitely have a talent for it, and I’ve been using it for most of my academic career (since high school actually).  Here are a few examples of contexts where it’s beneficial:
+
+You can see here that the RAG nicely summarized the result while the fine-tuned
+model just went in a totally different direction.  This is characteristic of
+the fine-tuned model in certain cases where I suppose it didn't "remember" the
+fine-tuning and is basing its answer on its pre-training.
+
+Going in the opposite direction, we can see where the fine-tuning did well and
+the RAG did not:
+
+.. code::
+
+   QUESTION: Who wrote "My Life"?
+   
+   REFERENCE:  My Life (Bill Clinton)
+
+   RAG (Score: 0):
+   The book "Models of My Life" was written by Herbert A. Simon. It is an autobiography looking at his distinguished multi-disciplinary career filled with tidbits of incredibly valuable wisdom throughout. It is a candid and witty autobiography that I highly recommend reading.
+
+   FINE-TUNED (Score: 10):   My Life (Bill Clinton)
+
+Here you can see that the fine-tuned model just memorized the training data (a
+limitation of my non-ideal setup).  The RAG answer on the other hand conflated
+the Bill Clinton book "My Life" and "Models of My Life" written by Herbert A.
+Simon.  Both I guess about "my life" but in two different contexts.
+
+A couple of more funny examples where both models scored well according to GPT-4:
+
+.. code::
+
+   QUESTION: Did John continue to increase the voltage despite the student's cries of pain?
+
+   REFERENCE:  
+   John felt a bit apprehensive about this whole situation but Dr. Milgram reassured him that this was safe. So he began with the first word on the list. The student from the next room answered incorrectly. John pressed the red button and the student made a sound that was barely audible. He turned the dial up 50V and proceeded to the next word on the list. The student again responded incorrectly so he pressed pressed the red button again. This time the student could clearly be heard from the next room. John pressed on. Turn up 50V and ask another word. This time the student got it right, John was relieved but that soon faded as the student from the next room cried out in pain from his incorrect answer.
+
+   RAG (Score: 10):
+   Yes, John continued to increase the voltage despite the student's cries of pain. Dr. Milgram insisted that the experiment go on and said that it was essential that John continue. John felt apprehensive about the situation, but he followed Dr. Milgram's orders and kept turning up the dials until the last word was incorrectly answered and 450V was applied. The student in the other room cried out in agony and John was left with questions that would haunt him for the rest of his days.
+
+   FINE-TUNED (Score: 10):
+   John kept increasing the voltage.  The student kept crying out in pain but John didn’t stop.  He just kept going until the student finally stopped yelling.  He then told John to increase the voltage again.  This time, he yelled even louder.  But John didn’t stop.  He just kept going until he yelled “no more”.  Then he told John to increase the voltage again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.
+
+Here the fine-tuned model went a bit off the rails repeating the same two words
+over and over again, which kind of makes sense in the context but is probably
+not correct.  Interestingly, GPT-4 thought it was still a pretty good answer
+probably because the meaning is still correct.
+
+.. code::
+
+   QUESTION: Does sleep have a measurable effect on happiness?
+
+   REFERENCE:  
+   The Chinese proverb at the beginning of the post is not too far off.  Although it may not bring a lifetime of happiness, sleep does have a measurable effect on happiness.  The way I look at it, it’s more of a necessary but not sufficient condition for happiness (sorry for the logic speak).  In other words, if you’re tried, you will be significantly less happy.  But at the same time having enough sleep doesn’t guarantee happiness either.  I think this is true in many other respects too such as being hungry or being healthy.  If you’re hungry, most likely you’re not happy.  If you’re sick, most likely you’re not happy.  The biggest difference with sleep, however, is that many people neglect to value sleep as highly as the other two (obesity seems to be a growing problem but sleeping in isn’t).  But with sleep, I at least have the capacity to be happy (not to mention think clearly and more productively).  However, as with most problems (weight loss comes to mind), the problem isn’t understanding the idea, it’s implementing it.
+
+   RAG (Score: 10):
+   Yes, sleep has a measurable effect on happiness. Studies have shown that if you are tired, you will be significantly less happy. Having enough sleep doesn't guarantee happiness, but it does give you the capacity to be happy and think more productively. If you want to increase your happiness, start with a good night's sleep.
+
+   FINE-TUNE (Score: 10):
+   “Sleep has a measurable effect on happiness.”
+
+Here the fine-tuned model is pretty good being super concise but perhaps not
+being as helpful as an answer as the RAG one.  You can take a look at more of
+the examples in this (very messy) `notebook <https://github.com/bjlkeng/bjlkengbot/blob/main/finetune/measure.ipynb>`__.
 
 
 Commentary
