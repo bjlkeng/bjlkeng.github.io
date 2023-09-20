@@ -410,7 +410,8 @@ that are not apparent from the code.
 All the `code is available <https://github.com/bjlkeng/bjlkengbot>`__ on Github
 but please keep in mind that it's a one-off so I know it's a mess and don't
 expect any reuse (besides the LLM related code will probably be out of date in
-a few months anyways).
+a few months anyways).  I also deployed the code so anyone could ask LLM-me a question:
+`bjlkengbot.bjlkeng.io <https://bjlkengbot.bjlkeng.io/>`.
 
 Crawler 
 -------
@@ -863,36 +864,160 @@ Commentary
 LLMs as Coding Assistants
 -------------------------
 
-* Github
-* ChatGPT
-* OpenAI API
+Through this project (and the one I stopped halfway to work on this
+one) I've been using ChatGPT (free version), Github Copilot, and to a lesser
+extent GPT-4 API via Simon Willison's great `llm <https://github.com/simonw/llm>`__ tool.
+And all I can say is that LLM's have a decent noticeable productivity boost.  
+
+For me, the biggest boost was with ChatGPT writing Javascript and HTML.
+Ages ago I did a bit of Javascript in "Web 1.0", and then after my PhD I did an
+online interactive Javascript book (I can't seem to find it but it was pretty
+good) but that also was over a decade ago, suffice it to say that I hadn't done
+any modern web development for a while.  
+
+In learning modern Javascript, ChatGPT was incredibly helpful.  I had a strong
+idea of what I wanted to accomplish, knew the basics of the primitives in the
+language, but I unclear on some of the details.  For example, I asked ChatGPT
+to explain :code:`let` vs. :code:`var` vs. no declaration (had a bug related to
+it).  Module imports were another new thing (as I understand).  And one thing
+I found super frustrating was getting the styling (CSS) right on the HTML (even
+though it's super basic).  Getting the spinner to be centered where I wanted it
+was incredibly tough without ChatGPT because every search on the web would only
+show the most basic example without solving the one annoying issue I had.
+It turned out that ChatGPT's "knowledge" and it's chat interface to *specify*
+and *respond* more precisely to what I wanted was indeed quite a bit superior
+to just a Google search.  It's almost an improved `StackOverflow <https://stackoverflow.com/>`__.
+
+Another area that I found it quite useful was producing pretty well known code.
+In the other project I was working on, I wanted to write a transformer from
+scratch and so I asked ChatGPT to generate some PyTorch modules.  As far as I
+could tell (I didn't finish the project yet), it looked correct!  Transformer
+modules are probably so widespread (even before it's 2021 cutoff date) that it
+could easily write one.  It did save me some time doing it myself though,
+similar to having an intern (a common LLM analogy) where I just needed to 
+check its work.
+
+On the hand, I still reverted back to the original docs for the libraries.
+Things like :code:`langchain` and Cloudflare workers are newer and aren't
+encoded in the LLM's knowledge base.  So really the combination of things
+is still the best and I believe needed to deliver a working application.
+
+On the Copilot side, I found it only slightly useful.  It helped do some simple
+autocomplete based on the context of my code but it really only helped me
+reduce some typing.  It's good for ergonomics, especially with more boiler
+plate code, but I wasn't as impressed as compared to ChatGPT.  Still, I
+would probably still pay the $10/month for it since it is a small but noticeable
+quality of life improvement.
+
+On the GPT-4 front, I was only really using it to do simple tasks
+like write cards (and the project above).  I haven't really used it's fully
+capability yet because I haven't signed up for the paid version of ChatGPT
+where you can use it to do data analysis, call plugins etc.  Once I find a need
+to do some of that I'll probably end up using it.  It's my default LLM now
+when I want to answer a quick question at the command line and don't need
+a chat interface.  I'll probably write more about it when I find something
+interesting in my workflow to use it for.
 
 Langchain
 ---------
+`langchain <https://github.com/langchain-ai/langchain>`__ was one of the earliest
+LLM frameworks.  It was useful to get things up and running because it takes
+care of all of the details from calling the LLM APIs to vector databases to
+even simple prompts.  My impression is that it's still immature, as is the
+entire area.  It's obvious to me that the API is still clunky and probably not
+exactly the abstraction you want to build these types of applications.
 
-VSCode vs. Vim
---------------
+The other thing that annoyed me is that the documentation wasn't detailed
+enough.  Maybe it's just my habit of wanting to understand a lot of detail
+when I call an API but I found myself having to look at the source code
+and reading through it to be able to use it properly.  Thank goodness for
+open source!  The days where I had to reverse engineer how to get certain
+Windows APIs to work are long gone (to be fair MSDN had very good documentation 
+for its day).
+
+VSCode vs. Vim/Jupyter
+----------------------
+The other change I made for this project was to switch over to VSCode.  I've
+been a Vim user for over fifteen years now so I was definitely reluctant.
+Of course VSCode has Vim emulation but there is always something that is a bit
+off.  My thoughts were that the integration with Github Copilot and Jupyter
+notebooks would be worth it.  
+
+My overall impression, sad as it might be, is that it probably makes sense
+for me to switch over to use it.  Besides the boost you get from Copilot,
+having notebooks in the same IDE, and the superior code navigation, it also has
+great support for remote development, which was always an advantage Vim had
+over other IDEs.
+
+I'm still not completely used to VSCode though, particularly vertical splitting
+of the screen, which I did a lot in Vim.  And the notebook shortcuts still
+throw me off as there are certain actions I still haven't figured out how to
+use keyboard for. Nonetheless, I'm sure I'll adapt to it in time (longer now
+that I'm not coding everyday though).
 
 Cloudflare
 ----------
+As I mentioned above, I haven't really done much web development at all.  So I
+just had cursory knowledge of a lot of the services that Cloudflare provides.
+I have to say it was super easy to get setup considering my limited knowledge.
 
-* Worker
-* Email worker
-* DDos protection
-* Domain registration
+Workers was easy enough to get working having a in-browser IDE to play around
+with.  It took a bit more setup to get a local version working (in VSCode) that 
+could deploy with a command but not that much more work with the documentation
+and tutorials.  The ability to easily connect to R2 object store was also quite
+nice, which just involved adding the name to the config file and then using
+the attached environment variable in the JS program. 
+
+Beyond moving some of my domains over to Cloudflare, I also used the (free)
+DDoS protection to rate limit the number of connection to the above site
+because it calls my OpenAI account which costs money.  It was pretty easy
+to set up with a few clicks and it seems to work reasonably well.
+
+All of the above (besides the domain registration) is basically free if it not
+been for the fact that the worker call needs more than a short amount of CPU
+time.  As such, I signed up for the $5/month plan, which like the free plan,
+are so generous that I basically couldn't use it up personally.
 
 LLMs: Do we need to worry?
 --------------------------
 
+So after playing around with LLM's for a bit, what's the conclusion?  In
+general, I think there's more hype than is justified in the first year or so.
+LLM's aren't going to mass replace jobs yet, and they are definitely far away
+from general intelligence.  
+
+But... they are definitely useful.  It's clear that, as an interface, it will
+improve the way we interact with many computing devices.  The chat interface
+is powerful, and as the cost comes down, it will only become more pervasive.
+Of course there will be many challenges like hallucinations, safety, and
+privacy, but it's not a big leap to see how things will change.
+
+What's not clear to me though is if there is something big around the corner.
+The obvious tasks like summarization, Q&A, and conversational agents all 
+have started to permeate through software.  The real question is if there 
+is another killer app that we haven't yet encountered (or perhaps haven't
+yet discovered the necessary technology unlock for).  
+Human ingenuity is boundless and I suspect there is something in a few
+years that we will be saying "I can't believe we didn't think of that."
+In the meantime, I'm pretty confident that my job isn't going to go away and
+will only get easier (assuming they allow us to use LLM's at work). 
+
+
 Conclusion
 ==========
 
-Probably should try fine-tuning + RAG later on, which wasn't available when I
-was doing the project.  Oh well, I guess AI me will not be taking over the
-world anytime soon.
-
-It was a fun project and I might end up doing more of them instead of diving
-deep into the math and algorithms.
+That's my little project on LLM's.  It was a good learning experience hitting a
+few things I wanted to learn more about with one stone.  There are many obvious
+places where I could improve the project like using the latest versions of
+OpenAI models, using both fine-tuning and RAG patterns, or generating a better
+dataset, but honestly, I'm not that interested in doing more.  I'm generally a
+late adopter to many things because I don't want to "waste" my time on fads.
+That might be my age showing (although I'm not that old).  My personality
+biases towards going deep on time tested ideas, I guess I'm just not built to
+keep up with the latest trends.
+It was a fun project though and I might end up doing more of these "building"
+projects instead of diving deep into the math and algorithms.  That's the
+beauty of this site, I can do whatever I want!  See you next time.
 
 
 Further Reading
