@@ -92,7 +92,7 @@ following almost exactly the same idea from popular sci-fi (i.e., `making killer
 robots from their online presence <https://en.wikipedia.org/wiki/Caprica>`__), I was not
 worried at all because (a) I have very little training data (my online presence
 is small and very explicitly narrow), and (b) I'm highly doubtful that LLM's are
-that powerful.  In any case, enjoy the writeup!
+that powerful.  In any case, enjoy the write up!
 
 Background
 ==========
@@ -139,7 +139,7 @@ for example, text.
 The important part from this description is the original input you specify to
 the LLM, which is called the **prompt**.  In `instruction tuned or aligned LLM models <https://www.borealisai.com/research-blogs/a-high-level-overview-of-large-language-models/#Reinforcement_learning_from_human_feedback_RLHF>`__,
 the prompt is essentially giving the LLM an instruction or query in natural
-language (e.g., English), and it will iteratively (also called "auto regressively") generate
+language (e.g., English), and it will iteratively (also called "auto regressive") generate
 new text that (ideally) gives you a good response to your instruction.
 Unexpectedly, making these LLM's really large and aligning them with human
 goals makes them not only really good at understanding and writing natural
@@ -236,7 +236,7 @@ ability to follow instructions and respond as humans would expect.  Other
 examples include training with more specific data for a task (e.g. Medical Q&A),
 which has shown to improve performance over generic models.
 
-OpenAI and Langchain APIs
+OpenAI and LangChain APIs
 -------------------------
 
 Most of you will be familiar with `OpenAI <https://openai.com/>`__, most likely
@@ -260,13 +260,13 @@ release named as `gpt-3.5-turbo`.  The current most powerful model is named
 `gpt-4` and they also have many others from older generations of GPT-3 models.
 
 Working with the OpenAI APIs is pretty straightforward, but often times you want
-additional functionality (such as RAG) and `Langchain <https://www.langchain.com/>`__
+additional functionality (such as RAG) and `LangChain <https://www.langchain.com/>`__
 is one of the *many* libraries that fills in the gap.  It appears to be one of the
 first and thus relatively popular at the moment, but things are changing fast.
-Langchain has a Python library and a more recent JavaScript one, both of which
+LangChain has a Python library and a more recent JavaScript one, both of which
 I used in this project.
 
-The main advantage of Langchain (in my opinion) is that they have many predefined
+The main advantage of LangChain (in my opinion) is that they have many predefined
 patterns that you can put together such as RAG.  They have numerous examples
 along with the building blocks you need to set up a default LLM application
 with components such as predefined prompts, inclusion of various vector
@@ -290,7 +290,7 @@ One of the fundamental ideas is that you shouldn't have to think about the under
 infrastructure at all, just deploy and have it work (e.g., no selecting region
 or instance size).
 
-Of course, these benefits do come with tradeoffs.  Their serverless code 
+Of course, these benefits do come with trade-offs.  Their serverless code 
 `runs in V8 isolates <https://developers.cloudflare.com/workers/learning/how-workers-works/>`__,
 the same technology that Chrome's JavaScript engine uses to sandbox
 each browser tab, and enables Workers to have high performance and low
@@ -438,8 +438,8 @@ were chosen because I planned to send 4 documents into the RAG workflow so
 I wanted it to be less than the default 4096 token window for the ChatGPT-3.5
 endpoint.
 
-All of this was done as a preprocessing step because (as we will see later) the
-Langchain JavaScript library doesn't (at the time of writing to my knowledge)
+All of this was done as a pre-processing step because (as we will see later) the
+LangChain JavaScript library doesn't (at the time of writing to my knowledge)
 have the specific splitter + OpenAI tokenizer.  So splitting
 the text into the appropriate chunks first allowed me to not have to worry about
 doing much manipulation in JavaScript.  The resulting output was a JSON file
@@ -450,7 +450,7 @@ Embeddings and Vector DB
 ------------------------
 
 With the data collected and chunked, the next step is to implement the RAG pattern.
-Luckily Langchain and Langchain.js have some builtin flows to help with that.
+Luckily LangChain and LangChain.js have some builtin flows to help with that.
 The usual flow is to index all your documents which involves: 
 
 1. Creating `Document` objects
@@ -466,24 +466,24 @@ Then for inference, you simply:
 4. Ask LLM the prompt and return response
 
 Since I wanted to deploy the model inference to Cloudflare, I had to use 
-Langchain.js for both indexing and inference.  This would have been fine except
+LangChain.js for both indexing and inference.  This would have been fine except
 that Cloudflare has some quirks.  
 Although Cloudflare Workers `mostly supports <https://developers.cloudflare.com/workers/runtime-apis/nodejs/>`__ 
 a `Node <https://nodejs.org/en>`__ environment there is (at least) one major
 difference: there is `no filesystem <https://developers.cloudflare.com/workers/learning/security-model/>`__.  
 This is part of their security model to prevent security issues.  Fair enough.
-But this posed a slight challenge because all of Langchain.js memory vector
+But this posed a slight challenge because all of LangChain.js memory vector
 model stores only support serializing to disk (I didn't want to use a full blown DB).
 After thinking for a bit, I realized that almost all objects in JavaScript can
 be serialized trivially with :code:`JSON.stringify()`, so I just accessed the
 internal vector store storage and serialized that to a file.  That file would
 then be stored on R2 object store, which then could be read back in a Worker
-(not using Langchain.js) and I could construct a new vector store object and
+(not using LangChain.js) and I could construct a new vector store object and
 just assign the internal storage.  This worked out pretty well (and much better
 than my initial naive idea of reindexing the whole corpus on every inference
 call).
 
-In terms of the Langchain.js API, it was pretty simple to index using
+In terms of the LangChain.js API, it was pretty simple to index using
 :code:`MemoryVectorStore.fromDocuments()`, and inference was also a breeze using 
 the :code:`RetrievalQAChain`.  I must say that the documentation for these wasn't great
 so I often had to look at the implementation to figure out what was going on.
@@ -539,7 +539,7 @@ I used the :code:`curie` model instead of the more expensive :code:`davinci` one
     with :code:`curie` models any more, and they added instruction tuned
     :code:`gpt-3.5` (ChatGPT) with GPT4 coming along soon.  
     Further, due to instruction tuned versions being the recommended fine-tuning
-    model, some of the preprocessing isn't even applicable anymore.  
+    model, some of the pre-processing isn't even applicable anymore.  
     For anything to do with LLM's in the next year or two, you probably
     want to look up the source documentation instead of any second hand account
     (like this post) lest it be out of date.
@@ -568,7 +568,7 @@ around with it much but it seems like it's a pretty standard prompting trick.
 
 The fine-tuning format (for the older version of OpenAI fine-tuning that I
 used) required a clear separator to end the *prompt* and the *completion*
-required a whitespace to start with a clear ending token.  For the former
+required a white space to start with a clear ending token.  For the former
 I used :code:`\n\n###\n\n`, and the latter I used :code:`END`.  Additionally,
 each training sample should be put in a JSONL format.  Here's an example line:
 
@@ -606,7 +606,7 @@ it was pretty easy to get it deployed.
 The RAG flow was the more complicated one where in addition to calling
 OpenAI, I had to load the serialized :code:`MemoryVectorStore` from 
 R2 (which took some time to figure out but otherwise has simple code). 
-The rest of the flow was easily done using Langchain.js using the appropriate APIs.
+The rest of the flow was easily done using LangChain.js using the appropriate APIs.
 The fine-tune flow simply consisted of calling the OpenAI API with
 my selected model.
 
@@ -618,10 +618,10 @@ newer services), it will be increasingly difficult to do local development.
 On the other hand, it only took an additional 20 seconds to deploy but having
 not needed to "compile" anything since my C++ programming days, it felt like a pain. 
 
-Webpage 
--------
+Web Page 
+--------
 
-The webpage is basic HTML with client side Javascript to call the Cloudflare
+The web page is basic HTML with client side Javascript to call the Cloudflare
 Worker endpoint.  It's hosted on Cloudflare pages, which is basically a similar
 service to Github pages except with a lot of extra integration into Cloudflare
 services.  It was pretty easy to setup, and it has a full continuous deployment
@@ -919,7 +919,7 @@ like write birthday cards (and as an evaluation metric above).  I haven't
 really used it to its full potential yet because I only have the API 
 version now, which doesn't have the data analysis and plugin capability.  Once
 I find a need to do some of that I'll probably end up using it.  It's my
-default LLM right now when I want to answer a quick question at the commandline and
+default LLM right now when I want to answer a quick question at the command-line and
 don't need a chat interface.  I'll probably write more about it when I find
 something interesting in my workflow to use it for.
 
