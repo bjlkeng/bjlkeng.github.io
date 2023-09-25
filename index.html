@@ -27,7 +27,7 @@ MathJax.Hub.Config({
         styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
     }
 });
-</script><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/" type="text/html">
+</script><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/building-a-qa-bot-of-me-with-openai-and-cloudflare/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -79,7 +79,39 @@ navbar-dark bg-dark
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/" class="u-url">Bayesian Learning via Stochastic Gradient Langevin Dynamics and Bayes by Backprop</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/building-a-qa-bot-of-me-with-openai-and-cloudflare/" class="u-url">LLM Fun: Building a Q&amp;A Bot of Myself</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="posts/building-a-qa-bot-of-me-with-openai-and-cloudflare/" rel="bookmark">
+            <time class="published dt-published" datetime="2023-09-24T20:56:42-04:00" itemprop="datePublished" title="2023-09-24 20:56">2023-09-24 20:56</time></a>
+            </p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>Unless you've been living under a rock, you've probably heard of large language
+models (LLM) such as ChatGPT or Bard.  I'm not one for riding a hype train but
+I do think LLMs are here to stay and either are going to have an impact as big
+as mobile as an interface (my current best guess) or perhaps something as big as
+the Internet itself.  In either case, it behooves me to do a bit more
+investigation into this popular trend <a class="footnote-reference brackets" href="posts/building-a-qa-bot-of-me-with-openai-and-cloudflare/#id2" id="id1">1</a>.  At the same time, there are a bunch
+of other developer technologies that I've been wondering about like serverless
+computing, modern dev tools, and LLM-based code assistants, so I thought why not
+kill multiple birds with one stone.</p>
+<p>This post is going to describe how I built a question and answering bot of myself using
+LLMs as well as my experience using the relevant developer tools such as
+<a class="reference external" href="https://chat.openai.com">ChatGPT</a>, <a class="reference external" href="https://github.com/features/copilot">Github Copilot</a>, <a class="reference external" href="https://workers.cloudflare.com/">Cloudflare workers</a>, and a couple of other related ones.
+I start out with my motivation for doing this project, some brief background
+on the technologies, a description of how I built everything including some
+evaluation on LLM outputs, and finally some commentary.  This post is a lot
+less heavy on the math as compared to my previous ones but it still has some
+good stuff so read on!</p>
+<p class="more"><a href="posts/building-a-qa-bot-of-me-with-openai-and-cloudflare/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/" class="u-url">Bayesian Learning via Stochastic Gradient Langevin Dynamics and Bayes by Backprop</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Brian Keng
@@ -218,40 +250,6 @@ algorithm along with some toy experiments I put together.  Most of the material
 is based on [1] and [2], which I've found to be great sources for their
 respective areas.</p>
 <p class="more"><a href="posts/hamiltonian-monte-carlo/">Read more…</a></p>
-</div>
-    </div>
-    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/lossless-compression-with-latent-variable-models-using-bits-back-coding/" class="u-url">Lossless Compression with Latent Variable Models using Bits-Back Coding</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Brian Keng
-            </span></p>
-            <p class="dateline">
-            <a href="posts/lossless-compression-with-latent-variable-models-using-bits-back-coding/" rel="bookmark">
-            <time class="published dt-published" datetime="2021-07-06T11:00:00-05:00" itemprop="datePublished" title="2021-07-06 11:00">2021-07-06 11:00</time></a>
-            </p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>A lot of modern machine learning is related to this idea of "compression", or
-maybe to use a fancier term "representations".  Taking a huge dimensional space
-(e.g. images of 256 x 256 x 3 pixels = 196608 dimensions) and somehow compressing it into
-a 1000 or so dimensional representation seems like pretty good compression to
-me!  Unfortunately, it's not a lossless compression (or representation).
-Somehow though, it seems intuitive that there must be a way to use what is learned in
-these powerful lossy representations to help us better perform <em>lossless</em>
-compression, right?  Of course there is! (It would be too anti-climatic of a
-setup otherwise.)</p>
-<p>This post is going to introduce a method to perform lossless compression that
-leverages the learned "compression" of a machine learning latent variable
-model using the Bits-Back coding algorithm.  Depending on how you first think
-about it, this <em>seems</em> like it should either be (a) really easy or (b) not possible at
-all.  The reality is kind of in between with an elegant theoretical algorithm
-that is brought down by the realities of discretization and imperfect learning
-by the model.  In today's post, I'll skim over some preliminaries (mostly
-referring you to previous posts), go over the main Bits-Back coding algorithm
-in detail, and discuss some of the implementation details and experiments that
-I did while trying to write a toy version of the algorithm.</p>
-<p class="more"><a href="posts/lossless-compression-with-latent-variable-models-using-bits-back-coding/">Read more…</a></p>
 </div>
     </div>
     </article>

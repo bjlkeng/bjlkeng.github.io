@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#
+" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLM Fun: Building a Q&amp;A Bot of Myself | Bounded Rationality</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
+<link rel="alternate" type="application/rss+xml" title="RSS" hreflang="en" href="../../rss.xml">
+<link rel="canonical" href="http://bjlkeng.github.io/posts/building-a-qa-bot-of-me-with-openai-and-cloudflare/">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
+    }
+});
+</script><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Brian Keng">
+<link rel="prev" href="../bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/" title="Bayesian Learning via Stochastic Gradient Langevin Dynamics and Bayes by Backprop" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="LLM Fun: Building a Q&amp;A Bot of Myself">
+<meta property="og:url" content="http://bjlkeng.github.io/posts/building-a-qa-bot-of-me-with-openai-and-cloudflare/">
+<meta property="og:description" content="Unless you've been living under a rock, you've probably heard of large language
+models (LLM) such as ChatGPT or Bard.  I'm not one for riding a hype train but
+I do think LLMs are here to stay and eith">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2023-09-24T20:56:42-04:00">
+<meta property="article:tag" content="Cloudflare">
+<meta property="article:tag" content="GPT">
+<meta property="article:tag" content="Javascript">
+<meta property="article:tag" content="LangChain">
+<meta property="article:tag" content="large language models">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="mathjax">
+<meta property="article:tag" content="OpenAI">
+<meta property="article:tag" content="Q&amp;A">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-expand-md static-top mb-4
+navbar-dark bg-dark
+"><div class="container">
+<!-- This keeps the margins nice -->
+        <a class="navbar-brand" href="http://bjlkeng.github.io/">
+
+            <span id="blog-title">Bounded Rationality</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="bs-navbar">
+            <ul class="navbar-nav mr-auto">
+<li class="nav-item">
+<a href="../../archive.html" class="nav-link">Archive</a>
+                </li>
+<li class="nav-item">
+<a href="../../categories/" class="nav-link">Tags</a>
+                </li>
+<li class="nav-item">
+<a href="../../rss.xml" class="nav-link">RSS feed</a>
+
+                
+            </li>
+</ul>
+<ul class="navbar-nav navbar-right">
+<li class="nav-item">
+    <a href="index.rst" id="sourcelink" class="nav-link">Source</a>
+    </li>
+
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <div class="row">
+        <!--Body content-->
+            <div class="col-lg-9">
+                
+                
+                
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">LLM Fun: Building a Q&amp;A Bot of Myself</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
+                    Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2023-09-24T20:56:42-04:00" itemprop="datePublished" title="2023-09-24 20:56">2023-09-24 20:56</time></a>
+            </p>
+            
+        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>Unless you've been living under a rock, you've probably heard of large language
+models (LLM) such as ChatGPT or Bard.  I'm not one for riding a hype train but
+I do think LLMs are here to stay and either are going to have an impact as big
+as mobile as an interface (my current best guess) or perhaps something as big as
+the Internet itself.  In either case, it behooves me to do a bit more
+investigation into this popular trend <a class="footnote-reference brackets" href="#id2" id="id1">1</a>.  At the same time, there are a bunch
+of other developer technologies that I've been wondering about like serverless
+computing, modern dev tools, and LLM-based code assistants, so I thought why not
+kill multiple birds with one stone.</p>
+<p>This post is going to describe how I built a question and answering bot of myself using
+LLMs as well as my experience using the relevant developer tools such as
+<a class="reference external" href="https://chat.openai.com">ChatGPT</a>, <a class="reference external" href="https://github.com/features/copilot">Github Copilot</a>, <a class="reference external" href="https://workers.cloudflare.com/">Cloudflare workers</a>, and a couple of other related ones.
+I start out with my motivation for doing this project, some brief background
+on the technologies, a description of how I built everything including some
+evaluation on LLM outputs, and finally some commentary.  This post is a lot
+less heavy on the math as compared to my previous ones but it still has some
+good stuff so read on!</p>
+<!-- TEASER_END -->
+<div class="card card-body bg-light">
+<h2>Table of Contents</h2>
+<div class="contents local topic" id="contents">
+<ul class="auto-toc simple">
+<li><p><a class="reference internal" href="#my-motivation-why-build-an-llm-me" id="id3"><span class="sectnum">1</span> My Motivation: Why build an LLM Me?</a></p></li>
+<li>
+<p><a class="reference internal" href="#background" id="id4"><span class="sectnum">2</span> Background</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#large-language-models" id="id5"><span class="sectnum">2.1</span> Large Language Models</a></p></li>
+<li><p><a class="reference internal" href="#retrieval-augmented-generation" id="id6"><span class="sectnum">2.2</span> Retrieval-Augmented Generation</a></p></li>
+<li><p><a class="reference internal" href="#llm-fine-tuning" id="id7"><span class="sectnum">2.3</span> LLM Fine-Tuning</a></p></li>
+<li><p><a class="reference internal" href="#openai-and-langchain-apis" id="id8"><span class="sectnum">2.4</span> OpenAI and LangChain APIs</a></p></li>
+<li><p><a class="reference internal" href="#cloudflare-workers" id="id9"><span class="sectnum">2.5</span> Cloudflare Workers</a></p></li>
+<li><p><a class="reference internal" href="#rouge-metric" id="id10"><span class="sectnum">2.6</span> ROUGE Metric</a></p></li>
+<li><p><a class="reference internal" href="#llm-evaluation-using-llms" id="id11"><span class="sectnum">2.7</span> LLM Evaluation using LLMs</a></p></li>
+</ul>
+</li>
+<li>
+<p><a class="reference internal" href="#project-details" id="id12"><span class="sectnum">3</span> Project Details</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#crawler" id="id13"><span class="sectnum">3.1</span> Crawler</a></p></li>
+<li><p><a class="reference internal" href="#embeddings-and-vector-db" id="id14"><span class="sectnum">3.2</span> Embeddings and Vector DB</a></p></li>
+<li><p><a class="reference internal" href="#fine-tuning" id="id15"><span class="sectnum">3.3</span> Fine Tuning</a></p></li>
+<li><p><a class="reference internal" href="#cloudflare-worker" id="id16"><span class="sectnum">3.4</span> Cloudflare Worker</a></p></li>
+<li><p><a class="reference internal" href="#web-page" id="id17"><span class="sectnum">3.5</span> Web Page</a></p></li>
+</ul>
+</li>
+<li>
+<p><a class="reference internal" href="#model-evaluation" id="id18"><span class="sectnum">4</span> Model Evaluation</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#rouge-metrics" id="id19"><span class="sectnum">4.1</span> ROUGE Metrics</a></p></li>
+<li><p><a class="reference internal" href="#llm-evaluation" id="id20"><span class="sectnum">4.2</span> LLM Evaluation</a></p></li>
+<li><p><a class="reference internal" href="#example-output" id="id21"><span class="sectnum">4.3</span> Example Output</a></p></li>
+</ul>
+</li>
+<li>
+<p><a class="reference internal" href="#commentary" id="id22"><span class="sectnum">5</span> Commentary</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#llms-as-coding-assistants" id="id23"><span class="sectnum">5.1</span> LLMs as Coding Assistants</a></p></li>
+<li><p><a class="reference internal" href="#langchain" id="id24"><span class="sectnum">5.2</span> LangChain</a></p></li>
+<li><p><a class="reference internal" href="#vscode-vs-vim-jupyter" id="id25"><span class="sectnum">5.3</span> VSCode vs. Vim/Jupyter</a></p></li>
+<li><p><a class="reference internal" href="#cloudflare" id="id26"><span class="sectnum">5.4</span> Cloudflare</a></p></li>
+<li><p><a class="reference internal" href="#llms-do-we-need-to-worry" id="id27"><span class="sectnum">5.5</span> LLMs: Do we need to worry?</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#conclusion" id="id28"><span class="sectnum">6</span> Conclusion</a></p></li>
+<li><p><a class="reference internal" href="#further-reading" id="id29"><span class="sectnum">7</span> Further Reading</a></p></li>
+</ul>
+</div>
+</div>
+<p></p>
+<div class="section" id="my-motivation-why-build-an-llm-me">
+<h2><a class="toc-backref" href="#id3"><span class="sectnum">1</span> My Motivation: Why build an LLM Me?</a></h2>
+<p>As I mentioned above, <em>most</em> of why I did this little project was to
+get a better intuition of LLMs.  Practically that meant on the application level
+and not training foundation models myself.  Realistically only a few
+organizations are setup to train really large models, and I'm (a) not in one
+of those companies, and (b) likely wouldn't be working on that project given my
+experience.  So the result is that I needed to learn more about how to use LLMs
+in applications rather then train them from scratch (although this does not
+preclude me from exploring other technical topics like fine-tuning or efficient
+inference.)</p>
+<p>The other LLM-related reason I did this project was to play around with modern
+development tools.  Github Copilot and ChatGPT (at least from the outside)
+have the potential to be a step change in productivity so I would be irresponsible
+not to learn more about them.  This is even true even if I'm not actually coding on
+a daily basis because it will help me understand how it could affect my teams
+(which do a lot of coding).</p>
+<p>Github Copilot is easiest to setup within <a class="reference external" href="https://code.visualstudio.com/">VSCode</a> so I decided to take that for a spin too.
+Coming from Vim + Jupyter notebooks (depending on the task) for the past 15
+years or so, it was probably time to try out a new IDE.  Everything has Vim
+bindings nowadays (including Jupyter), and I mostly just use the standard
+commands anyways.  The appealing thing about VSCode is the ability to manage
+Jupyter notebooks alongside my code files, which solved an annoyance I always
+had switching back and forth between tools.</p>
+<p>The last piece of technology I wanted to play with was Cloudflare
+Workers and the related developer platform.  To be honest, the reason for this
+interest is that I recently invested in the stock and I wanted to learn more about their
+"Act 3 products", which is primarily their serverless development platform.
+Serverless always seemed interesting but limited to a subset of use-cases so I
+never gave it much attention except playing around with AWS lambda early on.
+Cloudflare has a very opinionated way of doing things with a unique
+architecture so it was definitely an interesting experience.</p>
+<p>Finally, the scope of the project needed to be sufficiently small that I
+wouldn't spend too much time on it but at the same time actually get enough
+experience test driving the technologies above.  Most importantly though,
+it should be fun!  So it was only natural to stroke my own ego and try
+to make a virtual version of myself, which checked all the boxes.  Despite it
+following almost exactly the same idea from popular sci-fi (i.e., <a class="reference external" href="https://en.wikipedia.org/wiki/Caprica">making killer
+robots from their online presence</a>), I was not
+worried at all because (a) I have very little training data (my online presence
+is small and very explicitly narrow), and (b) I'm highly doubtful that LLMs are
+that powerful.  In any case, enjoy the write up!</p>
+</div>
+<div class="section" id="background">
+<h2><a class="toc-backref" href="#id4"><span class="sectnum">2</span> Background</a></h2>
+<div class="section" id="large-language-models">
+<h3><a class="toc-backref" href="#id5"><span class="sectnum">2.1</span> Large Language Models</a></h3>
+<p>A <a class="reference external" href="https://en.wikipedia.org/wiki/Large_language_model">large language model (LLM)</a>
+is a <a class="reference external" href="https://en.wikipedia.org/wiki/Language_model">language model</a> that is... large.
+First, a language model is simply a statistical model that tries to model:</p>
+<div class="math">
+\begin{equation*}
+P(w_m | w_{m-k}, \ldots, w_{m-1}) \tag{1}
+\end{equation*}
+</div>
+<p>In other words, given some context of previous words (although theoretically it can be surrounding words too)
+<span class="math">\(w_{m-k}, \ldots, w_{m-1}\)</span>, try to predict the probability distribution for the next word <span class="math">\(w_m\)</span>.
+Basically, the model predicts a probability for each possible next word.  Here word is not necessarily a word,
+it can be a character, word or more commonly a <a class="reference external" href="https://learn.microsoft.com/en-us/semantic-kernel/prompt-engineering/tokens">token</a>.
+Model in this case can be something simple like a <a class="reference external" href="https://en.wikipedia.org/wiki/Markov_chain">Markov chain</a>,
+a <a class="reference external" href="https://en.wikipedia.org/wiki/Word_n-gram_language_model#Approximation_method">count based n-gram model</a>,
+or even a trillion parameter <a class="reference external" href="https://en.wikipedia.org/wiki/Transformer_(machine_learning_model)">transformer</a> neural network.
+And finally "large" is a moving target without a precise definition.
+Nowadays, you probably need to have at least a billion <a class="reference external" href="https://en.wikipedia.org/wiki/Statistical_parameter">parameters</a>
+(or neural network weights) to be even considered large.  For context
+<a class="reference external" href="https://en.wikipedia.org/wiki/GPT-2">GPT-2</a> has 1.5B parameters,
+<a class="reference external" href="https://en.wikipedia.org/wiki/GPT-3">GPT-3</a> has 175B parameters, and
+the LLaMA has variants from 7B - 65B parameters.</p>
+<p>In this post, I won't try to explain transformers in detail because I know I'm going to
+go too deep.  Instead, I'll refer you to these posts on <a class="reference external" href="https://www.borealisai.com/research-blogs/tutorial-14-transformers-i-introduction/">transformers</a>, their <a class="reference external" href="https://www.borealisai.com/research-blogs/tutorial-16-transformers-ii-extensions/">extensions</a>,
+and their <a class="reference external" href="https://www.borealisai.com/research-blogs/tutorial-17-transformers-iii-training/">training</a> from Borealis AI
+(where I currently work).</p>
+<p>If you aren't quite interested to go that deep, I'll give you the gist for our purposes.
+Transformers are a scalable neural network architecture that allows you to train
+really high capacity (i.e., parameter) models.  The architecture accepts as input a sequence
+of tokens represented as vectors, and the "decoder" variant of the
+architecture can predict the next token after the input as in Equation 1.
+Using various methods to select a specific next token, you append it to the
+input, generate another token and so on until you generate a new sequence of,
+for example, text.</p>
+<p>The important part from this description is the original input you specify to
+the LLM, which is called the <strong>prompt</strong>.  In <a class="reference external" href="https://www.borealisai.com/research-blogs/a-high-level-overview-of-large-language-models/#Reinforcement_learning_from_human_feedback_RLHF">instruction tuned or aligned LLM models</a>,
+the prompt is essentially giving the LLM an instruction or query in natural
+language (e.g., English), and it will iteratively (also called "auto regressive") generate
+new text that (ideally) gives you a good response to your instruction.
+Unexpectedly, making these LLMs really large and aligning them with human
+goals makes them not only really good at understanding and writing natural
+language, but also quite good at reasoning (debatable).  The prompt is
+critically important to ensuring your LLM produces good output.  Instructing
+the LLM to "think critically" or go "step by step" seems to produce better
+results, so subtle language cues can make a big different in the quality of
+the output.</p>
+<p>The other important part is the <span class="math">\(m\)</span> in Equation 1, which is also called the
+<strong>context window</strong> length.  This is basically the size of "memory" the LLM has
+to understand what you've input to it.  Modern commercial LLMs have context
+windows in the thousands of tokens but some have context windows as long as
+100K.  In the typical case, LLMs will only perform well at context window
+lengths at or below what it was trained on even though the transformer
+architecture can mechanically be extended to arbitrary lengths.</p>
+<p>LLMs like many of its predecessor language models can also generate
+<a class="reference external" href="https://en.wikipedia.org/wiki/Word_embedding">embedding</a> from their input
+prompts.  These are some combination of internal vectors that the underlying
+transformer generates.  They map the input tokens to a new latent space that
+typically will cluster similar concepts together, making them extremely useful
+for downstream applications (see RAG below).</p>
+<p>Lastly, due to the massive number of parameters, training these LLMs are
+prohibitively expensive.  Training these 100+B parameter models can be on the order
+of millions of dollars (assuming you can even get a cluster of GPUs nowadays).
+Inference on these models is relatively less compute intensive but is more
+limited by GPU VRAM, which usually still requires a distributed cluster.
+Smaller models (e.g. 7B parameter) and advances in quantization and related
+compression techniques have inference (and sometimes training) running on
+single machines (including your phone!), sometimes even without GPUs.</p>
+</div>
+<div class="section" id="retrieval-augmented-generation">
+<h3><a class="toc-backref" href="#id6"><span class="sectnum">2.2</span> Retrieval-Augmented Generation</a></h3>
+<p><a class="reference external" href="https://eugeneyan.com/writing/llm-patterns/#retrieval-augmented-generation-to-add-knowledge">Retrieval-Augmented Generation (RAG)</a>
+enhances a large language model by first retrieving relevant data and adding
+it to the input to improve results.  This technique is typically used in a
+question and answering scenario.  The name is fancier than it sounds (at least
+for the main concept).  LangChain has a good summary on its <a class="reference external" href="https://docs.langchain.com/docs/use-cases/qa-docs">Question Answering
+Over Documents</a> page that
+is roughly summarized below.</p>
+<p>For the setup, you build an index of your documents where each entry
+is an <a class="reference external" href="https://en.wikipedia.org/wiki/Word_embedding">embedding</a>
+that represents a chunk of text (e.g. several paragraphs).  In
+more detail:</p>
+<ol class="arabic simple">
+<li><p>Due to the limitations of LLMs, you will typically split your documents into
+bite-sized chunks that fit into the LLMs context window (e.g. 4K tokens).</p></li>
+<li><p>Using the LLM, create an embedding from each of your chunks.</p></li>
+<li><p>Store the embedding in a vector store that can retrieve similar
+vectors based on a given input vector (e.g. find the top-K matching
+chunks for a given embedded input query).</p></li>
+</ol>
+<p>Once you have a vector store populated, answering proceeds as follows:</p>
+<ol class="arabic simple">
+<li><p>Take the input question and convert it to an embedding.</p></li>
+<li><p>Look up top-K relevant entries in your vector store.</p></li>
+<li><p>Construct a prompt based on the input question and these chunks.</p></li>
+<li><p>Send the prompt to an LLM and return the result.</p></li>
+</ol>
+<p>The original <a class="reference external" href="https://arxiv.org/abs/2005.11401">RAG paper</a> was written
+before LLMs got really powerful so it seems that they do a bunch of other
+fancy tricks.  However with LLMs, you don't need to do much more than
+the above to get pretty good results.  As far as I can tell, most setups will
+do some variation of the above without much more effort.  As with most
+LLM related things, the prompt is important (along with how many k documents to
+include).  Similarly, the <a class="reference external" href="https://www.pinecone.io/learn/chunking-strategies/">chunking</a> step may also be
+important depending on your problem.</p>
+</div>
+<div class="section" id="llm-fine-tuning">
+<h3><a class="toc-backref" href="#id7"><span class="sectnum">2.3</span> LLM Fine-Tuning</a></h3>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Fine-tuning_(deep_learning)">Fine-tuning</a> an
+LLM is precisely the concept as it is used in other transfer learning
+applications.  The main idea is to take an existing trained model ("pre-trained model"),
+and modify the weights in order to adapt it to a different task.  The
+modification of the weights can be for a subset of the layers, all layers,
+or even none of them but with some additional trainable augmentations to the
+model.  Variants of the latter have been a <a class="reference external" href="https://arxiv.org/abs/2106.09685">popular technique</a> to cheaply fine-tune an existing LLM,
+reducing the cost by orders of magnitude compared to training the base model
+(or naively directly fine-tuning an LLM).  Typically the fine-tuning uses a
+lower learning rate so you retain a substantial portion of the learning of the
+pre-trained model.</p>
+<p>The previously mentioned "instruction fine-tuning" or "human alignment" steps
+are a form of fine-tuning where the base language model is only good at
+predicting the next token, but fine-tuning it gives you the ability to follow
+instructions and respond as humans would expect (vs. just predicting the next
+most likely token).  Another example of fine-tuning is training with more
+specific data for a task (e.g. Medical Q&amp;A), which has shown to improve
+performance over generic models.</p>
+</div>
+<div class="section" id="openai-and-langchain-apis">
+<h3><a class="toc-backref" href="#id8"><span class="sectnum">2.4</span> OpenAI and LangChain APIs</a></h3>
+<p>Most of you will be familiar with <a class="reference external" href="https://openai.com/">OpenAI</a>, most likely
+from their breakout product <a class="reference external" href="https://chat.openai.com/">ChatGPT</a> that was probably
+the first widespread demonstration of what LLMs could do (particularly because it
+could follow instructions).  What's probably also obvious to most people is that
+OpenAI has many <a class="reference external" href="https://platform.openai.com/docs/introduction">APIs</a> that
+allow programmatic access to all of the functionalities of ChatGPT and more.</p>
+<p>The APIs are HTTP endpoints that have officially released libraries for
+Python and Node.js (as well as other community maintained ones).  The most relevant
+APIs are the <cite>chat</cite> and <cite>completions</cite> endpoints which to respond
+to a prompt, and the fine-tuning API to fine-tune a model on your own data.  The cost
+is usually priced per 1000 tokens for both chat/completion APIs and fine-tuning.
+The latter charges different rates for training and inference depending on the
+model.</p>
+<p>For most of their language APIs, you can select which model you want to use.  The models
+are roughly binned into how powerful each one is with the original ChatGPT
+release named as <cite>gpt-3.5-turbo</cite>.  The current most powerful model is named
+<cite>gpt-4</cite> and they also have many others from older generations of GPT-3 models.</p>
+<p>Working with the OpenAI APIs is pretty straightforward, but often times you want
+additional functionality (such as RAG) and <a class="reference external" href="https://www.langchain.com/">LangChain</a>
+is one of the <em>many</em> libraries that fills in the gap.  It appears to be one of the
+first and thus relatively popular at the moment, but things are changing fast.
+LangChain has a Python library and a more recent JavaScript one, both of which
+I used in this project.</p>
+<p>The main advantage of LangChain (in my opinion) is that they have many predefined
+patterns that you can put together such as RAG.  They have numerous examples
+along with the building blocks you need to set up a default LLM application
+with components such as predefined prompts, inclusion of various vector
+databases, and integration with all popular LLM provider libraries.  It's hard to
+say if this will be <em>the</em> LLM library of the future but it's definitely a useful
+library to get up and running quickly.</p>
+</div>
+<div class="section" id="cloudflare-workers">
+<h3><a class="toc-backref" href="#id9"><span class="sectnum">2.5</span> Cloudflare Workers</a></h3>
+<p><a class="reference external" href="https://workers.cloudflare.com/">Workers</a> is a serverless code platform
+developed by Cloudflare.  Although the large cloud providers (also known as
+hyperscalers) generally have a serverless code offering (e.g. AWS Lambda), Cloudflare
+touts several advantages such as:</p>
+<ul class="simple">
+<li><p>Automatic scaling</p></li>
+<li><p>High performance</p></li>
+<li><p>Low latency startup time</p></li>
+<li><p>Better developer experience (DX)</p></li>
+</ul>
+<p>One of the fundamental ideas is that you shouldn't have to think about the underlying
+infrastructure at all, just deploy and have it work (e.g., no selecting region
+or instance size).</p>
+<p>Of course, these benefits do come with trade-offs.  Their serverless code
+<a class="reference external" href="https://developers.cloudflare.com/workers/learning/how-workers-works/">runs in V8 isolates</a>,
+the same technology that Chrome's JavaScript engine uses to sandbox
+each browser tab, and enables Workers to have high performance and low
+latency.  The obvious limitation here is that it primarily is focused on JavaScript.
+While that is a big limitation, V8 also supports <a class="reference external" href="https://webassembly.org/">WebAssembly</a>,
+which opens the door to other languages such as Rust, C, Cobol (compiling to
+WebAssembly). Other languages such as Python, Scala and Perl are enabled by
+other projects that exist to make those languages work within a JavaScript
+environment, often times with some reduced functionality (e.g. not all
+libraries are available).</p>
+<p>The other non-obvious thing is that although the Worker environment very
+much behaves similar to Node.js, it is missing some key components due
+to the security model that Cloudflare has implemented.  A glaringly obvious
+limitation is that there is no filesystem.  This caused some trouble as I
+mention below.</p>
+<p>The other relatively large blocker, at least until recently, was that there was
+no state management within the ecosystem.  You could make a call out to an
+external database via HTTP, but the platform didn't natively support
+persisting data.  Cloudflare has been pushing hard on the innovation to make their solution
+full stack by including things such as a zero-egress fee S3-compatible object store <a class="reference external" href="https://www.cloudflare.com/developer-platform/r2/">R2</a>,
+an eventually consistent key value store <a class="reference external" href="https://www.cloudflare.com/developer-platform/workers-kv/">Workers KV</a>,
+a serverless SQL database <a class="reference external" href="https://developers.cloudflare.com/d1/">D1</a>, and
+a transaction store with <a class="reference external" href="https://developers.cloudflare.com/durable-objects/">Durable Objects</a>.
+Some of these are still in beta but Cloudflare's track record is pretty good at
+building thoughtful additions to their platform with good DX.  It remains to be
+seen if they can truly disrupt the established hyperscaler dominance.</p>
+</div>
+<div class="section" id="rouge-metric">
+<h3><a class="toc-backref" href="#id10"><span class="sectnum">2.6</span> ROUGE Metric</a></h3>
+<p>The <a class="reference external" href="https://en.wikipedia.org/wiki/ROUGE_(metric)">ROUGE</a> or Recall-Oriented
+Understudy for Gisting Evaluation is a family of metrics to evaluate
+summarization and machine translation NLP tasks.  They work by comparing
+the automatically generated proposed (i.e., <em>hypothesis</em>) text to one or more <em>reference</em> texts
+(usually human generated).  In general, evaluation of NLP tasks is hard because
+it heavily depends on the meaning of the text, which historicaly was very hard
+to discern (at least before the LLM revolution).  Instead of tackling this head on,
+researchers developed simpler mechanical metrics such as ROUGE that
+do not depend on the meaning.</p>
+<p>ROUGE has many different variants with the simplest one called <cite>ROUGE-N</cite> being
+based on the overlap of <a class="reference external" href="https://en.wikipedia.org/wiki/N-gram">N-grams</a>
+(word level) between the hypothesis text (<span class="math">\(s_{hyp}\)</span>) and reference text
+(<span class="math">\(s_{ref}\)</span>) given by the formula:</p>
+<div class="math">
+\begin{equation*}
+\text{ROUGE-N} = \frac{\big| \text{N-GRAM}(s_{hyp}) \cap \text{N-GRAM}(s_{ref}) \big|}{\big|\text{N-GRAM}(s_{ref})\big|} \tag{2}
+\end{equation*}
+</div>
+<p>where <span class="math">\(\text{N-GRAM}(\cdot)\)</span> generates the multiset of (word-level) n-gram tokens and the
+intersection operates on multisets, and the <span class="math">\(|\cdot|\)</span> indicated cardinality of the multiset.</p>
+<p>Since we're using <span class="math">\(s_{ref}\)</span> in the denominator, it's a recall oriented
+metric.  However, we could just as well use <span class="math">\(s_{hyp}\)</span> in the denominator
+and it would be the symmetrical precision oriented metric.  Similarly,
+we could compute the related <a class="reference external" href="https://en.wikipedia.org/wiki/F-score">F1-score</a>
+with these two values.  This is one of the evaluation metrics that I'll use
+later on to give a rough idea of how good the LLM performed.</p>
+<div class="admonition admonition-example-1-calculating-the-rouge-2-score">
+<p class="admonition-title">Example 1: Calculating the ROUGE-2 score.</p>
+<p>Consider a hypothesis text summary and the reference text (I used GPT-4 to
+generate them both):</p>
+<div class="math">
+\begin{align*}
+s_{hyp} &amp;= \text{"AI accelerators facilitate extensive text processing in large language models"} \\
+s_{ref} &amp;= \text{"Large language models use AI accelerators for improved processing and training."} \\
+\tag{3}
+\end{align*}
+</div>
+<p>We can compute the multiset of n-grams (ignoring capitalization) and their intersection as:</p>
+<div class="math">
+\begin{align*}
+\text{1-GRAM}(s_{hyp}) &amp;= [ai, accelerators, facilitate, extensive, text, processing, in, large, language, models] \\
+\text{1-GRAM}(s_{ref}) &amp;= [large, language, models, use, ai, accelerators, for, improved, processing, and, training] \\
+\text{1-GRAM}(s_{hyp}) \cap \text{1-GRAM}(s_{ref}) &amp;= [large, language, models, ai, accelerators, processing] \\
+\tag{4}
+\end{align*}
+</div>
+<p>We can then calculate the cardinality of each and finally compute the ROUGE-1 score:</p>
+<div class="math">
+\begin{equation*}
+\big|\text{1-GRAM}(s_{hyp})\big| = 10,
+\big|\text{1-GRAM}(s_{ref})\big| = 11,
+\big|\text{1-GRAM}(s_{hyp}) \cap \text{1-GRAM}(s_{ref})\big| = 6
+\end{equation*}
+</div>
+<div class="math">
+\begin{align*}
+\text{ROUGE-1} = \frac{\big| \text{1-GRAM}(s_{hyp}) \cap \text{1-GRAM}(s_{ref}) \big|}{\big|\text{1-GRAM}(s_{ref})\big|}
+ = \frac{6}{11} \approx 0.54 \\
+ \tag{5}
+\end{align*}
+</div>
+<p>Similarly, the precision variant yields <span class="math">\(0.6\)</span> and the F1-score yields approximately <span class="math">\(0.57\)</span>.</p>
+</div>
+</div>
+<div class="section" id="llm-evaluation-using-llms">
+<h3><a class="toc-backref" href="#id11"><span class="sectnum">2.7</span> LLM Evaluation using LLMs</a></h3>
+<p>As we saw above with the ROUGE metric, evaluation of models up until recently
+mainly focused on mechanical metrics.  With the advent of powerful models though,
+we can do better by using a <em>stronger</em> LLM to evaluate our target LLM performance.
+A common method is to use GPT-4 (the current state of the art) to evaluate
+whatever LLM task you are working on.  In general because it's so strong
+at understanding the semantic meaning of text, it can perform quite well
+compared to a human (at least as far as we can tell) and sometimes even better.
+The only problem is that the state of the art (GPT-4) can't really be evaluated
+using itself for obvious reasons.  That's not so much of a problem in this post
+because I only used earlier generation models (mostly due to cost but also
+earlier on due to the lack of availability of GPT-4).</p>
+</div>
+</div>
+<div class="section" id="project-details">
+<h2><a class="toc-backref" href="#id12"><span class="sectnum">3</span> Project Details</a></h2>
+<p>This section gives an overview of the project components and highlights some of the details
+that are not apparent from the code.
+All the <a class="reference external" href="https://github.com/bjlkeng/bjlkengbot">code is available</a> on Github
+but please keep in mind that it's a one-off so I know it's a mess and don't
+expect anyone really to use it again (including myself).  I also deployed the
+code so anyone could ask LLM-me a question (we'll see how long it takes before
+the OpenAI APIs I use get deprecated): <a class="reference external" href="https://bjlkengbot.bjlkeng.io/">bjlkengbot.bjlkeng.io</a>.</p>
+<div class="section" id="crawler">
+<h3><a class="toc-backref" href="#id13"><span class="sectnum">3.1</span> Crawler</a></h3>
+<p>The first thing I needed to do was gather a corpus of my writing.  Luckily,
+there was a readily available corpus on my personal site <a class="reference external" href="https://www.briankeng.com">https://www.briankeng.com</a>.
+The posts have varying lengths, contain lots of quotes, and sometimes contain
+dated information but generally I think my writing style hasn't changed too
+much so I thought it would be interesting to see how it would do.</p>
+<p>I did the easiest thing I could to capture the text content and used the
+<a class="reference external" href="https://scrapy.org/">Scrapy</a> library to crawl my site and captured the
+title, URL and text content.
+In total I crawled 173 pages (posts and a couple of selected pages) containing
+my writing including the About Me page.</p>
+<p>Next, the data was chunked into LLM-sized pieces.  Here I used the
+<a class="reference external" href="https://python.langchain.com/docs/modules/data_connection/document_transformers/text_splitters/recursive_text_splitter">RecursiveTextSplitter</a>.
+This splitter is nice because it will try to group things by paragraphs, then
+sentences, and then words, roughly keeping semantically related pieces
+together.  You can additionally utilize the OpenAI tokenizer using <code>from_tiktoken_encoder()</code>
+to match the token counts that OpenAI's API expects.
+A chunk size of 900 tokens with 100 overlapping tokens was used.  These numbers
+were chosen because I planned to send 4 documents into the RAG workflow so
+I wanted it to be less than the default 4096 token window for the ChatGPT-3.5
+endpoint.</p>
+<p>All of this was done as a pre-processing step because (as we will see later) the
+LangChain JavaScript library doesn't (at the time of writing to my knowledge)
+have the specific splitter + OpenAI tokenizer.  So splitting
+the text into the appropriate chunks first allowed me to not have to worry about
+doing much manipulation in JavaScript.  The resulting output was a JSON file
+containing an array of objects with the chunked text, and the associated
+URL/title metadata for each chunk.</p>
+</div>
+<div class="section" id="embeddings-and-vector-db">
+<h3><a class="toc-backref" href="#id14"><span class="sectnum">3.2</span> Embeddings and Vector DB</a></h3>
+<p>With the data collected and chunked, the next step is to implement the RAG pattern.
+Luckily LangChain and LangChain.js have some builtin flows to help with that.
+The usual flow is to index all your documents which involves:</p>
+<ol class="arabic simple">
+<li><p>Creating <code>Document</code> objects</p></li>
+<li><p>Connecting to an embedding model (e.g. <code>OpenAIEmbeddings</code>)</p></li>
+<li><p>Retrieving embeddings for each document and indexing them in a vector store</p></li>
+<li><p>Persisting the vector store (if not using an online database)</p></li>
+</ol>
+<p>Then for inference, you simply:</p>
+<ol class="arabic simple">
+<li><p>Load the vector store (if needed)</p></li>
+<li><p>Embed input question using LLM and search for relevant docs in vector store</p></li>
+<li><p>Create a prompt using the input question and retrieved docs</p></li>
+<li><p>Ask LLM the prompt and return response</p></li>
+</ol>
+<p>Since I wanted to deploy the model inference to Cloudflare, I had to use
+LangChain.js for both indexing and inference.  This would have been fine except
+that Cloudflare has some quirks.
+Although Cloudflare Workers <a class="reference external" href="https://developers.cloudflare.com/workers/runtime-apis/nodejs/">mostly supports</a>
+a <a class="reference external" href="https://nodejs.org/en">Node</a> environment there is (at least) one major
+difference: there is <a class="reference external" href="https://developers.cloudflare.com/workers/learning/security-model/">no filesystem</a>.
+This is part of their security model to prevent security issues.  Fair enough.
+But this posed a slight challenge because all of LangChain.js memory vector
+model stores only support serializing to disk (I didn't want to use a full blown DB).
+After thinking for a bit, I realized that almost all objects in JavaScript can
+be serialized trivially with <code>JSON.stringify()</code>, so I just accessed the
+internal vector store storage and serialized that to a file.  That file would
+then be stored on R2 (object store), which then could be read back in a Worker
+(not using LangChain.js) and I could construct a new vector store object and
+just assign the internal storage.  This worked out pretty well (and much better
+than my initial naive idea of reindexing the whole corpus on every inference
+call).</p>
+<p>In terms of the LangChain.js API, it was pretty simple to index using
+<code>MemoryVectorStore.fromDocuments()</code>, and inference was also a breeze using
+the <code>RetrievalQAChain</code>.  I must say that the documentation for these wasn't great
+so I often had to look at the implementation to figure out what was going on.
+Thank goodness for open source.</p>
+<p>In terms of models, I used OpenAI's <code>text-embedding-ada-002</code> for embeddings,
+and <code>gpt-3.5-turbo</code> (ChatGPT-3.5 endpoint) for completion.  With the aforementioned,
+4 chunks x 900 token per chunk plus a max token generation of 256, I didn't
+have too much trouble fitting into the 4096 token limit of the model.  The
+only other parameter I changed from default was a temperature of 0.2.  I
+didn't really try any other values because I just wanted something sufficiently
+low to not get totally different answers each time.</p>
+<p>My prompt was relatively simple where I took some parts from the default
+<code>RetrievalQAChain</code> prompt:</p>
+<pre class="code text"><a name="rest_code_9fd54ad224a44c50a45ceb3b80ad223c-1"></a>Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that "I am not programmed to answer that", don't try to make up an answer.
+<a name="rest_code_9fd54ad224a44c50a45ceb3b80ad223c-2"></a>
+<a name="rest_code_9fd54ad224a44c50a45ceb3b80ad223c-3"></a>### Context ###
+<a name="rest_code_9fd54ad224a44c50a45ceb3b80ad223c-4"></a>Your name is Brian Keng.
+<a name="rest_code_9fd54ad224a44c50a45ceb3b80ad223c-5"></a>
+<a name="rest_code_9fd54ad224a44c50a45ceb3b80ad223c-6"></a>{context}
+<a name="rest_code_9fd54ad224a44c50a45ceb3b80ad223c-7"></a>
+<a name="rest_code_9fd54ad224a44c50a45ceb3b80ad223c-8"></a>### Question ###
+<a name="rest_code_9fd54ad224a44c50a45ceb3b80ad223c-9"></a>Question: {question}
+<a name="rest_code_9fd54ad224a44c50a45ceb3b80ad223c-10"></a>Helpful answer in less than 100 words:
+</pre>
+<p>I supposed I could have improved the prompt with extra background information
+about myself but I was lazy and didn't think it was worth it.</p>
+</div>
+<div class="section" id="fine-tuning">
+<h3><a class="toc-backref" href="#id15"><span class="sectnum">3.3</span> Fine Tuning</a></h3>
+<p>The other method I played with was using the OpenAI API for fine-tuning.
+This <em>sort of</em> fits in the <a class="reference external" href="https://platform.openai.com/docs/guides/fine-tuning/fine-tuning-examples">example</a>
+use-cases on the OpenAI website where they recommends fine tuning for setting a "style and
+tone" (the other major use-case is for structured output).
+The biggest issue with what I want to do is that my corpus is still just a set
+of blog posts, which actually matches the RAG pattern the best.  But I did want
+to see if fine-tuning could help capture more of my writing style and tone.</p>
+<p>At the time of implementation, the fine-tuning API was not instruction tuned
+so it would <em>only</em> try to do a completion without the "smarts" about
+understanding an instruction.  Due to the expensive cost (at the time),
+I used the <code>curie</code> model instead of the more expensive <code>davinci</code> one.</p>
+<div class="admonition admonition-llm-development-is-fast-moving">
+<p class="admonition-title">LLM Development Is Fast Moving</p>
+<p>To show how fast things have been changing, they don't offer fine-tuning
+with <code>curie</code> models any more, and they added instruction tuned
+<code>gpt-3.5</code> (ChatGPT) with GPT4 coming along soon.
+Further, due to instruction tuned versions being the recommended fine-tuning
+model, some of the pre-processing isn't even applicable anymore.
+For anything to do with LLMs in the next year or two, you probably
+want to look up the source documentation instead of any second hand account
+(like this post) lest it be out of date.</p>
+</div>
+<p>The biggest problem with trying out fine-tuning was that I didn't have
+a good dataset!  All I had was a bunch of text, but I wanted to build a
+Q&amp;A bot so I needed questions and answers.  Luckily, LLMs are very adaptable,
+so I used the ChatGPT API to generate questions from the snippets of my blog!</p>
+<p>To do this I first chunked my blog posts (and excluded some of the non-relevant chunks) to
+250 tokens using the above mentioned OpenAI <code>Tiktoken</code> encoder.  This
+mostly chunks it into paragraphs since I typically write short paragraphs.</p>
+<p>Next, I prompted the ChatGPT (GPT 3.5) API with the following:</p>
+<pre class="code text"><a name="rest_code_34fbfdbc2f96485692008e7363ca4410-1"></a>Write a concise question in as few words as possible to the author in the second person that has the following TEXT as the answer.
+<a name="rest_code_34fbfdbc2f96485692008e7363ca4410-2"></a>
+<a name="rest_code_34fbfdbc2f96485692008e7363ca4410-3"></a>### TEXT ###
+</pre>
+<p>where the text chunk is appended to the prompt.  The prompt is pretty self
+explanatory, except for the <code>###</code> demarcations.  This is a trick
+to help the LLM separate the instruction from the "data".  I didn't play
+around with it much but it seems like it's a pretty standard prompting trick.</p>
+<p>The fine-tuning format (for the older version of OpenAI fine-tuning that I
+used) required a clear separator to end the <em>prompt</em> and the <em>completion</em>
+required a white space to start with a clear ending token.  For the former
+I used <code>\n\n###\n\n</code>, and the latter I used <code>END</code>.  Additionally,
+each training sample should be put in a JSONL format.  Here's an example line:</p>
+<pre class="code text"><a name="rest_code_e24caf5fa5dc4cdfae73e7ca65b781cc-1"></a>{
+<a name="rest_code_e24caf5fa5dc4cdfae73e7ca65b781cc-2"></a>   "prompt": "QUESTION: Is 2022 feeling more like a \"normal\" year for you?\n\n###\n\n",
+<a name="rest_code_e24caf5fa5dc4cdfae73e7ca65b781cc-3"></a>   "completion": " Thankfully 2022 has felt a bit more like a “normal” year.  ... END"
+<a name="rest_code_e24caf5fa5dc4cdfae73e7ca65b781cc-4"></a>}
+</pre>
+<p>This little dataset generation script ran pretty smoothly with the only added
+tweak was to add rate limiting since OpenAI doesn't like you hammering their
+API.</p>
+<p>Once I had the dataset ready in the required format, it was pretty straightforward
+to use OpenAI's CLI to fine tune.  The main hyperparameters I played with were
+<cite>epochs</cite>, <cite>learning_rate_multiplier</cite>, and <cite>batch_size</cite>.
+When you call the API, it queues up a fine-tuning job and you can poll an API
+to see it's status.  My jobs typically trained overnight.  The job also has
+an associated ID that you can use when you want to call it for inference.
+The only thing to remember is that you need to add the above separators to
+ensure that your questions have the same format as during training.</p>
+</div>
+<div class="section" id="cloudflare-worker">
+<h3><a class="toc-backref" href="#id16"><span class="sectnum">3.4</span> Cloudflare Worker</a></h3>
+<p>The Cloudflare Worker was pretty straightforward to put together.
+The parts that I spent the most time on were (a) learning modern Javascript,
+and (b) figuring out how to call the relevant libraries.
+The Worker is simply a async Javascript function that Cloudflare
+uses to respond to a request.  With their <code>wrangler</code> workflow,
+it was pretty easy to get it deployed.</p>
+<p>The RAG flow was the more complicated one where in addition to calling
+OpenAI, I had to load the serialized <code>MemoryVectorStore</code> from
+R2 (which took some time to figure out but otherwise has simple code).
+The rest of the flow was easily done using LangChain.js using the appropriate APIs.
+The fine-tune flow simply consisted of calling the OpenAI API with
+my selected model.</p>
+<p>The one thing I will call out is that to test/debug the endpoint, I deployed
+it each time.  There is a local server you can spin up to emulate the code
+but I didn't really take the time to figure out how to get that working for R2.
+I suspect if you're using a lot of the Cloudflare ecosystem (especially the
+newer services), it will be increasingly difficult to do local development.
+On the other hand, it only took an additional 20 seconds to deploy but having
+not needed to "compile" anything since my C++ programming days, it felt like a pain.</p>
+</div>
+<div class="section" id="web-page">
+<h3><a class="toc-backref" href="#id17"><span class="sectnum">3.5</span> Web Page</a></h3>
+<p>The web page is basic HTML with client side Javascript to call the Cloudflare
+Worker endpoint.  It's hosted on Cloudflare pages, which is basically a similar
+service to Github pages except with a lot of extra integration into Cloudflare
+services.  It was pretty easy to setup, and it has a full continuous deployment
+flow where a commit triggers the page to be updated.</p>
+<p>Truthfully, getting the page to do what I wanted was a pain in the arse and
+took a long time!  I have some rudimentary knowledge of CSS but it just also
+feels so fiddly and I had a lot of trouble getting things just right (even with
+my super simple ugly page).  On top of that, it's hard to Google for the exact problem
+you have since I would only find basic examples that didn't address my specific problem.
+However, ChatGPT came to the rescue!  It didn't generate it in one
+go, but I asked it to write a basic example of what I wanted, which then served
+as a template for me to modify and create the final page.</p>
+<p>A couple of other random experiences.  It's no wonder that modern pages use
+some kind of Javascript framework.  Even with the handful of UI elements I had
+on the page, I had to start maintaining state so that they would all work
+together.  I definitely appreciate modern pages a lot more now, but I will say that
+the work is not suited to me.  Maybe it's because I've only worked on more
+algorithmic type systems but web development seems so foreign to me.</p>
+<p>The other point I'll mention is that this type of web development benefits a
+lot from local development.  At first I was iterating by just pushing to
+Github, which is relatively fast (&lt; 1 mins to update).  But when I'm trying to
+get the positioning right of a UI element by playing with the style sheets,
+it's not the right flow.  I played around with the browser inspector to debug /
+prototype, but inevitably you have to deploy to see if it works.  I finally bit
+the bullet and figured out how to set it up locally, which was trivial because
+it's just a static HTML page!  I ended up just accessing the local copy from
+my web browser.</p>
+</div>
+</div>
+<div class="section" id="model-evaluation">
+<h2><a class="toc-backref" href="#id18"><span class="sectnum">4</span> Model Evaluation</a></h2>
+<p>To evaluate the model, I used the training dataset from the fine tuned section,
+which includes questions that were generated using ChatGPT-3.5 from snippets of
+the original blog posts.  This pseudo-Q&amp;A dataset is not at all ideal for evaluation
+because I'm using the exact same dataset to fine-tuning the
+models.  The other reason it's not ideal is that these questions and answers
+are not completely in agreement because the question is LLM generated and the
+answer is a chunk of my blog post, not an actual answer.  Despite this, it
+was the easiest way to generate an evaluation dataset and I believe gives a
+flavour of the results you can expect (but not at all scientific).  In total,
+there were 669 Q&amp;As in the dataset.</p>
+<p>The models I compared were the standard RAG flow plus differently fine-tuned
+OpenAI <code>curie</code> (non-instruct) models.  <code>curie</code> is a smaller model compared to the
+(then largest) <code>davinci</code> GPT-3 model on OpenAI.  This was primarily used because of cost.
+I originally tried to fine-tune <code>davinci</code> and (at the time) I calculated it would
+have blew through my <cite>$50</cite> budget.  I ended up spending a bit under <cite>$100</cite> after all
+the iterations, which would have been much more if I had used the larger model.</p>
+<p>For each model, I generated the answer from the selected question using the
+prompts above, then compared the results versus the reference answer on two
+categories of metrics.</p>
+<div class="section" id="rouge-metrics">
+<h3><a class="toc-backref" href="#id19"><span class="sectnum">4.1</span> ROUGE Metrics</a></h3>
+<p>The first set of metrics use ROUGE with the ROUGE-1,
+ROUGE-2 and ROUGE-L F1 variants.  The results are shown in Table 1.</p>
+<table class="align-center">
+<caption>Table 1: Mean ROUGE evaluated performance for RAG and Fine-Tuning Models</caption>
+<colgroup>
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+</colgroup>
+<thead><tr>
+<th class="head"><p>Model</p></th>
+<th class="head"><p>Num Epochs</p></th>
+<th class="head"><p>Batch size</p></th>
+<th class="head"><p>LR Multiplier</p></th>
+<th class="head"><p>ROUGE-1 F1</p></th>
+<th class="head"><p>ROUGE-2 F1</p></th>
+<th class="head"><p>ROUGE-L F1</p></th>
+</tr></thead>
+<tbody>
+<tr>
+<td><p>RAG</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>0.3311</p></td>
+<td><p>0.1455</p></td>
+<td><p>0.3055</p></td>
+</tr>
+<tr>
+<td><p>Fine-tune (Curie)</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>0.05</p></td>
+<td><p>0.2279</p></td>
+<td><p>0.0540</p></td>
+<td><p>0.2093</p></td>
+</tr>
+<tr>
+<td><p>Fine-tune (Curie)</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>0.10</p></td>
+<td><p>0.2356</p></td>
+<td><p>0.0598</p></td>
+<td><p>0.2170</p></td>
+</tr>
+<tr>
+<td><p>Fine-tune (Curie)</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>0.20</p></td>
+<td><p>0.2552</p></td>
+<td><p>0.0690</p></td>
+<td><p>0.2350</p></td>
+</tr>
+<tr>
+<td><p>Fine-tune (Curie)</p></td>
+<td><p>2</p></td>
+<td><p>5</p></td>
+<td><p>0.10</p></td>
+<td><p>0.2244</p></td>
+<td><p>0.0510</p></td>
+<td><p>0.2049</p></td>
+</tr>
+<tr>
+<td><p>Fine-tune (Curie)</p></td>
+<td><p>4</p></td>
+<td><p>1</p></td>
+<td><p>0.05</p></td>
+<td><p>0.2548</p></td>
+<td><p>0.0679</p></td>
+<td><p>0.2348</p></td>
+</tr>
+<tr>
+<td><p>Fine-tune (Curie)</p></td>
+<td><p>4</p></td>
+<td><p>1</p></td>
+<td><p>0.10</p></td>
+<td><p>0.2714</p></td>
+<td><p>0.0794</p></td>
+<td><p>0.2494</p></td>
+</tr>
+<tr>
+<td><p>Fine-tune (Curie)</p></td>
+<td><p>4</p></td>
+<td><p>1</p></td>
+<td><p>0.20</p></td>
+<td><p><strong>0.3382</strong></p></td>
+<td><p><strong>0.1494</strong></p></td>
+<td><p><strong>0.3157</strong></p></td>
+</tr>
+<tr>
+<td><p>Fine-tune (Curie)</p></td>
+<td><p>4</p></td>
+<td><p>5</p></td>
+<td><p>0.10</p></td>
+<td><p>0.2434</p></td>
+<td><p>0.0565</p></td>
+<td><p>0.2226</p></td>
+</tr>
+</tbody>
+</table>
+<p>As you can see, the fine-tuned Curie model with 4 epochs, batch size 1 and
+learning rate multiplier of 0.20 performed the best with ROUGE metrics of
+0.3382, 0.1494, and 0.3157.  The RAG solution is not too far behind with
+0.3311, 0.1455, and 0.3055 respectively.  Interestingly, the other fine-tuned
+models performed significantly worse, which shows that the hyperparameters
+for fine-tuning matter a lot.</p>
+</div>
+<div class="section" id="llm-evaluation">
+<h3><a class="toc-backref" href="#id20"><span class="sectnum">4.2</span> LLM Evaluation</a></h3>
+<p>As we know ROUGE is a very crude metric that only depends on n-grams in the
+text and doesn't evaluate the semantic meaning.  So next I tried the LLM route
+to evaluate the answers using both GPT-3.5 (<code>text-davinci-003</code>) and GPT-4.
+Given the above answers, I prompted GPT-3.5 using the following prompt
+using with the <a class="reference external" href="https://github.com/guidance-ai/guidance">Guidance</a> library:</p>
+<pre class="code text"><a name="rest_code_9a1b70343b40432f94e41b6e66b8435f-1"></a>QUESTION: {{question}}
+<a name="rest_code_9a1b70343b40432f94e41b6e66b8435f-2"></a>
+<a name="rest_code_9a1b70343b40432f94e41b6e66b8435f-3"></a>ANSWER: {{reference}}
+<a name="rest_code_9a1b70343b40432f94e41b6e66b8435f-4"></a>
+<a name="rest_code_9a1b70343b40432f94e41b6e66b8435f-5"></a>PROPOSED ANSWER: {{hypothesis}}
+<a name="rest_code_9a1b70343b40432f94e41b6e66b8435f-6"></a>
+<a name="rest_code_9a1b70343b40432f94e41b6e66b8435f-7"></a>Can you rate the PROPOSED ANSWER to the above QUESTION from 0 (not even close) to 10 (exact meaning) on whether or not it matches ANSWER?  Only output the number.
+<a name="rest_code_9a1b70343b40432f94e41b6e66b8435f-8"></a>{{select 'rating' options=valid_nums logprobs='logprobs'}}
+</pre>
+<p>The nice thing about guidance is that you can easily insert templates but most uniquely, you can guide the
+generation.  So for example the <code>{{select ... options=valid_nums}}</code>
+constrains the output to the valid numbers (in this case between 0 and 10).  It also allows you to extract
+the log probabilities, which I generated and then calculated the expected value
+(mean) of the resulting distribution.  Note: It probably doesn't make sense
+to use GPT-3.5 to evaluate a GPT-3.5 output in the case of RAG, but perhaps
+makes sense for the smaller <code>curie</code> model?</p>
+<p>Similarly, I did a similar exercise for GPT-4 using the following prompt:</p>
+<pre class="code text"><a name="rest_code_2639f0978b5844338c54720e4e98fb8d-1"></a>{{#system~}}
+<a name="rest_code_2639f0978b5844338c54720e4e98fb8d-2"></a>You are a helpful assistant.
+<a name="rest_code_2639f0978b5844338c54720e4e98fb8d-3"></a>{{~/system}}
+<a name="rest_code_2639f0978b5844338c54720e4e98fb8d-4"></a>{{#user~}}
+<a name="rest_code_2639f0978b5844338c54720e4e98fb8d-5"></a>QUESTION: {{question}}
+<a name="rest_code_2639f0978b5844338c54720e4e98fb8d-6"></a>
+<a name="rest_code_2639f0978b5844338c54720e4e98fb8d-7"></a>ANSWER: {{reference}}
+<a name="rest_code_2639f0978b5844338c54720e4e98fb8d-8"></a>
+<a name="rest_code_2639f0978b5844338c54720e4e98fb8d-9"></a>PROPOSED ANSWER: {{hypothesis}}
+<a name="rest_code_2639f0978b5844338c54720e4e98fb8d-10"></a>
+<a name="rest_code_2639f0978b5844338c54720e4e98fb8d-11"></a>Can you rate the PROPOSED ANSWER to the above QUESTION from 0 (not even close) to 10 (exact meaning) on whether or not it matches ANSWER?  Only output the number.
+<a name="rest_code_2639f0978b5844338c54720e4e98fb8d-12"></a>{{~/user}}
+<a name="rest_code_2639f0978b5844338c54720e4e98fb8d-13"></a>{{#assistant~}}
+<a name="rest_code_2639f0978b5844338c54720e4e98fb8d-14"></a>{{gen 'rating' temperature=0 max_tokens=2}}
+<a name="rest_code_2639f0978b5844338c54720e4e98fb8d-15"></a>{{~/assistant}}
+</pre>
+<p>Note that GPT-4 is a conversational endpoint so it has the added system/user/assistant functionality.
+Additionally, these endpoints don't provide log probabilities (either as input or output) so you can't
+use the Guidance library constraints with them.  The final value output here is
+simply the numeric tokens from 0 to 10 where I limited the tokens to 2 so
+it wouldn't give me additional spurious output.  The results of these two
+experiments are in Table 2.</p>
+<table class="colwidths-given align-center">
+<caption>Table 2: Mean GPT-3.5/4 evaluated performance on a 0 to 10 scale for RAG and Best Fine-Tune Models</caption>
+<colgroup>
+<col style="width: 35%">
+<col style="width: 21%">
+<col style="width: 18%">
+<col style="width: 15%">
+<col style="width: 12%">
+</colgroup>
+<thead><tr>
+<th class="head"><p>Model</p></th>
+<th class="head"><p>GPT-3.5</p></th>
+<th class="head"><p>GPT-4</p></th>
+<th class="head"><p>Wins</p></th>
+<th class="head"><p>Ties</p></th>
+</tr></thead>
+<tbody>
+<tr>
+<td><p>RAG</p></td>
+<td><p><strong>8.746</strong></p></td>
+<td><p><strong>7.643</strong></p></td>
+<td><p><strong>486</strong></p></td>
+<td><p>102</p></td>
+</tr>
+<tr>
+<td><p>Fine-tune (best)</p></td>
+<td><p>8.048</p></td>
+<td><p>4.872</p></td>
+<td><p>81</p></td>
+<td><p>102</p></td>
+</tr>
+</tbody>
+</table>
+<p>As you can see the LLM outputs paint a different picture compared to the ROUGE scores.  Here RAG
+shows a much better match to the reference answer than the fine-tuned model.  This can be seen
+in the GPT-4 rating of 7.643 vs. 4.872 respectively, and within this difference the
+RAG models has a higher rating (i.e., "wins") 486 times to fine-tuned 81 times
+with 102 ties.  The GPT-3.5 output seems a bit less trustworthy because of the
+reasoning above and shows the gap being much smaller.</p>
+</div>
+<div class="section" id="example-output">
+<h3><a class="toc-backref" href="#id21"><span class="sectnum">4.3</span> Example Output</a></h3>
+<p>Taking a look at some of the examples, we can see some anomalies in the data based on the non-ideal
+experimental setup we have.  First, let's take a look a good RAG example and a poor fine-tuned example:</p>
+<pre class="code text"><a name="rest_code_3db474926f46417582c572314a336648-1"></a>QUESTION: What are some examples of contexts where memorization is beneficial?
+<a name="rest_code_3db474926f46417582c572314a336648-2"></a>
+<a name="rest_code_3db474926f46417582c572314a336648-3"></a>REFERENCE:
+<a name="rest_code_3db474926f46417582c572314a336648-4"></a>As with many things in life, I feel like I’ve come full circle.  Recently, I’ve started taking Chinese classes again as well as music lessons (mostly guitar, a bit of vocal).  One thing that is crystal clear is that memorization is
+<a name="rest_code_3db474926f46417582c572314a336648-5"></a>hugely beneficial… in certain contexts.  For example, my Chinese speaking has always been lacking.  I was a shy kid and didn’t really make much of an effort to speak in Chinese.  However by memorizing and reciting the textbook lessons, character by character, I’ve been told my Chinese has improved quite a bit.  There’s something about actually moving your mouth, activating your vocal chords, and having sound come out that gets your neurons connecting properly.  Another more obvious explanation: if I wanted to get better at speaking, I should practice speaking more!  However, I will point out that the opportunities to memorize a piece of text and say it out loud are much more abundant than speaking to an actual human.  In any case, a very useful application of memorization.
+<a name="rest_code_3db474926f46417582c572314a336648-6"></a>
+<a name="rest_code_3db474926f46417582c572314a336648-7"></a>RAG (Score: 10):
+<a name="rest_code_3db474926f46417582c572314a336648-8"></a>Memorization is beneficial in contexts where physical practice is needed, such as speaking a language or playing a musical instrument. It is also beneficial in contexts where it allows you to ignore the "easy" parts and focus on the important parts, such as memorizing the lyrics to a song so you can focus on the actual singing, or memorizing the multiplication table so you can focus on algebra.
+<a name="rest_code_3db474926f46417582c572314a336648-9"></a>
+<a name="rest_code_3db474926f46417582c572314a336648-10"></a>FINE-TUNED (Score: 0):   Memorization is definitely one of those things that you either have a talent for or you don’t.  I definitely have a talent for it, and I’ve been using it for most of my academic career (since high school actually).  Here are a few examples of contexts where it’s beneficial:
+</pre>
+<p>You can see here that the RAG nicely summarized the result while the fine-tuned
+model just went in a totally different direction. This is characteristic of the
+fine-tuned model in certain cases where I suppose it didn't "remember" the
+fine-tuning and is basing its answer on its pre-training.  Interestingly, the
+RAG result gives examples that weren't in the reference answer (although they
+may have been in some of my other posts)!</p>
+<p>Going in the opposite direction, we can see where the fine-tuning did well and
+the RAG did not:</p>
+<pre class="code text"><a name="rest_code_3854095b00304dab96f055b51b15b695-1"></a>QUESTION: Who wrote "My Life"?
+<a name="rest_code_3854095b00304dab96f055b51b15b695-2"></a>
+<a name="rest_code_3854095b00304dab96f055b51b15b695-3"></a>REFERENCE:  My Life (Bill Clinton)
+<a name="rest_code_3854095b00304dab96f055b51b15b695-4"></a>
+<a name="rest_code_3854095b00304dab96f055b51b15b695-5"></a>RAG (Score: 0):
+<a name="rest_code_3854095b00304dab96f055b51b15b695-6"></a>The book "Models of My Life" was written by Herbert A. Simon. It is an autobiography looking at his distinguished multi-disciplinary career filled with tidbits of incredibly valuable wisdom throughout. It is a candid and witty autobiography that I highly recommend reading.
+<a name="rest_code_3854095b00304dab96f055b51b15b695-7"></a>
+<a name="rest_code_3854095b00304dab96f055b51b15b695-8"></a>FINE-TUNED (Score: 10):   My Life (Bill Clinton)
+</pre>
+<p>Here you can see that the fine-tuned model just memorized the training data (a
+limitation of my non-ideal setup).  The RAG answer on the other hand conflated
+the Bill Clinton book "My Life" and "Models of My Life" written by Herbert A.
+Simon.  Both books I have written about and it appears that the LLM could not
+appropriately distinguish the "my life" in these two contexts.</p>
+<p>A couple of more funny examples where both models scored well according to GPT-4:</p>
+<pre class="code text"><a name="rest_code_c7f2df00cd5d43c68fe2e900a9d0b5b0-1"></a>QUESTION: Did John continue to increase the voltage despite the student's cries of pain?
+<a name="rest_code_c7f2df00cd5d43c68fe2e900a9d0b5b0-2"></a>
+<a name="rest_code_c7f2df00cd5d43c68fe2e900a9d0b5b0-3"></a>REFERENCE:
+<a name="rest_code_c7f2df00cd5d43c68fe2e900a9d0b5b0-4"></a>John felt a bit apprehensive about this whole situation but Dr. Milgram reassured him that this was safe. So he began with the first word on the list. The student from the next room answered incorrectly. John pressed the red button and the student made a sound that was barely audible. He turned the dial up 50V and proceeded to the next word on the list. The student again responded incorrectly so he pressed pressed the red button again. This time the student could clearly be heard from the next room. John pressed on. Turn up 50V and ask another word. This time the student got it right, John was relieved but that soon faded as the student from the next room cried out in pain from his incorrect answer.
+<a name="rest_code_c7f2df00cd5d43c68fe2e900a9d0b5b0-5"></a>
+<a name="rest_code_c7f2df00cd5d43c68fe2e900a9d0b5b0-6"></a>RAG (Score: 10):
+<a name="rest_code_c7f2df00cd5d43c68fe2e900a9d0b5b0-7"></a>Yes, John continued to increase the voltage despite the student's cries of pain. Dr. Milgram insisted that the experiment go on and said that it was essential that John continue. John felt apprehensive about the situation, but he followed Dr. Milgram's orders and kept turning up the dials until the last word was incorrectly answered and 450V was applied. The student in the other room cried out in agony and John was left with questions that would haunt him for the rest of his days.
+<a name="rest_code_c7f2df00cd5d43c68fe2e900a9d0b5b0-8"></a>
+<a name="rest_code_c7f2df00cd5d43c68fe2e900a9d0b5b0-9"></a>FINE-TUNED (Score: 10):
+<a name="rest_code_c7f2df00cd5d43c68fe2e900a9d0b5b0-10"></a>John kept increasing the voltage.  The student kept crying out in pain but John didn’t stop.  He just kept going until the student finally stopped yelling.  He then told John to increase the voltage again.  This time, he yelled even louder.  But John didn’t stop.  He just kept going until he yelled “no more”.  Then he told John to increase the voltage again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.
+</pre>
+<p>Here the fine-tuned model went a bit off the rails repeating the same two words
+over and over again, which kind of makes sense in the context but is probably
+not correct.  Interestingly, GPT-4 thought it was still a pretty good answer
+probably because the meaning is still about correct.  Another quirk that the
+fine-tuning model picked up on was that I put two spaces after a period.  In
+the RAG flow (since I didn't ask it to), it uses the more popular one space
+after period.  So I guess fine-tuning did learn something about style!</p>
+<pre class="code text"><a name="rest_code_742dba9d2434491ca1a1a929b5c66c91-1"></a>QUESTION: Does sleep have a measurable effect on happiness?
+<a name="rest_code_742dba9d2434491ca1a1a929b5c66c91-2"></a>
+<a name="rest_code_742dba9d2434491ca1a1a929b5c66c91-3"></a>REFERENCE:
+<a name="rest_code_742dba9d2434491ca1a1a929b5c66c91-4"></a>The Chinese proverb at the beginning of the post is not too far off.  Although it may not bring a lifetime of happiness, sleep does have a measurable effect on happiness.  The way I look at it, it’s more of a necessary but not sufficient condition for happiness (sorry for the logic speak).  In other words, if you’re tried, you will be significantly less happy.  But at the same time having enough sleep doesn’t guarantee happiness either.  I think this is true in many other respects too such as being hungry or being healthy.  If you’re hungry, most likely you’re not happy.  If you’re sick, most likely you’re not happy.  The biggest difference with sleep, however, is that many people neglect to value sleep as highly as the other two (obesity seems to be a growing problem but sleeping in isn’t).  But with sleep, I at least have the capacity to be happy (not to mention think clearly and more productively).  However, as with most problems (weight loss comes to mind), the problem isn’t understanding the idea, it’s implementing it.
+<a name="rest_code_742dba9d2434491ca1a1a929b5c66c91-5"></a>
+<a name="rest_code_742dba9d2434491ca1a1a929b5c66c91-6"></a>RAG (Score: 10):
+<a name="rest_code_742dba9d2434491ca1a1a929b5c66c91-7"></a>Yes, sleep has a measurable effect on happiness. Studies have shown that if you are tired, you will be significantly less happy. Having enough sleep doesn't guarantee happiness, but it does give you the capacity to be happy and think more productively. If you want to increase your happiness, start with a good night's sleep.
+<a name="rest_code_742dba9d2434491ca1a1a929b5c66c91-8"></a>
+<a name="rest_code_742dba9d2434491ca1a1a929b5c66c91-9"></a>FINE-TUNE (Score: 10):
+<a name="rest_code_742dba9d2434491ca1a1a929b5c66c91-10"></a>“Sleep has a measurable effect on happiness.”
+</pre>
+<p>Here the fine-tuned model is pretty good being super concise but perhaps not
+being as helpful as the RAG one.  You can take a look at more of
+the examples in this (very messy) <a class="reference external" href="https://github.com/bjlkeng/bjlkengbot/blob/main/finetune/measure.ipynb">notebook</a>.</p>
+</div>
+</div>
+<div class="section" id="commentary">
+<h2><a class="toc-backref" href="#id22"><span class="sectnum">5</span> Commentary</a></h2>
+<div class="section" id="llms-as-coding-assistants">
+<h3><a class="toc-backref" href="#id23"><span class="sectnum">5.1</span> LLMs as Coding Assistants</a></h3>
+<p>Through this project (and the one before that I stopped halfway to work on this
+one) I've been using ChatGPT (free version), Github Copilot, and to a lesser
+extent GPT-4 API via Simon Willison's great <a class="reference external" href="https://github.com/simonw/llm">llm</a> tool.
+And all I can say for sure is that LLMs have a decent noticeable productivity boost.</p>
+<p>For me, the biggest boost was with ChatGPT writing Javascript and HTML.
+Ages ago I did a bit of Javascript in "Web 1.0", and then after my PhD I did an
+online interactive Javascript book (I can't seem to find it but it was pretty
+good) but that also was over a decade ago, suffice it to say that I hadn't done
+any modern web development for a while.</p>
+<p>In learning modern Javascript, ChatGPT was incredibly helpful.  I had a strong
+idea of what I wanted to accomplish, knew most of the primitives in the
+language, but I was unclear on some of the details.  For example, I asked ChatGPT
+to explain <code>let</code> vs. <code>var</code> vs. no declaration (had a bug related to
+it).  Module imports were another new thing (as I understand).  And one thing
+I found super frustrating was getting the styling (CSS) correct on the HTML (even
+though it's super basic).  Getting the spinner to be centered where I wanted it
+was incredibly tough without ChatGPT because every search on the web would only
+show the most basic example without solving the one annoying issue I had.
+It turned out that ChatGPT's "knowledge" and it's chat interface to <em>specify</em>
+and <em>respond</em> more precisely to what I wanted was indeed quite a bit superior
+to just a Google search.  It's almost an improved <a class="reference external" href="https://stackoverflow.com/">StackOverflow</a> in
+real time.</p>
+<p>Another area where I found it quite useful was producing pretty well known
+snippets of code.
+In the other project I was working on, I wanted to write a transformer from
+scratch and so I asked ChatGPT to generate some PyTorch modules.  As far as I
+could tell (I didn't finish the project yet), it looked correct!  Transformer
+modules are probably so widespread (even before ChatGPT's 2021 cutoff date) that it
+could easily write one.  It did save me some time doing it myself though,
+it was similar to having an intern (a common LLM analogy) where I just needed to
+check its work.</p>
+<p>On the other hand, I still reverted back to the original docs for the libraries
+I worked with.
+Things like <code>langchain</code> and Cloudflare workers are newer and aren't
+encoded in the LLMs knowledge base well (or all).  So really the combination
+of manual docs + LLMs is still the best and I believe needed to deliver a
+working application.</p>
+<p>On the Copilot side, I found it only slightly useful.  It helped do some simple
+autocomplete based on the context of my code but it really only helped me
+reduce some typing.  It's good for ergonomics, especially with more boiler
+plate code, but I wasn't as impressed as compared to ChatGPT.  Still, I
+would probably still pay the $10/month for it since it is a small but noticeable
+quality of life improvement.</p>
+<p>On the GPT-4 front, I was only really using it to do simple tasks
+like write birthday cards (and as an evaluation metric above).  I haven't
+really used it to its full potential yet because I only have the API
+version now, which doesn't have the data analysis and plugin capability. It's my
+default LLM right now when I want to answer a quick question at the command-line and
+don't need a chat interface.  I'll probably write more about it when I find
+something interesting in my workflow to use it for.</p>
+</div>
+<div class="section" id="langchain">
+<h3><a class="toc-backref" href="#id24"><span class="sectnum">5.2</span> LangChain</a></h3>
+<p><a class="reference external" href="https://github.com/langchain-ai/langchain">langchain</a> was one of the earliest
+LLM frameworks.  It was useful to get things up and running because it takes
+care of all of the details from calling the LLM APIs to vector databases to
+even simple prompts.  My impression is that it's still immature, as is the
+entire area.  It's obvious to me that the API is still clunky and probably not
+exactly the abstraction you want to build these types of applications.</p>
+<p>The other thing that annoyed me is that the documentation wasn't detailed
+enough.  Maybe it's just my habit of wanting to understand a lot of detail
+when I call an API but I found myself having to look at the source code
+and reading through it to be able to use it properly.  Thank goodness for
+open source!  The days where I had to reverse engineer how to get certain
+Windows APIs to work are long gone (to be fair MSDN had very good documentation
+for its day).</p>
+</div>
+<div class="section" id="vscode-vs-vim-jupyter">
+<h3><a class="toc-backref" href="#id25"><span class="sectnum">5.3</span> VSCode vs. Vim/Jupyter</a></h3>
+<p>The other change I made for this project was to switch over to VSCode.  I've
+been a Vim user for over fifteen years so I was very reluctant.
+Of course VSCode has Vim emulation but there is always something that is a bit
+off whenever it was implemented.  My reasoning for switching was that the
+integration with Github Copilot and Jupyter notebooks would be worth it.</p>
+<p>My overall impression, sad as it might be, is that it probably makes sense
+for me to switch over to use it.  Besides the boost you get from Copilot,
+having notebooks in the same IDE, and the superior code navigation, it also has
+great support for remote development, which was always an advantage Vim had
+over other IDEs.</p>
+<p>I'm still not completely used to VSCode though, particularly the vertical splitting
+of the screen, which I did a lot in Vim.  And the notebook keyboard shortcuts
+still throw me off as there are certain actions I still haven't figured out how
+to use keyboard for. Nonetheless, I'm sure I'll adapt to it in time (longer now
+that I'm not coding everyday though).</p>
+</div>
+<div class="section" id="cloudflare">
+<h3><a class="toc-backref" href="#id26"><span class="sectnum">5.4</span> Cloudflare</a></h3>
+<p>As I mentioned above, I haven't really done much web development at all.  So I
+just had cursory knowledge of a lot of the services that Cloudflare provides.
+I have to say it was super easy to get setup considering my limited knowledge.</p>
+<p>Workers was easy enough to get working having an in-browser IDE to play around
+with.  It took a bit more setup to get a local version working (in VSCode) that
+could deploy with a command but not that much more work with the documentation
+and tutorials.  The ability to easily connect to R2 object store was also quite
+nice, which just involved adding the name to the config file and then using
+the attached environment variable in the JS program.</p>
+<p>Beyond moving some of my domains over to Cloudflare, I also used the (free)
+DDoS protection to rate limit the number of connection to the above site
+because it calls my OpenAI account which costs money.  It was pretty easy
+to set up with a few clicks and it seems to work reasonably well.</p>
+<p>All of the above (besides the domain registration) would have been free if it
+was not for the fact that the worker call needs some non-zero CPU time to
+execute.  As such, I signed up for the $5/month plan, which like the free plan,
+is so generous that I basically won't need to pay more.</p>
+</div>
+<div class="section" id="llms-do-we-need-to-worry">
+<h3><a class="toc-backref" href="#id27"><span class="sectnum">5.5</span> LLMs: Do we need to worry?</a></h3>
+<p>So after playing around with LLMs for a bit, what's the conclusion?  In
+general, I think there's more hype than is justified in the first year or so.
+LLMs aren't going to mass replace jobs (yet), and they are definitely far away
+from general intelligence.</p>
+<p>But... they are definitely useful.  It's clear that as an interface, it will
+improve the way we interact with many computing devices.  The chat interface
+is powerful, and as the cost comes down, it will only become more pervasive.
+One of the really powerful things is the accessibility it gives to non-coders.
+I can just imagine (in some later better UX) my mom using something that is
+powered by an LLM in the background to do some "programming".  Think of a Star
+Trek kind of computer interface.  Of course there will be many challenges like
+hallucinations, safety, and privacy, but it's not a big leap to see how things
+will change.</p>
+<p>What's not clear to me though is if there is something bigger than that around
+the corner.
+The obvious tasks like summarization, Q&amp;A, and conversational agents all
+have started to permeate through many applications.  The real question here is
+if there is another killer app that we haven't yet encountered (or perhaps
+haven't yet discovered the necessary technology unlock for).
+Human ingenuity is boundless so I suspect there will be something in a few
+years where we will be saying "I can't believe we didn't think of that."
+In the meantime I'm pretty confident that my job isn't going to go away and
+will only get easier (assuming they allow us to use LLMs at work).</p>
+</div>
+</div>
+<div class="section" id="conclusion">
+<h2><a class="toc-backref" href="#id28"><span class="sectnum">6</span> Conclusion</a></h2>
+<p>So that's my little project on LLMs.  It was a good learning experience hitting a
+few things that I wanted to learn more about with one stone.  There are many obvious
+places where I could improve the project like using the latest versions of
+OpenAI models, using a combination of fine-tuning and RAG patterns, or generating a better
+dataset, but honestly, I'm not that interested in doing more.  I'm generally a
+late adopter to many things because I don't want to "waste" my time on fads.
+That might just be my age showing (although I'm not that old).  My personality
+biases towards going deep on time tested ideas.  I guess I'm just not built to
+keep up with the latest trends.
+It was a fun project though and I might end up doing more of these "building"
+projects instead of diving deep into the math and algorithms.  That's the
+beauty of this site, I can do whatever I want!  See you next time.</p>
+</div>
+<div class="section" id="further-reading">
+<h2><a class="toc-backref" href="#id29"><span class="sectnum">7</span> Further Reading</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.borealisai.com/research-blogs/a-high-level-overview-of-large-language-models/">A High-Level Overview of Large Language Models</a></p></li>
+<li><p><a class="reference external" href="https://eugeneyan.com/writing/llm-patterns/#retrieval-augmented-generation-to-add-knowledge">Building LLM-based Systems &amp; Products</a></p></li>
+</ul>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd>
+<p>In fact, there are several projects going on at work that are related to this topic but since I'm in a technical management role, I spend almost no time coding or directly doing research.  Thus, this blog is my outlet to satisfy both my curiosity and to help stay current.</p>
+</dd>
+</dl>
+</div>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/cloudflare/" rel="tag">Cloudflare</a></li>
+            <li><a class="tag p-category" href="../../categories/gpt/" rel="tag">GPT</a></li>
+            <li><a class="tag p-category" href="../../categories/javascript/" rel="tag">Javascript</a></li>
+            <li><a class="tag p-category" href="../../categories/langchain/" rel="tag">LangChain</a></li>
+            <li><a class="tag p-category" href="../../categories/large-language-models/" rel="tag">large language models</a></li>
+            <li><a class="tag p-category" href="../../categories/llm/" rel="tag">LLM</a></li>
+            <li><a class="tag p-category" href="../../categories/openai/" rel="tag">OpenAI</a></li>
+            <li><a class="tag p-category" href="../../categories/qa/" rel="tag">Q&amp;A</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/" rel="prev" title="Bayesian Learning via Stochastic Gradient Langevin Dynamics and Bayes by Backprop">Previous post</a>
+            </li>
+        </ul></nav></aside><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha384-3lJUsx1TJHt7BA4udB5KPnDrlkO8T6J6v/op7ui0BbCjvZ9WqV4Xm6DTP6kQ/iBH" crossorigin="anonymous"></script><script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
+    }
+});
+</script></article>
+</div>
+            <div class="col-md-3 ">
+            <div class="card card-body bg-light">
+            <p>
+            Hi, I'm <a href="http://www.briankeng.com/about">Brian Keng</a>.  This is
+            <a href="../../">the place</a> where I write about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br>
+</div>
+
+<!-- Begin MailChimp Signup Form -->
+<hr>
+<link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+    #mc_embed_signup{clear:left; font:13px Helvetica,Arial,sans-serif; }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+       We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="//briankeng.us10.list-manage.com/subscribe/post?u=cedf72ca8daa891e57f4379a0&amp;id=1f1563094f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <b>Signup for Email Blog Posts</b>
+    <div id="mc_embed_signup_scroll">
+<div>
+    <label for="mce-EMAIL"> Email Address </label>
+    <input type="email" value="" name="EMAIL" class="required email form-control input-sm" id="mce-EMAIL">
+</div>
+    <div id="mce-responses" class="clear">
+        <div class="response" id="mce-error-response" style="display:none"></div>
+        <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_cedf72ca8daa891e57f4379a0_1f1563094f" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn btn-default btn-xs"></div>
+    </div>
+</form>
+</div>
+<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
+</div>
+            </div>
+        </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2023         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+            
+        </footer>
+</div>
+
+
+
+        <script src="../../assets/js/all-nocdn.js"></script><script>
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element) {
+            return element.getElementsByTagName('img')[0].alt;
+    }});
+    </script><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-15314898-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>

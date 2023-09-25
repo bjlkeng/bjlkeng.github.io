@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality</title><link>http://bjlkeng.github.io/</link><description>Understanding math, machine learning, and data to a satisfactory degree.</description><atom:link href="http://bjlkeng.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Fri, 18 Aug 2023 01:29:05 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Bayesian Learning via Stochastic Gradient Langevin Dynamics and Bayes by Backprop</title><link>http://bjlkeng.github.io/posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;After a long digression, I'm finally back to one of the main lines of research
+<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality</title><link>http://bjlkeng.github.io/</link><description>Understanding math, machine learning, and data to a satisfactory degree.</description><atom:link href="http://bjlkeng.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Mon, 25 Sep 2023 01:36:57 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>LLM Fun: Building a Q&amp;A Bot of Myself</title><link>http://bjlkeng.github.io/posts/building-a-qa-bot-of-me-with-openai-and-cloudflare/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Unless you've been living under a rock, you've probably heard of large language
+models (LLM) such as ChatGPT or Bard.  I'm not one for riding a hype train but
+I do think LLMs are here to stay and either are going to have an impact as big
+as mobile as an interface (my current best guess) or perhaps something as big as
+the Internet itself.  In either case, it behooves me to do a bit more
+investigation into this popular trend &lt;a class="footnote-reference brackets" href="http://bjlkeng.github.io/posts/building-a-qa-bot-of-me-with-openai-and-cloudflare/#id2" id="id1"&gt;1&lt;/a&gt;.  At the same time, there are a bunch
+of other developer technologies that I've been wondering about like serverless
+computing, modern dev tools, and LLM-based code assistants, so I thought why not
+kill multiple birds with one stone.&lt;/p&gt;
+&lt;p&gt;This post is going to describe how I built a question and answering bot of myself using
+LLMs as well as my experience using the relevant developer tools such as
+&lt;a class="reference external" href="https://chat.openai.com"&gt;ChatGPT&lt;/a&gt;, &lt;a class="reference external" href="https://github.com/features/copilot"&gt;Github Copilot&lt;/a&gt;, &lt;a class="reference external" href="https://workers.cloudflare.com/"&gt;Cloudflare workers&lt;/a&gt;, and a couple of other related ones.
+I start out with my motivation for doing this project, some brief background
+on the technologies, a description of how I built everything including some
+evaluation on LLM outputs, and finally some commentary.  This post is a lot
+less heavy on the math as compared to my previous ones but it still has some
+good stuff so read on!&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/building-a-qa-bot-of-me-with-openai-and-cloudflare/"&gt;Read more…&lt;/a&gt; (41 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Cloudflare</category><category>GPT</category><category>Javascript</category><category>LangChain</category><category>large language models</category><category>LLM</category><category>mathjax</category><category>OpenAI</category><category>Q&amp;A</category><guid>http://bjlkeng.github.io/posts/building-a-qa-bot-of-me-with-openai-and-cloudflare/</guid><pubDate>Mon, 25 Sep 2023 00:56:42 GMT</pubDate></item><item><title>Bayesian Learning via Stochastic Gradient Langevin Dynamics and Bayes by Backprop</title><link>http://bjlkeng.github.io/posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;After a long digression, I'm finally back to one of the main lines of research
 that I wanted to write about.  The two main ideas in this post are not that
 recent but have been quite impactful (one of the
 &lt;a class="reference external" href="https://icml.cc/virtual/2021/test-of-time/11808"&gt;papers&lt;/a&gt; won a recent ICML
@@ -166,19 +183,4 @@ counter-intuitive to me that you can generate images one pixel at at time, but
 I'm jumping ahead of myself here.  We'll go over some background material, the
 method, and my painstaking attempts at an implementation (and what I learned
 from it).  Let's get started!&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/pixelcnn/"&gt;Read more…&lt;/a&gt; (23 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoregressive</category><category>CIFAR10</category><category>generative models</category><category>mathjax</category><guid>http://bjlkeng.github.io/posts/pixelcnn/</guid><pubDate>Mon, 22 Jul 2019 11:11:09 GMT</pubDate></item><item><title>Importance Sampling and Estimating Marginal Likelihood in Variational Autoencoders</title><link>http://bjlkeng.github.io/posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;It took a while but I'm back!  This post is kind of a digression (which seems
-to happen a lot) along my journey of learning more about probabilistic
-generative models.  There's so much in ML that you can't help learning a lot
-of random things along the way.  That's why it's interesting, right?&lt;/p&gt;
-&lt;p&gt;Today's topic is &lt;em&gt;importance sampling&lt;/em&gt;.  It's a really old idea that you may
-have learned in a statistics class (I didn't) but somehow is useful in deep learning,
-what's old is new right?  How this is relevant to the discussion is that when
-we have a large latent variable model (e.g. a variational
-autoencoder), we want to be able to efficiently estimate the marginal likelihood
-given data.  The marginal likelihood is kind of taken for granted in the
-experiments of some VAE papers when comparing different models.  I was curious
-how it was actually computed and it took me down this rabbit hole.  Turns out
-it's actually pretty interesting!  As usual, I'll have a mix of background
-material, examples, math and code to build some intuition around this topic.
-Enjoy!&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/"&gt;Read more…&lt;/a&gt; (22 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoencoders</category><category>autoregressive</category><category>CIFAR10</category><category>generative models</category><category>importance sampling</category><category>mathjax</category><category>MNIST</category><category>Monte Carlo</category><category>variational calculus</category><guid>http://bjlkeng.github.io/posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/</guid><pubDate>Wed, 06 Feb 2019 12:20:11 GMT</pubDate></item></channel></rss>
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/pixelcnn/"&gt;Read more…&lt;/a&gt; (23 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoregressive</category><category>CIFAR10</category><category>generative models</category><category>mathjax</category><guid>http://bjlkeng.github.io/posts/pixelcnn/</guid><pubDate>Mon, 22 Jul 2019 11:11:09 GMT</pubDate></item></channel></rss>

@@ -80,7 +80,37 @@ navbar-dark bg-dark
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/maximum-entropy-distributions/" class="u-url">Maximum Entropy Distributions</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/the-calculus-of-variations/" class="u-url">The Calculus of Variations</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="posts/the-calculus-of-variations/" rel="bookmark">
+            <time class="published dt-published" datetime="2017-02-26T10:08:38-05:00" itemprop="datePublished" title="2017-02-26 10:08">2017-02-26 10:08</time></a>
+            </p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>This post is going to describe a specialized type of calculus called
+variational calculus.
+Analogous to the usual methods of calculus that we learn in university,
+this one deals with functions <em>of functions</em> and how to
+minimize or maximize them.  It's used extensively in physics problems such as
+finding the minimum energy path a particle takes under certain conditions.  As
+you can also imagine, it's also used in machine learning/statistics where you
+want to find a density that optimizes an objective <a class="footnote-reference brackets" href="posts/the-calculus-of-variations/#id4" id="id1">1</a>.  The explanation I'm
+going to use (at least for the first part) is heavily based upon Svetitsky's
+<a class="reference external" href="http://julian.tau.ac.il/bqs/functionals/functionals.html">Notes on Functionals</a>, which so far is
+the most intuitive explanation I've read.  I'll try to follow Svetitsky's
+notes to give some intuition on how we arrive at variational calculus from
+regular calculus with a bunch of examples along the way.  Eventually we'll
+get to an application that relates back to probability.  I think with the right
+intuition and explanation, it's actually not too difficult, enjoy!</p>
+<p class="more"><a href="posts/the-calculus-of-variations/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/maximum-entropy-distributions/" class="u-url">Maximum Entropy Distributions</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Brian Keng
@@ -182,42 +212,6 @@ explanation starting with the maximum likelihood estimate (MLE), then on to the
 maximum a posteriori estimate (MAP), and finally playing around with priors to
 end up with L1 and L2 regularization.</p>
 <p class="more"><a href="posts/probabilistic-interpretation-of-regularization/">Read more…</a></p>
-</div>
-    </div>
-    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/beyond-collaborative-filtering/" class="u-url">Beyond Collaborative Filtering</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Brian Keng
-            </span></p>
-            <p class="dateline">
-            <a href="posts/beyond-collaborative-filtering/" rel="bookmark">
-            <time class="published dt-published" datetime="2016-06-11T18:00:34-04:00" itemprop="datePublished" title="2016-06-11 18:00">2016-06-11 18:00</time></a>
-            </p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>I wrote a couple of posts about some of the work on recommendation systems and
-collaborative filtering that we're doing at my job as a Data Scientist at
-<a class="reference external" href="http://www.rubikloud.com">Rubikloud</a>:</p>
-<ul class="simple">
-<li><p><a class="reference external" href="http://rubikloud.com/labs/data-science/beyond-collaborative-filtering/">Beyond Collaborative Filtering (Part 1)</a></p></li>
-<li><p><a class="reference external" href="http://rubikloud.com/labs/data-science/beyond-collaborative-filtering-part-2/">Beyond Collaborative Filtering (Part 2)</a></p></li>
-</ul>
-<p>Here's a blurb:</p>
-<blockquote>
-<p>Here at Rubikloud, a big focus of our data science team is empowering retailers
-in delivering personalized one-to-one communications with their customers. A
-big aspect of personalization is recommending products and services that are
-tailored to a customer’s wants and needs. Naturally, recommendation systems are
-an active research area in machine learning with practical large scale
-deployments from companies such as Netflix and Spotify. In Part 1 of this
-series, I’ll describe the unique challenges that we have faced in building a
-retail specific product recommendation system and outline one of the main
-components of our recommendation system: a collaborative filtering algorithm.
-In Part 2, I’ll follow up with several useful applications of collaborative
-filtering and end by highlighting some of its limitations.</p>
-</blockquote>
-<p>Hope you like it!</p>
 </div>
     </div>
     </article>

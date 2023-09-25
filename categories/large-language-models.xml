@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about large language models)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/large-language-models.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Mon, 25 Sep 2023 01:36:58 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>LLM Fun: Building a Q&amp;A Bot of Myself</title><link>http://bjlkeng.github.io/posts/building-a-qa-bot-of-me-with-openai-and-cloudflare/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Unless you've been living under a rock, you've probably heard of large language
+models (LLM) such as ChatGPT or Bard.  I'm not one for riding a hype train but
+I do think LLMs are here to stay and either are going to have an impact as big
+as mobile as an interface (my current best guess) or perhaps something as big as
+the Internet itself.  In either case, it behooves me to do a bit more
+investigation into this popular trend &lt;a class="footnote-reference brackets" href="http://bjlkeng.github.io/posts/building-a-qa-bot-of-me-with-openai-and-cloudflare/#id2" id="id1"&gt;1&lt;/a&gt;.  At the same time, there are a bunch
+of other developer technologies that I've been wondering about like serverless
+computing, modern dev tools, and LLM-based code assistants, so I thought why not
+kill multiple birds with one stone.&lt;/p&gt;
+&lt;p&gt;This post is going to describe how I built a question and answering bot of myself using
+LLMs as well as my experience using the relevant developer tools such as
+&lt;a class="reference external" href="https://chat.openai.com"&gt;ChatGPT&lt;/a&gt;, &lt;a class="reference external" href="https://github.com/features/copilot"&gt;Github Copilot&lt;/a&gt;, &lt;a class="reference external" href="https://workers.cloudflare.com/"&gt;Cloudflare workers&lt;/a&gt;, and a couple of other related ones.
+I start out with my motivation for doing this project, some brief background
+on the technologies, a description of how I built everything including some
+evaluation on LLM outputs, and finally some commentary.  This post is a lot
+less heavy on the math as compared to my previous ones but it still has some
+good stuff so read on!&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/building-a-qa-bot-of-me-with-openai-and-cloudflare/"&gt;Read more…&lt;/a&gt; (41 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Cloudflare</category><category>GPT</category><category>Javascript</category><category>LangChain</category><category>large language models</category><category>LLM</category><category>mathjax</category><category>OpenAI</category><category>Q&amp;A</category><guid>http://bjlkeng.github.io/posts/building-a-qa-bot-of-me-with-openai-and-cloudflare/</guid><pubDate>Mon, 25 Sep 2023 00:56:42 GMT</pubDate></item></channel></rss>
