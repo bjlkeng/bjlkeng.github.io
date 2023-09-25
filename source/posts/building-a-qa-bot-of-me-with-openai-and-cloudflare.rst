@@ -1,33 +1,32 @@
 .. title: LLM Fun: Building a Q&A Bot of Myself
 .. slug: building-a-qa-bot-of-me-with-openai-and-cloudflare
-.. date: 2023-07-28 20:56:42 UTC-04:00
-.. tags: mathjax
+.. date: 2023-09-24 20:56:42 UTC-04:00
+.. tags: large language models, LLM, GPT, OpenAI, Cloudflare, Javascript, Q&A, LangChain, mathjax
 .. category: 
 .. link: 
 .. description: 
 .. type: text
 
 Unless you've been living under a rock, you've probably heard of large language
-models (LLM's) such as ChatGPT or Bard.  I'm not one for riding a hype train but
-I do think LLM's are here to stay and either are going to have an impact as big 
+models (LLM) such as ChatGPT or Bard.  I'm not one for riding a hype train but
+I do think LLMs are here to stay and either are going to have an impact as big 
 as mobile as an interface (my current best guess) or perhaps something as big as 
 the Internet itself.  In either case, it behooves me to do a bit more
-investigation into this popular trend both from an application and 
-coding assistant point of view [1]_.  At the same time, there are a bunch
+investigation into this popular trend [1]_.  At the same time, there are a bunch
 of other developer technologies that I've been wondering about like serverless
 computing, modern dev tools, and LLM-based code assistants, so I thought why not
 kill multiple birds with one stone.
 
 This post is going to describe how I built a question and answering bot of myself using
-LLM's as well as my experience using the relevant developer tools such as
+LLMs as well as my experience using the relevant developer tools such as
 `ChatGPT <https://chat.openai.com>`__, `Github Copilot
 <https://github.com/features/copilot>`__, `Cloudflare workers
 <https://workers.cloudflare.com/>`__, and a couple of other related ones.
-I start out with *my motivation* for doing this project, some brief background
+I start out with my motivation for doing this project, some brief background
 on the technologies, a description of how I built everything including some
-evaluation on LLM outputs, and finally commentary on my experience with
-everything.  This post is a lot less heavy on the math as compared to my
-previous ones but it still got some good stuff so do read on!
+evaluation on LLM outputs, and finally some commentary.  This post is a lot
+less heavy on the math as compared to my previous ones but it still has some
+good stuff so read on!
 
 .. TEASER_END
 .. section-numbering::
@@ -49,19 +48,19 @@ My Motivation: Why build an LLM Me?
 ===================================
 
 As I mentioned above, *most* of why I did this little project was to
-get a better intuition of LLM's.  Practically that meant on the application level
+get a better intuition of LLMs.  Practically that meant on the application level
 and not training foundation models myself.  Realistically only a few
 organizations are setup to train really large models, and I'm (a) not in one
 of those companies, and (b) likely wouldn't be working on that project given my
-experience.  So the result is that I needed to learn more about how to use LLM's
-in applications rather then train them outright.  (Although this does not
+experience.  So the result is that I needed to learn more about how to use LLMs
+in applications rather then train them from scratch (although this does not
 preclude me from exploring other technical topics like fine-tuning or efficient
 inference.)
 
 The other LLM-related reason I did this project was to play around with modern
 development tools.  Github Copilot and ChatGPT (at least from the outside) 
 have the potential to be a step change in productivity so I would be irresponsible
-not to learn more about them.  This is even true if I'm not actually coding on
+not to learn more about them.  This is even true even if I'm not actually coding on
 a daily basis because it will help me understand how it could affect my teams
 (which do a lot of coding).
 
@@ -71,8 +70,8 @@ Coming from Vim + Jupyter notebooks (depending on the task) for the past 15
 years or so, it was probably time to try out a new IDE.  Everything has Vim
 bindings nowadays (including Jupyter), and I mostly just use the standard
 commands anyways.  The appealing thing about VSCode is the ability to manage
-Jupyter notebooks alongside my code files, which I always found super annoying
-switching back and forth between.
+Jupyter notebooks alongside my code files, which solved an annoyance I always
+had switching back and forth between tools.
 
 The last piece of technology I wanted to play with was Cloudflare
 Workers and the related developer platform.  To be honest, the reason for this
@@ -91,7 +90,7 @@ to make a virtual version of myself, which checked all the boxes.  Despite it
 following almost exactly the same idea from popular sci-fi (i.e., `making killer
 robots from their online presence <https://en.wikipedia.org/wiki/Caprica>`__), I was not
 worried at all because (a) I have very little training data (my online presence
-is small and very explicitly narrow), and (b) I'm highly doubtful that LLM's are
+is small and very explicitly narrow), and (b) I'm highly doubtful that LLMs are
 that powerful.  In any case, enjoy the write up!
 
 Background
@@ -116,8 +115,8 @@ Model in this case can be something simple like a `Markov chain <https://en.wiki
 a `count based n-gram model <https://en.wikipedia.org/wiki/Word_n-gram_language_model#Approximation_method>`__,
 or even a trillion parameter `transformer <https://en.wikipedia.org/wiki/Transformer_(machine_learning_model)>`__ neural network.
 And finally "large" is a moving target without a precise definition.  
-Nowadays, you probably need to have 1 billion `parameters <https://en.wikipedia.org/wiki/Statistical_parameter>`__
-(or neural network weights) to be even be close.  For context 
+Nowadays, you probably need to have at least a billion `parameters <https://en.wikipedia.org/wiki/Statistical_parameter>`__
+(or neural network weights) to be even considered large.  For context 
 `GPT-2 <https://en.wikipedia.org/wiki/GPT-2>`__ has 1.5B parameters, 
 `GPT-3 <https://en.wikipedia.org/wiki/GPT-3>`__ has 175B parameters, and
 the LLaMA has variants from 7B - 65B parameters.
@@ -141,32 +140,32 @@ the LLM, which is called the **prompt**.  In `instruction tuned or aligned LLM m
 the prompt is essentially giving the LLM an instruction or query in natural
 language (e.g., English), and it will iteratively (also called "auto regressive") generate
 new text that (ideally) gives you a good response to your instruction.
-Unexpectedly, making these LLM's really large and aligning them with human
+Unexpectedly, making these LLMs really large and aligning them with human
 goals makes them not only really good at understanding and writing natural
 language, but also quite good at reasoning (debatable).  The prompt is
 critically important to ensuring your LLM produces good output.  Instructing
 the LLM to "think critically" or go "step by step" seems to produce better
 results, so subtle language cues can make a big different in the quality of
-output.
+the output.
 
 The other important part is the :math:`m` in Equation 1, which is also called the
 **context window** length.  This is basically the size of "memory" the LLM has
-to understand what you've input to it.  Modern commercial LLM's have context
+to understand what you've input to it.  Modern commercial LLMs have context
 windows in the thousands of tokens but some have context windows as long as
-100K.  In the typical case, LLM's will only perform well at context window
+100K.  In the typical case, LLMs will only perform well at context window
 lengths at or below what it was trained on even though the transformer
 architecture can mechanically be extended to arbitrary lengths.
 
-LLM's like many of its predecessor language models can also generate 
+LLMs like many of its predecessor language models can also generate 
 `embedding <https://en.wikipedia.org/wiki/Word_embedding>`__ from their input
 prompts.  These are some combination of internal vectors that the underlying
 transformer generates.  They map the input tokens to a new latent space that
 typically will cluster similar concepts together, making them extremely useful
 for downstream applications (see RAG below).
 
-Lastly, due to the massive number of parameters, training these LLM's are
+Lastly, due to the massive number of parameters, training these LLMs are
 prohibitively expensive.  Training these 100+B parameter models can be on the order
-of millions of dollars (assuming you can even get a cluster of GPUs).
+of millions of dollars (assuming you can even get a cluster of GPUs nowadays).
 Inference on these models is relatively less compute intensive but is more
 limited by GPU VRAM, which usually still requires a distributed cluster.
 Smaller models (e.g. 7B parameter) and advances in quantization and related
@@ -190,12 +189,12 @@ is an `embedding <https://en.wikipedia.org/wiki/Word_embedding>`__
 that represents a chunk of text (e.g. several paragraphs).  In
 more detail:
 
-1. Due to the limitations of LLM's, you will typically split your documents into
-   bite-sized chunks that fit into the LLM's context window (e.g. 4K tokens).
+1. Due to the limitations of LLMs, you will typically split your documents into
+   bite-sized chunks that fit into the LLMs context window (e.g. 4K tokens).
 2. Using the LLM, create an embedding from each of your chunks.
-3. Store the embedding in a vector store that can find retrieve similar
+3. Store the embedding in a vector store that can retrieve similar
    vectors based on a given input vector (e.g. find the top-K matching
-   chunks for a given embedding input query).
+   chunks for a given embedded input query).
 
 Once you have a vector store populated, answering proceeds as follows:
 
@@ -205,8 +204,8 @@ Once you have a vector store populated, answering proceeds as follows:
 4. Send the prompt to an LLM and return the result.
 
 The original `RAG paper <https://arxiv.org/abs/2005.11401>`__ was written
-before LLM's got really powerful so it seems that they do a bunch of other
-fancy tricks.  However with LLM's, you don't need to do much more than
+before LLMs got really powerful so it seems that they do a bunch of other
+fancy tricks.  However with LLMs, you don't need to do much more than
 the above to get pretty good results.  As far as I can tell, most setups will
 do some variation of the above without much more effort.  As with most
 LLM related things, the prompt is important (along with how many k documents to
@@ -223,25 +222,27 @@ applications.  The main idea is to take an existing trained model ("pre-trained 
 and modify the weights in order to adapt it to a different task.  The
 modification of the weights can be for a subset of the layers, all layers,
 or even none of them but with some additional trainable augmentations to the
-model.  Variants of the latter has been a `popular technique
-<https://arxiv.org/abs/2106.09685>`__ to cheaply fine-tune an existing LLM
+model.  Variants of the latter have been a `popular technique
+<https://arxiv.org/abs/2106.09685>`__ to cheaply fine-tune an existing LLM,
 reducing the cost by orders of magnitude compared to training the base model
 (or naively directly fine-tuning an LLM).  Typically the fine-tuning uses a
 lower learning rate so you retain a substantial portion of the learning of the
 pre-trained model.
 
-The above "alignment" step is a form of fine-tuning where the base language
-model is only good at predicting the next token, while fine-tuning gives it the
-ability to follow instructions and respond as humans would expect.  Other
-examples include training with more specific data for a task (e.g. Medical Q&A),
-which has shown to improve performance over generic models.
+The previously mentioned "instruction fine-tuning" or "human alignment" steps
+are a form of fine-tuning where the base language model is only good at
+predicting the next token, but fine-tuning it gives you the ability to follow
+instructions and respond as humans would expect (vs. just predicting the next
+most likely token).  Another example of fine-tuning is training with more
+specific data for a task (e.g. Medical Q&A), which has shown to improve
+performance over generic models.
 
 OpenAI and LangChain APIs
 -------------------------
 
 Most of you will be familiar with `OpenAI <https://openai.com/>`__, most likely
 from their breakout product `ChatGPT <https://chat.openai.com/>`__ that was probably
-the first widespread demonstration of what LLM's could do (particularly because it
+the first widespread demonstration of what LLMs could do (particularly because it
 could follow instructions).  What's probably also obvious to most people is that
 OpenAI has many `APIs <https://platform.openai.com/docs/introduction>`__ that
 allow programmatic access to all of the functionalities of ChatGPT and more.
@@ -249,8 +250,8 @@ allow programmatic access to all of the functionalities of ChatGPT and more.
 The APIs are HTTP endpoints that have officially released libraries for
 Python and Node.js (as well as other community maintained ones).  The most relevant
 APIs are the `chat` and `completions` endpoints which to respond
-to a prompt, and the fine-tuning API to train a model on your own data.  The cost
-is usually priced per 1000 tokens for both completion APIs and fine-tuning.
+to a prompt, and the fine-tuning API to fine-tune a model on your own data.  The cost
+is usually priced per 1000 tokens for both chat/completion APIs and fine-tuning.
 The latter charges different rates for training and inference depending on the
 model.
 
@@ -271,7 +272,7 @@ patterns that you can put together such as RAG.  They have numerous examples
 along with the building blocks you need to set up a default LLM application
 with components such as predefined prompts, inclusion of various vector
 databases, and integration with all popular LLM provider libraries.  It's hard to
-say if this will be the LLM library of the future but it's definitely a useful
+say if this will be *the* LLM library of the future but it's definitely a useful
 library to get up and running quickly.
 
 Cloudflare Workers
@@ -294,7 +295,7 @@ Of course, these benefits do come with trade-offs.  Their serverless code
 `runs in V8 isolates <https://developers.cloudflare.com/workers/learning/how-workers-works/>`__,
 the same technology that Chrome's JavaScript engine uses to sandbox
 each browser tab, and enables Workers to have high performance and low
-latency.  The obvious limitation here is that it only runs JavaScript.
+latency.  The obvious limitation here is that it primarily is focused on JavaScript.
 While that is a big limitation, V8 also supports `WebAssembly <https://webassembly.org/>`__,
 which opens the door to other languages such as Rust, C, Cobol (compiling to
 WebAssembly). Other languages such as Python, Scala and Perl are enabled by
@@ -310,8 +311,8 @@ mention below.
 
 The other relatively large blocker, at least until recently, was that there was
 no state management within the ecosystem.  You could make a call out to an
-external database via an HTTP call, but the platform didn't natively support
-it.  Cloudflare has been pushing hard on the innovation to make their solution
+external database via HTTP, but the platform didn't natively support
+persisting data.  Cloudflare has been pushing hard on the innovation to make their solution
 full stack by including things such as a zero-egress fee S3-compatible object store `R2 <https://www.cloudflare.com/developer-platform/r2/>`__, 
 an eventually consistent key value store `Workers KV <https://www.cloudflare.com/developer-platform/workers-kv/>`__, 
 a serverless SQL database `D1 <https://developers.cloudflare.com/d1/>`__, and
@@ -328,10 +329,11 @@ The `ROUGE <https://en.wikipedia.org/wiki/ROUGE_(metric)>`__ or Recall-Oriented
 Understudy for Gisting Evaluation is a family of metrics to evaluate
 summarization and machine translation NLP tasks.  They work by comparing
 the automatically generated proposed (i.e., *hypothesis*) text to one or more *reference* texts
-(usually human generated).  Evaluation will depend very heavily on the meaning
-of the text, which was very hard to discern (at least before the LLM revolution),
-so it was desirable to use a simple mechanical metric such as ROUGE that does
-not depend on the meaning.
+(usually human generated).  In general, evaluation of NLP tasks is hard because
+it heavily depends on the meaning of the text, which historicaly was very hard
+to discern (at least before the LLM revolution).  Instead of tackling this head on,
+researchers developed simpler mechanical metrics such as ROUGE that
+do not depend on the meaning.
 
 ROUGE has many different variants with the simplest one called `ROUGE-N` being
 based on the overlap of `N-grams <https://en.wikipedia.org/wiki/N-gram>`__
@@ -343,7 +345,7 @@ based on the overlap of `N-grams <https://en.wikipedia.org/wiki/N-gram>`__
    \text{ROUGE-N} = \frac{\big| \text{N-GRAM}(s_{hyp}) \cap \text{N-GRAM}(s_{ref}) \big|}{\big|\text{N-GRAM}(s_{ref})\big|} \tag{2}
 
 where :math:`\text{N-GRAM}(\cdot)` generates the multiset of (word-level) n-gram tokens and the
-intersection operates on multisets.
+intersection operates on multisets, and the :math:`|\cdot|` indicated cardinality of the multiset.
 
 Since we're using :math:`s_{ref}` in the denominator, it's a recall oriented
 metric.  However, we could just as well use :math:`s_{hyp}` in the denominator
@@ -387,7 +389,7 @@ later on to give a rough idea of how good the LLM performed.
 
     Similarly, the precision variant yields :math:`0.6` and the F1-score yields approximately :math:`0.57`.
 
-LLM Evaluation using LLM's
+LLM Evaluation using LLMs
 -------------------------
 
 As we saw above with the ROUGE metric, evaluation of models up until recently
@@ -398,8 +400,9 @@ whatever LLM task you are working on.  In general because it's so strong
 at understanding the semantic meaning of text, it can perform quite well
 compared to a human (at least as far as we can tell) and sometimes even better.
 The only problem is that the state of the art (GPT-4) can't really be evaluated
-using GPT-4 for obvious reasons.  That's not so much of a problem in this post
-because I only used earlier generation models.
+using itself for obvious reasons.  That's not so much of a problem in this post
+because I only used earlier generation models (mostly due to cost but also
+earlier on due to the lack of availability of GPT-4).
 
 Project Details
 ===============
@@ -431,7 +434,7 @@ Next, the data was chunked into LLM-sized pieces.  Here I used the
 `RecursiveTextSplitter <https://python.langchain.com/docs/modules/data_connection/document_transformers/text_splitters/recursive_text_splitter>`__.
 This splitter is nice because it will try to group things by paragraphs, then
 sentences, and then words, roughly keeping semantically related pieces
-together.  You can additionally utilize the OpenAI tokenizer using `from_tiktoken_encoder()`
+together.  You can additionally utilize the OpenAI tokenizer using :code:`from_tiktoken_encoder()`
 to match the token counts that OpenAI's API expects.
 A chunk size of 900 tokens with 100 overlapping tokens was used.  These numbers
 were chosen because I planned to send 4 documents into the RAG workflow so
@@ -453,8 +456,8 @@ With the data collected and chunked, the next step is to implement the RAG patte
 Luckily LangChain and LangChain.js have some builtin flows to help with that.
 The usual flow is to index all your documents which involves: 
 
-1. Creating `Document` objects
-2. Connecting to an embedding model (e.g. `OpenAIEmbeddings`)
+1. Creating :code:`Document` objects
+2. Connecting to an embedding model (e.g. :code:`OpenAIEmbeddings`)
 3. Retrieving embeddings for each document and indexing them in a vector store
 4. Persisting the vector store (if not using an online database)
 
@@ -462,7 +465,7 @@ Then for inference, you simply:
 
 1. Load the vector store (if needed)
 2. Embed input question using LLM and search for relevant docs in vector store
-3. Create prompt using input question and retrieved docs
+3. Create a prompt using the input question and retrieved docs
 4. Ask LLM the prompt and return response
 
 Since I wanted to deploy the model inference to Cloudflare, I had to use 
@@ -477,7 +480,7 @@ model stores only support serializing to disk (I didn't want to use a full blown
 After thinking for a bit, I realized that almost all objects in JavaScript can
 be serialized trivially with :code:`JSON.stringify()`, so I just accessed the
 internal vector store storage and serialized that to a file.  That file would
-then be stored on R2 object store, which then could be read back in a Worker
+then be stored on R2 (object store), which then could be read back in a Worker
 (not using LangChain.js) and I could construct a new vector store object and
 just assign the internal storage.  This worked out pretty well (and much better
 than my initial naive idea of reindexing the whole corpus on every inference
@@ -540,18 +543,18 @@ I used the :code:`curie` model instead of the more expensive :code:`davinci` one
     :code:`gpt-3.5` (ChatGPT) with GPT4 coming along soon.  
     Further, due to instruction tuned versions being the recommended fine-tuning
     model, some of the pre-processing isn't even applicable anymore.  
-    For anything to do with LLM's in the next year or two, you probably
+    For anything to do with LLMs in the next year or two, you probably
     want to look up the source documentation instead of any second hand account
     (like this post) lest it be out of date.
 
 The biggest problem with trying out fine-tuning was that I didn't have
 a good dataset!  All I had was a bunch of text, but I wanted to build a
-Q&A bot so I needed questions and answers.  Luckily, LLM's are very adaptable,
+Q&A bot so I needed questions and answers.  Luckily, LLMs are very adaptable,
 so I used the ChatGPT API to generate questions from the snippets of my blog!
 
 To do this I first chunked my blog posts (and excluded some of the non-relevant chunks) to
 250 tokens using the above mentioned OpenAI :code:`Tiktoken` encoder.  This
-mostly chunks it into paragraphs since I mostly have shorter paragraphs.
+mostly chunks it into paragraphs since I typically write short paragraphs.
 
 Next, I prompted the ChatGPT (GPT 3.5) API with the following:
 
@@ -634,12 +637,12 @@ my super simple ugly page).  On top of that, it's hard to Google for the exact p
 you have since I would only find basic examples that didn't address my specific problem.
 However, ChatGPT came to the rescue!  It didn't generate it in one
 go, but I asked it to write a basic example of what I wanted, which then served
-as a template for me to modify to create the final page.
+as a template for me to modify and create the final page.
 
 A couple of other random experiences.  It's no wonder that modern pages use
 some kind of Javascript framework.  Even with the handful of UI elements I had
 on the page, I had to start maintaining state so that they would all work
-together.  I definitely appreciate modern pages a lot more, but I will say that
+together.  I definitely appreciate modern pages a lot more now, but I will say that
 the work is not suited to me.  Maybe it's because I've only worked on more
 algorithmic type systems but web development seems so foreign to me.
 
@@ -670,7 +673,7 @@ there were 669 Q&As in the dataset.
 
 The models I compared were the standard RAG flow plus differently fine-tuned
 OpenAI :code:`curie` (non-instruct) models.  :code:`curie` is a smaller model compared to the
-(then largest) :code:`davinci` model on OpenAI.  This was primarily used because of cost.
+(then largest) :code:`davinci` GPT-3 model on OpenAI.  This was primarily used because of cost.
 I originally tried to fine-tune :code:`davinci` and (at the time) I calculated it would
 have blew through my `$50` budget.  I ended up spending a bit under `$100` after all
 the iterations, which would have been much more if I had used the larger model.
@@ -730,7 +733,7 @@ The nice thing about guidance is that you can easily insert templates but most u
 generation.  So for example the :code:`{{select ... options=valid_nums}}`
 constrains the output to the valid numbers (in this case between 0 and 10).  It also allows you to extract
 the log probabilities, which I generated and then calculated the expected value
-(mean) of the resulting distribution.  Note: It's probably doesn't make sense
+(mean) of the resulting distribution.  Note: It probably doesn't make sense
 to use GPT-3.5 to evaluate a GPT-3.5 output in the case of RAG, but perhaps
 makes sense for the smaller :code:`curie` model?
 
@@ -771,7 +774,7 @@ experiments are in Table 2.
 
 As you can see the LLM outputs paint a different picture compared to the ROUGE scores.  Here RAG
 shows a much better match to the reference answer than the fine-tuned model.  This can be seen
-in the GPT-4 rating of 7.6 vs. 4.8 respectively, and within this difference the
+in the GPT-4 rating of 7.643 vs. 4.872 respectively, and within this difference the
 RAG models has a higher rating (i.e., "wins") 486 times to fine-tuned 81 times
 with 102 ties.  The GPT-3.5 output seems a bit less trustworthy because of the
 reasoning above and shows the gap being much smaller.
@@ -840,7 +843,10 @@ A couple of more funny examples where both models scored well according to GPT-4
 Here the fine-tuned model went a bit off the rails repeating the same two words
 over and over again, which kind of makes sense in the context but is probably
 not correct.  Interestingly, GPT-4 thought it was still a pretty good answer
-probably because the meaning is still about correct.
+probably because the meaning is still about correct.  Another quirk that the
+fine-tuning model picked up on was that I put two spaces after a period.  In
+the RAG flow (since I didn't ask it to), it uses the more popular one space
+after period.  So I guess fine-tuning did learn something about style!
 
 .. code::
 
@@ -856,20 +862,20 @@ probably because the meaning is still about correct.
    “Sleep has a measurable effect on happiness.”
 
 Here the fine-tuned model is pretty good being super concise but perhaps not
-being as helpful as an answer as the RAG one.  You can take a look at more of
+being as helpful as the RAG one.  You can take a look at more of
 the examples in this (very messy) `notebook <https://github.com/bjlkeng/bjlkengbot/blob/main/finetune/measure.ipynb>`__.
 
 
 Commentary
 ==========
 
-LLM's as Coding Assistants
+LLMs as Coding Assistants
 -------------------------
 
 Through this project (and the one before that I stopped halfway to work on this
 one) I've been using ChatGPT (free version), Github Copilot, and to a lesser
 extent GPT-4 API via Simon Willison's great `llm <https://github.com/simonw/llm>`__ tool.
-And all I can say is that LLM's have a decent noticeable productivity boost.  
+And all I can say for sure is that LLMs have a decent noticeable productivity boost.  
 
 For me, the biggest boost was with ChatGPT writing Javascript and HTML.
 Ages ago I did a bit of Javascript in "Web 1.0", and then after my PhD I did an
@@ -878,24 +884,25 @@ good) but that also was over a decade ago, suffice it to say that I hadn't done
 any modern web development for a while.  
 
 In learning modern Javascript, ChatGPT was incredibly helpful.  I had a strong
-idea of what I wanted to accomplish, knew the basics of the primitives in the
+idea of what I wanted to accomplish, knew most of the primitives in the
 language, but I was unclear on some of the details.  For example, I asked ChatGPT
 to explain :code:`let` vs. :code:`var` vs. no declaration (had a bug related to
 it).  Module imports were another new thing (as I understand).  And one thing
-I found super frustrating was getting the styling (CSS) right on the HTML (even
+I found super frustrating was getting the styling (CSS) correct on the HTML (even
 though it's super basic).  Getting the spinner to be centered where I wanted it
 was incredibly tough without ChatGPT because every search on the web would only
 show the most basic example without solving the one annoying issue I had.
 It turned out that ChatGPT's "knowledge" and it's chat interface to *specify*
 and *respond* more precisely to what I wanted was indeed quite a bit superior
-to just a Google search.  It's almost an improved `StackOverflow <https://stackoverflow.com/>`__.
+to just a Google search.  It's almost an improved `StackOverflow <https://stackoverflow.com/>`__ in
+real time.
 
 Another area where I found it quite useful was producing pretty well known
 snippets of code.
 In the other project I was working on, I wanted to write a transformer from
 scratch and so I asked ChatGPT to generate some PyTorch modules.  As far as I
 could tell (I didn't finish the project yet), it looked correct!  Transformer
-modules are probably so widespread (even before it's 2021 cutoff date) that it
+modules are probably so widespread (even before ChatGPT's 2021 cutoff date) that it
 could easily write one.  It did save me some time doing it myself though,
 it was similar to having an intern (a common LLM analogy) where I just needed to 
 check its work.
@@ -903,8 +910,8 @@ check its work.
 On the other hand, I still reverted back to the original docs for the libraries
 I worked with.
 Things like :code:`langchain` and Cloudflare workers are newer and aren't
-encoded in the LLM's knowledge base well (or all).  So really the combination
-of manual docs + LLM's is still the best and I believe needed to deliver a
+encoded in the LLMs knowledge base well (or all).  So really the combination
+of manual docs + LLMs is still the best and I believe needed to deliver a
 working application.
 
 On the Copilot side, I found it only slightly useful.  It helped do some simple
@@ -917,13 +924,12 @@ quality of life improvement.
 On the GPT-4 front, I was only really using it to do simple tasks
 like write birthday cards (and as an evaluation metric above).  I haven't
 really used it to its full potential yet because I only have the API 
-version now, which doesn't have the data analysis and plugin capability.  Once
-I find a need to do some of that I'll probably end up using it.  It's my
+version now, which doesn't have the data analysis and plugin capability. It's my
 default LLM right now when I want to answer a quick question at the command-line and
 don't need a chat interface.  I'll probably write more about it when I find
 something interesting in my workflow to use it for.
 
-Langchain
+LangChain
 ---------
 `langchain <https://github.com/langchain-ai/langchain>`__ was one of the earliest
 LLM frameworks.  It was useful to get things up and running because it takes
@@ -966,7 +972,7 @@ As I mentioned above, I haven't really done much web development at all.  So I
 just had cursory knowledge of a lot of the services that Cloudflare provides.
 I have to say it was super easy to get setup considering my limited knowledge.
 
-Workers was easy enough to get working having a in-browser IDE to play around
+Workers was easy enough to get working having an in-browser IDE to play around
 with.  It took a bit more setup to get a local version working (in VSCode) that 
 could deploy with a command but not that much more work with the documentation
 and tutorials.  The ability to easily connect to R2 object store was also quite
@@ -983,12 +989,12 @@ was not for the fact that the worker call needs some non-zero CPU time to
 execute.  As such, I signed up for the $5/month plan, which like the free plan,
 is so generous that I basically won't need to pay more.
 
-LLM's: Do we need to worry?
+LLMs: Do we need to worry?
 ---------------------------
 
-So after playing around with LLM's for a bit, what's the conclusion?  In
+So after playing around with LLMs for a bit, what's the conclusion?  In
 general, I think there's more hype than is justified in the first year or so.
-LLM's aren't going to mass replace jobs (yet), and they are definitely far away
+LLMs aren't going to mass replace jobs (yet), and they are definitely far away
 from general intelligence.  
 
 But... they are definitely useful.  It's clear that as an interface, it will
@@ -996,7 +1002,7 @@ improve the way we interact with many computing devices.  The chat interface
 is powerful, and as the cost comes down, it will only become more pervasive.
 One of the really powerful things is the accessibility it gives to non-coders.
 I can just imagine (in some later better UX) my mom using something that is
-powered by an LLM in the background to do some automations.  Think of a Star
+powered by an LLM in the background to do some "programming".  Think of a Star
 Trek kind of computer interface.  Of course there will be many challenges like
 hallucinations, safety, and privacy, but it's not a big leap to see how things
 will change.
@@ -1010,13 +1016,13 @@ haven't yet discovered the necessary technology unlock for).
 Human ingenuity is boundless so I suspect there will be something in a few
 years where we will be saying "I can't believe we didn't think of that."
 In the meantime I'm pretty confident that my job isn't going to go away and
-will only get easier (assuming they allow us to use LLM's at work). 
+will only get easier (assuming they allow us to use LLMs at work). 
 
 
 Conclusion
 ==========
 
-That's my little project on LLM's.  It was a good learning experience hitting a
+So that's my little project on LLMs.  It was a good learning experience hitting a
 few things that I wanted to learn more about with one stone.  There are many obvious
 places where I could improve the project like using the latest versions of
 OpenAI models, using a combination of fine-tuning and RAG patterns, or generating a better
