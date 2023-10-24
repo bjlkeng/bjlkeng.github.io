@@ -132,8 +132,40 @@ referring you to previous posts), go over the main Bits-Back coding algorithm
 in detail, and discuss some of the implementation details and experiments that
 I did while trying to write a toy version of the algorithm.</p>
 <!-- TEASER_END -->
-<p><br></p>
-<h4> Background </h4>
+<div class="card card-body bg-light">
+<h2>Table of Contents</h2>
+<div class="contents local topic" id="contents">
+<ul class="auto-toc simple">
+<li><p><a class="reference internal" href="#background" id="id3"><span class="sectnum">1</span> Background</a></p></li>
+<li>
+<p><a class="reference internal" href="#lossless-compression-with-probabilistic-models" id="id4"><span class="sectnum">2</span> Lossless Compression with Probabilistic Models</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#generative-autoregressive-models" id="id5"><span class="sectnum">2.1</span> Generative Autoregressive Models</a></p></li>
+<li><p><a class="reference internal" href="#latent-variable-models" id="id6"><span class="sectnum">2.2</span> Latent Variable Models</a></p></li>
+</ul>
+</li>
+<li>
+<p><a class="reference internal" href="#bits-back-coding" id="id7"><span class="sectnum">3</span> Bits-Back Coding</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#theoretical-limit-of-bits-back-coding" id="id8"><span class="sectnum">3.1</span> Theoretical Limit of Bits-Back Coding</a></p></li>
+<li><p><a class="reference internal" href="#issues-affecting-the-efficiency-of-bits-back-coding" id="id9"><span class="sectnum">3.2</span> Issues Affecting The Efficiency of Bits-Back Coding</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#implementation-details" id="id10"><span class="sectnum">4</span> Implementation Details</a></p></li>
+<li><p><a class="reference internal" href="#experiments" id="id11"><span class="sectnum">5</span> Experiments</a></p></li>
+<li><p><a class="reference internal" href="#conclusion" id="id12"><span class="sectnum">6</span> Conclusion</a></p></li>
+<li><p><a class="reference internal" href="#references" id="id13"><span class="sectnum">7</span> References</a></p></li>
+</ul>
+</div>
+</div>
+<p></p>
+<p><em>2023-10-22: Updated the code and experimental results based on a reader's</em>
+<a class="reference external" href="https://github.com/bjlkeng/sandbox/issues/10">comment</a> <em>(thanks bfs18!)
+where they found a subtle bug in my code.  Fixed the bug and also fixed some
+corner cases scenarios in my bitsback implementation.  Now I get something
+closer to the paper.</em></p>
+<div class="section" id="background">
+<h2><a class="toc-backref" href="#id3"><span class="sectnum">1</span> Background</a></h2>
 <p>A <strong>latent (or hidden) variable model</strong> is a statistical model where
 you <em>don't</em> observe some of the variables (or in many cases, you create additional
 intermediate unobserved variables to make the problem more tractable).  This
@@ -170,8 +202,9 @@ from back-to-front (this will be useful for our discussion below).
 My post on <a class="reference external" href="../lossless-compression-with-asymmetric-numeral-systems/">Lossless Compression with Asymmetric Numeral Systems</a> gives a
 much better intuition on the whole process and discusses a few variations and
 implementation details.</p>
-<p><br></p>
-<h4> Lossless Compression with Probabilistic Models </h4>
+</div>
+<div class="section" id="lossless-compression-with-probabilistic-models">
+<h2><a class="toc-backref" href="#id4"><span class="sectnum">2</span> Lossless Compression with Probabilistic Models</a></h2>
 <p>Suppose we wanted to perform lossless compression on datum
 <span class="math">\({\bf x}=[x_1,\ldots,x_n]\)</span> composed of a vector (or tensor) of symbols
 (i.e. an image <span class="math">\(\bf x\)</span> made up of <span class="math">\(n\)</span> pixels), and we are given:</p>
@@ -216,8 +249,8 @@ when we're trying to decode the datum, we need to have the datum (encoding is
 not a problem because we have the datum available)!  This circular dependency
 can be resolved by using specific types of models and encoding things in a
 particular order, which is the topic of the next two subsections.</p>
-<p></p>
-<h5> Generative Autoregressive Models </h5>
+<div class="section" id="generative-autoregressive-models">
+<h3><a class="toc-backref" href="#id5"><span class="sectnum">2.1</span> Generative Autoregressive Models</a></h3>
 <p>A generative autoregressive models simply uses the probability chain rule to model the data:</p>
 <div class="math">
 \begin{equation*}
@@ -256,8 +289,9 @@ since we have to call the model <span class="math">\(n\)</span> times for each c
 The only problem with generative autoregressive models is that they are slow
 because you have to call them <span class="math">\(n\)</span> times.  Perhaps that's why no one is
 interested in this?  In any case, the next method overcomes this problem.</p>
-<p></p>
-<h5> Latent Variable Models </h5>
+</div>
+<div class="section" id="latent-variable-models">
+<h3><a class="toc-backref" href="#id6"><span class="sectnum">2.2</span> Latent Variable Models</a></h3>
 <p>Latent variable models have a set of unobserved variables <span class="math">\(\bf z\)</span> in
 addition to the observed ones <span class="math">\(\bf x\)</span>, giving us a likelihood function
 of <span class="math">\(P(\bf x|\bf z)\)</span>.  We'll usually have a prior distribution
@@ -296,8 +330,10 @@ continuous but we'll cover that below.  The more interesting question is can we
 do better?  The answer is a resounding "Yes!", and that's what this post is all
 about.  By using a very clever trick you can get some "bits back" to improve
 your compression performance.  Read on to find out more!</p>
-<p><br></p>
-<h4> Bits-Back Coding </h4>
+</div>
+</div>
+<div class="section" id="bits-back-coding">
+<h2><a class="toc-backref" href="#id7"><span class="sectnum">3</span> Bits-Back Coding</a></h2>
 <p>From the previous section, we know that we can encode and decode data using a
 latent variable model with relative ease.  The big downside is that we're
 "wasting" space by encoding the latent variables.  They're necessary to
@@ -319,7 +355,7 @@ did in Figure 2.  Since the existing bitstream was encoded using a different
 distribution, the sample we decode should <em>sort of</em> random.  The nice part
 about this trick is that we're still going to encode <span class="math">\(\bf z\)</span> as usual so
 any bits we've popped off the bitstream to generate our pseudo-random sample,
-we get "back" (that is, don't require to be on the bitstream anymore).  This
+we get "back" (that is, aren't require to be on the bitstream anymore).  This
 <em>reduces</em> the effective average size of encoding each datum + latent variables.</p>
 <div class="figure align-center">
 <img alt="Bits-Back Decoding with a Latent Variable Model" src="../../images/bbans_bb_decode.png" style="width: 600px;"><p class="caption">Figure 5: Bits-Back Decoding with a Latent Variable Model</p>
@@ -347,8 +383,8 @@ time.  Decoding is the reverse operation of encoding: decode <span class="math">
 <span class="math">\(\bf x\)</span>, put back the removed bits by utilizing the posterior
 distribution (which is conditional on the <span class="math">\(\bf x\)</span> we just decoded).
 And this repeats until all data has been decoded.</p>
-<p></p>
-<h5> Theoretical Limit of Bits-Back Coding </h5>
+<div class="section" id="theoretical-limit-of-bits-back-coding">
+<h3><a class="toc-backref" href="#id8"><span class="sectnum">3.1</span> Theoretical Limit of Bits-Back Coding</a></h3>
 <p>Turning back to some more detailed mathematical analysis, let's see how good
 Bits-Back is theoretically.  We'll start off with a few assumptions:</p>
 <ol class="arabic simple">
@@ -404,8 +440,9 @@ So <em>theoretically</em> if we're able to satisfy all the assumptions and have 
 exact posterior then we'll have a really good compressor!  Of course, we'll never
 be in this theoretic ideal situation, we'll discuss some of the issues that
 reduce this efficiency in the next subsection.</p>
-<p></p>
-<h5> Issues Affecting The Efficiency of Bits-Back Coding </h5>
+</div>
+<div class="section" id="issues-affecting-the-efficiency-of-bits-back-coding">
+<h3><a class="toc-backref" href="#id9"><span class="sectnum">3.2</span> Issues Affecting The Efficiency of Bits-Back Coding</a></h3>
 <p><strong>Transmitting the Model</strong>: All the above discussion assumes that the sender
 and receiver have access to the latent variable model but that needs to be sent
 as well!  The assumption here is that the model would be so generally applicable
@@ -424,37 +461,57 @@ on discrete symbols -- not continuous values.  Many popular latent variable
 models also have continuous latent variables (e.g. normally distributed), so there
 needs to be a discretization step to be able to send them over the wire (we're
 assuming the data is discretized already but the same principles would apply).</p>
-<p>Discretization is needed for both the approximate posterior encoding/decoding
-where we (pseudo-)randomly sample our <span class="math">\(\bf z\)</span> value ("bits back"), and for
-when we encode/decode the latent variables using the prior distribution.
-Discretization of a sample from the distribution is a relatively simple
-operation:</p>
-<ol class="arabic simple" start="0">
-<li><p>Select how many bits you want to use to represent your sample.  This will
-create <span class="math">\(2^n\)</span> buckets for <span class="math">\(n\)</span> bits.</p></li>
-<li><p>Partition the distribution's support into <span class="math">\(2^n\)</span> buckets.  [1] proposed
-equi-probable mass buckets, which is what I implemented.</p></li>
-<li><p>Find the corresponding bucket index (<span class="math">\(i\)</span>) the point falls in, set the
-discretized value to some value relative to the bucket interval (e.g.
-mid-point of the bucket interval).</p></li>
-<li><p>You can use ANS to encode the discretized value as the symbol <span class="math">\(i\)</span> with
-an alphabet of <span class="math">\(2^n\)</span> symbol values.  Note: If you use an equi-probable mass
-buckets each symbol will have the same probability, so entropy encoding
-shouldn't do much for a randomly sampled point.</p></li>
+<p>Discretization is needed for both (a) when we (pseudo-)randomly sample our
+<span class="math">\(\bf z\)</span> value (get/put "bits back"), and (b) for when we compress/decompress
+the discretized latent variables themselves.</p>
+<p>Discretization of a sample from a distribution is <em>abstractly</em> a relatively
+simple operation:</p>
+<ol class="arabic simple">
+<li><p>Select the number of discrete buckets you want to represent your
+discretized distribution, call it <span class="math">\(m\)</span>.
+This basically is binning the <a class="reference external" href="https://en.wikipedia.org/wiki/Support_(mathematics)">support</a>
+of the distribution.  [1] proposed that each bucket has <em>equi-probable mass</em>
+(specifically not equally-spaced), which is what I implemented.</p></li>
+<li><p>For a given value of <span class="math">\(z\)</span>, find the corresponding bucket index
+(<span class="math">\(i\)</span>) the point falls in, set the discretized value to some deterministic
+value relative to the bucket interval (e.g.  mid-point of the bucket interval).
+This discretized <span class="math">\(z\)</span> value is what you use whenever a latent variable is needed
+(either for input to the VAE decoder or when compressing/decompressing <span class="math">\(z\)</span>).</p></li>
 </ol>
-<p>To decode, you do the reverse operation.  However, there is a
-subtlety: you need the sender and receiver to have access to the distribution
-in step 1.  The natural choice is the prior, which is what is available throughout
-the process (assuming you have the model).  You wouldn't be able to use the
-posterior because when you are trying to decode <span class="math">\(\bf z\)</span>, you would need access
-to <span class="math">\(\bf x\)</span>, which you don't have available.  Additionally, you need
-to have the same discretization step when you're sampling via "bits back" and
-when sending <span class="math">\(\bf z\)</span> across the wire, or else you lose some precision in
-the process.  So the prior is used throughout.</p>
-<p>The paper [1] shows that the additional overhead is really just the cost of
-discretization.  Since many continuous ML operations work fine with 32-bits
-anyways, it shouldn't practically be a problem if you have enough precision.
-As the paper suggests, I used a 16-bit discretization.</p>
+<p>Using the above, when given a value continuous value for <span class="math">\(z\)</span>, you can always
+map it to a fixed bin, which maps any value landing in that bin to a
+determinstic value.</p>
+<p>However there is a subtlety here, how are you going to select your bins edges?
+You can't use the approximate posterior distribution because you don't have
+access to it when decoding <span class="math">\(z\)</span> (Figure 5).  The natural choice here is
+the prior from the VAE, which is what is available throughout the process
+(assuming you have the model).  This is what the paper [1] also used.</p>
+<p>The paper [1] goes on to show that this discretization process adds overhead
+to the compression process (it would be weird if it didn't since you lose
+information).  However, in many cases you don't need that much precision.  In
+my experiments I got a respectable result with with just 5-bits of discretization for
+MNIST (which is a heavily skewed toward black and white pixels).  The paper
+argues in their case, they didn't need to go beyond 16-bits because most ML
+operations are 32-bits anyways.</p>
+<p><strong>Quantization</strong>: In addition to discretization, we also have to worry about quantization from
+the <a class="reference external" href="../lossless-compression-with-asymmetric-numeral-systems/">rANS</a>
+algorithm.  Once we have the buckets above, we also need to compress/decompress
+the <span class="math">\(z\)</span> values using rANS, which requires quantization of the probability mass.
+This can be done as such:</p>
+<ol class="arabic simple">
+<li><p>Select the number of bits used to quantization in the rANS algorithm
+<span class="math">\(n\)</span>, where each bucket has an associated integer <span class="math">\(f_i\)</span> representing the
+quantized probability <span class="math">\(\frac{f_i}{2^n}\)</span> of that bucket (assuming equi-probable buckets),
+and the sum of all buckets equals to <span class="math">\(2^n\)</span>.</p></li>
+<li><p>Use rANS to encode the discretized <span class="math">\(x/z\)</span> value as the symbol <span class="math">\(s_i\)</span>
+with quantized frequency <span class="math">\(f_i\)</span> assuming an alphabet of <span class="math">\(m\)</span>
+symbol values (where symbol is synonymous with bucket in this context).</p></li>
+</ol>
+<p>I used a <span class="math">\(n=16\)</span> bit quantization in my experiments, which seemed to be
+enough precision (although I didn't try other values).  Quantization
+affects the fidelity of the probability distribution passed to rANS, which
+affects the compression ratio.  Ideally, you'll want as small a value as you
+can get away with.</p>
 <p><strong>Clean Bits</strong>: The last issue to discuss is the how the Bits-Back operation
 pseudo-randomly samples the <span class="math">\(\bf z\)</span> value.  Since we're sampling from the
 bits from the top of the existing bitstream, which is essentially the previous
@@ -467,8 +524,10 @@ inefficiency because the whole point of this method is to get "bits back" so
 it's difficult to retrieve a truly random sample.  From [1], the effect of this
 wasn't so clear but they have some theoretical discussion referencing some
 prior work.</p>
-<p><br></p>
-<h4> Implementation Details </h4>
+</div>
+</div>
+<div class="section" id="implementation-details">
+<h2><a class="toc-backref" href="#id10"><span class="sectnum">4</span> Implementation Details</a></h2>
 <p>There were three main parts to my toy implementation: the ANS algorithm, a variational
 autoencoder, and the Bits-Back algorithm.  Below are some details on each.  You
 can find the code I used here on my <a class="reference external" href="https://github.com/bjlkeng/sandbox/tree/master/bitsback">Github</a>.</p>
@@ -511,29 +570,46 @@ bit careful in a few areas.  Here are some of the notable points:</p>
 <ul>
 <li><p>Since the quantization was always using equi-probable bins from a standard normal
 distribution, it made sense to cache the ranges for speeding it up.</p></li>
-<li><p>Quantizing the continuous values of the latent variable distributions was
-pain.  For the case of quantizing a standard normal distribution, it was easy
-because, by construction, each bin is equi-probable.  So the distribution is just uniform
-across however many buckets we are using (16-bits in my experiments to match the paper).</p></li>
+<li><p>When quantizing the bins, you have to be careful at the edge bins which
+represent <span class="math">\(+\infty,-\infty\)</span> and the quantized value for that bin
+obviously can't be infinity.  I just used the next closest bin edge instead.</p></li>
+<li><p>Quantizing the continuous values of the latent variable distributions was a
+pain.  For the case of quantizing a standard normal distribution (i.e., the
+prior), it was easy because, by construction, each bin is equi-probable.  So
+the distribution is just uniform across however many buckets we are using
+(5-bits in my experiments).</p></li>
 <li>
 <p>However, if you're trying to quantize a non-standard <span class="math">\(\bf z\)</span> normal
 distributions using equi-probable bins from a <em>standard</em> normal distribution
-(e.g. when we're trying to sample the pseudo-random <span class="math">\(\bf z\)</span> value),
-you have to be a bit more careful:</p>
-<ol class="arabic simple">
-<li><p>I sampled <strong>2^n</strong> (n=14 in my case) equi-probable-spaced values per
+you have to be a bit more careful.  Two big things to consider here:</p>
+<ol class="arabic">
+<li><p>Ensure is that each bin has a <strong>non-zero</strong> probability or else when you're
+using it later to decode and gets bits back, you might actually end up seeing a
+zero probability symbol, which will break things.  Specifically, you want
+each bucket to have at least probability <span class="math">\(\frac{1}{2^{n}}\)</span>.</p></li>
+<li>
+<p>You want the quantized distribution to best match the original non-quantized one
+but with the constraint that we have some mass in each bin.  Here's the
+algorithm I used:</p>
+<ul class="simple">
+<li><p>First, define the number of symbols in your alphabet <span class="math">\(m\)</span> (i.e.,
+number of bins); I used <span class="math">\(m=5\)</span>.</p></li>
+<li><p>Sample <span class="math">\(2^n - 2^m\)</span> for <span class="math">\((n=16, m=5)\)</span> equi-probable-spaced values per
 variable from the original <span class="math">\(\bf z\)</span> distributions using the inverse
-CDF function from SciPy.</p></li>
-<li><p>From those sampled values, I made a frequency histogram where the
-buckets correspond to a <em>standard</em> normal distribution equi-probable
+CDF function from SciPy.  This guarantees you get good representation
+from the entire distribution.</p></li>
+<li><p>From those sampled values, make a frequency histogram where the buckets
+correspond to the <span class="math">\(m\)</span> equi-probable
 buckets.  This is essentially the probability distribution in frequency form.</p></li>
-<li><p>This histogram served as the probability distribution used by ANS to decode
-the required values.  And because of the way ANS algorithm works, it uses a
+<li><p>Add 1 to each of the histogram buckets to guarantee a non-zero
+probability mass (see point 1 above).</p></li>
+<li><p>This histogram serves as the probability distribution used by rANS to decode
+the required values.  And because of the way rANS algorithm works, it uses a
 frequency distribution so I could just pass it directly to the compressor.</p></li>
+</ul>
+<p>I'm not sure if there's a better way to do it but it seemed work well enough.</p>
+</li>
 </ol>
-<p>I'm not sure if there's a better way to do it but it seemed work well enough.
-You can increase the number of samples in Step 1 to get a more accurate frequency
-distribution but it slows down the algorithm as you might expect.</p>
 </li>
 <li><p>Encoding/decoding the <span class="math">\(x\)</span> pixel values was much easier because they are
 already discretized as 256 pixel values.  It's still a bit slow though since
@@ -543,27 +619,27 @@ distribution (real numbers) over discrete pixels into a frequency distribution (
 That is for each pixel, we have discrete distribution over the 256 values but
 each value has a real number that represents its probability.  So we need to convert it
 to a frequency distribution in order to pass it to ANS.</p></li>
-<li><p>The sum of the frequency distribution also needs to sum to <span class="math">\(2^{\text{ANS quant bits}}\)</span>.
-Additionally, I wanted to ensure that no bin had zero probability, or else if
-you try to encode it, ANS gets super confused.  To pull this off, I just
-multiplied each bin's probability by <span class="math">\(2^{\text{ANS quant bits}}\)</span>, added
-one to each bin, then calculate any excess I have beyond <span class="math">\(2^{\text{ANS quant bits}}\)</span>
-and shave it off the largest frequency bin.  This is obviously
-not an optimal way to do it.  I do wonder if that's why I got results that were worse
-than the paper, but I didn't spend too much time checking.</p></li>
+<li><p>The sum of the frequency distribution also needs to sum to <span class="math">\(2^{n}\)</span>.
+Additionally, I wanted to ensure that no bin had zero probability (same issue
+as above).  To pull this off, I just multiplied each bin's probability by
+<span class="math">\(2^{n}\)</span>, added one to each bin, then calculate any
+excess I have beyond <span class="math">\(2^{n}\)</span> and shave it off the
+largest frequency bin.  This is obviously not an optimal way to do it but it <em>probably</em>
+doesn't affect too much.</p></li>
 <li><p>Again, I had to be careful not to implicitly convert some of the integer values to floats.
 So in some places, I do some explicit casting of <cite>astype(np.uint64)</cite> so the values don't
 get all mixed up when I send them into ANS.</p></li>
 </ul>
-<p><br></p>
-<h4> Experiments </h4>
+</div>
+<div class="section" id="experiments">
+<h2><a class="toc-backref" href="#id11"><span class="sectnum">5</span> Experiments</a></h2>
 <p>My compression results for MNIST (regular, non-binarized) are shown in Table 1.
-My implementation can achieve 1.94 bits/pixel (i.e. on average a pixel uses
-1.94 bits to represent it) vs. other implementations of 1.4 or less.  Very
-unimpressive if you ask me.  I wasn't really able to get close to the
-implementation in [1].  Didn't really try too hard to make it work but I was
-hoping that I would be able to at least beat the standard compressors (<cite>bz2</cite>
-and <cite>gzip</cite>), unfortunately that didn't happen either.</p>
+My implementation can achieve 1.5264 bits/pixel (i.e. on average a pixel uses
+1.53 bits to represent it) vs. other implementations of 1.4 or less.
+That's not half bad (better than my original implementation which had a bug where I
+got closer to 1.9 bits/pixel)!  I was at least able to beat gzip, which says something.
+It still feels kind of far from [1] at 1.41, but it feels like I got the main theoretical
+parts worked out.</p>
 <table class="colwidths-given align-center">
 <caption>Table 1: Compression Rates for MNIST (bits/pixel)</caption>
 <colgroup>
@@ -577,7 +653,7 @@ and <cite>gzip</cite>), unfortunately that didn't happen either.</p>
 <tbody>
 <tr>
 <td><p>My Implementation (Bits-Back w/ ANS)</p></td>
-<td><p>1.94</p></td>
+<td><p>1.5264</p></td>
 </tr>
 <tr>
 <td><p>Bits-Back w/ ANS [1]</p></td>
@@ -609,15 +685,17 @@ with the decoder look pretty bad.  So this is probably at least part of the reas
 to achieve good results.</p>
 <p>The second reason is that I suspect my quantization isn't so great.  As mentioned above, I did so
 funky rounding to ensure no zero-probability buckets, as well as an awkward way to discretize the
-latent variables and data.  I suspect there are some differences from [1]'s
+latent variables and data. I suspect there are some differences from [1]'s
 implementation (which is open source by the way) but I didn't spend too much
-time trying to figure out the differences.</p>
+time trying to diagnose the differences.</p>
 <p>In any case, at least my implementation is able to <em>correctly</em> encode and decode and somewhat
 approach the proper implementations.  As a toy implementation, I will make the bold assertion
-that I coded it in a way that's  a bit more clear than [1]'s implementation so
-maybe it's better for educational purposes?  I'll let you be the judge of that.</p>
-<p><br></p>
-<h4> Conclusion </h4>
+that I coded it in a way that's a bit more clear than [1]'s implementation (and
+has this handy write up) so maybe it's better for educational purposes?  I'll
+let you be the judge of that.</p>
+</div>
+<div class="section" id="conclusion">
+<h2><a class="toc-backref" href="#id12"><span class="sectnum">6</span> Conclusion</a></h2>
 <p>So there you have it, a method for lossless compression using ML!  This mix of discrete
 problems (e.g. compression) and ML is an incredibly interesting direction.  If
 I get some time (and who knows when that will be), I'm definitely going to be
@@ -625,8 +703,9 @@ looking into some more of these topics.  But on this lossless compression topic,
 probably done for now.  There's another topic that I've been excited about recently
 and have already started to go down that rabbit hole, so expect one (probably more)
 posts on that subject.  Hope everyone is staying safe!</p>
-<p><br></p>
-<h4> References </h4>
+</div>
+<div class="section" id="references">
+<h2><a class="toc-backref" href="#id13"><span class="sectnum">7</span> References</a></h2>
 <ul class="simple">
 <li><p>Previous posts: <a class="reference external" href="../variational-autoencoders/">Variational Autoencoders</a>, <a class="reference external" href="../lossless-compression-with-asymmetric-numeral-systems/">Lossless Compression with Asymmetric Numeral Systems</a>, <a class="reference external" href="../the-expectation-maximization-algorithm/">Expectation Maximization Algorithm</a></p></li>
 <li><p>My implementation on Github: <a class="reference external" href="https://github.com/bjlkeng/sandbox/tree/master/bitsback">notebooks</a></p></li>
@@ -639,6 +718,7 @@ posts on that subject.  Hope everyone is staying safe!</p>
 <p>I'll be using this term "pseudo-random" to describe this faux random sampling process.  I know it's probably not accurate to even call it pseudo-random, but I'm using it colloquially to mean not truly random.</p>
 </dd>
 </dl>
+</div>
 </div>
     </div>
     <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
