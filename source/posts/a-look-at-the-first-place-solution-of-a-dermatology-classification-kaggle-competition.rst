@@ -7,8 +7,8 @@
 .. description: 
 .. type: text
 
-One interesting I often wonder about is the gap between academic solutions and
-practical real-world solutions.  In general academic solutions are confined to
+One interesting I often think about is the gap between academic and real-world
+solutions.  In general academic solutions are confined to
 a narrow problem space, more often than not needing to care about the
 underlying data (or its semantics).  `Kaggle <https://www.kaggle.com/competitions>`__
 competitions are a (small) step in the right direction usually providing a true
@@ -20,8 +20,8 @@ Kaggle competition) and understand the practical details that gets you superior
 performance on a more realistic task.
 
 This post will cover the `first place solution
-<https://arxiv.org/abs/2010.05351>`__ [1] to the 
-`SIIM-ISIC Melanoma Classification <https://www.kaggle.com/competitions/siim-isic-melanoma-classification/overview>`.
+<https://arxiv.org/abs/2010.05351>`__ [1_] to the 
+`SIIM-ISIC Melanoma Classification <https://www.kaggle.com/competitions/siim-isic-melanoma-classification/overview>`_ [0_].
 In addition to using tried and true architectures (mostly EfficientNets), they
 have some interesting tactics they use to formulate the problem, process the
 data, and train/validate the model.  I'll provide the background on the
@@ -45,6 +45,60 @@ the benefit of certain architectural decision they made.  Enjoy!
 
     </div>
     <p>
+
+
+Background
+==========
+
+
+EfficientNet
+------------
+
+EfficientNet is a convolutional neural networks (ConvNet) architecture [2_]
+(circa 2019) that rethinks the standard ConvNet architecture choices and
+proposes a new architecture family called *EfficientNets*.  The first main idea
+is that ConvNets can be scaled to have more capacity in three broad network dimensions
+shown in Figure 1:
+
+* **Wider**: In the context of ConvNets, this corresponds to more channels per layer (vs. more neurons in a fully connected layer).
+* **Deeper**: Deeper means more convolutional layers.
+* **Higher Resolution**: Means using higher resolution inputs (e.g. 560x560 vs. 224x224 images).
+
+.. figure:: /images/dermnet_scaling.png
+  :height: 470px
+  :alt: Scaling ConveNet
+  :align: center
+
+  **Figure 1: Model scaling figure from [** 2_ **]: (a) base model, (b) increase width, (c) increase depth, (d) increase resolution.**
+
+The first insight [2_] found is that, as expected, scaling the
+above network dimensions result in better ConvNet accuracy (as measured via Top-1
+ImageNet accuracy) but with diminishing returns.  To standardize the evaluation,
+they normalize the scaling using FLOPS.
+
+The next logical insight discussed in [2_] is that balancing
+how all three scaling network dimensions is important to 
+efficiently scale ConveNets.  They propose a compound
+scaling method as:
+
+.. math::
+
+    \text{depth}: d &= \alpha^\phi \\
+    \text{width}: w &= \beta^\phi \\
+    \text{resolution}: r &= \gamma^\phi \\
+        \text{s.t. }\hspace{10pt} \alpha&\cdot\beta^2\cdot\gamma^2 \approx 2 \\
+    \alpha \geq 1, \beta &\geq 1, \gamma \geq 1 \\
+    \tag{1}
+
+The intuition here is that we want to be able to scale the network
+size appropriately for a given FLOP budget, and Equation 1, if satisfied, will
+approximately scale the network by :math:`(\alpha \cdot \beta^2 \cdot \gamma^2)^\phi`.
+Thus, :math:`\phi` is our user-specified scaling parameter while
+:math:`\alpha, \beta, \gamma` are how we distribute the FLOPs to each scaling
+dimension and are found by a small grid search.  The constraint 
+:math:`\alpha \cdot \beta^2 \cdot \gamma^2 \approx 2` (I believe) is arbitrary
+so that the FLOPS will increase by roughly :math:`2^\phi`.  Additionally,
+it likely simplifies the grid search that we need to do.
 
 
 SIIM-ISIC Melanoma Classification
@@ -80,5 +134,14 @@ Further Reading
 ===============
 
 
-* `SIIM-ISIC Melanoma Classification Kaggle Competition <https://www.kaggle.com/c/siim-isic-melanoma-classification/leaderboard>`__
-* [1] Qishen Ha, Bo Liu, Fuxu Liu, "Identifying Melanoma Images using EfficientNet Ensemble: Winning Solution to the SIIM-ISIC Melanoma Classification Challenge", `<https://arxiv.org/abs/2010.05351>`__
+.. _0: 
+
+[0] `SIIM-ISIC Melanoma Classification Kaggle Competition <https://www.kaggle.com/c/siim-isic-melanoma-classification/leaderboard>`__
+
+.. _1: 
+
+[1] Qishen Ha, Bo Liu, Fuxu Liu, "Identifying Melanoma Images using EfficientNet Ensemble: Winning Solution to the SIIM-ISIC Melanoma Classification Challenge", `<https://arxiv.org/abs/2010.05351>`__
+
+.. _2:
+
+[2] Mingxing Tan, Quoc V. Le, "EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks", `<https://arxiv.org/abs/1905.11946`>__
