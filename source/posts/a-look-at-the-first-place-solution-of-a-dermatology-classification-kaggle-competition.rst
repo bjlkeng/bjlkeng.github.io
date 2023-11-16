@@ -50,6 +50,72 @@ the benefit of certain architectural decision they made.  Enjoy!
 Background
 ==========
 
+Inverted Residuals and Linear Bottlenecks (MobileNetV2)
+-------------------------------------------------------
+
+MobileNetV2 [3_] introduced a new type of neural network architectural building
+block often known as "MBConv".  The two big innovations here are inverted residuals
+and linear bottlenecks.  
+
+First to understand inverted residuals, let's take a look at the basic
+residual block (also see my post on `ResNet <link://slug/residual-networks>`__)
+shown in Listing 1.  Two notable parts of the basic residual block are the
+fact that we reduce the number of channels to :code:`squeeze` and then grow the
+number of channels with :code:`expand`.  The squeeze operation is often known
+as a *bottleneck* since we have fewer channels.  The intuition here is to reduce
+the number of channels so that the more expensive 3x3 convolution is cheaper.
+The other relevant part is that fact that we have the residual connection where
+we add the input to the result of the transformations.  Notice the residual
+connection connects the expanded parts :code:`x` and :code:`m3`.
+
+.. code-block:: Python
+
+   def residual_block(x, squeeze=16, expand=64):
+       # x has 64 channels in this example
+       m1 = Conv2D(squeeze, (1,1), activation='relu')(x)
+       m2 = Conv2D(squeeze, (3,3), activation='relu')(m1)
+       m3 = Conv2D(expand, (1,1), activation='relu')(m2)
+       return Add()([m3, x])
+
+**Listing 1: Example of a Basic Residual Block in Keras** (adapted from `source <https://towardsdatascience.com/mobilenetv2-inverted-residuals-and-linear-bottlenecks-8a4362f4ffd5>`__)
+
+Next, let's look at what changes with an inverted residual shown in Listing 2.
+Here we "invert" the residual connection where we are making the residual
+connection between the bottleneck "squeezed" layers.  Recall that we'll
+eventually be stacking these blocks, so there will still be alternations
+of squeezed ("bottlenecks") and expansion layers.  The difference with
+Listing 1 is that we'll be making residual connections between the bottleneck
+layers instead of expansion layers.  
+
+The other thing to note is that the 3x3
+convolution is now expensive if we do it on the expanded layer so instead we'll 
+use a `depthwise convolution <https://keras.io/api/layers/convolution_layers/depthwise_convolution2d/>`__
+for efficiency.  This reduces reduces the number of parameters needed from
+:math:`h\cdotw\cdot d_i \cdot d_j \cdot k^2` for a regular 3x3 convolution to
+:math:`h\cdotw\cdot d_i (k^2 + d_j)` for a depthwise convolution where
+:math:`h, w` are height and width, `d_i, d_j` are input/output channels, and
+`k` is the convolutional kernel size.  With :math:`k=3` this could potentially
+reduce the number of parameters needed by 8-9 times with only a small hit to
+accuracy.
+
+.. code-block:: Python
+
+   def inverted_residual_block(x, expand=64, squeeze=16):
+       # x has 16 channels in this example
+       m1 = Conv2D(expand, (1,1), activation='relu')(x)
+       m2 = DepthwiseConv2D((3,3), activation='relu')(m1)
+       m3 = Conv2D(squeeze, (1,1), activation='relu')(m2)
+       return Add()([m3, x])
+
+**Listing 2: Example of an inverted residual block with depthwise convolution in Keras** (adapted from `source <https://towardsdatascience.com/mobilenetv2-inverted-residuals-and-linear-bottlenecks-8a4362f4ffd5>`__)
+
+
+
+
+Squeeze and Excitation Optimization
+-----------------------------------
+[4_]
+
 
 EfficientNet
 ------------
@@ -101,6 +167,8 @@ so that the FLOPS will increase by roughly :math:`2^\phi`.  Additionally,
 it likely simplifies the grid search that we need to do.
 
 
+
+
 SIIM-ISIC Melanoma Classification
 =================================
 
@@ -145,3 +213,11 @@ Further Reading
 .. _2:
 
 [2] Mingxing Tan, Quoc V. Le, "EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks", `<https://arxiv.org/abs/1905.11946`>__
+
+.. _3:
+
+[3] Sandler et al. "MobileNetV2: Inverted Residuals and Linear Bottlenecks", CVPR 2018, `<https://arxiv.org/abs/1801.04381>`__
+
+.. _4:
+
+[4] Hu et al. "Squeeze-and-Excitation Networks", CVPR 2018, `<https://arxiv.org/abs/1801.04381>`__
