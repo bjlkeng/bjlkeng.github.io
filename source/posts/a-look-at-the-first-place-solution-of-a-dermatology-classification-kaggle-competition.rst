@@ -64,7 +64,7 @@ fact that we reduce the number of channels to :code:`squeeze` and then grow the
 number of channels with :code:`expand`.  The squeeze operation is often known
 as a *bottleneck* since we have fewer channels.  The intuition here is to reduce
 the number of channels so that the more expensive 3x3 convolution is cheaper.
-The other relevant part is that fact that we have the residual connection where
+The other relevant part is that fact that we have the residual "skip" connection where
 we add the input to the result of the transformations.  Notice the residual
 connection connects the expanded parts :code:`x` and :code:`m3`.
 
@@ -87,17 +87,6 @@ of squeezed ("bottlenecks") and expansion layers.  The difference with
 Listing 1 is that we'll be making residual connections between the bottleneck
 layers instead of expansion layers.  
 
-The other thing to note is that the 3x3
-convolution is now expensive if we do it on the expanded layer so instead we'll 
-use a `depthwise convolution <https://keras.io/api/layers/convolution_layers/depthwise_convolution2d/>`__
-for efficiency.  This reduces reduces the number of parameters needed from
-:math:`h\cdotw\cdot d_i \cdot d_j \cdot k^2` for a regular 3x3 convolution to
-:math:`h\cdotw\cdot d_i (k^2 + d_j)` for a depthwise convolution where
-:math:`h, w` are height and width, `d_i, d_j` are input/output channels, and
-`k` is the convolutional kernel size.  With :math:`k=3` this could potentially
-reduce the number of parameters needed by 8-9 times with only a small hit to
-accuracy.
-
 .. code-block:: Python
 
    def inverted_residual_block(x, expand=64, squeeze=16):
@@ -110,7 +99,45 @@ accuracy.
 **Listing 2: Example of an inverted residual block with depthwise convolution in Keras** (adapted from `source <https://towardsdatascience.com/mobilenetv2-inverted-residuals-and-linear-bottlenecks-8a4362f4ffd5>`__)
 
 
+The other thing to note is that the 3x3
+convolution is now expensive if we do it on the expanded layer so instead we'll 
+use a `depthwise convolution <https://keras.io/api/layers/convolution_layers/depthwise_convolution2d/>`__
+for efficiency.  This reduces reduces the number of parameters needed from
+:math:`h\cdot w \cdot d_i \cdot d_j \cdot k^2` for a regular 3x3 convolution to
+:math:`h\cdot w \cdot d_i (k^2 + d_j)` for a depthwise convolution where
+:math:`h, w` are height and width, :math:`d_i, d_j` are input/output channels, and
+:math:`k` is the convolutional kernel size.  With :math:`k=3` this could potentially
+reduce the number of parameters needed by 8-9 times with only a small hit to
+accuracy.
 
+.. code-block:: Python
+
+   def inverted_linear_residual_block(x, expand=64, squeeze=16):
+       m1 = Conv2D(expand, (1,1), activation='relu')(x)
+       m2 = DepthwiseConv2D((3,3),  activation='relu')(m1)
+       m3 = Conv2D(squeeze, (1,1))(m2)
+       return Add()([m3, x])
+
+**Listing 3: MBConv Block in Keras** (adapted from `source <https://towardsdatascience.com/mobilenetv2-inverted-residuals-and-linear-bottlenecks-8a4362f4ffd5>`__)
+
+The last big thing thing that MBConv block changed was removing the
+non-linearity on bottleneck layer as shown in Listing 3.  A
+hypothesis the [3_] proposes is that ReLU non-linearity on the inverted
+bottleneck hurts performance.  The idea is that ReLU either is the identify
+function if the input is positive, or zero otherwise.  In the case that the
+activation is positive, then it's simply a linear output so removing the
+non-linearity isn't a bit deal.  On the other hand, if the activation is
+negative then ReLU actively discards information (e.g., zeroes the output).
+Generally for wide networks (i.e., lots of convolutional channels), this is not
+a problem because we can make up for information loss in the other channels.
+In the case of our squeezed bottleneck though, we have fewer layers so we lose
+a lot more information, hence hurt performance.  The authors note that this
+effect is lessened with skip connections but still present.
+
+The resulting MobileNetV2 architecture is very memory efficient for mobile
+applications as the name suggests.  Generally, the paper shows that MobileNetV2 
+uses less memory and computation with similar (sometimes better) performance
+on standard benchmarks.  Details on the architecture can be found in [3_].
 
 Squeeze and Excitation Optimization
 -----------------------------------
