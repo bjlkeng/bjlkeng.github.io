@@ -244,6 +244,17 @@ so that the FLOPS will increase by roughly :math:`2^\phi`.  Additionally,
 it likely simplifies the grid search that we need to do.
 
 
+Noisy Student
+-------------
+
+.. figure:: /images/dermnet_noisystudent.png
+  :height: 470px
+  :alt: Scaling ConveNet
+  :align: center
+
+  **Figure 3: Noisy Student Training shows significant improvement over all model sizes. [** 5_ **]**
+
+[5_]
 
 
 SIIM-ISIC Melanoma Classification
@@ -289,13 +300,16 @@ Further Reading
 
 .. _2:
 
+[2] Sandler et al. "MobileNetV2: Inverted Residuals and Linear Bottlenecks", CVPR 2018, `<https://arxiv.org/abs/1801.04381>`__
 
 .. _3:
 
-[2] Sandler et al. "MobileNetV2: Inverted Residuals and Linear Bottlenecks", CVPR 2018, `<https://arxiv.org/abs/1801.04381>`__
+[3] Hu et al. "Squeeze-and-Excitation Networks", CVPR 2018, `<https://arxiv.org/abs/1801.04381>`__
 
 .. _4:
 
-[3] Hu et al. "Squeeze-and-Excitation Networks", CVPR 2018, `<https://arxiv.org/abs/1801.04381>`__
-
 [4] Mingxing Tan, Quoc V. Le, "EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks", `<https://arxiv.org/abs/1905.11946>`__
+
+.. _5:
+
+[5] Xie et al. "Self-training with Noisy Student improves ImageNet classification", `<https://arxiv.org/abs/1911.04252>`__
