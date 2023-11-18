@@ -53,7 +53,7 @@ Background
 Inverted Residuals and Linear Bottlenecks (MobileNetV2)
 -------------------------------------------------------
 
-MobileNetV2 [3_] introduced a new type of neural network architectural building
+MobileNetV2 [2_] introduced a new type of neural network architectural building
 block often known as "MBConv".  The two big innovations here are inverted residuals
 and linear bottlenecks.  
 
@@ -122,7 +122,7 @@ accuracy.
 
 The last big thing thing that MBConv block changed was removing the
 non-linearity on bottleneck layer as shown in Listing 3.  A
-hypothesis the [3_] proposes is that ReLU non-linearity on the inverted
+hypothesis the [2_] proposes is that ReLU non-linearity on the inverted
 bottleneck hurts performance.  The idea is that ReLU either is the identify
 function if the input is positive, or zero otherwise.  In the case that the
 activation is positive, then it's simply a linear output so removing the
@@ -133,25 +133,75 @@ a problem because we can make up for information loss in the other channels.
 In the case of our squeezed bottleneck though, we have fewer layers so we lose
 a lot more information, hence hurt performance.  The authors note that this
 effect is lessened with skip connections but still present.
+(Note: Not shown in the above code is that `BatchNormalization <https://en.wikipedia.org/wiki/Batch_normalization>`__
+is applied after every convolution layer (but before the activation).)
 
 The resulting MobileNetV2 architecture is very memory efficient for mobile
 applications as the name suggests.  Generally, the paper shows that MobileNetV2 
 uses less memory and computation with similar (sometimes better) performance
-on standard benchmarks.  Details on the architecture can be found in [3_].
+on standard benchmarks.  Details on the architecture can be found in [2_].
 
 Squeeze and Excitation Optimization
 -----------------------------------
-[4_]
+
+The Squeeze and Excitation (SE) block [3_] is an optimization that can added on to a
+convolutional layer that scales each channel's outputs by using a learned
+function of the average activation of each channel.  The basic idea is shown in
+Figure 1 where from a convolution operation (:math:`F_tr`), we branch off to
+calculate a scalar per channel ("squeeze" via :math:`F_sq`), pass it through some layers
+("excite" via :math:`F_ex`), and then scale the original convolutional outputs using the SE block.
+This can be thought of as a self-attention mechanism on the channels.
+
+.. figure:: /images/dermnet_squeeze_excite.png
+  :height: 200px
+  :alt: Scaling ConveNet
+  :align: center
+
+  **Figure 1: Squeeze Excitation Block with ratio=1 [** 3_ **]**
+
+The main problem the SE block addresses is that each convolutional output pixel only
+looks at it's local receptive field (e.g. 3x3).  A convolutional network only
+really considers global spatial information by stacking multiple layers, which
+seems inefficient.  Instead, the hypothesis of the SE block is that you can model
+the global interdependencies between channels and allow each channel to
+increase their sensitivity improving learning.
+
+Code for an SE block is shown in  Listing 4.  First, we do a
+:code:`GlobalAveragePool2D`, which amounts to compute the mean for each
+channel.  Then we pass it through two 1x1 convolutional layers with a ReLU and
+sigmoid activation respectively.  The first convolutional layer can be thought
+of as "mixing" the averages across the channel, while the second one converts
+it to a value between 0 and 1.  It's not clear whether more or less layers is better
+but [3_] says that they wanted to limit the added model complexity while still
+having some generalization power.
+
+.. code-block:: Python
+
+    def squeeze_excite(x, filters, ratio=4):
+        # computes mean of each spatial dimensions (outputs a mean value for each channel)
+        m1 = GlobalAveragePooling2D(keepdims=True)(x) 
+        m2 = Conv2D(filters // ratio, (1, 1), activation='relu')(m1)
+        m3 = Conv2D(filters, (1, 1), activation='sigmoid')(m2)
+        return Multiply(m3, x)
+
+**Listing 4: SqueezeExcite block in Keras** (adapted from `source <https://github.com/rwightman/gen-efficientnet-pytorch/blob/master/geffnet/efficientnet_builder.py#L103>`__)
+
+Since the SE block only operates on the channels due to the :code:`GlobalAveragePool2D` so
+the added computational and memory requirements are modest.  The largest contributors are
+usually the latter layers that have a lot of channels.  In their experiments,
+the parameters of a MobileNet network increased by roughly 12% but was able to improve
+the ImageNet top-1 error rate by about 3% [3_].  Overall, it seems like a nice little
+optimization that improves performance across a wide variety of visual tasks.
 
 
 EfficientNet
 ------------
 
-EfficientNet is a convolutional neural networks (ConvNet) architecture [2_]
+EfficientNet is a convolutional neural networks (ConvNet) architecture [4_]
 (circa 2019) that rethinks the standard ConvNet architecture choices and
 proposes a new architecture family called *EfficientNets*.  The first main idea
 is that ConvNets can be scaled to have more capacity in three broad network dimensions
-shown in Figure 1:
+shown in Figure 2:
 
 * **Wider**: In the context of ConvNets, this corresponds to more channels per layer (vs. more neurons in a fully connected layer).
 * **Deeper**: Deeper means more convolutional layers.
@@ -162,14 +212,14 @@ shown in Figure 1:
   :alt: Scaling ConveNet
   :align: center
 
-  **Figure 1: Model scaling figure from [** 2_ **]: (a) base model, (b) increase width, (c) increase depth, (d) increase resolution.**
+  **Figure 2: Model scaling figure from [** 4_ **]: (a) base model, (b) increase width, (c) increase depth, (d) increase resolution.**
 
-The first insight [2_] found is that, as expected, scaling the
+The first insight [4_] found is that, as expected, scaling the
 above network dimensions result in better ConvNet accuracy (as measured via Top-1
 ImageNet accuracy) but with diminishing returns.  To standardize the evaluation,
 they normalize the scaling using FLOPS.
 
-The next logical insight discussed in [2_] is that balancing
+The next logical insight discussed in [4_] is that balancing
 how all three scaling network dimensions is important to 
 efficiently scale ConveNets.  They propose a compound
 scaling method as:
@@ -239,12 +289,13 @@ Further Reading
 
 .. _2:
 
-[2] Mingxing Tan, Quoc V. Le, "EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks", `<https://arxiv.org/abs/1905.11946`>__
 
 .. _3:
 
-[3] Sandler et al. "MobileNetV2: Inverted Residuals and Linear Bottlenecks", CVPR 2018, `<https://arxiv.org/abs/1801.04381>`__
+[2] Sandler et al. "MobileNetV2: Inverted Residuals and Linear Bottlenecks", CVPR 2018, `<https://arxiv.org/abs/1801.04381>`__
 
 .. _4:
 
-[4] Hu et al. "Squeeze-and-Excitation Networks", CVPR 2018, `<https://arxiv.org/abs/1801.04381>`__
+[3] Hu et al. "Squeeze-and-Excitation Networks", CVPR 2018, `<https://arxiv.org/abs/1801.04381>`__
+
+[4] Mingxing Tan, Quoc V. Le, "EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks", `<https://arxiv.org/abs/1905.11946>`__
