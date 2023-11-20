@@ -215,7 +215,7 @@ shown in Figure 2:
   **Figure 2: Model scaling figure from [** 4_ **]: (a) base model, (b) increase width, (c) increase depth, (d) increase resolution.**
 
 The first insight [4_] found is that, as expected, scaling the
-above network dimensions result in better ConvNet accuracy (as measured via Top-1
+above network dimensions result in better ConvNet accuracy (as measured via top-1
 ImageNet accuracy) but with diminishing returns.  To standardize the evaluation,
 they normalize the scaling using FLOPS.
 
@@ -247,14 +247,59 @@ it likely simplifies the grid search that we need to do.
 Noisy Student
 -------------
 
+Noisy Student [5_] is a semi-supervised approach to training a model that is
+useful even when you have abundant lableled data.  This work is in the context
+of images where they show its efficacy on ImageNet and related benchmarks.
+The setup requires both labelled data and unlabeled data with a relatively
+simple algorithm (with some subtlety) and the following steps:
+
+1. Train teacher model :math:`M^t` with labelled images using a standard cross
+   entropy loss.
+2. Use the :math:`M^t` (current teacher) to generate pseudo labels for the unlabelled data
+   (**filter and balance dataset as required**)
+3. Learn a student model :math:`M^(t+1)` with **equal or larger** capacity
+   on the labeled and unlabeled data with added **noise**.
+4. Increment :math:`t` (make the current student the new teacher) and **repeat**
+   steps 2-3 as needed.
+
+A few unintuitive points emphasized in bold.  First, the student model uses a
+equal or larger model.  This is different from other student/teacher context
+where one is trying to distill the model knowledge into the smaller model.
+Here we're not trying to distill, we're trying to boost performance so we want
+a bigger model so it can learn from the bigger combined dataset.  This seems to
+have a increase of 0.5-1.5% in top-1 ImageNet accuracy in their ablation
+study.
+
+Second, the noise is implemented as randomized data augmentation plus dropout
+and stochastic depth.  The added noise on the student seems to around another 0.5%
+in top-1 ImageNet accuracy.  Seems like a reasonable modification given that
+you typically want both of these things when training these types of networks.
+
+Third, the iteration in step 4 also seemed important.  Going from one iteration
+to 3 improved performance by 0.8% in top-1 ImageNet accuracy.  It's not obvious
+to me that the performance would improve by iterating here but since the number
+of iterations is small, I can believe that it's possible.
+
+Lastly, they discuss that they filter out pseudo labels that have low
+confidence by the teacher model, and then rebalance the unlabelled classes so
+the distribution is not so off (by repeating images).  This also seems to
+improve performance a bit more modestly at 0-0.3% depending on the model.
+
+The summary of the overall Noisy Student results are shown in Figure 3 where
+they conducted most of their experiments on EfficientNet.  This figure only
+shows the non-iterative training (their headline result is within the iterative
+training).  You can see that the Noisy Student dominates the vanilla
+EfficientNet results at the same number of model parameters and achieves SOTA
+(at the time of the paper).  In the context of this post, there are many
+versions of EfficientNet with Noisy Student training that are available to use
+a pretrained model.
+
 .. figure:: /images/dermnet_noisystudent.png
   :height: 470px
   :alt: Scaling ConveNet
   :align: center
 
   **Figure 3: Noisy Student Training shows significant improvement over all model sizes. [** 5_ **]**
-
-[5_]
 
 
 SIIM-ISIC Melanoma Classification
