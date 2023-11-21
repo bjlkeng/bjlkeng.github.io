@@ -154,7 +154,7 @@ This can be thought of as a self-attention mechanism on the channels.
 
 .. figure:: /images/dermnet_squeeze_excite.png
   :height: 200px
-  :alt: Scaling ConveNet
+  :alt: Squeeze Excite
   :align: center
 
   **Figure 1: Squeeze Excitation Block with ratio=1 [** 3_ **]**
@@ -209,7 +209,7 @@ shown in Figure 2:
 
 .. figure:: /images/dermnet_scaling.png
   :height: 470px
-  :alt: Scaling ConveNet
+  :alt: Scaling ConvNets
   :align: center
 
   **Figure 2: Model scaling figure from [** 4_ **]: (a) base model, (b) increase width, (c) increase depth, (d) increase resolution.**
@@ -242,6 +242,67 @@ dimension and are found by a small grid search.  The constraint
 :math:`\alpha \cdot \beta^2 \cdot \gamma^2 \approx 2` (I believe) is arbitrary
 so that the FLOPS will increase by roughly :math:`2^\phi`.  Additionally,
 it likely simplifies the grid search that we need to do.
+
+A specific EfficientNet architecture is also proposed in [4_] that defines
+a base architecture labeled "B0" shown in Figure 3 using the above MBConv
+MobileNetV2 block discussed above with the Squeeze and Excitation optimization
+added to each block.  Overall the base B0 architecture is a typical ConvNet
+where in each layer the resolution decreases but channels increase.
+
+.. figure:: /images/dermnet_effnet.png
+  :height: 270px
+  :alt: Effnet architecture
+  :align: center
+
+  **Figure 3: EfficientNet-B0 baseline archiecture [** 4_ **]**
+
+From the B0 architecture, we can derive scaled architectures labeled
+B1-B7 by:
+
+1. Fix :math:`\phi=1` and assume two times more resources are available (see Equation 1),
+   and do a small grid search to find :math:`\alpha, \beta, \gamma`, which were
+   :math:`\alpha=1.2, \beta=1.1, \gamma=1.15` (depth, width, resolution, respectively),
+   which give roughly 1.92 according to Equation 1.
+2. Scale up the B0 architecture approximately using Equation 1 with the
+   constants described in Step 1 by increasing :math:`\phi` (and round where
+   appropriate).  Dropout is increased roughly linearly as the architectures
+   grow from B0 (0.2) to B7 (0.5).
+
+Table 1 shows the flops, multipliers and dropout rate for each dimension.
+
+.. csv-table:: Table 1: EfficientNet Architecture Multipliers (`source <https://github.com/rwightman/gen-efficientnet-pytorch/blob/master/geffnet/gen_efficientnet.py#L502>`__)
+   :header: "Name","FLOPs","Depth Mult.","Width Multi.","Resolution","Dropout Rate"
+   :widths: 8,5,5,5,5,5
+   :align: center
+
+    efficientnet-b0,0.39B,1.0,1.0,224,0.2
+    efficientnet-b1,0.70B,1.1,1.0,240,0.2
+    efficientnet-b2,1.0B,1.2,1.1,260,0.3
+    efficientnet-b3,1.8B,1.4,1.2,300,0.3
+    efficientnet-b4,4.2B,1.8,1.4,380,0.4
+    efficientnet-b5,9.9B,2.2,1.6,456,0.4
+    efficientnet-b6,19B,2.6,1.8,528,0.5
+    efficientnet-b7,47B,3.1,2.0,600,0.5
+
+..
+    Depth Mult.	Width Multi.	Resolution
+    1.00	1.00	224.00
+    0.52	0.00	0.49
+    1.00	1.00	1.07
+    1.85	1.91	2.09
+    3.22	3.53	3.78
+    4.32	4.93	5.09
+    5.24	6.17	6.14
+    6.21	7.27	7.05
+
+For example, starting with B0, we have 0.39B FLOPs, going to B4 we have 4.2B
+flops, which yields :math:`\phi = 4.2 / 0.39 \approx 3.28`.  This translates to
+scaling close to this value along the three dimensions with :math:`\phi_{\alpha} = 3.22`,
+:math:`\phi_{\beta}=3.53`, and :math:`\phi_{\gamma}=3.78`.  We're not going for
+precision here, we just want a rough guideline of how to scale up the
+architecture.  The nice thing about having this guideline is that we can create
+bigger ConvNets without having to do any additional architecture
+search.
 
 
 Noisy Student
@@ -285,7 +346,7 @@ confidence by the teacher model, and then rebalance the unlabelled classes so
 the distribution is not so off (by repeating images).  This also seems to
 improve performance a bit more modestly at 0-0.3% depending on the model.
 
-The summary of the overall Noisy Student results are shown in Figure 3 where
+The summary of the overall Noisy Student results are shown in Figure 4 where
 they conducted most of their experiments on EfficientNet.  This figure only
 shows the non-iterative training (their headline result is within the iterative
 training).  You can see that the Noisy Student dominates the vanilla
@@ -296,10 +357,10 @@ a pretrained model.
 
 .. figure:: /images/dermnet_noisystudent.png
   :height: 470px
-  :alt: Scaling ConveNet
+  :alt: Noisy Student
   :align: center
 
-  **Figure 3: Noisy Student Training shows significant improvement over all model sizes. [** 5_ **]**
+  **Figure 4: Noisy Student Training shows significant improvement over all model sizes. [** 5_ **]**
 
 
 SIIM-ISIC Melanoma Classification
