@@ -363,11 +363,63 @@ a pretrained model.
   **Figure 4: Noisy Student Training shows significant improvement over all model sizes. [** 5_ **]**
 
 
-SIIM-ISIC Melanoma Classification
-=================================
+SIIM-ISIC Melanoma Classification 2020 Competition
+==================================================
 
-Data
-----
+The Society for Imaging and Informatics in Medicine (SIIM) and the International Skin Imaging Collaboration (ISIC)
+melanoma classification competition [0_] aims to classify a given skin lesion
+as melanoma along with accompanying patient metadata.  Melanoma is a type of
+skin cancer that is responsible for over 75% of skin cancer deaths.  The ISIC
+has been putting on various computer vision `challenges <https://challenge.isic-archive.com/>`__ related to dermatology since 2016.
+Notably, past competitions have labelled image skin lesion data (and sometimes
+patient metadata) but with different labels that may be a superset of the 2020 competition.
+More than 3300 teams participated in the competition with the winning solution
+being the topic of this post [1_]. 
+
+The dataset consists of 33k training data points with only 1.76% positive samples (i.e., melanoma).
+Each datum contains a 1024x1024 image of a skin lesion along with patient data: 
+
+* patient id
+* sex
+* approximate age
+* location of image site
+* detailed diagnosis (training only)
+* benign or malignant (training only, label to predict)
+* binarized version of target
+
+The competition in 2020 was hosted on Kaggle which contained a leaderboard of
+all submissions.  Each team submitted a blind prediction on the given test set
+and the leaderboard will measure its performance using AUC.
+The leaderboard will show a public view on all submissions which shows the AUC
+score based on 30% of the test set.  The remaining 70% will be hidden on the
+private leaderboard until the end of the competition and be used to evaluate
+the final result.
+
+Table 2 shows several select submissions including the top 3 on the public and
+private leaderboards.  Interestingly, the top 3 winners on the private data all
+ranked relatively low, including the top submission which ranked all the way
+down at 881!  Impressively, the top public score had a whopping 0.9931 AUC but
+only ended up at rank 275 in the final private ranking.  The number of submissions
+is also interesting.  Clearly, some overfitting on this test set was going on
+in certain submissions with the top 3 winners all having relatively low number
+of submissions compared to others.  The other obvious thing is that 
+the scores are so close together that luck definitely played a role in the
+submissions.
+
+.. csv-table:: Table 2: Performance of Select Teams (`source <https://www.kaggle.com/competitions/siim-isic-melanoma-classification/leaderboard>`__)
+    :header: Private Rank,Private Score,Public Rank,Public Score,Submissions  
+    :widths: 4,3,4,3,4
+    :align: center
+
+    1,0.9490,881,0.9586,116
+    2,0.9485,57,0.9679,61
+    3,0.9484,265,0.9654,118
+    27,0.9441,2,0.9926,402
+    100,0.9414,329,0.9648,121
+    275,0.9379,1,0.9931,276
+    395,0.9357,3,0.9767,245
+    500,0.9336,241,0.9656,227
+
 
 Architecture
 ============
@@ -382,6 +434,10 @@ Implementation
 
 Experiments
 ===========
+
+* Experiment with just 2020 data
+* Experiment with just binarized labels
+* Experiment with/without patient data
 
 
 Discussion and Other Topics
@@ -398,7 +454,7 @@ Further Reading
 
 .. _0: 
 
-[0] `SIIM-ISIC Melanoma Classification Kaggle Competition <https://www.kaggle.com/c/siim-isic-melanoma-classification/leaderboard>`__
+[0] `SIIM-ISIC Melanoma Classification Kaggle Competition <https://www.kaggle.com/competitions/siim-isic-melanoma-classification/overview>`__
 
 .. _1: 
 
