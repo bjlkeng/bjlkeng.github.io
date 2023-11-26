@@ -157,7 +157,7 @@ This can be thought of as a self-attention mechanism on the channels.
   :alt: Squeeze Excite
   :align: center
 
-  **Figure 1: Squeeze Excitation Block with ratio=1 [** 3_ **]**
+  **Figure 1: Squeeze Excitation block with ratio=1 [** 3_ **]**
 
 The main problem the SE block addresses is that each convolutional output pixel only
 looks at it's local receptive field (e.g. 3x3).  A convolutional network only
@@ -270,7 +270,7 @@ B1-B7 by:
 
 Table 1 shows the flops, multipliers and dropout rate for each dimension.
 
-.. csv-table:: Table 1: EfficientNet Architecture Multipliers (`source <https://github.com/rwightman/gen-efficientnet-pytorch/blob/master/geffnet/gen_efficientnet.py#L502>`__)
+.. csv-table:: Table 1: EfficientNet architecture multipliers (`source <https://github.com/rwightman/gen-efficientnet-pytorch/blob/master/geffnet/gen_efficientnet.py#L502>`__)
    :header: "Name","FLOPs","Depth Mult.","Width Multi.","Resolution","Dropout Rate"
    :widths: 8,5,5,5,5,5
    :align: center
@@ -360,7 +360,7 @@ a pretrained model.
   :alt: Noisy Student
   :align: center
 
-  **Figure 4: Noisy Student Training shows significant improvement over all model sizes. [** 5_ **]**
+  **Figure 4: Noisy Student training shows significant improvement over all model sizes. [** 5_ **]**
 
 
 SIIM-ISIC Melanoma Classification 2020 Competition
@@ -377,7 +377,8 @@ More than 3300 teams participated in the competition with the winning solution
 being the topic of this post [1_]. 
 
 The dataset consists of 33k training data points with only 1.76% positive samples (i.e., melanoma).
-Each datum contains a 1024x1024 image of a skin lesion along with patient data: 
+Each datum contains a JPG image of varying sizes (or a standardized 1024x1024
+TFRecord) of a skin lesion along with patient data:
 
 * patient id
 * sex
@@ -386,6 +387,12 @@ Each datum contains a 1024x1024 image of a skin lesion along with patient data:
 * detailed diagnosis (training only)
 * benign or malignant (training only, label to predict)
 * binarized version of target
+
+Additionally, there were "external" data that one could use from previous
+years of the competition) that had similar skin lesion images with slightly
+different tasks (e.g. image segmentation, classification with different labels etc.).
+This additional data added another roughly 60k images that one could possibly
+use.
 
 The competition in 2020 was hosted on Kaggle which contained a leaderboard of
 all submissions.  Each team submitted a blind prediction on the given test set
@@ -420,16 +427,90 @@ submissions.
     395,0.9357,3,0.9767,245
     500,0.9336,241,0.9656,227
 
+Winning Solution
+================
+
+The winning solution [1_] to the SIIM-ISIC 2020 Competition used a variety of
+techniques that led to their outperformance.  This section discusses some of
+those techniques.
+
+Dataset Creation and Data Preprocessing
+---------------------------------------
+
+The winning solution used a preprocessed dataset that one of his colleagues
+used [6_].  This dataset was in fact used by many of the competing teams
+because did some of the most critical work of preparing the data (something
+that a huge amount of time is spent on in real world problems).
+
+The first step in preprocessing was center cropping and resizing
+the images.  Many of the JPEG images were really large and had different dimensions
+(e.g. 1053x1872 or 4000x6000) totaling 32GB.  After reducing them down to
+various standard sizes (e.g. 512x512, 768x768, 1024x1024) they were much more
+manageable to use, for example the 512x512 dataset was about 3GB for 2020 data.
+
+Next, the preprocessed dataset also contained a "triple" stratified 5-fold
+validation dataset: 
+
+* **Separate Patients**: This stratification was to ensure that the same
+  patient was not in both the train and validation set.  This can happen when you
+  have two skin lesion images from the same person, which is undesirable because
+  the resulting diagnosis is likely highly correlated in these situations.
+* **Positive Class**: This stratification was to ensure that the positive classes
+  were distributed correctly across each fold.  Due to the highly imbalanced problem
+  of only have 1.76% positive classes, ensuring an even balance across folds was 
+  very important.
+* **Patient Representation**: Some patients had only a few images while others
+  had many.  To have balanced folds, this stratification was to ensure that you
+  have good representation of each across each fold as well.
+
+Lastly, although the external data had a lot of additional images, many of them
+were in fact duplicates.  But this is harder than it looks because the images
+were not exact matches, for example they could be scaled and rotated, thus
+you cannot just compare the raw pixels.  To have a clean validation set, you
+ant to make sure have a truly independent train and validation set.
+
+To solve this problem, the preprocessing in [6_] used a pre-trained
+(EfficientNet) CNN to generate embeddings of each image, and then removed near
+duplicates (with manual inspection).  Hundreds of duplicates were removed,
+making a much cleaner validation set.
+
+
+Validation Strategy
+-------------------
+
+[6_]
 
 Architecture
-============
+------------
+
+The architecture consisted of an ensemble of eighteen ConvNets shown in Figure
+5 that were combined using a simple average of ranks that were then normalized
+to :math:`[0,1]`.  Notice that the first 16 models are EfficientNet variants
+from B3 all the way to B7, while the last two are SE-ResNext101 and Nest101.
+For the EfficientNet variants, besides the model size, the models vary by the
+original input image size (512, 768, 1024), their resized image input sizes
+(384, 448, 512, 576, 640, 768, 896)
+
+
+
+.. figure:: /images/dermnet_ensemble.png
+  :height: 470px
+  :alt: Ensemble of Winning Solution
+  :align: center
+
+  **Figure 5: Model configurations for winning solution ensemble and their AUC scores [** 1_ **]**
+
+
+* Correlation Matrix divergence
+* Adversarial Validation importances
 
 
 Problem Formulation
-===================
+-------------------
+
 
 Implementation
-==============
+--------------
 
 
 Experiments
@@ -438,6 +519,7 @@ Experiments
 * Experiment with just 2020 data
 * Experiment with just binarized labels
 * Experiment with/without patient data
+* Experiment with/without pretraining 
 
 
 Discussion and Other Topics
@@ -475,3 +557,7 @@ Further Reading
 .. _5:
 
 [5] Xie et al. "Self-training with Noisy Student improves ImageNet classification", `<https://arxiv.org/abs/1911.04252>`__
+
+.. _6:
+
+[6] Nvidia Developer, "How to Build a World-Class ML Model for Melanoma Detection", `<https://www.youtube.com/watch?v=L1QKTPb6V_I>`__
