@@ -478,7 +478,52 @@ making a much cleaner validation set.
 Validation Strategy
 -------------------
 
-[6_]
+The first place solution noted that one of the keys to winning was having robust
+validation strategy, which was particularly important in this competition [6_].
+As noted above, the original dataset had only a 1.76% positive rate over 33k
+training samples.  That translates to around 580 positive samples, and barely
+over 100 samples when doing for a 5-fold cross validation.  If one were to use
+the same metric, this naturally would lead to an unstable AUC (or pretty much
+any other metric you're going to use).
+
+Beyond the training data provided, the test data that can be evaluated via the
+public leaderboard had only about 10k samples, 30% of which was used to
+evaluate AUC on the public leaderboard.  If the distribution were similar in
+this test set, this would only leave about 50 or so positive test case samples.
+Thus, the public leaderboard evaluation was similarly unreliable quite and
+couldn't be used to robustly evaluate the model.  This was clearly seen as the
+top 3 public leader ranks dropped significantly when evaluated on the private
+data set.  The authors also mention that their cross validation scores
+(described below) were not correlated with the public leaderboard and that they
+basically ignored the it.
+
+The winning solution instead utilized *both* the competition (2020) data
+and external data (2019) for training *and* validation.  The 2019 data had 25k
+data points with a 17.85% positive rate, making it much more reliable when it
+was used as an addition in a validation set.
+
+The other key thing they did was to train on a multi-class problem instead of
+the binary target given by the competition.  In the 2020 data, a detailed
+diagnosis column was given, while in the 2019 data, a higher-level multi-class
+label was given (vs. the binary label).  As is typical in many problems, they
+leveraged some domain knowledge (using the descriptions from the competition)
+and mapped the 2020 detailed diagnosis to the 2019 labels shown in Figure 5.
+The main intuition of using a multi-class target is that it gives more
+information to the target when the lesion is benign (not cancerous).
+
+.. figure:: /images/dermnet_targets.png
+  :height: 370px
+  :alt: Mapping from diagnosis to targets
+  :align: center
+
+  **Figure 5: Mapping from diagnosis to targets [** 1_ **]**
+
+When evaluating the model the primary evaluation metric is the binary
+classification AUC of the combined 2019 and 2020 cross validation folds (the
+multi-class problem can easily be mapped back to a binary one).  The 
+cross validation AUC of the 2020 dataset was used as a secondary metric.
+
+
 
 Architecture
 ------------
@@ -498,7 +543,7 @@ original input image size (512, 768, 1024), their resized image input sizes
   :alt: Ensemble of Winning Solution
   :align: center
 
-  **Figure 5: Model configurations for winning solution ensemble and their AUC scores [** 1_ **]**
+  **Figure 6: Model configurations for winning solution ensemble and their AUC scores [** 1_ **]**
 
 
 * Correlation Matrix divergence
