@@ -528,15 +528,18 @@ cross validation AUC of the 2020 dataset was used as a secondary metric.
 Architecture
 ------------
 
-The architecture consisted of an ensemble of eighteen ConvNets shown in Figure
-5 that were combined using a simple average of ranks that were then normalized
-to :math:`[0,1]`.  Notice that the first 16 models are EfficientNet variants
-from B3 all the way to B7, while the last two are SE-ResNext101 and Nest101.
-For the EfficientNet variants, besides the model size, the models vary by the
-original input image size (512, 768, 1024), their resized image input sizes
-(384, 448, 512, 576, 640, 768, 896)
-
-
+The solution consisted of an ensemble of eighteen fine-tuned pretrained ConvNets 
+shown in Figure 6 that were combined using a simple average of ranks that were
+then normalized to :math:`[0,1]`.  Notice that the first 16 models are
+EfficientNet variants from B3 all the way to B7, while the last two are
+SE-ResNext101 and Nest101.  For the EfficientNet variants, besides the model
+size, the models vary by the image input sizes (384, 448, 512, 576, 640, 768,
+896) deriving from the next largest source image in the above described dataset
+(e.g. 512, 768, 1024).  The different models plus image sizes is an important
+source of diversity in the ensemble.  Interestingly, the authors state [6_]
+that the CNN backbone isn't all that important and they mostly just picked the
+off the shelf state of the art model at the time (EfficientNet), which
+pretrained models and code are usually readily available.
 
 .. figure:: /images/dermnet_ensemble.png
   :height: 470px
@@ -545,17 +548,66 @@ original input image size (512, 768, 1024), their resized image input sizes
 
   **Figure 6: Model configurations for winning solution ensemble and their AUC scores [** 1_ **]**
 
+The ensembles also varied based on their use of metadata with tuned learning
+rates and epochs for each test case.  The authors mention [6_] that the metadata
+didn't help much with their best single model not even using it.  They
+hypothesize that most of the useful information is already included in the
+image.  However, it was useful in providing diversity in the ensemble, which
+is one of the most important parts of ensembling.  Additionally, one of the
+models only used a reduced target with 4 classes (collapsing the "*" labels in
+Figure 5).
+
+Another interesting part is how they incorporated the metadata with the images.
+Figure 7 shows the architecture with metadata.  The metadata network is
+relatively simple with two fully connected layers whose output is concatenated 
+with the CNN before the last linear layer.  They use a pretty standard architecture
+with BatchNorm and dropout, but they do use the `Swish <https://en.wikipedia.org/wiki/Swish_function>`__
+activation.
+
+.. figure:: /images/dermnet_metadata.png
+  :height: 470px
+  :alt: Architecture of Solution
+  :align: center
+
+  **Figure 7: Model architecture including metadata [** 1_ **]**
+
+Lastly, a trick that I had not seen before is that in the last linear
+classification layer. They use five copies of the linear linear each with a
+*different* dropout layer, which then are averaged together to generate the
+final output shown in Listing 5.  I guess it really is trying to remove the
+randomness of dropout, especially when you have a 0.5 dropout rate.
+
+.. code-block:: Python
+
+    for dropout in enumerate(self.dropouts):
+        if i == 0:
+            out = self.myfc(dropout(x))
+        else:
+            out += self.myfc(dropout(x))
+    out /= len(self.dropouts)
+
+
+**Listing 5: Last layer of Winning Solution ( ** `source <https://github.com/haqishen/SIIM-ISIC-Melanoma-Classification-1st-Place-Solution/blob/master/models.py#L61>`__ **)**
+
+
+Augmentation
+------------
+
+A few things to note:
 
 * Correlation Matrix divergence
 * Adversarial Validation importances
 
 
-Problem Formulation
--------------------
+Training Details 
+----------------
 
-
-Implementation
---------------
+* 5 fold stratified
+* Allowed two submissions, pick 2 models - one optimizing cv_all (winning ensemble), and on for cv_2020
+* Batch = 64, makes it easier to tune learning rate
+* Multi-gpu with mixed precision
+* Warmup epoch + 14 cosine epochs
+* Adam + tuned learning rate
 
 
 Experiments
