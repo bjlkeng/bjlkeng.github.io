@@ -524,6 +524,12 @@ multi-class problem can easily be mapped back to a binary one).  The
 cross validation AUC of the 2020 dataset was used as a secondary metric.
 
 
+A few things to note:
+
+* Correlation Matrix divergence
+* Adversarial Validation importances
+
+
 
 Architecture
 ------------
@@ -536,10 +542,12 @@ SE-ResNext101 and Nest101.  For the EfficientNet variants, besides the model
 size, the models vary by the image input sizes (384, 448, 512, 576, 640, 768,
 896) deriving from the next largest source image in the above described dataset
 (e.g. 512, 768, 1024).  The different models plus image sizes is an important
-source of diversity in the ensemble.  Interestingly, the authors state [6_]
-that the CNN backbone isn't all that important and they mostly just picked the
-off the shelf state of the art model at the time (EfficientNet), which
-pretrained models and code are usually readily available.
+source of diversity in the ensemble.  Unfortunately, the authors didn't describe
+how they selected their ensemble except to say that diversity was important.
+Interestingly, the authors state [6_] that the CNN backbone isn't all that
+important and they mostly just picked the off the shelf state of the art model
+at the time (EfficientNet), which pretrained models and code are usually
+readily available.
 
 .. figure:: /images/dermnet_ensemble.png
   :height: 470px
@@ -572,7 +580,7 @@ activation.
   **Figure 7: Model architecture including metadata [** 1_ **]**
 
 Lastly, a trick that I had not seen before is that in the last linear
-classification layer. They use five copies of the linear linear each with a
+classification layer. They use five copies of the linear each with a
 *different* dropout layer, which then are averaged together to generate the
 final output shown in Listing 5.  I guess it really is trying to remove the
 randomness of dropout, especially when you have a 0.5 dropout rate.
@@ -587,17 +595,89 @@ randomness of dropout, especially when you have a 0.5 dropout rate.
     out /= len(self.dropouts)
 
 
-**Listing 5: Last layer of Winning Solution ( ** `source <https://github.com/haqishen/SIIM-ISIC-Melanoma-Classification-1st-Place-Solution/blob/master/models.py#L61>`__ **)**
+
+**Listing 5: Last layer of Winning Solution (** `source <https://github.com/haqishen/SIIM-ISIC-Melanoma-Classification-1st-Place-Solution/blob/master/models.py#L61>`__ **)**
+
+.. admonition:: Ensembles Selection Ideas from Another Solution
+
+    In addition to the explanation of [1_] in the YouTube video [6_],
+    one of their colleagues from Nvidia also presented their solution, which
+    also got a gold medal coming it 11th.  Their solution was more 
+    "brute force" (in their own words) building hundreds of models and relied on
+    some strategies to whittle it down to their final ensemble.
+    Two interesting ideas for ensemble selection came out in his explanation of his
+    solution:  
+
+    "**Correlation Matrix Divergence**": The idea is you want to filter out
+    models that are overfittig on the training data.  So what you do is compute
+    the correlation matrix over all classes on the training set, then do the same
+    on the test set.  Then you subtract the two and look for values in the
+    difference that are large.  The intuition is that if there is a big divergence
+    then the model may not be generalizing well to the test set for various reasons
+    from overfitting to bugs.  So the team used this as a filter to remove models
+    that were highly "divergent".
+
+    "**Adversarial Validation Importances**": Build a model that takes as input
+    all the predictions from the candidate set of models to predict whether an
+    image is in the train or test set.  If the set of models can easily detect
+    the test set, then that means you are picking up on a signal to be biased
+    towards one or the other.  Using (I assume) feature importances, you can
+    find which models are contributing to this signal and remove it.
+    Similar to the other method, you want to make it so the models in your
+    ensemble cannot distinguish between train and test to ensure they are 
+    going to generalize well.
+
+    For both of these methods you will need to use your judgement on which
+    threshold to set to drop models.  The authors just said they used their
+    best guess and didn't have a methodical way.
 
 
 Augmentation
 ------------
 
-A few things to note:
+Another key aspect of training vision models is data augmentation, which are readily available.
+The solution used the `albumentations <https://albumentations.ai/>`__ library that has a rich
+variety of image transformations that are performant and easily accessible.
 
-* Correlation Matrix divergence
-* Adversarial Validation importances
+The authors used a whole host of transformations where you can see the 
+`code here <https://github.com/bjlkeng/SIIM-ISIC-Melanoma-Classification-1st-Place-Solution/blob/master/dataset.py#L54>`__.
+I'll mention a few interesting points I found:
 
+* They use the :code:`compose()` function to apply *all* transformations to each image, however
+  (in most cases) each transformation will have some probability of activating or not.
+* They'll also have some :code:`OneOf` choices in there for blurring (Motion,
+  Median, Gaussian, GuassNoise blurring) and distortion (OpticalDistortion,
+  GridDistortion, ElasticTransform).
+* Some of the transforms require a bit more careful setting of parameters
+  depending on the domain.  For example, the :code:`Cutout` transform which blanks out
+  a square region of the image, which requires a bit more careful thinking to ensure that
+  the region isn't too large.  In this case, they used a single 37.5% of image sized square
+  to cutout with 70% probability.
+* The transformations are primarily only on the training set.  The validation set transforms
+  are only used to preprocess the image for the model by doing a resize and a normalization.
+
+
+Prediction
+----------
+
+On the prediction side there were a couple tricks that I thought were worth
+mentioning.  First, the ensemble averaging of the probabilities.  That is, for
+each model and for each softmax output, compute mean for each one separately.
+This is probably the most natural way you would expect to combine probability
+outputs of an ensemble.
+
+The other interesting thing they did because of the nature of the images was to
+average 8 different predictions for each model (in addition to the ensemble
+averaging), where each prediction was given a different orientation of the
+input image.  The different orientations are: original, horizontal flip,
+vertical flip, horizontal & vertical flip, diagonal "flip" (transpose),
+diagonal & horizonal flip, diagonal & vertical flip, diagonal & horizontal &
+vertical flip.  For skin lesions the orientation probably doesn't matter at
+all, so computing the average over many different orientations probably smooths
+out any quirks the models had with a particular orientation.  Intuitively,
+I would guess this increases the robustness of the model's prediction.
+See the `source <https://github.com/bjlkeng/SIIM-ISIC-Melanoma-Classification-1st-Place-Solution/blob/master/predict.py#L121>`__
+for the details on both of these tricks.
 
 Training Details 
 ----------------
@@ -615,7 +695,7 @@ Experiments
 
 * Experiment with just 2020 data
 * Experiment with just binarized labels
-* Experiment with/without patient data
+* Experiment with/without patient data - DONE
 * Experiment with/without pretraining 
 
 
