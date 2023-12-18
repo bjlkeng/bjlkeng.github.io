@@ -636,6 +636,7 @@ The authors used a whole host of transformations where you can see the
 `code here <https://github.com/bjlkeng/SIIM-ISIC-Melanoma-Classification-1st-Place-Solution/blob/master/dataset.py#L54>`__.
 I'll mention a few interesting points I found:
 
+* The last transformation always resizes the image back to the size the network expects.
 * They use the :code:`compose()` function to apply *all* transformations to each image, however
   (in most cases) each transformation will have some probability of activating or not.
 * They'll also have some :code:`OneOf` choices in there for blurring (Motion,
@@ -712,16 +713,164 @@ Here are the details for the training:
 Experiments
 ===========
 
-* Talk about training time on my 3090
-* Changed batch size to 32 to fit on my video card
-* Changed folds to 3 to speed up experiments
-* Mixed precision lowers memory requirement?
+The experiments consisted of a bunch of ablation tests against a baseline
+configuration because I was curious how important each of the decisions were.
+Due to only having access to my local RTX 3090 (and not wanting to spend more
+on cloud compute), I ran it versus a smaller baseline than the models used in
+the original solution.  On the baseline setup, running 3 folds (vs. 5) took
+roughly one full day (which could probably have been faster, see my notes on
+improving runtime below).  Notably, I didn't try many bigger models because
+I didn't want to spend time waiting around for them to finish.
 
-* Experiment with just 2020 data - DONE
-* Experiment with just binarized labels - DONE
-* Experiment with/without patient data - DONE
-* Experiment with/without pretraining 
-* Mixed precision
+You can see the script I used to run it `here
+<https://github.com/bjlkeng/SIIM-ISIC-Melanoma-Classification-1st-Place-Solution/blob/master/train.sh>`__,
+which just used the existing training script (plus a few new arguments to test
+some of the techniques).  The baseline setup was:
+
+* 3 fold cross training (vs. 5), 15 epochs per fold
+* Use external data but no patient (i.e., table) data
+* Image size 384 (vs. 448+)
+* Architecture: EfficientNet B3 (vs. B4+)
+* Cosine warmup
+* Batch size: 48 (vs. default 64)
+* LR: 3e-5
+
+Relative to this baseline setup, I'll discuss the things that seemed to be significant
+and those that didn't seem that important (in my small study).
+
+Experiments That Showed Improvement
+-----------------------------------
+
+Figure 8 shows the experiments that appears to have improved performance beyond
+just randomness.  The figure shows the mean AUC across folds including external
+data in the validation set (:code:`AUC_mean`), and the AUC for the validation
+set with just competition data (:code:`AUC_20_mean`), where the former is the
+primary metric.  Error bars indicate the standard deviation computed from the
+three folds.  Starting left to right, the changes were:
+
+* **baseline**: Baseline setup described above.
+* **no-pretraining**: Did not used a pretrained B3 model.
+* **no-augmentation**: Removed data augmentation transforms.
+* **-no-external-data**: A run without utilizing the Data from other year
+  competitions that were not included in the current year competition i.e.,
+  no external data.
+* **-warmup**: Remove the first warmup epoch which starts at a tenth of the
+  initial learning rate and gradually grows to the target LR by the end of the
+  epoch.
+* **no-cosine**: Did not use cosine learning schedule (one cycle across all epochs).
+
+.. figure:: /images/dermnet_plot_good.png
+  :height: 400px
+  :alt: Experiments that showed improvement
+  :align: center
+
+  **Figure 8: Experiments that showed improvement**
+
+As you can see, there are only a few things that are obviously beneficial
+particularly around the data.
+The biggest gain appears to be due to pre-training, which is around an
+0.08 AUC gap from the baseline.  This makes sense since we only have
+around 60K data points, so pre-training (even on an unrelated ImageNet)
+would be useful.
+The other big drop seems to be whether or not we're using data augmentation.
+Although the AUC metric seems like it might be only a small drop, the AUC_20
+shows quite a large one, indicating that this plays a significant role in the
+performance.
+Another big data related change was the use of external data.
+The primary metric is not reported because the default computation from the script
+was not comparable (and I didn't feel like hacking it to make it comparable).
+Instead, we can see the AUC_20 metric which shows about a 0.03 AUC gap.  These
+really shows the value of adding more data seems to give the most durable boost
+to performance.
+
+The two other more minor improvements come from the learning rate schedules with
+a warmup epoch and a cosine scheduling of learning rates.  The warmup seemed
+the most significant with 0.02 AUC difference with the cosine scheduling
+showing very minor improvement with 0.01 AUC (may not be significant though).
+
+Experiments That Did Not Showed Improvement
+-------------------------------------------
+
+Similar to the things that showed improvement, I ran a bunch of other experiments
+shown in Figure 9 with the same metrics.  For the most part, they did not show
+significant improvement over the baseline.  Starting from left to right in
+Figure 9, the changes were:
+
+* **baseline**: Baseline setup described above
+* **+noisy-student**: Use a pretrained B3 model with Noisy Student training
+* **effnet_b2**: Use EfficientNet B2 model instead of B3
+* **lr={1.5e-5, 2e-5}**: Use a learning rate of 1.5e-5, 2e-5 (vs. 3e-5)
+* **+metadata**: Utilize patient (non-image) metadata
+* **dropout-layers={1, 3}**: Utilize 1, 3 parallel dropout layers (vs 5) as
+  described above in the Architecture section
+* **img_size=448**: Utilize image size of 448 (vs. 384x384)
+* **binary_labels**: Utilize binary labels (as the competition expects) instead
+  of 9 classes
+* **tensorflow_impl**: Utilize a tensorflow implementation of the pretrained model.
+* **amp**: Utilize Automated Mixed Precision (AMP) in PyTorch
+
+.. figure:: /images/dermnet_plot_bad.png
+  :height: 450px
+  :alt: Experiments that showed did not improvement
+  :align: center
+
+  **Figure 9: Experiments that did not showed improvement**
+
+I'll just comment on a few things that were surprising:
+
+* "Fancy" things didn't seem to be that important.  For example,
+  Noisy Student or changing architecture to B2 didn't seem to do much.
+  Similarly the dropout layers didn't change things much.
+* Implementation details didn't seem to make a big difference like the
+  Tensorflow implementation or using AMP.
+* Not very sensitive to many hyperparameters like learning rate and image size,
+  although I'm sure learning rate is very much related to the learning
+  schedule.
+* One thing I did find surprising was that the binary labels didn't didn't make
+  that much of a difference.  Intuitively, it feels like better categories would encourage
+  learning but even if it did, it looks like it wasn't that significant.
+  Similar to the previous section, this experiment only had an AUC_20 measure
+  since the problem formulation was different.
+* One of things that was borderline was the use of metadata, which I included
+  in this section instead of the one above.  The paper states that metadata didn't
+  in general do much but was useful to make more diverse models.  In these experiments,
+  it's not significant but it's possible it does help, perhaps especially in smaller
+  models/image sizes like B3/384x384.  It's hard to draw conclusions though.
+
+In general, as is the case in many of these situations, there many fewer silver
+bullets.  *Most things* do not significantly move the performance of the
+problem in a real world scenario.  Or at least they're not "first order"
+improvements that you would try on a first pass at a problem.  If you're optimizing
+for 0.1% improvement (e.g. AdWords) then you might want to spend more time with
+the "second order" improvements to hyperoptimize the problem.  And although
+these experiments are not extensive, they probably point directionally to what
+you should care about: data and *maybe* better learning schedules. 
+
+Training Time
+-------------
+
+For most of my experiments, a typical run would take about 27 hours (about 37
+mins / epoch) for the baseline setup.  This seemed kind of unreasonably long
+for a small B3 setup, but I mostly ignored it because I just queueing the jobs
+up and coming back to them at the end of each day.  I even noticed that the GPU
+utilization was low, but thought it was a weird artifact of training setup.  I
+even started playing around with AMP and PyTorch 2.0 compilation and didn't see
+a significant change in the above.
+
+Only after I had the idea to run the data augmentation experiment did I realize
+my issue: the data augmentation transforms were bottlenecking my batches!  I
+had been using a single thread for the :code:`DataLoader`, which caused most of
+the run-time to be in my CPU.  After increasing the number of workers to 6 (the
+number of cores on my CPU), I got the runtime down to less than 10 minutes
+with relatively high GPU utilization.
+
+Most of my explorations have been on relatively smaller models (partly because
+I had a small 8GB 1070 up until last year) so I didn't have to think too much
+about runtime.  But now that I'm running bigger jobs, savings 3-4x in runtime
+is pretty significant even though I typically have 20 hours of runtime between
+experiments (because I only work on these projects in the evening).  
+I think I'll be looking more into the basics of optimizing runtime in the near
+future.
 
 
 Miscellaneous Notes
@@ -735,7 +884,9 @@ Here are a bunch of of random thoughts I had while doing this project.
   could monitor the key metrics easily.  Finally, it was easy enough to use a notebook
   to download the raw data and then compute the metrics (mean best AUC by
   fold), was a pleasure.  It made it so I didn't have to waste a lot of time doing this
-  boring work.
+  boring work.  The one thing to remember for future projects is to tag my runs
+  better so it makes it easier to view in the W&B GUI instead of clicking in to
+  see what the command line arguments were.
 * **Github CoPilot**: I have recently started to use the Github CoPilot Chat functionality
   in VSCode.  I initially didn't know it was there!  So it's basically ChatGPT
   but I suppose with a model tuned more to code (and a different default
@@ -755,23 +906,31 @@ Here are a bunch of of random thoughts I had while doing this project.
   never mind adding in details like a legend or grouped bar charts.  Now
   CoPilot will get my chart 95% of the way there (with correct syntax) and
   then it's easy for me to modify it.
-* **Training time**: Since I did an ablation-like study of the solution, I ran
-  a lot of experiments.  I only used a single RTX 3090 that I bought, and each
-  experiment was about a day (several days for the bigger models) with the
-  reduced batch size to fit within my GPU memory and reduced folds of 3.  In
-  general, I understand why people want a bit cluster to run things, it's
-  painful to wait weeks to get experiment data back.  Luckily, I only work on
-  this in the evenings usually, so waiting a day for sequential experimental
-  results isn't so bad for me (although it still wouldn't help when tuning).
-  In any case, I don't really want to spend time or money running on the cloud
-  because I'm still trying amortize the cost of my RTX 3090 over its lifetime.
+* I had one minor Docker shared memory issue where when I increased the number
+  of :code:`DataLoader` workers the script died to not enough shared memory.
+  And while I gave 1 GB of shared memory, it turns out it was not enough.
+  In Linux (POSIX standard), :code:`/dev/shm` can be viewed as a shared memory
+  is a filesystem-like view that uses RAM to facilitate interprocess
+  communication.  Since the :code:`DataLoader` can use a lot of that space to
+  prepare (presumably) images, it was overloaded.  It was easy to increase
+  the space to 8GB and the problem went away.  You can see my Docker run
+  script and the other scripts that I used to set up my environment
+  in this `scripts / repo <https://github.com/bjlkeng/wsl-setup/blob/main/run_devenv.sh>`__.
 
 Conclusion
 ==========
 
+It never ceases to amaze me how much there is to learn from diving deep into a
+subject.  While the original write up to the Kaggle solution was only a few
+pages long (single column), the YouTube video and the code repo added a lot
+more layers.  Digging into some of the technical details, understanding what
+choices were actually important, and even getting schooled on how to run them
+efficiently were all incredibly fun things to look into.  And even still there
+is so much more that I want to do (e.g. PyTorch runtime optimizations).  For now,
+it'll have to do, thanks for reading! 
 
-Further Reading
-===============
+References
+==========
 
 
 .. _0: 
