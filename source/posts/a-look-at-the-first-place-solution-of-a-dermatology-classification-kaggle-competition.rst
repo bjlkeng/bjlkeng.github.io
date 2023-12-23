@@ -1,33 +1,33 @@
 .. title: A Look at The First Place Solution of a Dermatology Classification Kaggle Competition
 .. slug: a-look-at-the-first-place-solution-of-a-dermatology-classification-kaggle-competition
 .. date: 2023-11-11 13:09:46 UTC-05:00
-.. tags: dermatology, effnet, mathjax
+.. tags: dermatology, EfficientNet, CNN, augmentation, data, validation set, Noisy Student, MobileNet, mathjax
 .. category: 
 .. link: 
 .. description: 
 .. type: text
 
-One interesting I often think about is the gap between academic and real-world
+One interesting thing I often think about is the gap between academic and real-world
 solutions.  In general academic solutions play in the realm of idealized problem
 spaces, removing themselves from needing to care about the messiness of the real-world.
 `Kaggle <https://www.kaggle.com/competitions>`__
-competitions are a (small) step in the right direction towards dealing with messiness 
-usually providing a true blind test set (vs. overused benchmarks) and opening a
+competitions are a (small) step in the right direction towards dealing with messiness,
+usually providing a true blind test set (vs. overused benchmarks), and opening a
 few degrees of freedom in terms the techniques that can be used, which
 usually eschews novelty in favour of more robust methods.  To this end, I
 thought it would be useful to take a look at a more realistic problem (via a
-Kaggle competition) and understand the practical details that gets you superior
-performance on it. 
+Kaggle competition) and understand the practical details that result in a
+superior solution. 
 
 This post will cover the `first place solution
 <https://arxiv.org/abs/2010.05351>`__ [1_] to the 
-`SIIM-ISIC Melanoma Classification <https://www.kaggle.com/competitions/siim-isic-melanoma-classification/overview>`_ [0_].
+`SIIM-ISIC Melanoma Classification <https://www.kaggle.com/competitions/siim-isic-melanoma-classification/overview>`_ [0_] challenge.
 In addition to using tried and true architectures (mostly EfficientNets), they
 have some interesting tactics they use to formulate the problem, process the
 data, and train/validate the model.  I'll cover background on the
-ML techniques, competition/data, architectural details, problem formulation, and
-implementation details.  I've also run some experiments to better understand
-the benefit of certain architectural decision they made.  Enjoy!
+ML techniques, competition and data, architectural details, problem formulation, and
+implementation.  I've also run some experiments to better understand the
+benefits of certain choices they made.  Enjoy!
 
 
 .. TEASER_END
@@ -60,13 +60,14 @@ and linear bottlenecks.
 First to understand inverted residuals, let's take a look at the basic
 residual block (also see my post on `ResNet <link://slug/residual-networks>`__)
 shown in Listing 1.  Two notable parts of the basic residual block are the
-fact that we reduce the number of channels to :code:`squeeze` and then grow the
-number of channels with :code:`expand`.  The squeeze operation is often known
-as a *bottleneck* since we have fewer channels.  The intuition here is to reduce
-the number of channels so that the more expensive 3x3 convolution is cheaper.
-The other relevant part is that fact that we have the residual "skip" connection where
-we add the input to the result of the transformations.  Notice the residual
-connection connects the expanded parts :code:`x` and :code:`m3`.
+fact that we reduce the number of channels to :code:`squeeze` in the first
+layer, and then grow the number of channels to :code:`expand` in the last
+layer.  The squeeze operation is often known as a *bottleneck* since we have
+fewer channels.  The intuition here is to reduce the number of channels so that
+the more expensive 3x3 convolution is cheaper.  The other relevant part is that
+we have the residual "skip" connection where we add the input to the
+result of the transformations.  Notice the residual connection connects the
+expanded parts :code:`x` and :code:`m3`.
 
 .. code-block:: Python
 
@@ -79,13 +80,13 @@ connection connects the expanded parts :code:`x` and :code:`m3`.
 
 **Listing 1: Example of a Basic Residual Block in Keras** (adapted from `source <https://towardsdatascience.com/mobilenetv2-inverted-residuals-and-linear-bottlenecks-8a4362f4ffd5>`__)
 
-Next, let's look at what changes with an inverted residual shown in Listing 2.
+Next, let's look the changes in an inverted residual block shown in Listing 2.
 Here we "invert" the residual connection where we are making the residual
-connection between the bottleneck "squeezed" layers.  Recall that we'll
-eventually be stacking these blocks, so there will still be alternations
-of squeezed ("bottlenecks") and expansion layers.  The difference with
-Listing 1 is that we'll be making residual connections between the bottleneck
-layers instead of expansion layers.  
+connection between the bottleneck "squeezed" layers instead of "expanded"
+layers.  Recall that we'll eventually be stacking these blocks, so there will
+still be alternations of squeezed ("bottlenecks") and expansion layers.  The
+difference with Listing 1 is that we'll be making residual connections between
+the bottleneck layers instead of expansion layers.  
 
 .. code-block:: Python
 
@@ -100,9 +101,9 @@ layers instead of expansion layers.
 
 
 The other thing to note is that the 3x3
-convolution is now expensive if we do it on the expanded layer so instead we'll 
+convolution is now expensive if we do it on the expanded layer, so instead we'll 
 use a `depthwise convolution <https://keras.io/api/layers/convolution_layers/depthwise_convolution2d/>`__
-for efficiency.  This reduces reduces the number of parameters needed from
+for efficiency.  This reduces the number of parameters needed from
 :math:`h\cdot w \cdot d_i \cdot d_j \cdot k^2` for a regular 3x3 convolution to
 :math:`h\cdot w \cdot d_i (k^2 + d_j)` for a depthwise convolution where
 :math:`h, w` are height and width, :math:`d_i, d_j` are input/output channels, and
@@ -120,8 +121,8 @@ accuracy.
 
 **Listing 3: MBConv Block in Keras** (adapted from `source <https://towardsdatascience.com/mobilenetv2-inverted-residuals-and-linear-bottlenecks-8a4362f4ffd5>`__)
 
-The last big thing thing that MBConv block changed was removing the
-non-linearity on bottleneck layer as shown in Listing 3.  A
+The last big thing thing that MBConv block changes was removing the
+non-linearity on the bottleneck layer as shown in Listing 3.  A
 hypothesis the [2_] proposes is that ReLU non-linearity on the inverted
 bottleneck hurts performance.  The idea is that ReLU either is the identify
 function if the input is positive, or zero otherwise.  In the case that the
@@ -144,7 +145,7 @@ on standard benchmarks.  Details on the architecture can be found in [2_].
 Squeeze and Excitation Optimization
 -----------------------------------
 
-The Squeeze and Excitation (SE) block [3_] is an optimization that can added on to a
+The Squeeze and Excitation (SE) block [3_] is an optimization that can be added on to a
 convolutional layer that scales each channel's outputs by using a learned
 function of the average activation of each channel.  The basic idea is shown in
 Figure 1 where from a convolution operation (:math:`F_{tr}`), we branch off to
@@ -167,10 +168,10 @@ the global interdependencies between channels and allow each channel to
 increase their sensitivity improving learning.
 
 Code for an SE block is shown in  Listing 4.  First, we do a
-:code:`GlobalAveragePool2D`, which amounts to compute the mean for each
+:code:`GlobalAveragePool2D`, which computes the mean for each
 channel.  Then we pass it through two 1x1 convolutional layers with a ReLU and
 sigmoid activation respectively.  The first convolutional layer can be thought
-of as "mixing" the averages across the channel, while the second one converts
+of as "mixing" the averages across the channels, while the second one converts
 it to a value between 0 and 1.  It's not clear whether more or less layers is better
 but [3_] says that they wanted to limit the added model complexity while still
 having some generalization power.
@@ -186,12 +187,13 @@ having some generalization power.
 
 **Listing 4: SqueezeExcite block in Keras** (adapted from `source <https://github.com/rwightman/gen-efficientnet-pytorch/blob/master/geffnet/efficientnet_builder.py#L103>`__)
 
-Since the SE block only operates on the channels due to the :code:`GlobalAveragePool2D` so
-the added computational and memory requirements are modest.  The largest contributors are
-usually the latter layers that have a lot of channels.  In their experiments,
-the parameters of a MobileNet network increased by roughly 12% but was able to improve
-the ImageNet top-1 error rate by about 3% [3_].  Overall, it seems like a nice little
-optimization that improves performance across a wide variety of visual tasks.
+Since the SE block only operates on channels as a whole, the added
+computational and memory requirements are modest.  The largest contributors are
+usually the latter layers that have a lot of channels.  In their experiments
+the parameters of a MobileNet network increased by roughly 12% but was able to
+improve the ImageNet top-1 error rate by about 3% [3_].  Overall, it seems like
+a nice little optimization that improves performance across a wide variety of
+visual tasks.
 
 
 EfficientNet
@@ -204,8 +206,8 @@ is that ConvNets can be scaled to have more capacity in three broad network dime
 shown in Figure 2:
 
 * **Wider**: In the context of ConvNets, this corresponds to more channels per layer (analogous to more neurons in a fully connected layer).
-* **Deeper**: Deeper means more convolutional layers.
-* **Higher Resolution**: Means using higher resolution inputs (e.g. 560x560 vs. 224x224 images).
+* **Deeper**: Corresponds to more convolutional layers.
+* **Higher Resolution**: Corresponds to using higher resolution inputs (e.g. 560x560 vs. 224x224 images).
 
 .. figure:: /images/dermnet_scaling.png
   :height: 470px
@@ -298,7 +300,7 @@ Table 1 shows the flops, multipliers and dropout rate for each dimension.
 For example, starting with B0, we have 0.39B FLOPs, going to B4 we have 4.2B
 flops, which yields :math:`\phi = 4.2 / 0.39 \approx 3.28`.  This translates to
 scaling close to this value along the three dimensions with :math:`\alpha^{3.22} = 1.2^{3.22} \approx 1.8`,
-:math:`\beta^{3.53}=1.1^{3.53}\approx 1.4`, and :math:`\gamma^{3.78} = (1.15)^3.78 \approx \frac{380}{224}`. 
+:math:`\beta^{3.53}=1.1^{3.53}\approx 1.4`, and :math:`\gamma^{3.78} = (1.15)^{3.78} \approx \frac{380}{224}`. 
 We're not going for precision here, we just want a rough guideline of how to
 scale up the architecture.  The nice thing about having this guideline is that
 we can create bigger ConvNets without having to do any additional architecture
@@ -323,9 +325,9 @@ simple algorithm (with some subtlety) and the following steps:
 4. Increment :math:`t` (make the current student the new teacher) and **repeat**
    steps 2-3 as needed.
 
-A few unintuitive points emphasized in bold.  First, the student model uses a
+A few unintuitive points emphasized in bold.  First, the student model uses an
 equal or larger model.  This is different from other student/teacher paradigms 
-where one is trying to distill the model knowledge into the smaller model.
+where one is trying to distill the model knowledge into a smaller model.
 Here we're not trying to distill, we're trying to boost performance so we want
 a bigger model so it can learn from the bigger combined dataset.  This seems to
 have a increase of 0.5-1.5% in top-1 ImageNet accuracy in their ablation
@@ -374,13 +376,13 @@ and accompanying patient metadata as melanoma (or not).  Melanoma is a type of
 skin cancer that is responsible for over 75% of skin cancer deaths.  The ISIC
 has been putting on various computer vision `challenges <https://challenge.isic-archive.com/>`__ related to dermatology since 2016.
 Notably, past competitions have labelled image skin lesion data (and sometimes
-patient metadata) but with different labels that may be a superset of the 2020 competition.
-More than 3300 teams participated in the competition with the winning solution
-being the topic of this post [1_]. 
+patient metadata) but with different labels that have partial overlap with the 2020 competition.
+More than 3300 teams participated in the competition with the winning solution [1_]
+being the topic of this post. 
 
 The dataset consists of 33k training data points with only 1.76% positive samples (i.e., melanoma).
 Each datum contains a JPG image of varying sizes (or a standardized 1024x1024
-TFRecord) of a skin lesion along with patient data:
+TFRecord) of a skin lesion along with patient data, which includes:
 
 * patient id
 * sex
@@ -412,7 +414,7 @@ only ended up at rank 275 in the final private ranking.  The number of submissio
 is also interesting.  Clearly, overfitting on the public test set was common as
 the top 3 winners all having relatively low number of submissions compared to
 others.  The other obvious thing is that the scores are so close together that
-luck definitely played a role in the submissions.
+luck definitely played a role in the final ranking among the top submissions.
 
 .. csv-table:: Table 2: Performance of Select Teams (`source <https://www.kaggle.com/competitions/siim-isic-melanoma-classification/leaderboard>`__)
     :header: Private Rank,Private Score,Public Rank,Public Score,Submissions  
@@ -432,14 +434,14 @@ Winning Solution
 ================
 
 The winning solution [1_] to the SIIM-ISIC 2020 Competition used a variety of
-techniques that led to their out performance.  This section discusses some of
+techniques that led to their outperformance.  This section discusses some of
 those techniques.
 
 Dataset Creation and Data Preprocessing
 ---------------------------------------
 
 The winning solution used a preprocessed dataset that one of his colleagues
-used [6_].  This dataset was in fact used by many of the competing teams
+created [6_].  This dataset was in fact used by many of the competing teams
 and arguably one of the most critical pieces of work (something that a huge
 amount of time is spent on in real world problems).
 
@@ -458,17 +460,17 @@ validation dataset:
   the resulting diagnosis is likely highly correlated in these situations.
 * **Positive Class**: This stratification was to ensure that the positive classes
   were distributed correctly across each fold.  Due to the highly imbalanced problem
-  of only have 1.76% positive classes, ensuring an even balance across folds was 
+  of only having 1.76% positive classes, ensuring an even balance across folds was 
   very important.
 * **Patient Representation**: Some patients had only a few images while others
   had many.  To have balanced folds, this stratification was to ensure that you
   have good representation of each across each fold as well.
 
 Lastly, although the external data had a lot of additional images, many of them
-were in fact duplicates.  But this is harder than it looks because the images
+were in fact duplicates that should be removed.  But this is harder than it looks because the images
 were not exact matches, for example they could be scaled and rotated, thus
 you cannot just compare the raw pixels.  To have a clean validation set, you
-want to make sure have a truly independent train and validation set.  To solve
+want to make sure you have a truly independent train and validation set.  To solve
 this problem, the preprocessing in [6_] used a pre-trained (EfficientNet) CNN
 to generate embeddings of each image, and then removed near duplicates (with
 manual inspection).  Hundreds of duplicates were removed, making a much cleaner
@@ -491,17 +493,17 @@ Beyond the training data provided, the test data that could be evaluated via the
 public leaderboard had only about 10k samples, 30% of which was used to
 evaluate AUC on the public leaderboard.  If the distribution were similar in
 this test set, this would only leave about 50 or so positive test case samples.
-Thus, the public leaderboard evaluation was similarly unreliable quite and
+Thus, the public leaderboard evaluation was similarly unreliable and
 couldn't be used to robustly evaluate the model.  This was clearly seen as the
 top 3 public leader ranks dropped significantly when evaluated on the private
 data set.  The authors also mention that their cross validation scores
 (described below) were not correlated with the public leaderboard and that they
-basically ignored it.
+basically ignored the leaderboard.
 
 The winning solution instead utilized *both* the competition (2020) data
 and external data (2019) for training *and* validation.  The 2019 data had 25k
 data points with a 17.85% positive rate, making it much more reliable when it
-was used both in training and validation.
+was used for both training and validation.
 
 The other key thing they did was to train on a multi-class problem instead of
 the binary target given by the competition.  In the 2020 data, a detailed
@@ -529,8 +531,7 @@ Architecture
 ------------
 
 The solution consisted of an ensemble of eighteen fine-tuned pre-trained ConvNets 
-shown in Figure 6 that were combined using a simple average of ranks that were
-then normalized to :math:`[0,1]`.  Notice that the first 16 models are
+shown in Figure 6 that were combined using a simple average of ranks.  Notice that the first 16 models are
 EfficientNet variants from B3 all the way to B7, while the last two are
 SE-ResNext101 and Nest101.  For the EfficientNet variants, besides the model
 size, the models vary by the image input sizes (384, 448, 512, 576, 640, 768,
@@ -540,7 +541,7 @@ source of diversity in the ensemble.  Unfortunately, the authors didn't describe
 how they selected their ensemble except to say that diversity was important.
 Interestingly, the authors state [6_] that the CNN backbone isn't all that
 important and they mostly just picked an off-the-shelf state-of-the-art model
-achitecture (EfficientNet) where pre-trained models and code are usually
+achitecture (EfficientNet) where pre-trained models and code are
 readily available.
 
 .. figure:: /images/dermnet_ensemble.png
@@ -551,18 +552,18 @@ readily available.
   **Figure 6: Model configurations for winning solution ensemble and their AUC scores [** 1_ **]**
 
 The ensembles also varied based on their use of metadata with tuned learning
-rates and epochs for each test case.  The authors mention [6_] that the metadata
-didn't help much with their best single model not even using it.  They
+rates and epochs for each configuration.  The authors mention [6_] that the metadata
+didn't seem to help much with their best single model not using metadata.  They
 hypothesize that most of the useful information is already included in the
-image.  However, it was useful in providing diversity in the ensemble, which
-is one of the most important parts of ensembling.  Additionally, one of the
+image.  However, they think it was useful in providing diversity in the ensemble 
+(again being one of the most important parts of ensembling).  Additionally, one of the
 models only used a reduced target with 4 classes (collapsing the "*" labels in
 Figure 5).
 
 Another interesting part is how they incorporated the metadata with the images.
 Figure 7 shows the architecture with metadata.  The metadata network is
 relatively simple with two fully connected layers whose output is concatenated 
-with the CNN before the last linear layer.  They use a pretty standard architecture
+with the CNN before the last classification layer.  They use a pretty standard architecture
 with BatchNorm and dropout, but they do use the `Swish <https://en.wikipedia.org/wiki/Swish_function>`__
 activation.
 
@@ -576,8 +577,9 @@ activation.
 Lastly, I noticed a trick that I had not seen before in the last linear
 classification layer. They use five copies of the linear layer (shared params)
 each with a *different* dropout layer, which then are averaged together to
-generate the final output shown in Listing 5.  I guess it really is trying to
-remove the randomness of dropout, especially when you have a 0.5 dropout rate.
+generate the final output shown in Listing 5.  My guess to its purpose is that
+it is trying to remove the randomness of dropout, which may be important since 
+it's so high at a 0.5 dropout rate.
 
 .. code-block:: Python
 
@@ -599,11 +601,11 @@ remove the randomness of dropout, especially when you have a 0.5 dropout rate.
     also got a gold medal coming in 11th.  Their solution was more 
     "brute force" (in their own words) building hundreds of models and relied on
     some strategies to whittle it down to their final ensemble.
-    Two interesting ideas for ensemble selection came out in his explanation of his
-    solution:  
+    Two interesting ideas for ensemble selection came out in the explanation of
+    their solution:  
 
     "**Correlation Matrix Divergence**": The idea is you want to filter out
-    models that are overfitting on the training data.  So what you do is compute
+    models that are overfitting on the training data.  So for each model, compute
     the correlation matrix over all classes on the training set, then do the same
     on the test set.  Then you subtract the two and look for values in the
     difference that are large.  The intuition is that if there is a big divergence
@@ -614,7 +616,7 @@ remove the randomness of dropout, especially when you have a 0.5 dropout rate.
     "**Adversarial Validation Importances**": Build a model that takes as input
     all the predictions from the candidate set of models to predict whether an
     image is in the train or test set.  If the set of models can easily detect
-    the test set, then that means you are picking up on a signal to be biased
+    the test set, then that means you are picking up on a signal that is biased
     towards one or the other.  Using (I assume) feature importances, you can
     find which models are contributing to this signal and remove it.
     Similar to the other method, you want to make it so the models in your
@@ -662,8 +664,8 @@ On the prediction side there were a couple tricks that I thought are worth
 mentioning:
 
 * **Fold Averaging**: The best model from each of the 5 validation folds is
-  saved based on the combined validation dataset AUC.  This means for every
-  ensemble model (total 18) we have 5 trained models.  The prediction for
+  saved based on the validation dataset AUC.  This means for every
+  ensemble model (total 18), we have 5 trained models.  The prediction for
   a single model is generated by averaging the 5 probabilities.  That is, for
   each of the 5 trained models (identical configurations but different folds),
   compute the mean across the 5 models for each softmax output separately.
@@ -705,10 +707,10 @@ Here are the details for the training:
 * **Batch size**: 64 for all models.  They mentioned (I believe) that it was
   easier to just keep it all the same for each model than try to tune it,
   presumably because batch size wasn't expected to make much of a difference.
-* **Learning rate/schedule**: ranged from :math:`1e-5` to :math:`3e-5` with a
-  cosine cycle, which is tuned for each model (recall this is fine-tuning a
-  pre-trained ImageNet model).  There is also a warm-up epoch which is one tenth
-  of the initial learning rate.
+* **Learning rate/schedule**: Ranged from :math:`1e-5` to :math:`3e-5` with a
+  cosine cycle, where the learning rate is tuned for each model (recall this is fine-tuning a
+  pre-trained ImageNet model).  There is also a single warm-up epoch at the
+  beginning which is one tenth of the initial learning rate.
 * **Optimizer**: Adam.  Stated that using a standard strong optimizer was good enough.
 * **Hardware**: Trained on V100 GPUs in mixed precision mode with
   up to 8 GPUs used in a data parallel (batch split across GPUs) manner.
@@ -735,8 +737,8 @@ denoting the original setup):
 * Use external data from the preconstructed dataset but no patient level data (i.e., only images)
 * Image size 384 (vs. 448-896 resolution)
 * Architecture: EfficientNet B3 (vs. B4-B7, SE-ResNext101 and ResNest101)
-* Cosine warm-up
-* Batch size: 48 (vs. 64)
+* Cosine cycle with warm-up epoch
+* Batch size: 48 (vs. 64) to fit on my GPU memory
 * LR: 3e-5
 
 Relative to this baseline setup, I'll discuss the things that seemed to be make
@@ -781,12 +783,12 @@ The other big drop seems to be whether or not we're using data augmentation.
 Although the AUC metric seems like it might be only a small drop, the AUC_20
 shows quite a large one, indicating that this plays a significant role in the
 performance.
-Another big data related change was the use of external data.
+Another important data related change was the use of external data.
 The AUC metric is not reported because the default computation from the script
 was not comparable (and I didn't feel like hacking it to make it comparable).
 Instead, we can see the AUC_20 metric which shows about a 0.03 AUC gap.  These
-really shows the value of adding more data (in whatever form) seems to give the
-most durable boost to performance.
+results really show the value of adding more data (in whatever form) leads to
+the most durable boosts to performance.
 
 The two other more minor improvements come from the learning rate schedules with
 a warmup epoch and a cosine scheduling of learning rates.  The warmup seemed
@@ -803,18 +805,18 @@ shown in Figure 9 with the same metrics.  For the most part, they did not show
 significant improvement over the baseline.  Starting from left to right in
 Figure 9, the changes were:
 
-* **baseline**: Baseline setup described above
-* **+noisy-student**: Use a pre-trained B3 model with Noisy Student training
-* **effnet_b2**: Use EfficientNet B2 model instead of B3
-* **lr={1.5e-5, 2e-5}**: Use a learning rate of 1.5e-5, 2e-5 (vs. 3e-5)
-* **+metadata**: Utilize patient (non-image) metadata
+* **baseline**: Baseline setup described above.
+* **+noisy-student**: Use a pre-trained B3 model with Noisy Student training.
+* **effnet_b2**: Use EfficientNet B2 model instead of B3.
+* **lr={1.5e-5, 2e-5}**: Use a learning rate of 1.5e-5, 2e-5 (vs. 3e-5).
+* **+metadata**: Utilize patient (non-image) metadata.
 * **dropout-layers={1, 3}**: Utilize 1, 3 parallel dropout layers (vs 5) as
-  described above in the Architecture section
-* **img_size=448**: Utilize image size of 448 (vs. 384)
-* **binary_labels**: Utilize binary labels (as the competition expects) instead
-  of 9 classes
+  described above in the Architecture section.
+* **img_size=448**: Utilize image size of 448 (vs. 384).
+* **binary_labels**: Utilize binary labels in training (as the competition
+  expects) instead of 9 classes.
 * **tensorflow_impl**: Utilize a tensorflow implementation of the pre-trained model.
-* **amp**: Utilize Automated Mixed Precision (AMP) in PyTorch
+* **amp**: Utilize Automated Mixed Precision (AMP) in PyTorch.
 
 .. figure:: /images/dermnet_plot_bad.png
   :height: 450px
@@ -837,9 +839,11 @@ I'll just comment on a few things that were surprising:
 * One thing I did find surprising was that the binary labels didn't didn't make
   that much of a difference.  Intuitively, it feels like better categories would encourage
   better learning but even if it did, it looks like it wasn't that significant.
+  It could be because the different classes were all distinguishing the
+  negative labels, never the difference between positives and negative.
   Similar to the previous section, this experiment only had an AUC_20 measure
   since the problem formulation was different.
-* One of things that was borderline was the use of metadata, which I included
+* One of things that was borderline useful was the use of metadata, which I included
   in this section instead of the one above.  The paper states that metadata didn't
   in general do much but was useful to make more diverse models.  In my experiments,
   it's not significant but it's possible it does help, perhaps especially in smaller
@@ -892,9 +896,9 @@ Here are a bunch of of random thoughts I had while doing this project.
   Github CoPilot (it auto-filled my `wandb.log()` statement) and getting them
   to show up in a pretty dashboard (including system performance metrics). 
   It's really nice not to have to think about collecting data from experiments.
-  Analysis of the results was equally easy where I had to do something more custom
+  Analysis of the results was equally easy.  I had to do something more custom
   (because I didn't record the best AUC from each fold), and it was really easy
-  to use a notebook to download the raw data and compute the metrics I needed.
+  to use a notebook to download the raw data via the W&B API and compute the metrics I needed.
   It made it so I didn't have to waste a lot of time doing this boring work.
   The one thing to remember for future projects is to tag my runs better so it
   makes it easier to view in the W&B GUI instead of clicking in to see what the
@@ -906,7 +910,7 @@ Here are a bunch of of random thoughts I had while doing this project.
   so it can easily explain things better than just using vanilla ChatGPT.  In
   addition to the auto-complete, I found it extremely useful because it was
   usually faster and more helpful than trying to lookup the documentation
-  on the web myself.  I will say there was one or two instances where it was
+  on the web myself.  I will say there was one or two instances where it was not
   giving me the answer I wanted, and I had a hunch that an even better
   solution would be for it to answer AND point to the original documentation
   (using Retrieval Augmented Generation or something like that).  Maybe they'll
@@ -918,9 +922,10 @@ Here are a bunch of of random thoughts I had while doing this project.
   never mind details like a legend or grouped bar charts were always very
   esoteric or complicated.  Now CoPilot will get my chart 95% of the way there
   (with correct syntax) and then it's easy for me to modify it. LLM's for the win!
-* I had one minor Docker shared memory issue where when I increased the number
-  of :code:`DataLoader` workers the script died due to not enough shared memory.
-  And while I gave 1 GB of shared memory, it turns out it was not enough.
+* I had a minor Docker shared memory issue when I increased the number
+  of workers in the :code:`DataLoader`.  The training script would die with a
+  not enough shared memory error.
+  And while I gave it a generous 1 GB of shared memory, it turns out it was not enough.
   In Linux (POSIX standard), :code:`/dev/shm` is a shared memory space
   with a filesystem-like interface that uses RAM to help facilitate interprocess
   communication.  Since the :code:`DataLoader` uses multiple processes it used
@@ -934,15 +939,15 @@ Conclusion
 ==========
 
 It never ceases to amaze me how much there is to learn from diving deep into a
-subject.  While the original write up to the Kaggle solution was only a few
+subject.  While the original write-up to the Kaggle solution was only a few
 pages long (single column), the YouTube video and the code repo added a lot
 more layers, and digging into some of the ML techniques added even more.
-It was a fun (and educational exercise) to understand what choices were
+It was a fun (and educational) exercise to understand what choices were
 actually important.  It was also very useful getting schooled on the importance
-of optimizing long running jobs on the GPU.  And despite this longish write up,
+of optimizing long running jobs on the GPU.  And despite this longish write-up,
 there's still so much more that I still want to dig into (e.g. PyTorch run-time
 optimizations) but this post has already become longer than I expected (as
-usual).  Thanks for reading!
+usual).  That's it for now, thanks for reading!
 
 References
 ==========
