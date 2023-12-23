@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#
+" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Look at The First Place Solution of a Dermatology Classification Kaggle Competition | Bounded Rationality</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
+<link rel="alternate" type="application/rss+xml" title="RSS" hreflang="en" href="../../rss.xml">
+<link rel="canonical" href="http://bjlkeng.github.io/posts/a-look-at-the-first-place-solution-of-a-dermatology-classification-kaggle-competition/">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
+    }
+});
+</script><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Brian Keng">
+<link rel="prev" href="../building-a-qa-bot-of-me-with-openai-and-cloudflare/" title="LLM Fun: Building a Q&amp;A Bot of Myself" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="A Look at The First Place Solution of a Dermatology Classification Kag">
+<meta property="og:url" content="http://bjlkeng.github.io/posts/a-look-at-the-first-place-solution-of-a-dermatology-classification-kaggle-competition/">
+<meta property="og:description" content="One interesting thing I often think about is the gap between academic and real-world
+solutions.  In general academic solutions play in the realm of idealized problem
+spaces, removing themselves from n">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2023-12-22T19:09:46-05:00">
+<meta property="article:tag" content="augmentation">
+<meta property="article:tag" content="CNN">
+<meta property="article:tag" content="data">
+<meta property="article:tag" content="dermatology">
+<meta property="article:tag" content="EfficientNet">
+<meta property="article:tag" content="mathjax">
+<meta property="article:tag" content="MobileNet">
+<meta property="article:tag" content="Noisy Student">
+<meta property="article:tag" content="validation set">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-expand-md static-top mb-4
+navbar-dark bg-dark
+"><div class="container">
+<!-- This keeps the margins nice -->
+        <a class="navbar-brand" href="http://bjlkeng.github.io/">
+
+            <span id="blog-title">Bounded Rationality</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="bs-navbar">
+            <ul class="navbar-nav mr-auto">
+<li class="nav-item">
+<a href="../../archive.html" class="nav-link">Archive</a>
+                </li>
+<li class="nav-item">
+<a href="../../categories/" class="nav-link">Tags</a>
+                </li>
+<li class="nav-item">
+<a href="../../rss.xml" class="nav-link">RSS feed</a>
+
+                
+            </li>
+</ul>
+<ul class="navbar-nav navbar-right">
+<li class="nav-item">
+    <a href="index.rst" id="sourcelink" class="nav-link">Source</a>
+    </li>
+
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <div class="row">
+        <!--Body content-->
+            <div class="col-lg-9">
+                
+                
+                
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">A Look at The First Place Solution of a Dermatology Classification Kaggle Competition</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
+                    Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2023-12-22T19:09:46-05:00" itemprop="datePublished" title="2023-12-22 19:09">2023-12-22 19:09</time></a>
+            </p>
+            
+        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>One interesting thing I often think about is the gap between academic and real-world
+solutions.  In general academic solutions play in the realm of idealized problem
+spaces, removing themselves from needing to care about the messiness of the real-world.
+<a class="reference external" href="https://www.kaggle.com/competitions">Kaggle</a>
+competitions are a (small) step in the right direction towards dealing with messiness,
+usually providing a true blind test set (vs. overused benchmarks), and opening a
+few degrees of freedom in terms the techniques that can be used, which
+usually eschews novelty in favour of more robust methods.  To this end, I
+thought it would be useful to take a look at a more realistic problem (via a
+Kaggle competition) and understand the practical details that result in a
+superior solution.</p>
+<p>This post will cover the <a class="reference external" href="https://arxiv.org/abs/2010.05351">first place solution</a> [<a class="reference internal" href="#id2">1</a>] to the
+<a class="reference external" href="https://www.kaggle.com/competitions/siim-isic-melanoma-classification/overview">SIIM-ISIC Melanoma Classification</a> [<a class="reference internal" href="#id1">0</a>] challenge.
+In addition to using tried and true architectures (mostly EfficientNets), they
+have some interesting tactics they use to formulate the problem, process the
+data, and train/validate the model.  I'll cover background on the
+ML techniques, competition and data, architectural details, problem formulation, and
+implementation.  I've also run some experiments to better understand the
+benefits of certain choices they made.  Enjoy!</p>
+<!-- TEASER_END -->
+<div class="card card-body bg-light">
+<h2>Table of Contents</h2>
+<div class="contents local topic" id="contents">
+<ul class="auto-toc simple">
+<li>
+<p><a class="reference internal" href="#background" id="id8"><span class="sectnum">1</span> Background</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#inverted-residuals-and-linear-bottlenecks-mobilenetv2" id="id9"><span class="sectnum">1.1</span> Inverted Residuals and Linear Bottlenecks (MobileNetV2)</a></p></li>
+<li><p><a class="reference internal" href="#squeeze-and-excitation-optimization" id="id10"><span class="sectnum">1.2</span> Squeeze and Excitation Optimization</a></p></li>
+<li><p><a class="reference internal" href="#efficientnet" id="id11"><span class="sectnum">1.3</span> EfficientNet</a></p></li>
+<li><p><a class="reference internal" href="#noisy-student" id="id12"><span class="sectnum">1.4</span> Noisy Student</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#siim-isic-melanoma-classification-2020-competition" id="id13"><span class="sectnum">2</span> SIIM-ISIC Melanoma Classification 2020 Competition</a></p></li>
+<li>
+<p><a class="reference internal" href="#winning-solution" id="id14"><span class="sectnum">3</span> Winning Solution</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#dataset-creation-and-data-preprocessing" id="id15"><span class="sectnum">3.1</span> Dataset Creation and Data Preprocessing</a></p></li>
+<li><p><a class="reference internal" href="#validation-strategy" id="id16"><span class="sectnum">3.2</span> Validation Strategy</a></p></li>
+<li><p><a class="reference internal" href="#architecture" id="id17"><span class="sectnum">3.3</span> Architecture</a></p></li>
+<li><p><a class="reference internal" href="#augmentation" id="id18"><span class="sectnum">3.4</span> Augmentation</a></p></li>
+<li><p><a class="reference internal" href="#prediction" id="id19"><span class="sectnum">3.5</span> Prediction</a></p></li>
+<li><p><a class="reference internal" href="#training-details" id="id20"><span class="sectnum">3.6</span> Training Details</a></p></li>
+</ul>
+</li>
+<li>
+<p><a class="reference internal" href="#experiments" id="id21"><span class="sectnum">4</span> Experiments</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#changes-that-showed-improvement" id="id22"><span class="sectnum">4.1</span> Changes That Showed Improvement</a></p></li>
+<li><p><a class="reference internal" href="#changes-that-did-not-showed-improvement" id="id23"><span class="sectnum">4.2</span> Changes That Did Not Showed Improvement</a></p></li>
+<li><p><a class="reference internal" href="#training-time" id="id24"><span class="sectnum">4.3</span> Training Time</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#miscellaneous-notes" id="id25"><span class="sectnum">5</span> Miscellaneous Notes</a></p></li>
+<li><p><a class="reference internal" href="#conclusion" id="id26"><span class="sectnum">6</span> Conclusion</a></p></li>
+<li><p><a class="reference internal" href="#references" id="id27"><span class="sectnum">7</span> References</a></p></li>
+</ul>
+</div>
+</div>
+<p></p>
+<div class="section" id="background">
+<h2><a class="toc-backref" href="#id8"><span class="sectnum">1</span> Background</a></h2>
+<div class="section" id="inverted-residuals-and-linear-bottlenecks-mobilenetv2">
+<h3><a class="toc-backref" href="#id9"><span class="sectnum">1.1</span> Inverted Residuals and Linear Bottlenecks (MobileNetV2)</a></h3>
+<p>MobileNetV2 [<a class="reference internal" href="#id3">2</a>] introduced a new type of neural network architectural building
+block often referred to as "MBConv".  The two big innovations here are inverted residuals
+and linear bottlenecks.</p>
+<p>First to understand inverted residuals, let's take a look at the basic
+residual block (also see my post on <a class="reference external" href="../residual-networks/">ResNet</a>)
+shown in Listing 1.  Two notable parts of the basic residual block are the
+fact that we reduce the number of channels to <code>squeeze</code> in the first
+layer, and then grow the number of channels to <code>expand</code> in the last
+layer.  The squeeze operation is often known as a <em>bottleneck</em> since we have
+fewer channels.  The intuition here is to reduce the number of channels so that
+the more expensive 3x3 convolution is cheaper.  The other relevant part is that
+we have the residual "skip" connection where we add the input to the
+result of the transformations.  Notice the residual connection connects the
+expanded parts <code>x</code> and <code>m3</code>.</p>
+<pre class="code Python"><a name="rest_code_bd01bef27484445d89192ab5c98aba19-1"></a><span class="k">def</span> <span class="nf">residual_block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">squeeze</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="mi">64</span><span class="p">):</span>
+<a name="rest_code_bd01bef27484445d89192ab5c98aba19-2"></a>    <span class="c1"># x has 64 channels in this example</span>
+<a name="rest_code_bd01bef27484445d89192ab5c98aba19-3"></a>    <span class="n">m1</span> <span class="o">=</span> <span class="n">Conv2D</span><span class="p">(</span><span class="n">squeeze</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<a name="rest_code_bd01bef27484445d89192ab5c98aba19-4"></a>    <span class="n">m2</span> <span class="o">=</span> <span class="n">Conv2D</span><span class="p">(</span><span class="n">squeeze</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)(</span><span class="n">m1</span><span class="p">)</span>
+<a name="rest_code_bd01bef27484445d89192ab5c98aba19-5"></a>    <span class="n">m3</span> <span class="o">=</span> <span class="n">Conv2D</span><span class="p">(</span><span class="n">expand</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)(</span><span class="n">m2</span><span class="p">)</span>
+<a name="rest_code_bd01bef27484445d89192ab5c98aba19-6"></a>    <span class="k">return</span> <span class="n">Add</span><span class="p">()([</span><span class="n">m3</span><span class="p">,</span> <span class="n">x</span><span class="p">])</span>
+</pre>
+<p><strong>Listing 1: Example of a Basic Residual Block in Keras</strong> (adapted from <a class="reference external" href="https://towardsdatascience.com/mobilenetv2-inverted-residuals-and-linear-bottlenecks-8a4362f4ffd5">source</a>)</p>
+<p>Next, let's look the changes in an inverted residual block shown in Listing 2.
+Here we "invert" the residual connection where we are making the residual
+connection between the bottleneck "squeezed" layers instead of "expanded"
+layers.  Recall that we'll eventually be stacking these blocks, so there will
+still be alternations of squeezed ("bottlenecks") and expansion layers.  The
+difference with Listing 1 is that we'll be making residual connections between
+the bottleneck layers instead of expansion layers.</p>
+<pre class="code Python"><a name="rest_code_937e87b0a2534e26afcc83096ea7a9b9-1"></a><span class="k">def</span> <span class="nf">inverted_residual_block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">squeeze</span><span class="o">=</span><span class="mi">16</span><span class="p">):</span>
+<a name="rest_code_937e87b0a2534e26afcc83096ea7a9b9-2"></a>    <span class="c1"># x has 16 channels in this example</span>
+<a name="rest_code_937e87b0a2534e26afcc83096ea7a9b9-3"></a>    <span class="n">m1</span> <span class="o">=</span> <span class="n">Conv2D</span><span class="p">(</span><span class="n">expand</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<a name="rest_code_937e87b0a2534e26afcc83096ea7a9b9-4"></a>    <span class="n">m2</span> <span class="o">=</span> <span class="n">DepthwiseConv2D</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)(</span><span class="n">m1</span><span class="p">)</span>
+<a name="rest_code_937e87b0a2534e26afcc83096ea7a9b9-5"></a>    <span class="n">m3</span> <span class="o">=</span> <span class="n">Conv2D</span><span class="p">(</span><span class="n">squeeze</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)(</span><span class="n">m2</span><span class="p">)</span>
+<a name="rest_code_937e87b0a2534e26afcc83096ea7a9b9-6"></a>    <span class="k">return</span> <span class="n">Add</span><span class="p">()([</span><span class="n">m3</span><span class="p">,</span> <span class="n">x</span><span class="p">])</span>
+</pre>
+<p><strong>Listing 2: Example of an inverted residual block with depthwise convolution in Keras</strong> (adapted from <a class="reference external" href="https://towardsdatascience.com/mobilenetv2-inverted-residuals-and-linear-bottlenecks-8a4362f4ffd5">source</a>)</p>
+<p>The other thing to note is that the 3x3
+convolution is now expensive if we do it on the expanded layer, so instead we'll
+use a <a class="reference external" href="https://keras.io/api/layers/convolution_layers/depthwise_convolution2d/">depthwise convolution</a>
+for efficiency.  This reduces the number of parameters needed from
+<span class="math">\(h\cdot w \cdot d_i \cdot d_j \cdot k^2\)</span> for a regular 3x3 convolution to
+<span class="math">\(h\cdot w \cdot d_i (k^2 + d_j)\)</span> for a depthwise convolution where
+<span class="math">\(h, w\)</span> are height and width, <span class="math">\(d_i, d_j\)</span> are input/output channels, and
+<span class="math">\(k\)</span> is the convolutional kernel size.  With <span class="math">\(k=3\)</span> this could potentially
+reduce the number of parameters needed by 8-9 times with only a small hit to
+accuracy.</p>
+<pre class="code Python"><a name="rest_code_42912d8f9683463494baefed743b6850-1"></a><span class="k">def</span> <span class="nf">inverted_linear_residual_block</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">squeeze</span><span class="o">=</span><span class="mi">16</span><span class="p">):</span>
+<a name="rest_code_42912d8f9683463494baefed743b6850-2"></a>    <span class="n">m1</span> <span class="o">=</span> <span class="n">Conv2D</span><span class="p">(</span><span class="n">expand</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<a name="rest_code_42912d8f9683463494baefed743b6850-3"></a>    <span class="n">m2</span> <span class="o">=</span> <span class="n">DepthwiseConv2D</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span>  <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)(</span><span class="n">m1</span><span class="p">)</span>
+<a name="rest_code_42912d8f9683463494baefed743b6850-4"></a>    <span class="n">m3</span> <span class="o">=</span> <span class="n">Conv2D</span><span class="p">(</span><span class="n">squeeze</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))(</span><span class="n">m2</span><span class="p">)</span>
+<a name="rest_code_42912d8f9683463494baefed743b6850-5"></a>    <span class="k">return</span> <span class="n">Add</span><span class="p">()([</span><span class="n">m3</span><span class="p">,</span> <span class="n">x</span><span class="p">])</span>
+</pre>
+<p><strong>Listing 3: MBConv Block in Keras</strong> (adapted from <a class="reference external" href="https://towardsdatascience.com/mobilenetv2-inverted-residuals-and-linear-bottlenecks-8a4362f4ffd5">source</a>)</p>
+<p>The last big thing thing that MBConv block changes was removing the
+non-linearity on the bottleneck layer as shown in Listing 3.  A
+hypothesis the [<a class="reference internal" href="#id3">2</a>] proposes is that ReLU non-linearity on the inverted
+bottleneck hurts performance.  The idea is that ReLU either is the identify
+function if the input is positive, or zero otherwise.  In the case that the
+activation is positive, then it's simply a linear output so removing the
+non-linearity isn't a bit deal.  On the other hand, if the activation is
+negative then ReLU actively discards information (e.g., zeroes the output).
+Generally for wide networks (i.e., lots of convolutional channels), this is not
+a problem because we can make up for information loss in the other channels.
+In the case of our squeezed bottleneck though, we have fewer layers so we lose
+a lot more information, hence hurt performance.  The authors note that this
+effect is lessened with skip connections but still present.
+(Note: Not shown in the above code is that <a class="reference external" href="https://en.wikipedia.org/wiki/Batch_normalization">BatchNormalization</a>
+is applied after every convolution layer (but before the activation).)</p>
+<p>The resulting MobileNetV2 architecture is very memory efficient for mobile
+applications as the name suggests.  Generally, the paper shows that MobileNetV2
+uses less memory and computation with similar (sometimes better) performance
+on standard benchmarks.  Details on the architecture can be found in [<a class="reference internal" href="#id3">2</a>].</p>
+</div>
+<div class="section" id="squeeze-and-excitation-optimization">
+<h3><a class="toc-backref" href="#id10"><span class="sectnum">1.2</span> Squeeze and Excitation Optimization</a></h3>
+<p>The Squeeze and Excitation (SE) block [<a class="reference internal" href="#id4">3</a>] is an optimization that can be added on to a
+convolutional layer that scales each channel's outputs by using a learned
+function of the average activation of each channel.  The basic idea is shown in
+Figure 1 where from a convolution operation (<span class="math">\(F_{tr}\)</span>), we branch off to
+calculate a scalar per channel ("squeeze" via <span class="math">\(F_{sq}\)</span>), pass it through some layers
+("excite" via <span class="math">\(F_{ex}\)</span>), and then scale the original convolutional outputs using the SE block.
+This can be thought of as a self-attention mechanism on the channels.</p>
+<div class="figure align-center">
+<img alt="Squeeze Excite" src="../../images/dermnet_squeeze_excite.png" style="height: 200px;"><p class="caption"><strong>Figure 1: Squeeze Excitation block with ratio=1 [</strong> <a class="reference internal" href="#id4">3</a> <strong>]</strong></p>
+</div>
+<p>The main problem the SE block addresses is that each convolutional output pixel only
+looks at it's local receptive field (e.g. 3x3).  A convolutional network only
+really considers global spatial information by stacking multiple layers, which
+seems inefficient.  Instead, the hypothesis of the SE block is that you can model
+the global interdependencies between channels and allow each channel to
+increase their sensitivity improving learning.</p>
+<p>Code for an SE block is shown in  Listing 4.  First, we do a
+<code>GlobalAveragePool2D</code>, which computes the mean for each
+channel.  Then we pass it through two 1x1 convolutional layers with a ReLU and
+sigmoid activation respectively.  The first convolutional layer can be thought
+of as "mixing" the averages across the channels, while the second one converts
+it to a value between 0 and 1.  It's not clear whether more or less layers is better
+but [<a class="reference internal" href="#id4">3</a>] says that they wanted to limit the added model complexity while still
+having some generalization power.</p>
+<pre class="code Python"><a name="rest_code_c70f2dd8b0db4a52b7217e5bea5f2a87-1"></a><span class="k">def</span> <span class="nf">squeeze_excite</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+<a name="rest_code_c70f2dd8b0db4a52b7217e5bea5f2a87-2"></a>    <span class="c1"># computes mean of each spatial dimensions (outputs a mean value for each channel)</span>
+<a name="rest_code_c70f2dd8b0db4a52b7217e5bea5f2a87-3"></a>    <span class="n">m1</span> <span class="o">=</span> <span class="n">GlobalAveragePooling2D</span><span class="p">(</span><span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<a name="rest_code_c70f2dd8b0db4a52b7217e5bea5f2a87-4"></a>    <span class="n">m2</span> <span class="o">=</span> <span class="n">Conv2D</span><span class="p">(</span><span class="n">filters</span> <span class="o">//</span> <span class="n">ratio</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">)(</span><span class="n">m1</span><span class="p">)</span>
+<a name="rest_code_c70f2dd8b0db4a52b7217e5bea5f2a87-5"></a>    <span class="n">m3</span> <span class="o">=</span> <span class="n">Conv2D</span><span class="p">(</span><span class="n">filters</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'sigmoid'</span><span class="p">)(</span><span class="n">m2</span><span class="p">)</span>
+<a name="rest_code_c70f2dd8b0db4a52b7217e5bea5f2a87-6"></a>    <span class="k">return</span> <span class="n">Multiply</span><span class="p">(</span><span class="n">m3</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+</pre>
+<p><strong>Listing 4: SqueezeExcite block in Keras</strong> (adapted from <a class="reference external" href="https://github.com/rwightman/gen-efficientnet-pytorch/blob/master/geffnet/efficientnet_builder.py#L103">source</a>)</p>
+<p>Since the SE block only operates on channels as a whole, the added
+computational and memory requirements are modest.  The largest contributors are
+usually the latter layers that have a lot of channels.  In their experiments
+the parameters of a MobileNet network increased by roughly 12% but was able to
+improve the ImageNet top-1 error rate by about 3% [<a class="reference internal" href="#id4">3</a>].  Overall, it seems like
+a nice little optimization that improves performance across a wide variety of
+visual tasks.</p>
+</div>
+<div class="section" id="efficientnet">
+<h3><a class="toc-backref" href="#id11"><span class="sectnum">1.3</span> EfficientNet</a></h3>
+<p>EfficientNet is a convolutional neural networks (ConvNet) architecture [<a class="reference internal" href="#id5">4</a>]
+(circa 2019) that rethinks the standard ConvNet architecture choices and
+proposes a new architecture family called <em>EfficientNets</em>.  The first main idea
+is that ConvNets can be scaled to have more capacity in three broad network dimensions
+shown in Figure 2:</p>
+<ul class="simple">
+<li><p><strong>Wider</strong>: In the context of ConvNets, this corresponds to more channels per layer (analogous to more neurons in a fully connected layer).</p></li>
+<li><p><strong>Deeper</strong>: Corresponds to more convolutional layers.</p></li>
+<li><p><strong>Higher Resolution</strong>: Corresponds to using higher resolution inputs (e.g. 560x560 vs. 224x224 images).</p></li>
+</ul>
+<div class="figure align-center">
+<img alt="Scaling ConvNets" src="../../images/dermnet_scaling.png" style="height: 470px;"><p class="caption"><strong>Figure 2: Model scaling figure from [</strong> <a class="reference internal" href="#id5">4</a> <strong>]: (a) base model, (b) increase width, (c) increase depth, (d) increase resolution.</strong></p>
+</div>
+<p>The first insight [<a class="reference internal" href="#id5">4</a>] found is that, as expected, scaling the
+above network dimensions result in better ConvNet accuracy (as measured via top-1
+ImageNet accuracy) but with diminishing returns.  To standardize the evaluation,
+they normalize the scaling using FLOPS.</p>
+<p>The next logical insight discussed in [<a class="reference internal" href="#id5">4</a>] is that balancing
+how all three scaling network dimensions is important to
+efficiently scale ConvNets.  They propose a compound
+scaling method as:</p>
+<div class="math">
+\begin{align*}
+\text{depth}: d &amp;= \alpha^\phi \\
+\text{width}: w &amp;= \beta^\phi \\
+\text{resolution}: r &amp;= \gamma^\phi \\
+    \text{s.t. }\hspace{10pt} \alpha&amp;\cdot\beta^2\cdot\gamma^2 \approx 2 \\
+\alpha \geq 1, \beta &amp;\geq 1, \gamma \geq 1 \\
+\tag{1}
+\end{align*}
+</div>
+<p>The intuition here is that we want to be able to scale the network
+size appropriately for a given FLOP budget, and Equation 1, if satisfied, will
+approximately scale the network by <span class="math">\((\alpha \cdot \beta^2 \cdot \gamma^2)^\phi\)</span>.
+Thus, <span class="math">\(\phi\)</span> is our user-specified scaling parameter while
+<span class="math">\(\alpha, \beta, \gamma\)</span> are how we distribute the FLOPs to each scaling
+dimension and are found by a small grid search.  The constraint
+<span class="math">\(\alpha \cdot \beta^2 \cdot \gamma^2 \approx 2\)</span> (I believe) is arbitrary
+so that the FLOPS will increase by roughly <span class="math">\(2^\phi\)</span>.  Additionally,
+it likely simplifies the grid search that we need to do.</p>
+<p>A specific EfficientNet architecture is also proposed in [<a class="reference internal" href="#id5">4</a>] that defines
+a base architecture labelled "B0" shown in Figure 3 using the above MBConv
+MobileNetV2 block discussed above with the Squeeze and Excitation optimization
+added to each block.  Overall the base B0 architecture is a typical ConvNet
+where in each layer the resolution decreases but channels increase.</p>
+<div class="figure align-center">
+<img alt="Effnet architecture" src="../../images/dermnet_effnet.png" style="height: 270px;"><p class="caption"><strong>Figure 3: EfficientNet-B0 baseline architecture [</strong> <a class="reference internal" href="#id5">4</a> <strong>]</strong></p>
+</div>
+<p>From the B0 architecture, we can derive scaled architectures labelled
+B1-B7 by:</p>
+<ol class="arabic simple">
+<li><p>Fix <span class="math">\(\phi=1\)</span> and assume two times more resources are available (see Equation 1),
+and do a small grid search to find <span class="math">\(\alpha, \beta, \gamma\)</span>, which were
+<span class="math">\(\alpha=1.2, \beta=1.1, \gamma=1.15\)</span> (depth, width, resolution, respectively),
+which give roughly 1.92 according to Equation 1.</p></li>
+<li><p>Scale up the B0 architecture approximately using Equation 1 with the
+constants described in Step 1 by increasing <span class="math">\(\phi\)</span> (and round where
+appropriate).  Dropout is increased roughly linearly as the architectures
+grow from B0 (0.2) to B7 (0.5).</p></li>
+</ol>
+<p>Table 1 shows the flops, multipliers and dropout rate for each dimension.</p>
+<table class="colwidths-given align-center">
+<caption>Table 1: EfficientNet architecture multipliers (<a class="reference external" href="https://github.com/rwightman/gen-efficientnet-pytorch/blob/master/geffnet/gen_efficientnet.py#L502">source</a>)</caption>
+<colgroup>
+<col style="width: 24%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+</colgroup>
+<thead><tr>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>FLOPs</p></th>
+<th class="head"><p>Depth Mult.</p></th>
+<th class="head"><p>Width Multi.</p></th>
+<th class="head"><p>Resolution</p></th>
+<th class="head"><p>Dropout Rate</p></th>
+</tr></thead>
+<tbody>
+<tr>
+<td><p>efficientnet-b0</p></td>
+<td><p>0.39B</p></td>
+<td><p>1.0</p></td>
+<td><p>1.0</p></td>
+<td><p>224</p></td>
+<td><p>0.2</p></td>
+</tr>
+<tr>
+<td><p>efficientnet-b1</p></td>
+<td><p>0.70B</p></td>
+<td><p>1.1</p></td>
+<td><p>1.0</p></td>
+<td><p>240</p></td>
+<td><p>0.2</p></td>
+</tr>
+<tr>
+<td><p>efficientnet-b2</p></td>
+<td><p>1.0B</p></td>
+<td><p>1.2</p></td>
+<td><p>1.1</p></td>
+<td><p>260</p></td>
+<td><p>0.3</p></td>
+</tr>
+<tr>
+<td><p>efficientnet-b3</p></td>
+<td><p>1.8B</p></td>
+<td><p>1.4</p></td>
+<td><p>1.2</p></td>
+<td><p>300</p></td>
+<td><p>0.3</p></td>
+</tr>
+<tr>
+<td><p>efficientnet-b4</p></td>
+<td><p>4.2B</p></td>
+<td><p>1.8</p></td>
+<td><p>1.4</p></td>
+<td><p>380</p></td>
+<td><p>0.4</p></td>
+</tr>
+<tr>
+<td><p>efficientnet-b5</p></td>
+<td><p>9.9B</p></td>
+<td><p>2.2</p></td>
+<td><p>1.6</p></td>
+<td><p>456</p></td>
+<td><p>0.4</p></td>
+</tr>
+<tr>
+<td><p>efficientnet-b6</p></td>
+<td><p>19B</p></td>
+<td><p>2.6</p></td>
+<td><p>1.8</p></td>
+<td><p>528</p></td>
+<td><p>0.5</p></td>
+</tr>
+<tr>
+<td><p>efficientnet-b7</p></td>
+<td><p>47B</p></td>
+<td><p>3.1</p></td>
+<td><p>2.0</p></td>
+<td><p>600</p></td>
+<td><p>0.5</p></td>
+</tr>
+</tbody>
+</table>
+<!-- Depth Mult. Width Multi.    Resolution
+1.00        1.00    224.00
+0.52        0.00    0.49
+1.00        1.00    1.07
+1.85        1.91    2.09
+3.22        3.53    3.78
+4.32        4.93    5.09
+5.24        6.17    6.14
+6.21        7.27    7.05 --><p>For example, starting with B0, we have 0.39B FLOPs, going to B4 we have 4.2B
+flops, which yields <span class="math">\(\phi = 4.2 / 0.39 \approx 3.28\)</span>.  This translates to
+scaling close to this value along the three dimensions with <span class="math">\(\alpha^{3.22} = 1.2^{3.22} \approx 1.8\)</span>,
+<span class="math">\(\beta^{3.53}=1.1^{3.53}\approx 1.4\)</span>, and <span class="math">\(\gamma^{3.78} = (1.15)^{3.78} \approx \frac{380}{224}\)</span>.
+We're not going for precision here, we just want a rough guideline of how to
+scale up the architecture.  The nice thing about having this guideline is that
+we can create bigger ConvNets without having to do any additional architecture
+search.</p>
+</div>
+<div class="section" id="noisy-student">
+<h3><a class="toc-backref" href="#id12"><span class="sectnum">1.4</span> Noisy Student</a></h3>
+<p>Noisy Student [<a class="reference internal" href="#id6">5</a>] is a semi-supervised approach to training a model that is
+useful even when you have abundant labelled data.  This work is in the context
+of images where they show its efficacy on ImageNet and related benchmarks.
+The setup requires both labelled data and unlabelled data with a relatively
+simple algorithm (with some subtlety) and the following steps:</p>
+<ol class="arabic simple">
+<li><p>Train teacher model <span class="math">\(M^t\)</span> with labelled images using a standard cross
+entropy loss.</p></li>
+<li><p>Use the <span class="math">\(M^t\)</span> (current teacher) to generate pseudo labels for the unlabelled data
+(<strong>filter and balance dataset as required</strong>)</p></li>
+<li><p>Learn a student model <span class="math">\(M^{t+1}\)</span> with <strong>equal or larger</strong> capacity
+on the labelled and unlabelled data with added <strong>noise</strong>.</p></li>
+<li><p>Increment <span class="math">\(t\)</span> (make the current student the new teacher) and <strong>repeat</strong>
+steps 2-3 as needed.</p></li>
+</ol>
+<p>A few unintuitive points emphasized in bold.  First, the student model uses an
+equal or larger model.  This is different from other student/teacher paradigms
+where one is trying to distill the model knowledge into a smaller model.
+Here we're not trying to distill, we're trying to boost performance so we want
+a bigger model so it can learn from the bigger combined dataset.  This seems to
+have a increase of 0.5-1.5% in top-1 ImageNet accuracy in their ablation
+study.</p>
+<p>Second, the noise is implemented as randomized data augmentation plus dropout
+and stochastic depth.  The added noise on the student seems to be around another 0.5%
+in top-1 ImageNet accuracy.  Seems like a reasonable modification given that
+you typically want both of these things when training these types of networks.</p>
+<p>Third, the iteration in step 4 also seemed important.  Going from one iteration
+to three improved performance by 0.8% in top-1 ImageNet accuracy.  It's not obvious
+to me that the performance would improve by iterating here but since the number
+of iterations is small, I can believe that it's possible.</p>
+<p>Lastly, they discuss that they filter out pseudo labels that have low
+confidence by the teacher model, and then rebalance the unlabelled classes so
+the distribution is not so off (by repeating images).  This also seems to
+improve performance a bit more modestly at 0-0.3% depending on the model.</p>
+<p>The summary of the overall Noisy Student results are shown in Figure 4 where
+they conducted most of their experiments on EfficientNet.  This figure only
+shows the non-iterative training (their headline result is within the iterative
+training).  You can see that the Noisy Student dominates the vanilla
+EfficientNet results at the same number of model parameters and achieves SOTA
+(at the time of the paper).  Note that the Noisy Student does have access to
+more unlabelled data than the EfficientNet, so perhaps it's not so surprising
+that it does better.  In the context of this post, there are many versions of
+EfficientNet with Noisy Student training that are available for use as a
+pre-trained model.</p>
+<div class="figure align-center">
+<img alt="Noisy Student" src="../../images/dermnet_noisystudent.png" style="height: 470px;"><p class="caption"><strong>Figure 4: Noisy Student training shows significant improvement over all model sizes. [</strong> <a class="reference internal" href="#id6">5</a> <strong>]</strong></p>
+</div>
+</div>
+</div>
+<div class="section" id="siim-isic-melanoma-classification-2020-competition">
+<h2><a class="toc-backref" href="#id13"><span class="sectnum">2</span> SIIM-ISIC Melanoma Classification 2020 Competition</a></h2>
+<p>The Society for Imaging and Informatics in Medicine (SIIM) and the International Skin Imaging Collaboration (ISIC)
+melanoma classification competition [<a class="reference internal" href="#id1">0</a>] aims to classify a given skin lesion image
+and accompanying patient metadata as melanoma (or not).  Melanoma is a type of
+skin cancer that is responsible for over 75% of skin cancer deaths.  The ISIC
+has been putting on various computer vision <a class="reference external" href="https://challenge.isic-archive.com/">challenges</a> related to dermatology since 2016.
+Notably, past competitions have labelled image skin lesion data (and sometimes
+patient metadata) but with different labels that have partial overlap with the 2020 competition.
+More than 3300 teams participated in the competition with the winning solution [<a class="reference internal" href="#id2">1</a>]
+being the topic of this post.</p>
+<p>The dataset consists of 33k training data points with only 1.76% positive samples (i.e., melanoma).
+Each datum contains a JPEG image of varying sizes (or a standardized 1024x1024
+TFRecord) of a skin lesion along with patient data, which includes:</p>
+<ul class="simple">
+<li><p>patient id</p></li>
+<li><p>sex</p></li>
+<li><p>approximate age</p></li>
+<li><p>location of image site</p></li>
+<li><p>detailed diagnosis (training only)</p></li>
+<li><p>benign or malignant (training only, label to predict)</p></li>
+<li><p>binarized version of target</p></li>
+</ul>
+<p>Additionally, there were "external" data that one could use from previous
+years of the competition that had similar skin lesion images with slightly
+different tasks (e.g. image segmentation, classification with different labels etc.).
+This additional data made a combined dataset of roughly 60k images that one
+could possibly use.</p>
+<p>The competition in 2020 was hosted on Kaggle which contained a leader board of
+all submissions.  Each team submitted a blind prediction on the given test set
+and the leader board measured its performance using AUC.
+The leader board showed a public view on all submissions which showed the AUC
+score based on 30% of the test set.  The remaining 70% of the testset remained
+hidden on the private leader board until the end of the competition and was used
+to evaluate the final result.</p>
+<p>Table 2 shows several select submissions including the top 3 on the public and
+private leader boards.  Interestingly, the top 3 winners on the private data all
+ranked relatively low, including the top submission which ranked all the way
+down at 881!  Impressively, the top public score had a whopping 0.9931 AUC but
+only ended up at rank 275 in the final private ranking.  The number of submissions
+is also interesting.  Clearly, overfitting on the public test set was common as
+the top 3 winners all having relatively low number of submissions compared to
+others.  The other obvious thing is that the scores are so close together that
+luck definitely played a role in the final ranking among the top submissions.</p>
+<table class="colwidths-given align-center">
+<caption>Table 2: Performance of Select Teams (<a class="reference external" href="https://www.kaggle.com/competitions/siim-isic-melanoma-classification/leaderboard">source</a>)</caption>
+<colgroup>
+<col style="width: 22%">
+<col style="width: 17%">
+<col style="width: 22%">
+<col style="width: 17%">
+<col style="width: 22%">
+</colgroup>
+<thead><tr>
+<th class="head"><p>Private Rank</p></th>
+<th class="head"><p>Private Score</p></th>
+<th class="head"><p>Public Rank</p></th>
+<th class="head"><p>Public Score</p></th>
+<th class="head"><p>Submissions</p></th>
+</tr></thead>
+<tbody>
+<tr>
+<td><p>1</p></td>
+<td><p>0.9490</p></td>
+<td><p>881</p></td>
+<td><p>0.9586</p></td>
+<td><p>116</p></td>
+</tr>
+<tr>
+<td><p>2</p></td>
+<td><p>0.9485</p></td>
+<td><p>57</p></td>
+<td><p>0.9679</p></td>
+<td><p>61</p></td>
+</tr>
+<tr>
+<td><p>3</p></td>
+<td><p>0.9484</p></td>
+<td><p>265</p></td>
+<td><p>0.9654</p></td>
+<td><p>118</p></td>
+</tr>
+<tr>
+<td><p>27</p></td>
+<td><p>0.9441</p></td>
+<td><p>2</p></td>
+<td><p>0.9926</p></td>
+<td><p>402</p></td>
+</tr>
+<tr>
+<td><p>100</p></td>
+<td><p>0.9414</p></td>
+<td><p>329</p></td>
+<td><p>0.9648</p></td>
+<td><p>121</p></td>
+</tr>
+<tr>
+<td><p>275</p></td>
+<td><p>0.9379</p></td>
+<td><p>1</p></td>
+<td><p>0.9931</p></td>
+<td><p>276</p></td>
+</tr>
+<tr>
+<td><p>395</p></td>
+<td><p>0.9357</p></td>
+<td><p>3</p></td>
+<td><p>0.9767</p></td>
+<td><p>245</p></td>
+</tr>
+<tr>
+<td><p>500</p></td>
+<td><p>0.9336</p></td>
+<td><p>241</p></td>
+<td><p>0.9656</p></td>
+<td><p>227</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="winning-solution">
+<h2><a class="toc-backref" href="#id14"><span class="sectnum">3</span> Winning Solution</a></h2>
+<p>The winning solution [<a class="reference internal" href="#id2">1</a>] to the SIIM-ISIC 2020 Competition used a variety of
+techniques that led to their outperformance.  This section discusses some of
+those techniques.</p>
+<div class="section" id="dataset-creation-and-data-preprocessing">
+<h3><a class="toc-backref" href="#id15"><span class="sectnum">3.1</span> Dataset Creation and Data Preprocessing</a></h3>
+<p>The winning solution used a preprocessed dataset that one of his colleagues
+created [<a class="reference internal" href="#id7">6</a>].  This dataset was in fact used by many of the competing teams
+and arguably one of the most critical pieces of work (something that a huge
+amount of time is spent on in real world problems).</p>
+<p>The first step in preprocessing was center cropping and resizing
+the images.  Many of the JPEG images were really large and had different dimensions
+(e.g., 1053x1872, 4000x6000, etc.) totalling 32GB.  After reducing them down to
+various standard sizes (e.g. 512x512, 768x768, 1024x1024) they were much more
+manageable to use, for example the 512x512 dataset was about 3GB for 2020 data.</p>
+<p>Next, the preprocessed dataset also contained a "triple" stratified 5-fold
+validation dataset:</p>
+<ul class="simple">
+<li><p><strong>Separate Patients</strong>: This stratification was to ensure that the same
+patient was not in both the train and validation set.  This can happen when you
+have two skin lesion images from the same person, which is undesirable because
+the resulting diagnosis is likely highly correlated in these situations.</p></li>
+<li><p><strong>Positive Class</strong>: This stratification was to ensure that the positive classes
+were distributed correctly across each fold.  Due to the highly imbalanced problem
+of only having 1.76% positive classes, ensuring an even balance across folds was
+very important.</p></li>
+<li><p><strong>Patient Representation</strong>: Some patients had only a few images while others
+had many.  To have balanced folds, this stratification was to ensure that you
+have good representation of each across each fold as well.</p></li>
+</ul>
+<p>Lastly, although the external data had a lot of additional images, many of them
+were in fact duplicates that should be removed.  But this is harder than it looks because the images
+were not exact matches, for example they could be scaled and rotated, thus
+you cannot just compare the raw pixels.  To have a clean validation set, you
+want to make sure you have a truly independent train and validation set.  To solve
+this problem, the preprocessing in [<a class="reference internal" href="#id7">6</a>] used a pre-trained (EfficientNet) CNN
+to generate embeddings of each image, and then removed near duplicates (with
+manual inspection).  Hundreds of duplicates were removed, making a much cleaner
+validation set.</p>
+</div>
+<div class="section" id="validation-strategy">
+<h3><a class="toc-backref" href="#id16"><span class="sectnum">3.2</span> Validation Strategy</a></h3>
+<p>The first place solution noted that one of the keys to winning was having a robust
+validation strategy, which was particularly important in this competition [<a class="reference internal" href="#id7">6</a>]
+(as well in the real world).
+As noted above, the original dataset had only a 1.76% positive rate over 33k
+training samples.  That translates to around 580 positive samples, and barely
+over 100 samples when doing for a 5-fold cross validation.  This naturally
+would lead to an unstable AUC (or pretty much any other metric you're going to
+use).</p>
+<p>Beyond the training data provided, the test data that could be evaluated via the
+public leader board had only about 10k samples, 30% of which was used to
+evaluate AUC on the public leader board.  If the distribution were similar in
+this test set, this would only leave about 50 or so positive test case samples.
+Thus, the public leader board evaluation was similarly unreliable and
+couldn't be used to robustly evaluate the model.  This was clearly seen as the
+top 3 public leader ranks dropped significantly when evaluated on the private
+data set.  The authors also mention that their cross validation scores
+(described below) were not correlated with the public leader board and that they
+basically ignored the leader board.</p>
+<p>The winning solution instead utilized <em>both</em> the competition (2020) data
+and external data (2019) for training <em>and</em> validation.  The 2019 data had 25k
+data points with a 17.85% positive rate, making it much more reliable when it
+was used for both training and validation.</p>
+<p>The other key thing they did was to train on a multi-class problem instead of
+the binary target given by the competition.  In the 2020 data, a detailed
+diagnosis column was given, while in the 2019 data, a higher-level multi-class
+label was given (vs. the binary label).  As is typical in many problems, they
+leveraged some domain knowledge (using the descriptions from the competition)
+and mapped the 2020 detailed diagnosis to the 2019 labels shown in Figure 5.
+The main intuition of using a multi-class target is that it gives more
+information to the target when the lesion is benign (not cancerous).</p>
+<div class="figure align-center">
+<img alt="Mapping from diagnosis to targets" src="../../images/dermnet_targets.png" style="height: 370px;"><p class="caption"><strong>Figure 5: Mapping from diagnosis to targets [</strong> <a class="reference internal" href="#id2">1</a> <strong>]</strong></p>
+</div>
+<p>When evaluating the model the primary evaluation metric is the binary
+classification AUC of the combined 2019 and 2020 cross validation folds (the
+multi-class problem can easily be mapped back to a binary one).  The
+cross validation AUC of the 2020 dataset was used as a secondary metric.</p>
+</div>
+<div class="section" id="architecture">
+<h3><a class="toc-backref" href="#id17"><span class="sectnum">3.3</span> Architecture</a></h3>
+<p>The solution consisted of an ensemble of eighteen fine-tuned pre-trained ConvNets
+shown in Figure 6 that were combined using a simple average of ranks.  Notice that the first 16 models are
+EfficientNet variants from B3 all the way to B7, while the last two are
+SE-ResNext101 and Nest101.  For the EfficientNet variants, besides the model
+size, the models vary by the image input sizes (384, 448, 512, 576, 640, 768,
+896) deriving from the next largest source image in the above described dataset
+(512, 768, 1024).  The different models plus image sizes is an important
+source of diversity in the ensemble.  Unfortunately, the authors didn't describe
+how they selected their ensemble except to say that diversity was important.
+Interestingly, the authors state [<a class="reference internal" href="#id7">6</a>] that the CNN backbone isn't all that
+important and they mostly just picked an off-the-shelf state-of-the-art model
+architecture (EfficientNet) where pre-trained models and code are
+readily available.</p>
+<div class="figure align-center">
+<img alt="Ensemble of Winning Solution" src="../../images/dermnet_ensemble.png" style="height: 470px;"><p class="caption"><strong>Figure 6: Model configurations for winning solution ensemble and their AUC scores [</strong> <a class="reference internal" href="#id2">1</a> <strong>]</strong></p>
+</div>
+<p>The ensembles also varied based on their use of metadata with tuned learning
+rates and epochs for each configuration.  The authors mention [<a class="reference internal" href="#id7">6</a>] that the metadata
+didn't seem to help much with their best single model not using metadata.  They
+hypothesize that most of the useful information is already included in the
+image.  However, they think it was useful in providing diversity in the ensemble
+(again being one of the most important parts of ensembling).  Additionally, one of the
+models only used a reduced target with 4 classes (collapsing the "*" labels in
+Figure 5).</p>
+<p>Another interesting part is how they incorporated the metadata with the images.
+Figure 7 shows the architecture with metadata.  The metadata network is
+relatively simple with two fully connected layers whose output is concatenated
+with the CNN before the last classification layer.  They use a pretty standard architecture
+with BatchNorm and dropout, but they do use the <a class="reference external" href="https://en.wikipedia.org/wiki/Swish_function">Swish</a>
+activation.</p>
+<div class="figure align-center">
+<img alt="Architecture of Solution" src="../../images/dermnet_metadata.png" style="height: 470px;"><p class="caption"><strong>Figure 7: Model architecture including metadata [</strong> <a class="reference internal" href="#id2">1</a> <strong>]</strong></p>
+</div>
+<p>Lastly, I noticed a trick that I had not seen before in the last linear
+classification layer. They use five copies of the linear layer (shared params)
+each with a <em>different</em> dropout layer, which then are averaged together to
+generate the final output shown in Listing 5.  My guess to its purpose is that
+it is trying to remove the randomness of dropout, which may be important since
+it's so high at a 0.5 dropout rate.</p>
+<pre class="code Python"><a name="rest_code_18b5cda0fb3f44b598cadc2b86747bbd-1"></a><span class="k">for</span> <span class="n">dropout</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dropouts</span><span class="p">):</span>
+<a name="rest_code_18b5cda0fb3f44b598cadc2b86747bbd-2"></a>    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<a name="rest_code_18b5cda0fb3f44b598cadc2b86747bbd-3"></a>        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">myfc</span><span class="p">(</span><span class="n">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<a name="rest_code_18b5cda0fb3f44b598cadc2b86747bbd-4"></a>    <span class="k">else</span><span class="p">:</span>
+<a name="rest_code_18b5cda0fb3f44b598cadc2b86747bbd-5"></a>        <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">myfc</span><span class="p">(</span><span class="n">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<a name="rest_code_18b5cda0fb3f44b598cadc2b86747bbd-6"></a><span class="n">out</span> <span class="o">/=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dropouts</span><span class="p">)</span>
+</pre>
+<p><strong>Listing 5: Last layer of Winning Solution (</strong> <a class="reference external" href="https://github.com/haqishen/SIIM-ISIC-Melanoma-Classification-1st-Place-Solution/blob/master/models.py#L61">source</a> <strong>)</strong></p>
+<div class="admonition admonition-ensembles-selection-ideas-from-another-solution">
+<p class="admonition-title">Ensembles Selection Ideas from Another Solution</p>
+<p>In addition to the explanation of [<a class="reference internal" href="#id2">1</a>] in the YouTube video [<a class="reference internal" href="#id7">6</a>],
+one of their colleagues from Nvidia also presented their solution, which
+also got a gold medal coming in 11th.  Their solution was more
+"brute force" (in their own words) building hundreds of models and relied on
+some strategies to whittle it down to their final ensemble.
+Two interesting ideas for ensemble selection came out in the explanation of
+their solution:</p>
+<p>"<strong>Correlation Matrix Divergence</strong>": The idea is you want to filter out
+models that are overfitting on the training data.  So for each model, compute
+the correlation matrix over all classes on the training set, then do the same
+on the test set.  Then you subtract the two and look for values in the
+difference that are large.  The intuition is that if there is a big divergence
+then the model may not be generalizing well to the test set for various reasons
+from overfitting to bugs.  So the team used this as a filter to remove models
+that were highly "divergent".</p>
+<p>"<strong>Adversarial Validation Importances</strong>": Build a model that takes as input
+all the predictions from the candidate set of models to predict whether an
+image is in the train or test set.  If the set of models can easily detect
+the test set, then that means you are picking up on a signal that is biased
+towards one or the other.  Using (I assume) feature importances, you can
+find which models are contributing to this signal and remove it.
+Similar to the other method, you want to make it so the models in your
+ensemble cannot distinguish between train and test to ensure they are
+going to generalize well.</p>
+<p>For both of these methods you will need to use your judgement on which
+threshold to set to drop models.  The authors just said they used their
+best guess and didn't have a methodical way.</p>
+</div>
+</div>
+<div class="section" id="augmentation">
+<h3><a class="toc-backref" href="#id18"><span class="sectnum">3.4</span> Augmentation</a></h3>
+<p>Data augmentation is a common method to improve vision models and many
+libraries are readily available for standard transformations.  The winning
+solution used the <a class="reference external" href="https://albumentations.ai/">albumentations</a> library that
+has a rich variety of image transformations that are performant and easily
+accessible.</p>
+<p>The authors used a whole host of transformations where you can see the
+<a class="reference external" href="https://github.com/bjlkeng/SIIM-ISIC-Melanoma-Classification-1st-Place-Solution/blob/master/dataset.py#L54">code here</a>.
+I'll mention a few interesting points I found:</p>
+<ul class="simple">
+<li><p>The last transformation always resizes the image back to the target size.</p></li>
+<li><p>They use the <code>compose()</code> function to apply <em>all</em> transformations to each image, however
+(in most cases) each transformation will have some probability of activating or not.</p></li>
+<li><p>They'll also have some <code>OneOf</code> choices in there for blurring (Motion,
+Median, Gaussian, GaussNoise blurring) and distortion (OpticalDistortion,
+GridDistortion, ElasticTransform).</p></li>
+<li><p>Some of the transforms require more careful setting of parameters
+that depend on the domain.  For example the <code>Cutout</code> transform, which blanks out
+a square region of the image, requires a bit more careful thinking to ensure that
+the region isn't too large.  In this case, they used a single 37.5% of image sized square
+to cutout with 70% probability.</p></li>
+<li><p>The transformations are only on the training set.  The validation set
+transforms are only used to preprocess the image for the model by doing a
+resize and normalization.</p></li>
+</ul>
+</div>
+<div class="section" id="prediction">
+<h3><a class="toc-backref" href="#id19"><span class="sectnum">3.5</span> Prediction</a></h3>
+<p>On the prediction side there were a couple tricks that I thought are worth
+mentioning:</p>
+<ul>
+<li><p><strong>Fold Averaging</strong>: The best model from each of the 5 validation folds is
+saved based on the validation dataset AUC.  This means for every
+ensemble model (total 18), we have 5 trained models.  The prediction for
+a single model is generated by averaging the 5 probabilities.  That is, for
+each of the 5 trained models (identical configurations but different folds),
+compute the mean across the 5 models for each softmax output separately.</p></li>
+<li>
+<p><strong>Orientation Averaging</strong>: Due to the nature of the images, the solution
+(for each of the above fold models) averaged 8 different predictions per model,
+where each prediction was given a different orientation of the input image.
+This means for each model configuration you have 5 x 8 predictions, which
+are averaged by their probabilities.</p>
+<p>The different orientations are: original, horizontal flip,
+vertical flip, horizontal &amp; vertical flip, diagonal "flip" (transpose),
+diagonal &amp; horizontal flip, diagonal &amp; vertical flip, diagonal &amp; horizontal &amp;
+vertical flip.  For skin lesions the orientation probably doesn't matter at
+all, so computing the average over many different orientations probably
+smooths out any quirks the models has with a particular orientation.
+Intuitively, I would guess this
+increases the robustness of the model's prediction.  See the <a class="reference external" href="https://github.com/bjlkeng/SIIM-ISIC-Melanoma-Classification-1st-Place-Solution/blob/master/predict.py#L121">source</a>
+for the details on both of these tricks.</p>
+</li>
+<li><p><strong>Ensemble Construction</strong>: From each of the above 18 model configurations
+after averaging you have a single column of probabilities corresponding to
+the test set data.  To generate the final prediction, we do a "rank average":
+convert all the probabilities in a column to ranks, normalize those relative
+ranks to between 0 and 1 (as a percentage), and finally compute a simple mean
+between all of the columns.  This is probably more robust than computing a
+simple probability average because it does not overweight confident models
+that might output very high (or low) probability values.</p></li>
+</ul>
+</div>
+<div class="section" id="training-details">
+<h3><a class="toc-backref" href="#id20"><span class="sectnum">3.6</span> Training Details</a></h3>
+<p>Here are the details for the training:</p>
+<ul class="simple">
+<li><p><strong>Epochs</strong>: 15 for most models.  I'm going to guess (because they didn't
+specify) that they picked a large enough number so that the AUC didn't
+continue to increase but also balanced with a manageable run-time.  Since
+they save the best model in the fold (according to the validation AUC),
+as long as this number is big enough you're only losing run-time.</p></li>
+<li><p><strong>Batch size</strong>: 64 for all models.  They mentioned (I believe) that it was
+easier to just keep it all the same for each model than try to tune it,
+presumably because batch size wasn't expected to make much of a difference.</p></li>
+<li><p><strong>Learning rate/schedule</strong>: Ranged from <span class="math">\(1e-5\)</span> to <span class="math">\(3e-5\)</span> with a
+cosine cycle, where the learning rate is tuned for each model (recall this is fine-tuning a
+pre-trained ImageNet model).  There is also a single warm-up epoch at the
+beginning which is one tenth of the initial learning rate.</p></li>
+<li><p><strong>Optimizer</strong>: Adam.  Stated that using a standard strong optimizer was good enough.</p></li>
+<li><p><strong>Hardware</strong>: Trained on V100 GPUs in mixed precision mode with
+up to 8 GPUs used in a data parallel (batch split across GPUs) manner.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="experiments">
+<h2><a class="toc-backref" href="#id21"><span class="sectnum">4</span> Experiments</a></h2>
+<p>The experiments I conducted consisted of a bunch of ablation tests against a baseline
+configuration because I was curious about the importance of each of the decisions in the winning solutions.
+Due to only having access to my local RTX 3090 (and not wanting to spend more
+on cloud compute), I ran it versus a smaller baseline than the models used in
+the original solution.  On the baseline setup, running 3 folds (vs. 5) took
+roughly one full day (which could have been faster, see my notes on
+improving run-time below).  Notably, I didn't try many bigger models because
+I didn't want to spend time waiting around for them to finish.</p>
+<p>You can see the script I used to run it <a class="reference external" href="https://github.com/bjlkeng/SIIM-ISIC-Melanoma-Classification-1st-Place-Solution/blob/master/train.sh">here</a>,
+which just used the existing training script (plus a few new arguments to test
+some of the techniques).  The baseline setup was as follows (parentheses
+denoting the original setup):</p>
+<ul class="simple">
+<li><p>3 fold cross training (vs. 5 folds), 15 epochs per fold</p></li>
+<li><p>Use external data from the preconstructed dataset but no patient level data (i.e., only images)</p></li>
+<li><p>Image size 384 (vs. 448-896 resolution)</p></li>
+<li><p>Architecture: EfficientNet B3 (vs. B4-B7, SE-ResNext101 and ResNest101)</p></li>
+<li><p>Cosine cycle with warm-up epoch</p></li>
+<li><p>Batch size: 48 (vs. 64) to fit on my GPU memory</p></li>
+<li><p>LR: 3e-5</p></li>
+</ul>
+<p>Relative to this baseline setup, I'll discuss the things that seemed to be make
+a significant difference in the validation scores and those that didn't.</p>
+<div class="section" id="changes-that-showed-improvement">
+<h3><a class="toc-backref" href="#id22"><span class="sectnum">4.1</span> Changes That Showed Improvement</a></h3>
+<p>Figure 8 shows the experiments that appears to have improved performance beyond
+just randomness.  The figure shows (a) the mean best AUC across the three
+folds measured on the validation set which includes external data (<code>AUC_mean</code>),
+and (b) the similarly calculated AUC for the validation set with just the 2020
+competition data (<code>AUC_20_mean</code>).  Error bars indicate the standard
+deviation computed across the best AUC score across the three folds.  Starting
+left to right, the changes from the baseline were:</p>
+<ul class="simple">
+<li><p><strong>baseline</strong>: Baseline setup described above.</p></li>
+<li><p><strong>no-pretraining</strong>: Did not used a pre-trained B3 model.</p></li>
+<li><p><strong>no-augmentation</strong>: Removed data augmentation transforms.</p></li>
+<li><p><strong>no-external-data</strong>: A run that only utilized training data from the
+2020 competition data set (no previous years).</p></li>
+<li><p><strong>warmup</strong>: Remove the first warmup epoch which starts at a tenth of the
+initial learning rate and gradually grows to the target LR by the end of the
+epoch.</p></li>
+<li><p><strong>no-cosine</strong>: Did not use cosine learning schedule (which was implemented as
+one cycle across all epochs).</p></li>
+</ul>
+<div class="figure align-center">
+<img alt="Experiments that showed improvement" src="../../images/dermnet_plot_good.png" style="height: 400px;"><p class="caption"><strong>Figure 8: Experiments that showed improvement</strong></p>
+</div>
+<p>As you can see, there are only a few things that are obviously beneficial
+particularly relating to the data.
+The biggest gain appears to be due to pre-training, which is around an
+0.08 AUC gap from the baseline.  This makes sense since we only have
+around 60K data points, so pre-training (even on an unrelated ImageNet dataset)
+would be useful.
+The other big drop seems to be whether or not we're using data augmentation.
+Although the AUC metric seems like it might be only a small drop, the AUC_20
+shows quite a large one, indicating that this plays a significant role in the
+performance.
+Another important data related change was the use of external data.
+The AUC metric is not reported because the default computation from the script
+was not comparable (and I didn't feel like hacking it to make it comparable).
+Instead, we can see the AUC_20 metric which shows about a 0.03 AUC gap.  These
+results really show the value of adding more data (in whatever form) leads to
+the most durable boosts to performance.</p>
+<p>The two other more minor improvements come from the learning rate schedules with
+a warmup epoch and a cosine scheduling of learning rates.  The warmup seemed
+the most significant with 0.02 AUC difference with the cosine scheduling
+showing very minor improvement with 0.01 AUC (possible that it's not significant).
+Although it could be noise, they seem like relatively harmless improvements,
+which are highly likely to give a small boost to performance.</p>
+</div>
+<div class="section" id="changes-that-did-not-showed-improvement">
+<h3><a class="toc-backref" href="#id23"><span class="sectnum">4.2</span> Changes That Did Not Showed Improvement</a></h3>
+<p>Similar to the changes that showed improvement, I ran a bunch of other experiments
+shown in Figure 9 with the same metrics.  For the most part, they did not show
+significant improvement over the baseline.  Starting from left to right in
+Figure 9, the changes were:</p>
+<ul class="simple">
+<li><p><strong>baseline</strong>: Baseline setup described above.</p></li>
+<li><p><strong>+noisy-student</strong>: Use a pre-trained B3 model with Noisy Student training.</p></li>
+<li><p><strong>effnet_b2</strong>: Use EfficientNet B2 model instead of B3.</p></li>
+<li><p><strong>lr={1.5e-5, 2e-5}</strong>: Use a learning rate of 1.5e-5, 2e-5 (vs. 3e-5).</p></li>
+<li><p><strong>+metadata</strong>: Utilize patient (non-image) metadata.</p></li>
+<li><p><strong>dropout-layers={1, 3}</strong>: Utilize 1, 3 parallel dropout layers (vs 5) as
+described above in the Architecture section.</p></li>
+<li><p><strong>img_size=448</strong>: Utilize image size of 448 (vs. 384).</p></li>
+<li><p><strong>binary_labels</strong>: Utilize binary labels in training (as the competition
+expects) instead of 9 classes.</p></li>
+<li><p><strong>tensorflow_impl</strong>: Utilize a tensorflow implementation of the pre-trained model.</p></li>
+<li><p><strong>amp</strong>: Utilize Automated Mixed Precision (AMP) in PyTorch.</p></li>
+</ul>
+<div class="figure align-center">
+<img alt="Experiments that showed did not improvement" src="../../images/dermnet_plot_bad.png" style="height: 450px;"><p class="caption"><strong>Figure 9: Experiments that did not showed improvement</strong></p>
+</div>
+<p>I'll just comment on a few things that were surprising:</p>
+<ul class="simple">
+<li><p>"Fancy" things didn't seem to be that important.  For example,
+Noisy Student or changing architecture to B2 didn't seem to do much.
+Similarly the dropout layers didn't change things much.</p></li>
+<li><p>Implementation details didn't seem to make a big difference like the
+Tensorflow implementation or using AMP.</p></li>
+<li><p>Not very sensitive to many hyperparameters like learning rate and image size.
+Although I suspect it could be because we're fine-tuning vs. doing direct
+training.  The learning rate is so small (and we have a lot of epochs) so it
+may not make a big difference.</p></li>
+<li><p>One thing I did find surprising was that the binary labels didn't didn't make
+that much of a difference.  Intuitively, it feels like better categories would encourage
+better learning but even if it did, it looks like it wasn't that significant.
+It could be because the different classes were all distinguishing the
+negative labels, never the difference between positives and negative.
+Similar to the previous section, this experiment only had an AUC_20 measure
+since the problem formulation was different.</p></li>
+<li><p>One of things that was borderline useful was the use of metadata, which I included
+in this section instead of the one above.  The paper states that metadata didn't
+in general do much but was useful to make more diverse models.  In my experiments,
+it's not significant but it's possible it does help, perhaps especially in smaller
+models/image sizes like B3/384x384.  It's hard to draw conclusions though.</p></li>
+</ul>
+<p>In general, as is the case in many of these situations, there are not many silver
+bullets.  Most things <em>do not significantly improve</em> the performance of the
+problem in a real world scenario.  Or at least they're not "first order"
+improvements that you would try on a first pass of a problem.  If you're optimizing
+for a 0.1% improvement (e.g. AdWords) then you might want to spend more time with
+these "second order" improvements to hyper-optimize things.  Although these
+experiments are not extensive, they probably point directionally to what you
+should care about: data and <em>maybe</em> better learning schedules.</p>
+</div>
+<div class="section" id="training-time">
+<h3><a class="toc-backref" href="#id24"><span class="sectnum">4.3</span> Training Time</a></h3>
+<p>For most of my experiments, a typical run would take about 27 hours (about 37
+mins / epoch) for the baseline setup.  This seemed kind of unreasonably long
+for a small B3 setup, but I mostly ignored it because I was just queueing the jobs
+up and coming back to next day to see what happened.  I even noticed that the GPU
+utilization was low but ignored it thinking it was a weird artifact of my
+training setup.  At one point late in my experiments, I started playing around
+with AMP and PyTorch 2.0 compilation but didn't see a significant change in run-time.</p>
+<p>Only after I had the idea to run the data augmentation experiment did I realize
+my issue: the data augmentation transforms were bottlenecking my batches!  I
+had been using a single thread for the <code>DataLoader</code> (which I did to avoid
+an error initially, see notes below), which caused most of the run-time to be on my CPU.  After
+increasing the number of workers to 6 (the number of cores on my CPU), I got
+the run-time down to less than 10 minutes per epoch with relatively high GPU
+utilization.</p>
+<p>Most of my previous explorations have been on relatively smaller models (partly because
+I had a small 8GB 1070 up until last year) so I didn't have to think too much
+about run-time.  But now that I'm running bigger jobs, savings 3-4x in run-time
+is pretty significant even though I typically leave it running for 24 hours between
+experiments (because I only work on these projects in the evening).
+I think I'll be looking more into the basics of optimizing run-time in the near
+future.</p>
+</div>
+</div>
+<div class="section" id="miscellaneous-notes">
+<h2><a class="toc-backref" href="#id25"><span class="sectnum">5</span> Miscellaneous Notes</a></h2>
+<p>Here are a bunch of of random thoughts I had while doing this project.</p>
+<ul class="simple">
+<li><p><strong>W&amp;B</strong>: This is the first project that I used <a class="reference external" href="https://wandb.ai/">Weights and Biases</a>
+extensively, and it's really good!  It was easy to start logging things using
+Github CoPilot (it auto-filled my <cite>wandb.log()</cite> statement) and getting them
+to show up in a pretty dashboard (including system performance metrics).
+It's really nice not to have to think about collecting data from experiments.
+Analysis of the results was equally easy.  I had to do something more custom
+(because I didn't record the best AUC from each fold), and it was really easy
+to use a notebook to download the raw data via the W&amp;B API and compute the metrics I needed.
+It made it so I didn't have to waste a lot of time doing this boring work.
+The one thing to remember for future projects is to tag my runs better so it
+makes it easier to view in the W&amp;B GUI instead of clicking in to see what the
+command line arguments were.</p></li>
+<li><p><strong>Github CoPilot</strong>: I have recently started to use the Github CoPilot Chat functionality
+in VSCode.  I initially didn't know it was there!  So it's basically ChatGPT
+but I suppose with a model tuned more to code (and a different default
+prompt).  It also automatically takes the context within range of your cursor
+so it can easily explain things better than just using vanilla ChatGPT.  In
+addition to the auto-complete, I found it extremely useful because it was
+usually faster and more helpful than trying to lookup the documentation
+on the web myself.  I will say there was one or two instances where it was not
+giving me the answer I wanted, and I had a hunch that an even better
+solution would be for it to answer AND point to the original documentation
+(using Retrieval Augmented Generation or something like that).  Maybe they'll
+add that someday.  In any case, even though I only use it for side projects,
+it's 100% worth the $10/month that I pay.</p></li>
+<li><p><strong>Plotting with CoPilot</strong>: CoPilot makes Python plotting so easy!  I'm not
+sure about you but previously I always looked up canned examples of how to plot in
+Matplotlib/Pandas, which always had some unintuitive part that was confusing,
+never mind details like a legend or grouped bar charts were always very
+esoteric or complicated.  Now CoPilot will get my chart 95% of the way there
+(with correct syntax) and then it's easy for me to modify it. LLM's for the win!</p></li>
+<li><p>I had a minor Docker shared memory issue when I increased the number
+of workers in the <code>DataLoader</code>.  The training script would die with a
+not enough shared memory error.
+And while I gave it a generous 1 GB of shared memory, it turns out it was not enough.
+In Linux (POSIX standard), <code>/dev/shm</code> is a shared memory space
+with a filesystem-like interface that uses RAM to help facilitate interprocess
+communication.  Since the <code>DataLoader</code> uses multiple processes it used
+up a surprisingly large amount of space to prepare images (at least that's
+what it looked like).  The fix was easy: increase the space to 8GB, which
+cleared up my problem.  You can see my Docker run script and the other scripts
+that I used to set up my environment
+in this <a class="reference external" href="https://github.com/bjlkeng/wsl-setup/blob/main/run_devenv.sh">repo</a>.</p></li>
+</ul>
+</div>
+<div class="section" id="conclusion">
+<h2><a class="toc-backref" href="#id26"><span class="sectnum">6</span> Conclusion</a></h2>
+<p>It never ceases to amaze me how much there is to learn from diving deep into a
+subject.  While the original write-up to the Kaggle solution was only a few
+pages long (single column), the YouTube video and the code repo added a lot
+more layers, and digging into some of the ML techniques added even more.
+It was a fun (and educational) exercise to understand what choices were
+actually important.  It was also very useful getting schooled on the importance
+of optimizing long running jobs on the GPU.  And despite this longish write-up,
+there's still so much more that I still want to dig into (e.g. PyTorch run-time
+optimizations) but this post has already become longer than I expected (as
+usual).  That's it for now, thanks for reading!</p>
+</div>
+<div class="section" id="references">
+<h2><a class="toc-backref" href="#id27"><span class="sectnum">7</span> References</a></h2>
+<p id="id1">[0] <a class="reference external" href="https://www.kaggle.com/competitions/siim-isic-melanoma-classification/overview">SIIM-ISIC Melanoma Classification Kaggle Competition</a></p>
+<p id="id2">[1] Qishen Ha, Bo Liu, Fuxu Liu, "Identifying Melanoma Images using EfficientNet Ensemble: Winning Solution to the SIIM-ISIC Melanoma Classification Challenge", <a class="reference external" href="https://arxiv.org/abs/2010.05351">https://arxiv.org/abs/2010.05351</a></p>
+<p id="id3">[2] Sandler et al. "MobileNetV2: Inverted Residuals and Linear Bottlenecks", CVPR 2018, <a class="reference external" href="https://arxiv.org/abs/1801.04381">https://arxiv.org/abs/1801.04381</a></p>
+<p id="id4">[3] Hu et al. "Squeeze-and-Excitation Networks", CVPR 2018, <a class="reference external" href="https://arxiv.org/abs/1801.04381">https://arxiv.org/abs/1801.04381</a></p>
+<p id="id5">[4] Mingxing Tan, Quoc V. Le, "EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks", <a class="reference external" href="https://arxiv.org/abs/1905.11946">https://arxiv.org/abs/1905.11946</a></p>
+<p id="id6">[5] Xie et al. "Self-training with Noisy Student improves ImageNet classification", <a class="reference external" href="https://arxiv.org/abs/1911.04252">https://arxiv.org/abs/1911.04252</a></p>
+<p id="id7">[6] Nvidia Developer, "How to Build a World-Class ML Model for Melanoma Detection", <a class="reference external" href="https://www.youtube.com/watch?v=L1QKTPb6V_I">https://www.youtube.com/watch?v=L1QKTPb6V_I</a></p>
+</div>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/augmentation/" rel="tag">augmentation</a></li>
+            <li><a class="tag p-category" href="../../categories/cnn/" rel="tag">CNN</a></li>
+            <li><a class="tag p-category" href="../../categories/data/" rel="tag">data</a></li>
+            <li><a class="tag p-category" href="../../categories/dermatology/" rel="tag">dermatology</a></li>
+            <li><a class="tag p-category" href="../../categories/efficientnet/" rel="tag">EfficientNet</a></li>
+            <li><a class="tag p-category" href="../../categories/mobilenet/" rel="tag">MobileNet</a></li>
+            <li><a class="tag p-category" href="../../categories/noisy-student/" rel="tag">Noisy Student</a></li>
+            <li><a class="tag p-category" href="../../categories/validation-set/" rel="tag">validation set</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../building-a-qa-bot-of-me-with-openai-and-cloudflare/" rel="prev" title="LLM Fun: Building a Q&amp;A Bot of Myself">Previous post</a>
+            </li>
+        </ul></nav></aside><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha384-3lJUsx1TJHt7BA4udB5KPnDrlkO8T6J6v/op7ui0BbCjvZ9WqV4Xm6DTP6kQ/iBH" crossorigin="anonymous"></script><script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
+    }
+});
+</script></article>
+</div>
+            <div class="col-md-3 ">
+            <div class="card card-body bg-light">
+            <p>
+            Hi, I'm <a href="http://www.briankeng.com/about">Brian Keng</a>.  This is
+            <a href="../../">the place</a> where I write about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br>
+</div>
+
+<!-- Begin MailChimp Signup Form -->
+<hr>
+<link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+    #mc_embed_signup{clear:left; font:13px Helvetica,Arial,sans-serif; }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+       We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="//briankeng.us10.list-manage.com/subscribe/post?u=cedf72ca8daa891e57f4379a0&amp;id=1f1563094f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <b>Signup for Email Blog Posts</b>
+    <div id="mc_embed_signup_scroll">
+<div>
+    <label for="mce-EMAIL"> Email Address </label>
+    <input type="email" value="" name="EMAIL" class="required email form-control input-sm" id="mce-EMAIL">
+</div>
+    <div id="mce-responses" class="clear">
+        <div class="response" id="mce-error-response" style="display:none"></div>
+        <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_cedf72ca8daa891e57f4379a0_1f1563094f" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn btn-default btn-xs"></div>
+    </div>
+</form>
+</div>
+<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
+</div>
+            </div>
+        </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2023         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+            
+        </footer>
+</div>
+
+
+
+        <script src="../../assets/js/all-nocdn.js"></script><script>
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element) {
+            return element.getElementsByTagName('img')[0].alt;
+    }});
+    </script><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-15314898-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>

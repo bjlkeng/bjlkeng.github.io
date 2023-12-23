@@ -80,7 +80,47 @@ navbar-dark bg-dark
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/lossless-compression-with-latent-variable-models-using-bits-back-coding/" class="u-url">Lossless Compression with Latent Variable Models using Bits-Back Coding</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/hamiltonian-monte-carlo/" class="u-url">Hamiltonian Monte Carlo</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="posts/hamiltonian-monte-carlo/" rel="bookmark">
+            <time class="published dt-published" datetime="2021-12-23T20:07:05-04:00" itemprop="datePublished" title="2021-12-23 20:07">2021-12-23 20:07</time></a>
+            </p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>Here's a topic I thought that I would never get around to learning because it was "too hard".
+When I first started learning about Bayesian methods, I knew enough that I
+should learn a thing or two about MCMC since that's the backbone
+of most Bayesian analysis; so I learned something about it
+(see my <a class="reference external" href="posts/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/">previous post</a>).
+But I didn't dare attempt to learn about the infamous Hamiltonian Monte Carlo (HMC).
+Even though it is among the standard algorithms used in Bayesian inference, it
+always seemed too daunting because it required "advanced physics" to
+understand.  As usual, things only seem hard because you don't know them yet.
+After having some time to digest MCMC methods, getting comfortable learning
+more maths (see
+<a class="reference external" href="posts/tensors-tensors-tensors/">here</a>,
+<a class="reference external" href="posts/manifolds/">here</a>, and
+<a class="reference external" href="posts/hyperbolic-geometry-and-poincare-embeddings/">here</a>),
+all of a sudden learning "advanced physics" didn't seem so tough (but there
+sure was a lot of background needed)!</p>
+<p>This post is the culmination of many different rabbit holes (many much deeper
+than I needed to go) where I'm going to attempt to explain HMC in simple and
+intuitive terms to a satisfactory degree (that's the tag line of this blog
+after all).  I'm going to begin by briefly motivating the topic by reviewing
+MCMC and the Metropolis-Hastings algorithm then move on to explaining
+Hamiltonian dynamics (i.e., the "advanced physics"), and finally discuss the HMC
+algorithm along with some toy experiments I put together.  Most of the material
+is based on [1] and [2], which I've found to be great sources for their
+respective areas.</p>
+<p class="more"><a href="posts/hamiltonian-monte-carlo/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/lossless-compression-with-latent-variable-models-using-bits-back-coding/" class="u-url">Lossless Compression with Latent Variable Models using Bits-Back Coding</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Brian Keng
@@ -209,36 +249,6 @@ whole story.  But leaving it at that skips over so many (interesting) and
 non-obvious things that you would never know if you didn't bother to look.  I'm
 a curious fellow so come with me and let's take a look!</p>
 <p class="more"><a href="posts/a-note-on-using-log-likelihood-for-generative-models/">Read more…</a></p>
-</div>
-    </div>
-    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/pixelcnn/" class="u-url">PixelCNN</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Brian Keng
-            </span></p>
-            <p class="dateline">
-            <a href="posts/pixelcnn/" rel="bookmark">
-            <time class="published dt-published" datetime="2019-07-22T07:11:09-04:00" itemprop="datePublished" title="2019-07-22 07:11">2019-07-22 07:11</time></a>
-            </p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>It's been a long time coming but I'm finally getting this post out!  I read
-this paper a couple of years ago and wanted to really understand it because it
-was state of the art at the time (still pretty close even now).  As usual
-though, once I started down the variational autoencoder line of posts, there
-was always <em>yet</em> another VAE paper to look into so I never got around to
-looking at this one.</p>
-<p>This post is all about a proper probabilistic generative model called Pixel
-Convolutional Neural Networks or PixelCNN.  It was originally proposed
-as a side contribution of Pixel Recurrent Neural Networks in [1] and later
-expanded upon in [2,3] (and I'm sure many other papers).  The real cool thing
-about it is that it's (a) probabilistic, and (b) autoregressive.  It's still
-counter-intuitive to me that you can generate images one pixel at at time, but
-I'm jumping ahead of myself here.  We'll go over some background material, the
-method, and my painstaking attempts at an implementation (and what I learned
-from it).  Let's get started!</p>
-<p class="more"><a href="posts/pixelcnn/">Read more…</a></p>
 </div>
     </div>
     </article>

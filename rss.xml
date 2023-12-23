@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality</title><link>http://bjlkeng.github.io/</link><description>Understanding math, machine learning, and data to a satisfactory degree.</description><atom:link href="http://bjlkeng.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 24 Oct 2023 01:51:45 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>LLM Fun: Building a Q&amp;A Bot of Myself</title><link>http://bjlkeng.github.io/posts/building-a-qa-bot-of-me-with-openai-and-cloudflare/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Unless you've been living under a rock, you've probably heard of large language
+<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality</title><link>http://bjlkeng.github.io/</link><description>Understanding math, machine learning, and data to a satisfactory degree.</description><atom:link href="http://bjlkeng.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sat, 23 Dec 2023 02:03:09 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>A Look at The First Place Solution of a Dermatology Classification Kaggle Competition</title><link>http://bjlkeng.github.io/posts/a-look-at-the-first-place-solution-of-a-dermatology-classification-kaggle-competition/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;One interesting thing I often think about is the gap between academic and real-world
+solutions.  In general academic solutions play in the realm of idealized problem
+spaces, removing themselves from needing to care about the messiness of the real-world.
+&lt;a class="reference external" href="https://www.kaggle.com/competitions"&gt;Kaggle&lt;/a&gt;
+competitions are a (small) step in the right direction towards dealing with messiness,
+usually providing a true blind test set (vs. overused benchmarks), and opening a
+few degrees of freedom in terms the techniques that can be used, which
+usually eschews novelty in favour of more robust methods.  To this end, I
+thought it would be useful to take a look at a more realistic problem (via a
+Kaggle competition) and understand the practical details that result in a
+superior solution.&lt;/p&gt;
+&lt;p&gt;This post will cover the &lt;a class="reference external" href="https://arxiv.org/abs/2010.05351"&gt;first place solution&lt;/a&gt; [&lt;a class="reference internal" href="http://bjlkeng.github.io/posts/a-look-at-the-first-place-solution-of-a-dermatology-classification-kaggle-competition/#id2"&gt;1&lt;/a&gt;] to the
+&lt;a class="reference external" href="https://www.kaggle.com/competitions/siim-isic-melanoma-classification/overview"&gt;SIIM-ISIC Melanoma Classification&lt;/a&gt; [&lt;a class="reference internal" href="http://bjlkeng.github.io/posts/a-look-at-the-first-place-solution-of-a-dermatology-classification-kaggle-competition/#id1"&gt;0&lt;/a&gt;] challenge.
+In addition to using tried and true architectures (mostly EfficientNets), they
+have some interesting tactics they use to formulate the problem, process the
+data, and train/validate the model.  I'll cover background on the
+ML techniques, competition and data, architectural details, problem formulation, and
+implementation.  I've also run some experiments to better understand the
+benefits of certain choices they made.  Enjoy!&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/a-look-at-the-first-place-solution-of-a-dermatology-classification-kaggle-competition/"&gt;Read more…&lt;/a&gt; (36 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>augmentation</category><category>CNN</category><category>data</category><category>dermatology</category><category>EfficientNet</category><category>mathjax</category><category>MobileNet</category><category>Noisy Student</category><category>validation set</category><guid>http://bjlkeng.github.io/posts/a-look-at-the-first-place-solution-of-a-dermatology-classification-kaggle-competition/</guid><pubDate>Sat, 23 Dec 2023 00:09:46 GMT</pubDate></item><item><title>LLM Fun: Building a Q&amp;A Bot of Myself</title><link>http://bjlkeng.github.io/posts/building-a-qa-bot-of-me-with-openai-and-cloudflare/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Unless you've been living under a rock, you've probably heard of large language
 models (LLM) such as ChatGPT or Bard.  I'm not one for riding a hype train but
 I do think LLMs are here to stay and either are going to have an impact as big
 as mobile as an interface (my current best guess) or perhaps something as big as
@@ -168,19 +187,4 @@ average log-likelihood of the continuous density and that's &lt;em&gt;almost&lt;
 whole story.  But leaving it at that skips over so many (interesting) and
 non-obvious things that you would never know if you didn't bother to look.  I'm
 a curious fellow so come with me and let's take a look!&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/a-note-on-using-log-likelihood-for-generative-models/"&gt;Read more…&lt;/a&gt; (15 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>generative models</category><category>log-likelihood</category><category>mathjax</category><guid>http://bjlkeng.github.io/posts/a-note-on-using-log-likelihood-for-generative-models/</guid><pubDate>Tue, 27 Aug 2019 11:50:09 GMT</pubDate></item><item><title>PixelCNN</title><link>http://bjlkeng.github.io/posts/pixelcnn/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;It's been a long time coming but I'm finally getting this post out!  I read
-this paper a couple of years ago and wanted to really understand it because it
-was state of the art at the time (still pretty close even now).  As usual
-though, once I started down the variational autoencoder line of posts, there
-was always &lt;em&gt;yet&lt;/em&gt; another VAE paper to look into so I never got around to
-looking at this one.&lt;/p&gt;
-&lt;p&gt;This post is all about a proper probabilistic generative model called Pixel
-Convolutional Neural Networks or PixelCNN.  It was originally proposed
-as a side contribution of Pixel Recurrent Neural Networks in [1] and later
-expanded upon in [2,3] (and I'm sure many other papers).  The real cool thing
-about it is that it's (a) probabilistic, and (b) autoregressive.  It's still
-counter-intuitive to me that you can generate images one pixel at at time, but
-I'm jumping ahead of myself here.  We'll go over some background material, the
-method, and my painstaking attempts at an implementation (and what I learned
-from it).  Let's get started!&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/pixelcnn/"&gt;Read more…&lt;/a&gt; (23 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>autoregressive</category><category>CIFAR10</category><category>generative models</category><category>mathjax</category><guid>http://bjlkeng.github.io/posts/pixelcnn/</guid><pubDate>Mon, 22 Jul 2019 11:11:09 GMT</pubDate></item></channel></rss>
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/a-note-on-using-log-likelihood-for-generative-models/"&gt;Read more…&lt;/a&gt; (15 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>generative models</category><category>log-likelihood</category><category>mathjax</category><guid>http://bjlkeng.github.io/posts/a-note-on-using-log-likelihood-for-generative-models/</guid><pubDate>Tue, 27 Aug 2019 11:50:09 GMT</pubDate></item></channel></rss>
