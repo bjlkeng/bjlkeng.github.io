@@ -246,7 +246,7 @@ so that the FLOPS will increase by roughly :math:`2^\phi`.  Additionally,
 it likely simplifies the grid search that we need to do.
 
 A specific EfficientNet architecture is also proposed in [4_] that defines
-a base architecture labeled "B0" shown in Figure 3 using the above MBConv
+a base architecture labelled "B0" shown in Figure 3 using the above MBConv
 MobileNetV2 block discussed above with the Squeeze and Excitation optimization
 added to each block.  Overall the base B0 architecture is a typical ConvNet
 where in each layer the resolution decreases but channels increase.
@@ -258,7 +258,7 @@ where in each layer the resolution decreases but channels increase.
 
   **Figure 3: EfficientNet-B0 baseline architecture [** 4_ **]**
 
-From the B0 architecture, we can derive scaled architectures labeled
+From the B0 architecture, we can derive scaled architectures labelled
 B1-B7 by:
 
 1. Fix :math:`\phi=1` and assume two times more resources are available (see Equation 1),
@@ -321,7 +321,7 @@ simple algorithm (with some subtlety) and the following steps:
 2. Use the :math:`M^t` (current teacher) to generate pseudo labels for the unlabelled data
    (**filter and balance dataset as required**)
 3. Learn a student model :math:`M^{t+1}` with **equal or larger** capacity
-   on the labeled and unlabelled data with added **noise**.
+   on the labelled and unlabelled data with added **noise**.
 4. Increment :math:`t` (make the current student the new teacher) and **repeat**
    steps 2-3 as needed.
 
@@ -381,7 +381,7 @@ More than 3300 teams participated in the competition with the winning solution [
 being the topic of this post. 
 
 The dataset consists of 33k training data points with only 1.76% positive samples (i.e., melanoma).
-Each datum contains a JPG image of varying sizes (or a standardized 1024x1024
+Each datum contains a JPEG image of varying sizes (or a standardized 1024x1024
 TFRecord) of a skin lesion along with patient data, which includes:
 
 * patient id
@@ -398,16 +398,16 @@ different tasks (e.g. image segmentation, classification with different labels e
 This additional data made a combined dataset of roughly 60k images that one
 could possibly use.
 
-The competition in 2020 was hosted on Kaggle which contained a leaderboard of
+The competition in 2020 was hosted on Kaggle which contained a leader board of
 all submissions.  Each team submitted a blind prediction on the given test set
-and the leaderboard measured its performance using AUC.
-The leaderboard showed a public view on all submissions which showed the AUC
+and the leader board measured its performance using AUC.
+The leader board showed a public view on all submissions which showed the AUC
 score based on 30% of the test set.  The remaining 70% of the testset remained
-hidden on the private leaderboard until the end of the competition and was used
+hidden on the private leader board until the end of the competition and was used
 to evaluate the final result.
 
 Table 2 shows several select submissions including the top 3 on the public and
-private leaderboards.  Interestingly, the top 3 winners on the private data all
+private leader boards.  Interestingly, the top 3 winners on the private data all
 ranked relatively low, including the top submission which ranked all the way
 down at 881!  Impressively, the top public score had a whopping 0.9931 AUC but
 only ended up at rank 275 in the final private ranking.  The number of submissions
@@ -447,7 +447,7 @@ amount of time is spent on in real world problems).
 
 The first step in preprocessing was center cropping and resizing
 the images.  Many of the JPEG images were really large and had different dimensions
-(e.g., 1053x1872, 4000x6000, etc.) totaling 32GB.  After reducing them down to
+(e.g., 1053x1872, 4000x6000, etc.) totalling 32GB.  After reducing them down to
 various standard sizes (e.g. 512x512, 768x768, 1024x1024) they were much more
 manageable to use, for example the 512x512 dataset was about 3GB for 2020 data.
 
@@ -490,15 +490,15 @@ would lead to an unstable AUC (or pretty much any other metric you're going to
 use).
 
 Beyond the training data provided, the test data that could be evaluated via the
-public leaderboard had only about 10k samples, 30% of which was used to
-evaluate AUC on the public leaderboard.  If the distribution were similar in
+public leader board had only about 10k samples, 30% of which was used to
+evaluate AUC on the public leader board.  If the distribution were similar in
 this test set, this would only leave about 50 or so positive test case samples.
-Thus, the public leaderboard evaluation was similarly unreliable and
+Thus, the public leader board evaluation was similarly unreliable and
 couldn't be used to robustly evaluate the model.  This was clearly seen as the
 top 3 public leader ranks dropped significantly when evaluated on the private
 data set.  The authors also mention that their cross validation scores
-(described below) were not correlated with the public leaderboard and that they
-basically ignored the leaderboard.
+(described below) were not correlated with the public leader board and that they
+basically ignored the leader board.
 
 The winning solution instead utilized *both* the competition (2020) data
 and external data (2019) for training *and* validation.  The 2019 data had 25k
@@ -541,7 +541,7 @@ source of diversity in the ensemble.  Unfortunately, the authors didn't describe
 how they selected their ensemble except to say that diversity was important.
 Interestingly, the authors state [6_] that the CNN backbone isn't all that
 important and they mostly just picked an off-the-shelf state-of-the-art model
-achitecture (EfficientNet) where pre-trained models and code are
+architecture (EfficientNet) where pre-trained models and code are
 readily available.
 
 .. figure:: /images/dermnet_ensemble.png
@@ -854,7 +854,7 @@ bullets.  Most things *do not significantly improve* the performance of the
 problem in a real world scenario.  Or at least they're not "first order"
 improvements that you would try on a first pass of a problem.  If you're optimizing
 for a 0.1% improvement (e.g. AdWords) then you might want to spend more time with
-these "second order" improvements to hyperoptimize things.  Although these
+these "second order" improvements to hyper-optimize things.  Although these
 experiments are not extensive, they probably point directionally to what you
 should care about: data and *maybe* better learning schedules. 
 
