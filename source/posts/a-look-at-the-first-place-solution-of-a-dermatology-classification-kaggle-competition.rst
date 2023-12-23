@@ -1,6 +1,6 @@
 .. title: A Look at The First Place Solution of a Dermatology Classification Kaggle Competition
 .. slug: a-look-at-the-first-place-solution-of-a-dermatology-classification-kaggle-competition
-.. date: 2023-11-11 13:09:46 UTC-05:00
+.. date: 2023-12-22 19:09:46 UTC-05:00
 .. tags: dermatology, EfficientNet, CNN, augmentation, data, validation set, Noisy Student, MobileNet, mathjax
 .. category: 
 .. link: 
