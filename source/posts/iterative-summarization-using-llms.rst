@@ -1,7 +1,7 @@
 .. title: Iterative Summarization using LLMs
 .. slug: iterative-summarization-using-llms
-.. date: 2024-05-26 21:21:43 UTC-04:00
-.. tags: LLM, summarization, fixed point, OpenAI
+.. date: 2024-06-02 20:21:43 UTC-04:00
+.. tags: LLM, summarization, fixed point, OpenAI, mathjax
 .. category: 
 .. link: 
 .. description: A short post on showing what happens if you keep summarizing a piece of text.
@@ -18,7 +18,7 @@ hopefully will keep more more motivated to post.  Speaking of which...
 
 This post is about answering a random thought I had the other day: what would
 happen if I kept passing an LLM's output back to itself (sort of similar to
-agents talking to each other).  I run a few experiments of trying to get the
+agents talking to each other)?  I ran a few experiments of trying to get the
 LLM to iteratively summarize or rephrase a piece of text and the results are...
 pretty much what you would expect.  But if you don't know what to expect, then
 read on and find out what happened!
@@ -45,24 +45,23 @@ Setup
 =====
 
 The setup for experiments is really simple.  Start with one of two pieces of
-data: A truncated (to fit within the 128k context) JSON of all my blog posts
-from my `personal site <www.briankeng.com>`__ or an LLM generated list of 100
-random facts.  Next, run an LLM asking it to either:
-:code:`Summarize the following: {data}` or :code:`Rephase the following: {data}`.
+data: A long summary of all my blog posts from my `personal site
+<www.briankeng.com>`__ or an LLM generated list of 100 random facts.  Next, run
+an LLM asking it to either: :code:`Summarize the following: {data}` or
+:code:`Rephase the following: {data}`.  Repeat 50 times and observe!
 
-And took the response from the LLM and fed it back 50 times.  I also used this
-system prompt to help not lose too much data:
+I also used this system prompt to help not lose too much data:
 
     The following is a conversation with an AI assistant. The assistant is helpful,
     creative, clever, and very friendly. The assistant will attempt to give a
     response that is concise but ensures that all the key points are included when
     relevant.
 
-I ran combinations of the above using :code:`gpt-4o` and :code:`gpt-3.5-turbo` (using the
-former to do the initial summary of the blog posts because of the context
-window), and temperatures of :code:`0.0, 0.5, 1.0`.  That's it!
-You can find my hacky code on `Github <https://github.com/bjlkeng/sandbox/tree/master/llm_fixed_point>`__
-for these experiments.  Let's take a look to see what happened.
+I ran combinations of the above using :code:`gpt-4o` and :code:`gpt-3.5-turbo`,
+and temperatures of :math:`0.0, 0.5, 1.0`.  That's it!  You can find my hacky
+code on `Github
+<https://github.com/bjlkeng/sandbox/tree/master/llm_fixed_point>`__ for these
+experiments.  Let's take a look to see what happened.
 
 Experiments
 ===========
@@ -72,7 +71,8 @@ Blog Data
 
 First up is the summary of the blog post experiments shown in Figure 1 (nevermind the 42
 in the label, that's just the random seed) where the X-axis is the iteration
-number and the Y-axis is the length of the response.  The input data to this is
+number and the Y-axis is the length of the response.  For these experiments, I only
+ran the "Summarize" prompt.  The input data to this is
 a summary by :code:`gpt-4o` of a scrape of my blog, which you can look at
 `here <https://github.com/bjlkeng/sandbox/blob/master/llm_fixed_point/blog_gpt4o_summary.txt>`__.
 It's about 7.6 KB in size compared to all my blog posts which are closer to
@@ -145,14 +145,67 @@ we saw with `gpt-4o`, temperature 0.  It just seems unlikely to me that it
 would reproduce the exact same text instead of modifying a word here or there.
 These LLM's are mysterious blackboxes indeed.
 
------------------
 
+Random Fact Data
+----------------
+
+In this set of experiments, I first asked :code:`gpt-4o` to generate 100 random facts
+that I would use an input data, which I put on
+`Github <https://github.com/bjlkeng/sandbox/blob/master/llm_fixed_point/100_facts.txt>`__.
+I ran similar then asked the LLM to either summarize or rephrase the input data.
+Figure 2 shows the results in terms of lines (where each fact is on a line).
+
+.. figure:: /images/llm_fixed_point-random_facts.png
+  :height: 350px
+  :alt: Random facts experiments
+  :align: center
+
+  **Figure 2: Number of lines of response from LLM's for iterative summarization across a sample of experiments from {gpt-4o, gpt-3.5-turbo} and temperatures of {0.0, 0.5, 1.0} and two different prompts.**
+
+In this chart, I only included a sample because all of the other experiments
+were pretty boring -- they just mirrored the majority, which were able to
+retain all 100 lines of facts.  The two outliers were :code:`gpt-3.5-turbo`
+with the rephrasing prompt and :code:`gpt-4o` with the summary prompt, both at
+temperature :math:`1.0`.  The :code:`gpt-3.5-turbo` at iteration 35 randomly
+decided to drop half of the facts and spit out a list of only 50 lines long.
+Not sure what happened here, but I guess it just randomly decided to stop!
+The :code:`gpt-4o` run decided to drop the list format entirely on iteration 3
+and just summarize the list with a short paragraph, which obviously dropped a
+lot of information.
+
+Unsurprisingly both happened at temperature :math:`1.0`, and maybe slightly
+surprisingly, not all runs at :math:`1.0` had this issue.  There were two other
+runs paralleling the ones above but with the opposite prompt that kept all 100
+facts.  This is just another good reminder that LLM behavior is indeed random
+that scales more with temperature, and it's not that easy to control them.
 
 Discussion
 ==========
 
-* Temperature at 2.0 kept getting error:
+Here are a few random side things that happened while I was putting this together:
 
-    Error code: 500 - {'error': {'message': 'Failed to create completion as the model generated invalid Unicode output. Unfortunately, this can happen in rare situations. Consider reviewing your prompt or reducing the temperature of your request. You can retry your request, or contact us through our help center at help.openai.com if the error persists. (Please include the request ID req_9e5be7d84b972df525ab75827f1ccc37 in your message.)', 'type': None, 'param': None, 'code': None}}
+* I kept getting an error at temperature :math:`2.0`:
 
-* Weights & Biases is quite good! Easy to use, some learning curve.  Obvious lock in problems.  Pretty expensive from an enteprirse point of view.
+      Error code: 500 - {'error': {'message': 'Failed to create completion as the model generated invalid Unicode output. Unfortunately, this can happen in rare situations. Consider reviewing your prompt or reducing the temperature of your request. You can retry your request, or contact us through our help center at help.openai.com if the error persists. (Please include the request ID req_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX in your message.)', 'type': None, 'param': None, 'code': None}}
+  
+  I guess at that temperature the output token distribution gets really flat
+  and you get weird non-Unicode characters being selected?  I probably should
+  have tried to do some runs at temperature :math:`1.5` or something like that
+  but I'll leave that to someone else if they're curious.
+* I used `Weights & Biases <https://wandb.ai/>`__ for all the experimentation
+  (maybe you can tell from the charts?), and I like it!  I played around with
+  it a bit before, and decided that I should keep using it to get more familiar
+  with it.  It's a nice time saver to not have to manage all the logged data
+  and analyze it.  Especially with Github CoPilot helping smooth the API usage,
+  I was able to do most of what I wanted pretty easily.  For organizations,
+  there are obvious lock-in problems.  From an enterprise point of view,
+  it's also pretty expensive (so I hear) but I guess at that scale you can
+  afford it.
+
+Conclusion
+==========
+
+That's it!  Possibly my shortest post yet, and kind of fun to just randomly
+play around without doing anything too grand.  I haven't given up on math
+heavy stuff though, just wanted to prove to myself that I could write a short 
+post and ease myself back into it.  See you next time!
