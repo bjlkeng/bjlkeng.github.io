@@ -48,7 +48,7 @@ The setup for experiments is really simple.  Start with one of two pieces of
 data: A long summary of all my blog posts from my `personal site
 <www.briankeng.com>`__ or an LLM generated list of 100 random facts.  Next, run
 an LLM asking it to either: :code:`Summarize the following: {data}` or
-:code:`Rephase the following: {data}`.  Repeat 50 times and observe!
+:code:`Rephrase the following: {data}`.  Repeat 50 times and observe!
 
 I also used this system prompt to help not lose too much data:
 
@@ -69,7 +69,7 @@ Experiments
 Blog Data
 ---------
 
-First up is the summary of the blog post experiments shown in Figure 1 (nevermind the 42
+First up is the summary of the blog post experiments shown in Figure 1 (never mind the 42
 in the label, that's just the random seed) where the X-axis is the iteration
 number and the Y-axis is the length of the response.  For these experiments, I only
 ran the "Summarize" prompt.  The input data to this is
