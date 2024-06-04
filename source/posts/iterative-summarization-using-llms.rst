@@ -1,6 +1,6 @@
 .. title: Iterative Summarization using LLMs
 .. slug: iterative-summarization-using-llms
-.. date: 2024-06-02 20:21:43 UTC-04:00
+.. date: 2024-06-03 20:21:43 UTC-04:00
 .. tags: LLM, summarization, fixed point, OpenAI, blog, mathjax
 .. category: 
 .. link: 
