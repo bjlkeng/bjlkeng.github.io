@@ -80,7 +80,44 @@ navbar-dark bg-dark
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/hamiltonian-monte-carlo/" class="u-url">Hamiltonian Monte Carlo</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/normalizing-flows-with-real-nvp/" class="u-url">Normalizing Flows with Real NVP</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="posts/normalizing-flows-with-real-nvp/" rel="bookmark">
+            <time class="published dt-published" datetime="2022-04-23T19:36:05-04:00" itemprop="datePublished" title="2022-04-23 19:36">2022-04-23 19:36</time></a>
+            </p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>This post has been a long time coming.  I originally started working on it several posts back but
+hit a roadblock in the implementation and then got distracted with some other ideas, which took
+me down various rabbit holes (<a class="reference external" href="posts/hamiltonian-monte-carlo/">here</a>,
+<a class="reference external" href="posts/lossless-compression-with-asymmetric-numeral-systems/">here</a>, and
+<a class="reference external" href="posts/lossless-compression-with-latent-variable-models-using-bits-back-coding/">here</a>).
+It feels good to finally get back on track to some core ML topics.
+The other nice thing about not being an academic researcher (not that I'm
+really researching anything here) is that there is no pressure to do anything!
+If it's just for fun, you can take your time with a topic, veer off track, and
+the come back to it later.  It's nice having the freedom to do what you want (this applies to
+more than just learning about ML too)!</p>
+<p>This post is going to talk about a class of deep probabilistic generative
+models called normalizing flows.  Alongside <a class="reference external" href="posts/variational-autoencoders/">Variational Autoencoders</a>
+and autoregressive models <a class="footnote-reference brackets" href="posts/normalizing-flows-with-real-nvp/#id3" id="id1">1</a> (e.g. <a class="reference external" href="posts/pixelcnn/">Pixel CNN</a> and
+<a class="reference external" href="posts/autoregressive-autoencoders/">Autoregressive autoencoders</a>),
+normalizing flows have been one of the big ideas in deep probabilistic generative models (I don't count GANs because they are not quite probabilistic).
+Specifically, I'll be presenting one of the earlier normalizing flow
+techniques named <em>Real NVP</em> (circa 2016).
+The formulation is simple but surprisingly effective, which makes it a good
+candidate to understand more about normalizing flows.
+As usual, I'll go over some background, the method, an implementation
+(with commentary on the details), and some experimental results.  Let's get into the flow!</p>
+<p class="more"><a href="posts/normalizing-flows-with-real-nvp/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/hamiltonian-monte-carlo/" class="u-url">Hamiltonian Monte Carlo</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Brian Keng
@@ -222,35 +259,6 @@ package! Confused yet?  Keep reading and I'll <em>explain</em>.</p>
 <p class="more"><a href="posts/model-explanability-with-shapley-additive-explanations-shap/">Read more…</a></p>
 </div>
     </div>
-    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/a-note-on-using-log-likelihood-for-generative-models/" class="u-url">A Note on Using Log-Likelihood for Generative Models</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Brian Keng
-            </span></p>
-            <p class="dateline">
-            <a href="posts/a-note-on-using-log-likelihood-for-generative-models/" rel="bookmark">
-            <time class="published dt-published" datetime="2019-08-27T07:50:09-04:00" itemprop="datePublished" title="2019-08-27 07:50">2019-08-27 07:50</time></a>
-            </p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>One of the things that I find is usually missing from many ML papers is how
-they relate to the fundamentals.  There's always a throwaway line where it
-assumes something that is not at all obvious (see my post on
-<a class="reference external" href="posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/">Importance Sampling</a>).  I'm the kind of person who likes to
-understand things to a satisfactory degree (it's literally in the subtitle of
-the blog) so I couldn't help myself investigating a minor idea I read about in
-a paper.</p>
-<p>This post investigates how to use continuous density outputs (e.g. a logistic
-or normal distribution) to model discrete image data (e.g. 8-bit RGB values).
-It seems like it might be something obvious such as setting the loss as the
-average log-likelihood of the continuous density and that's <em>almost</em> the
-whole story.  But leaving it at that skips over so many (interesting) and
-non-obvious things that you would never know if you didn't bother to look.  I'm
-a curious fellow so come with me and let's take a look!</p>
-<p class="more"><a href="posts/a-note-on-using-log-likelihood-for-generative-models/">Read more…</a></p>
-</div>
-    </div>
     </article>
 </div>
 
@@ -318,7 +326,7 @@ MathJax.Hub.Config({
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2023         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2024         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
             
         </footer>

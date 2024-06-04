@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about summarization)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/summarization.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 04 Jun 2024 00:49:18 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Iterative Summarization using LLMs</title><link>http://bjlkeng.github.io/posts/iterative-summarization-using-llms/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;After being busy for the first part of the year, I finally have a bit of time
+to work on this blog.  After a lot of thinking about how to best fit it into my
+schedule, I've decided to &lt;em&gt;attempt&lt;/em&gt; to write shorter posts.  Although I do get
+a lot of satisfaction writing long posts, it's not practical because of the
+time commitment.  Better to break it up into smaller parts to be able to
+"ship" often rather than perfect each post.
+This also allows me to experiment with smaller scoped topics, which hopefully
+will keep more more motivated as well.  Speaking of which...&lt;/p&gt;
+&lt;p&gt;This post is about answering a random thought I had the other day: what would
+happen if I kept passing an LLM's output back to itself?  I ran a few
+experiments of trying to get the LLM to iteratively summarize or rephrase a
+piece of text and the results are...  pretty much what you would expect.  But
+if you don't know what to expect, then read on and find out what happened!&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/iterative-summarization-using-llms/"&gt;Read more…&lt;/a&gt; (8 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>blog</category><category>fixed point</category><category>LLM</category><category>mathjax</category><category>OpenAI</category><category>summarization</category><guid>http://bjlkeng.github.io/posts/iterative-summarization-using-llms/</guid><pubDate>Tue, 04 Jun 2024 00:21:43 GMT</pubDate></item></channel></rss>

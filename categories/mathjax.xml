@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sat, 23 Dec 2023 02:03:02 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>A Look at The First Place Solution of a Dermatology Classification Kaggle Competition</title><link>http://bjlkeng.github.io/posts/a-look-at-the-first-place-solution-of-a-dermatology-classification-kaggle-competition/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;One interesting thing I often think about is the gap between academic and real-world
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 04 Jun 2024 00:49:17 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Iterative Summarization using LLMs</title><link>http://bjlkeng.github.io/posts/iterative-summarization-using-llms/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;After being busy for the first part of the year, I finally have a bit of time
+to work on this blog.  After a lot of thinking about how to best fit it into my
+schedule, I've decided to &lt;em&gt;attempt&lt;/em&gt; to write shorter posts.  Although I do get
+a lot of satisfaction writing long posts, it's not practical because of the
+time commitment.  Better to break it up into smaller parts to be able to
+"ship" often rather than perfect each post.
+This also allows me to experiment with smaller scoped topics, which hopefully
+will keep more more motivated as well.  Speaking of which...&lt;/p&gt;
+&lt;p&gt;This post is about answering a random thought I had the other day: what would
+happen if I kept passing an LLM's output back to itself?  I ran a few
+experiments of trying to get the LLM to iteratively summarize or rephrase a
+piece of text and the results are...  pretty much what you would expect.  But
+if you don't know what to expect, then read on and find out what happened!&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/iterative-summarization-using-llms/"&gt;Read more…&lt;/a&gt; (8 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>blog</category><category>fixed point</category><category>LLM</category><category>mathjax</category><category>OpenAI</category><category>summarization</category><guid>http://bjlkeng.github.io/posts/iterative-summarization-using-llms/</guid><pubDate>Tue, 04 Jun 2024 00:21:43 GMT</pubDate></item><item><title>A Look at The First Place Solution of a Dermatology Classification Kaggle Competition</title><link>http://bjlkeng.github.io/posts/a-look-at-the-first-place-solution-of-a-dermatology-classification-kaggle-competition/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;One interesting thing I often think about is the gap between academic and real-world
 solutions.  In general academic solutions play in the realm of idealized problem
 spaces, removing themselves from needing to care about the messiness of the real-world.
 &lt;a class="reference external" href="https://www.kaggle.com/competitions"&gt;Kaggle&lt;/a&gt;
@@ -173,18 +186,4 @@ about explanation models as well as a new technique with this framework that
 uses Shapely values.  I'll go over the math, the intuition, and how it works.
 No need for an implementation because there is already a nice little Python
 package! Confused yet?  Keep reading and I'll &lt;em&gt;explain&lt;/em&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/model-explanability-with-shapley-additive-explanations-shap/"&gt;Read more…&lt;/a&gt; (26 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>explainability</category><category>game theory</category><category>mathjax</category><category>SHAP</category><guid>http://bjlkeng.github.io/posts/model-explanability-with-shapley-additive-explanations-shap/</guid><pubDate>Wed, 12 Feb 2020 11:24:22 GMT</pubDate></item><item><title>A Note on Using Log-Likelihood for Generative Models</title><link>http://bjlkeng.github.io/posts/a-note-on-using-log-likelihood-for-generative-models/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;One of the things that I find is usually missing from many ML papers is how
-they relate to the fundamentals.  There's always a throwaway line where it
-assumes something that is not at all obvious (see my post on
-&lt;a class="reference external" href="http://bjlkeng.github.io/posts/importance-sampling-and-estimating-marginal-likelihood-in-variational-autoencoders/"&gt;Importance Sampling&lt;/a&gt;).  I'm the kind of person who likes to
-understand things to a satisfactory degree (it's literally in the subtitle of
-the blog) so I couldn't help myself investigating a minor idea I read about in
-a paper.&lt;/p&gt;
-&lt;p&gt;This post investigates how to use continuous density outputs (e.g. a logistic
-or normal distribution) to model discrete image data (e.g. 8-bit RGB values).
-It seems like it might be something obvious such as setting the loss as the
-average log-likelihood of the continuous density and that's &lt;em&gt;almost&lt;/em&gt; the
-whole story.  But leaving it at that skips over so many (interesting) and
-non-obvious things that you would never know if you didn't bother to look.  I'm
-a curious fellow so come with me and let's take a look!&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/a-note-on-using-log-likelihood-for-generative-models/"&gt;Read more…&lt;/a&gt; (15 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>generative models</category><category>log-likelihood</category><category>mathjax</category><guid>http://bjlkeng.github.io/posts/a-note-on-using-log-likelihood-for-generative-models/</guid><pubDate>Tue, 27 Aug 2019 11:50:09 GMT</pubDate></item></channel></rss>
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/model-explanability-with-shapley-additive-explanations-shap/"&gt;Read more…&lt;/a&gt; (26 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>explainability</category><category>game theory</category><category>mathjax</category><category>SHAP</category><guid>http://bjlkeng.github.io/posts/model-explanability-with-shapley-additive-explanations-shap/</guid><pubDate>Wed, 12 Feb 2020 11:24:22 GMT</pubDate></item></channel></rss>
