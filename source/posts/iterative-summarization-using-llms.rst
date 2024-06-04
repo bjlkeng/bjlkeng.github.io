@@ -1,27 +1,26 @@
 .. title: Iterative Summarization using LLMs
 .. slug: iterative-summarization-using-llms
 .. date: 2024-06-02 20:21:43 UTC-04:00
-.. tags: LLM, summarization, fixed point, OpenAI, mathjax
+.. tags: LLM, summarization, fixed point, OpenAI, blog, mathjax
 .. category: 
 .. link: 
 .. description: A short post on showing what happens if you keep summarizing a piece of text.
 .. type: text
 
-After being busy for the first part of this year, I finally have a bit of time
-to work on this blog.  After a lot of thinking about how to best fit working on
-this blog into my schedule, I've decided to *attempt* to write shorter posts.
-Although I do get a lot of satisfaction writing long posts, it's not practical
-because of the time commitment.  Better to break it up into smaller parts to be
-able to jump around instead of being "stuck" writing one long post that I never
-finish.  This also allows me to experiment with smaller scoped topics, which
-hopefully will keep more more motivated to post.  Speaking of which...
+After being busy for the first part of the year, I finally have a bit of time
+to work on this blog.  After a lot of thinking about how to best fit it into my
+schedule, I've decided to *attempt* to write shorter posts.  Although I do get
+a lot of satisfaction writing long posts, it's not practical because of the
+time commitment.  Better to break it up into smaller parts to be able to 
+"ship" often rather than perfect each post.
+This also allows me to experiment with smaller scoped topics, which hopefully
+will keep more more motivated as well.  Speaking of which...
 
 This post is about answering a random thought I had the other day: what would
-happen if I kept passing an LLM's output back to itself (sort of similar to
-agents talking to each other)?  I ran a few experiments of trying to get the
-LLM to iteratively summarize or rephrase a piece of text and the results are...
-pretty much what you would expect.  But if you don't know what to expect, then
-read on and find out what happened!
+happen if I kept passing an LLM's output back to itself?  I ran a few
+experiments of trying to get the LLM to iteratively summarize or rephrase a
+piece of text and the results are...  pretty much what you would expect.  But
+if you don't know what to expect, then read on and find out what happened!
 
 .. TEASER_END
 
@@ -46,9 +45,10 @@ Setup
 
 The setup for experiments is really simple.  Start with one of two pieces of
 data: A long summary of all my blog posts from my `personal site
-<www.briankeng.com>`__ or an LLM generated list of 100 random facts.  Next, run
+<http://www.briankeng.com>`__, or an LLM generated list of 100 random facts.  Next, run
 an LLM asking it to either: :code:`Summarize the following: {data}` or
-:code:`Rephrase the following: {data}`.  Repeat 50 times and observe!
+:code:`Rephrase the following: {data}`.  Take the output response, repeat 50
+times and observe!
 
 I also used this system prompt to help not lose too much data:
 
@@ -69,15 +69,14 @@ Experiments
 Blog Data
 ---------
 
-First up is the summary of the blog post experiments shown in Figure 1 (never mind the 42
+First up are the blog post experiments shown in Figure 1 (never mind the 42
 in the label, that's just the random seed) where the X-axis is the iteration
 number and the Y-axis is the length of the response.  For these experiments, I only
 ran the "Summarize" prompt.  The input data to this is
 a summary by :code:`gpt-4o` of a scrape of my blog, which you can look at
 `here <https://github.com/bjlkeng/sandbox/blob/master/llm_fixed_point/blog_gpt4o_summary.txt>`__.
 It's about 7.6 KB in size compared to all my blog posts which are closer to
-500KB.  You can see from the start we drop a lot of bytes cutting the size down
-by more than half in all cases.
+500KB.  
 
 .. figure:: /images/llm_fixed_point_blog.png
   :height: 350px
@@ -86,8 +85,9 @@ by more than half in all cases.
 
   **Figure 1: Length of response from LLM's for iterative summarization across {gpt-4o, gpt-3.5-turbo} and temperatures of {0.0, 0.5, 1.0}.**
 
-What seems obvious is that most of the LLM's converged to a pretty short
-response.  Here's an example from :code:`gpt-4o_42_0.5`:
+In the first iteration, the LLM drops a lot of bytes cutting the size down
+by more than half in all cases.  Across almost all runs, the LLM's converged to
+a pretty short response.  Here's an example from :code:`gpt-4o_42_0.5` run:
 
     The author, an AI and data science expert affiliated with BorealisAI and
     the University of Toronto, blends their professional knowledge with
@@ -133,11 +133,11 @@ temperature but it did drop a few words at iteration 14 and again at iteration
 49. This is likely because of the slight non-determinism of how OpenAI runs
 the models even with a fixed random seed.
 
-At any other larger temperature, we would expect deviation which explains all
+At any other larger temperature, we would expect deviation, which explains all
 the wiggles on the other runs.  We also see that the other :code:`gpt-4o` runs
 with larger temperature did have similar length summaries in the first few
-iterations but quickly devolved into much shorter ones where I assume it could
-not make more concise.  The :code:`gpt-3.5-turbo` run's response length drops
+iterations, but quickly devolved into much shorter ones where I assume it could
+not make it more concise.  The :code:`gpt-3.5-turbo` run's response length drops
 pretty quickly after the first iteration though.
 
 All these results aren't too surprising except for the "near" fixed point that
@@ -150,10 +150,11 @@ Random Fact Data
 ----------------
 
 In this set of experiments, I first asked :code:`gpt-4o` to generate 100 random facts
-that I would use an input data, which I put on
+that I would then use as input data, which I put on
 `Github <https://github.com/bjlkeng/sandbox/blob/master/llm_fixed_point/100_facts.txt>`__.
-I ran similar then asked the LLM to either summarize or rephrase the input data.
-Figure 2 shows the results in terms of lines (where each fact is on a line).
+Similar to above, I then asked the LLM to either summarize or rephrase the input data
+over and over again.  Figure 2 shows the results in terms of lines (where each
+fact is on a line).
 
 .. figure:: /images/llm_fixed_point-random_facts.png
   :height: 350px
@@ -162,7 +163,7 @@ Figure 2 shows the results in terms of lines (where each fact is on a line).
 
   **Figure 2: Number of lines of response from LLM's for iterative summarization across a sample of experiments from {gpt-4o, gpt-3.5-turbo} and temperatures of {0.0, 0.5, 1.0} and two different prompts.**
 
-In this chart, I only included a sample because all of the other experiments
+In this chart I only included a sample because all of the other experiments
 were pretty boring -- they just mirrored the majority, which were able to
 retain all 100 lines of facts.  The two outliers were :code:`gpt-3.5-turbo`
 with the rephrasing prompt and :code:`gpt-4o` with the summary prompt, both at
@@ -177,12 +178,13 @@ Unsurprisingly both happened at temperature :math:`1.0`, and maybe slightly
 surprisingly, not all runs at :math:`1.0` had this issue.  There were two other
 runs paralleling the ones above but with the opposite prompt that kept all 100
 facts.  This is just another good reminder that LLM behavior is indeed random
-that scales more with temperature, and it's not that easy to control them.
+and the randomness scales with temperature.  Consequently, they are not easy to
+control at all.
 
 Discussion
 ==========
 
-Here are a few random side things that happened while I was putting this together:
+Here are a couple of other random thoughts I had:
 
 * I kept getting an error at temperature :math:`2.0`:
 
@@ -196,16 +198,16 @@ Here are a few random side things that happened while I was putting this togethe
   (maybe you can tell from the charts?), and I like it!  I played around with
   it a bit before, and decided that I should keep using it to get more familiar
   with it.  It's a nice time saver to not have to manage all the logged data
-  and analyze it.  Especially with Github CoPilot helping smooth the API usage,
-  I was able to do most of what I wanted pretty easily.  For organizations,
-  there are obvious lock-in problems.  From an enterprise point of view,
-  it's also pretty expensive (so I hear) but I guess at that scale you can
-  afford it.
+  and code up the right visualizations.  Especially with Github CoPilot helping
+  smooth the coding part, I was able to do most of what I wanted pretty easily.
+  For organizations, there are obvious lock-in problems.  From an enterprise
+  point of view, it's also pretty expensive (so I hear) but I guess at that
+  scale you can afford it.
 
 Conclusion
 ==========
 
 That's it!  Possibly my shortest post yet, and kind of fun to just randomly
-play around without doing anything too grand.  I haven't given up on math
-heavy stuff though, just wanted to prove to myself that I could write a short 
+play around without doing anything too grand.  I haven't given up on ML or math
+heavy stuff though, just wanted to prove to myself that I could write a short
 post and ease myself back into it.  See you next time!
