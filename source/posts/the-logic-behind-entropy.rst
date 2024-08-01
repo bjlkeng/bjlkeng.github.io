@@ -86,7 +86,7 @@ we want to be conservative and "spread out" our probability, and at the same
 time only assign something :math:`0` if it is truly ruled out as a probability.
 This spreading allows us to be noncommittal about the distribution.  So
 in some sense we want to maximize the spread given the constraint,
-which already sounds like something `familiar <slug://maximum-entropy-distributions>`__ perhaps?
+which already sounds like something `familiar <link://slug/maximum-entropy-distributions>`__ perhaps?
 Let's keep going and find out.
 
 Entropy and The Principle of Maximum Entropy
@@ -264,6 +264,9 @@ quantity :math:`W` known as **multiplicity** which is the number of ways in
 which the system can realize the observable :math:`U` from the elementary
 units.
 
+Defining Multiplicity
+---------------------
+
 Briefly repeating the argument from the previous section, if we have :math:`N`
 elementary units, each of which can take on :math:`m` different values, given a
 set of observations :math:`n_1, n_2, ... n_m` where :math:`sum_{i=1}^m n_i=N`,
@@ -300,7 +303,228 @@ Plugging this into Equation 9, we get:
     &= W(p_1, p_2, \ldots, p_m) \\
    \tag{11}
 
+Which you'll notice already resembles the exponentiated form of entropy we expect.
+
+The definition of multiplicity in Equation 11 defines the number of ways the system
+can realize particular values of :math:`n_1, n_2, \ldots, n_m`.  However, we
+don't just want an arbitrary configuration, we want the one that satisfies our
+observation :math:`U` (e.g. expected value).  That is, only count
+configurations that satisfy the constraint :math:`U`.  We'll denote a
+multiplicity that satisfies :math:`U` as :math:`W(p_1,\ldots, p_m, U)` for a
+given probability distribution.
+
+Our goal now is to find the functional form of a new quantity we'll call
+**entropy** :math:`S[W(p_1,\ldots, p_m, U)]`,
+such that its extremum picks out the particular set of :math:`p_1,\ldots, p_m`
+that maximize :math:`W(p_1,\ldots, p_m, U)`.
+From here, you can already see that the logarithm of Equation 11 will probably
+work out, but we'll show that this is actually the only choice that works.
+
+Showing Entropy is Extensive
+----------------------------
+
+An extensive property :math:`P(S)` of a system :math:`S` has these
+conditions:
+
+
+1. **Additivity**: If the system :math:`S` can be divided into two subsystems :math:`S_1`
+   and :math:`S_2` then:
+
+   .. math::
+
+      P(S) = P(S_1) + P(S_2) \tag{12}
+
+
+2. **Scalability**: If the size of the system :math:`S` is scaled by a positive
+   factor :math:`\alpha` then:
     
+   .. math::
+
+      P(\alpha S) = \alpha P(S) \tag{13}
+
+We'll start by showing the first property since the second one follows from our end result. 
+
+We wish to find :math:`S(p_1, \ldots, p_m)` that is maximal where :math:`W` is
+maximal that also satisfies the following conditions:
+
+.. math::
+
+   g(p_1, \ldots, p_m) &= \sum_{j=1}^m p_j = 1 && \text{probability constraint} \\
+   h(p_1, \ldots, p_m) &= \sum_{j=1}^m x_j p_j = \frac{U}{N} && \text{observed measurement} \\
+   \tag{14}
+
+where :math:`x_j` is the :math:`j^{th}` value of the random variable for each
+elementary unit.  Equation 14 just says that :math:`p_j` form a probability
+distribution and that the multiplicity satisfies our observed measurement -- 
+the average value of the observations (e.g. temperature).
+
+Since we wish to find the maximum under constraints, we'll use 
+`Lagrange multipliers <link://slug/lagrange-multipliers>`__.  Recall that we 
+can set up the Lagrangian as:
+
+.. math::
+
+   \mathcal{L}(p_1, \ldots, p_m, \alpha, \lambda) = S(p_1, \ldots, p_m) - \alpha (g(p_1, \ldots, p_m) - 1) - \lambda (h(p_1, \ldots, p_m) - \frac{U}{N}) \tag{15}
+
+where :math:`\alpha, \lambda` are our Lagrange multipliers for the constraints in Equation 14, 
+which also include the constants on the RHS.  The extrema can be found by finding where
+each of the partial derivatives equals to zero.  Taking the partial with respect to
+:math:`p_j` and setting to zero gives us:
+
+.. math::
+
+   \frac{\partial\mathcal{L}(p_1, \ldots, p_m, \alpha, \lambda)}{\partial p_j} &= 0 \\
+   \frac{\partial S(p_1, \ldots, p_m)}{\partial p_j} &= \frac{\partial}{\partial p_j} \big(\alpha (g(p_1, \ldots, p_m) - 1) + \lambda (h(p_1, \ldots, p_m) - \frac{U}{N}) \big)\\
+   &= \frac{\partial}{\partial p_j} \big( \alpha (\sum_{j=1}^m p_j - 1) + \lambda (\sum_{j=1}^m x_j p_j - \frac{U}{N}) \big) \\
+   \frac{\partial S(p_1, \ldots, p_m)}{\partial p_j}  &= \alpha + \lambda x_j \\
+   \tag{16}
+
+The `total differential <https://en.wikipedia.org/wiki/Total_derivative>`__ 
+that gives the infinitesimal variation for :math:`S` can be written using Equation 16:
+
+.. math::
+
+   dS = \sum_{j=1}^m \frac{\partial S}{\partial p_j} dp_j = \sum_{j=1}^m (\alpha + \lambda x_j) dp_j \tag{17}
+
+Now here comes the argument for why entropy is extensive: Let's arbitrarily partition
+our system into two subsystems :math:`a` and :math:`b`.  Each subsystem will have
+:math:`N_a` and :math:`N_b` elementary units (e.g. particles), each of which can
+have multiplicity :math:`W_a(U_a)` and :math:`W_b(W_b)` respectively for given observations
+:math:`U_a, U_b`.  To make it even more general, the number of different values for
+each subsystem can also be different with :math:`m_a` and :math:`m_b` different values
+for each of the elementary random variables in each respective subsystem.
+Since it is a partition, we we have :math:`N=N_a+N_B` and :math:`W(U) =
+W_a(U_a)W_b(U_b)` where the second one follows from simply counting all the combined possibilities.
+
+Similarly, each subsystem will have constraints that mirror Equation 14 and 16
+(probability constraint and observed average value).  Thus the total
+differential for each subsystem is:
+
+.. math::
+
+   dS_a = \sum_{j=1}^m (\alpha_a + \lambda_a x_{ja}) dp_{ja} \\
+   dS_b = \sum_{j=1}^m (\alpha_b + \lambda_b x_{jb}) dp_{jb} \\
+   \tag{18}
+   
+But since the two subsystems are a partition of the total system, we can write the total
+differential for the entire system as a function of all the component parts
+:math:`S(p_{1a},\ldots, p_{ma}, p_{1b}, \ldots, p_{mb})` with the four different constraints (two from each system):
+
+.. math::
+
+   dS &= \sum_{j=1}^m (\alpha_a + \lambda_a x_{ja}) dp_{ja} + \sum_{j=1}^m (\alpha_b + \lambda_b x_{jb}) dp_{jb} \\
+   &= dS_a + dS_b \\
+   \tag{19}
+
+Notice that we did not make any assumptions about the form of entropy, the only
+assumption we made is about the relation to a physical system.  Equation 19
+shows (with some integration) that entropy is additive: 
+
+.. math::
+
+   S = S_a + S_b + C \tag{20}
+
+where :math:`C` is a constant.  The scaling can be shown to be satisfied once
+we find out that our functional form is a logarithm since increasing the number
+of particles in a system by :math:`\alpha` exponentiates the multiplicity
+:math:`W(U)^\alpha`.  Thus entropy is extensive.
+
+Deriving the Functional Form of Entropy
+---------------------------------------
+
+Once we have shown entropy is additive, we can do some manipulation to show it must
+have a logarithmic form.  First, let's simply the notation :math:`u := W_a(U_a),
+v := W_b(U_b), r := W(U) = W_aW_b = uv`.  Rewriting Equation 20 with this notation:
+
+.. math::
+
+   S(r) = S_a(u) + S_b(v) + C \tag{21}
+
+We can take the derivative of the left side with respect to :math:`v`:
+
+.. math::
+
+   \frac{dS}{dv} &= \frac{dS}{dr}\frac{\partial r}{\partial v} \\
+                 &= \frac{dS}{dr}u \\
+   \tag{22}
+
+Now taking the derivative of the right hand side of Equation 21 we get:
+
+.. math::
+
+   \frac{d(S_a + S_b)}{dv} = \frac{dS_b}{dv} \tag{23}
+
+Equating Equation 22/23:
+
+.. math::
+
+   \frac{dS}{dr}u = \frac{dS_b}{dv}  \tag{24}
+
+Symmetrically if we take the derivatives with respect to :math:`u`, we also get:
+
+.. math::
+
+   \frac{dS}{dr}v = \frac{dS_a}{du}  \tag{25}
+
+Equation Equation 24/25 using :math:`\frac{dS}{dr}` we have:
+
+.. math::
+
+   u\frac{dS_a}{du} = v\frac{dS_b}{dv} = k \tag{26}
+
+where :math:`k` is a constant.  The reason they are equal to a constant is the
+left side is a function only of :math:`u`, while the right hand side is only a
+function of :math:`v`, thus the only way two arbitrary functions of different
+variables can be equal is if they are equal to the same constant.
+
+Taking one side, we can solve the differential equation:
+
+.. math::
+
+   u\frac{dS_a}{du} &= k \\
+   {dS_a} &= \frac{k}{u}{du} \\
+   \int dS_a &= \int \frac{k}{u}{du} \\
+   S_a &=  k\log{u} + C_a \\
+   \tag{27}
+
+where :math:`C_a` is the constant of integration.  You also get a similar
+result for the other side.  Putting it together:
+
+.. math::
+
+   S(W) = S_a + S_b = k\log{W_a} + C_a + k\log{W_b} C_b = k\log{W} + C \tag{28}
+
+We are free to choose the constant of integration such as :math:`S(1) = 0`,
+which sets :math:`C=0`.  Finally, plugging back the expression for :math:`W` 
+from Equation 11 in:
+
+.. math::
+
+   S(W) &= k\log{(p_1^{-p_1}p_2^{-p_2}\ldots p_m^{-p_m})^N} \\
+        &= -k'\sum_{j=1}^m p_j\log{p_j} && \text{define } k' = kN\\
+        &= -\sum_{j=1}^m p_j\log{p_j} && \text{for } k = \frac{1}{N} \\
+        \tag{29}
+
+We can define how we wish to set :math:`k' = 1`, thus we get the our 
+expected expression for entropy.  Note: 
+
+Jaynes' Derivation
+------------------
+
+Jaynes [1] has another derivation that is somewhat similar to the physical derivation
+except he starts with "axioms" of what we would like from an entropy measure.  Instead
+of elementary particles, he shows using the rules of probability that an event can
+be recursively broken down into "sub events" showing that entropy must be additive. 
+From there, he is a bit more careful showing that entropy and the
+multiplicity-equivalent variable would logarithmic if we assumed it to be continuous.
+But since the inputs are integers (because they are multiplicities), you also
+have to assume entropy is monotonically increasing with respect to the multiplicity.
+In the end he shows that entropy indeed has logarithmic form as expected.
+
+I won't go into the gory details because it's quite involved and I think it's a
+bit too technical to gain that much more intuition beyond the two derivations above.
+Please do check out [1] though if you're interested, it's always a pleasure
+reading Jaynes.
 
 References
 ==========
