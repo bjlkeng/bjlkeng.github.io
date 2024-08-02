@@ -1,4 +1,4 @@
-.. title: The Logic of Entropy
+.. title: The Logic Behind the Maximum Entropy Principle
 .. slug: the-logic-behind-entropy
 .. date: 2024-07-03 20:44:59 UTC-04:00
 .. tags: entropy, information, Shannon, mathjax
@@ -15,13 +15,15 @@ probability and related fundamentals (see
 Entropy is a topic that comes up all over the place from physics to information
 theory, and of course, machine learning.  I written about it in various
 different forms but always taken it as a given as the "expected information".
-Well I found a couple of good explanations about how to "derive" and thought
+Well I found a few of good explanations about how to "derive" it and thought
 that I should share.
 
-In this post, I'll be talking about the logic behind entropy.  Why
-it is a reasonable thing to maximize and how we can interpret it from a few
-different ways.  This post will be more math heavy, less code, but hopefully it
-will give you more insight into this ubiquitous topic.
+In this post, I'll be showing a few of derivations of the maximum entropy
+principle, where entropy appears as part of the definition.  Why it is a
+reasonable and natural thing to maximize, and how it is a very logical
+conclusion of some well thought out reasoning.  This post will be more math
+heavy but hopefully it will give you more insight into this wonderfully
+surprising topic.
 
 
 .. TEASER_END
@@ -54,8 +56,9 @@ This type of calculation is relatively straight forward, maybe tedious, but stra
 forward.  But what if we only have a different type of information?
 
 Now imagine we don't have samples of that die roll.  Instead we only know its mean
-roll, that is :math:`E[X] = \mu_X`.  For example, if all the die faces had
-equal probability we would get :
+roll, that is :math:`E[X] = \mu_X`, what would our best guess be of the probability
+distribution of :math:`X`?  For example, if all the die faces had
+equal probability we would get:
 
 .. math::
 
@@ -83,16 +86,17 @@ Somehow concentrating all the mass together with :math:`p_3=1.0` is not exactly
 what we want, and while Equation 2 might seem slightly more reasonable,
 it also seems odd that we have :math:`p_6=0`. This gives us intuition that
 we want to be conservative and "spread out" our probability, and at the same
-time only assign something :math:`0` if it is truly ruled out as a probability.
-This spreading allows us to be noncommittal about the distribution.  So
-in some sense we want to maximize the spread given the constraint,
-which already sounds like something `familiar <link://slug/maximum-entropy-distributions>`__ perhaps?
-Let's keep going and find out.
+time assigning an outcome with :math:`0` probability only if it is truly ruled
+out.  This spreading allows us to be noncommittal about the distribution.  So
+in some sense we want to maximize the spread given the constraint, which
+already sounds like something `familiar
+<link://slug/maximum-entropy-distributions>`__ perhaps?  Let's keep going and
+find out.
 
 Entropy and The Principle of Maximum Entropy
-=============================================
+============================================
 
-Information theory `entropy <https://en.wikipedia.org/wiki/Entropy_(information_theory)>`__
+Information theoretic `entropy <https://en.wikipedia.org/wiki/Entropy_(information_theory)>`__
 is typically interpreted as the average amount of "information", "surprise" or "uncertainty"
 in a given random variable.  Given a random variable :math:`X` that has :math:`m`
 discrete outcomes, we can define entropy as:
@@ -127,14 +131,14 @@ measure of entropy.  It's nice because it does not require defining information
 as :math:`\log p` upfront and then making some argument that we want to
 maximize it's expected value but gets there directly instead.
 
-To start, let's assume the problem from the previous section where we wanted to
-find the probability distribution that has :math:`m` discrete values given some
-testable information about the distribution such as it's expected value or
-variance (or more generally one of
+To start, let's assume the problem from the previous section: we want to
+find the probability distribution of a discrete random variable that has
+:math:`m` discrete values given some testable information about the
+distribution such as it's expected value or variance (or more generally one of
 its `moments <https://en.wikipedia.org/wiki/Moment_(mathematics)>`__).  Given
 any candidate probability distribution represented by a vector 
 :math:`{\bf p} = [p_1, \ldots, p_m]`, we can easily test to see if it satisfies
-our constraint.  To this end, let's conduct the following random thought experiment:
+our constraint.  To this end, let's conduct the following thought experiment:
 
 1. Distribute :math:`N` quanta of probability (each worth :math:`\frac{1}{N}`)
    *uniformly randomly* across the :math:`m` possibilities for some large :math:`N`.
@@ -202,10 +206,10 @@ so we reduce our dependence on finite :math:`N`:
    &= \lim_{N\to\infty} \frac{1}{N} \Big( \log N! - \sum_{i=1}^m \log((N\cdot p_i)!) \Big) \\
    &= \lim_{N\to\infty} \frac{1}{N} \Big( N\log N - n - \mathcal{O}(\log N) 
        && \text{Sterling's approx.}\\
-   &\hspace{4.5em} - \sum_{i=1}^m (N\cdot p_i)\log((N\cdot p_i)) - (N\cdot p_i) - \mathcal{O}(\log (N\cdot p_i)) \Big) \\
+   &\hspace{4.5em} - \sum_{i=1}^m (N\cdot p_i)\log(N\cdot p_i) - (N\cdot p_i) - \mathcal{O}(\log (N\cdot p_i)) \Big) \\
    &= \lim_{N\to\infty} \frac{1}{N} \Big( N\log N 
-    - \sum_{i=1}^m (N\cdot p_i)\log((N\cdot p_i))  \Big) && \text{Drop lower order terms} \\
-   &= \lim_{N\to\infty} \log N - \sum_{i=1}^m p_i\log((N\cdot p_i))   \\
+    - \sum_{i=1}^m (N\cdot p_i)\log(N\cdot p_i)  \Big) && \text{Drop lower order terms} \\
+   &= \lim_{N\to\infty} \log N - \sum_{i=1}^m p_i\log(N\cdot p_i)   \\
    &= \lim_{N\to\infty} \log N - \log N \sum_{i=1}^m p_i - \sum_{i=1}^m p_i\log p_i   \\
    &= \lim_{N\to\infty} \log N - \log N - \sum_{i=1}^m p_i\log p_i   \\
    &= \lim_{N\to\infty} - \sum_{i=1}^m p_i\log p_i \\
@@ -214,12 +218,14 @@ so we reduce our dependence on finite :math:`N`:
    \tag{8}
 
 Equation 8 shows that if we follow the logic of the above procedure, the "fair"
-probability distribution is equivalent to maximizing the entropy.  Notice that
-we did not mention "information", "surprise", or "uncertainty" here.
-We are simply doing the above thought experiment and it turns out we're
-maximizing :math:`E(-\log X)`.  In this manner, we might as well give
-a name to :math:`-\log p`, which is the `Shannon information <https://en.wikipedia.org/wiki/Information_content>`__ of a particular event.  This is nice because it doesn't require
-us to make any big leaps of assuming that :math:`-\log p` has any meaning.
+probability distribution is equivalent to maximizing the entropy of the
+distribution.  Notice that we did not mention "information", "surprise", or
+"uncertainty" here.  We are simply doing the above thought experiment and it
+turns out we're maximizing :math:`E(-\log X)`.  In this manner, we might as
+well give a name to :math:`-\log p`, which is the `Shannon information
+<https://en.wikipedia.org/wiki/Information_content>`__ of a particular event.
+This is nice because it doesn't require us to make any big leaps of assuming
+that :math:`-\log p` has any meaning.
 
 Physical Derivation 
 ===================
@@ -244,7 +250,7 @@ We'll make this more precise, but first let's look at some examples.
   that the maximum entropy principle predicts the probabilities of rolling each
   face of the die.  In general, this will be exponential or flat in the case of
   unbiased die.
-* **Thermal system, canonical ensemble; temperatur known**: Given N particles
+* **Thermal system, canonical ensemble; temperature known**: Given N particles
   in a thermodynamic system, the numeric value of each particle is the energy
   state :math:`\varepsilon_j` of each particle.  Given a temperature T, which
   is equivalent to knowing the average energy, maximum entropy predicts 
@@ -253,7 +259,7 @@ We'll make this more precise, but first let's look at some examples.
 * **Waiting Time Processes**: Consider you are watching cars pass by on a road
   and you measure the time between cars passing by as :math:`\tau_j`.  After
   observing :math:`N` cars, you measure the average waiting times between cars
-  :math:`T/N = E(\tau)` where :math:`T` is the total waiting time..  What you
+  :math:`T/N = E(\tau)` where :math:`T` is the total waiting time.  What you
   will observe is that again maximum entropy predicts that the wait times will
   be exponentially distributed :math:`\text{exp}(-\lambda\tau_j)`.
 
@@ -267,11 +273,11 @@ units.
 Defining Multiplicity
 ---------------------
 
-Briefly repeating the argument from the previous section, if we have :math:`N`
-elementary units, each of which can take on :math:`m` different values, given a
-set of observations :math:`n_1, n_2, ... n_m` where :math:`sum_{i=1}^m n_i=N`,
-we can count the number of ways they can be arranged as the multiplicity (same
-as Equation 5):
+Briefly repeating a variation of the argument from the previous section, if we
+have :math:`N` elementary units, each of which can take on :math:`m` different
+values, given a set of observations :math:`n_1, n_2, ... n_m` where
+:math:`\sum_{i=1}^m n_i=N`, we can count the number of ways they can be arranged
+as the multiplicity (same as Equation 5):
 
 .. math::
 
@@ -310,8 +316,8 @@ can realize particular values of :math:`n_1, n_2, \ldots, n_m`.  However, we
 don't just want an arbitrary configuration, we want the one that satisfies our
 observation :math:`U` (e.g. expected value).  That is, only count
 configurations that satisfy the constraint :math:`U`.  We'll denote a
-multiplicity that satisfies :math:`U` as :math:`W(p_1,\ldots, p_m, U)` for a
-given probability distribution.
+multiplicity that satisfies :math:`U` as :math:`W(p_1,\ldots, p_m, U)` 
+or simply :math:`W(U)` when the context is clear.
 
 Our goal now is to find the functional form of a new quantity we'll call
 **entropy** :math:`S[W(p_1,\ldots, p_m, U)]`,
@@ -323,28 +329,28 @@ work out, but we'll show that this is actually the only choice that works.
 Showing Entropy is Extensive
 ----------------------------
 
-An extensive property :math:`P(S)` of a system :math:`S` has these
+An extensive property :math:`P(\mathcal{R})` of a system :math:`\mathcal{R}` has these
 conditions:
 
 
-1. **Additivity**: If the system :math:`S` can be divided into two subsystems :math:`S_1`
-   and :math:`S_2` then:
+1. **Additivity**: If the system :math:`\mathcal{R}` can be divided into two subsystems :math:`\mathcal{R}_1`
+   and :math:`\mathcal{R}_2` then:
 
    .. math::
 
-      P(S) = P(S_1) + P(S_2) \tag{12}
+      P(\mathcal{R}) = P(\mathcal{R}_1) + P(\mathcal{R}_2) \tag{12}
 
 
-2. **Scalability**: If the size of the system :math:`S` is scaled by a positive
+2. **Scalability**: If the size of the system :math:`\mathcal{R}` is scaled by a positive
    factor :math:`\alpha` then:
     
    .. math::
 
-      P(\alpha S) = \alpha P(S) \tag{13}
+      P(\alpha \mathcal{R}) = \alpha P(\mathcal{R}) \tag{13}
 
 We'll start by showing the first property since the second one follows from our end result. 
 
-We wish to find :math:`S(p_1, \ldots, p_m)` that is maximal where :math:`W` is
+We wish to find entropy :math:`S(p_1, \ldots, p_m)` that is maximal where :math:`W` is
 maximal that also satisfies the following conditions:
 
 .. math::
@@ -358,7 +364,7 @@ elementary unit.  Equation 14 just says that :math:`p_j` form a probability
 distribution and that the multiplicity satisfies our observed measurement -- 
 the average value of the observations (e.g. temperature).
 
-Since we wish to find the maximum under constraints, we'll use 
+Since we wish to find a maximum under constraints, we'll use 
 `Lagrange multipliers <link://slug/lagrange-multipliers>`__.  Recall that we 
 can set up the Lagrangian as:
 
@@ -389,16 +395,16 @@ that gives the infinitesimal variation for :math:`S` can be written using Equati
 Now here comes the argument for why entropy is extensive: Let's arbitrarily partition
 our system into two subsystems :math:`a` and :math:`b`.  Each subsystem will have
 :math:`N_a` and :math:`N_b` elementary units (e.g. particles), each of which can
-have multiplicity :math:`W_a(U_a)` and :math:`W_b(W_b)` respectively for given observations
+have multiplicity :math:`W_a(U_a)` and :math:`W_b(U_b)` respectively for given observations
 :math:`U_a, U_b`.  To make it even more general, the number of different values for
-each subsystem can also be different with :math:`m_a` and :math:`m_b` different values
-for each of the elementary random variables in each respective subsystem.
+each subsystem can also be different with :math:`m_a` and :math:`m_b`
+potentially being different.
 Since it is a partition, we we have :math:`N=N_a+N_B` and :math:`W(U) =
 W_a(U_a)W_b(U_b)` where the second one follows from simply counting all the combined possibilities.
 
 Similarly, each subsystem will have constraints that mirror Equation 14 and 16
-(probability constraint and observed average value).  Thus the total
-differential for each subsystem is:
+(probability constraint and observed average value).  Thus, we can use Equation
+17 to see that the total differential for each subsystem is:
 
 .. math::
 
@@ -412,7 +418,7 @@ differential for the entire system as a function of all the component parts
 
 .. math::
 
-   dS &= \sum_{j=1}^m (\alpha_a + \lambda_a x_{ja}) dp_{ja} + \sum_{j=1}^m (\alpha_b + \lambda_b x_{jb}) dp_{jb} \\
+   dS &= \sum_{j=1}^{m_a} (\alpha_a + \lambda_a x_{ja}) dp_{ja} + \sum_{j=1}^{m_b} (\alpha_b + \lambda_b x_{jb}) dp_{jb} \\
    &= dS_a + dS_b \\
    \tag{19}
 
@@ -448,7 +454,7 @@ We can take the derivative of the left side with respect to :math:`v`:
                  &= \frac{dS}{dr}u \\
    \tag{22}
 
-Now taking the derivative of the right hand side of Equation 21 we get:
+Now taking the derivative of the right hand side of Equation 21, we get:
 
 .. math::
 
@@ -460,13 +466,14 @@ Equating Equation 22/23:
 
    \frac{dS}{dr}u = \frac{dS_b}{dv}  \tag{24}
 
-Symmetrically if we take the derivatives with respect to :math:`u`, we also get:
+Symmetrically if we take the derivatives with respect to :math:`u` in Equation
+21, we also get:
 
 .. math::
 
    \frac{dS}{dr}v = \frac{dS_a}{du}  \tag{25}
 
-Equation Equation 24/25 using :math:`\frac{dS}{dr}` we have:
+Equating Equation 24/25 using :math:`\frac{dS}{dr}`, we have:
 
 .. math::
 
@@ -492,10 +499,10 @@ result for the other side.  Putting it together:
 
 .. math::
 
-   S(W) = S_a + S_b = k\log{W_a} + C_a + k\log{W_b} C_b = k\log{W} + C \tag{28}
+   S(W) = S_a + S_b = k\log{W_a} + C_a + k\log{W_b} + C_b = k\log{W} + C' \tag{28}
 
 We are free to choose the constant of integration such as :math:`S(1) = 0`,
-which sets :math:`C=0`.  Finally, plugging back the expression for :math:`W` 
+which sets :math:`C'=0`.  Finally, plugging back the expression for :math:`W` 
 from Equation 11 in:
 
 .. math::
@@ -505,14 +512,14 @@ from Equation 11 in:
         &= -\sum_{j=1}^m p_j\log{p_j} && \text{for } k = \frac{1}{N} \\
         \tag{29}
 
-We can define how we wish to set :math:`k' = 1`, thus we get the our 
-expected expression for entropy.  Note: 
+We can define :math:`k'` however we wish, so let's set it to :math:`k' = 1`,
+thus we get the our expected expression for entropy.
 
 Jaynes' Derivation
-------------------
+==================
 
 Jaynes [1] has another derivation that is somewhat similar to the physical derivation
-except he starts with "axioms" of what we would like from an entropy measure.  Instead
+except he starts with desiderata of what we would like from an entropy measure.  Instead
 of elementary particles, he shows using the rules of probability that an event can
 be recursively broken down into "sub events" showing that entropy must be additive. 
 From there, he is a bit more careful showing that entropy and the
@@ -525,6 +532,17 @@ I won't go into the gory details because it's quite involved and I think it's a
 bit too technical to gain that much more intuition beyond the two derivations above.
 Please do check out [1] though if you're interested, it's always a pleasure
 reading Jaynes.
+
+Conclusion
+==========
+
+Well I'm glad I got that post out of the way.  As soon as I read that appendix in [3],
+I knew I had to write about the derivation.  Along the way I found Jaynes' derivation
+in [1], which upon closer inspection also included the Wallis derivation.  As with every 
+topic, you can go into an unlimited depth into it (and this one is a deep dive
+on an already "elementary" topic).  For now, I'm satisfied with just explaining
+two derivations, which give me a better appreciation for the beauty and
+"surprise" of (maximum) entropy.  Stayed tuned for more (short to medium sized) posts!
 
 References
 ==========
