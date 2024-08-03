@@ -19,9 +19,9 @@ Well I found a few of good explanations about how to "derive" it and thought
 that I should share.
 
 In this post, I'll be showing a few of derivations of the maximum entropy
-principle, where entropy appears as part of the definition.  Why it is a
-reasonable and natural thing to maximize, and how it is a very logical
-conclusion of some well thought out reasoning.  This post will be more math
+principle, where entropy appears as part of the definition.  These derivations
+will show why it is a reasonable and natural thing to maximize, and how it is
+determined from some well thought out reasoning.  This post will be more math
 heavy but hopefully it will give you more insight into this wonderfully
 surprising topic.
 
@@ -49,11 +49,12 @@ Motivation
 To understand entropy, let's first concoct a situation where we might need a new
 tool beyond `Bayesian probability <https://en.wikipedia.org/wiki/Bayesian_probability>`__.
 Suppose we have a die that has faces from 1 to 6 where we define the random
-variable :math:`X` to a roll of the die.  If we are given samples of die rolls
+variable :math:`X` to be equal to the face-up number from a given die roll.  If we are given samples of die rolls
 then, with some appropriate prior, we can iteratively apply Bayes' theorem to
 determine the probability :math:`P(X=i) = p_i` where :math:`i` is die face value.
 This type of calculation is relatively straight forward, maybe tedious, but straight
-forward.  But what if we only have a different type of information?
+forward.  But what if we don't have explicit samples but a different type of observable
+information?
 
 Now imagine we don't have samples of that die roll.  Instead we only know its mean
 roll, that is :math:`E[X] = \mu_X`, what would our best guess be of the probability
@@ -73,13 +74,14 @@ seems unlikely.  Maybe something like this is slightly more reasonable?
 .. math:: 
 
    {\bf p} &= [0.2, 0.2, 0.2, 0.2, 0.2, 0] \\
-   E[X] = 0.2(1 + 2 + 3 + 4 + 5) + 0(6) = 4 \tag{2}
+   E[X] &= 0.2(1 + 2 + 3 + 4 + 5) + 0(6) = 3 \tag{2}
 
 But still that zero probability for :math:`p_6` seems kind of off.
 One way to approach it is to apply a prior to each :math:`p_i` and
-marginalizing over all of them to ensure it matches our information of
-:math:`E[X] = \mu_X`.  But that only shifts the problem to finding the
-right priors, not how to directly incorporate our information of :math:`E[X] = \mu_X`.
+marginalizing over all of them but ensuring it matches our information of
+:math:`E[X] = \mu_X`.  But that only shifts the problem to finding the right
+priors to match our observation, not how to directly incorporate our
+information of :math:`E[X] = \mu_X`.
 
 From this example, we have gleaned some important insights though.
 Somehow concentrating all the mass together with :math:`p_3=1.0` is not exactly
@@ -126,9 +128,9 @@ Wallis Derivation
 =================
 
 The Wallis derivation of maximum entropy [1 ,2] starts off with a conceptually
-simple argument which through some calculation ends up with our tried and true
+simple argument, which through some calculation ends up with our tried and true
 measure of entropy.  It's nice because it does not require defining information
-as :math:`\log p` upfront and then making some argument that we want to
+as :math:`-\log p` upfront and then making some argument that we want to
 maximize it's expected value but gets there directly instead.
 
 To start, let's assume the problem from the previous section: we want to
@@ -168,7 +170,7 @@ with the probability of a quanta being assigned to an outcome being a constant :
 
 .. math::
 
-   P({\bf p}) &= \frac{N!}{n_1!\ldots n_m!}q_1^{n_1}q_2^{n_2} \ldots q_m^{n_m} \\
+   P({\bf q}) &= \frac{N!}{n_1!\ldots n_m!}q_1^{n_1}q_2^{n_2} \ldots q_m^{n_m} \\
    &= \frac{N!}{n_1!\ldots n_m!}m^{-N} 
    &&& \text{since } q_i = \frac{1}{m} \text{ and } \sum_{i=1}^m n_i = N\\
    \tag{4}
@@ -180,7 +182,7 @@ we'll call the **multiplicity** of the outcome denoted by :math:`W`:
 
    W = \frac{N!}{n_1!\ldots n_m!} \tag{5}
 
-But of course, we can equivalently maximize a monotonically increasing function of :math:`W`,
+But we can equivalently maximize any monotonically increasing function of :math:`W`,
 so let's try it with :math:`\frac{1}{N}\log W`:
 
 .. math::
@@ -204,9 +206,9 @@ so we reduce our dependence on finite :math:`N`:
 
    \lim_{N\to\infty} \frac{1}{N} \log W 
    &= \lim_{N\to\infty} \frac{1}{N} \Big( \log N! - \sum_{i=1}^m \log((N\cdot p_i)!) \Big) \\
-   &= \lim_{N\to\infty} \frac{1}{N} \Big( N\log N - n - \mathcal{O}(\log N) 
+   &= \lim_{N\to\infty} \frac{1}{N} \Big( N\log N - n + \mathcal{O}(\log N) 
        && \text{Sterling's approx.}\\
-   &\hspace{4.5em} - \sum_{i=1}^m (N\cdot p_i)\log(N\cdot p_i) - (N\cdot p_i) - \mathcal{O}(\log (N\cdot p_i)) \Big) \\
+   &\hspace{4.5em} - \sum_{i=1}^m (N\cdot p_i)\log(N\cdot p_i) - (N\cdot p_i) + \mathcal{O}(\log (N\cdot p_i)) \Big) \\
    &= \lim_{N\to\infty} \frac{1}{N} \Big( N\log N 
     - \sum_{i=1}^m (N\cdot p_i)\log(N\cdot p_i)  \Big) && \text{Drop lower order terms} \\
    &= \lim_{N\to\infty} \log N - \sum_{i=1}^m p_i\log(N\cdot p_i)   \\
@@ -234,7 +236,7 @@ This derivation is from [3] which is not exactly a derivation of the concept of
 entropy but the functional form.  It starts out with an observation in physical
 systems involving a collection of equivalent elementary units where:
 
-* Elementary units (e.g. particles) can take on some associated probability
+* Elementary units (e.g. particles) have some associated probability
   :math:`p_j` of taking on some numeric value :math:`j` (e.g. energy level),
   i.e., random variables.
 * We observe some measurable quantity :math:`U` of the entire system (e.g. average temperature).
@@ -273,7 +275,7 @@ units.
 Defining Multiplicity
 ---------------------
 
-Briefly repeating a variation of the argument from the previous section, if we
+Briefly repeating a variation of the previous section, if we
 have :math:`N` elementary units, each of which can take on :math:`m` different
 values, given a set of observations :math:`n_1, n_2, ... n_m` where
 :math:`\sum_{i=1}^m n_i=N`, we can count the number of ways they can be arranged
@@ -386,7 +388,7 @@ each of the partial derivatives equals to zero.  Taking the partial with respect
    \tag{16}
 
 The `total differential <https://en.wikipedia.org/wiki/Total_derivative>`__ 
-that gives the infinitesimal variation for :math:`S` can be written using Equation 16:
+that gives the infinitesimal variation for :math:`S` can be written by plugging in Equation 16:
 
 .. math::
 
@@ -396,13 +398,13 @@ Now here comes the argument for why entropy is extensive: Let's arbitrarily part
 our system into two subsystems :math:`a` and :math:`b`.  Each subsystem will have
 :math:`N_a` and :math:`N_b` elementary units (e.g. particles), each of which can
 have multiplicity :math:`W_a(U_a)` and :math:`W_b(U_b)` respectively for given observations
-:math:`U_a, U_b`.  To make it even more general, the number of different values for
+:math:`U_a` and :math:`U_b`.  To make it even more general, the number of different values for
 each subsystem can also be different with :math:`m_a` and :math:`m_b`
 potentially being different.
-Since it is a partition, we we have :math:`N=N_a+N_B` and :math:`W(U) =
+Since it is a partition, we have :math:`N=N_a+N_B` and :math:`W(U) =
 W_a(U_a)W_b(U_b)` where the second one follows from simply counting all the combined possibilities.
 
-Similarly, each subsystem will have constraints that mirror Equation 14 and 16
+Similarly, each subsystem will have constraints that mirror Equation 14/16
 (probability constraint and observed average value).  Thus, we can use Equation
 17 to see that the total differential for each subsystem is:
 
@@ -458,7 +460,7 @@ Now taking the derivative of the right hand side of Equation 21, we get:
 
 .. math::
 
-   \frac{d(S_a + S_b)}{dv} = \frac{dS_b}{dv} \tag{23}
+   \frac{d(S_a + S_b + C)}{dv} = \frac{dS_b}{dv} \tag{23}
 
 Equating Equation 22/23:
 
@@ -526,7 +528,7 @@ From there, he is a bit more careful showing that entropy and the
 multiplicity-equivalent variable would logarithmic if we assumed it to be continuous.
 But since the inputs are integers (because they are multiplicities), you also
 have to assume entropy is monotonically increasing with respect to the multiplicity.
-In the end he shows that entropy indeed has logarithmic form as expected.
+In the end he shows that entropy is indeed logarithmic as expected.
 
 I won't go into the gory details because it's quite involved and I think it's a
 bit too technical to gain that much more intuition beyond the two derivations above.
@@ -539,7 +541,7 @@ Conclusion
 Well I'm glad I got that post out of the way.  As soon as I read that appendix in [3],
 I knew I had to write about the derivation.  Along the way I found Jaynes' derivation
 in [1], which upon closer inspection also included the Wallis derivation.  As with every 
-topic, you can go into an unlimited depth into it (and this one is a deep dive
+topic, you can go down an unlimited depth (and this one is a deep dive
 on an already "elementary" topic).  For now, I'm satisfied with just explaining
 two derivations, which give me a better appreciation for the beauty and
 "surprise" of (maximum) entropy.  Stayed tuned for more (short to medium sized) posts!
