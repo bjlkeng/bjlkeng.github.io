@@ -1,7 +1,7 @@
 .. title: The Logic Behind the Maximum Entropy Principle
 .. slug: the-logic-behind-entropy
-.. date: 2024-07-03 20:44:59 UTC-04:00
-.. tags: entropy, information, Shannon, mathjax
+.. date: 2024-08-02 20:44:59 UTC-04:00
+.. tags: entropy, information, Jaynes, Wallis, Shannon, mathjax
 .. category: 
 .. link: 
 .. description: 
