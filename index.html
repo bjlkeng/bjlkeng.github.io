@@ -27,7 +27,7 @@ MathJax.Hub.Config({
         styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
     }
 });
-</script><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/iterative-summarization-using-llms/" type="text/html">
+</script><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/the-logic-behind-entropy/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -79,7 +79,38 @@ navbar-dark bg-dark
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/iterative-summarization-using-llms/" class="u-url">Iterative Summarization using LLMs</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/the-logic-behind-entropy/" class="u-url">The Logic Behind the Maximum Entropy Principle</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="posts/the-logic-behind-entropy/" rel="bookmark">
+            <time class="published dt-published" datetime="2024-08-02T20:44:59-04:00" itemprop="datePublished" title="2024-08-02 20:44">2024-08-02 20:44</time></a>
+            </p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>For a while now, I've really enjoyed diving deep to understand
+probability and related fundamentals (see
+<a class="reference external" href="posts/probability-the-logic-of-science/">here</a>,
+<a class="reference external" href="posts/maximum-entropy-distributions/">here</a>, and
+<a class="reference external" href="posts/an-introduction-to-stochastic-calculus/">here</a>).
+Entropy is a topic that comes up all over the place from physics to information
+theory, and of course, machine learning.  I written about it in various
+different forms but always taken it as a given as the "expected information".
+Well I found a few of good explanations about how to "derive" it and thought
+that I should share.</p>
+<p>In this post, I'll be showing a few of derivations of the maximum entropy
+principle, where entropy appears as part of the definition.  These derivations
+will show why it is a reasonable and natural thing to maximize, and how it is
+determined from some well thought out reasoning.  This post will be more math
+heavy but hopefully it will give you more insight into this wonderfully
+surprising topic.</p>
+<p class="more"><a href="posts/the-logic-behind-entropy/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/iterative-summarization-using-llms/" class="u-url">Iterative Summarization using LLMs</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Brian Keng
@@ -202,39 +233,6 @@ learning toolkit thus benefit from the massive scalability of that toolchain.
 As usual, I will go over the necessary background (or refer you to my previous
 posts), intuition, some math, and a couple of toy examples that I implemented.</p>
 <p class="more"><a href="posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/">Read more…</a></p>
-</div>
-    </div>
-    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/an-introduction-to-stochastic-calculus/" class="u-url">An Introduction to Stochastic Calculus</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Brian Keng
-            </span></p>
-            <p class="dateline">
-            <a href="posts/an-introduction-to-stochastic-calculus/" rel="bookmark">
-            <time class="published dt-published" datetime="2022-09-11T21:05:55-04:00" itemprop="datePublished" title="2022-09-11 21:05">2022-09-11 21:05</time></a>
-            </p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>Through a couple of different avenues I wandered, yet again, down a rabbit hole
-leading to the topic of this post.  The first avenue was through my main focus
-on a particular machine learning topic that utilized some concepts from
-physics, which naturally led me to stochastic calculus.  The second avenue was
-through some projects at work in the quantitative finance space, which is one
-of the main applications of stochastic calculus.  Naively, I thought I could
-write a brief post on it that would satisfy my curiosity -- that didn't work
-out at all! The result is this extra long post.</p>
-<p>This post is about stochastic calculus, an extension of regular calculus to
-stochastic processes.  It's not immediately obvious
-but the rigour needed to properly understand some of the key ideas requires
-going back to the measure theoretic definition of probability theory, so
-that's where I start in the background. From there I quickly move on to
-stochastic processes, the Wiener process, a particular flavour of stochastic
-calculus called Itô calculus, and finally end with a couple of applications.
-As usual, I try to include a mix of intuition, rigour where it helps intuition,
-and some simple examples.  It's a deep and wide topic so I hope you enjoy my
-digest of it.</p>
-<p class="more"><a href="posts/an-introduction-to-stochastic-calculus/">Read more…</a></p>
 </div>
     </div>
     </article>

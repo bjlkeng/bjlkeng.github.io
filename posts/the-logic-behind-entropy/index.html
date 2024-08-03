@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#
+" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Logic Behind the Maximum Entropy Principle | Bounded Rationality</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
+<link rel="alternate" type="application/rss+xml" title="RSS" hreflang="en" href="../../rss.xml">
+<link rel="canonical" href="http://bjlkeng.github.io/posts/the-logic-behind-entropy/">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
+    }
+});
+</script><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Brian Keng">
+<link rel="prev" href="../iterative-summarization-using-llms/" title="Iterative Summarization using LLMs" type="text/html">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="The Logic Behind the Maximum Entropy Principle">
+<meta property="og:url" content="http://bjlkeng.github.io/posts/the-logic-behind-entropy/">
+<meta property="og:description" content="For a while now, I've really enjoyed diving deep to understand
+probability and related fundamentals (see
+here,
+here, and
+here).
+Entropy is a topic that comes up all over the place from physics to info">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2024-08-02T20:44:59-04:00">
+<meta property="article:tag" content="entropy">
+<meta property="article:tag" content="information">
+<meta property="article:tag" content="Jaynes">
+<meta property="article:tag" content="mathjax">
+<meta property="article:tag" content="Shannon">
+<meta property="article:tag" content="Wallis">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-expand-md static-top mb-4
+navbar-dark bg-dark
+"><div class="container">
+<!-- This keeps the margins nice -->
+        <a class="navbar-brand" href="http://bjlkeng.github.io/">
+
+            <span id="blog-title">Bounded Rationality</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="bs-navbar">
+            <ul class="navbar-nav mr-auto">
+<li class="nav-item">
+<a href="../../archive.html" class="nav-link">Archive</a>
+                </li>
+<li class="nav-item">
+<a href="../../categories/" class="nav-link">Tags</a>
+                </li>
+<li class="nav-item">
+<a href="../../rss.xml" class="nav-link">RSS feed</a>
+
+                
+            </li>
+</ul>
+<ul class="navbar-nav navbar-right">
+<li class="nav-item">
+    <a href="index.rst" id="sourcelink" class="nav-link">Source</a>
+    </li>
+
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <div class="row">
+        <!--Body content-->
+            <div class="col-lg-9">
+                
+                
+                
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">The Logic Behind the Maximum Entropy Principle</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
+                    Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2024-08-02T20:44:59-04:00" itemprop="datePublished" title="2024-08-02 20:44">2024-08-02 20:44</time></a>
+            </p>
+            
+        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>For a while now, I've really enjoyed diving deep to understand
+probability and related fundamentals (see
+<a class="reference external" href="../probability-the-logic-of-science/">here</a>,
+<a class="reference external" href="../maximum-entropy-distributions/">here</a>, and
+<a class="reference external" href="../an-introduction-to-stochastic-calculus/">here</a>).
+Entropy is a topic that comes up all over the place from physics to information
+theory, and of course, machine learning.  I written about it in various
+different forms but always taken it as a given as the "expected information".
+Well I found a few of good explanations about how to "derive" it and thought
+that I should share.</p>
+<p>In this post, I'll be showing a few of derivations of the maximum entropy
+principle, where entropy appears as part of the definition.  These derivations
+will show why it is a reasonable and natural thing to maximize, and how it is
+determined from some well thought out reasoning.  This post will be more math
+heavy but hopefully it will give you more insight into this wonderfully
+surprising topic.</p>
+<!-- TEASER_END -->
+<div class="card card-body bg-light">
+<h2>Table of Contents</h2>
+<div class="contents local topic" id="contents">
+<ul class="auto-toc simple">
+<li><p><a class="reference internal" href="#motivation" id="id1"><span class="sectnum">1</span> Motivation</a></p></li>
+<li><p><a class="reference internal" href="#entropy-and-the-principle-of-maximum-entropy" id="id2"><span class="sectnum">2</span> Entropy and The Principle of Maximum Entropy</a></p></li>
+<li><p><a class="reference internal" href="#wallis-derivation" id="id3"><span class="sectnum">3</span> Wallis Derivation</a></p></li>
+<li>
+<p><a class="reference internal" href="#physical-derivation" id="id4"><span class="sectnum">4</span> Physical Derivation</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#defining-multiplicity" id="id5"><span class="sectnum">4.1</span> Defining Multiplicity</a></p></li>
+<li><p><a class="reference internal" href="#showing-entropy-is-extensive" id="id6"><span class="sectnum">4.2</span> Showing Entropy is Extensive</a></p></li>
+<li><p><a class="reference internal" href="#deriving-the-functional-form-of-entropy" id="id7"><span class="sectnum">4.3</span> Deriving the Functional Form of Entropy</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#jaynes-derivation" id="id8"><span class="sectnum">5</span> Jaynes' Derivation</a></p></li>
+<li><p><a class="reference internal" href="#conclusion" id="id9"><span class="sectnum">6</span> Conclusion</a></p></li>
+<li><p><a class="reference internal" href="#references" id="id10"><span class="sectnum">7</span> References</a></p></li>
+</ul>
+</div>
+</div>
+<p></p>
+<div class="section" id="motivation">
+<h2><a class="toc-backref" href="#id1"><span class="sectnum">1</span> Motivation</a></h2>
+<p>To understand entropy, let's first concoct a situation where we might need a new
+tool beyond <a class="reference external" href="https://en.wikipedia.org/wiki/Bayesian_probability">Bayesian probability</a>.
+Suppose we have a die that has faces from 1 to 6 where we define the random
+variable <span class="math">\(X\)</span> to be equal to the face-up number from a given die roll.  If we are given samples of die rolls
+then, with some appropriate prior, we can iteratively apply Bayes' theorem to
+determine the probability <span class="math">\(P(X=i) = p_i\)</span> where <span class="math">\(i\)</span> is die face value.
+This type of calculation is relatively straight forward, maybe tedious, but straight
+forward.  But what if we don't have explicit samples but a different type of observable
+information?</p>
+<p>Now imagine we don't have samples of that die roll.  Instead we only know its mean
+roll, that is <span class="math">\(E[X] = \mu_X\)</span>, what would our best guess be of the probability
+distribution of <span class="math">\(X\)</span>?  For example, if all the die faces had
+equal probability we would get:</p>
+<div class="math">
+\begin{equation*}
+E[X] = \frac{1}{6}(1 + 2 + 3 + 4 + 5 + 6) = 3.5 \tag{1}
+\end{equation*}
+</div>
+<p>So if <span class="math">\(\mu_X = 3.5\)</span> then we might reasonably guess that <span class="math">\(X\)</span> had a
+uniform distribution.</p>
+<p>But what if <span class="math">\(\mu_X = 3\)</span>?  It could be that <span class="math">\(p_3=1.0\)</span>, but that
+seems unlikely.  Maybe something like this is slightly more reasonable?</p>
+<div class="math">
+\begin{align*}
+{\bf p} &amp;= [0.2, 0.2, 0.2, 0.2, 0.2, 0] \\
+E[X] &amp;= 0.2(1 + 2 + 3 + 4 + 5) + 0(6) = 3 \tag{2}
+\end{align*}
+</div>
+<p>But still that zero probability for <span class="math">\(p_6\)</span> seems kind of off.
+One way to approach it is to apply a prior to each <span class="math">\(p_i\)</span> and
+marginalizing over all of them but ensuring it matches our information of
+<span class="math">\(E[X] = \mu_X\)</span>.  But that only shifts the problem to finding the right
+priors to match our observation, not how to directly incorporate our
+information of <span class="math">\(E[X] = \mu_X\)</span>.</p>
+<p>From this example, we have gleaned some important insights though.
+Somehow concentrating all the mass together with <span class="math">\(p_3=1.0\)</span> is not exactly
+what we want, and while Equation 2 might seem slightly more reasonable,
+it also seems odd that we have <span class="math">\(p_6=0\)</span>. This gives us intuition that
+we want to be conservative and "spread out" our probability, and at the same
+time assigning an outcome with <span class="math">\(0\)</span> probability only if it is truly ruled
+out.  This spreading allows us to be noncommittal about the distribution.  So
+in some sense we want to maximize the spread given the constraint, which
+already sounds like something <a class="reference external" href="../maximum-entropy-distributions/">familiar</a> perhaps?  Let's keep going and
+find out.</p>
+</div>
+<div class="section" id="entropy-and-the-principle-of-maximum-entropy">
+<h2><a class="toc-backref" href="#id2"><span class="sectnum">2</span> Entropy and The Principle of Maximum Entropy</a></h2>
+<p>Information theoretic <a class="reference external" href="https://en.wikipedia.org/wiki/Entropy_(information_theory)">entropy</a>
+is typically interpreted as the average amount of "information", "surprise" or "uncertainty"
+in a given random variable.  Given a random variable <span class="math">\(X\)</span> that has <span class="math">\(m\)</span>
+discrete outcomes, we can define entropy as:</p>
+<div class="math">
+\begin{equation*}
+H(X) = -\sum_{x \in X} p_x \log p_x \tag{3}
+\end{equation*}
+</div>
+<p>where <span class="math">\(p_x := P(X=x)\)</span>.</p>
+<p>The principle of maximum entropy states that given testable information,
+the probability distribution that best represents the current state of
+knowledge is the one with the largest (information) entropy.
+The <em>testable information</em> is a statement about the probability distribution
+where you can easily evaluate it to be true or false. It usually comes in the
+form of a mean, variance, or some moments of the probability distribution.
+This rule can be thought of expressing epistemic modesty, or maximal ignorance,
+because it makes the least strong claim on a distribution beyond being informed
+by the testable information.</p>
+<p>See my previous post on <a class="reference external" href="../maximum-entropy-distributions/">maximum entropy distributions</a> for a more detailed
+treatment.</p>
+</div>
+<div class="section" id="wallis-derivation">
+<h2><a class="toc-backref" href="#id3"><span class="sectnum">3</span> Wallis Derivation</a></h2>
+<p>The Wallis derivation of maximum entropy [1 ,2] starts off with a conceptually
+simple argument, which through some calculation ends up with our tried and true
+measure of entropy.  It's nice because it does not require defining information
+as <span class="math">\(-\log p\)</span> upfront and then making some argument that we want to
+maximize it's expected value but gets there directly instead.</p>
+<p>To start, let's assume the problem from the previous section: we want to
+find the probability distribution of a discrete random variable that has
+<span class="math">\(m\)</span> discrete values given some testable information about the
+distribution such as it's expected value or variance (or more generally one of
+its <a class="reference external" href="https://en.wikipedia.org/wiki/Moment_(mathematics)">moments</a>).  Given
+any candidate probability distribution represented by a vector
+<span class="math">\({\bf p} = [p_1, \ldots, p_m]\)</span>, we can easily test to see if it satisfies
+our constraint.  To this end, let's conduct the following thought experiment:</p>
+<ol class="arabic simple">
+<li><p>Distribute <span class="math">\(N\)</span> quanta of probability (each worth <span class="math">\(\frac{1}{N}\)</span>)
+<em>uniformly randomly</em> across the <span class="math">\(m\)</span> possibilities for some large <span class="math">\(N\)</span>.</p></li>
+<li><p>Once finished, check if the constraint is satisfied.  If so, then that is
+your desired probability assignment.  If not reject and go back to step 1.</p></li>
+</ol>
+<p>If we do get an acceptance, our distribution will have <span class="math">\(p_i =
+\frac{n_i}{N}\)</span> where <span class="math">\(\sum_{i=1}^m n_i = N\)</span>.  Note: for any reasonably
+large <span class="math">\(N\)</span> and skewed distribution, it will take an astronomically large
+number of iterations to accept, but it is only a thought experiment.</p>
+<p>Now why is this a reasonable way to approach the problem?  First, we're
+<em>uniformly</em> randomly distributing our quanta of probability in step 1.  It's
+hard to argue that we're being biased in any way.  Second, if we pick a
+large enough <span class="math">\(N\)</span>, the chances of getting a "weird" probability
+distribution (like the <span class="math">\(p_3=1.0\)</span> from the previous section) over a more
+reasonable one becomes vanishing small.  So even though we're stopping at the
+first one, chances are it's a pretty reasonable distribution.</p>
+<p>Assuming we're happy with that reasoning, there is still the problem of picking
+a large enough <span class="math">\(N\)</span> and running many iterations in order to get to an
+accepted distribution.  Instead, let's just calculate the most probable result
+from this experiment, which should be the most reasonable choice anyways.
+We can see the probability of any particular assignment of our probability quanta
+is a <a class="reference external" href="https://en.wikipedia.org/wiki/Multinomial_distribution">multinomial distribution</a>
+with the probability of a quanta being assigned to an outcome being a constant <span class="math">\(q_i = \frac{1}{m}\)</span>:</p>
+<div class="math">
+\begin{align*}
+P({\bf q}) &amp;= \frac{N!}{n_1!\ldots n_m!}q_1^{n_1}q_2^{n_2} \ldots q_m^{n_m} \\
+&amp;= \frac{N!}{n_1!\ldots n_m!}m^{-N}
+&amp;&amp;&amp; \text{since } q_i = \frac{1}{m} \text{ and } \sum_{i=1}^m n_i = N\\
+\tag{4}
+\end{align*}
+</div>
+<p>since <span class="math">\(m\)</span> is a constant in this problem, it suffices to maximize the first factor, which
+we'll call the <strong>multiplicity</strong> of the outcome denoted by <span class="math">\(W\)</span>:</p>
+<div class="math">
+\begin{equation*}
+W = \frac{N!}{n_1!\ldots n_m!} \tag{5}
+\end{equation*}
+</div>
+<p>But we can equivalently maximize any monotonically increasing function of <span class="math">\(W\)</span>,
+so let's try it with <span class="math">\(\frac{1}{N}\log W\)</span>:</p>
+<div class="math">
+\begin{align*}
+\frac{1}{N} \log W &amp;= \frac{1}{N} \log \frac{N!}{n_1!n_2!\ldots n_m!} \\
+&amp;= \frac{1}{N} \log \frac{N!}{(N\cdot p_1)!(N\cdot p_2)!\ldots (N\cdot p_3)!} \\
+&amp;= \frac{1}{N} \Big( \log N! - \sum_{i=1}^m \log((N\cdot p_i)!) \Big) \\
+\tag{6}
+\end{align*}
+</div>
+<p>The factorials in Equation 6 are annoying to deal with but thankfully we can use
+<a class="reference external" href="https://en.wikipedia.org/wiki/Stirling%27s_approximation">Sterling's approximation</a>:</p>
+<div class="math">
+\begin{equation*}
+\log(n!) = n\log n -n + \mathcal{O}(\log n) \tag{7}
+\end{equation*}
+</div>
+<p>With Equation 7 in hand, we can simplify Equation 6 and take the limit as <span class="math">\(N \to \infty\)</span>
+so we reduce our dependence on finite <span class="math">\(N\)</span>:</p>
+<div class="math">
+\begin{align*}
+\lim_{N\to\infty} \frac{1}{N} \log W
+&amp;= \lim_{N\to\infty} \frac{1}{N} \Big( \log N! - \sum_{i=1}^m \log((N\cdot p_i)!) \Big) \\
+&amp;= \lim_{N\to\infty} \frac{1}{N} \Big( N\log N - n + \mathcal{O}(\log N)
+    &amp;&amp; \text{Sterling's approx.}\\
+&amp;\hspace{4.5em} - \sum_{i=1}^m (N\cdot p_i)\log(N\cdot p_i) - (N\cdot p_i) + \mathcal{O}(\log (N\cdot p_i)) \Big) \\
+&amp;= \lim_{N\to\infty} \frac{1}{N} \Big( N\log N
+ - \sum_{i=1}^m (N\cdot p_i)\log(N\cdot p_i)  \Big) &amp;&amp; \text{Drop lower order terms} \\
+&amp;= \lim_{N\to\infty} \log N - \sum_{i=1}^m p_i\log(N\cdot p_i)   \\
+&amp;= \lim_{N\to\infty} \log N - \log N \sum_{i=1}^m p_i - \sum_{i=1}^m p_i\log p_i   \\
+&amp;= \lim_{N\to\infty} \log N - \log N - \sum_{i=1}^m p_i\log p_i   \\
+&amp;= \lim_{N\to\infty} - \sum_{i=1}^m p_i\log p_i \\
+&amp;= - \sum_{i=1}^m p_i\log p_i \\
+&amp;= H({\bf p}) \\
+\tag{8}
+\end{align*}
+</div>
+<p>Equation 8 shows that if we follow the logic of the above procedure, the "fair"
+probability distribution is equivalent to maximizing the entropy of the
+distribution.  Notice that we did not mention "information", "surprise", or
+"uncertainty" here.  We are simply doing the above thought experiment and it
+turns out we're maximizing <span class="math">\(E(-\log X)\)</span>.  In this manner, we might as
+well give a name to <span class="math">\(-\log p\)</span>, which is the <a class="reference external" href="https://en.wikipedia.org/wiki/Information_content">Shannon information</a> of a particular event.
+This is nice because it doesn't require us to make any big leaps of assuming
+that <span class="math">\(-\log p\)</span> has any meaning.</p>
+</div>
+<div class="section" id="physical-derivation">
+<h2><a class="toc-backref" href="#id4"><span class="sectnum">4</span> Physical Derivation</a></h2>
+<p>This derivation is from [3] which is not exactly a derivation of the concept of
+entropy but the functional form.  It starts out with an observation in physical
+systems involving a collection of equivalent elementary units where:</p>
+<ul class="simple">
+<li><p>Elementary units (e.g. particles) have some associated probability
+<span class="math">\(p_j\)</span> of taking on some numeric value <span class="math">\(j\)</span> (e.g. energy level),
+i.e., random variables.</p></li>
+<li><p>We observe some measurable quantity <span class="math">\(U\)</span> of the entire system (e.g. average temperature).</p></li>
+<li><p>The probability distribution of the elementary particles observed is the one
+maximizes the number of ways in which the particles can be arranged such that
+the system still measures <span class="math">\(U\)</span> (hint: this is the multiplicity <span class="math">\(W\)</span>
+from above, which is equivalent to maximum entropy).</p></li>
+</ul>
+<p>We'll make this more precise, but first let's look at some examples.</p>
+<ul class="simple">
+<li><p><strong>Dice</strong>: Given a die with <span class="math">\(j=1,2,3,...,m\)</span> faces, roll this die N
+times, compute the average value of the faces you see.  What you will find is
+that the maximum entropy principle predicts the probabilities of rolling each
+face of the die.  In general, this will be exponential or flat in the case of
+unbiased die.</p></li>
+<li><p><strong>Thermal system, canonical ensemble; temperature known</strong>: Given N particles
+in a thermodynamic system, the numeric value of each particle is the energy
+state <span class="math">\(\varepsilon_j\)</span> of each particle.  Given a temperature T, which
+is equivalent to knowing the average energy, maximum entropy predicts
+the Boltzmann distribution, <span class="math">\(p_j \propto \text{exp}[-\varepsilon_i/(kT)]\)</span>,
+which is what we observe.</p></li>
+<li><p><strong>Waiting Time Processes</strong>: Consider you are watching cars pass by on a road
+and you measure the time between cars passing by as <span class="math">\(\tau_j\)</span>.  After
+observing <span class="math">\(N\)</span> cars, you measure the average waiting times between cars
+<span class="math">\(T/N = E(\tau)\)</span> where <span class="math">\(T\)</span> is the total waiting time.  What you
+will observe is that again maximum entropy predicts that the wait times will
+be exponentially distributed <span class="math">\(\text{exp}(-\lambda\tau_j)\)</span>.</p></li>
+</ul>
+<p>In each of these situations maximum entropy is observed to be maximizing the
+number of ways you can arrange the elementary units such that the given
+constraint (<span class="math">\(U\)</span>) is satisfied.  In other words, we want to maximize the
+quantity <span class="math">\(W\)</span> known as <strong>multiplicity</strong> which is the number of ways in
+which the system can realize the observable <span class="math">\(U\)</span> from the elementary
+units.</p>
+<div class="section" id="defining-multiplicity">
+<h3><a class="toc-backref" href="#id5"><span class="sectnum">4.1</span> Defining Multiplicity</a></h3>
+<p>Briefly repeating a variation of the previous section, if we
+have <span class="math">\(N\)</span> elementary units, each of which can take on <span class="math">\(m\)</span> different
+values, given a set of observations <span class="math">\(n_1, n_2, ... n_m\)</span> where
+<span class="math">\(\sum_{i=1}^m n_i=N\)</span>, we can count the number of ways they can be arranged
+as the multiplicity (same as Equation 5):</p>
+<div class="math">
+\begin{equation*}
+W(n_1, n_2, ... n_m) = \frac{N!}{n_1!\ldots n_m!} \tag{9}
+\end{equation*}
+</div>
+<p>Assuming that <span class="math">\(N\)</span> is large, we would expect <span class="math">\(\frac{n_i}{N} \approx p_i\)</span>,
+the probability of each elementary unit taking on value <span class="math">\(i\)</span>.
+Using an alternate form of
+<a class="reference external" href="https://en.wikipedia.org/wiki/Stirling%27s_approximation">Sterling's approximation</a>
+for large <span class="math">\(N\)</span> (we drop <span class="math">\(\sqrt{2\pi n}\)</span> factor since when we later take
+logarithms it is negligible):</p>
+<div class="math">
+\begin{equation*}
+N! \approx \big( \frac{N}{e} \big)^N \tag{10}
+\end{equation*}
+</div>
+<p>Plugging this into Equation 9, we get:</p>
+<div class="math">
+\begin{align*}
+W(n_1, n_2, ... n_m) &amp;= \frac{N!}{n_1!\ldots n_m!} \\
+ &amp;\approx \frac{\big( \frac{N}{e} \big)^N}{
+     (\big( \frac{n_1}{e} \big)^{n_1})
+     (\big( \frac{n_2}{e} \big)^{n_2})
+     \ldots
+     (\big( \frac{n_3}{e} \big)^{n_3})} &amp;&amp; \text{Sterling's approx.}\\
+ &amp;= (p_1^{-n_1}p_2^{-n_2}\ldots p_m^{-n_m}) &amp;&amp; n_i = N p_i \\
+ &amp;= (p_1^{-p_1}p_2^{-p_2}\ldots p_m^{-p_m})^N \\
+ &amp;= W(p_1, p_2, \ldots, p_m) \\
+\tag{11}
+\end{align*}
+</div>
+<p>Which you'll notice already resembles the exponentiated form of entropy we expect.</p>
+<p>The definition of multiplicity in Equation 11 defines the number of ways the system
+can realize particular values of <span class="math">\(n_1, n_2, \ldots, n_m\)</span>.  However, we
+don't just want an arbitrary configuration, we want the one that satisfies our
+observation <span class="math">\(U\)</span> (e.g. expected value).  That is, only count
+configurations that satisfy the constraint <span class="math">\(U\)</span>.  We'll denote a
+multiplicity that satisfies <span class="math">\(U\)</span> as <span class="math">\(W(p_1,\ldots, p_m, U)\)</span>
+or simply <span class="math">\(W(U)\)</span> when the context is clear.</p>
+<p>Our goal now is to find the functional form of a new quantity we'll call
+<strong>entropy</strong> <span class="math">\(S[W(p_1,\ldots, p_m, U)]\)</span>,
+such that its extremum picks out the particular set of <span class="math">\(p_1,\ldots, p_m\)</span>
+that maximize <span class="math">\(W(p_1,\ldots, p_m, U)\)</span>.
+From here, you can already see that the logarithm of Equation 11 will probably
+work out, but we'll show that this is actually the only choice that works.</p>
+</div>
+<div class="section" id="showing-entropy-is-extensive">
+<h3><a class="toc-backref" href="#id6"><span class="sectnum">4.2</span> Showing Entropy is Extensive</a></h3>
+<p>An extensive property <span class="math">\(P(\mathcal{R})\)</span> of a system <span class="math">\(\mathcal{R}\)</span> has these
+conditions:</p>
+<ol class="arabic">
+<li>
+<p><strong>Additivity</strong>: If the system <span class="math">\(\mathcal{R}\)</span> can be divided into two subsystems <span class="math">\(\mathcal{R}_1\)</span>
+and <span class="math">\(\mathcal{R}_2\)</span> then:</p>
+<div class="math">
+\begin{equation*}
+P(\mathcal{R}) = P(\mathcal{R}_1) + P(\mathcal{R}_2) \tag{12}
+\end{equation*}
+</div>
+</li>
+<li>
+<p><strong>Scalability</strong>: If the size of the system <span class="math">\(\mathcal{R}\)</span> is scaled by a positive
+factor <span class="math">\(\alpha\)</span> then:</p>
+<div class="math">
+\begin{equation*}
+P(\alpha \mathcal{R}) = \alpha P(\mathcal{R}) \tag{13}
+\end{equation*}
+</div>
+</li>
+</ol>
+<p>We'll start by showing the first property since the second one follows from our end result.</p>
+<p>We wish to find entropy <span class="math">\(S(p_1, \ldots, p_m)\)</span> that is maximal where <span class="math">\(W\)</span> is
+maximal that also satisfies the following conditions:</p>
+<div class="math">
+\begin{align*}
+g(p_1, \ldots, p_m) &amp;= \sum_{j=1}^m p_j = 1 &amp;&amp; \text{probability constraint} \\
+h(p_1, \ldots, p_m) &amp;= \sum_{j=1}^m x_j p_j = \frac{U}{N} &amp;&amp; \text{observed measurement} \\
+\tag{14}
+\end{align*}
+</div>
+<p>where <span class="math">\(x_j\)</span> is the <span class="math">\(j^{th}\)</span> value of the random variable for each
+elementary unit.  Equation 14 just says that <span class="math">\(p_j\)</span> form a probability
+distribution and that the multiplicity satisfies our observed measurement --
+the average value of the observations (e.g. temperature).</p>
+<p>Since we wish to find a maximum under constraints, we'll use
+<a class="reference external" href="../lagrange-multipliers/">Lagrange multipliers</a>.  Recall that we
+can set up the Lagrangian as:</p>
+<div class="math">
+\begin{equation*}
+\mathcal{L}(p_1, \ldots, p_m, \alpha, \lambda) = S(p_1, \ldots, p_m) - \alpha (g(p_1, \ldots, p_m) - 1) - \lambda (h(p_1, \ldots, p_m) - \frac{U}{N}) \tag{15}
+\end{equation*}
+</div>
+<p>where <span class="math">\(\alpha, \lambda\)</span> are our Lagrange multipliers for the constraints in Equation 14,
+which also include the constants on the RHS.  The extrema can be found by finding where
+each of the partial derivatives equals to zero.  Taking the partial with respect to
+<span class="math">\(p_j\)</span> and setting to zero gives us:</p>
+<div class="math">
+\begin{align*}
+\frac{\partial\mathcal{L}(p_1, \ldots, p_m, \alpha, \lambda)}{\partial p_j} &amp;= 0 \\
+\frac{\partial S(p_1, \ldots, p_m)}{\partial p_j} &amp;= \frac{\partial}{\partial p_j} \big(\alpha (g(p_1, \ldots, p_m) - 1) + \lambda (h(p_1, \ldots, p_m) - \frac{U}{N}) \big)\\
+&amp;= \frac{\partial}{\partial p_j} \big( \alpha (\sum_{j=1}^m p_j - 1) + \lambda (\sum_{j=1}^m x_j p_j - \frac{U}{N}) \big) \\
+\frac{\partial S(p_1, \ldots, p_m)}{\partial p_j}  &amp;= \alpha + \lambda x_j \\
+\tag{16}
+\end{align*}
+</div>
+<p>The <a class="reference external" href="https://en.wikipedia.org/wiki/Total_derivative">total differential</a>
+that gives the infinitesimal variation for <span class="math">\(S\)</span> can be written by plugging in Equation 16:</p>
+<div class="math">
+\begin{equation*}
+dS = \sum_{j=1}^m \frac{\partial S}{\partial p_j} dp_j = \sum_{j=1}^m (\alpha + \lambda x_j) dp_j \tag{17}
+\end{equation*}
+</div>
+<p>Now here comes the argument for why entropy is extensive: Let's arbitrarily partition
+our system into two subsystems <span class="math">\(a\)</span> and <span class="math">\(b\)</span>.  Each subsystem will have
+<span class="math">\(N_a\)</span> and <span class="math">\(N_b\)</span> elementary units (e.g. particles), each of which can
+have multiplicity <span class="math">\(W_a(U_a)\)</span> and <span class="math">\(W_b(U_b)\)</span> respectively for given observations
+<span class="math">\(U_a\)</span> and <span class="math">\(U_b\)</span>.  To make it even more general, the number of different values for
+each subsystem can also be different with <span class="math">\(m_a\)</span> and <span class="math">\(m_b\)</span>
+potentially being different.
+Since it is a partition, we have <span class="math">\(N=N_a+N_B\)</span> and <span class="math">\(W(U) =
+W_a(U_a)W_b(U_b)\)</span> where the second one follows from simply counting all the combined possibilities.</p>
+<p>Similarly, each subsystem will have constraints that mirror Equation 14/16
+(probability constraint and observed average value).  Thus, we can use Equation
+17 to see that the total differential for each subsystem is:</p>
+<div class="math">
+\begin{align*}
+dS_a = \sum_{j=1}^m (\alpha_a + \lambda_a x_{ja}) dp_{ja} \\
+dS_b = \sum_{j=1}^m (\alpha_b + \lambda_b x_{jb}) dp_{jb} \\
+\tag{18}
+\end{align*}
+</div>
+<p>But since the two subsystems are a partition of the total system, we can write the total
+differential for the entire system as a function of all the component parts
+<span class="math">\(S(p_{1a},\ldots, p_{ma}, p_{1b}, \ldots, p_{mb})\)</span> with the four different constraints (two from each system):</p>
+<div class="math">
+\begin{align*}
+dS &amp;= \sum_{j=1}^{m_a} (\alpha_a + \lambda_a x_{ja}) dp_{ja} + \sum_{j=1}^{m_b} (\alpha_b + \lambda_b x_{jb}) dp_{jb} \\
+&amp;= dS_a + dS_b \\
+\tag{19}
+\end{align*}
+</div>
+<p>Notice that we did not make any assumptions about the form of entropy, the only
+assumption we made is about the relation to a physical system.  Equation 19
+shows (with some integration) that entropy is additive:</p>
+<div class="math">
+\begin{equation*}
+S = S_a + S_b + C \tag{20}
+\end{equation*}
+</div>
+<p>where <span class="math">\(C\)</span> is a constant.  The scaling can be shown to be satisfied once
+we find out that our functional form is a logarithm since increasing the number
+of particles in a system by <span class="math">\(\alpha\)</span> exponentiates the multiplicity
+<span class="math">\(W(U)^\alpha\)</span>.  Thus entropy is extensive.</p>
+</div>
+<div class="section" id="deriving-the-functional-form-of-entropy">
+<h3><a class="toc-backref" href="#id7"><span class="sectnum">4.3</span> Deriving the Functional Form of Entropy</a></h3>
+<p>Once we have shown entropy is additive, we can do some manipulation to show it must
+have a logarithmic form.  First, let's simply the notation <span class="math">\(u := W_a(U_a),
+v := W_b(U_b), r := W(U) = W_aW_b = uv\)</span>.  Rewriting Equation 20 with this notation:</p>
+<div class="math">
+\begin{equation*}
+S(r) = S_a(u) + S_b(v) + C \tag{21}
+\end{equation*}
+</div>
+<p>We can take the derivative of the left side with respect to <span class="math">\(v\)</span>:</p>
+<div class="math">
+\begin{align*}
+\frac{dS}{dv} &amp;= \frac{dS}{dr}\frac{\partial r}{\partial v} \\
+              &amp;= \frac{dS}{dr}u \\
+\tag{22}
+\end{align*}
+</div>
+<p>Now taking the derivative of the right hand side of Equation 21, we get:</p>
+<div class="math">
+\begin{equation*}
+\frac{d(S_a + S_b + C)}{dv} = \frac{dS_b}{dv} \tag{23}
+\end{equation*}
+</div>
+<p>Equating Equation 22/23:</p>
+<div class="math">
+\begin{equation*}
+\frac{dS}{dr}u = \frac{dS_b}{dv}  \tag{24}
+\end{equation*}
+</div>
+<p>Symmetrically if we take the derivatives with respect to <span class="math">\(u\)</span> in Equation
+21, we also get:</p>
+<div class="math">
+\begin{equation*}
+\frac{dS}{dr}v = \frac{dS_a}{du}  \tag{25}
+\end{equation*}
+</div>
+<p>Equating Equation 24/25 using <span class="math">\(\frac{dS}{dr}\)</span>, we have:</p>
+<div class="math">
+\begin{equation*}
+u\frac{dS_a}{du} = v\frac{dS_b}{dv} = k \tag{26}
+\end{equation*}
+</div>
+<p>where <span class="math">\(k\)</span> is a constant.  The reason they are equal to a constant is the
+left side is a function only of <span class="math">\(u\)</span>, while the right hand side is only a
+function of <span class="math">\(v\)</span>, thus the only way two arbitrary functions of different
+variables can be equal is if they are equal to the same constant.</p>
+<p>Taking one side, we can solve the differential equation:</p>
+<div class="math">
+\begin{align*}
+u\frac{dS_a}{du} &amp;= k \\
+{dS_a} &amp;= \frac{k}{u}{du} \\
+\int dS_a &amp;= \int \frac{k}{u}{du} \\
+S_a &amp;=  k\log{u} + C_a \\
+\tag{27}
+\end{align*}
+</div>
+<p>where <span class="math">\(C_a\)</span> is the constant of integration.  You also get a similar
+result for the other side.  Putting it together:</p>
+<div class="math">
+\begin{equation*}
+S(W) = S_a + S_b = k\log{W_a} + C_a + k\log{W_b} + C_b = k\log{W} + C' \tag{28}
+\end{equation*}
+</div>
+<p>We are free to choose the constant of integration such as <span class="math">\(S(1) = 0\)</span>,
+which sets <span class="math">\(C'=0\)</span>.  Finally, plugging back the expression for <span class="math">\(W\)</span>
+from Equation 11 in:</p>
+<div class="math">
+\begin{align*}
+S(W) &amp;= k\log{(p_1^{-p_1}p_2^{-p_2}\ldots p_m^{-p_m})^N} \\
+     &amp;= -k'\sum_{j=1}^m p_j\log{p_j} &amp;&amp; \text{define } k' = kN\\
+     &amp;= -\sum_{j=1}^m p_j\log{p_j} &amp;&amp; \text{for } k = \frac{1}{N} \\
+     \tag{29}
+\end{align*}
+</div>
+<p>We can define <span class="math">\(k'\)</span> however we wish, so let's set it to <span class="math">\(k' = 1\)</span>,
+thus we get the our expected expression for entropy.</p>
+</div>
+</div>
+<div class="section" id="jaynes-derivation">
+<h2><a class="toc-backref" href="#id8"><span class="sectnum">5</span> Jaynes' Derivation</a></h2>
+<p>Jaynes [1] has another derivation that is somewhat similar to the physical derivation
+except he starts with desiderata of what we would like from an entropy measure.  Instead
+of elementary particles, he shows using the rules of probability that an event can
+be recursively broken down into "sub events" showing that entropy must be additive.
+From there, he is a bit more careful showing that entropy and the
+multiplicity-equivalent variable would logarithmic if we assumed it to be continuous.
+But since the inputs are integers (because they are multiplicities), you also
+have to assume entropy is monotonically increasing with respect to the multiplicity.
+In the end he shows that entropy is indeed logarithmic as expected.</p>
+<p>I won't go into the gory details because it's quite involved and I think it's a
+bit too technical to gain that much more intuition beyond the two derivations above.
+Please do check out [1] though if you're interested, it's always a pleasure
+reading Jaynes.</p>
+</div>
+<div class="section" id="conclusion">
+<h2><a class="toc-backref" href="#id9"><span class="sectnum">6</span> Conclusion</a></h2>
+<p>Well I'm glad I got that post out of the way.  As soon as I read that appendix in [3],
+I knew I had to write about the derivation.  Along the way I found Jaynes' derivation
+in [1], which upon closer inspection also included the Wallis derivation.  As with every
+topic, you can go down an unlimited depth (and this one is a deep dive
+on an already "elementary" topic).  For now, I'm satisfied with just explaining
+two derivations, which give me a better appreciation for the beauty and
+"surprise" of (maximum) entropy.  Stayed tuned for more (short to medium sized) posts!</p>
+</div>
+<div class="section" id="references">
+<h2><a class="toc-backref" href="#id10"><span class="sectnum">7</span> References</a></h2>
+<ul class="simple">
+<li><p>[1] E. T. Jaynes, "<a class="reference external" href="https://doi.org/10.1017/CBO9780511790423">Probability Theory: The Logic of Science</a>", Cambridge, 2006.</p></li>
+<li><p>[2] Wikipedia: <a class="reference external" href="https://en.wikipedia.org/wiki/Principle_of_maximum_entropy#The_Wallis_derivation">Principle of Maximum Entropy</a></p></li>
+<li><p>[3] Dill, K. A., &amp; Bromberg, S. (2011). Molecular Dynamics (Appendix E). CRC Press.</p></li>
+</ul>
+</div>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/entropy/" rel="tag">entropy</a></li>
+            <li><a class="tag p-category" href="../../categories/information/" rel="tag">information</a></li>
+            <li><a class="tag p-category" href="../../categories/jaynes/" rel="tag">Jaynes</a></li>
+            <li><a class="tag p-category" href="../../categories/shannon/" rel="tag">Shannon</a></li>
+            <li><a class="tag p-category" href="../../categories/wallis/" rel="tag">Wallis</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../iterative-summarization-using-llms/" rel="prev" title="Iterative Summarization using LLMs">Previous post</a>
+            </li>
+        </ul></nav></aside><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha384-3lJUsx1TJHt7BA4udB5KPnDrlkO8T6J6v/op7ui0BbCjvZ9WqV4Xm6DTP6kQ/iBH" crossorigin="anonymous"></script><script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
+    }
+});
+</script></article>
+</div>
+            <div class="col-md-3 ">
+            <div class="card card-body bg-light">
+            <p>
+            Hi, I'm <a href="http://www.briankeng.com/about">Brian Keng</a>.  This is
+            <a href="../../">the place</a> where I write about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br>
+</div>
+
+<!-- Begin MailChimp Signup Form -->
+<hr>
+<link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+    #mc_embed_signup{clear:left; font:13px Helvetica,Arial,sans-serif; }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+       We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="//briankeng.us10.list-manage.com/subscribe/post?u=cedf72ca8daa891e57f4379a0&amp;id=1f1563094f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <b>Signup for Email Blog Posts</b>
+    <div id="mc_embed_signup_scroll">
+<div>
+    <label for="mce-EMAIL"> Email Address </label>
+    <input type="email" value="" name="EMAIL" class="required email form-control input-sm" id="mce-EMAIL">
+</div>
+    <div id="mce-responses" class="clear">
+        <div class="response" id="mce-error-response" style="display:none"></div>
+        <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_cedf72ca8daa891e57f4379a0_1f1563094f" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn btn-default btn-xs"></div>
+    </div>
+</form>
+</div>
+<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
+</div>
+            </div>
+        </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2024         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+            
+        </footer>
+</div>
+
+
+
+        <script src="../../assets/js/all-nocdn.js"></script><script>
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element) {
+            return element.getElementsByTagName('img')[0].alt;
+    }});
+    </script><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-15314898-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>

@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about Jaynes)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/jaynes.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 04 Jun 2024 00:49:14 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Probability as Extended Logic</title><link>http://bjlkeng.github.io/posts/probability-the-logic-of-science/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Modern probability theory is typically derived from the
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about Jaynes)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/jaynes.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sat, 03 Aug 2024 01:42:51 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>The Logic Behind the Maximum Entropy Principle</title><link>http://bjlkeng.github.io/posts/the-logic-behind-entropy/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;For a while now, I've really enjoyed diving deep to understand
+probability and related fundamentals (see
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/probability-the-logic-of-science/"&gt;here&lt;/a&gt;,
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/maximum-entropy-distributions/"&gt;here&lt;/a&gt;, and
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/an-introduction-to-stochastic-calculus/"&gt;here&lt;/a&gt;).
+Entropy is a topic that comes up all over the place from physics to information
+theory, and of course, machine learning.  I written about it in various
+different forms but always taken it as a given as the "expected information".
+Well I found a few of good explanations about how to "derive" it and thought
+that I should share.&lt;/p&gt;
+&lt;p&gt;In this post, I'll be showing a few of derivations of the maximum entropy
+principle, where entropy appears as part of the definition.  These derivations
+will show why it is a reasonable and natural thing to maximize, and how it is
+determined from some well thought out reasoning.  This post will be more math
+heavy but hopefully it will give you more insight into this wonderfully
+surprising topic.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/the-logic-behind-entropy/"&gt;Read more…&lt;/a&gt; (16 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>entropy</category><category>information</category><category>Jaynes</category><category>mathjax</category><category>Shannon</category><category>Wallis</category><guid>http://bjlkeng.github.io/posts/the-logic-behind-entropy/</guid><pubDate>Sat, 03 Aug 2024 00:44:59 GMT</pubDate></item><item><title>Probability as Extended Logic</title><link>http://bjlkeng.github.io/posts/probability-the-logic-of-science/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;Modern probability theory is typically derived from the
 &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Probability_axioms"&gt;Kolmogorov axioms&lt;/a&gt;,
 using measure theory with concepts like events and sample space.
 In one way, it's intuitive to understand how this works as Laplace

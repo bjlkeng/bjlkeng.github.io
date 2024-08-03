@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 04 Jun 2024 00:49:17 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Iterative Summarization using LLMs</title><link>http://bjlkeng.github.io/posts/iterative-summarization-using-llms/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;After being busy for the first part of the year, I finally have a bit of time
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bounded Rationality (Posts about mathjax)</title><link>http://bjlkeng.github.io/</link><description></description><atom:link href="http://bjlkeng.github.io/categories/mathjax.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sat, 03 Aug 2024 01:42:51 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>The Logic Behind the Maximum Entropy Principle</title><link>http://bjlkeng.github.io/posts/the-logic-behind-entropy/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;For a while now, I've really enjoyed diving deep to understand
+probability and related fundamentals (see
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/probability-the-logic-of-science/"&gt;here&lt;/a&gt;,
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/maximum-entropy-distributions/"&gt;here&lt;/a&gt;, and
+&lt;a class="reference external" href="http://bjlkeng.github.io/posts/an-introduction-to-stochastic-calculus/"&gt;here&lt;/a&gt;).
+Entropy is a topic that comes up all over the place from physics to information
+theory, and of course, machine learning.  I written about it in various
+different forms but always taken it as a given as the "expected information".
+Well I found a few of good explanations about how to "derive" it and thought
+that I should share.&lt;/p&gt;
+&lt;p&gt;In this post, I'll be showing a few of derivations of the maximum entropy
+principle, where entropy appears as part of the definition.  These derivations
+will show why it is a reasonable and natural thing to maximize, and how it is
+determined from some well thought out reasoning.  This post will be more math
+heavy but hopefully it will give you more insight into this wonderfully
+surprising topic.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/the-logic-behind-entropy/"&gt;Read more…&lt;/a&gt; (16 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>entropy</category><category>information</category><category>Jaynes</category><category>mathjax</category><category>Shannon</category><category>Wallis</category><guid>http://bjlkeng.github.io/posts/the-logic-behind-entropy/</guid><pubDate>Sat, 03 Aug 2024 00:44:59 GMT</pubDate></item><item><title>Iterative Summarization using LLMs</title><link>http://bjlkeng.github.io/posts/iterative-summarization-using-llms/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;After being busy for the first part of the year, I finally have a bit of time
 to work on this blog.  After a lot of thinking about how to best fit it into my
 schedule, I've decided to &lt;em&gt;attempt&lt;/em&gt; to write shorter posts.  Although I do get
 a lot of satisfaction writing long posts, it's not practical because of the
@@ -173,17 +189,4 @@ by Facebook, Apple and Google [3].  As usual, I'm going to go over some
 background, some math, some examples to help with intuition, and finally some
 experiments with a toy ANS implementation I wrote.  I hope you're as
 excited as I am, let's begin!&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/lossless-compression-with-asymmetric-numeral-systems/"&gt;Read more…&lt;/a&gt; (32 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Arithmetic Coding</category><category>asymmetric numeral systems</category><category>compression</category><category>entropy</category><category>Huffman coding</category><category>mathjax</category><guid>http://bjlkeng.github.io/posts/lossless-compression-with-asymmetric-numeral-systems/</guid><pubDate>Sat, 26 Sep 2020 14:37:43 GMT</pubDate></item><item><title>Model Explainability with SHapley Additive exPlanations (SHAP)</title><link>http://bjlkeng.github.io/posts/model-explanability-with-shapley-additive-explanations-shap/</link><dc:creator>Brian Keng</dc:creator><description>&lt;div&gt;&lt;p&gt;One of the big criticisms of modern machine learning is that it's essentially
-a blackbox -- data in, prediction out, that's it.  And in some sense, how could
-it be any other way?  When you have a highly non-linear model with high degrees
-of interactions, how can you possibly hope to have a simple understanding of
-what the model is doing?  Well, turns out there is an interesting (and
-practical) line of research along these lines.&lt;/p&gt;
-&lt;p&gt;This post will dive into the ideas of a popular technique published in the last
-few years call &lt;em&gt;SHapely Additive exPlanations&lt;/em&gt; (or SHAP).  It builds upon
-previous work in this area by providing a unified framework to think
-about explanation models as well as a new technique with this framework that
-uses Shapely values.  I'll go over the math, the intuition, and how it works.
-No need for an implementation because there is already a nice little Python
-package! Confused yet?  Keep reading and I'll &lt;em&gt;explain&lt;/em&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/model-explanability-with-shapley-additive-explanations-shap/"&gt;Read more…&lt;/a&gt; (26 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>explainability</category><category>game theory</category><category>mathjax</category><category>SHAP</category><guid>http://bjlkeng.github.io/posts/model-explanability-with-shapley-additive-explanations-shap/</guid><pubDate>Wed, 12 Feb 2020 11:24:22 GMT</pubDate></item></channel></rss>
+&lt;p&gt;&lt;a href="http://bjlkeng.github.io/posts/lossless-compression-with-asymmetric-numeral-systems/"&gt;Read more…&lt;/a&gt; (32 min remaining to read)&lt;/p&gt;&lt;/div&gt;</description><category>Arithmetic Coding</category><category>asymmetric numeral systems</category><category>compression</category><category>entropy</category><category>Huffman coding</category><category>mathjax</category><guid>http://bjlkeng.github.io/posts/lossless-compression-with-asymmetric-numeral-systems/</guid><pubDate>Sat, 26 Sep 2020 14:37:43 GMT</pubDate></item></channel></rss>
