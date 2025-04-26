@@ -601,16 +601,16 @@ didn't really try any other values because I just wanted something sufficiently
 low to not get totally different answers each time.</p>
 <p>My prompt was relatively simple where I took some parts from the default
 <code>RetrievalQAChain</code> prompt:</p>
-<pre class="code text"><a name="rest_code_81046b70c3594570be5a608f6e2a8b66-1"></a>Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that "I am not programmed to answer that", don't try to make up an answer.
-<a name="rest_code_81046b70c3594570be5a608f6e2a8b66-2"></a>
-<a name="rest_code_81046b70c3594570be5a608f6e2a8b66-3"></a>### Context ###
-<a name="rest_code_81046b70c3594570be5a608f6e2a8b66-4"></a>Your name is Brian Keng.
-<a name="rest_code_81046b70c3594570be5a608f6e2a8b66-5"></a>
-<a name="rest_code_81046b70c3594570be5a608f6e2a8b66-6"></a>{context}
-<a name="rest_code_81046b70c3594570be5a608f6e2a8b66-7"></a>
-<a name="rest_code_81046b70c3594570be5a608f6e2a8b66-8"></a>### Question ###
-<a name="rest_code_81046b70c3594570be5a608f6e2a8b66-9"></a>Question: {question}
-<a name="rest_code_81046b70c3594570be5a608f6e2a8b66-10"></a>Helpful answer in less than 100 words:
+<pre class="code text"><a name="rest_code_70198aacb76347c8935a837749833aed-1"></a>Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that "I am not programmed to answer that", don't try to make up an answer.
+<a name="rest_code_70198aacb76347c8935a837749833aed-2"></a>
+<a name="rest_code_70198aacb76347c8935a837749833aed-3"></a>### Context ###
+<a name="rest_code_70198aacb76347c8935a837749833aed-4"></a>Your name is Brian Keng.
+<a name="rest_code_70198aacb76347c8935a837749833aed-5"></a>
+<a name="rest_code_70198aacb76347c8935a837749833aed-6"></a>{context}
+<a name="rest_code_70198aacb76347c8935a837749833aed-7"></a>
+<a name="rest_code_70198aacb76347c8935a837749833aed-8"></a>### Question ###
+<a name="rest_code_70198aacb76347c8935a837749833aed-9"></a>Question: {question}
+<a name="rest_code_70198aacb76347c8935a837749833aed-10"></a>Helpful answer in less than 100 words:
 </pre>
 <p>I supposed I could have improved the prompt with extra background information
 about myself but I was lazy and didn't think it was worth it.</p>
@@ -647,9 +647,9 @@ so I used the ChatGPT API to generate questions from the snippets of my blog!</p
 250 tokens using the above mentioned OpenAI <code>Tiktoken</code> encoder.  This
 mostly chunks it into paragraphs since I typically write short paragraphs.</p>
 <p>Next, I prompted the ChatGPT (GPT 3.5) API with the following:</p>
-<pre class="code text"><a name="rest_code_1db919ef59894e05b5899a28b0bcf01b-1"></a>Write a concise question in as few words as possible to the author in the second person that has the following TEXT as the answer.
-<a name="rest_code_1db919ef59894e05b5899a28b0bcf01b-2"></a>
-<a name="rest_code_1db919ef59894e05b5899a28b0bcf01b-3"></a>### TEXT ###
+<pre class="code text"><a name="rest_code_926195eb39404d3cb65430d3677cadd7-1"></a>Write a concise question in as few words as possible to the author in the second person that has the following TEXT as the answer.
+<a name="rest_code_926195eb39404d3cb65430d3677cadd7-2"></a>
+<a name="rest_code_926195eb39404d3cb65430d3677cadd7-3"></a>### TEXT ###
 </pre>
 <p>where the text chunk is appended to the prompt.  The prompt is pretty self
 explanatory, except for the <code>###</code> demarcations.  This is a trick
@@ -660,10 +660,10 @@ used) required a clear separator to end the <em>prompt</em> and the <em>completi
 required a white space to start with a clear ending token.  For the former
 I used <code>\n\n###\n\n</code>, and the latter I used <code>END</code>.  Additionally,
 each training sample should be put in a JSONL format.  Here's an example line:</p>
-<pre class="code text"><a name="rest_code_d8d5694048704fccae00b995a19e50f0-1"></a>{
-<a name="rest_code_d8d5694048704fccae00b995a19e50f0-2"></a>   "prompt": "QUESTION: Is 2022 feeling more like a \"normal\" year for you?\n\n###\n\n",
-<a name="rest_code_d8d5694048704fccae00b995a19e50f0-3"></a>   "completion": " Thankfully 2022 has felt a bit more like a “normal” year.  ... END"
-<a name="rest_code_d8d5694048704fccae00b995a19e50f0-4"></a>}
+<pre class="code text"><a name="rest_code_be7bc4c28178400d8db8f1604d13d516-1"></a>{
+<a name="rest_code_be7bc4c28178400d8db8f1604d13d516-2"></a>   "prompt": "QUESTION: Is 2022 feeling more like a \"normal\" year for you?\n\n###\n\n",
+<a name="rest_code_be7bc4c28178400d8db8f1604d13d516-3"></a>   "completion": " Thankfully 2022 has felt a bit more like a “normal” year.  ... END"
+<a name="rest_code_be7bc4c28178400d8db8f1604d13d516-4"></a>}
 </pre>
 <p>This little dataset generation script ran pretty smoothly with the only added
 tweak was to add rate limiting since OpenAI doesn't like you hammering their
@@ -874,14 +874,14 @@ text and doesn't evaluate the semantic meaning.  So next I tried the LLM route
 to evaluate the answers using both GPT-3.5 (<code>text-davinci-003</code>) and GPT-4.
 Given the above answers, I prompted GPT-3.5 using the following prompt
 using with the <a class="reference external" href="https://github.com/guidance-ai/guidance">Guidance</a> library:</p>
-<pre class="code text"><a name="rest_code_b0dcb4f874ab4b9fb614c28cb5b549ae-1"></a>QUESTION: {{question}}
-<a name="rest_code_b0dcb4f874ab4b9fb614c28cb5b549ae-2"></a>
-<a name="rest_code_b0dcb4f874ab4b9fb614c28cb5b549ae-3"></a>ANSWER: {{reference}}
-<a name="rest_code_b0dcb4f874ab4b9fb614c28cb5b549ae-4"></a>
-<a name="rest_code_b0dcb4f874ab4b9fb614c28cb5b549ae-5"></a>PROPOSED ANSWER: {{hypothesis}}
-<a name="rest_code_b0dcb4f874ab4b9fb614c28cb5b549ae-6"></a>
-<a name="rest_code_b0dcb4f874ab4b9fb614c28cb5b549ae-7"></a>Can you rate the PROPOSED ANSWER to the above QUESTION from 0 (not even close) to 10 (exact meaning) on whether or not it matches ANSWER?  Only output the number.
-<a name="rest_code_b0dcb4f874ab4b9fb614c28cb5b549ae-8"></a>{{select 'rating' options=valid_nums logprobs='logprobs'}}
+<pre class="code text"><a name="rest_code_96532ff0dbfc45b0a83260b83808174c-1"></a>QUESTION: {{question}}
+<a name="rest_code_96532ff0dbfc45b0a83260b83808174c-2"></a>
+<a name="rest_code_96532ff0dbfc45b0a83260b83808174c-3"></a>ANSWER: {{reference}}
+<a name="rest_code_96532ff0dbfc45b0a83260b83808174c-4"></a>
+<a name="rest_code_96532ff0dbfc45b0a83260b83808174c-5"></a>PROPOSED ANSWER: {{hypothesis}}
+<a name="rest_code_96532ff0dbfc45b0a83260b83808174c-6"></a>
+<a name="rest_code_96532ff0dbfc45b0a83260b83808174c-7"></a>Can you rate the PROPOSED ANSWER to the above QUESTION from 0 (not even close) to 10 (exact meaning) on whether or not it matches ANSWER?  Only output the number.
+<a name="rest_code_96532ff0dbfc45b0a83260b83808174c-8"></a>{{select 'rating' options=valid_nums logprobs='logprobs'}}
 </pre>
 <p>The nice thing about guidance is that you can easily insert templates but most uniquely, you can guide the
 generation.  So for example the <code>{{select ... options=valid_nums}}</code>
@@ -891,21 +891,21 @@ the log probabilities, which I generated and then calculated the expected value
 to use GPT-3.5 to evaluate a GPT-3.5 output in the case of RAG, but perhaps
 makes sense for the smaller <code>curie</code> model?</p>
 <p>Similarly, I did a similar exercise for GPT-4 using the following prompt:</p>
-<pre class="code text"><a name="rest_code_aab5feea072346f2b2169d59c46f393f-1"></a>{{#system~}}
-<a name="rest_code_aab5feea072346f2b2169d59c46f393f-2"></a>You are a helpful assistant.
-<a name="rest_code_aab5feea072346f2b2169d59c46f393f-3"></a>{{~/system}}
-<a name="rest_code_aab5feea072346f2b2169d59c46f393f-4"></a>{{#user~}}
-<a name="rest_code_aab5feea072346f2b2169d59c46f393f-5"></a>QUESTION: {{question}}
-<a name="rest_code_aab5feea072346f2b2169d59c46f393f-6"></a>
-<a name="rest_code_aab5feea072346f2b2169d59c46f393f-7"></a>ANSWER: {{reference}}
-<a name="rest_code_aab5feea072346f2b2169d59c46f393f-8"></a>
-<a name="rest_code_aab5feea072346f2b2169d59c46f393f-9"></a>PROPOSED ANSWER: {{hypothesis}}
-<a name="rest_code_aab5feea072346f2b2169d59c46f393f-10"></a>
-<a name="rest_code_aab5feea072346f2b2169d59c46f393f-11"></a>Can you rate the PROPOSED ANSWER to the above QUESTION from 0 (not even close) to 10 (exact meaning) on whether or not it matches ANSWER?  Only output the number.
-<a name="rest_code_aab5feea072346f2b2169d59c46f393f-12"></a>{{~/user}}
-<a name="rest_code_aab5feea072346f2b2169d59c46f393f-13"></a>{{#assistant~}}
-<a name="rest_code_aab5feea072346f2b2169d59c46f393f-14"></a>{{gen 'rating' temperature=0 max_tokens=2}}
-<a name="rest_code_aab5feea072346f2b2169d59c46f393f-15"></a>{{~/assistant}}
+<pre class="code text"><a name="rest_code_8a19fa958d924ea4a7fa55c627305788-1"></a>{{#system~}}
+<a name="rest_code_8a19fa958d924ea4a7fa55c627305788-2"></a>You are a helpful assistant.
+<a name="rest_code_8a19fa958d924ea4a7fa55c627305788-3"></a>{{~/system}}
+<a name="rest_code_8a19fa958d924ea4a7fa55c627305788-4"></a>{{#user~}}
+<a name="rest_code_8a19fa958d924ea4a7fa55c627305788-5"></a>QUESTION: {{question}}
+<a name="rest_code_8a19fa958d924ea4a7fa55c627305788-6"></a>
+<a name="rest_code_8a19fa958d924ea4a7fa55c627305788-7"></a>ANSWER: {{reference}}
+<a name="rest_code_8a19fa958d924ea4a7fa55c627305788-8"></a>
+<a name="rest_code_8a19fa958d924ea4a7fa55c627305788-9"></a>PROPOSED ANSWER: {{hypothesis}}
+<a name="rest_code_8a19fa958d924ea4a7fa55c627305788-10"></a>
+<a name="rest_code_8a19fa958d924ea4a7fa55c627305788-11"></a>Can you rate the PROPOSED ANSWER to the above QUESTION from 0 (not even close) to 10 (exact meaning) on whether or not it matches ANSWER?  Only output the number.
+<a name="rest_code_8a19fa958d924ea4a7fa55c627305788-12"></a>{{~/user}}
+<a name="rest_code_8a19fa958d924ea4a7fa55c627305788-13"></a>{{#assistant~}}
+<a name="rest_code_8a19fa958d924ea4a7fa55c627305788-14"></a>{{gen 'rating' temperature=0 max_tokens=2}}
+<a name="rest_code_8a19fa958d924ea4a7fa55c627305788-15"></a>{{~/assistant}}
 </pre>
 <p>Note that GPT-4 is a conversational endpoint so it has the added system/user/assistant functionality.
 Additionally, these endpoints don't provide log probabilities (either as input or output) so you can't
@@ -957,16 +957,16 @@ reasoning above and shows the gap being much smaller.</p>
 <h3><a class="toc-backref" href="#id21"><span class="sectnum">4.3</span> Example Output</a></h3>
 <p>Taking a look at some of the examples, we can see some anomalies in the data based on the non-ideal
 experimental setup we have.  First, let's take a look a good RAG example and a poor fine-tuned example:</p>
-<pre class="code text"><a name="rest_code_051843dd4170416c808ded1f20aae2c0-1"></a>QUESTION: What are some examples of contexts where memorization is beneficial?
-<a name="rest_code_051843dd4170416c808ded1f20aae2c0-2"></a>
-<a name="rest_code_051843dd4170416c808ded1f20aae2c0-3"></a>REFERENCE:
-<a name="rest_code_051843dd4170416c808ded1f20aae2c0-4"></a>As with many things in life, I feel like I’ve come full circle.  Recently, I’ve started taking Chinese classes again as well as music lessons (mostly guitar, a bit of vocal).  One thing that is crystal clear is that memorization is
-<a name="rest_code_051843dd4170416c808ded1f20aae2c0-5"></a>hugely beneficial… in certain contexts.  For example, my Chinese speaking has always been lacking.  I was a shy kid and didn’t really make much of an effort to speak in Chinese.  However by memorizing and reciting the textbook lessons, character by character, I’ve been told my Chinese has improved quite a bit.  There’s something about actually moving your mouth, activating your vocal chords, and having sound come out that gets your neurons connecting properly.  Another more obvious explanation: if I wanted to get better at speaking, I should practice speaking more!  However, I will point out that the opportunities to memorize a piece of text and say it out loud are much more abundant than speaking to an actual human.  In any case, a very useful application of memorization.
-<a name="rest_code_051843dd4170416c808ded1f20aae2c0-6"></a>
-<a name="rest_code_051843dd4170416c808ded1f20aae2c0-7"></a>RAG (Score: 10):
-<a name="rest_code_051843dd4170416c808ded1f20aae2c0-8"></a>Memorization is beneficial in contexts where physical practice is needed, such as speaking a language or playing a musical instrument. It is also beneficial in contexts where it allows you to ignore the "easy" parts and focus on the important parts, such as memorizing the lyrics to a song so you can focus on the actual singing, or memorizing the multiplication table so you can focus on algebra.
-<a name="rest_code_051843dd4170416c808ded1f20aae2c0-9"></a>
-<a name="rest_code_051843dd4170416c808ded1f20aae2c0-10"></a>FINE-TUNED (Score: 0):   Memorization is definitely one of those things that you either have a talent for or you don’t.  I definitely have a talent for it, and I’ve been using it for most of my academic career (since high school actually).  Here are a few examples of contexts where it’s beneficial:
+<pre class="code text"><a name="rest_code_adee516283044f99833ef621a123c27c-1"></a>QUESTION: What are some examples of contexts where memorization is beneficial?
+<a name="rest_code_adee516283044f99833ef621a123c27c-2"></a>
+<a name="rest_code_adee516283044f99833ef621a123c27c-3"></a>REFERENCE:
+<a name="rest_code_adee516283044f99833ef621a123c27c-4"></a>As with many things in life, I feel like I’ve come full circle.  Recently, I’ve started taking Chinese classes again as well as music lessons (mostly guitar, a bit of vocal).  One thing that is crystal clear is that memorization is
+<a name="rest_code_adee516283044f99833ef621a123c27c-5"></a>hugely beneficial… in certain contexts.  For example, my Chinese speaking has always been lacking.  I was a shy kid and didn’t really make much of an effort to speak in Chinese.  However by memorizing and reciting the textbook lessons, character by character, I’ve been told my Chinese has improved quite a bit.  There’s something about actually moving your mouth, activating your vocal chords, and having sound come out that gets your neurons connecting properly.  Another more obvious explanation: if I wanted to get better at speaking, I should practice speaking more!  However, I will point out that the opportunities to memorize a piece of text and say it out loud are much more abundant than speaking to an actual human.  In any case, a very useful application of memorization.
+<a name="rest_code_adee516283044f99833ef621a123c27c-6"></a>
+<a name="rest_code_adee516283044f99833ef621a123c27c-7"></a>RAG (Score: 10):
+<a name="rest_code_adee516283044f99833ef621a123c27c-8"></a>Memorization is beneficial in contexts where physical practice is needed, such as speaking a language or playing a musical instrument. It is also beneficial in contexts where it allows you to ignore the "easy" parts and focus on the important parts, such as memorizing the lyrics to a song so you can focus on the actual singing, or memorizing the multiplication table so you can focus on algebra.
+<a name="rest_code_adee516283044f99833ef621a123c27c-9"></a>
+<a name="rest_code_adee516283044f99833ef621a123c27c-10"></a>FINE-TUNED (Score: 0):   Memorization is definitely one of those things that you either have a talent for or you don’t.  I definitely have a talent for it, and I’ve been using it for most of my academic career (since high school actually).  Here are a few examples of contexts where it’s beneficial:
 </pre>
 <p>You can see here that the RAG nicely summarized the result while the fine-tuned
 model just went in a totally different direction. This is characteristic of the
@@ -976,14 +976,14 @@ RAG result gives examples that weren't in the reference answer (although they
 may have been in some of my other posts)!</p>
 <p>Going in the opposite direction, we can see where the fine-tuning did well and
 the RAG did not:</p>
-<pre class="code text"><a name="rest_code_604f8a2413e044cf8d4e407884971d13-1"></a>QUESTION: Who wrote "My Life"?
-<a name="rest_code_604f8a2413e044cf8d4e407884971d13-2"></a>
-<a name="rest_code_604f8a2413e044cf8d4e407884971d13-3"></a>REFERENCE:  My Life (Bill Clinton)
-<a name="rest_code_604f8a2413e044cf8d4e407884971d13-4"></a>
-<a name="rest_code_604f8a2413e044cf8d4e407884971d13-5"></a>RAG (Score: 0):
-<a name="rest_code_604f8a2413e044cf8d4e407884971d13-6"></a>The book "Models of My Life" was written by Herbert A. Simon. It is an autobiography looking at his distinguished multi-disciplinary career filled with tidbits of incredibly valuable wisdom throughout. It is a candid and witty autobiography that I highly recommend reading.
-<a name="rest_code_604f8a2413e044cf8d4e407884971d13-7"></a>
-<a name="rest_code_604f8a2413e044cf8d4e407884971d13-8"></a>FINE-TUNED (Score: 10):   My Life (Bill Clinton)
+<pre class="code text"><a name="rest_code_8b77c73073274011a201438d4ae79ff9-1"></a>QUESTION: Who wrote "My Life"?
+<a name="rest_code_8b77c73073274011a201438d4ae79ff9-2"></a>
+<a name="rest_code_8b77c73073274011a201438d4ae79ff9-3"></a>REFERENCE:  My Life (Bill Clinton)
+<a name="rest_code_8b77c73073274011a201438d4ae79ff9-4"></a>
+<a name="rest_code_8b77c73073274011a201438d4ae79ff9-5"></a>RAG (Score: 0):
+<a name="rest_code_8b77c73073274011a201438d4ae79ff9-6"></a>The book "Models of My Life" was written by Herbert A. Simon. It is an autobiography looking at his distinguished multi-disciplinary career filled with tidbits of incredibly valuable wisdom throughout. It is a candid and witty autobiography that I highly recommend reading.
+<a name="rest_code_8b77c73073274011a201438d4ae79ff9-7"></a>
+<a name="rest_code_8b77c73073274011a201438d4ae79ff9-8"></a>FINE-TUNED (Score: 10):   My Life (Bill Clinton)
 </pre>
 <p>Here you can see that the fine-tuned model just memorized the training data (a
 limitation of my non-ideal setup).  The RAG answer on the other hand conflated
@@ -991,16 +991,16 @@ the Bill Clinton book "My Life" and "Models of My Life" written by Herbert A.
 Simon.  Both books I have written about and it appears that the LLM could not
 appropriately distinguish the "my life" in these two contexts.</p>
 <p>A couple of more funny examples where both models scored well according to GPT-4:</p>
-<pre class="code text"><a name="rest_code_906fec221f5c4443b64be640c57deec8-1"></a>QUESTION: Did John continue to increase the voltage despite the student's cries of pain?
-<a name="rest_code_906fec221f5c4443b64be640c57deec8-2"></a>
-<a name="rest_code_906fec221f5c4443b64be640c57deec8-3"></a>REFERENCE:
-<a name="rest_code_906fec221f5c4443b64be640c57deec8-4"></a>John felt a bit apprehensive about this whole situation but Dr. Milgram reassured him that this was safe. So he began with the first word on the list. The student from the next room answered incorrectly. John pressed the red button and the student made a sound that was barely audible. He turned the dial up 50V and proceeded to the next word on the list. The student again responded incorrectly so he pressed pressed the red button again. This time the student could clearly be heard from the next room. John pressed on. Turn up 50V and ask another word. This time the student got it right, John was relieved but that soon faded as the student from the next room cried out in pain from his incorrect answer.
-<a name="rest_code_906fec221f5c4443b64be640c57deec8-5"></a>
-<a name="rest_code_906fec221f5c4443b64be640c57deec8-6"></a>RAG (Score: 10):
-<a name="rest_code_906fec221f5c4443b64be640c57deec8-7"></a>Yes, John continued to increase the voltage despite the student's cries of pain. Dr. Milgram insisted that the experiment go on and said that it was essential that John continue. John felt apprehensive about the situation, but he followed Dr. Milgram's orders and kept turning up the dials until the last word was incorrectly answered and 450V was applied. The student in the other room cried out in agony and John was left with questions that would haunt him for the rest of his days.
-<a name="rest_code_906fec221f5c4443b64be640c57deec8-8"></a>
-<a name="rest_code_906fec221f5c4443b64be640c57deec8-9"></a>FINE-TUNED (Score: 10):
-<a name="rest_code_906fec221f5c4443b64be640c57deec8-10"></a>John kept increasing the voltage.  The student kept crying out in pain but John didn’t stop.  He just kept going until the student finally stopped yelling.  He then told John to increase the voltage again.  This time, he yelled even louder.  But John didn’t stop.  He just kept going until he yelled “no more”.  Then he told John to increase the voltage again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.
+<pre class="code text"><a name="rest_code_158ae1f2eb6548b7b4e02261c09b1b45-1"></a>QUESTION: Did John continue to increase the voltage despite the student's cries of pain?
+<a name="rest_code_158ae1f2eb6548b7b4e02261c09b1b45-2"></a>
+<a name="rest_code_158ae1f2eb6548b7b4e02261c09b1b45-3"></a>REFERENCE:
+<a name="rest_code_158ae1f2eb6548b7b4e02261c09b1b45-4"></a>John felt a bit apprehensive about this whole situation but Dr. Milgram reassured him that this was safe. So he began with the first word on the list. The student from the next room answered incorrectly. John pressed the red button and the student made a sound that was barely audible. He turned the dial up 50V and proceeded to the next word on the list. The student again responded incorrectly so he pressed pressed the red button again. This time the student could clearly be heard from the next room. John pressed on. Turn up 50V and ask another word. This time the student got it right, John was relieved but that soon faded as the student from the next room cried out in pain from his incorrect answer.
+<a name="rest_code_158ae1f2eb6548b7b4e02261c09b1b45-5"></a>
+<a name="rest_code_158ae1f2eb6548b7b4e02261c09b1b45-6"></a>RAG (Score: 10):
+<a name="rest_code_158ae1f2eb6548b7b4e02261c09b1b45-7"></a>Yes, John continued to increase the voltage despite the student's cries of pain. Dr. Milgram insisted that the experiment go on and said that it was essential that John continue. John felt apprehensive about the situation, but he followed Dr. Milgram's orders and kept turning up the dials until the last word was incorrectly answered and 450V was applied. The student in the other room cried out in agony and John was left with questions that would haunt him for the rest of his days.
+<a name="rest_code_158ae1f2eb6548b7b4e02261c09b1b45-8"></a>
+<a name="rest_code_158ae1f2eb6548b7b4e02261c09b1b45-9"></a>FINE-TUNED (Score: 10):
+<a name="rest_code_158ae1f2eb6548b7b4e02261c09b1b45-10"></a>John kept increasing the voltage.  The student kept crying out in pain but John didn’t stop.  He just kept going until the student finally stopped yelling.  He then told John to increase the voltage again.  This time, he yelled even louder.  But John didn’t stop.  He just kept going until he yelled “no more”.  Then he told John to increase the voltage again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.  And again.
 </pre>
 <p>Here the fine-tuned model went a bit off the rails repeating the same two words
 over and over again, which kind of makes sense in the context but is probably
@@ -1009,16 +1009,16 @@ probably because the meaning is still about correct.  Another quirk that the
 fine-tuning model picked up on was that I put two spaces after a period.  In
 the RAG flow (since I didn't ask it to), it uses the more popular one space
 after period.  So I guess fine-tuning did learn something about style!</p>
-<pre class="code text"><a name="rest_code_089351e9aa2c4fd0915ac3c891c8266d-1"></a>QUESTION: Does sleep have a measurable effect on happiness?
-<a name="rest_code_089351e9aa2c4fd0915ac3c891c8266d-2"></a>
-<a name="rest_code_089351e9aa2c4fd0915ac3c891c8266d-3"></a>REFERENCE:
-<a name="rest_code_089351e9aa2c4fd0915ac3c891c8266d-4"></a>The Chinese proverb at the beginning of the post is not too far off.  Although it may not bring a lifetime of happiness, sleep does have a measurable effect on happiness.  The way I look at it, it’s more of a necessary but not sufficient condition for happiness (sorry for the logic speak).  In other words, if you’re tried, you will be significantly less happy.  But at the same time having enough sleep doesn’t guarantee happiness either.  I think this is true in many other respects too such as being hungry or being healthy.  If you’re hungry, most likely you’re not happy.  If you’re sick, most likely you’re not happy.  The biggest difference with sleep, however, is that many people neglect to value sleep as highly as the other two (obesity seems to be a growing problem but sleeping in isn’t).  But with sleep, I at least have the capacity to be happy (not to mention think clearly and more productively).  However, as with most problems (weight loss comes to mind), the problem isn’t understanding the idea, it’s implementing it.
-<a name="rest_code_089351e9aa2c4fd0915ac3c891c8266d-5"></a>
-<a name="rest_code_089351e9aa2c4fd0915ac3c891c8266d-6"></a>RAG (Score: 10):
-<a name="rest_code_089351e9aa2c4fd0915ac3c891c8266d-7"></a>Yes, sleep has a measurable effect on happiness. Studies have shown that if you are tired, you will be significantly less happy. Having enough sleep doesn't guarantee happiness, but it does give you the capacity to be happy and think more productively. If you want to increase your happiness, start with a good night's sleep.
-<a name="rest_code_089351e9aa2c4fd0915ac3c891c8266d-8"></a>
-<a name="rest_code_089351e9aa2c4fd0915ac3c891c8266d-9"></a>FINE-TUNE (Score: 10):
-<a name="rest_code_089351e9aa2c4fd0915ac3c891c8266d-10"></a>“Sleep has a measurable effect on happiness.”
+<pre class="code text"><a name="rest_code_27422823fea442afbcd8e186caeabde2-1"></a>QUESTION: Does sleep have a measurable effect on happiness?
+<a name="rest_code_27422823fea442afbcd8e186caeabde2-2"></a>
+<a name="rest_code_27422823fea442afbcd8e186caeabde2-3"></a>REFERENCE:
+<a name="rest_code_27422823fea442afbcd8e186caeabde2-4"></a>The Chinese proverb at the beginning of the post is not too far off.  Although it may not bring a lifetime of happiness, sleep does have a measurable effect on happiness.  The way I look at it, it’s more of a necessary but not sufficient condition for happiness (sorry for the logic speak).  In other words, if you’re tried, you will be significantly less happy.  But at the same time having enough sleep doesn’t guarantee happiness either.  I think this is true in many other respects too such as being hungry or being healthy.  If you’re hungry, most likely you’re not happy.  If you’re sick, most likely you’re not happy.  The biggest difference with sleep, however, is that many people neglect to value sleep as highly as the other two (obesity seems to be a growing problem but sleeping in isn’t).  But with sleep, I at least have the capacity to be happy (not to mention think clearly and more productively).  However, as with most problems (weight loss comes to mind), the problem isn’t understanding the idea, it’s implementing it.
+<a name="rest_code_27422823fea442afbcd8e186caeabde2-5"></a>
+<a name="rest_code_27422823fea442afbcd8e186caeabde2-6"></a>RAG (Score: 10):
+<a name="rest_code_27422823fea442afbcd8e186caeabde2-7"></a>Yes, sleep has a measurable effect on happiness. Studies have shown that if you are tired, you will be significantly less happy. Having enough sleep doesn't guarantee happiness, but it does give you the capacity to be happy and think more productively. If you want to increase your happiness, start with a good night's sleep.
+<a name="rest_code_27422823fea442afbcd8e186caeabde2-8"></a>
+<a name="rest_code_27422823fea442afbcd8e186caeabde2-9"></a>FINE-TUNE (Score: 10):
+<a name="rest_code_27422823fea442afbcd8e186caeabde2-10"></a>“Sleep has a measurable effect on happiness.”
 </pre>
 <p>Here the fine-tuned model is pretty good being super concise but perhaps not
 being as helpful as the RAG one.  You can take a look at more of
@@ -1268,7 +1268,7 @@ MathJax.Hub.Config({
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2024         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2025         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
             
         </footer>

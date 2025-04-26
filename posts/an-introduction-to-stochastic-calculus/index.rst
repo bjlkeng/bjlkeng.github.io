@@ -1730,7 +1730,7 @@ underlying process and using these paths to compute the associated statistics
 generally can get as accurate as you like.
 
 The other method is to numerically solve a PDE.  An SDE can be recast to as a
-PDE problem (at least in finance applications, not sure about others), and from
+PDE problem (see `Fokker-Plank equation <https://en.wikipedia.org/wiki/Fokker%E2%80%93Planck_equation>`__, thanks to Parsiad for pointing this out!), and from
 the PDEs you can use the plethora of numerical methods to solve them.
 How both of these methods work is beyond the scope of this post (and how far I
 wanted to dig into this subject), but there is a lot of literature online about
