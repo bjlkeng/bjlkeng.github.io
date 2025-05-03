@@ -236,12 +236,12 @@ exercise in calculus to find the optimal value :math:`f^*` that maximizes :math:
 
 .. math::
 
-               g'(f) = \frac{p}{1+f} + \frac{q}{1-f} &= 0 \\
-                       \frac{p-pf+q+qf}{(1+f)(1-f)}  &= 0 \\
-                       \frac{1-(p-q)f}{(1+f)(1-f)}  &= 0  && \text{since } p+q=1\\
-                       1 - (p-q)f &= 1 - f^2 \\
-                       f^2 - (p-q)f &= 0 \\
-                       f = f^* &= p - q && \text{since } f>0  \tag{8}
+               g'(f) = \frac{p}{1+f} - \frac{q}{1-f} &= 0 \\
+                       \frac{p-pf-q-qf}{(1+f)(1-f)}  &= 0 \\
+                       \frac{p-q-f(p+q)}{(1-f^2)}  &= 0 \\
+                       \frac{p-q-f}{(1-f^2)}  &= 0  && \text{since } p+q=1\\
+                       p-q-f &= 0 && \text{assume } f < 1 \\
+                       f = f^* &= p - q \tag{8}
 
 So we now have our optimal betting criterion (for even bets), fractional bets
 with :math:`f^*=p-q`.  
