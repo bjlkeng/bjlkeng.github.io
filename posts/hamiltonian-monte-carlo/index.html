@@ -1234,208 +1234,208 @@ version of HMC).</p>
 <p><strong>Listing 1: Hamiltonian Monte Carlo Python-like Pseudocode</strong></p>
 <div class="code"><table class="codetable">
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-1"><code data-line-number=" 1"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-1"></a><span class="k">def</span> <span class="nf">hmc_iteration</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">grad_U</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">current_q</span><span class="p">,</span> <span class="n">std_dev</span><span class="p">):</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-1"><code data-line-number=" 1"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-1"></a><span class="k">def</span> <span class="nf">hmc_iteration</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">grad_U</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">current_q</span><span class="p">,</span> <span class="n">std_dev</span><span class="p">):</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-2"><code data-line-number=" 2"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-2"></a>    <span class="sd">'''</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-2"><code data-line-number=" 2"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-2"></a>    <span class="sd">'''</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-3"><code data-line-number=" 3"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-3"></a><span class="sd">         U: function returns the potential energy given a state q</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-3"><code data-line-number=" 3"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-3"></a><span class="sd">         U: function returns the potential energy given a state q</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-4"><code data-line-number=" 4"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-4"></a><span class="sd">         grad_u: function returns gradient of U given q</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-4"><code data-line-number=" 4"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-4"></a><span class="sd">         grad_u: function returns gradient of U given q</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-5"><code data-line-number=" 5"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-5"></a><span class="sd">         epsilon: step size</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-5"><code data-line-number=" 5"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-5"></a><span class="sd">         epsilon: step size</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-6"><code data-line-number=" 6"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-6"></a><span class="sd">         L: number of Leapfrog steps</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-6"><code data-line-number=" 6"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-6"></a><span class="sd">         L: number of Leapfrog steps</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-7"><code data-line-number=" 7"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-7"></a><span class="sd">         current_q: current generalized state trajectory starts from</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-7"><code data-line-number=" 7"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-7"></a><span class="sd">         current_q: current generalized state trajectory starts from</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-8"><code data-line-number=" 8"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-8"></a><span class="sd">         std_dev: vector of standard deviations for Gaussian (hyperparameter)</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-8"><code data-line-number=" 8"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-8"></a><span class="sd">         std_dev: vector of standard deviations for Gaussian (hyperparameter)</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-9"><code data-line-number=" 9"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-9"></a><span class="sd">    '''</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-9"><code data-line-number=" 9"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-9"></a><span class="sd">    '''</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-10"><code data-line-number="10"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-10"></a>    <span class="n">q</span> <span class="o">=</span> <span class="n">current_q</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-10"><code data-line-number="10"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-10"></a>    <span class="n">q</span> <span class="o">=</span> <span class="n">current_q</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-11"><code data-line-number="11"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-11"></a>    <span class="n">p</span> <span class="o">=</span> <span class="n">sample_normal</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">q</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">std_dev</span><span class="p">)</span> <span class="c1"># sample zero-mean Gaussian</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-11"><code data-line-number="11"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-11"></a>    <span class="n">p</span> <span class="o">=</span> <span class="n">sample_normal</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">q</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">std_dev</span><span class="p">)</span> <span class="c1"># sample zero-mean Gaussian</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-12"><code data-line-number="12"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-12"></a>    <span class="n">current_p</span> <span class="o">=</span> <span class="n">p</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-12"><code data-line-number="12"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-12"></a>    <span class="n">current_p</span> <span class="o">=</span> <span class="n">p</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-13"><code data-line-number="13"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-13"></a>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-13"><code data-line-number="13"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-13"></a>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-14"><code data-line-number="14"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-14"></a>    <span class="c1"># Leapfrog: half step for momentum</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-14"><code data-line-number="14"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-14"></a>    <span class="c1"># Leapfrog: half step for momentum</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-15"><code data-line-number="15"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-15"></a>    <span class="n">p</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">grad_U</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-15"><code data-line-number="15"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-15"></a>    <span class="n">p</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">grad_U</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-16"><code data-line-number="16"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-16"></a>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-16"><code data-line-number="16"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-16"></a>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-17"><code data-line-number="17"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-17"></a>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">):</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-17"><code data-line-number="17"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-17"></a>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">):</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-18"><code data-line-number="18"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-18"></a>        <span class="c1"># Leapfrog: full step for position</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-18"><code data-line-number="18"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-18"></a>        <span class="c1"># Leapfrog: full step for position</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-19"><code data-line-number="19"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-19"></a>        <span class="n">q</span> <span class="o">=</span> <span class="n">q</span> <span class="o">+</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">p</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-19"><code data-line-number="19"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-19"></a>        <span class="n">q</span> <span class="o">=</span> <span class="n">q</span> <span class="o">+</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">p</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-20"><code data-line-number="20"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-20"></a>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-20"><code data-line-number="20"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-20"></a>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-21"><code data-line-number="21"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-21"></a>        <span class="c1"># Leapfrog: combine 2 half-steps for momentum across iterations</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-21"><code data-line-number="21"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-21"></a>        <span class="c1"># Leapfrog: combine 2 half-steps for momentum across iterations</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-22"><code data-line-number="22"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-22"></a>        <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">!=</span> <span class="n">L</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-22"><code data-line-number="22"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-22"></a>        <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">!=</span> <span class="n">L</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-23"><code data-line-number="23"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-23"></a>            <span class="n">p</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">grad_U</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-23"><code data-line-number="23"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-23"></a>            <span class="n">p</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">grad_U</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-24"><code data-line-number="24"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-24"></a>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-24"><code data-line-number="24"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-24"></a>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-25"><code data-line-number="25"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-25"></a>    <span class="c1"># Leapfrog: final half step for momentum</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-25"><code data-line-number="25"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-25"></a>    <span class="c1"># Leapfrog: final half step for momentum</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-26"><code data-line-number="26"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-26"></a>    <span class="n">p</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">grad_U</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-26"><code data-line-number="26"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-26"></a>    <span class="n">p</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">grad_U</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-27"><code data-line-number="27"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-27"></a>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-27"><code data-line-number="27"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-27"></a>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-28"><code data-line-number="28"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-28"></a>    <span class="c1"># Negate trajectory to make proposal symmetric</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-28"><code data-line-number="28"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-28"></a>    <span class="c1"># Negate trajectory to make proposal symmetric</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-29"><code data-line-number="29"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-29"></a>    <span class="n">p</span> <span class="o">=</span> <span class="o">-</span><span class="n">p</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-29"><code data-line-number="29"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-29"></a>    <span class="n">p</span> <span class="o">=</span> <span class="o">-</span><span class="n">p</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-30"><code data-line-number="30"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-30"></a>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-30"><code data-line-number="30"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-30"></a>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-31"><code data-line-number="31"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-31"></a>    <span class="c1"># Compute potential and kinetic energies</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-31"><code data-line-number="31"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-31"></a>    <span class="c1"># Compute potential and kinetic energies</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-32"><code data-line-number="32"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-32"></a>    <span class="n">current_U</span> <span class="o">=</span> <span class="n">U</span><span class="p">(</span><span class="n">current_q</span><span class="p">)</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-32"><code data-line-number="32"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-32"></a>    <span class="n">current_U</span> <span class="o">=</span> <span class="n">U</span><span class="p">(</span><span class="n">current_q</span><span class="p">)</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-33"><code data-line-number="33"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-33"></a>    <span class="n">current_K</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">current_p</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-33"><code data-line-number="33"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-33"></a>    <span class="n">current_K</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">current_p</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-34"><code data-line-number="34"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-34"></a>    <span class="n">proposed_U</span> <span class="o">=</span> <span class="n">U</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-34"><code data-line-number="34"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-34"></a>    <span class="n">proposed_U</span> <span class="o">=</span> <span class="n">U</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-35"><code data-line-number="35"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-35"></a>    <span class="n">proposed_K</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-35"><code data-line-number="35"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-35"></a>    <span class="n">proposed_K</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-36"><code data-line-number="36"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-36"></a>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-36"><code data-line-number="36"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-36"></a>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-37"><code data-line-number="37"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-37"></a>    <span class="c1"># Accept with probability specified using Equation 44:</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-37"><code data-line-number="37"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-37"></a>    <span class="c1"># Accept with probability specified using Equation 44:</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-38"><code data-line-number="38"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-38"></a>    <span class="k">if</span> <span class="n">rand</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">exp</span><span class="p">(</span><span class="n">current_U</span> <span class="o">-</span> <span class="n">proposed_U</span> <span class="o">+</span> <span class="n">current_K</span> <span class="o">-</span> <span class="n">proposed_K</span><span class="p">):</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-38"><code data-line-number="38"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-38"></a>    <span class="k">if</span> <span class="n">rand</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">exp</span><span class="p">(</span><span class="n">current_U</span> <span class="o">-</span> <span class="n">proposed_U</span> <span class="o">+</span> <span class="n">current_K</span> <span class="o">-</span> <span class="n">proposed_K</span><span class="p">):</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-39"><code data-line-number="39"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-39"></a>        <span class="k">return</span> <span class="n">q</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-39"><code data-line-number="39"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-39"></a>        <span class="k">return</span> <span class="n">q</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-40"><code data-line-number="40"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-40"></a>    <span class="k">else</span><span class="p">:</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-40"><code data-line-number="40"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-40"></a>    <span class="k">else</span><span class="p">:</span>
 </code></td>
 </tr>
 <tr>
-<td class="linenos linenodiv"><a href="#rest_code_aa774e8bda4c4734afd127d157dcdcc7-41"><code data-line-number="41"></code></a></td>
-<td class="code"><code><a name="rest_code_aa774e8bda4c4734afd127d157dcdcc7-41"></a>        <span class="k">return</span> <span class="n">current_q</span>
+<td class="linenos linenodiv"><a href="#rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-41"><code data-line-number="41"></code></a></td>
+<td class="code"><code><a name="rest_code_1bb5b7cdcb0f49c29b8206a82b96351c-41"></a>        <span class="k">return</span> <span class="n">current_q</span>
 </code></td>
 </tr>
 </table></div>

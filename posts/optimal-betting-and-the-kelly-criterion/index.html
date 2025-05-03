@@ -298,12 +298,12 @@ failures is just their probabilities <a class="footnote-reference brackets" href
 exercise in calculus to find the optimal value <span class="math">\(f^*\)</span> that maximizes <span class="math">\(g(f)\)</span>:</p>
 <div class="math">
 \begin{align*}
-g'(f) = \frac{p}{1+f} + \frac{q}{1-f} &amp;= 0 \\
-        \frac{p-pf+q+qf}{(1+f)(1-f)}  &amp;= 0 \\
-        \frac{1-(p-q)f}{(1+f)(1-f)}  &amp;= 0  &amp;&amp; \text{since } p+q=1\\
-        1 - (p-q)f &amp;= 1 - f^2 \\
-        f^2 - (p-q)f &amp;= 0 \\
-        f = f^* &amp;= p - q &amp;&amp; \text{since } f&gt;0  \tag{8}
+g'(f) = \frac{p}{1+f} - \frac{q}{1-f} &amp;= 0 \\
+        \frac{p-pf-q-qf}{(1+f)(1-f)}  &amp;= 0 \\
+        \frac{p-q-f(p+q)}{(1-f^2)}  &amp;= 0 \\
+        \frac{p-q-f}{(1-f^2)}  &amp;= 0  &amp;&amp; \text{since } p+q=1\\
+        p-q-f &amp;= 0 &amp;&amp; \text{assume } f &lt; 1 \\
+        f = f^* &amp;= p - q \tag{8}
 \end{align*}
 </div>
 <p>So we now have our optimal betting criterion (for even bets), fractional bets
