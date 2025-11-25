@@ -159,12 +159,12 @@ three different types of
 </div>
 <p>This gives us a good intuition about what it means to have curvature.  Starting
 with the centre diagram (zero curvature), we see that a cylindrical surface has
-<em>flat or zero</em> curvature in one dimension (blue) and curved around the other
-dimension (green), resulting in zero curvature.  Moving to the right, the sphere on has
-curvature along its to axis in the <em>same direction</em>, resulting in a positive
-curvature.  And to the left, we see the saddle sheet has curvature along its
-axis in <em>different directions</em>, resulting in negative curvature.
-In fact, the Gaussian curvature is the product of its two
+<em>flat or zero</em> curvature on one axis (blue) but is curved along the other
+axis (green), resulting in zero curvature.  Moving to the right, the sphere has
+curvature along its two axes in the <em>same direction</em>, resulting in a positive
+curvature.  And to the left, we see the saddle sheet has curvature along its two
+axes in <em>different directions</em>, resulting in negative curvature.
+In fact, Gaussian curvature is the product of its two
 <a class="reference external" href="https://en.wikipedia.org/wiki/Principal_curvature">principal curvatures</a>,
 which we won't get into detail here but corresponds to our intuition of how a
 surface curves along its two main axes.</p>
@@ -885,11 +885,11 @@ a technical post by the authors of Gensim describing how they implemented these
 embeddings.</p>
 <p>The model is trivial to run using Gensim.  Here's some sample code from their
 documentation:</p>
-<pre class="code python"><a name="rest_code_0d56e28c133546ad82de7a89afc71358-1"></a><span class="kn">from</span> <span class="nn">gensim.models.poincare</span> <span class="kn">import</span> <span class="n">PoincareModel</span>
-<a name="rest_code_0d56e28c133546ad82de7a89afc71358-2"></a><span class="n">relations</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'marsupial'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'mammal'</span><span class="p">),</span>
-<a name="rest_code_0d56e28c133546ad82de7a89afc71358-3"></a>             <span class="p">(</span><span class="s1">'gib'</span><span class="p">,</span> <span class="s1">'cat'</span><span class="p">)]</span>
-<a name="rest_code_0d56e28c133546ad82de7a89afc71358-4"></a><span class="n">model</span> <span class="o">=</span> <span class="n">PoincareModel</span><span class="p">(</span><span class="n">relations</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<a name="rest_code_0d56e28c133546ad82de7a89afc71358-5"></a><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_9731e027f780465f903887fcf75ed04e-1"></a><span class="kn">from</span> <span class="nn">gensim.models.poincare</span> <span class="kn">import</span> <span class="n">PoincareModel</span>
+<a name="rest_code_9731e027f780465f903887fcf75ed04e-2"></a><span class="n">relations</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'marsupial'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'mammal'</span><span class="p">),</span>
+<a name="rest_code_9731e027f780465f903887fcf75ed04e-3"></a>             <span class="p">(</span><span class="s1">'gib'</span><span class="p">,</span> <span class="s1">'cat'</span><span class="p">)]</span>
+<a name="rest_code_9731e027f780465f903887fcf75ed04e-4"></a><span class="n">model</span> <span class="o">=</span> <span class="n">PoincareModel</span><span class="p">(</span><span class="n">relations</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<a name="rest_code_9731e027f780465f903887fcf75ed04e-5"></a><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 </pre>
 <p>I love it when there are nice clean open source implementations available.
 Coding these up from scratch invariably takes a huge amount of time, especially
