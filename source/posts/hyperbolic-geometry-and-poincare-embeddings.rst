@@ -101,12 +101,12 @@ three different types of
 
 This gives us a good intuition about what it means to have curvature.  Starting
 with the centre diagram (zero curvature), we see that a cylindrical surface has
-*flat or zero* curvature in one dimension (blue) and curved around the other
-dimension (green), resulting in zero curvature.  Moving to the right, the sphere on has
-curvature along its to axis in the *same direction*, resulting in a positive
-curvature.  And to the left, we see the saddle sheet has curvature along its
-axis in *different directions*, resulting in negative curvature.
-In fact, the Gaussian curvature is the product of its two 
+*flat or zero* curvature on one axis (blue) but is curved along the other
+axis (green), resulting in zero curvature.  Moving to the right, the sphere has
+curvature along its two axes in the *same direction*, resulting in a positive
+curvature.  And to the left, we see the saddle sheet has curvature along its two
+axes in *different directions*, resulting in negative curvature.
+In fact, Gaussian curvature is the product of its two 
 `principal curvatures <https://en.wikipedia.org/wiki/Principal_curvature>`__, 
 which we won't get into detail here but corresponds to our intuition of how a
 surface curves along its two main axes.
