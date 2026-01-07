@@ -966,8 +966,8 @@ result, which is known as the Boltzman distribution:
 
 .. math::
 
-   p_i    &= \frac{1}{Z} e^{\frac{E_i}{kT}} && \text{general form}\\
-   P(q, p) &= \frac{1}{Z} e^{\frac{H(q, p)}{kT}} && \text{Hamiltonian form} \\
+   p_i    &= \frac{1}{Z} e^{\frac{-E_i}{kT}} && \text{general form}\\
+   P(q, p) &= \frac{1}{Z} e^{\frac{-H(q, p)}{kT}} && \text{Hamiltonian form} \\
           \tag{38}
 
 where :math:`p_i`  is the probability of being in state :math:`i`, :math:`P(q, p)`
@@ -1017,7 +1017,7 @@ that we're going to use momentarily.
       So it essentially just moves left and right.
     * The velocity (or momentum) changes in two ways: (a) As it moves left and
       right, it gains or loses potential energy. This translates into kinetic
-      energy affecting the velocity (and momentum).  As it approaches an
+      energy affecting the velocity (and momentum).  As it approaches a
       potential "uphill" its movement along the 1D axis slows in that
       direction, similarly when on a potential "downhill" its movement speeds
       up along the 1D axis in that direction.
@@ -1085,9 +1085,9 @@ to it) :math:`f({\bf x})` with :math:`D` variables in its support:
 
   .. math::
 
-        P({\bf q, p}) &= \frac{1}{Z}\exp(\frac{H({\bf q, p})}{kT}) && \text{set } kT=1\\
-                      &= \frac{1}{Z}\exp(-log[f({\bf q})] + \sum_{i=1}^D \frac{p_i^2}{2m_i}) \\
-                      &= \frac{1}{Z_1}\exp(-log[f({\bf q})])\cdot\frac{1}{Z_2}\exp(\sum_{i=1}^D \frac{p_i^2}{2m_i}) \\
+        P({\bf q, p}) &= \frac{1}{Z}\exp(-\frac{H({\bf q, p})}{kT}) && \text{set } kT=1\\
+                      &= \frac{1}{Z}\exp(log[f({\bf q})] - \sum_{i=1}^D \frac{p_i^2}{2m_i}) \\
+                      &= \frac{1}{Z_1}\exp(log[f({\bf q})])\cdot\frac{1}{Z_2}\exp(-\sum_{i=1}^D \frac{p_i^2}{2m_i}) \\
                       &= P(q)P(p)
         \tag{42}
 
@@ -1098,8 +1098,8 @@ look at those two distributions, we have:
 .. math::
 
 
-    P({\bf q}) = \frac{1}{Z_1}\exp(-log[f({\bf q})]) = \frac{1}{Z_1} f({\bf q}) \propto f({\bf q}) \\
-    P({\bf p}) = \cdot\frac{1}{Z_2}\exp(\sum_{i=1}^D \frac{p_i^2}{2m_i}) \\
+    P({\bf q}) = \frac{1}{Z_1}\exp(log[f({\bf q})]) = \frac{1}{Z_1} f({\bf q}) \propto f({\bf q}) \\
+    P({\bf p}) = \cdot\frac{1}{Z_2}\exp(-\sum_{i=1}^D \frac{p_i^2}{2m_i}) \\
     \tag{43}
 
 So our canonical distribution is made up of two independent parts: our target distribution
