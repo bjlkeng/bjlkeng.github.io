@@ -27,7 +27,7 @@ MathJax.Hub.Config({
         styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
     }
 });
-</script><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/the-logic-behind-entropy/" type="text/html">
+</script><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/annotated-deep-learning-course/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -48,6 +48,9 @@ navbar-dark bg-dark
 
         <div class="collapse navbar-collapse" id="bs-navbar">
             <ul class="navbar-nav mr-auto">
+<li class="nav-item">
+<a href="https://dlcourse.bjlkeng.io/" class="nav-link">Deep Learning Course</a>
+                </li>
 <li class="nav-item">
 <a href="archive.html" class="nav-link">Archive</a>
                 </li>
@@ -79,7 +82,28 @@ navbar-dark bg-dark
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/the-logic-behind-entropy/" class="u-url">The Logic Behind the Maximum Entropy Principle</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/annotated-deep-learning-course/" class="u-url">Annotated Deep Learning Course</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="posts/annotated-deep-learning-course/" rel="bookmark">
+            <time class="published dt-published" datetime="2026-03-10T16:41:56-04:00" itemprop="datePublished" title="2026-03-10 16:41">2026-03-10 16:41</time></a>
+            </p>
+        </div>
+    </header><div class="p-summary entry-summary">
+    <div>
+<p>For the past five years, one of the most enjoyable things I've done outside of
+my day job is teaching. From 2020 to 2025, I had the pleasure of teaching a
+course in the Master of Management Analytics (MMA) program at the Rotman School
+of Management (UofT). Now that I've wrapped up that course (on to the next
+one), I decided to package up the material and put it online for posterity.</p>
+<p>You can find the full set of annotated lecture notes here: <a class="reference external" href="https://dlcourse.bjlkeng.io/">dlcourse.bjlkeng.io</a>.</p>
+<p class="more"><a href="posts/annotated-deep-learning-course/">Read more…</a></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/the-logic-behind-entropy/" class="u-url">The Logic Behind the Maximum Entropy Principle</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 Brian Keng
@@ -202,37 +226,6 @@ evaluation on LLM outputs, and finally some commentary.  This post is a lot
 less heavy on the math as compared to my previous ones but it still has some
 good stuff so read on!</p>
 <p class="more"><a href="posts/building-a-qa-bot-of-me-with-openai-and-cloudflare/">Read more…</a></p>
-</div>
-    </div>
-    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/" class="u-url">Bayesian Learning via Stochastic Gradient Langevin Dynamics and Bayes by Backprop</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                Brian Keng
-            </span></p>
-            <p class="dateline">
-            <a href="posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/" rel="bookmark">
-            <time class="published dt-published" datetime="2023-02-08T18:25:40-05:00" itemprop="datePublished" title="2023-02-08 18:25">2023-02-08 18:25</time></a>
-            </p>
-        </div>
-    </header><div class="p-summary entry-summary">
-    <div>
-<p>After a long digression, I'm finally back to one of the main lines of research
-that I wanted to write about.  The two main ideas in this post are not that
-recent but have been quite impactful (one of the
-<a class="reference external" href="https://icml.cc/virtual/2021/test-of-time/11808">papers</a> won a recent ICML
-test of time award).  They address two of the topics that are near and dear to
-my heart: Bayesian learning and scalability.  Dare I even ask who wouldn't be
-interested in the intersection of these topics?</p>
-<p>This post is about two techniques to perform scalable Bayesian inference.  They
-both address the problem using stochastic gradient descent (SGD) but in very
-different ways.  One leverages the observation that SGD plus some noise will
-converge to Bayesian posterior sampling <a class="citation-reference" href="posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/#welling2011" id="id1">[Welling2011]</a>, while the other generalizes the
-"reparameterization trick" from variational autoencoders to enable non-Gaussian
-posterior approximations <a class="citation-reference" href="posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/#blundell2015" id="id2">[Blundell2015]</a>.  Both are easily implemented in the modern deep
-learning toolkit thus benefit from the massive scalability of that toolchain.
-As usual, I will go over the necessary background (or refer you to my previous
-posts), intuition, some math, and a couple of toy examples that I implemented.</p>
-<p class="more"><a href="posts/bayesian-learning-via-stochastic-gradient-langevin-dynamics-and-bayes-by-backprop/">Read more…</a></p>
 </div>
     </div>
     </article>
