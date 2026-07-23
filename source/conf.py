@@ -25,7 +25,7 @@ SITE_URL = "http://bjlkeng.github.io/"
 # This is the URL where Nikola's output will be deployed.
 # If not set, defaults to SITE_URL
 # BASE_URL = "http://satisficing.briankeng.com/"
-BLOG_EMAIL = "brian@briankeng.com"
+BLOG_EMAIL = "me@briankeng.com"
 BLOG_DESCRIPTION = "Understanding math, machine learning, and data to a satisfactory degree."
 
 WARN_ABOUT_TAG_METADATA = False
@@ -795,11 +795,12 @@ MathJax.Hub.Config({
     },
     displayAlign: 'left', // Change this to 'center' to center equations.
     displayIndent: '2em',
-    "HTML-CSS": {
-        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
+    "SVG": {
+        styles: {'.MathJax_SVG_Display': {"margin": "0em 0em 1em 0em"}}
     }
 });
 </script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS_SVG"></script>
 """
 
 # Do you want to customize the nbconversion of your IPython notebook?
