@@ -53,6 +53,14 @@ won't be exhaustive.
 Background
 ==========
 
+* Expectations
+* Log derivative trick 
+* Approx. an expectation
+
+
+Reinforcement Learning Basics
+=============================
+
 Reinforcement Learning and Markov Decision Processes
 ----------------------------------------------------
 
@@ -64,8 +72,8 @@ signal.  The prototypical example of an (RL) agent is a game-playing AI that
 selects the next action (e.g. left, right, shoot, etc.) in a computer game where
 the reward is your score in the game, which you're trying to maximize.
 
-This all can be modelled using a **Markov Decision Process (MDP)**.
-Formally, it is a 5-tuple :math:`\mathcal{M} = (\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)`, where:
+As usual, we'll formalize this concept with a **Markov Decision Process (MDP)**
+as a 5-tuple :math:`\mathcal{M} = (\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)`, where:
 
 * :math:`\mathcal{S}` is a finite set of states.
 * :math:`\mathcal{A}` is a finite set of actions.
@@ -76,56 +84,141 @@ Formally, it is a 5-tuple :math:`\mathcal{M} = (\mathcal{S}, \mathcal{A}, \mathc
 Even though it seems like a lot of math, it's actually pretty intuitive. Let's
 break it down.
 First, it's **"Markov"** because this describes the transition probability
-function :math:`\mathcal{P}` through states `\mathcal{S}` -- a `Markov chain
+function :math:`\mathcal{P}` through states :math:`\mathcal{S}` -- a `Markov chain
 <https://en.wikipedia.org/wiki/Markov_chain>`__.  It's basically a "finite
 state machine with probabilistic transitions".  See my `previous post
 <link://slug/markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm>`__
 for an example of Markov Chains.  In our game example, this defines the game
-state and how it evolves (non-deterministically) over time (based on your input
-player actions).
+state and how it evolves (potentially non-deterministically) over time (based
+on your input player actions).
 
 Next, it's a **Decision Process** because the RL **agent** is concerned with not just
 traversing probabilistically through states (Markov chain) but also taking
 successive actions :math:`\mathcal{A}` in those states to achieve goal (reward
 :math:`\mathcal{R}`).  It takes these actions in the context of an
-**environment** defined by the state transitions and rewards.
-In our game example, this is agent represents the player whose purpose is to
-maximize the "score" and the environment is the actual game.
+**environment** defined by the state transitions and rewards.  
+The **discount factor** :math:`\gamma` defines how much we value rewards we collect
+later vs. now.  In our game example, this is agent represents the player whose
+purpose is to maximize the "score" and the environment is the game.  
 
-A **trajectory** (or **trace**) :math:`\tau` of this process is the sequence of
-states, actions, and rewards experienced by the agent over time:
+The following table summarizes this game analogy more concisely.  We'll get more
+into the mathematical details in the next subsection.
+
+.. raw:: html
+
+   <style>
+   table.rl-table thead th {
+       font-size: 1.4rem;
+       font-weight: 700;
+       padding: 0.0  0.4rem;
+   }
+   </style>
+
+
+.. list-table:: Table 1: Reinforcement Learning Terminology vs. Game Analogy
+   :widths: 35 65
+   :header-rows: 1
+   :class: rl-table
+
+   * * Reinforcement Learning
+     * Game Analogy
+   * * **Agent**
+     * The player controlled by the AI.
+   * * **Environment**
+     * The game itself, including its rules, physics, enemies, and scoring system.
+   * * **State** (:math:`s \in \mathcal{S}`)
+     * The current game situation, such as the player's position, health, inventory, and nearby enemies.
+   * * **Action** (:math:`a \in \mathcal{A}`)
+     * A move available to the player, such as moving left, jumping, shooting, or using an item.
+   * * | **State-transition function**  
+       | ( :math:`\mathcal{P}(s' \mid s,a)`)
+     * The rules governing how the game changes after the player takes an action. The result may be deterministic or involve randomness.
+   * * **Reward function** (:math:`\mathcal{R}(s,a)`)
+     * The points or other feedback received after an action, such as earning points for defeating an enemy or losing points for taking damage.
+   * * **Discount factor** (:math:`\gamma`)
+     * How much the player values points earned later compared with points earned immediately.
+  
+
+Policies, Trajectories and Returns
+----------------------------------
+
+Now with the formal definition of an MDP out of the way, let's look
+at how we actually create an RL agent.  The big idea is that all the
+agent does is iteratively *select the next action* :math:`a_t` at time :math:`t`.
+As it selects the next action, the environment (a blackbox) updates the state
+:math:`s_{t+1}` we observe and tells us our reward :math:`r_t` for taking the
+action at that state (:math:`s_t, a_t`).
+Thus, an RL agent is just something that is able to to pick the next action
+given the current state.  
+
+This is usually implemented as a mapping from state to a probability
+distribution over actions called a **policy**:
 
 .. math::
 
-   \tau = S_0, A_0, R_1, S_1, A_1, R_2, S_2, \dots' \tag{2}
+    \pi(a|s) = P(A_t=a | S_t=s) \tag{1}
 
-This is basically a "recording" of the session played by our AI in the game.
-It forms the nuts and bolts of our training data and can be generated either
-(a) offline (via another agent, an older version of our agent, randomly etc.), 
-or (b) online where our agent actively learning while it is interacting with
-the environment.
+This is typically implemented as a neural network :math:`\pi_{\theta}` parameterized
+by :math:`\theta` (you'll also see :math:`\pi^*`, where :math:`*` denotes the
+theoretical optimal policy i.e., perfect decisions).  So our agent is basically
+just a neural network that outputs probabilities on what action to take next.
 
-Finally, the aim of a RL agent is to find an optimal **policy** :math:`\pi^*`
-that maximizes the expected **cumulative discounted reward**:
+To train the policy, we'll need data.  This usually comes in the form of a
+**trajectory** (or **trace**) :math:`\tau` where you have observed an agent
+(not necessarily your agent) operating in the environment.  Formally,
+that shows up as a vector:
 
 .. math::
 
-   G_t = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1} \tag{1}
+   \tau = (S_0, A_0, R_0, S_1, A_1, R_1, \dots S_T) \tag{2}
 
-We use :math:`\pi_\theta` usually to denote a policy, which is usually a neural
-network that has parameters :math:`\theta` (:math:`*` when it's the theoretical
-optimal policy -- it always makes perfect decisions).  The cumulative reward
-:math:`G_t` at time :math:`t` basically adds up all the rewards from now into
-the future discounted by :math:`\gamma`.
+This can be thought of as a "recording" of the session explored by the agent.
+In the case that the traces are collected beforehand for training (via another
+agent, an older version of our agent, randomly etc.), it's usually known as
+**offline** training.  Otherwise if the agent is actively learning while
+interacting with the environment it's called **online** training.
 
-When viewed from the lens of a simple game, the terms have a clear intuitive
-mapping.  Things get a lot more complicated with real world problems.  For
-example, near-continuous action spaces (e.g. setting a price), highly noisy
-non-stationary environments (e.g. stock market), high-dimensional state spaces
-(e.g. raw camera pixels), sparse rewards (e.g. only available at the end of a
-long trajectory), and expensive data collection (e.g. robotics).  I won't be
-covering any real solutions to these challenges since I'm mostly explaining the
-basics, but know that RL is challenging to apply to real world problems.
+Finally, the expected **return** or cumulative discounted reward from time
+:math:`t` to the end of the trace is given by:
+
+.. math::
+
+   G_t = \sum_{k=0}^{(T-t-1, \infty)} \gamma^k r_{t+k+1} \tag{3}
+
+The cumulative reward :math:`G_t` at time :math:`t` basically adds up all the
+rewards from now into the future discounted by a :math:`\gamma` factor.
+When talking about the reward for a full trajectory :math:`\tau`, we often use
+this notation:
+
+.. math::
+
+   R(\tau) = G_0 = \sum_{t=0}^{T-1} \gamma^t R_{t} \tag{4}
+
+Similarly, for a policy :math:`\pi_\theta` sometimes we want to analyze the
+probability of seeing an entire trace :math:`\tau`.  Since we have a 
+memoryless Markov process, each decision by our agent is independent giving us:
+
+.. math::
+
+   p_\theta(\tau) = P(s_0)\Pi_{t=0}^{T-1} \pi_\theta(a_t | s_t) P(s_{t+1}|s_t,a_t) \tag{5}
+
+where :math:`P(s_{t+1}|s_t,a_t)` is the probability of our environment moving
+from :math:`s_t` to :math:`s_{t+1}` given action :math:`a_t`.  Notice the environmental
+factors (:math:`P`) do not depend on :math:`\theta` so when we take the gradient, these will
+drop out as we will see later.
+
+
+V, Q, advantage, and Bellman equations
+--------------------------------------
+
+
+Policy Gradients
+================
+
+
+Value Methods
+=============
+
 
 
 References
