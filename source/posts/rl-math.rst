@@ -53,10 +53,85 @@ won't be exhaustive.
 Background
 ==========
 
-* Expectations
-* Log derivative trick 
-* Approx. an expectation
+Expectations, Monte Carlo Estimation, and Importance Sampling
+-------------------------------------------------------------
 
+We often want to find the expected value :math:`E_{x\sim P}[\Psi(x)]` of a function
+:math:`\Psi(x)` of with respect to a distribution :math:`P`:
+
+.. math::
+
+    E_{x\sim P}[\Psi(x)] = \int f_P(x)\Psi(x) dx \tag{1}
+
+where :math:`f_P(\cdot)` is the probability density function of :math:`P` 
+(similarly we can use a sum and probability mass function instead when
+:math:`P` is discrete).
+
+Equation 1 is usually impossible to compute exactly because :math:`f_P(\cdot)` does not
+usually have a closed form, for example when :math:`P` is our data distribution,
+which we only ever observe data samples from.  In these cases, we can
+approximate the expectation using IID samples :math:`x_i` from :math:`P` 
+using `Monte Carlo estimation <https://en.wikipedia.org/wiki/Monte_Carlo_method>`__ 
+as such:
+
+.. math::
+
+    E_{x\sim X}[\Psi(x)] &= \int f_P(x)\Psi(x) dx \\
+                      &\approx \frac{1}{N}\sum_{i=1}^N \Psi(x_i) \\
+                      \\ \tag{2}
+
+Notice that if we have *any* integral of this form, we can do the same
+Monte Carlo approximation.  This shows up in 
+`importance sampling <https://en.wikipedia.org/wiki/Importance_sampling>`__  
+where instead of sampling from :math:`x\sim P`, we sample from a different
+distribution (with the same support) :math:`x\sim Q` usually because it'll
+either reduce variance or when sampling from :math:`P` is difficult (but can
+still have the PDF of :math:`f_P(x)`).  
+
+Of course, you can't just sample from :math:`Y` and do nothing else, you need
+an weighting factor :math:`w(x)=\frac{f_P(x)}{f_Q(x)}` too.  Putting that
+together with Equation 2, we get:
+
+.. math::
+
+    E_{x\sim P}[\Psi(x)] &= \int f_P(x) \Psi(x) dx \\
+                      &= \int f_P(x) \frac{f_Q(x)}{f_Q(x)} \Psi(x)  dx \\
+                      &= \int f_Q(x) [\frac{f_P(x)}{f_Q(x)} \Psi(x) ] dx \\
+                      &= E_{x\sim Q}[\frac{f_P(x)}{f_Q(x)} \Psi(x) ] \\
+                      &= E_{x\sim Q}[ w(x) \Psi(x)] \\
+                      &\approx \frac{1}{N}\sum_{i=1}^N w(x) \Psi(x_i) \\
+                      \tag{3}
+
+This will come in handy later when we want to use data that wasn't generated 
+directly by the current model being trained.
+
+Log Derivative Trick
+--------------------
+
+The `log derivative trick <https://math.stackexchange.com/questions/2554749/whats-the-trick-in-log-derivative-trick>`__
+is a common identity that is used in ML to rewrite our loss function to make
+our computation simpler.  First take the log-likelihood function that we
+typically get in ML :math:`\log \mathcal{L(\theta;x)} = \log p({\bf x | \theta})`, a
+function of our model parameters :math:`\bf \theta` (recall :math:`\bf x` are our
+training data thus constant).  We like to work in log-space because it converts
+multiplications into additions, making the computation much simpler.
+
+In neural networks and other areas, we often take the gradient of the
+log-likelihood, also known as the 
+`score function <https://en.wikipedia.org/wiki/Informant_(statistics)>`__ :math:`s(\theta;x)`,
+although that name isn't used in ML contexts too often.  We can derive the
+trick straight from the definition of the score:
+
+.. math::
+
+   \nabla \log p({\bf x | \theta}) &= \frac{\nabla p({\bf x | \theta})}{p({\bf x | \theta})} && \text{chain rule}\\
+   \nabla p({\bf x | \theta}) &= p({\bf x | \theta}) \nabla \log p({\bf x | \theta}) \\
+   \tag{4}
+
+Notice the RHS of the second line now has the raw pdf/pmf :math:`p(\cdot)`,
+multiplied by the log-likelihood.  When used inside an expectation, this allows
+us to reparameterize the expectation and still use our good old log-likelihood.
+This will make a bit more sense later when we use it.
 
 Reinforcement Learning Basics
 =============================
