@@ -152,8 +152,8 @@ as a 5-tuple :math:`\mathcal{M} = (\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathc
 
 * :math:`\mathcal{S}` is a finite set of states.
 * :math:`\mathcal{A}` is a finite set of actions.
-* :math:`\mathcal{P}` is the state transition probability function: :math:`\mathcal{P}(s' \mid s, a) = \mathbb{P}(S_{t+1} = s' \mid S_t = s, A_t = a)`
-* :math:`\mathcal{R}` is the reward function: :math:`\mathcal{R}(s, a) = \mathbb{E}[R_{t+1} \mid S_t = s, A_t = a]`
+* :math:`\mathcal{P}` is the state transition probability function: :math:`\mathcal{P}(s' \mid s, a) = P(S_{t+1} = s' \mid S_t = s, A_t = a)`
+* :math:`\mathcal{R}` is the reward function: :math:`\mathcal{R}(s, a) = E[R_{t+1} \mid S_t = s, A_t = a]`
 * :math:`\gamma \in [0, 1]` is the discount factor.
 
 Even though it seems like a lot of math, it's actually pretty intuitive. Let's
@@ -231,7 +231,7 @@ distribution over actions called a **policy**:
 
 .. math::
 
-    \pi(a|s) = P(A_t=a | S_t=s) \tag{1}
+    \pi(a|s) = P(A_t=a | S_t=s) \tag{5}
 
 This is typically implemented as a neural network :math:`\pi_{\theta}` parameterized
 by :math:`\theta` (you'll also see :math:`\pi^*`, where :math:`*` denotes the
@@ -245,7 +245,7 @@ that shows up as a vector:
 
 .. math::
 
-   \tau = (S_0, A_0, R_0, S_1, A_1, R_1, \dots S_T) \tag{2}
+   \tau = (S_0, A_0, R_0, S_1, A_1, R_1, \dots S_T) \tag{6}
 
 This can be thought of as a "recording" of the session explored by the agent.
 In the case that the traces are collected beforehand for training (via another
@@ -254,37 +254,122 @@ agent, an older version of our agent, randomly etc.), it's usually known as
 interacting with the environment it's called **online** training.
 
 Finally, the expected **return** or cumulative discounted reward from time
-:math:`t` to the end of the trace is given by:
+:math:`t` to the end of the trajectory is given by:
 
 .. math::
 
-   G_t = \sum_{k=0}^{(T-t-1, \infty)} \gamma^k r_{t+k+1} \tag{3}
+   G_t = \sum_{k=0}^{(T-t-1, \infty)} \gamma^k r_{t+k+1} \tag{7}
 
-The cumulative reward :math:`G_t` at time :math:`t` basically adds up all the
-rewards from now into the future discounted by a :math:`\gamma` factor.
-When talking about the reward for a full trajectory :math:`\tau`, we often use
+The return :math:`G_t` at time :math:`t` basically adds up all the
+rewards from now into the future discounted by appropriately by powers of
+:math:`\gamma`.
+When talking about the return for a full trajectory :math:`\tau`, we often use
 this notation:
 
 .. math::
 
-   R(\tau) = G_0 = \sum_{t=0}^{T-1} \gamma^t R_{t} \tag{4}
+   R(\tau) = G_0 = \sum_{t=0}^{T-1} \gamma^t r_{t} \tag{8}
 
 Similarly, for a policy :math:`\pi_\theta` sometimes we want to analyze the
-probability of seeing an entire trace :math:`\tau`.  Since we have a 
-memoryless Markov process, each decision by our agent is independent giving us:
+probability of seeing an entire trajectory :math:`\tau`.  Since we have a 
+memoryless Markov process, we can nicely factor our joint trajectory distribution
+like so:
 
 .. math::
-
-   p_\theta(\tau) = P(s_0)\Pi_{t=0}^{T-1} \pi_\theta(a_t | s_t) P(s_{t+1}|s_t,a_t) \tag{5}
+   
+   p_\theta(\tau) = P(s_0)\Pi_{t=0}^{T-1} \pi_\theta(a_t | s_t) P(s_{t+1}|s_t,a_t) \tag{9}
 
 where :math:`P(s_{t+1}|s_t,a_t)` is the probability of our environment moving
 from :math:`s_t` to :math:`s_{t+1}` given action :math:`a_t`.  Notice the environmental
 factors (:math:`P`) do not depend on :math:`\theta` so when we take the gradient, these will
 drop out as we will see later.
 
+Using Equation 8 and 9, our ultimate goal is to maximize the total expected
+return of our policy:
 
-V, Q, advantage, and Bellman equations
+.. math::
+
+   E_{\tau \sim p_\theta}[R(\tau)] = \int R(\tau) p_\theta(\tau) d\tau \tag{10}
+
+We'll see that we rarely use Equation 10 to learn our policy because its Monte
+Carlo estimator's variance is too high to use directly.
+
+
+V, Q, Bellman, and Advantage Equations
 --------------------------------------
+
+We'll also need to define a few more quantities that will be useful in our
+practical implementations of RL.  First up is the **value function** that
+estimates the expected future return from time :math:`t`:
+
+.. math::
+
+   V^\pi(s) = E_\pi [ G_t | S_t = s ] \tag{11}
+
+During training, we'll need an estimate of the return from current and next
+states to be able to robustly generate a stable learning signal efficiently.
+Notice that the value function is with respect to a policy since changing the
+policy will change the future return.  Similarly, we rarely have the exact
+value function for a policy, so similarly, we often will learn the value
+function parameterized by :math:`\phi` and denote it as :math:`V_\phi(s)`.
+
+Next, we have the **Q-function** or action-value function is similar to the
+value function except it estimates the return in state :math:`s` from taking
+action :math:`a` given by:
+
+.. math::
+
+   Q^\pi(s,a) &= E_\pi [ G_t | S_t = s, A_t = a ]  \\
+              &= E_\pi[r_t + \gamma V^\pi(s') | S_t = s, A_t = a] \\
+   \tag{12}
+
+where math:`s'` is the next state resulting from taking action :math:`a` in
+state :math:`s`.  The Q function can be written in terms of the value function
+since its return is just the current action/state's return plus the future
+returns from the next state.  We need the expectation because the environment
+can be stochastic so we need to average over the future potential
+rewards/trajectories.
+
+Similar to the value function, the Q-function can also be learned and used to
+help understand how a policy is doing, although it's less commonly used than
+the value function.  More commonly, the Q-function can be used directly to
+derive a policy since if you have a good estimate of the q-function, you can
+just take the most profitable action at any given state.  We'll get more into
+this in later sections.
+
+Moving on, MDPs have `optimal substructure
+<https://en.wikipedia.org/wiki/Optimal_substructure>`__ because of its Markov
+property, which means that you can construct an optimal solution to a bigger
+problem given optimal solutions to its subproblems.  All dynamic programming
+problems have optimal substructure.  This means for our sequential decision
+making RL problem, we can use **Bellman's equation**, shown here for the
+optimal (:math:`*`) and policy (:math:`\pi`) versions of the Q-function:
+
+.. math::
+
+   Q^*(s, a) &= E[r_t + \gamma \max_{a'} Q^*(s', a') | S_t = s, A_t = a ]
+   \\ 
+   Q^\pi(s, a) &= E_\pi[r_t + \gamma \max_{a'} Q^\pi(s', a') | S_t=s, A_t=a]
+   \tag{13}
+
+Similar to dynamic programming, we can iteratively apply the Bellman equations
+to get convergence.  The optimal version guarantees convergence to optimality,
+but the policy version has a weaker guarantee to converge to the true value of
+the policy.  We'll use these to derive an update rule for our learning
+algorithms later.
+
+Lastly, we have the **advantage function** :math:`A^\pi` [#]_, which defines how much
+better a specific action is over the average in a current state.  Using the
+above equations we can write it out and expand for given policy :math:`\pi`:
+
+.. math::
+
+   A^\pi(s,a) &= Q^\pi(s, a) - V^\pi(s) \\
+    &= E_\pi[r_t + \gamma V^\pi(s') | S_t = s, A_t = a] - V^\pi(s) && \text{Equation 12} \\
+   \tag{14}
+
+We'll use the second version along with a separate value function network in
+later sections to help make a lower variance estimator compared to Equation 10.
 
 
 Policy Gradients
@@ -306,3 +391,4 @@ Notes
 =====
 
 .. [#] I've also been debating the value of writing these posts given that everything here can be easily reproduced by an LLM (which in fact I had used to learn more about this subject).  But I ended deciding to write it for a couple of reasons: (1) It's helpful for me to digest what I've learned and take time to try to explain it again a la the `Feynman technique <https://en.wikipedia.org/wiki/Learning_by_teaching>`__, (2) I think it's still pedagogically useful to curate core ideas for posterity.  Besides, who else will feed the LLMs with raw unfiltered human text?  We can't the LLMs be trained on "junk data" from Twitter (aka X) and Reddit users.
+.. [#] I know, I know, action :math:`A_t` and advantage :math:`A^\pi` both use the same letter but that's the convention, and usually it's easy to understand the difference from context.
