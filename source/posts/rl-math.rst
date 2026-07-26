@@ -1,4 +1,4 @@
-.. title: RL Math
+.. title: A Reinforcement Learning Primer
 .. slug: rl-math
 .. date: 2026-07-22 15:30:46 UTC-04:00
 .. tags: rl, reinforcement learning, math, mathjax
@@ -7,27 +7,26 @@
 .. description: 
 .. type: text
 
-It's been a long time coming, but I finally got around to gaining some
-intuition on reinforcement learning.  At least in my experience, RL comes up a
-lot less often in real world problem compared to supervised learning.  You
-really have to have something that fits the shape of RL and that can't be
-more easily solved (well enough) by something simpler like a `contextual
+It's been a long time coming, but I finally got around to really internalizing
+a lot of the ideas from reinforcement learning.  In my experience, RL comes up a
+lot less often in real world problem compared to supervised learning so I really 
+never spent a lot of time digging into it simply because I didn't need to.
+In cases where it might have fit, usually a simpler solution like a `contextual
 bandits <https://en.wikipedia.org/wiki/Multi-armed_bandit#Contextual_bandit>`__
-or some more hacky method like throwing a classifier at it.  The other
-motivation is that RL is driving a lot of the gains in LLM post-training
-nowadays so I thought I should have a deeper understanding of it.
-
+or some more hacky supervised learning method was good enough.  But now
+that RL is used heavily in LLM post-training I thought I should have a deeper
+(read mathematical) understanding of it.
 
 In the spirit of trying to keeping things shorter [#]_, this post is going to be a
 concise primer on a few big ideas in reinforcement learning.  It uses a useful
-frame that I got while watching Nathan Lambert's rlhf course [Lambert]_ and,
-as usual, goes through the math to relate some of the key concepts to build
-intuition.  For me at least, I dislike it when you are just presented with
-disparate equations without understanding how you got to them.  Many ML
-explanations either skip over the derivation, which builds intuition, or go way
-overboard explaining the minutiae.  I'm hoping this post will strike a good
-balance to give you a clear framework to understand some of the big concepts in
-RL concisely with the usual caveat that this isn't my area of expertise and it
+frame that I got while watching Nathan Lambert's RLHF course [Lambert]_ and,
+as usual, builds up the math for some of the key concepts to gain a deeper intuition.
+For me at least, I dislike it when you are just presented with disparate
+equations without understanding how you got to them.  Many ML explanations
+either skip over the derivation, which builds intuition, or go way overboard
+explaining the minutiae.  I'm hoping this post will strike a good balance to
+give you a clear framework to understand some of the big concepts in RL
+concisely with the usual caveat that this isn't my area of expertise and it
 won't be exhaustive.
 
 
@@ -375,6 +374,91 @@ later sections to help make a lower variance estimator compared to Equation 10.
 Policy Gradients
 ================
 
+Policy gradients [#]_ are a type of reinforcement learning that directly aims to
+learn a policy :math:`\pi_\theta(a|s)`, usually a neural network parameterized
+by :math:`\theta`.  It's input is the observed current state of the environment
+:math:`s` and its output is a probability distribution over possible actions
+:math:`a`.  This forms the agent which sequentially makes decisions to maximize
+reward in a given environment.
+
+As with more neural network based approaches, we update the :math:`\pi_\theta`
+with a scaled version of its gradient (hence the name policy gradients) based
+on a loss derived from total expected return of our policy in Equation 10.
+The general form of the update is:
+
+.. math::
+
+    \Delta \theta \propto \Psi_t \nabla_\theta \log \pi_\theta(a_t|s_t) \tag{15}
+
+where :math:`\Psi_t` relates to how good :math:`a_t` was as an action
+(implicitly being related to the return).  It's non-obvious why Equation 15 is
+our update so we'll spend time deriving it in the first sub-section.  The rest
+of the subsections will focus on the :math:`\Psi` and other "tricks" to make
+Equation 15 more viable as a policy gradient.
+
+Deriving the Policy Gradient
+----------------------------
+
+The first step in deriving our policy gradient is to define our loss function.
+We start at our total expected return in Equation 10  as our loss function:
+
+.. math::
+
+   J(\theta) = E_{\tau \sim p_\theta}[R(\tau)] = \int R(\tau) p_\theta(\tau) d\tau \tag{16}
+
+Now taking the gradient:
+
+.. math::
+
+   \nabla_\theta J(\theta) &= \nabla_\theta \int R(\tau) p_\theta(\tau) d\tau  \\
+   &= \int R(\tau) \nabla_\theta p_\theta(\tau) d\tau  \\
+   \tag{17}
+
+At this stage, we can't derive a Monte Carlo estimator like in Equation 2 because
+:math:`\nabla_\theta p_\theta(\tau)` is not a probability distribution after we apply the
+gradient operation.  But we can apply our log derivative trick from Equation 4 to get:
+
+.. math::
+
+   \nabla_\theta J(\theta) &= \int R(\tau) \nabla_\theta p_\theta(\tau) d\tau   \\
+   &=  \int R(\tau) p_\theta (\tau) \nabla_\theta \log p_\theta(\tau) d\tau && \text{Equation 4}   \\
+   \tag{18}
+
+And that gives us something that we can use Equation 4 on to get a Monte Carlo estimator!
+However, notice that our gradient update in Equation 15 uses actions :math:`a` and states :math:`s`,
+not full trajectories :math:`\tau`.  To solve that, we'll need to use Equation 9 which writes
+the probability of the full trajectory in terms of the state-action transitions.  Starting
+from the gradient of the log policy probability from Equation 18:
+
+.. math::
+
+   \nabla_\theta \log p_\theta(\tau)
+   &= \nabla_\theta \log \big[ P(s_0)\Pi_{t=0}^{T-1} \pi_\theta(a_t | s_t) P(s_{t+1}|s_t,a_t) \big] && \text{Equation 9} \\
+   &= \nabla_\theta \big( \log P(s_0) + \sum_{t=0}^{T-1} \log \pi_\theta(a_t | s_t) + \log P(s_{t+1}|s_t,a_t) \big) \\
+   &= \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t | s_t) && \text{only }\pi_\theta \text{ is a function of } \theta \\
+   \tag{19}
+
+Thus, we get the same expression that we saw the generic policy gradient update in Equation 15.
+
+As a last step, we need to finally use a Monte Carlo estimator to turn our loss integral into
+something we can sample. Starting from Equation 18:
+
+.. math::
+
+   \nabla_\theta J(\theta) &= \int R(\tau) p_\theta (\tau) \nabla_\theta \log p_\theta(\tau) d\tau  \\
+   &= \int R(\tau) p_\theta (\tau) \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t | s_t) d\tau \\
+   &\approx \frac{1}{N} \sum_{i=1}^N R(\tau) \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t | s_t) && \text{Equation 2} \\
+   &\approx \frac{1}{N} \sum_{i=1}^N \sum_{t=0}^{T-1} R(\tau) \nabla_\theta \log \pi_\theta(a_t | s_t) \\
+    \Delta \theta &\propto R(\tau) \nabla_\theta \log \pi_\theta(a_t|s_t) \\
+   \tag{20}
+
+So with the Monte Carlo estimator we can iteratively use the inner expression
+to update our model's parameters as long as we have enough samples to converge
+to the original expectation.  That last condition is load bearing though
+because as it stands the estimator for Equation 20 has very high variance.
+That's why we'll make adjustments to Equation 20 (like replacing :math:`R(\tau)`)
+to lower the variance without (most of the time) affecting the bias.
+
 
 Value Methods
 =============
@@ -392,3 +476,4 @@ Notes
 
 .. [#] I've also been debating the value of writing these posts given that everything here can be easily reproduced by an LLM (which in fact I had used to learn more about this subject).  But I ended deciding to write it for a couple of reasons: (1) It's helpful for me to digest what I've learned and take time to try to explain it again a la the `Feynman technique <https://en.wikipedia.org/wiki/Learning_by_teaching>`__, (2) I think it's still pedagogically useful to curate core ideas for posterity.  Besides, who else will feed the LLMs with raw unfiltered human text?  We can't the LLMs be trained on "junk data" from Twitter (aka X) and Reddit users.
 .. [#] I know, I know, action :math:`A_t` and advantage :math:`A^\pi` both use the same letter but that's the convention, and usually it's easy to understand the difference from context.
+.. [#] Much of this section was derived from Nathan Lambert's RL lecture from his RLHF course [Lambert]_.  After watching his lecture, it inspired me to dig deeper into the math to understand it all in detail.  As I usually do, I expanded on it a bit to present it in a way that answers questions that I had along the way.
