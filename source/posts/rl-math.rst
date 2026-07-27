@@ -182,14 +182,31 @@ into the mathematical details in the next subsection.
 
    <style>
    table.rl-table thead th {
-       font-size: 1.4rem;
+       font-size: 1.2rem;
        font-weight: 700;
        padding: 0.0  0.4rem;
+       text-align: center;
+   }
+   /* Force solid black borders onto the specified table and its cells */
+   table.rl-table,
+   table.rl-table th,
+   table.rl-table td {
+       border: 1px solid #aaaaaa !important;
+       border-collapse: collapse;
+   }
+   
+   /* Optional: Add minimal padding so your text doesn't touch the black borders */
+   table.rl-table th,
+   table.rl-table td {
+       padding: 6px 12px;
+   }
+   table.rl-table caption {
+    font-weight: bold !important;
+    text-align: center !important;
    }
    </style>
 
-
-.. list-table:: Table 1: Reinforcement Learning Terminology vs. Game Analogy
+.. list-table:: **Table 1: Reinforcement Learning Terminology vs. Game Analogy**
    :widths: 35 65
    :header-rows: 1
    :class: rl-table
@@ -257,7 +274,7 @@ Finally, the expected **return** or cumulative discounted reward from time
 
 .. math::
 
-   G_t = \sum_{k=0}^{(T-t-1, \infty)} \gamma^k r_{t+k+1} \tag{7}
+   G_t = \sum_{k=0}^{T-t-1} \gamma^k r_{t+k+1} \tag{7}
 
 The return :math:`G_t` at time :math:`t` basically adds up all the
 rewards from now into the future discounted by appropriately by powers of
@@ -396,10 +413,10 @@ our update so we'll spend time deriving it in the first sub-section.  The rest
 of the subsections will focus on the :math:`\Psi` and other "tricks" to make
 Equation 15 more viable as a policy gradient.
 
-Deriving the Policy Gradient
-----------------------------
+The Policy Gradient Theorem
+---------------------------
 
-The first step in deriving our policy gradient is to define our loss function.
+The first step in deriving our policy gradient theorem is to define our loss function.
 We start at our total expected return in Equation 10  as our loss function:
 
 .. math::
@@ -439,36 +456,134 @@ from the gradient of the log policy probability from Equation 18:
    \tag{19}
 
 Thus, we get the same expression that we saw the generic policy gradient update in Equation 15.
+Now before we get to the actual estimator, we should notice that return
+:math:`R(\tau)` depends on the whole trajectory (e.g.  steps :math:`1\ldots t\ldots T`), 
+but we're going to update our policy on a single state-action pair (or a batch of them) at time :math:`t`.
+This is means we're rewarding (or penalizing) a particular action for things
+that had already occurred in the past for time :math:`<t`.  Since the action at
+time :math:`t` has no control over previously gained rewards, the expected value of rewards
+:math:`<t` should be :math:`0`.  In other words, we should replace total
+trajectory return :math:`R(\tau)` with only the future rewards we can affect :math:`G_t`.
+The proof of this is a bit detailed, so I put it in Appendix A if you're interested.
 
-As a last step, we need to finally use a Monte Carlo estimator to turn our loss integral into
-something we can sample. Starting from Equation 18:
+By replacing :math:`R(\tau)` with :math:`\gamma^t G_t` (in expectation) with
+the :math:`\gamma` to ensure discounting is correct, we can now derive the
+Policy Gradient Theorem, starting from Equation 18:
 
 .. math::
 
    \nabla_\theta J(\theta) &= \int R(\tau) p_\theta (\tau) \nabla_\theta \log p_\theta(\tau) d\tau  \\
-   &= \int R(\tau) p_\theta (\tau) \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t | s_t) d\tau \\
-   &\approx \frac{1}{N} \sum_{i=1}^N R(\tau) \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t | s_t) && \text{Equation 2} \\
-   &\approx \frac{1}{N} \sum_{i=1}^N \sum_{t=0}^{T-1} R(\tau) \nabla_\theta \log \pi_\theta(a_t | s_t) \\
-    \Delta \theta &\propto R(\tau) \nabla_\theta \log \pi_\theta(a_t|s_t) \\
+   &= \int R(\tau) p_\theta (\tau) \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t | s_t) d\tau && \text{Equation 19}\\
+   &= \int p_\theta (\tau) \sum_{t=0}^{T-1} R(\tau) \nabla_\theta \log \pi_\theta(a_t | s_t) d\tau \\
+   &= E_{\tau \sim p_\theta}[\sum_{t=0}^{T-1} R(\tau) \nabla_\theta \log \pi_\theta(a_t | s_t)] \\
+   &= \sum_{t=0}^{T-1} E_{\tau \sim p_\theta}[R(\tau) \nabla_\theta \log \pi_\theta(a_t | s_t)] \\
+   &= \sum_{t=0}^{T-1} E_{\tau \sim p_\theta}[\gamma^t G_t \nabla_\theta \log \pi_\theta(a_t | s_t)] && \text{replace }R(\tau)\text{ with } \gamma^t G_t \text{ in expectation}\\
+   &= \sum_{t=0}^{T-1} E\big[E[\gamma^t G_t \nabla_\theta \log \pi_\theta(a_t | s_t) \big| a_t, s_t]\big] && \text{law of iterated expecetations} \\
+   &= \sum_{t=0}^{T-1} E\big[E[\gamma^t G_t | a_t, s_t] \nabla_\theta \log \pi_\theta(a_t | s_t) \big] && \nabla_\theta \log \pi_\theta(a_t | s_t) \text{ fixed given } a_t, s_t \\
+   &= \sum_{t=0}^{t-1} \gamma^t E\big[ Q_t^{\pi_\theta}(s_t,a_t) \nabla_\theta \log \pi_\theta(a_t | s_t) \big] && \text{Equation 12} \\
+   &= E_{s \sim \rho_\gamma^{\pi_\theta}, a \sim \pi_\theta(\cdot \mid s)}
+        [Q^{\pi_\theta}(s,a) \nabla_\theta \log \pi_\theta(a \mid s)] && \text{where }\rho_\gamma^\pi(s) = \sum_{t=0}^{T-1} \gamma^t p_\pi(s_t = s)
    \tag{20}
 
-So with the Monte Carlo estimator we can iteratively use the inner expression
-to update our model's parameters as long as we have enough samples to converge
-to the original expectation.  That last condition is load bearing though
-because as it stands the estimator for Equation 20 has very high variance.
-That's why we'll make adjustments to Equation 20 (like replacing :math:`R(\tau)`)
-to lower the variance without (most of the time) affecting the bias.
+The final line is the usual statement of the Policy Gradient Theorem. 
+Using a more compact notation for the expectation, we can use this to derive a
+Monte Carlo Estimator where each data point is a sample from a state-action
+pair :math:`(a_t, s_t)`:
 
+.. math::
+
+   \nabla_\theta J(\theta) &= E_{\pi_\theta} [Q^{\pi_\theta}(s,a) \nabla_\theta \log \pi_\theta(a \mid s)] \\
+   &\approx \frac{1}{N} \sum_{i=1}^N G_t \nabla_\theta \log \pi_\theta(a_t | s_t) \\
+   \tag{21}
+
+
+Policy Gradient Estimators and Credit Assignment
+------------------------------------------------
+
+As we saw in Equation 21, the policy gradient estimator ends up having two
+parts: a credit assignment (:math:`G_t`), and the gradient of the policy in
+log space.  The credit assignment tells us "how good was this action?" 
+(e.g.  very positive to very negative), and the gradient tells us which
+parameters we need to update and in what proportions.  We'll generalize the
+credit assignment and call it :math:`\Psi_t` and show how each one can be 
+related to the original Policy Gradient Algorithm:
+
+.. math::
+
+    \Psi_t \nabla_\theta \log \pi_\theta(a_t|s_t) \tag{22}
+
+Table 2 shows some of the general forms of :math:`\Psi_t` and how they affect
+bias and variance.  In the next subsections, we'll go through a few popular
+classes of policy gradient algorithms to discuss differences in the credit
+assignment as well as mention other differences in the algorithm.  All of
+them can trace their roots back to the Policy Gradient Theorem.
+
+.. list-table:: **Table 2: Common Policy Gradient Learning Signals and Their Bias--Variance Trade-offs**
+   :header-rows: 1
+   :widths: 30 40 15 15
+   :class: rl-table
+
+   * - :math:`\Psi_t`
+     - Description
+     - Variance
+     - Bias
+
+   * - :math:`R(\tau) = \sum_{t=0}^{T} r_t`
+     - Total trajectory reward
+     - Highest
+     - None
+
+   * - :math:`G_t = \sum_{t'=t}^{T} r_{t'}`
+     - Future return from :math:`t`
+     - High
+     - None
+
+   * - :math:`G_t - b(s_t)`
+     - Baselined return
+     - Lower
+     - None
+
+   * - :math:`Q^\pi(s_t, a_t)`
+     - State-action value function
+     - Medium
+     - Depends
+
+   * - :math:`A^\pi(s_t, a_t) = Q^\pi(s_t, a_t) - V^\pi(s_t)`
+     - Advantage function
+     - Low, with a good :math:`V`
+     - None
+
+   * - :math:`r_t + \gamma V(s_{t+1}) - V(s_t)`
+     - TD residual
+     - Low
+     - Some
+
+
+
+
+
+
+REINFORCE
+---------
+
+Actor Critic
+------------
 
 Value Methods
 =============
 
 
+Appendix A: Policy Gradient Theorem - Replacing :math:`R(\tau)` with :math:`G_t`
+================================================================================
+
+Summarize discussion with ChatGPT
 
 References
 ==========
 
 .. [Lambert] Nathan Lambert, "`Reinforcement Learning from Human Feedback <https://rlhfbook.com/course>`__", 2026.
+
+.. [Schulman] Schulman, J., Moritz, P., Levine, S., Jordan, M., and Abbeel, P.. “High-Dimensional Continuous Control Using Generalized Advantage Estimation.” arXiv preprint `arXiv:1506.02438 <https://arxiv.org/abs/1506.02438>`__, 2015.
 
 
 Notes
