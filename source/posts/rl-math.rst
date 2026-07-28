@@ -1,6 +1,6 @@
 .. title: A Reinforcement Learning Primer
 .. slug: rl-math
-.. date: 2026-07-22 15:30:46 UTC-04:00
+.. date: 2027-07-22 15:30:46 UTC-04:00
 .. tags: rl, reinforcement learning, math, mathjax
 .. category: 
 .. link: 
