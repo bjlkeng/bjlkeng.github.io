@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#
+" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Reinforcement Learning Primer | Bounded Rationality</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
+<link rel="alternate" type="application/rss+xml" title="RSS" hreflang="en" href="../../rss.xml">
+<link rel="canonical" href="http://bjlkeng.github.io/posts/rl-math/">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
+    "SVG": {
+        styles: {'.MathJax_SVG_Display': {"margin": "0em 0em 1em 0em"}}
+    }
+});
+</script><script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS_SVG"></script><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Brian Keng">
+<meta property="og:site_name" content="Bounded Rationality">
+<meta property="og:title" content="A Reinforcement Learning Primer">
+<meta property="og:url" content="http://bjlkeng.github.io/posts/rl-math/">
+<meta property="og:description" content="It's been a long time coming, but I finally got around to really internalizing
+a lot of the ideas from reinforcement learning.  In my experience, RL comes up a
+lot less often in real world problem com">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2027-07-22T15:30:46-04:00">
+<meta property="article:tag" content="math">
+<meta property="article:tag" content="mathjax">
+<meta property="article:tag" content="reinforcement learning">
+<meta property="article:tag" content="rl">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-expand-md static-top mb-4
+navbar-dark bg-dark
+"><div class="container">
+<!-- This keeps the margins nice -->
+        <a class="navbar-brand" href="http://bjlkeng.github.io/">
+
+            <span id="blog-title">Bounded Rationality</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="bs-navbar">
+            <ul class="navbar-nav mr-auto">
+<li class="nav-item">
+<a href="https://dlcourse.bjlkeng.io/" class="nav-link">Deep Learning Course</a>
+                </li>
+<li class="nav-item">
+<a href="../../archive.html" class="nav-link">Archive</a>
+                </li>
+<li class="nav-item">
+<a href="../../categories/" class="nav-link">Tags</a>
+                </li>
+<li class="nav-item">
+<a href="../../rss.xml" class="nav-link">RSS feed</a>
+
+                
+            </li>
+</ul>
+<ul class="navbar-nav navbar-right">
+<li class="nav-item">
+    <a href="index.rst" id="sourcelink" class="nav-link">Source</a>
+    </li>
+
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <div class="row">
+        <!--Body content-->
+            <div class="col-lg-9">
+                
+                
+                
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">A Reinforcement Learning Primer</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
+                    Brian Keng
+            </span></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2027-07-22T15:30:46-04:00" itemprop="datePublished" title="2027-07-22 15:30">2027-07-22 15:30</time></a>
+            </p>
+            
+        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>It's been a long time coming, but I finally got around to really internalizing
+a lot of the ideas from reinforcement learning.  In my experience, RL comes up a
+lot less often in real world problem compared to supervised learning so I really
+never spent a lot of time digging into it simply because I didn't need to.
+In cases where it might have fit, usually a simpler solution like a <a class="reference external" href="https://en.wikipedia.org/wiki/Multi-armed_bandit#Contextual_bandit">contextual
+bandits</a>
+or some more hacky supervised learning method was good enough.  But now
+that RL is used heavily in LLM post-training I thought I should have a deeper
+(read mathematical) understanding of it.</p>
+<p>In the spirit of trying to keeping things shorter <a class="footnote-reference brackets" href="#id5" id="id1">1</a>, this post is going to be a
+concise primer on a few big ideas in reinforcement learning.  It uses a useful
+frame that I got while watching Nathan Lambert's RLHF course <a class="citation-reference" href="#lambert" id="id2">[Lambert]</a> and,
+as usual, builds up the math for some of the key concepts to gain a deeper intuition.
+For me at least, I dislike it when you are just presented with disparate
+equations without understanding how you got to them.  Many ML explanations
+either skip over the derivation, which builds intuition, or go way overboard
+explaining the minutiae.  I'm hoping this post will strike a good balance to
+give you a clear framework to understand some of the big concepts in RL
+concisely with the usual caveat that this isn't my area of expertise and it
+won't be exhaustive.</p>
+<!-- TEASER_END -->
+<div class="card card-body bg-light">
+<h2>Table of Contents</h2>
+<div class="contents local topic" id="contents">
+<ul class="auto-toc simple">
+<li>
+<p><a class="reference internal" href="#background" id="id9"><span class="sectnum">1</span> Background</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#expectations-monte-carlo-estimation-and-importance-sampling" id="id10"><span class="sectnum">1.1</span> Expectations, Monte Carlo Estimation, and Importance Sampling</a></p></li>
+<li><p><a class="reference internal" href="#log-derivative-trick" id="id11"><span class="sectnum">1.2</span> Log Derivative Trick</a></p></li>
+</ul>
+</li>
+<li>
+<p><a class="reference internal" href="#reinforcement-learning-basics" id="id12"><span class="sectnum">2</span> Reinforcement Learning Basics</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#reinforcement-learning-and-markov-decision-processes" id="id13"><span class="sectnum">2.1</span> Reinforcement Learning and Markov Decision Processes</a></p></li>
+<li><p><a class="reference internal" href="#policies-trajectories-and-returns" id="id14"><span class="sectnum">2.2</span> Policies, Trajectories and Returns</a></p></li>
+<li><p><a class="reference internal" href="#v-q-bellman-and-advantage-equations" id="id15"><span class="sectnum">2.3</span> V, Q, Bellman, and Advantage Equations</a></p></li>
+</ul>
+</li>
+<li>
+<p><a class="reference internal" href="#policy-gradients" id="id16"><span class="sectnum">3</span> Policy Gradients</a></p>
+<ul class="auto-toc">
+<li><p><a class="reference internal" href="#the-policy-gradient-theorem" id="id17"><span class="sectnum">3.1</span> The Policy Gradient Theorem</a></p></li>
+<li><p><a class="reference internal" href="#policy-gradient-estimators-and-credit-assignment" id="id18"><span class="sectnum">3.2</span> Policy Gradient Estimators and Credit Assignment</a></p></li>
+<li><p><a class="reference internal" href="#reinforce" id="id19"><span class="sectnum">3.3</span> REINFORCE</a></p></li>
+<li><p><a class="reference internal" href="#actor-critic" id="id20"><span class="sectnum">3.4</span> Actor Critic</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#value-methods" id="id21"><span class="sectnum">4</span> Value Methods</a></p></li>
+<li><p><a class="reference internal" href="#appendix-a-policy-gradient-theorem-replacing-r-tau-with-g-t" id="id22"><span class="sectnum">5</span> Appendix A: Policy Gradient Theorem - Replacing <span class="math">\(R(\tau)\)</span> with <span class="math">\(G_t\)</span></a></p></li>
+<li><p><a class="reference internal" href="#references" id="id23"><span class="sectnum">6</span> References</a></p></li>
+<li><p><a class="reference internal" href="#notes" id="id24"><span class="sectnum">7</span> Notes</a></p></li>
+</ul>
+</div>
+</div>
+<p></p>
+<div class="section" id="background">
+<h2><a class="toc-backref" href="#id9"><span class="sectnum">1</span> Background</a></h2>
+<div class="section" id="expectations-monte-carlo-estimation-and-importance-sampling">
+<h3><a class="toc-backref" href="#id10"><span class="sectnum">1.1</span> Expectations, Monte Carlo Estimation, and Importance Sampling</a></h3>
+<p>We often want to find the expected value <span class="math">\(E_{x\sim P}[\Psi(x)]\)</span> of a function
+<span class="math">\(\Psi(x)\)</span> of with respect to a distribution <span class="math">\(P\)</span>:</p>
+<div class="math">
+\begin{equation*}
+E_{x\sim P}[\Psi(x)] = \int f_P(x)\Psi(x) dx \tag{1}
+\end{equation*}
+</div>
+<p>where <span class="math">\(f_P(\cdot)\)</span> is the probability density function of <span class="math">\(P\)</span>
+(similarly we can use a sum and probability mass function instead when
+<span class="math">\(P\)</span> is discrete).</p>
+<p>Equation 1 is usually impossible to compute exactly because <span class="math">\(f_P(\cdot)\)</span> does not
+usually have a closed form, for example when <span class="math">\(P\)</span> is our data distribution,
+which we only ever observe data samples from.  In these cases, we can
+approximate the expectation using IID samples <span class="math">\(x_i\)</span> from <span class="math">\(P\)</span>
+using <a class="reference external" href="https://en.wikipedia.org/wiki/Monte_Carlo_method">Monte Carlo estimation</a>
+as such:</p>
+<div class="math">
+\begin{align*}
+E_{x\sim X}[\Psi(x)] &amp;= \int f_P(x)\Psi(x) dx \\
+                  &amp;\approx \frac{1}{N}\sum_{i=1}^N \Psi(x_i) \\
+                  \\ \tag{2}
+\end{align*}
+</div>
+<p>Notice that if we have <em>any</em> integral of this form, we can do the same
+Monte Carlo approximation.  This shows up in
+<a class="reference external" href="https://en.wikipedia.org/wiki/Importance_sampling">importance sampling</a>
+where instead of sampling from <span class="math">\(x\sim P\)</span>, we sample from a different
+distribution (with the same support) <span class="math">\(x\sim Q\)</span> usually because it'll
+either reduce variance or when sampling from <span class="math">\(P\)</span> is difficult (but can
+still have the PDF of <span class="math">\(f_P(x)\)</span>).</p>
+<p>Of course, you can't just sample from <span class="math">\(Y\)</span> and do nothing else, you need
+an weighting factor <span class="math">\(w(x)=\frac{f_P(x)}{f_Q(x)}\)</span> too.  Putting that
+together with Equation 2, we get:</p>
+<div class="math">
+\begin{align*}
+E_{x\sim P}[\Psi(x)] &amp;= \int f_P(x) \Psi(x) dx \\
+                  &amp;= \int f_P(x) \frac{f_Q(x)}{f_Q(x)} \Psi(x)  dx \\
+                  &amp;= \int f_Q(x) [\frac{f_P(x)}{f_Q(x)} \Psi(x) ] dx \\
+                  &amp;= E_{x\sim Q}[\frac{f_P(x)}{f_Q(x)} \Psi(x) ] \\
+                  &amp;= E_{x\sim Q}[ w(x) \Psi(x)] \\
+                  &amp;\approx \frac{1}{N}\sum_{i=1}^N w(x) \Psi(x_i) \\
+                  \tag{3}
+\end{align*}
+</div>
+<p>This will come in handy later when we want to use data that wasn't generated
+directly by the current model being trained.</p>
+</div>
+<div class="section" id="log-derivative-trick">
+<h3><a class="toc-backref" href="#id11"><span class="sectnum">1.2</span> Log Derivative Trick</a></h3>
+<p>The <a class="reference external" href="https://math.stackexchange.com/questions/2554749/whats-the-trick-in-log-derivative-trick">log derivative trick</a>
+is a common identity that is used in ML to rewrite our loss function to make
+our computation simpler.  First take the log-likelihood function that we
+typically get in ML <span class="math">\(\log \mathcal{L(\theta;x)} = \log p({\bf x | \theta})\)</span>, a
+function of our model parameters <span class="math">\(\bf \theta\)</span> (recall <span class="math">\(\bf x\)</span> are our
+training data thus constant).  We like to work in log-space because it converts
+multiplications into additions, making the computation much simpler.</p>
+<p>In neural networks and other areas, we often take the gradient of the
+log-likelihood, also known as the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Informant_(statistics)">score function</a> <span class="math">\(s(\theta;x)\)</span>,
+although that name isn't used in ML contexts too often.  We can derive the
+trick straight from the definition of the score:</p>
+<div class="math">
+\begin{align*}
+\nabla \log p({\bf x | \theta}) &amp;= \frac{\nabla p({\bf x | \theta})}{p({\bf x | \theta})} &amp;&amp; \text{chain rule}\\
+\nabla p({\bf x | \theta}) &amp;= p({\bf x | \theta}) \nabla \log p({\bf x | \theta}) \\
+\tag{4}
+\end{align*}
+</div>
+<p>Notice the RHS of the second line now has the raw pdf/pmf <span class="math">\(p(\cdot)\)</span>,
+multiplied by the log-likelihood.  When used inside an expectation, this allows
+us to reparameterize the expectation and still use our good old log-likelihood.
+This will make a bit more sense later when we use it.</p>
+</div>
+</div>
+<div class="section" id="reinforcement-learning-basics">
+<h2><a class="toc-backref" href="#id12"><span class="sectnum">2</span> Reinforcement Learning Basics</a></h2>
+<div class="section" id="reinforcement-learning-and-markov-decision-processes">
+<h3><a class="toc-backref" href="#id13"><span class="sectnum">2.1</span> Reinforcement Learning and Markov Decision Processes</a></h3>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Reinforcement_learning">Reinforcement learning (RL)</a>
+is a branch of machine learning whose goal is to learn an intelligent agent
+(not to be confused with the typical <a class="reference external" href="https://en.wikipedia.org/wiki/AI_agent">generative AI agent</a>)
+that can take actions in a dynamic environment in order to maximize a reward
+signal.  The prototypical example of an (RL) agent is a game-playing AI that
+selects the next action (e.g. left, right, shoot, etc.) in a computer game where
+the reward is your score in the game, which you're trying to maximize.</p>
+<p>As usual, we'll formalize this concept with a <strong>Markov Decision Process (MDP)</strong>
+as a 5-tuple <span class="math">\(\mathcal{M} = (\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)\)</span>, where:</p>
+<ul class="simple">
+<li><p><span class="math">\(\mathcal{S}\)</span> is a finite set of states.</p></li>
+<li><p><span class="math">\(\mathcal{A}\)</span> is a finite set of actions.</p></li>
+<li><p><span class="math">\(\mathcal{P}\)</span> is the state transition probability function: <span class="math">\(\mathcal{P}(s' \mid s, a) = P(S_{t+1} = s' \mid S_t = s, A_t = a)\)</span></p></li>
+<li><p><span class="math">\(\mathcal{R}\)</span> is the reward function: <span class="math">\(\mathcal{R}(s, a) = E[R_{t+1} \mid S_t = s, A_t = a]\)</span></p></li>
+<li><p><span class="math">\(\gamma \in [0, 1]\)</span> is the discount factor.</p></li>
+</ul>
+<p>Even though it seems like a lot of math, it's actually pretty intuitive. Let's
+break it down.
+First, it's <strong>"Markov"</strong> because this describes the transition probability
+function <span class="math">\(\mathcal{P}\)</span> through states <span class="math">\(\mathcal{S}\)</span> -- a <a class="reference external" href="https://en.wikipedia.org/wiki/Markov_chain">Markov chain</a>.  It's basically a "finite
+state machine with probabilistic transitions".  See my <a class="reference external" href="../markov-chain-monte-carlo-mcmc-and-the-metropolis-hastings-algorithm/">previous post</a>
+for an example of Markov Chains.  In our game example, this defines the game
+state and how it evolves (potentially non-deterministically) over time (based
+on your input player actions).</p>
+<p>Next, it's a <strong>Decision Process</strong> because the RL <strong>agent</strong> is concerned with not just
+traversing probabilistically through states (Markov chain) but also taking
+successive actions <span class="math">\(\mathcal{A}\)</span> in those states to achieve goal (reward
+<span class="math">\(\mathcal{R}\)</span>).  It takes these actions in the context of an
+<strong>environment</strong> defined by the state transitions and rewards.
+The <strong>discount factor</strong> <span class="math">\(\gamma\)</span> defines how much we value rewards we collect
+later vs. now.  In our game example, this is agent represents the player whose
+purpose is to maximize the "score" and the environment is the game.</p>
+<p>The following table summarizes this game analogy more concisely.  We'll get more
+into the mathematical details in the next subsection.</p>
+<style>
+table.rl-table thead th {
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: 0.0  0.4rem;
+    text-align: center;
+}
+/* Force solid black borders onto the specified table and its cells */
+table.rl-table,
+table.rl-table th,
+table.rl-table td {
+    border: 1px solid #aaaaaa !important;
+    border-collapse: collapse;
+}
+
+/* Optional: Add minimal padding so your text doesn't touch the black borders */
+table.rl-table th,
+table.rl-table td {
+    padding: 6px 12px;
+}
+table.rl-table caption {
+ font-weight: bold !important;
+ text-align: center !important;
+}
+</style>
+<table class="colwidths-given rl-table">
+<caption><strong>Table 1: Reinforcement Learning Terminology vs. Game Analogy</strong></caption>
+<colgroup>
+<col style="width: 35%">
+<col style="width: 65%">
+</colgroup>
+<thead><tr>
+<th class="head"><p>Reinforcement Learning</p></th>
+<th class="head"><p>Game Analogy</p></th>
+</tr></thead>
+<tbody>
+<tr>
+<td><p><strong>Agent</strong></p></td>
+<td><p>The player controlled by the AI.</p></td>
+</tr>
+<tr>
+<td><p><strong>Environment</strong></p></td>
+<td><p>The game itself, including its rules, physics, enemies, and scoring system.</p></td>
+</tr>
+<tr>
+<td><p><strong>State</strong> (<span class="math">\(s \in \mathcal{S}\)</span>)</p></td>
+<td><p>The current game situation, such as the player's position, health, inventory, and nearby enemies.</p></td>
+</tr>
+<tr>
+<td><p><strong>Action</strong> (<span class="math">\(a \in \mathcal{A}\)</span>)</p></td>
+<td><p>A move available to the player, such as moving left, jumping, shooting, or using an item.</p></td>
+</tr>
+<tr>
+<td>
+<div class="line-block">
+<div class="line"><strong>State-transition function</strong></div>
+<div class="line">( <span class="math">\(\mathcal{P}(s' \mid s,a)\)</span>)</div>
+</div>
+</td>
+<td><p>The rules governing how the game changes after the player takes an action. The result may be deterministic or involve randomness.</p></td>
+</tr>
+<tr>
+<td><p><strong>Reward function</strong> (<span class="math">\(\mathcal{R}(s,a)\)</span>)</p></td>
+<td><p>The points or other feedback received after an action, such as earning points for defeating an enemy or losing points for taking damage.</p></td>
+</tr>
+<tr>
+<td><p><strong>Discount factor</strong> (<span class="math">\(\gamma\)</span>)</p></td>
+<td><p>How much the player values points earned later compared with points earned immediately.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="policies-trajectories-and-returns">
+<h3><a class="toc-backref" href="#id14"><span class="sectnum">2.2</span> Policies, Trajectories and Returns</a></h3>
+<p>Now with the formal definition of an MDP out of the way, let's look
+at how we actually create an RL agent.  The big idea is that all the
+agent does is iteratively <em>select the next action</em> <span class="math">\(a_t\)</span> at time <span class="math">\(t\)</span>.
+As it selects the next action, the environment (a blackbox) updates the state
+<span class="math">\(s_{t+1}\)</span> we observe and tells us our reward <span class="math">\(r_t\)</span> for taking the
+action at that state (<span class="math">\(s_t, a_t\)</span>).
+Thus, an RL agent is just something that is able to to pick the next action
+given the current state.</p>
+<p>This is usually implemented as a mapping from state to a probability
+distribution over actions called a <strong>policy</strong>:</p>
+<div class="math">
+\begin{equation*}
+\pi(a|s) = P(A_t=a | S_t=s) \tag{5}
+\end{equation*}
+</div>
+<p>This is typically implemented as a neural network <span class="math">\(\pi_{\theta}\)</span> parameterized
+by <span class="math">\(\theta\)</span> (you'll also see <span class="math">\(\pi^*\)</span>, where <span class="math">\(*\)</span> denotes the
+theoretical optimal policy i.e., perfect decisions).  So our agent is basically
+just a neural network that outputs probabilities on what action to take next.</p>
+<p>To train the policy, we'll need data.  This usually comes in the form of a
+<strong>trajectory</strong> (or <strong>trace</strong>) <span class="math">\(\tau\)</span> where you have observed an agent
+(not necessarily your agent) operating in the environment.  Formally,
+that shows up as a vector:</p>
+<div class="math">
+\begin{equation*}
+\tau = (S_0, A_0, R_0, S_1, A_1, R_1, \dots S_T) \tag{6}
+\end{equation*}
+</div>
+<p>This can be thought of as a "recording" of the session explored by the agent.
+In the case that the traces are collected beforehand for training (via another
+agent, an older version of our agent, randomly etc.), it's usually known as
+<strong>offline</strong> training.  Otherwise if the agent is actively learning while
+interacting with the environment it's called <strong>online</strong> training.</p>
+<p>Finally, the expected <strong>return</strong> or cumulative discounted reward from time
+<span class="math">\(t\)</span> to the end of the trajectory is given by:</p>
+<div class="math">
+\begin{equation*}
+G_t = \sum_{k=0}^{T-t-1} \gamma^k r_{t+k+1} \tag{7}
+\end{equation*}
+</div>
+<p>The return <span class="math">\(G_t\)</span> at time <span class="math">\(t\)</span> basically adds up all the
+rewards from now into the future discounted by appropriately by powers of
+<span class="math">\(\gamma\)</span>.
+When talking about the return for a full trajectory <span class="math">\(\tau\)</span>, we often use
+this notation:</p>
+<div class="math">
+\begin{equation*}
+R(\tau) = G_0 = \sum_{t=0}^{T-1} \gamma^t r_{t} \tag{8}
+\end{equation*}
+</div>
+<p>Similarly, for a policy <span class="math">\(\pi_\theta\)</span> sometimes we want to analyze the
+probability of seeing an entire trajectory <span class="math">\(\tau\)</span>.  Since we have a
+memoryless Markov process, we can nicely factor our joint trajectory distribution
+like so:</p>
+<div class="math">
+\begin{equation*}
+p_\theta(\tau) = P(s_0)\Pi_{t=0}^{T-1} \pi_\theta(a_t | s_t) P(s_{t+1}|s_t,a_t) \tag{9}
+\end{equation*}
+</div>
+<p>where <span class="math">\(P(s_{t+1}|s_t,a_t)\)</span> is the probability of our environment moving
+from <span class="math">\(s_t\)</span> to <span class="math">\(s_{t+1}\)</span> given action <span class="math">\(a_t\)</span>.  Notice the environmental
+factors (<span class="math">\(P\)</span>) do not depend on <span class="math">\(\theta\)</span> so when we take the gradient, these will
+drop out as we will see later.</p>
+<p>Using Equation 8 and 9, our ultimate goal is to maximize the total expected
+return of our policy:</p>
+<div class="math">
+\begin{equation*}
+E_{\tau \sim p_\theta}[R(\tau)] = \int R(\tau) p_\theta(\tau) d\tau \tag{10}
+\end{equation*}
+</div>
+<p>We'll see that we rarely use Equation 10 to learn our policy because its Monte
+Carlo estimator's variance is too high to use directly.</p>
+</div>
+<div class="section" id="v-q-bellman-and-advantage-equations">
+<h3><a class="toc-backref" href="#id15"><span class="sectnum">2.3</span> V, Q, Bellman, and Advantage Equations</a></h3>
+<p>We'll also need to define a few more quantities that will be useful in our
+practical implementations of RL.  First up is the <strong>value function</strong> that
+estimates the expected future return from time <span class="math">\(t\)</span>:</p>
+<div class="math">
+\begin{equation*}
+V^\pi(s) = E_\pi [ G_t | S_t = s ] \tag{11}
+\end{equation*}
+</div>
+<p>During training, we'll need an estimate of the return from current and next
+states to be able to robustly generate a stable learning signal efficiently.
+Notice that the value function is with respect to a policy since changing the
+policy will change the future return.  Similarly, we rarely have the exact
+value function for a policy, so similarly, we often will learn the value
+function parameterized by <span class="math">\(\phi\)</span> and denote it as <span class="math">\(V_\phi(s)\)</span>.</p>
+<p>Next, we have the <strong>Q-function</strong> or action-value function is similar to the
+value function except it estimates the return in state <span class="math">\(s\)</span> from taking
+action <span class="math">\(a\)</span> given by:</p>
+<div class="math">
+\begin{align*}
+Q^\pi(s,a) &amp;= E_\pi [ G_t | S_t = s, A_t = a ]  \\
+           &amp;= E_\pi[r_t + \gamma V^\pi(s') | S_t = s, A_t = a] \\
+\tag{12}
+\end{align*}
+</div>
+<p>where math:<cite>s'</cite> is the next state resulting from taking action <span class="math">\(a\)</span> in
+state <span class="math">\(s\)</span>.  The Q function can be written in terms of the value function
+since its return is just the current action/state's return plus the future
+returns from the next state.  We need the expectation because the environment
+can be stochastic so we need to average over the future potential
+rewards/trajectories.</p>
+<p>Similar to the value function, the Q-function can also be learned and used to
+help understand how a policy is doing, although it's less commonly used than
+the value function.  More commonly, the Q-function can be used directly to
+derive a policy since if you have a good estimate of the q-function, you can
+just take the most profitable action at any given state.  We'll get more into
+this in later sections.</p>
+<p>Moving on, MDPs have <a class="reference external" href="https://en.wikipedia.org/wiki/Optimal_substructure">optimal substructure</a> because of its Markov
+property, which means that you can construct an optimal solution to a bigger
+problem given optimal solutions to its subproblems.  All dynamic programming
+problems have optimal substructure.  This means for our sequential decision
+making RL problem, we can use <strong>Bellman's equation</strong>, shown here for the
+optimal (<span class="math">\(*\)</span>) and policy (<span class="math">\(\pi\)</span>) versions of the Q-function:</p>
+<div class="math">
+\begin{align*}
+Q^*(s, a) &amp;= E[r_t + \gamma \max_{a'} Q^*(s', a') | S_t = s, A_t = a ]
+\\
+Q^\pi(s, a) &amp;= E_\pi[r_t + \gamma \max_{a'} Q^\pi(s', a') | S_t=s, A_t=a]
+\tag{13}
+\end{align*}
+</div>
+<p>Similar to dynamic programming, we can iteratively apply the Bellman equations
+to get convergence.  The optimal version guarantees convergence to optimality,
+but the policy version has a weaker guarantee to converge to the true value of
+the policy.  We'll use these to derive an update rule for our learning
+algorithms later.</p>
+<p>Lastly, we have the <strong>advantage function</strong> <span class="math">\(A^\pi\)</span> <a class="footnote-reference brackets" href="#id6" id="id3">2</a>, which defines how much
+better a specific action is over the average in a current state.  Using the
+above equations we can write it out and expand for given policy <span class="math">\(\pi\)</span>:</p>
+<div class="math">
+\begin{align*}
+A^\pi(s,a) &amp;= Q^\pi(s, a) - V^\pi(s) \\
+ &amp;= E_\pi[r_t + \gamma V^\pi(s') | S_t = s, A_t = a] - V^\pi(s) &amp;&amp; \text{Equation 12} \\
+\tag{14}
+\end{align*}
+</div>
+<p>We'll use the second version along with a separate value function network in
+later sections to help make a lower variance estimator compared to Equation 10.</p>
+</div>
+</div>
+<div class="section" id="policy-gradients">
+<h2><a class="toc-backref" href="#id16"><span class="sectnum">3</span> Policy Gradients</a></h2>
+<p>Policy gradients <a class="footnote-reference brackets" href="#id7" id="id4">3</a> are a type of reinforcement learning that directly aims to
+learn a policy <span class="math">\(\pi_\theta(a|s)\)</span>, usually a neural network parameterized
+by <span class="math">\(\theta\)</span>.  It's input is the observed current state of the environment
+<span class="math">\(s\)</span> and its output is a probability distribution over possible actions
+<span class="math">\(a\)</span>.  This forms the agent which sequentially makes decisions to maximize
+reward in a given environment.</p>
+<p>As with more neural network based approaches, we update the <span class="math">\(\pi_\theta\)</span>
+with a scaled version of its gradient (hence the name policy gradients) based
+on a loss derived from total expected return of our policy in Equation 10.
+The general form of the update is:</p>
+<div class="math">
+\begin{equation*}
+\Delta \theta \propto \Psi_t \nabla_\theta \log \pi_\theta(a_t|s_t) \tag{15}
+\end{equation*}
+</div>
+<p>where <span class="math">\(\Psi_t\)</span> relates to how good <span class="math">\(a_t\)</span> was as an action
+(implicitly being related to the return).  It's non-obvious why Equation 15 is
+our update so we'll spend time deriving it in the first sub-section.  The rest
+of the subsections will focus on the <span class="math">\(\Psi\)</span> and other "tricks" to make
+Equation 15 more viable as a policy gradient.</p>
+<div class="section" id="the-policy-gradient-theorem">
+<h3><a class="toc-backref" href="#id17"><span class="sectnum">3.1</span> The Policy Gradient Theorem</a></h3>
+<p>The first step in deriving our policy gradient theorem is to define our loss function.
+We start at our total expected return in Equation 10  as our loss function:</p>
+<div class="math">
+\begin{equation*}
+J(\theta) = E_{\tau \sim p_\theta}[R(\tau)] = \int R(\tau) p_\theta(\tau) d\tau \tag{16}
+\end{equation*}
+</div>
+<p>Now taking the gradient:</p>
+<div class="math">
+\begin{align*}
+\nabla_\theta J(\theta) &amp;= \nabla_\theta \int R(\tau) p_\theta(\tau) d\tau  \\
+&amp;= \int R(\tau) \nabla_\theta p_\theta(\tau) d\tau  \\
+\tag{17}
+\end{align*}
+</div>
+<p>At this stage, we can't derive a Monte Carlo estimator like in Equation 2 because
+<span class="math">\(\nabla_\theta p_\theta(\tau)\)</span> is not a probability distribution after we apply the
+gradient operation.  But we can apply our log derivative trick from Equation 4 to get:</p>
+<div class="math">
+\begin{align*}
+\nabla_\theta J(\theta) &amp;= \int R(\tau) \nabla_\theta p_\theta(\tau) d\tau   \\
+&amp;=  \int R(\tau) p_\theta (\tau) \nabla_\theta \log p_\theta(\tau) d\tau &amp;&amp; \text{Equation 4}   \\
+\tag{18}
+\end{align*}
+</div>
+<p>And that gives us something that we can use Equation 4 on to get a Monte Carlo estimator!
+However, notice that our gradient update in Equation 15 uses actions <span class="math">\(a\)</span> and states <span class="math">\(s\)</span>,
+not full trajectories <span class="math">\(\tau\)</span>.  To solve that, we'll need to use Equation 9 which writes
+the probability of the full trajectory in terms of the state-action transitions.  Starting
+from the gradient of the log policy probability from Equation 18:</p>
+<div class="math">
+\begin{align*}
+\nabla_\theta \log p_\theta(\tau)
+&amp;= \nabla_\theta \log \big[ P(s_0)\Pi_{t=0}^{T-1} \pi_\theta(a_t | s_t) P(s_{t+1}|s_t,a_t) \big] &amp;&amp; \text{Equation 9} \\
+&amp;= \nabla_\theta \big( \log P(s_0) + \sum_{t=0}^{T-1} \log \pi_\theta(a_t | s_t) + \log P(s_{t+1}|s_t,a_t) \big) \\
+&amp;= \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t | s_t) &amp;&amp; \text{only }\pi_\theta \text{ is a function of } \theta \\
+\tag{19}
+\end{align*}
+</div>
+<p>Thus, we get the same expression that we saw the generic policy gradient update in Equation 15.
+Now before we get to the actual estimator, we should notice that return
+<span class="math">\(R(\tau)\)</span> depends on the whole trajectory (e.g.  steps <span class="math">\(1\ldots t\ldots T\)</span>),
+but we're going to update our policy on a single state-action pair (or a batch of them) at time <span class="math">\(t\)</span>.
+This is means we're rewarding (or penalizing) a particular action for things
+that had already occurred in the past for time <span class="math">\(&lt;t\)</span>.  Since the action at
+time <span class="math">\(t\)</span> has no control over previously gained rewards, the expected value of rewards
+<span class="math">\(&lt;t\)</span> should be <span class="math">\(0\)</span>.  In other words, we should replace total
+trajectory return <span class="math">\(R(\tau)\)</span> with only the future rewards we can affect <span class="math">\(G_t\)</span>.
+The proof of this is a bit detailed, so I put it in Appendix A if you're interested.</p>
+<p>By replacing <span class="math">\(R(\tau)\)</span> with <span class="math">\(\gamma^t G_t\)</span> (in expectation) with
+the <span class="math">\(\gamma\)</span> to ensure discounting is correct, we can now derive the
+Policy Gradient Theorem, starting from Equation 18:</p>
+<div class="math">
+\begin{align*}
+\nabla_\theta J(\theta) &amp;= \int R(\tau) p_\theta (\tau) \nabla_\theta \log p_\theta(\tau) d\tau  \\
+&amp;= \int R(\tau) p_\theta (\tau) \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t | s_t) d\tau &amp;&amp; \text{Equation 19}\\
+&amp;= \int p_\theta (\tau) \sum_{t=0}^{T-1} R(\tau) \nabla_\theta \log \pi_\theta(a_t | s_t) d\tau \\
+&amp;= E_{\tau \sim p_\theta}[\sum_{t=0}^{T-1} R(\tau) \nabla_\theta \log \pi_\theta(a_t | s_t)] \\
+&amp;= \sum_{t=0}^{T-1} E_{\tau \sim p_\theta}[R(\tau) \nabla_\theta \log \pi_\theta(a_t | s_t)] \\
+&amp;= \sum_{t=0}^{T-1} E_{\tau \sim p_\theta}[\gamma^t G_t \nabla_\theta \log \pi_\theta(a_t | s_t)] &amp;&amp; \text{replace }R(\tau)\text{ with } \gamma^t G_t \text{ in expectation}\\
+&amp;= \sum_{t=0}^{T-1} E\big[E[\gamma^t G_t \nabla_\theta \log \pi_\theta(a_t | s_t) \big| a_t, s_t]\big] &amp;&amp; \text{law of iterated expecetations} \\
+&amp;= \sum_{t=0}^{T-1} E\big[E[\gamma^t G_t | a_t, s_t] \nabla_\theta \log \pi_\theta(a_t | s_t) \big] &amp;&amp; \nabla_\theta \log \pi_\theta(a_t | s_t) \text{ fixed given } a_t, s_t \\
+&amp;= \sum_{t=0}^{t-1} \gamma^t E\big[ Q_t^{\pi_\theta}(s_t,a_t) \nabla_\theta \log \pi_\theta(a_t | s_t) \big] &amp;&amp; \text{Equation 12} \\
+&amp;= E_{s \sim \rho_\gamma^{\pi_\theta}, a \sim \pi_\theta(\cdot \mid s)}
+     [Q^{\pi_\theta}(s,a) \nabla_\theta \log \pi_\theta(a \mid s)] &amp;&amp; \text{where }\rho_\gamma^\pi(s) = \sum_{t=0}^{T-1} \gamma^t p_\pi(s_t = s)
+\tag{20}
+\end{align*}
+</div>
+<p>The final line is the usual statement of the Policy Gradient Theorem.
+Using a more compact notation for the expectation, we can use this to derive a
+Monte Carlo Estimator where each data point is a sample from a state-action
+pair <span class="math">\((a_t, s_t)\)</span>:</p>
+<div class="math">
+\begin{align*}
+\nabla_\theta J(\theta) &amp;= E_{\pi_\theta} [Q^{\pi_\theta}(s,a) \nabla_\theta \log \pi_\theta(a \mid s)] \\
+&amp;\approx \frac{1}{N} \sum_{i=1}^N G_t \nabla_\theta \log \pi_\theta(a_t | s_t) \\
+\tag{21}
+\end{align*}
+</div>
+</div>
+<div class="section" id="policy-gradient-estimators-and-credit-assignment">
+<h3><a class="toc-backref" href="#id18"><span class="sectnum">3.2</span> Policy Gradient Estimators and Credit Assignment</a></h3>
+<p>As we saw in Equation 21, the policy gradient estimator ends up having two
+parts: a credit assignment (<span class="math">\(G_t\)</span>), and the gradient of the policy in
+log space.  The credit assignment tells us "how good was this action?"
+(e.g.  very positive to very negative), and the gradient tells us which
+parameters we need to update and in what proportions.  We'll generalize the
+credit assignment and call it <span class="math">\(\Psi_t\)</span> and show how each one can be
+related to the original Policy Gradient Algorithm:</p>
+<div class="math">
+\begin{equation*}
+\Psi_t \nabla_\theta \log \pi_\theta(a_t|s_t) \tag{22}
+\end{equation*}
+</div>
+<p>Table 2 shows some of the general forms of <span class="math">\(\Psi_t\)</span> and how they affect
+bias and variance.  In the next subsections, we'll go through a few popular
+classes of policy gradient algorithms to discuss differences in the credit
+assignment as well as mention other differences in the algorithm.  All of
+them can trace their roots back to the Policy Gradient Theorem.</p>
+<table class="colwidths-given rl-table">
+<caption><strong>Table 2: Common Policy Gradient Learning Signals and Their Bias--Variance Trade-offs</strong></caption>
+<colgroup>
+<col style="width: 30%">
+<col style="width: 40%">
+<col style="width: 15%">
+<col style="width: 15%">
+</colgroup>
+<thead><tr>
+<th class="head"><p><span class="math">\(\Psi_t\)</span></p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Variance</p></th>
+<th class="head"><p>Bias</p></th>
+</tr></thead>
+<tbody>
+<tr>
+<td><p><span class="math">\(R(\tau) = \sum_{t=0}^{T} r_t\)</span></p></td>
+<td><p>Total trajectory reward</p></td>
+<td><p>Highest</p></td>
+<td><p>None</p></td>
+</tr>
+<tr>
+<td><p><span class="math">\(G_t = \sum_{t'=t}^{T} r_{t'}\)</span></p></td>
+<td><p>Future return from <span class="math">\(t\)</span></p></td>
+<td><p>High</p></td>
+<td><p>None</p></td>
+</tr>
+<tr>
+<td><p><span class="math">\(G_t - b(s_t)\)</span></p></td>
+<td><p>Baselined return</p></td>
+<td><p>Lower</p></td>
+<td><p>None</p></td>
+</tr>
+<tr>
+<td><p><span class="math">\(Q^\pi(s_t, a_t)\)</span></p></td>
+<td><p>State-action value function</p></td>
+<td><p>Medium</p></td>
+<td><p>Depends</p></td>
+</tr>
+<tr>
+<td><p><span class="math">\(A^\pi(s_t, a_t) = Q^\pi(s_t, a_t) - V^\pi(s_t)\)</span></p></td>
+<td><p>Advantage function</p></td>
+<td><p>Low, with a good <span class="math">\(V\)</span></p></td>
+<td><p>None</p></td>
+</tr>
+<tr>
+<td><p><span class="math">\(r_t + \gamma V(s_{t+1}) - V(s_t)\)</span></p></td>
+<td><p>TD residual</p></td>
+<td><p>Low</p></td>
+<td><p>Some</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="reinforce">
+<h3><a class="toc-backref" href="#id19"><span class="sectnum">3.3</span> REINFORCE</a></h3>
+</div>
+<div class="section" id="actor-critic">
+<h3><a class="toc-backref" href="#id20"><span class="sectnum">3.4</span> Actor Critic</a></h3>
+</div>
+</div>
+<div class="section" id="value-methods">
+<h2><a class="toc-backref" href="#id21"><span class="sectnum">4</span> Value Methods</a></h2>
+</div>
+<div class="section" id="appendix-a-policy-gradient-theorem-replacing-r-tau-with-g-t">
+<h2><a class="toc-backref" href="#id22"><span class="sectnum">5</span> Appendix A: Policy Gradient Theorem - Replacing <span class="math">\(R(\tau)\)</span> with <span class="math">\(G_t\)</span></a></h2>
+<p>Summarize discussion with ChatGPT</p>
+</div>
+<div class="section" id="references">
+<h2><a class="toc-backref" href="#id23"><span class="sectnum">6</span> References</a></h2>
+<dl class="citation">
+<dt class="label" id="lambert">
+<span class="brackets">Lambert</span><span class="fn-backref">(<a href="#id2">1</a>,<a href="#id8">2</a>)</span>
+</dt>
+<dd>
+<p>Nathan Lambert, "<a class="reference external" href="https://rlhfbook.com/course">Reinforcement Learning from Human Feedback</a>", 2026.</p>
+</dd>
+<dt class="label" id="schulman"><span class="brackets">Schulman</span></dt>
+<dd>
+<p>Schulman, J., Moritz, P., Levine, S., Jordan, M., and Abbeel, P.. “High-Dimensional Continuous Control Using Generalized Advantage Estimation.” arXiv preprint <a class="reference external" href="https://arxiv.org/abs/1506.02438">arXiv:1506.02438</a>, 2015.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="notes">
+<h2><a class="toc-backref" href="#id24"><span class="sectnum">7</span> Notes</a></h2>
+<dl class="footnote brackets">
+<dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd>
+<p>I've also been debating the value of writing these posts given that everything here can be easily reproduced by an LLM (which in fact I had used to learn more about this subject).  But I ended deciding to write it for a couple of reasons: (1) It's helpful for me to digest what I've learned and take time to try to explain it again a la the <a class="reference external" href="https://en.wikipedia.org/wiki/Learning_by_teaching">Feynman technique</a>, (2) I think it's still pedagogically useful to curate core ideas for posterity.  Besides, who else will feed the LLMs with raw unfiltered human text?  We can't the LLMs be trained on "junk data" from Twitter (aka X) and Reddit users.</p>
+</dd>
+<dt class="label" id="id6"><span class="brackets"><a class="fn-backref" href="#id3">2</a></span></dt>
+<dd>
+<p>I know, I know, action <span class="math">\(A_t\)</span> and advantage <span class="math">\(A^\pi\)</span> both use the same letter but that's the convention, and usually it's easy to understand the difference from context.</p>
+</dd>
+<dt class="label" id="id7"><span class="brackets"><a class="fn-backref" href="#id4">3</a></span></dt>
+<dd>
+<p>Much of this section was derived from Nathan Lambert's RL lecture from his RLHF course <a class="citation-reference" href="#lambert" id="id8">[Lambert]</a>.  After watching his lecture, it inspired me to dig deeper into the math to understand it all in detail.  As I usually do, I expanded on it a bit to present it in a way that answers questions that I had along the way.</p>
+</dd>
+</dl>
+</div>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/math/" rel="tag">math</a></li>
+            <li><a class="tag p-category" href="../../categories/reinforcement-learning/" rel="tag">reinforcement learning</a></li>
+            <li><a class="tag p-category" href="../../categories/rl/" rel="tag">rl</a></li>
+        </ul></nav></aside><script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'left', // Change this to 'center' to center equations.
+    displayIndent: '2em',
+    "SVG": {
+        styles: {'.MathJax_SVG_Display': {"margin": "0em 0em 1em 0em"}}
+    }
+});
+</script><script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS_SVG"></script></article>
+</div>
+            <div class="col-md-3 ">
+            <div class="card card-body bg-light">
+            <p>
+            Hi, I'm <a href="http://www.briankeng.com/about">Brian Keng</a>.  This is
+            <a href="../../">the place</a> where I write about all things technical.
+            </p>
+            <p>
+            Twitter: <a href="http://www.twitter.com/bjlkeng">@bjlkeng</a>
+            </p>
+
+            <br>
+</div>
+
+<!-- Begin MailChimp Signup Form -->
+<hr>
+<link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+    #mc_embed_signup{clear:left; font:13px Helvetica,Arial,sans-serif; }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+       We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="//briankeng.us10.list-manage.com/subscribe/post?u=cedf72ca8daa891e57f4379a0&amp;id=1f1563094f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <b>Signup for Email Blog Posts</b>
+    <div id="mc_embed_signup_scroll">
+<div>
+    <label for="mce-EMAIL"> Email Address </label>
+    <input type="email" value="" name="EMAIL" class="required email form-control input-sm" id="mce-EMAIL">
+</div>
+    <div id="mce-responses" class="clear">
+        <div class="response" id="mce-error-response" style="display:none"></div>
+        <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_cedf72ca8daa891e57f4379a0_1f1563094f" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn btn-default btn-xs"></div>
+    </div>
+</form>
+</div>
+<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script><!--End mc_embed_signup-->
+</div>
+            </div>
+        </div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2026         <a href="mailto:me@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+            
+        </footer>
+</div>
+
+
+
+        <script src="../../assets/js/all-nocdn.js"></script><script>
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element) {
+            return element.getElementsByTagName('img')[0].alt;
+    }});
+    </script><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-15314898-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>

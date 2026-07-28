@@ -22,11 +22,11 @@ MathJax.Hub.Config({
     },
     displayAlign: 'left', // Change this to 'center' to center equations.
     displayIndent: '2em',
-    "HTML-CSS": {
-        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
+    "SVG": {
+        styles: {'.MathJax_SVG_Display': {"margin": "0em 0em 1em 0em"}}
     }
 });
-</script><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Brian Keng">
+</script><script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS_SVG"></script><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Brian Keng">
 <link rel="prev" href="../manifolds/" title="Manifolds: A Gentle Introduction" type="text/html">
 <link rel="next" href="../universal-resnet-the-one-neuron-approximator/" title="Universal ResNet: The One-Neuron Approximator" type="text/html">
 <meta property="og:site_name" content="Bounded Rationality">
@@ -888,11 +888,11 @@ a technical post by the authors of Gensim describing how they implemented these
 embeddings.</p>
 <p>The model is trivial to run using Gensim.  Here's some sample code from their
 documentation:</p>
-<pre class="code python"><a name="rest_code_5368c6a50778460b8e543b6665345fd8-1"></a><span class="kn">from</span> <span class="nn">gensim.models.poincare</span> <span class="kn">import</span> <span class="n">PoincareModel</span>
-<a name="rest_code_5368c6a50778460b8e543b6665345fd8-2"></a><span class="n">relations</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'marsupial'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'mammal'</span><span class="p">),</span>
-<a name="rest_code_5368c6a50778460b8e543b6665345fd8-3"></a>             <span class="p">(</span><span class="s1">'gib'</span><span class="p">,</span> <span class="s1">'cat'</span><span class="p">)]</span>
-<a name="rest_code_5368c6a50778460b8e543b6665345fd8-4"></a><span class="n">model</span> <span class="o">=</span> <span class="n">PoincareModel</span><span class="p">(</span><span class="n">relations</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<a name="rest_code_5368c6a50778460b8e543b6665345fd8-5"></a><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_37ea487e7ab94a66ae89ee94fd1b357a-1"></a><span class="kn">from</span> <span class="nn">gensim.models.poincare</span> <span class="kn">import</span> <span class="n">PoincareModel</span>
+<a name="rest_code_37ea487e7ab94a66ae89ee94fd1b357a-2"></a><span class="n">relations</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'marsupial'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'kangaroo'</span><span class="p">,</span> <span class="s1">'mammal'</span><span class="p">),</span>
+<a name="rest_code_37ea487e7ab94a66ae89ee94fd1b357a-3"></a>             <span class="p">(</span><span class="s1">'gib'</span><span class="p">,</span> <span class="s1">'cat'</span><span class="p">)]</span>
+<a name="rest_code_37ea487e7ab94a66ae89ee94fd1b357a-4"></a><span class="n">model</span> <span class="o">=</span> <span class="n">PoincareModel</span><span class="p">(</span><span class="n">relations</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<a name="rest_code_37ea487e7ab94a66ae89ee94fd1b357a-5"></a><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 </pre>
 <p>I love it when there are nice clean open source implementations available.
 Coding these up from scratch invariably takes a huge amount of time, especially
@@ -938,7 +938,7 @@ to consciously break them up into smaller pieces, maybe do some "Agile" or
             <li class="next">
                 <a href="../universal-resnet-the-one-neuron-approximator/" rel="next" title="Universal ResNet: The One-Neuron Approximator">Next post</a>
             </li>
-        </ul></nav></aside><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha384-3lJUsx1TJHt7BA4udB5KPnDrlkO8T6J6v/op7ui0BbCjvZ9WqV4Xm6DTP6kQ/iBH" crossorigin="anonymous"></script><script type="text/x-mathjax-config">
+        </ul></nav></aside><script type="text/x-mathjax-config">
 MathJax.Hub.Config({
     tex2jax: {
         inlineMath: [ ['$','$'], ["\\(","\\)"] ],
@@ -947,11 +947,11 @@ MathJax.Hub.Config({
     },
     displayAlign: 'left', // Change this to 'center' to center equations.
     displayIndent: '2em',
-    "HTML-CSS": {
-        styles: {'.MathJax_Display': {"margin": "0em 0em 1em 0em"}}
+    "SVG": {
+        styles: {'.MathJax_SVG_Display': {"margin": "0em 0em 1em 0em"}}
     }
 });
-</script></article>
+</script><script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS_SVG"></script></article>
 </div>
             <div class="col-md-3 ">
             <div class="card card-body bg-light">
@@ -998,7 +998,7 @@ MathJax.Hub.Config({
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2026         <a href="mailto:brian@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2026         <a href="mailto:me@briankeng.com">Brian Keng</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
             
         </footer>
