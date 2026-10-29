@@ -172,7 +172,7 @@ successive actions :math:`\mathcal{A}` in those states to achieve goal (reward
 :math:`\mathcal{R}`).  It takes these actions in the context of an
 **environment** defined by the state transitions and rewards.  
 The **discount factor** :math:`\gamma` defines how much we value rewards we collect
-later vs. now.  In our game example, this is agent represents the player whose
+later vs. now.  In our game example, this is agent represents the player 
 purpose is to maximize the "score" and the environment is the game.  
 
 The following table summarizes this game analogy more concisely.  We'll get more
@@ -254,9 +254,14 @@ by :math:`\theta` (you'll also see :math:`\pi^*`, where :math:`*` denotes the
 theoretical optimal policy i.e., perfect decisions).  So our agent is basically
 just a neural network that outputs probabilities on what action to take next.
 
-To train the policy, we'll need data.  This usually comes in the form of a
-**trajectory** (or **trace**) :math:`\tau` where you have observed an agent
-(not necessarily your agent) operating in the environment.  Formally,
+To train the policy, we'll need data.  Data is usually collected in
+**episodes**, which are runs in the environment from a clear beginning to end
+point (terminal state or success/failure).  The recorded data path of an
+episode comes in the form of a **trajectory** (or **trace**) :math:`\tau` where
+you have observed an agent (not necessarily your agent) operating in the
+environment. 
+
+Formally,
 that shows up as a vector:
 
 .. math::
@@ -529,17 +534,17 @@ them can trace their roots back to the Policy Gradient Theorem.
      - Bias
 
    * - :math:`R(\tau) = \sum_{t=0}^{T} r_t`
-     - Total trajectory reward
+     - Total trajectory reward (REINFORCE)
      - Highest
      - None
 
    * - :math:`G_t = \sum_{t'=t}^{T} r_{t'}`
-     - Future return from :math:`t`
+     - Future return from :math:`t` (REINFORCE)
      - High
      - None
 
    * - :math:`G_t - b(s_t)`
-     - Baselined return
+     - Baselined return (REINFORCE with baseline)
      - Lower
      - None
 
@@ -559,12 +564,46 @@ them can trace their roots back to the Policy Gradient Theorem.
      - Some
 
 
+REINFORCE: Monte Carlo Policy Gradients
+---------------------------------------
+
+REINFORCE (REward Increment = Non-negative Factor × Offset Reinforcement ×
+Characteristic Eligibility) [Sutton]_ is one of the earliest algorithms that is
+a direct instantiation of the Policy Gradient Theorem.  It is shown in
+Python-flavoured pseudocode listed in Algorithm 1 which uses the *reward to go*
+variation with :math:`\Psi_t = G_t`.  Similarly, we could use the full
+return-weighted option with :math:`\Psi_t = R(\tau)` in Algorithm 1 (with a few
+modifications).
+
+* Explain why R(\tau) is more noisy than G_t
+
+**Algorithm 1: Basic REINFORCE algorithm**
+
+.. code-block:: python
+
+   for(max_iterations):
+       episodes = collect_episodes(π_θ)
+       dθ = 0
+       for episode in episodes:
+           G = 0
+           for t in T .. 0:
+               G = r_t + γ * G
+               dθ += γ^t * G * grad(log π_θ(a_t | s_t))
+
+       θ = θ + α * 1/len(episodes) * dθ
+
+An important note is that Algorithm 1 collects collects trajectories over the
+current policy :math:`\pi_\theta`.  The outer loop is basically run some
+episodes, compute gradients, update model.  It relies on having full episodes
+from the model you are training.  Specifically, you need the full episode in
+order to compute :math:`G_t` or :math:`R(\tau)`, and the math assumes these are
+sampled from the same policy :math:`\pi_\theta`.  These are things that we can
+change in later algorithms.
 
 
+* REINFORCE with a baseline
+       
 
-
-REINFORCE
----------
 
 Actor Critic
 ------------
@@ -576,7 +615,53 @@ Value Methods
 Appendix A: Policy Gradient Theorem - Replacing :math:`R(\tau)` with :math:`G_t`
 ================================================================================
 
-Summarize discussion with ChatGPT
+From Equation 8, we have:
+
+.. math::
+
+   R(\tau) &= \sum_{t=0}^{T-1} \gamma^t r_{t} \\
+   &= \sum_{k<t} \gamma^t r_{k} + \sum_{k\geq t} \gamma^k r_{k} \\
+   &= \sum_{k<t} \gamma^t r_{k} + \gamma^t G_t \\
+   \tag{A.1}
+
+The extra :math:`\gamma^t` factor is needed because our definition of G_t
+starts discounting from time :math:`t`, not from :math:`t=0`.
+From here, the expectation leading up to the Policy Gradient Theorem becomes:
+
+.. math::
+
+   E[R(\tau)\nabla \log \pi_\theta (a_t|s_t)] &=
+   E[\big(\sum_{k<t} \gamma^t r_{k} \big)\nabla \log \pi_\theta (a_t|s_t)] +
+   E[\gamma^t G_t \nabla \log \pi_\theta (a_t|s_t)] \\
+   \tag{A.2}
+
+The second term is our desired result so we just need to show that
+the first term is zero. For a given :math:`t`, let's define the trajectory that
+came before it as :math:`H_t=(s_0,a_0,r_0, \ldots, s_t)`.  Then, we'll
+apply the law of iterated expectation to get our results:
+
+.. math::
+
+   E[\big(\sum_{k<t} \gamma^t r_{k} \big)\nabla \log \pi_\theta (a_t|s_t)]
+   &= E\Big[E[\big(\sum_{k<t} \gamma^t r_{k} \big)\nabla \log \pi_\theta (a_t|s_t)|H]\Big] \\
+   &= E\Big[\big(\sum_{k<t} \gamma^t r_{k} \big)E[\nabla \log \pi_\theta (a_t|s_t)|H]\Big] && \text{past rewards fixed at time }t \\
+   &= E\Big[\big(\sum_{k<t} \gamma^t r_{k} \big)\big(\sum_a  \pi_\theta(a|s_t)\nabla \log \pi_\theta (a|s_t)\big)\Big] && \text{conditioned on H, so sum depends only on  }a \\
+   &= E\Big[\big(\sum_{k<t} \gamma^t r_{k} \big)\big(\sum_a  \nabla \pi_\theta (a|s_t)\big)\Big] && \text{log derivative trick} \\
+   &= E\Big[\big(\sum_{k<t} \gamma^t r_{k} \big)\big(\nabla \sum_a \pi_\theta (a|s_t)\big)\Big] \\
+   &= E\Big[\big(\sum_{k<t} \gamma^t r_{k} \big)\big(\nabla 1 \big)\Big] && \pi_\theta \text{ is a probability distribution over }a \\
+   &= E\Big[\big(\sum_{k<t} \gamma^t r_{k} \big)\big(0 \big)\Big] \\
+   &= 0 \\
+   \tag{A.3}
+
+Plugging Equation A.3 back into Equation A.2 gets us to the expression as required.
+   
+.. math::
+
+   E[R(\tau)\nabla \log \pi_\theta (a_t|s_t)] &=
+   E[\big(\sum_{k<t} \gamma^t r_{k} \big)\nabla \log \pi_\theta (a_t|s_t)] +
+   E[\gamma^t G_t \nabla \log \pi_\theta (a_t|s_t)] \\
+   E[R(\tau)\nabla \log \pi_\theta (a_t|s_t)] &= E[\gamma^t G_t \nabla \log \pi_\theta (a_t|s_t)] && \text{Eq. A.3} \\
+   \tag{A.4}
 
 References
 ==========
@@ -584,6 +669,8 @@ References
 .. [Lambert] Nathan Lambert, "`Reinforcement Learning from Human Feedback <https://rlhfbook.com/course>`__", 2026.
 
 .. [Schulman] Schulman, J., Moritz, P., Levine, S., Jordan, M., and Abbeel, P.. “High-Dimensional Continuous Control Using Generalized Advantage Estimation.” arXiv preprint `arXiv:1506.02438 <https://arxiv.org/abs/1506.02438>`__, 2015.
+
+.. [Sutton] Sutton, R. S., and Barto, A. G. (2018). Reinforcement Learning: An Introduction, 2nd ed.
 
 
 Notes
