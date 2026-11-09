@@ -1,7 +1,7 @@
-.. title: A Reinforcement Learning Primer
+.. title: A Primer on Policy Gradients
 .. slug: rl-math
-.. date: 2027-07-22 15:30:46 UTC-04:00
-.. tags: rl, reinforcement learning, math, mathjax
+.. date: 2026-10-22 15:30:46 UTC-04:00
+.. tags: rl, reinforcement learning, policy gradients, math, mathjax
 .. category: 
 .. link: 
 .. description: 
@@ -66,10 +66,10 @@ where :math:`f_P(\cdot)` is the probability density function of :math:`P`
 (similarly we can use a sum and probability mass function instead when
 :math:`P` is discrete).
 
-Equation 1 is usually impossible to compute exactly because :math:`f_P(\cdot)` does not
-usually have a closed form, for example when :math:`P` is our data distribution,
-which we only ever observe data samples from.  In these cases, we can
-approximate the expectation using IID samples :math:`x_i` from :math:`P` 
+Equation 1 is often impossible to compute exactly because :math:`f_P(\cdot)` usually does not
+have a closed form.  In most cases, the only thing we do have are
+samples from our data distribution :math:`P`.  With these samples, we can
+approximate the expectation assuming IID samples :math:`x_i` from :math:`P` 
 using `Monte Carlo estimation <https://en.wikipedia.org/wiki/Monte_Carlo_method>`__ 
 as such:
 
@@ -84,8 +84,8 @@ Monte Carlo approximation.  This shows up in
 `importance sampling <https://en.wikipedia.org/wiki/Importance_sampling>`__  
 where instead of sampling from :math:`x\sim P`, we sample from a different
 distribution (with the same support) :math:`x\sim Q` usually because it'll
-either reduce variance or when sampling from :math:`P` is difficult (but can
-still have the PDF of :math:`f_P(x)`).  
+either reduce variance or when sampling from :math:`P` is difficult (but where
+we still have the functional form of the PDF :math:`f_P(x)`).  
 
 Of course, you can't just sample from :math:`Y` and do nothing else, you need
 an weighting factor :math:`w(x)=\frac{f_P(x)}{f_Q(x)}` too.  Putting that
@@ -101,8 +101,8 @@ together with Equation 2, we get:
                       &\approx \frac{1}{N}\sum_{i=1}^N w(x) \Psi(x_i) \\
                       \tag{3}
 
-This will come in handy later when we want to use data that wasn't generated 
-directly by the current model being trained.
+This importance sampling equation will come in handy later when we want to use data that
+wasn't generated directly by the current model being trained.
 
 Log Derivative Trick
 --------------------
@@ -130,7 +130,7 @@ trick straight from the definition of the score:
 Notice the RHS of the second line now has the raw pdf/pmf :math:`p(\cdot)`,
 multiplied by the log-likelihood.  When used inside an expectation, this allows
 us to reparameterize the expectation and still use our good old log-likelihood.
-This will make a bit more sense later when we use it.
+This will make a bit more sense later when we use it later.
 
 Reinforcement Learning Basics
 =============================
@@ -140,11 +140,11 @@ Reinforcement Learning and Markov Decision Processes
 
 `Reinforcement learning (RL) <https://en.wikipedia.org/wiki/Reinforcement_learning>`__
 is a branch of machine learning whose goal is to learn an intelligent agent 
-(not to be confused with the typical `generative AI agent <https://en.wikipedia.org/wiki/AI_agent>`__)
+(not to be confused with an `LLM-based  AI agent <https://en.wikipedia.org/wiki/AI_agent>`__)
 that can take actions in a dynamic environment in order to maximize a reward
 signal.  The prototypical example of an (RL) agent is a game-playing AI that
 selects the next action (e.g. left, right, shoot, etc.) in a computer game where
-the reward is your score in the game, which you're trying to maximize.
+the reward is the score in the game with the goal to maximize it.
 
 As usual, we'll formalize this concept with a **Markov Decision Process (MDP)**
 as a 5-tuple :math:`\mathcal{M} = (\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)`, where:
@@ -172,8 +172,9 @@ successive actions :math:`\mathcal{A}` in those states to achieve goal (reward
 :math:`\mathcal{R}`).  It takes these actions in the context of an
 **environment** defined by the state transitions and rewards.  
 The **discount factor** :math:`\gamma` defines how much we value rewards we collect
-later vs. now.  In our game example, this is agent represents the player 
-purpose is to maximize the "score" and the environment is the game.  
+later vs. now.  In our game example, the reward represents the goal of the player,
+which is to maximize the "score", and the environment is simply the actual game
+and how it responds to your actions. 
 
 The following table summarizes this game analogy more concisely.  We'll get more
 into the mathematical details in the next subsection.
@@ -270,12 +271,12 @@ that shows up as a vector:
 
 This can be thought of as a "recording" of the session explored by the agent.
 In the case that the traces are collected beforehand for training (via another
-agent, an older version of our agent, randomly etc.), it's usually known as
+agent, an older version of our agent, by a human, or randomly etc.), it's usually known as
 **offline** training.  Otherwise if the agent is actively learning while
 interacting with the environment it's called **online** training.
 
 Finally, the expected **return** or cumulative discounted reward from time
-:math:`t` to the end of the trajectory is given by:
+:math:`t` in state :math:`s` to the end of the trajectory is given by:
 
 .. math::
 
@@ -344,7 +345,7 @@ action :math:`a` given by:
               &= E_\pi[r_t + \gamma V^\pi(s') | S_t = s, A_t = a] \\
    \tag{12}
 
-where math:`s'` is the next state resulting from taking action :math:`a` in
+where :math:`s'` is the next state resulting from taking action :math:`a` in
 state :math:`s`.  The Q function can be written in terms of the value function
 since its return is just the current action/state's return plus the future
 returns from the next state.  We need the expectation because the environment
@@ -353,10 +354,9 @@ rewards/trajectories.
 
 Similar to the value function, the Q-function can also be learned and used to
 help understand how a policy is doing, although it's less commonly used than
-the value function.  More commonly, the Q-function can be used directly to
+the value function.  More often the Q-function is used directly to
 derive a policy since if you have a good estimate of the q-function, you can
-just take the most profitable action at any given state.  We'll get more into
-this in later sections.
+just take the most profitable action at any given state.
 
 Moving on, MDPs have `optimal substructure
 <https://en.wikipedia.org/wiki/Optimal_substructure>`__ because of its Markov
@@ -396,14 +396,14 @@ later sections to help make a lower variance estimator compared to Equation 10.
 Policy Gradients
 ================
 
-Policy gradients [#]_ are a type of reinforcement learning that directly aims to
+Policy gradients [#]_ are a type of reinforcement learning that directly aim to
 learn a policy :math:`\pi_\theta(a|s)`, usually a neural network parameterized
-by :math:`\theta`.  It's input is the observed current state of the environment
+by :math:`\theta`.  Its input is the observed current state of the environment
 :math:`s` and its output is a probability distribution over possible actions
 :math:`a`.  This forms the agent which sequentially makes decisions to maximize
-reward in a given environment.
+rewards in a given environment.
 
-As with more neural network based approaches, we update the :math:`\pi_\theta`
+As with most neural network based approaches, we update :math:`\pi_\theta`
 with a scaled version of its gradient (hence the name policy gradients) based
 on a loss derived from total expected return of our policy in Equation 10.
 The general form of the update is:
@@ -446,7 +446,7 @@ gradient operation.  But we can apply our log derivative trick from Equation 4 t
    &=  \int R(\tau) p_\theta (\tau) \nabla_\theta \log p_\theta(\tau) d\tau && \text{Equation 4}   \\
    \tag{18}
 
-And that gives us something that we can use Equation 4 on to get a Monte Carlo estimator!
+And that gives us a Monte Carlo estimator that we can use just like in Equation 2!
 However, notice that our gradient update in Equation 15 uses actions :math:`a` and states :math:`s`,
 not full trajectories :math:`\tau`.  To solve that, we'll need to use Equation 9 which writes
 the probability of the full trajectory in terms of the state-action transitions.  Starting
@@ -460,7 +460,7 @@ from the gradient of the log policy probability from Equation 18:
    &= \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t | s_t) && \text{only }\pi_\theta \text{ is a function of } \theta \\
    \tag{19}
 
-Thus, we get the same expression that we saw the generic policy gradient update in Equation 15.
+Thus, we get the same expression that we saw in the generic policy gradient update in Equation 15.
 Now before we get to the actual estimator, we should notice that return
 :math:`R(\tau)` depends on the whole trajectory (e.g.  steps :math:`1\ldots t\ldots T`), 
 but we're going to update our policy on a single state-action pair (or a batch of them) at time :math:`t`.
@@ -473,7 +473,7 @@ The proof of this is a bit detailed, so I put it in Appendix A if you're interes
 
 By replacing :math:`R(\tau)` with :math:`\gamma^t G_t` (in expectation) with
 the :math:`\gamma` to ensure discounting is correct, we can now derive the
-Policy Gradient Theorem, starting from Equation 18:
+*rewards to go* variant of the Policy Gradient Theorem, starting from Equation 18:
 
 .. math::
 
@@ -539,7 +539,7 @@ them can trace their roots back to the Policy Gradient Theorem.
      - None
 
    * - :math:`G_t = \sum_{t'=t}^{T} r_{t'}`
-     - Future return from :math:`t` (REINFORCE)
+     - Future return from :math:`t` (REINFORCE with reward to go)
      - High
      - None
 
@@ -575,9 +575,7 @@ variation with :math:`\Psi_t = G_t`.  Similarly, we could use the full
 return-weighted option with :math:`\Psi_t = R(\tau)` in Algorithm 1 (with a few
 modifications).
 
-* Explain why R(\tau) is more noisy than G_t
-
-**Algorithm 1: Basic REINFORCE algorithm**
+**Algorithm 1: Basic REINFORCE algorithm with reward to go**
 
 .. code-block:: python
 
@@ -590,27 +588,187 @@ modifications).
                G = r_t + γ * G
                dθ += γ^t * G * grad(log π_θ(a_t | s_t))
 
-       θ = θ + α * 1/len(episodes) * dθ
+       θ = θ + α * dθ / len(episodes) 
 
 An important note is that Algorithm 1 collects collects trajectories over the
 current policy :math:`\pi_\theta`.  The outer loop is basically run some
-episodes, compute gradients, update model.  It relies on having full episodes
-from the model you are training.  Specifically, you need the full episode in
-order to compute :math:`G_t` or :math:`R(\tau)`, and the math assumes these are
-sampled from the same policy :math:`\pi_\theta`.  These are things that we can
-change in later algorithms.
+episodes, compute gradients, and update the model.  It relies on having full
+episodes from the model you are training.  Specifically, you need the full
+episode in order to compute :math:`G_t` or :math:`R(\tau)`, and the math
+assumes these are sampled from the same policy :math:`\pi_\theta`.  These are
+things that we can change in later algorithms.
 
 
-* REINFORCE with a baseline
+REINFORCE with a Baseline
+~~~~~~~~~~~~~~~~~~~~~~~~~
        
+Another variation on REINFORCE is using a baseline that is a function of the
+current state.  Using :math:`\Psi_t = G_t - b(s_t)` our gradient update
+:math:`\hat{g}` becomes:
+
+.. math::
+    \hat{g_b} = \big(G_t - b(s_t)\big) \nabla_\theta\log \pi_\theta (a_t|s_t) \tag{23}
+
+The intuition here is that the expectation of the gradient will stay the same
+but the variance will be smaller because of the baseline subtraction.  For
+example, if on one sample episode we had a rewards to go of :math:`101` with baseline
+:math:`100`, and another sample episode of rewards to go of :math:`-99` with baseline
+:math:`-100`, we would get the results shown in Table 3.
+
+.. list-table:: **Table 3: Example of Baseline's Effect on Variance**
+   :header-rows: 1
+
+   * -
+     - Without baseline :math:`G_t`
+     - Baseline :math:`b(s_t)`
+     - With baseline :math:`G_t - b(s_t)`
+   * - Sample 1
+     - +101
+     - +100
+     - +1
+   * - Sample 2
+     - -99
+     - -100
+     - +1
+   * - Expected Gradient
+     - +1
+     - 
+     - +1
+   * - Variance
+     - 10,000
+     -
+     - 0
+
+Here we can see the expected gradient is the same with or without the baseline,
+but the variance has been dramatically reduced.  Any one sample could have a
+much bigger gradient but on average it's the same with (hopefully) a small variance.
+
+That last part is important: it's not guaranteed that the baseline will reduce
+variance -- it's quite possible that it will increase it if it's not good.  A
+common choice for the baseline is an estimate of the value function
+:math:`b(s_t) = V\phi(s_t)`.  This is basically the "average forward reward in
+:math:`s_t`", which intuitively seems like a reasonable baseline, and it is in
+many situations.
+
+Although sometimes we do add correction factors that empirically work,
+adding a baseline has a theoretical basis.  With some of the intuition under
+our belt, let's first show the expected gradient is the same with or without baseline,
+and then show the value function is usually a good choice for :math:`b(s_t)`
+but not necessarily minimal.
+
+First, let's take the expectation of our baseline gradient expression from Equation 23:
+
+.. math::
+
+    E[\hat{g_b}] &= E[\big(G_t - b(s_t)\big) \nabla_\theta\log \pi_\theta (a_t|s_t)] \\
+                &= E[G_t \nabla_\theta \log \pi_\theta (a_t|s_t)] - E[b(s_t) \nabla_\theta\log \pi_\theta (a_t|s_t)] \\
+                &= E[\hat{g}] - E[b(s_t) \nabla_\theta\log \pi_\theta (a_t|s_t)] \\ \tag{24}
+
+The first term is exactly our sans-gradient rewards to go gradient, so it suffices to show that
+the second term is 0.  Starting from there:
+
+.. math::
+
+    E[b(s_t) \nabla_\theta\log \pi_\theta (a_t|s_t)] &= \sum_{a_t \sim \pi_\theta} b(s_t) \pi_\theta(a_t|s_t) \nabla_\theta\log \pi_\theta (a_t|s_t) \\
+    &= b(s_t) \sum_{a_t \sim \pi_\theta} \pi_\theta(a_t|s_t) \nabla_\theta\log \pi_\theta (a_t|s_t) \\
+    &= b(s_t) \sum_{a_t \sim \pi_\theta} \nabla_\theta \pi_\theta(a_t|s_t) && \text{log derivative trick} \\
+    &= b(s_t) \nabla_\theta \sum_{a_t \sim \pi_\theta} \pi_\theta(a_t|s_t) \\
+    &= b(s_t) \nabla_\theta 1 && \pi_\theta \text{ is a probability distribution}\\
+    &= b(s_t) \cdot 0 \\
+    &= 0 \\
+    \tag{25}
+
+Crucially, :math:`b(s_t)` must only depend on the current state :math:`s_t`,
+not on the current action :math:`a_t` as shown in Equation 25.
+
+Next, let's show how the variance of the gradient changes with the baseline.
+Starting with the variance:
+
+.. math::
+
+    Var(\hat{g_b}) &= E[\lVert \hat{g_b} \rVert^2] - \lVert E[\hat{g_b}]] \rVert^2 \\
+                  &= E[\lVert \hat{g_b} \rVert^2] - \lVert E[\hat{g}]] \rVert^2 &&& Eq. 25 \text{ result}\\
+        \tag{26}
+
+We can see that only the first term changes with the baseline following from our first result
+that the expectation of the gradients are the same.  Let's now solve for the optimal baseline
+starting from the expression we want to minimize:
+
+.. math::
+
+   b^* &= \operatorname*{arg\,min}_{b} Var(\hat{g_b}) \\
+   &= \operatorname*{arg\,min}_{b} E[\lVert \hat{g_b} \rVert^2] \\
+   &= \operatorname*{arg\,min}_{b} E[\big(G_t - b(s_t)\big)^2 \lVert \nabla_\theta\log \pi_\theta (a_t|s_t) \rVert^2] \\
+   &= \operatorname*{arg\,min}_{b} E[\big(G_t - b\big)^2 \lVert z \rVert^2 \Big| s_t] &&& \text{relabel and condition on } s_t \text{ for convenience} \\
+   \tag{27}
+
+Now let's take the derivative from Equation 27 with respect to :math:`b` and set it to :math:`0`,
+dropping the :math:`|s_t` for clarity:
+
+.. math::
+
+    \frac{\partial}{\partial b  } E[\big(G_t - b\big)^2 \lVert z \rVert^2] &= 0 \\
+    -2E[\big(G_t - b\big) \lVert z \rVert^2]] &= 0 \\
+    E[G_t \lVert z \rVert^2] - b(s_t)E[\lVert z \rVert^2] &= 0 &&& b(s_t) \text{ independent of future actions}\\
+    b(s_t)&= \frac{E[G_t \lVert z \rVert^2]]}{E[\lVert z \rVert^2] } \\
+    b(s_t)&= \frac{E[G_t]E[\lVert z \rVert^2] + Cov(G_t, z)}{E[\lVert z \rVert^2] } &&& \text{covariance identity}\\
+    b(s_t)&= V(s_t) + \frac{Cov(G_t, z)}{E[\lVert z \rVert^2] } &&& \text{Eq. 11}\\
+    \tag{28}
+
+From Equation 28, we can see that the if the covariance between the future returns and the squared
+score-gradient magnitude (:math:`\lVert \nabla_\theta\log \pi_\theta (a_t|s_t) \rVert^2`) is low
+the value function is a close to optimal as we intuitively described above. 
+
+One technical point to note is that the argument depends on :math:`b(s_t)` be
+independent of the current actions :math:`a_t` -- this also means statistically
+they need to be independent.  You can violate this situation if both the
+gradient update :math:`\hat{g_b}` and :math:`V(s_t)` are trained from the exact
+same episode data.  This will make :math:`\hat{g_b}` and :math:`V(s_t)`
+statistically dependent, which violates our assumption.  The easy way to solve
+for this is to update :math:`V(s_t)` at the *end* of the outer loop so that is
+it only used for the *next* policy with a fresh batch of episode data generated
+from a different policy as we'll see below.
+
+Algorithm 2 shows the REINFORCE algorithm with a value baseline.
+In this variant, we fit a separate model for :math:`V_\phi(s)`,
+parameterized by :math:`\phi`, and only update it *after* all
+the gradients have been computed.
+
+**Algorithm 2: REINFORCE algorithm with a value baseline**
+
+.. code-block:: python
+
+   for(max_iterations):
+       episodes = collect_episodes(π_θ)
+   
+       # Calculate gradients using the existing value network
+       dθ = 0
+       dφ = 0
+   
+       for episode in episodes:
+           G = 0
+           for t in T-1 .. 0:
+               G = r_t + γ * G
+               A = G - V_φ(s_t)
+   
+               dθ += γ^t * A * grad_θ(log π_θ(a_t | s_t))
+               dφ += A * grad_φ(V_φ(s_t))
+   
+       # Update only after all gradients are calculated
+       θ = θ + α * dθ / len(episodes)
+       φ = φ + β * dφ / len(episodes)
+
 
 
 Actor Critic
 ------------
 
-Value Methods
-=============
 
+Proximal Policy Optimization
+----------------------------
+
+Generalized Advantage Estimation
+--------------------------------
 
 Appendix A: Policy Gradient Theorem - Replacing :math:`R(\tau)` with :math:`G_t`
 ================================================================================
@@ -624,7 +782,7 @@ From Equation 8, we have:
    &= \sum_{k<t} \gamma^t r_{k} + \gamma^t G_t \\
    \tag{A.1}
 
-The extra :math:`\gamma^t` factor is needed because our definition of G_t
+The extra :math:`\gamma^t` factor is needed because our definition of :math:`G_t`
 starts discounting from time :math:`t`, not from :math:`t=0`.
 From here, the expectation leading up to the Policy Gradient Theorem becomes:
 
@@ -671,6 +829,8 @@ References
 .. [Schulman] Schulman, J., Moritz, P., Levine, S., Jordan, M., and Abbeel, P.. “High-Dimensional Continuous Control Using Generalized Advantage Estimation.” arXiv preprint `arXiv:1506.02438 <https://arxiv.org/abs/1506.02438>`__, 2015.
 
 .. [Sutton] Sutton, R. S., and Barto, A. G. (2018). Reinforcement Learning: An Introduction, 2nd ed.
+
+.. [OpenAI] Josh Achiam, `Spinning Up in Deep RL <https://spinningup.openai.com/en/latest/spinningup/rl_intro.html>`__, OpenAI, 2018.
 
 
 Notes
