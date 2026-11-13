@@ -732,7 +732,10 @@ from a different policy as we'll see below.
 Algorithm 2 shows the REINFORCE algorithm with a value baseline.
 In this variant, we fit a separate model for :math:`V_\phi(s)`,
 parameterized by :math:`\phi`, and only update it *after* all
-the gradients have been computed.
+the gradients have been computed.  Notice that we're using
+the variable :math:`A` to represent the estimated advantage: how much better is
+the current choice action/state in this sample (:math:`G_t`) vs. average for this
+state (:math:`V_\phi(s_t)`).  This will come up in the next section.
 
 **Algorithm 2: REINFORCE algorithm with a value baseline**
 
@@ -763,6 +766,8 @@ the gradients have been computed.
 Actor Critic
 ------------
 
+From REINFORCE to Temporal-Differencing Learning
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Proximal Policy Optimization
 ----------------------------
